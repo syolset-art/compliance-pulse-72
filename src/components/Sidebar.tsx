@@ -8,12 +8,14 @@ import {
   ClipboardList,
   Settings,
   Shield,
-  ChevronDown
+  ChevronDown,
+  Bot
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "AI-agent", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "Behandlingsprotokoller", href: "/protocols", icon: FileText },
   { name: "Systemer", href: "/systems", icon: Grid3x3 },
   { name: "Tjenesteområder", href: "/services", icon: Users },
@@ -43,7 +45,7 @@ export function Sidebar() {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors relative",
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -51,6 +53,12 @@ export function Sidebar() {
             >
               <item.icon className="h-5 w-5" />
               {item.name}
+              {item.highlight && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                </span>
+              )}
             </Link>
           );
         })}
