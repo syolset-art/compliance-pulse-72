@@ -61,6 +61,7 @@ const mockTasks: Task[] = [
 
 export default function Tasks() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -117,6 +118,15 @@ export default function Tasks() {
   };
 
   const filteredTasks = mockTasks.filter(task => {
+    // AI status filter
+    if (aiStatusFilter !== "all") {
+      const aiCanHandle = canAIHandle(task);
+      if (aiStatusFilter === "ai-handling" && !aiCanHandle) return false;
+      if (aiStatusFilter === "requires-action" && aiCanHandle) return false;
+      if (aiStatusFilter === "hybrid" && (task.aiAutonomyLevel < 40 || task.aiAutonomyLevel > 60)) return false;
+    }
+    
+    // Type/priority filters
     if (selectedFilters.length === 0) return true;
     return selectedFilters.some(filter => {
       const filterLower = filter.toLowerCase();
@@ -128,6 +138,10 @@ export default function Tasks() {
       return false;
     });
   });
+
+  const aiHandlingCount = mockTasks.filter(canAIHandle).length;
+  const requiresActionCount = mockTasks.filter(task => !canAIHandle(task)).length;
+  const hybridCount = mockTasks.filter(task => task.aiAutonomyLevel >= 40 && task.aiAutonomyLevel <= 60).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,10 +190,50 @@ export default function Tasks() {
           </div>
         </Card>
 
+        {/* AI Status Filter */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Button
+              variant={aiStatusFilter === "all" ? "default" : "outline"}
+              onClick={() => setAiStatusFilter("all")}
+              className="gap-2"
+            >
+              Alle oppgaver
+              <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
+            </Button>
+            <Button
+              variant={aiStatusFilter === "ai-handling" ? "default" : "outline"}
+              onClick={() => setAiStatusFilter("ai-handling")}
+              className="gap-2"
+            >
+              <Bot className="w-4 h-4" />
+              AI håndterer autonomt
+              <Badge variant="secondary" className="ml-1">{aiHandlingCount}</Badge>
+            </Button>
+            <Button
+              variant={aiStatusFilter === "requires-action" ? "default" : "outline"}
+              onClick={() => setAiStatusFilter("requires-action")}
+              className="gap-2"
+            >
+              Krever handling
+              <Badge variant="secondary" className="ml-1">{requiresActionCount}</Badge>
+            </Button>
+            <Button
+              variant={aiStatusFilter === "hybrid" ? "default" : "outline"}
+              onClick={() => setAiStatusFilter("hybrid")}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Hybrid
+              <Badge variant="secondary" className="ml-1">{hybridCount}</Badge>
+            </Button>
+          </div>
+        </div>
+
         {/* Filters */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">Filtrer:</span>
+            <span className="text-sm text-muted-foreground">Filtrer etter type:</span>
             {["SYSTEM", "PROSESS", "PROTOKOLL", "TJENESTEOMRÅDE", "HØY PRIORITET", "MIDDELS PRIORITET", "LAV PRIORITET"].map(filter => (
               <Button
                 key={filter}
