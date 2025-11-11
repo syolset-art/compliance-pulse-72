@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronDown, Bot, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -65,6 +65,10 @@ export default function Tasks() {
   const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [aiWorkingTasks, setAiWorkingTasks] = useState<Set<string>>(new Set());
+  const [taskProgress, setTaskProgress] = useState<Record<string, number>>({});
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
+  const [overallCompliance, setOverallCompliance] = useState(81);
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
@@ -73,6 +77,68 @@ export default function Tasks() {
     admin: 25,
     process: 25
   };
+
+  // Simulate AI working on tasks automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Find tasks that AI can handle and aren't completed
+      const autoHandleTasks = mockTasks.filter(task => 
+        canAIHandle(task) && !completedTasks.has(task.id) && !aiWorkingTasks.has(task.id)
+      );
+
+      if (autoHandleTasks.length > 0) {
+        const randomTask = autoHandleTasks[Math.floor(Math.random() * autoHandleTasks.length)];
+        setAiWorkingTasks(prev => new Set([...prev, randomTask.id]));
+        setTaskProgress(prev => ({ ...prev, [randomTask.id]: 0 }));
+        
+        toast({
+          title: "AI-agent startet",
+          description: `Jobber med: "${randomTask.title}"`,
+        });
+      }
+    }, 8000); // Start new task every 8 seconds
+
+    return () => clearInterval(interval);
+  }, [completedTasks, aiWorkingTasks]);
+
+  // Simulate progress on working tasks
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTaskProgress(prev => {
+        const updated = { ...prev };
+        let hasChanges = false;
+
+        aiWorkingTasks.forEach(taskId => {
+          const currentProgress = updated[taskId] || 0;
+          if (currentProgress < 100) {
+            updated[taskId] = Math.min(100, currentProgress + Math.random() * 15 + 5);
+            hasChanges = true;
+          } else if (currentProgress >= 100) {
+            // Task completed
+            setTimeout(() => {
+              setCompletedTasks(prev => new Set([...prev, taskId]));
+              setAiWorkingTasks(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(taskId);
+                return newSet;
+              });
+              setOverallCompliance(prev => Math.min(100, prev + 2));
+              
+              const task = mockTasks.find(t => t.id === taskId);
+              toast({
+                title: "Oppgave fullført!",
+                description: `"${task?.title}" er nå håndtert av AI-agenten`,
+              });
+            }, 500);
+          }
+        });
+
+        return hasChanges ? updated : prev;
+      });
+    }, 1500); // Update progress every 1.5 seconds
+
+    return () => clearInterval(interval);
+  }, [aiWorkingTasks]);
 
   const toggleFilter = (filter: string) => {
     setSelectedFilters(prev =>
@@ -97,6 +163,8 @@ export default function Tasks() {
 
   const requestAIHelp = (task: Task) => {
     if (canAIHandle(task)) {
+      setAiWorkingTasks(prev => new Set([...prev, task.id]));
+      setTaskProgress(prev => ({ ...prev, [task.id]: 0 }));
       toast({
         title: "AI-agent aktivert",
         description: `AI-agenten starter nå arbeidet med "${task.title}". Du vil få varsel når oppgaven er klar for godkjenning.`,
@@ -157,11 +225,39 @@ export default function Tasks() {
           </p>
         </div>
 
+        {/* AI Status Banner */}
+        {aiWorkingTasks.size > 0 && (
+          <Card className="p-4 mb-6 bg-primary/5 border-primary/20 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Bot className="w-8 h-8 text-primary" />
+                <Loader2 className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-spin" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground">AI-agent jobber aktivt</p>
+                <p className="text-sm text-muted-foreground">
+                  {aiWorkingTasks.size} {aiWorkingTasks.size === 1 ? 'oppgave' : 'oppgaver'} under behandling
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                <span className="text-sm font-medium text-primary">Autonomt arbeid pågår</span>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Overall compliance card */}
         <Card className="p-6 mb-6">
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-5xl font-bold text-primary">81%</span>
+            <span className="text-5xl font-bold text-primary transition-all duration-500">{overallCompliance}%</span>
             <span className="text-lg text-muted-foreground">Samlet samsvar</span>
+            {overallCompliance > 81 && (
+              <span className="text-green-500 text-sm flex items-center gap-1 ml-2 animate-fade-in">
+                <CheckCircle2 className="w-4 h-4" />
+                +{overallCompliance - 81}%
+              </span>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -255,8 +351,13 @@ export default function Tasks() {
 
         {/* Tasks list */}
         <div className="space-y-4">
-          {filteredTasks.map(task => (
-            <Card key={task.id} className="p-6">
+          {filteredTasks.map(task => {
+            const isWorking = aiWorkingTasks.has(task.id);
+            const isCompleted = completedTasks.has(task.id);
+            const progress = taskProgress[task.id] || 0;
+
+            return (
+            <Card key={task.id} className={`p-6 transition-all duration-300 ${isWorking ? 'border-primary/50 bg-primary/5' : ''} ${isCompleted ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
@@ -266,7 +367,19 @@ export default function Tasks() {
                     <Badge variant="destructive">
                       {task.priority === "høy" ? "Høy prioritet" : task.priority === "middels" ? "Middels prioritet" : "Lav prioritet"}
                     </Badge>
-                    {canAIHandle(task) && (
+                    {isCompleted && (
+                      <Badge variant="outline" className="gap-1 border-green-500/30 bg-green-500/10 text-green-700">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span className="text-xs">Fullført av AI</span>
+                      </Badge>
+                    )}
+                    {isWorking && (
+                      <Badge variant="outline" className="gap-1 border-primary/50 bg-primary/10 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span className="text-xs">AI jobber...</span>
+                      </Badge>
+                    )}
+                    {!isWorking && !isCompleted && canAIHandle(task) && (
                       <Badge variant="outline" className="gap-1 border-primary/30 bg-primary/5">
                         <Sparkles className="w-3 h-3" />
                         <span className="text-xs">AI kan hjelpe</span>
@@ -276,6 +389,16 @@ export default function Tasks() {
                   
                   <h3 className="text-lg font-semibold text-foreground mb-2">{task.title}</h3>
                   <p className="text-sm text-muted-foreground mb-4">{task.description}</p>
+                  
+                  {isWorking && (
+                    <div className="mb-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Fremgang:</span>
+                        <span className="font-semibold text-primary">{Math.round(progress)}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                    </div>
+                  )}
                   
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">Relevant for:</span>
@@ -288,6 +411,7 @@ export default function Tasks() {
                 </div>
                 
                 <div className="flex items-center gap-3">
+                  {!isCompleted && (
                   <Dialog open={selectedTask?.id === task.id} onOpenChange={(open) => !open && setSelectedTask(null)}>
                     <DialogTrigger asChild>
                       <Button 
@@ -295,9 +419,10 @@ export default function Tasks() {
                         size="sm" 
                         className="gap-2"
                         onClick={() => setSelectedTask(task)}
+                        disabled={isWorking}
                       >
                         <Bot className="w-4 h-4" />
-                        AI-hjelp
+                        {isWorking ? 'Jobber...' : 'AI-hjelp'}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -363,6 +488,19 @@ export default function Tasks() {
                       </div>
                     </DialogContent>
                   </Dialog>
+                  )}
+                  
+                  {isCompleted && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2 border-green-500/30 text-green-700"
+                      disabled
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Fullført
+                    </Button>
+                  )}
                   
                   <Button
                     variant="ghost"
@@ -383,7 +521,8 @@ export default function Tasks() {
                 </div>
               )}
             </Card>
-          ))}
+          );
+          })}
         </div>
         </div>
       </main>
