@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Shield, CheckCircle2, AlertTriangle, Info, Zap, Target, Lock } from "lucide-react";
+import { Bot, Shield, CheckCircle2, AlertTriangle, Info, Zap, Target, Lock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -67,12 +67,24 @@ const autonomyLevels = [
   },
 ];
 
+const mockProcesses = [
+  { id: 1, name: "Ansattdatabehandling", area: "HR", critical: true, currentLevel: 25 },
+  { id: 2, name: "Kunderegistrering", area: "Sales", critical: true, currentLevel: 25 },
+  { id: 3, name: "Fakturabehandling", area: "Økonomi", critical: false, currentLevel: 50 },
+  { id: 4, name: "Markedsføring", area: "Marketing", critical: false, currentLevel: 50 },
+  { id: 5, name: "Leverandørvurdering", area: "Innkjøp", critical: true, currentLevel: 0 },
+  { id: 6, name: "Systemlogging", area: "IT", critical: false, currentLevel: 75 },
+];
+
 const AIAgentSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [systemLevel, setSystemLevel] = useState([50]);
   const [serviceLevel, setServiceLevel] = useState([50]);
   const [adminLevel, setAdminLevel] = useState([25]);
+  const [processLevels, setProcessLevels] = useState<Record<number, number>>(
+    mockProcesses.reduce((acc, p) => ({ ...acc, [p.id]: p.currentLevel }), {})
+  );
 
   const getCurrentLevel = (value: number) => {
     return autonomyLevels.reduce((prev, curr) => 
@@ -129,9 +141,10 @@ const AIAgentSetup = () => {
 
           {/* Autonomy Configuration */}
           <Tabs defaultValue="system" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="system">Systemnivå</TabsTrigger>
               <TabsTrigger value="service">Tjenestenivå</TabsTrigger>
+              <TabsTrigger value="process">Prosessnivå</TabsTrigger>
               <TabsTrigger value="admin">Administrasjon</TabsTrigger>
             </TabsList>
 
@@ -227,6 +240,87 @@ const AIAgentSetup = () => {
 
                     <LevelDetails level={getCurrentLevel(serviceLevel[0])} />
                   </div>
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* Process Level */}
+            <TabsContent value="process" className="space-y-6">
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Per prosess
+                </h3>
+                
+                <div className="space-y-6">
+                  {mockProcesses.map((process) => {
+                    const maxAllowed = process.critical ? 25 : 100;
+                    const currentValue = processLevels[process.id] || 0;
+                    
+                    return (
+                      <Card key={process.id} className={`p-5 ${process.critical ? 'border-warning/50 bg-warning/5' : ''}`}>
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">{process.name}</h4>
+                              {process.critical && (
+                                <Badge variant="outline" className="text-warning border-warning">
+                                  <Lock className="w-3 h-3 mr-1" />
+                                  Kritisk prosess
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">{process.area}</p>
+                          </div>
+                          <Badge className={getCurrentLevel(currentValue).riskColor}>
+                            {getCurrentLevel(currentValue).label}
+                          </Badge>
+                        </div>
+
+                        {process.critical && (
+                          <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning/20">
+                            <div className="flex items-start gap-2">
+                              <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
+                              <p className="text-xs text-muted-foreground">
+                                Kritiske prosesser er begrenset til maksimalt <strong>Begrenset autonom</strong> nivå for å sikre tilstrekkelig menneskelig kontroll.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        <Slider
+                          value={[currentValue]}
+                          onValueChange={(value) => setProcessLevels(prev => ({ ...prev, [process.id]: value[0] }))}
+                          max={maxAllowed}
+                          step={25}
+                          className="mb-4"
+                          disabled={process.critical && currentValue >= maxAllowed}
+                        />
+
+                        <div className="grid grid-cols-5 gap-2">
+                          {autonomyLevels
+                            .filter(level => level.value <= maxAllowed)
+                            .map((level) => (
+                              <button
+                                key={level.value}
+                                onClick={() => setProcessLevels(prev => ({ ...prev, [process.id]: level.value }))}
+                                disabled={level.value > maxAllowed}
+                                className={`p-3 rounded-lg border text-center transition-all ${
+                                  currentValue === level.value
+                                    ? "border-primary bg-primary/10 scale-105"
+                                    : level.value > maxAllowed
+                                    ? "border-border opacity-50 cursor-not-allowed"
+                                    : "border-border hover:border-primary/50"
+                                }`}
+                              >
+                                <level.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
+                                <div className="text-xs font-medium">{level.label}</div>
+                              </button>
+                            ))}
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
               </Card>
             </TabsContent>
