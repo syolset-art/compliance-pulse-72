@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { Sidebar } from "@/components/Sidebar";
 
 interface Task {
   id: string;
@@ -144,8 +145,11 @@ export default function Tasks() {
   const hybridCount = mockTasks.filter(task => task.aiAutonomyLevel >= 40 && task.aiAutonomyLevel <= 60).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 max-w-7xl">
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      
+      <main className="flex-1 overflow-y-auto">
+        <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Alle oppgaver</h1>
           <p className="text-muted-foreground">
@@ -381,7 +385,8 @@ export default function Tasks() {
             </Card>
           ))}
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
