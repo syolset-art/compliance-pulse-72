@@ -18,15 +18,15 @@ const Index = () => {
       <Sidebar />
       
       <main className="flex-1 overflow-y-auto">
-        <div className="container max-w-7xl mx-auto p-8">
+        <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-              <p className="text-muted-foreground">Oversikt over din bedrift</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+              <p className="text-sm md:text-base text-muted-foreground">Oversikt over din bedrift</p>
             </div>
-            <Link to="/onboarding">
-              <Button size="lg" className="gap-2">
+            <Link to="/onboarding" className="w-full sm:w-auto">
+              <Button size="lg" className="gap-2 w-full sm:w-auto">
                 <Rocket className="h-5 w-5" />
                 Kom i gang
               </Button>
