@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 
 const navigation = [
@@ -37,11 +38,12 @@ const SidebarContent = () => {
   return (
     <>
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-border">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-border">
         <div className="flex items-center gap-2">
           <Shield className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold text-primary">Mynder</span>
         </div>
+        <ThemeToggle />
       </div>
 
       {/* Navigation */}
@@ -131,7 +133,9 @@ export function Sidebar() {
             <Shield className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold text-primary">Mynder</span>
           </div>
-          <Sheet open={open} onOpenChange={setOpen}>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button className="p-2 hover:bg-accent rounded-lg">
                 <Menu className="h-6 w-6 text-foreground" />
@@ -143,6 +147,7 @@ export function Sidebar() {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
         <div className="h-16" /> {/* Spacer for fixed header */}
       </>
