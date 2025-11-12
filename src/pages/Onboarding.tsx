@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sparkles, Zap, Compass, Building2, Users, Briefcase, Shield, FileText, Cloud, Upload, CheckCircle2, Loader2, Rocket, PartyPopper, ArrowLeft } from "lucide-react";
+import { Sparkles, Zap, Compass, Building2, Users, Briefcase, Shield, FileText, Cloud, Upload, CheckCircle2, Loader2, Rocket, PartyPopper, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -239,7 +239,13 @@ export default function Onboarding() {
               <span className="text-sm font-medium">Lara</span>
               {isLaraWorking && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
             </div>
-            <div className="text-sm text-muted-foreground">{overallProgress}% ferdig</div>
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-muted-foreground">{overallProgress}% ferdig</div>
+              <Button variant="outline" size="sm" onClick={goToDashboard}>
+                <LayoutDashboard className="w-4 h-4 mr-2" />
+                Til dashboard
+              </Button>
+            </div>
           </div>
           <Progress value={overallProgress} className="h-2" />
           {isLaraWorking && (
