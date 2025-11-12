@@ -28,6 +28,7 @@ const navigation = [
   { name: "Avviksregister", href: "/deviations", icon: AlertTriangle },
   { name: "Mine oppgaver", href: "/tasks", icon: ClipboardList },
   { name: "Bærekraft", href: "/sustainability", icon: Leaf, highlight: true },
+  { name: "Åpenhetsloven", href: "/transparency", icon: FileText, highlight: true },
 ];
 
 const SidebarContent = () => {
