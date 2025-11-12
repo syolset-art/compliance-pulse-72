@@ -19,6 +19,7 @@ export default function Onboarding() {
   const [overallProgress, setOverallProgress] = useState(0);
   const [isLaraWorking, setIsLaraWorking] = useState(false);
   const [laraMessage, setLaraMessage] = useState("Klar til å hjelpe deg!");
+  const [isAutopilot, setIsAutopilot] = useState(false);
 
   // Profile state
   const [companyName, setCompanyName] = useState("");
@@ -60,6 +61,7 @@ export default function Onboarding() {
   ];
 
   const startAutopilot = async () => {
+    setIsAutopilot(true);
     setIsLaraWorking(true);
     setLaraMessage("Analyserer virksomheten din...");
     setCurrentStep("profile");
@@ -140,6 +142,28 @@ export default function Onboarding() {
   const completeSystems = () => {
     setCurrentStep("policies");
     setOverallProgress(70);
+    
+    // Auto-generate policies if in autopilot mode
+    if (isAutopilot) {
+      setIsLaraWorking(true);
+      setLaraMessage("Genererer relevante policyer for din virksomhet...");
+      
+      // Generate all policies automatically with delays
+      policies.forEach((policy, index) => {
+        setTimeout(() => {
+          setGeneratedPolicies(prev => [...prev, policy.id]);
+          setOverallProgress(70 + ((index + 1) / policies.length) * 10);
+          
+          if (index === policies.length - 1) {
+            setIsLaraWorking(false);
+            toast({
+              title: "✅ Policyer generert",
+              description: "Alle relevante policyer er klare for gjennomgang"
+            });
+          }
+        }, (index + 1) * 1500);
+      });
+    }
   };
 
   const generatePolicy = (policyId: string, policyName: string) => {
@@ -587,6 +611,40 @@ export default function Onboarding() {
               <p className="text-muted-foreground">Lara lager skreddersydde policyer for din virksomhet</p>
             </div>
 
+            {isAutopilot && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-lg bg-primary/10">
+                      <Sparkles className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">📋 Oppgave: Gjennomgang av policyer</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Lara har generert {generatedPolicies.length}/{policies.length} relevante policyer basert på din virksomhet og valgte rammeverk.
+                        </p>
+                      </div>
+                      <div className="bg-background/60 rounded-lg p-4 space-y-2">
+                        <p className="text-sm font-medium">Din neste handling:</p>
+                        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Les over de genererte policyene</li>
+                          <li>Rediger innholdet hvis nødvendig</li>
+                          <li>Godkjenn når du er fornøyd</li>
+                        </ul>
+                      </div>
+                      {generatedPolicies.length === policies.length && (
+                        <Badge variant="default" className="gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Alle policyer generert
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid md:grid-cols-3 gap-4">
               {policies.map((policy) => {
                 const Icon = policy.icon;
@@ -613,16 +671,16 @@ export default function Onboarding() {
                             <span>Policy generert og klar</span>
                           </div>
                           <Button variant="outline" size="sm" className="w-full">
-                            Se forhåndsvisning
+                            Gjennomgå policy
                           </Button>
                         </div>
                       ) : (
                         <Button
                           onClick={() => generatePolicy(policy.id, policy.name)}
                           className="w-full"
-                          disabled={isLaraWorking}
+                          disabled={isLaraWorking || isAutopilot}
                         >
-                          Generer policy
+                          {isAutopilot ? "Genereres..." : "Generer policy"}
                         </Button>
                       )}
                     </CardContent>
