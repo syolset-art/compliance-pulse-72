@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sparkles, Zap, Compass, Building2, Users, Briefcase, Shield, FileText, Cloud, Upload, CheckCircle2, Loader2, Rocket, PartyPopper } from "lucide-react";
+import { Sparkles, Zap, Compass, Building2, Users, Briefcase, Shield, FileText, Cloud, Upload, CheckCircle2, Loader2, Rocket, PartyPopper, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -174,6 +174,28 @@ export default function Onboarding() {
     }, 1500);
   };
 
+  const goBack = () => {
+    const stepOrder: OnboardingStep[] = ["intro", "profile", "frameworks", "systems", "policies", "risk", "complete"];
+    const currentIndex = stepOrder.indexOf(currentStep);
+    
+    if (currentIndex > 0) {
+      const previousStep = stepOrder[currentIndex - 1];
+      setCurrentStep(previousStep);
+      
+      // Adjust progress based on step
+      const progressMap: Record<OnboardingStep, number> = {
+        intro: 0,
+        profile: 0,
+        frameworks: 30,
+        systems: 45,
+        policies: 60,
+        risk: 85,
+        complete: 100
+      };
+      setOverallProgress(progressMap[previousStep]);
+    }
+  };
+
   const goToDashboard = () => {
     toast({
       title: "🎉 Velkommen til Mynder!",
@@ -269,6 +291,15 @@ export default function Onboarding() {
         {/* Profile */}
         {currentStep === "profile" && (
           <div className="space-y-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Tilbake
+            </Button>
+            
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Hvem er dere?</h2>
               <p className="text-muted-foreground">Lara tilpasser alt basert på din virksomhet</p>
@@ -374,6 +405,15 @@ export default function Onboarding() {
         {/* Frameworks */}
         {currentStep === "frameworks" && (
           <div className="space-y-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Tilbake
+            </Button>
+            
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Rammeverk & Kilder</h2>
               <p className="text-muted-foreground">Velg hvilke standarder som gjelder for dere</p>
@@ -444,6 +484,15 @@ export default function Onboarding() {
         {/* Systems */}
         {currentStep === "systems" && (
           <div className="space-y-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Tilbake
+            </Button>
+            
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Systemer & Leverandører</h2>
               <p className="text-muted-foreground">Lara finner systemene dine automatisk</p>
@@ -524,6 +573,15 @@ export default function Onboarding() {
         {/* Policies */}
         {currentStep === "policies" && (
           <div className="space-y-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Tilbake
+            </Button>
+            
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Policy-generator</h2>
               <p className="text-muted-foreground">Lara lager skreddersydde policyer for din virksomhet</p>
@@ -586,6 +644,15 @@ export default function Onboarding() {
         {/* Risk Analysis */}
         {currentStep === "risk" && (
           <div className="space-y-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Tilbake
+            </Button>
+            
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Første Risiko- og Tiltaksanalyse</h2>
               <p className="text-muted-foreground">Lara har identifisert dine viktigste områder</p>
