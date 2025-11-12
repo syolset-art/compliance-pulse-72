@@ -11,7 +11,8 @@ import {
   ChevronDown,
   Bot,
   Menu,
-  X
+  X,
+  Leaf
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Tjenesteområder", href: "/services", icon: Users },
   { name: "Avviksregister", href: "/deviations", icon: AlertTriangle },
   { name: "Mine oppgaver", href: "/tasks", icon: ClipboardList },
+  { name: "Bærekraft", href: "/sustainability", icon: Leaf, highlight: true },
 ];
 
 const SidebarContent = () => {

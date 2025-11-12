@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import Tasks from "./pages/Tasks";
 import Onboarding from "./pages/Onboarding";
+import Sustainability from "./pages/Sustainability";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/ai-setup" element={<AIAgentSetup />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/sustainability" element={<Sustainability />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

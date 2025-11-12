@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Leaf, FileText, HardHat, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Feature {
   id: string;
@@ -12,6 +13,7 @@ interface Feature {
   color: string;
   bgColor: string;
   badge: string;
+  link?: string;
 }
 
 export function NewFeaturesWidget() {
@@ -25,7 +27,8 @@ export function NewFeaturesWidget() {
       icon: Leaf,
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
-      badge: "Nytt"
+      badge: "Nytt",
+      link: "/sustainability"
     },
     {
       id: "transparency",
@@ -103,10 +106,19 @@ export function NewFeaturesWidget() {
                       
                       {isExpanded && (
                         <div className="mt-3 animate-fade-in">
-                          <Button size="sm" className="gap-2">
-                            Utforsk funksjonen
-                            <ArrowRight className="h-3 w-3" />
-                          </Button>
+                          {feature.link ? (
+                            <Link to={feature.link}>
+                              <Button size="sm" className="gap-2">
+                                Utforsk funksjonen
+                                <ArrowRight className="h-3 w-3" />
+                              </Button>
+                            </Link>
+                          ) : (
+                            <Button size="sm" className="gap-2" disabled>
+                              Kommer snart
+                              <ArrowRight className="h-3 w-3" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>
