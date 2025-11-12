@@ -8,7 +8,9 @@ import { ThirdPartyWidget } from "@/components/widgets/ThirdPartyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
-import { CheckCircle2, TrendingUp } from "lucide-react";
+import { CheckCircle2, TrendingUp, Rocket } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
@@ -18,9 +20,17 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="container max-w-7xl mx-auto p-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Oversikt over din bedrift</p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+              <p className="text-muted-foreground">Oversikt over din bedrift</p>
+            </div>
+            <Link to="/onboarding">
+              <Button size="lg" className="gap-2">
+                <Rocket className="h-5 w-5" />
+                Kom i gang
+              </Button>
+            </Link>
           </div>
 
           {/* Alert Banner */}
