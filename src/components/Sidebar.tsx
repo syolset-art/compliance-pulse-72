@@ -9,9 +9,14 @@ import {
   Settings,
   Shield,
   ChevronDown,
-  Bot
+  Bot,
+  Menu,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -23,11 +28,11 @@ const navigation = [
   { name: "Mine oppgaver", href: "/tasks", icon: ClipboardList },
 ];
 
-export function Sidebar() {
+const SidebarContent = () => {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
+    <>
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-border">
         <div className="flex items-center gap-2">
@@ -107,6 +112,43 @@ export function Sidebar() {
           </div>
         </div>
       </div>
+    </>
+  );
+};
+
+export function Sidebar() {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+
+  if (isMobile) {
+    return (
+      <>
+        <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 border-b border-border bg-card">
+          <div className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold text-primary">Mynder</span>
+          </div>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <button className="p-2 hover:bg-accent rounded-lg">
+                <Menu className="h-6 w-6 text-foreground" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-64">
+              <div className="flex h-full flex-col bg-card">
+                <SidebarContent />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+        <div className="h-16" /> {/* Spacer for fixed header */}
+      </>
+    );
+  }
+
+  return (
+    <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
+      <SidebarContent />
     </div>
   );
 }
