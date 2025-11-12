@@ -8,6 +8,7 @@ import { ThirdPartyWidget } from "@/components/widgets/ThirdPartyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
+import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
 import { CheckCircle2, TrendingUp, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,11 @@ const Index = () => {
           {/* Alert Banner */}
           <div className="mb-6">
             <AlertBanner />
+          </div>
+
+          {/* New Features Widget */}
+          <div className="mb-6">
+            <NewFeaturesWidget />
           </div>
 
           {/* Top Metrics Row */}
