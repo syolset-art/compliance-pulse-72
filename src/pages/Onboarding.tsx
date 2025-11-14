@@ -264,7 +264,7 @@ export default function Onboarding() {
                 Virksomhetskonfigurasjon
               </div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                Bli 70% compliant på 30 minutter
+                Bli 70% compliant på 3 minutter
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Med Lara som din AI-partner
@@ -769,7 +769,7 @@ export default function Onboarding() {
             </div>
             
             <h2 className="text-4xl font-bold">Du er 70% compliant!</h2>
-            <p className="text-xl text-muted-foreground">På 30 minutter. Lara holder deg oppdatert automatisk.</p>
+            <p className="text-xl text-muted-foreground">På 3 minutter. Lara holder deg oppdatert automatisk.</p>
 
             <Card className="max-w-2xl mx-auto text-left">
               <CardHeader>

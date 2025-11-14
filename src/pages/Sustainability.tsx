@@ -217,7 +217,7 @@ const Sustainability = () => {
           </div>
         </div>
         <h1 className="text-4xl font-bold text-foreground">
-          Kartlegg bærekraften din på 30 minutter 🌍
+          Kartlegg bærekraften din på 3 minutter 🌍
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Lara, din AI-partner, hjelper deg å hente data, lage policyer og sette mål – tilpasset din bransje og kompetansenivå.
@@ -251,7 +251,7 @@ const Sustainability = () => {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                Ferdig på 30 minutter
+                Ferdig på 3 minutter
               </li>
             </ul>
           </CardContent>
@@ -716,7 +716,7 @@ const Sustainability = () => {
           🎉 Du er 70% klar for bærekraftsrapportering!
         </h1>
         <p className="text-lg text-muted-foreground">
-          På 30 minutter med Lara
+          På 3 minutter med Lara
         </p>
       </div>
 
