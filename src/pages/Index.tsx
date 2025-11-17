@@ -23,8 +23,11 @@ const Index = () => {
           {/* Header */}
           <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-              <p className="text-sm md:text-base text-muted-foreground">Oversikt over din bedrift</p>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
+                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
+              </div>
+              <p className="text-sm md:text-base text-muted-foreground">Compliance og sikkerhetsløsning drevet av Mynder</p>
             </div>
             <Link to="/onboarding" className="w-full sm:w-auto">
               <Button size="lg" className="gap-2 w-full sm:w-auto">

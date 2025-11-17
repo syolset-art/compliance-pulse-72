@@ -106,12 +106,12 @@ const SidebarContent = () => {
       <div className="border-t border-border p-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-primary">MN</span>
+            <span className="text-sm font-medium text-primary">EV</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">Mynder</p>
+            <p className="text-sm font-medium text-foreground truncate">Eviny</p>
             <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <span>Bytt</span>
+              <span>Bytt organisasjon</span>
               <ChevronDown className="h-3 w-3" />
             </button>
           </div>
