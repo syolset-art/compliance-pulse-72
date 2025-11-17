@@ -66,15 +66,52 @@ export default function Onboarding() {
     setLaraMessage("Analyserer virksomheten din...");
     setCurrentStep("profile");
     
-    // Simulate AI processing
+    // Simulate fetching data from Brønnøysund
     setTimeout(() => {
       setOverallProgress(15);
-      setLaraMessage("Fant informasjon fra Brønnøysund...");
+      setLaraMessage("Henter organisasjonsinformasjon fra Brønnøysundregisteret...");
+      
+      // Pre-fill with company data
+      setCompanyName("Eviny");
+      setOrgNumber("999 999 999");
+      setIndustry("energi");
+      setEmployees("1000-5000");
+      
       toast({
         title: "🤖 Lara jobber",
-        description: "Henter virksomhetsinformasjon automatisk"
+        description: "Hentet virksomhetsinformasjon fra Brønnøysundregisteret"
       });
+      
+      setTimeout(() => {
+        setIsLaraWorking(false);
+        setLaraMessage("Informasjon hentet! Du kan justere detaljer om nødvendig.");
+      }, 1000);
     }, 1500);
+  };
+
+  const startManual = async () => {
+    setIsLaraWorking(true);
+    setLaraMessage("Henter organisasjonsinformasjon fra Brønnøysundregisteret...");
+    setCurrentStep("profile");
+    
+    // Simulate fetching data from Brønnøysund even in manual mode
+    setTimeout(() => {
+      setOverallProgress(5);
+      
+      // Pre-fill with company data
+      setCompanyName("Eviny");
+      setOrgNumber("999 999 999");
+      setIndustry("energi");
+      setEmployees("1000-5000");
+      
+      toast({
+        title: "✅ Informasjon hentet",
+        description: "Organisasjonsdata fra Brønnøysundregisteret. Du kan justere etter behov."
+      });
+      
+      setIsLaraWorking(false);
+      setLaraMessage("Klar til å hjelpe deg!");
+    }, 1000);
   };
 
   const completeProfile = () => {
@@ -89,6 +126,8 @@ export default function Onboarding() {
       // Auto-select frameworks based on industry
       if (industry === "helse") {
         setSelectedFrameworks(["gdpr", "iso27001", "nsm"]);
+      } else if (industry === "energi") {
+        setSelectedFrameworks(["gdpr", "iso27001", "nis2", "nsm"]);
       } else if (industry === "finans") {
         setSelectedFrameworks(["gdpr", "iso27001", "nis2"]);
       } else {
@@ -295,7 +334,7 @@ export default function Onboarding() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-all cursor-pointer border-2 hover:border-primary" onClick={() => setCurrentStep("profile")}>
+              <Card className="hover:shadow-lg transition-all cursor-pointer border-2 hover:border-primary" onClick={startManual}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-lg bg-secondary/10">
@@ -341,8 +380,26 @@ export default function Onboarding() {
                   <Building2 className="w-5 h-5" />
                   Grunnprofil
                 </CardTitle>
+                <CardDescription>
+                  Informasjon hentet fra Brønnøysundregisteret. Du kan justere detaljene om nødvendig.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {companyName && (
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">
+                          Organisasjonsdata hentet
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Informasjon fra Brønnøysundregisteret er forhåndsutfylt. Verifiser og juster ved behov.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Bedriftsnavn</Label>
