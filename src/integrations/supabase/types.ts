@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_autonomy_settings: {
+        Row: {
+          admin_level: number
+          id: string
+          process_level: number
+          service_level: number
+          system_level: number
+          updated_at: string
+        }
+        Insert: {
+          admin_level?: number
+          id?: string
+          process_level?: number
+          service_level?: number
+          system_level?: number
+          updated_at?: string
+        }
+        Update: {
+          admin_level?: number
+          id?: string
+          process_level?: number
+          service_level?: number
+          system_level?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          ai_autonomy_level: number
+          ai_handling: boolean | null
+          completed_at: string | null
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          process_count: number | null
+          progress: number | null
+          relevant_for: string[]
+          started_at: string | null
+          status: string
+          system_count: number | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          ai_autonomy_level: number
+          ai_handling?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          priority: string
+          process_count?: number | null
+          progress?: number | null
+          relevant_for?: string[]
+          started_at?: string | null
+          status?: string
+          system_count?: number | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          ai_autonomy_level?: number
+          ai_handling?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          process_count?: number | null
+          progress?: number | null
+          relevant_for?: string[]
+          started_at?: string | null
+          status?: string
+          system_count?: number | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
