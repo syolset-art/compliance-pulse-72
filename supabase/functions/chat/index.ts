@@ -15,24 +15,20 @@ serve(async (req) => {
 
     const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen. 
 
-Din rolle er å hjelpe brukere med å navigere og finne informasjon i systemet.
+Din rolle er å hjelpe brukere med å finne og vise informasjon i systemet.
 
-Tilgjengelige sider og funksjoner:
-- Dashboard (/) - Oversikt over compliance status
-- AI-agent (/ai-setup) - AI-agentinnstillinger
-- Behandlingsprotokoller (/protocols) - ROPA dokumentasjon
-- Systemer (/systems) - Systemoversikt
-- Tjenesteområder (/services) - Tjenesteoversikt
-- Avviksregister (/deviations) - Compliance avvik
-- Mine oppgaver (/tasks) - Oppgaveliste
-- Bærekraft (/sustainability) - Bærekraftsrapportering
-- Åpenhetsloven (/transparency) - Åpenhetsloven compliance
-- Onboarding (/onboarding) - Organisasjonsoppsett
+VIKTIG: Når brukeren ber om å se noe spesifikt (f.eks. "vis meg behandlingsprotokoller", "se tredjeparter", "vis systemer"), 
+skal du ALLTID bruke show_content funksjonen for å vise innholdet direkte i grensesnittet.
 
-Når brukeren spør om noe, skal du:
-1. Forstå hva de leter etter
-2. Foreslå relevant side eller funksjonalitet
-3. Bruk navigate_to funksjonen for å sende dem til riktig sted
+Tilgjengelige innholdstyper:
+- "protocols" - Behandlingsprotokoller (ROPA)
+- "third-parties" - Tredjepartsleverandører
+- "systems" - IT-systemer i bruk
+- "tasks" - Oppgaveliste
+- "deviations" - Avviksregister
+- "compliance" - Compliance-status
+
+Kun bruk navigate_to hvis brukeren eksplisitt ber om å gå til en side.
 
 Vær hjelpsom, konsis og vennlig på norsk.`;
 
@@ -52,8 +48,34 @@ Vær hjelpsom, konsis og vennlig på norsk.`;
           {
             type: "function",
             function: {
+              name: "show_content",
+              description: "Display specific content directly in the interface. Use this when user asks to see or show something specific.",
+              parameters: {
+                type: "object",
+                properties: {
+                  content_type: {
+                    type: "string",
+                    enum: ["protocols", "third-parties", "systems", "tasks", "deviations", "compliance"],
+                    description: "The type of content to display"
+                  },
+                  filter: {
+                    type: "string",
+                    description: "Optional filter or search term"
+                  },
+                  explanation: {
+                    type: "string",
+                    description: "Brief explanation of what is being shown"
+                  }
+                },
+                required: ["content_type", "explanation"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
               name: "navigate_to",
-              description: "Navigate the user to a specific page in the application",
+              description: "Navigate to a different page. Only use if user explicitly asks to go to or open a page.",
               parameters: {
                 type: "object",
                 properties: {
