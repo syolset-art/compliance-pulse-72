@@ -9,9 +9,8 @@ import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesW
 import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
 import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
-import { CheckCircle2, TrendingUp, Rocket } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { LaraAgent } from "@/components/LaraAgent";
+import { CheckCircle2, TrendingUp } from "lucide-react";
 
 const Index = () => {
   return (
@@ -21,20 +20,12 @@ const Index = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
-                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
-              </div>
-              <p className="text-sm md:text-base text-muted-foreground">Compliance og sikkerhetsløsning drevet av Mynder</p>
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
+              <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
             </div>
-            <Link to="/onboarding" className="w-full sm:w-auto">
-              <Button size="lg" className="gap-2 w-full sm:w-auto">
-                <Rocket className="h-5 w-5" />
-                Kom i gang
-              </Button>
-            </Link>
+            <p className="text-sm md:text-base text-muted-foreground">Compliance og sikkerhetsløsning drevet av Mynder</p>
           </div>
 
           {/* Alert Banner */}
@@ -155,6 +146,9 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* Lara AI Agent */}
+      <LaraAgent />
     </div>
   );
 };
