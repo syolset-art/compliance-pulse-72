@@ -27,10 +27,11 @@ const Index = () => {
       sortBy?: string;
       filterCriteria?: any;
     };
+    explanation?: string;
   } | null>(null);
 
-  const handleShowContent = (contentType: string, filter?: string, options?: any) => {
-    setContentView({ type: contentType, filter, options });
+  const handleShowContent = (contentType: string, filter?: string, options?: any, explanation?: string) => {
+    setContentView({ type: contentType, filter, options, explanation });
   };
 
   const handleBackToDashboard = () => {
@@ -68,6 +69,7 @@ const Index = () => {
             viewMode={contentView.options?.viewMode}
             sortBy={contentView.options?.sortBy}
             filterCriteria={contentView.options?.filterCriteria}
+            explanation={contentView.explanation}
           />
         ) : (
           <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">

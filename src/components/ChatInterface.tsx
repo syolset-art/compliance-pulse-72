@@ -38,7 +38,7 @@ interface ContentViewOptions {
 
 interface ChatInterfaceProps {
   onToggleMode: () => void;
-  onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions) => void;
+  onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
 }
 
@@ -425,7 +425,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                 sortBy: args.sort_by,
                 filterCriteria: args.filter_criteria
               };
-              onShowContent(args.content_type, args.filter, options);
+              onShowContent(args.content_type, args.filter, options, args.explanation);
             }
           } else if (toolCall.name === "navigate_to" && args.path) {
             const navMessage = args.reason 
@@ -689,7 +689,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  handleSend("Utfør Gap Analyse for personvern og sikkerhet");
+                  handleSend("Hvilken type gap-analyse ønsker du? Presenter alternativer jeg kan velge.");
                 }}
               >
                 <FileText className="mr-2 h-4 w-4" />

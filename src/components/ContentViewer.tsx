@@ -36,6 +36,7 @@ interface ContentViewerProps {
     priority?: string;
     status?: string;
   };
+  explanation?: string;
 }
 
 const mockData = {
@@ -213,7 +214,28 @@ const sortData = (data: any[], sortBy?: string) => {
   }
 };
 
-export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria }: ContentViewerProps) {
+export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria, explanation }: ContentViewerProps) {
+  // Render gap analysis or large reports as formatted markdown/text content
+  const renderGapAnalysis = () => {
+    if (!explanation) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">Ingen gap-analyse tilgjengelig</p>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return (
+      <Card>
+        <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
+          <div className="whitespace-pre-wrap">{explanation}</div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   const renderProtocols = () => {
     let data = mockData.protocols;
     data = filterData(data, filter, filterCriteria);
@@ -752,6 +774,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "protocols": return "Behandlingsprotokoller";
       case "third-parties": return "Tredjepartsleverandører";
       case "systems": return "IT-systemer";
+      case "gap-analysis": return "Gap-analyse";
       default: return "Innhold";
     }
   };
@@ -761,6 +784,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "protocols": return <FileText className="h-6 w-6" />;
       case "third-parties": return <Users className="h-6 w-6" />;
       case "systems": return <Server className="h-6 w-6" />;
+      case "gap-analysis": return <AlertTriangle className="h-6 w-6" />;
       default: return <Shield className="h-6 w-6" />;
     }
   };
@@ -770,6 +794,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "protocols": return renderProtocols();
       case "third-parties": return renderThirdParties();
       case "systems": return renderSystems();
+      case "gap-analysis": return renderGapAnalysis();
       default: return <p className="text-muted-foreground">Innholdstype ikke støttet ennå</p>;
     }
   };
