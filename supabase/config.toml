@@ -2,3 +2,6 @@ project_id = "yyvadlijsovebszximjv"
 
 [functions.analyze-document]
 verify_jwt = false
+
+[functions.chat]
+verify_jwt = false

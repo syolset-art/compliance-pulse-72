@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/Sidebar";
+import { ChatInterface } from "@/components/ChatInterface";
 import { AlertBanner } from "@/components/widgets/AlertBanner";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { ROPAStatusWidget } from "@/components/widgets/ROPAStatusWidget";
@@ -11,11 +12,18 @@ import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
 import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { CheckCircle2, TrendingUp } from "lucide-react";
+import { useNavigationMode } from "@/hooks/useNavigationMode";
 
 const Index = () => {
+  const { mode, toggleMode } = useNavigationMode();
+
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
+      {mode === "menu" ? (
+        <Sidebar onToggleChat={toggleMode} />
+      ) : (
+        <ChatInterface onToggleMode={toggleMode} />
+      )}
       
       <main className="flex-1 overflow-y-auto">
         <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
