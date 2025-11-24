@@ -44,13 +44,30 @@ export default function Onboarding() {
   const [generatedPolicies, setGeneratedPolicies] = useState<string[]>([]);
 
   const frameworks = [
-    { id: "gdpr", name: "GDPR", icon: "🇪🇺", requirement: "Personvernpolicy + DPIA" },
-    { id: "iso27001", name: "ISO 27001/27002", icon: "🛡️", requirement: "ISMS-dokumentasjon" },
-    { id: "aiact", name: "AI Act", icon: "🤖", requirement: "AI-risikostyring" },
-    { id: "nsm", name: "NSM Grunnprinsipper", icon: "🇳🇴", requirement: "Sikkerhetspolicyer" },
-    { id: "nis2", name: "NIS 2", icon: "⚡", requirement: "Hendelseshåndtering" },
-    { id: "cra", name: "CRA", icon: "🔐", requirement: "Produktsikkerhet" }
+    { id: "gdpr", name: "GDPR", icon: "🇪🇺", requirement: "Personvernpolicy + DPIA", category: "general" },
+    { id: "iso27001", name: "ISO 27001/27002", icon: "🛡️", requirement: "ISMS-dokumentasjon", category: "general" },
+    { id: "aiact", name: "AI Act", icon: "🤖", requirement: "AI-risikostyring", category: "general" },
+    { id: "nsm", name: "NSM Grunnprinsipper", icon: "🇳🇴", requirement: "Sikkerhetspolicyer", category: "general" },
+    { id: "nis2", name: "NIS 2", icon: "⚡", requirement: "Hendelseshåndtering", category: "general" },
+    { id: "cra", name: "CRA", icon: "🔐", requirement: "Produktsikkerhet", category: "general" },
+    // Energy specific
+    { id: "sikkerhetsloven", name: "Sikkerhetsloven", icon: "⚡", requirement: "Sikkerhetsstyring for kritisk infrastruktur", category: "energi" },
+    { id: "fos", name: "FOS (Forskrift om systemansvaret)", icon: "🔌", requirement: "Kraftsystemsikkerhet", category: "energi" },
+    { id: "nve-cybersec", name: "NVE Cybersikkerhet", icon: "🛡️", requirement: "Cybersikkerhet energi", category: "energi" },
+    // Health specific
+    { id: "pasientjournal", name: "Pasientjournalloven", icon: "🏥", requirement: "Journalføring og informasjonssikkerhet", category: "helse" },
+    { id: "helsepersonell", name: "Helsepersonelloven", icon: "👨‍⚕️", requirement: "Taushetsplikt og sikkerhet", category: "helse" },
+    { id: "norm", name: "Norm for informasjonssikkerhet", icon: "🔒", requirement: "Helsenorge sikkerhet", category: "helse" },
+    // Finance specific
+    { id: "finanstilsyn", name: "Finanstilsynet IKT-krav", icon: "🏦", requirement: "IKT-risikostyring", category: "finans" },
+    { id: "psd2", name: "PSD2", icon: "💳", requirement: "Betalingstjenester sikkerhet", category: "finans" },
+    { id: "kvitterings", name: "Hvitvaskingsloven", icon: "💼", requirement: "KYC og compliance", category: "finans" }
   ];
+
+  const [customFrameworks, setCustomFrameworks] = useState<Array<{id: string, name: string, requirement: string}>>([]);
+  const [newFrameworkName, setNewFrameworkName] = useState("");
+  const [newFrameworkReq, setNewFrameworkReq] = useState("");
+  const [showAddFramework, setShowAddFramework] = useState(false);
 
   const policies = [
     { id: "it-security", name: "IT-sikkerhetspolicy", icon: Shield },
@@ -127,13 +144,13 @@ export default function Onboarding() {
       setCurrentStep("frameworks");
       setIsLaraWorking(false);
       
-      // Auto-select frameworks based on industry
+      // Auto-select frameworks based on industry (including industry-specific ones)
       if (industry === "helse") {
-        setSelectedFrameworks(["gdpr", "iso27001", "nsm"]);
+        setSelectedFrameworks(["gdpr", "iso27001", "nsm", "pasientjournal", "helsepersonell", "norm"]);
       } else if (industry === "energi") {
-        setSelectedFrameworks(["gdpr", "iso27001", "nis2", "nsm"]);
+        setSelectedFrameworks(["gdpr", "iso27001", "nis2", "nsm", "sikkerhetsloven", "fos", "nve-cybersec"]);
       } else if (industry === "finans") {
-        setSelectedFrameworks(["gdpr", "iso27001", "nis2"]);
+        setSelectedFrameworks(["gdpr", "iso27001", "nis2", "finanstilsyn", "psd2", "kvitterings"]);
       } else {
         setSelectedFrameworks(["gdpr", "iso27001"]);
       }
@@ -143,6 +160,36 @@ export default function Onboarding() {
         description: "Lara har tilpasset anbefalinger for din virksomhet"
       });
     }, 2000);
+  };
+
+  const addCustomFramework = () => {
+    if (!newFrameworkName.trim() || !newFrameworkReq.trim()) {
+      toast({
+        title: "⚠️ Mangler informasjon",
+        description: "Vennligst fyll ut både navn og krav",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const customId = `custom-${Date.now()}`;
+    const newFramework = {
+      id: customId,
+      name: newFrameworkName,
+      requirement: newFrameworkReq
+    };
+
+    setCustomFrameworks(prev => [...prev, newFramework]);
+    setSelectedFrameworks(prev => [...prev, customId]);
+    
+    toast({
+      title: "✅ Kilde lagt til",
+      description: `${newFrameworkName} er nå lagt til`
+    });
+
+    setNewFrameworkName("");
+    setNewFrameworkReq("");
+    setShowAddFramework(false);
   };
 
   const completeFrameworks = () => {
@@ -670,69 +717,193 @@ export default function Onboarding() {
             </Button>
             
             <div className="text-center space-y-2 mb-8">
-              <h2 className="text-3xl font-bold">Rammeverk & Kilder</h2>
-              <p className="text-muted-foreground">Velg hvilke standarder som gjelder for dere</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {frameworks.map((framework) => (
-                <Card
-                  key={framework.id}
-                  className={`cursor-pointer transition-all hover:shadow-lg ${
-                    selectedFrameworks.includes(framework.id)
-                      ? "border-2 border-primary bg-primary/5"
-                      : "border hover:border-primary/50"
-                  }`}
-                  onClick={() => {
-                    if (selectedFrameworks.includes(framework.id)) {
-                      setSelectedFrameworks(selectedFrameworks.filter(id => id !== framework.id));
-                    } else {
-                      setSelectedFrameworks([...selectedFrameworks, framework.id]);
-                    }
-                  }}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{framework.icon}</span>
-                        <div>
-                          <CardTitle className="text-lg">{framework.name}</CardTitle>
-                          <CardDescription className="text-xs mt-1">
-                            {framework.requirement}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      {selectedFrameworks.includes(framework.id) && (
-                        <CheckCircle2 className="w-5 h-5 text-primary" />
-                      )}
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
+              <h2 className="text-3xl font-bold">Hvilke rammeverk vil dere følge?</h2>
+              <p className="text-muted-foreground">Velg relevante standarder og rammeverk for compliance</p>
             </div>
 
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="w-5 h-5" />
-                  Last opp eksisterende dokumenter
+                  <Shield className="w-5 h-5" />
+                  Compliance-rammeverk
                 </CardTitle>
                 <CardDescription>
-                  Har dere policyer eller DPA-avtaler? Lara analyserer dem automatisk.
+                  Lara har foreslått rammeverk basert på din bransje ({industry}). Du kan justere utvalget eller legge til egne.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Dra og slipp filer her, eller klikk for å velge</p>
-                  <p className="text-xs text-muted-foreground mt-1">PDF, DOCX, eller CSV</p>
+              <CardContent className="space-y-6">
+                {/* General frameworks */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Generelle rammeverk</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {frameworks.filter(f => f.category === "general").map((framework) => (
+                      <Card
+                        key={framework.id}
+                        className={`cursor-pointer transition-all ${
+                          selectedFrameworks.includes(framework.id)
+                            ? "border-primary shadow-md"
+                            : "hover:border-primary/50"
+                        }`}
+                        onClick={() => {
+                          setSelectedFrameworks(
+                            selectedFrameworks.includes(framework.id)
+                              ? selectedFrameworks.filter((f) => f !== framework.id)
+                              : [...selectedFrameworks, framework.id]
+                          );
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="text-2xl">{framework.icon}</div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold">{framework.name}</h3>
+                                {selectedFrameworks.includes(framework.id) && (
+                                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {framework.requirement}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Industry-specific frameworks */}
+                {industry && frameworks.some(f => f.category === industry) && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-primary uppercase tracking-wide flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      {industry === "energi" ? "Energibransjen" : industry === "helse" ? "Helsesektoren" : industry === "finans" ? "Finanssektoren" : "Bransjespesifikke"}
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {frameworks.filter(f => f.category === industry).map((framework) => (
+                        <Card
+                          key={framework.id}
+                          className={`cursor-pointer transition-all ${
+                            selectedFrameworks.includes(framework.id)
+                              ? "border-primary shadow-md bg-primary/5"
+                              : "hover:border-primary/50"
+                          }`}
+                          onClick={() => {
+                            setSelectedFrameworks(
+                              selectedFrameworks.includes(framework.id)
+                                ? selectedFrameworks.filter((f) => f !== framework.id)
+                                : [...selectedFrameworks, framework.id]
+                            );
+                          }}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl">{framework.icon}</div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold">{framework.name}</h3>
+                                  {selectedFrameworks.includes(framework.id) && (
+                                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {framework.requirement}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom frameworks */}
+                {customFrameworks.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Egne kilder</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {customFrameworks.map((framework) => (
+                        <Card
+                          key={framework.id}
+                          className="border-primary shadow-md bg-primary/5"
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl">📋</div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold">{framework.name}</h3>
+                                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {framework.requirement}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Add custom framework */}
+                {showAddFramework && (
+                  <Card className="border-dashed">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-name">Navn på regelverk/kilde</Label>
+                        <Input
+                          id="framework-name"
+                          placeholder="F.eks. Intern sikkerhetspolicy"
+                          value={newFrameworkName}
+                          onChange={(e) => setNewFrameworkName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-req">Krav/beskrivelse</Label>
+                        <Input
+                          id="framework-req"
+                          placeholder="F.eks. Interne sikkerhetskrav for IT-systemer"
+                          value={newFrameworkReq}
+                          onChange={(e) => setNewFrameworkReq(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={addCustomFramework} size="sm">
+                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                          Legg til
+                        </Button>
+                        <Button onClick={() => setShowAddFramework(false)} variant="outline" size="sm">
+                          Avbryt
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="flex justify-center gap-4 mt-8">
+                  {!showAddFramework && (
+                    <Button
+                      onClick={() => setShowAddFramework(true)}
+                      variant="outline"
+                      size="lg"
+                    >
+                      + Legg til egen kilde
+                    </Button>
+                  )}
+                  <Button
+                    onClick={completeFrameworks}
+                    size="lg"
+                    disabled={selectedFrameworks.length === 0}
+                  >
+                    Fortsett med {selectedFrameworks.length} rammeverk
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-
-            <Button onClick={completeFrameworks} className="w-full" disabled={selectedFrameworks.length === 0}>
-              Fortsett til systemer
-            </Button>
           </div>
         )}
 
