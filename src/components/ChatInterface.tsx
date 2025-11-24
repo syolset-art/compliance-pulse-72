@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, PenTool } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -641,6 +641,22 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         </SheetHeader>
 
         <div className="grid grid-cols-2 gap-3 mt-6">
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              toast({
+                title: "Visual Edits",
+                description: "Klikk på elementer for å redigere direkte",
+              });
+              // TODO: Implement visual editing mode
+            }}
+          >
+            <PenTool className="h-6 w-6" />
+            <span className="text-sm font-medium">Visual Edits</span>
+          </Button>
+
           <Button
             variant="outline"
             className="h-auto flex-col gap-2 p-4"
