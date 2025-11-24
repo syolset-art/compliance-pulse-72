@@ -34,6 +34,8 @@ export default function Onboarding() {
   // Systems state
   const [systemsFound, setSystemsFound] = useState(0);
   const [systemsProcessed, setSystemsProcessed] = useState(0);
+  const [uploadedDocuments, setUploadedDocuments] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Policies state
   const [generatedPolicies, setGeneratedPolicies] = useState<string[]>([]);
@@ -154,6 +156,43 @@ export default function Onboarding() {
         description: "Lara fant 50 systemer tilknyttet din virksomhet"
       });
     }, 2500);
+  };
+
+  const handleFileUpload = (files: FileList | null) => {
+    if (!files) return;
+    
+    const newFiles = Array.from(files);
+    setUploadedDocuments(prev => [...prev, ...newFiles]);
+    
+    setIsLaraWorking(true);
+    setLaraMessage("Analyserer dokumenter...");
+    
+    setTimeout(() => {
+      const foundSystems = newFiles.length * 15; // Simulate finding systems from documents
+      setSystemsFound(prev => prev + foundSystems);
+      setIsLaraWorking(false);
+      
+      toast({
+        title: "📄 Dokumenter analysert",
+        description: `Fant ${foundSystems} systemer fra ${newFiles.length} dokument(er)`
+      });
+    }, 2000);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileUpload(e.dataTransfer.files);
   };
 
   const scanSystems = (method: string) => {
@@ -657,6 +696,69 @@ export default function Onboarding() {
               </CardContent>
             </Card>
 
+            {/* Document Upload Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="w-5 h-5" />
+                  Last opp dokumenter
+                </CardTitle>
+                <CardDescription>
+                  Last opp lisenser, avtaler eller systemoversikter – Lara finner automatisk hvilke systemer dere bruker
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer ${
+                    isDragging 
+                      ? 'border-primary bg-primary/5 scale-[1.02]' 
+                      : 'border-border hover:border-primary/50 hover:bg-accent/5'
+                  }`}
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <Upload className={`w-12 h-12 mx-auto mb-3 transition-colors ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <p className="text-sm font-medium mb-1">
+                    {isDragging ? 'Slipp filene her' : 'Dra og slipp filer her'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">eller klikk for å velge</p>
+                  <p className="text-xs text-muted-foreground mt-2">PDF, DOCX, XLSX, CSV</p>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    multiple
+                    accept=".pdf,.docx,.xlsx,.csv"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e.target.files)}
+                  />
+                </div>
+
+                {uploadedDocuments.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Opplastede dokumenter:</p>
+                    <div className="space-y-2">
+                      {uploadedDocuments.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <FileText className="w-4 h-4 text-primary" />
+                            <div>
+                              <p className="text-sm font-medium">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(file.size / 1024).toFixed(1)} KB
+                              </p>
+                            </div>
+                          </div>
+                          <CheckCircle2 className="w-5 h-5 text-primary" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {systemsFound > 0 && (
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="pt-6">
@@ -683,7 +785,7 @@ export default function Onboarding() {
             )}
 
             <div>
-              <h3 className="font-semibold mb-4">Velg hvordan du vil skanne systemer:</h3>
+              <h3 className="font-semibold mb-4">Eller skann automatisk via:</h3>
               <div className="grid md:grid-cols-3 gap-4">
                 <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("firmakort")}>
                   <CardHeader>
