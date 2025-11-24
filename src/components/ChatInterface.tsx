@@ -364,23 +364,23 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         <div className="flex items-center justify-center gap-2 px-4 py-2 border-b border-border bg-muted/30">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={onBackToDashboard}
-            className="h-8 text-xs gap-1.5"
+            className="h-8 w-8"
             disabled={isLoading}
+            title="Gå til dashboard"
           >
-            <Home className="h-3.5 w-3.5" />
-            Dashboard
+            <Home className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleUndoLastMessage}
-            className="h-8 text-xs gap-1.5"
+            className="h-8 w-8"
             disabled={isLoading || messages.length <= 1}
+            title="Angre siste melding"
           >
-            <Undo2 className="h-3.5 w-3.5" />
-            Angre siste
+            <Undo2 className="h-4 w-4" />
           </Button>
         </div>
 
