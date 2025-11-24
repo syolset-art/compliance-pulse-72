@@ -540,8 +540,26 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             onClick={() => setPlusMenuOpen(true)}
             disabled={isLoading}
             className="h-10 w-10"
+            title="Åpne verktøymeny"
           >
             <Plus className="h-5 w-5" />
+          </Button>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => {
+              toast({
+                title: "Visual Edits",
+                description: "Klikk på elementer for å redigere direkte",
+              });
+              // TODO: Implement visual editing mode
+            }}
+            disabled={isLoading}
+            className="h-10 w-10"
+            title="Visual Edits"
+          >
+            <PenTool className="h-5 w-5" />
           </Button>
           <Input
             value={input}
@@ -641,22 +659,6 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         </SheetHeader>
 
         <div className="grid grid-cols-2 gap-3 mt-6">
-          <Button
-            variant="outline"
-            className="h-auto flex-col gap-2 p-4"
-            onClick={() => {
-              setPlusMenuOpen(false);
-              toast({
-                title: "Visual Edits",
-                description: "Klikk på elementer for å redigere direkte",
-              });
-              // TODO: Implement visual editing mode
-            }}
-          >
-            <PenTool className="h-6 w-6" />
-            <span className="text-sm font-medium">Visual Edits</span>
-          </Button>
-
           <Button
             variant="outline"
             className="h-auto flex-col gap-2 p-4"
