@@ -33,50 +33,57 @@ interface ChatInterfaceProps {
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
 
-const suggestionMap: Record<SuggestionContext, string[]> = {
+type SuggestionType = "view" | "action" | "warning";
+
+interface Suggestion {
+  text: string;
+  type: SuggestionType;
+}
+
+const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
-    "Vis behandlingsprotokoller",
-    "Hvilke systemer bruker vi?",
-    "Tredjeparter for Microsoft",
-    "Vis oppgavelisten"
+    { text: "Vis behandlingsprotokoller", type: "view" },
+    { text: "Hvilke systemer bruker vi?", type: "view" },
+    { text: "Tredjeparter for Microsoft", type: "view" },
+    { text: "Vis oppgavelisten", type: "view" }
   ],
   protocols: [
-    "Vis i tabellformat",
-    "Vis bare titler",
-    "Filtrer på høy risiko",
-    "Vis protokoller som mangler DPA"
+    { text: "Vis i tabellformat", type: "view" },
+    { text: "Vis bare titler", type: "view" },
+    { text: "Filtrer på høy risiko", type: "view" },
+    { text: "Vis protokoller som mangler DPA", type: "warning" }
   ],
   systems: [
-    "Vis i tabellformat",
-    "Vis bare navnene",
-    "Filtrer på høy risiko",
-    "Vis tredjeparter for systemene"
+    { text: "Vis i tabellformat", type: "view" },
+    { text: "Vis bare navnene", type: "view" },
+    { text: "Filtrer på høy risiko", type: "view" },
+    { text: "Vis tredjeparter for systemene", type: "view" }
   ],
   "third-parties": [
-    "Mangler det Transfer Impact Assessment?",
-    "Generer TIA for tredjeparter",
-    "Vis i tabellformat",
-    "Vis kun de uten DPA",
-    "Sorter etter risikonivå"
+    { text: "Mangler det Transfer Impact Assessment?", type: "warning" },
+    { text: "Generer TIA for tredjeparter", type: "action" },
+    { text: "Vis i tabellformat", type: "view" },
+    { text: "Vis kun de uten DPA", type: "view" },
+    { text: "Sorter etter risikonivå", type: "view" }
   ],
   tasks: [
-    "Vis i liste",
-    "Grupér etter prioritet",
-    "Vis bare titler",
-    "Filtrer på AI-håndterte",
-    "Vis fullførte oppgaver"
+    { text: "Vis i liste", type: "view" },
+    { text: "Grupér etter prioritet", type: "view" },
+    { text: "Vis bare titler", type: "view" },
+    { text: "Filtrer på AI-håndterte", type: "view" },
+    { text: "Vis fullførte oppgaver", type: "view" }
   ],
   deviations: [
-    "Vis åpne avvik",
-    "Filtrer på kritiske avvik",
-    "Vis avvik siste måned",
-    "Hvilke avvik mangler tiltaksplan?"
+    { text: "Vis åpne avvik", type: "view" },
+    { text: "Filtrer på kritiske avvik", type: "view" },
+    { text: "Vis avvik siste måned", type: "view" },
+    { text: "Hvilke avvik mangler tiltaksplan?", type: "warning" }
   ],
   compliance: [
-    "Vis compliance-status",
-    "Hvilke krav mangler dokumentasjon?",
-    "Vis GDPR-status",
-    "Generer compliance-rapport"
+    { text: "Vis compliance-status", type: "view" },
+    { text: "Hvilke krav mangler dokumentasjon?", type: "warning" },
+    { text: "Vis GDPR-status", type: "view" },
+    { text: "Generer compliance-rapport", type: "action" }
   ]
 };
 
@@ -454,15 +461,20 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         {/* Suggestions - always visible */}
         <div className="flex flex-wrap gap-2">
           {suggestions.map((suggestion, i) => {
-            const isWarning = suggestion.includes("Mangler") || suggestion.includes("TIA");
+            const variant = suggestion.type === "warning" 
+              ? "warning" 
+              : suggestion.type === "action" 
+              ? "action" 
+              : "secondary";
+            
             return (
               <Badge
                 key={i}
-                variant={isWarning ? "warning" : "secondary"}
+                variant={variant}
                 className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-                onClick={() => handleSend(suggestion)}
+                onClick={() => handleSend(suggestion.text)}
               >
-                {suggestion}
+                {suggestion.text}
               </Badge>
             );
           })}
