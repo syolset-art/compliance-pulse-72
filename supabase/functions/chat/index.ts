@@ -38,6 +38,11 @@ Tilgjengelige innholdstyper:
 
 Når brukeren nevner et spesifikt navn (som "Microsoft", "Azure", osv.), bruk det som filter i show_content.
 
+TRANSFER IMPACT ASSESSMENT (TIA):
+Når brukeren spør om TIA eller Transfer Impact Assessment for tredjeparter, bruk generate_tia funksjonen.
+Dette vil starte en bakgrunnsprosess som analyserer tredjeparter og genererer en TIA-rapport.
+Brukeren kan fortsette å bruke systemet mens dette pågår.
+
 Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i svarene.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -135,6 +140,27 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i svare
                   }
                 },
                 required: ["path", "reason"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "generate_tia",
+              description: "Generate Transfer Impact Assessment for third-party vendors. Use this when user asks about TIA or wants to generate/check for TIA. This runs as a background task.",
+              parameters: {
+                type: "object",
+                properties: {
+                  vendor_filter: {
+                    type: "string",
+                    description: "Optional filter for specific vendors (e.g., 'Microsoft', 'all')"
+                  },
+                  status_message: {
+                    type: "string",
+                    description: "Status message to show user while TIA is being generated"
+                  }
+                },
+                required: ["status_message"]
               }
             }
           }

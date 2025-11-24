@@ -44,20 +44,18 @@ const suggestionMap: Record<SuggestionContext, string[]> = {
     "Vis i tabellformat",
     "Vis bare titler",
     "Filtrer på høy risiko",
-    "Eksporter til PDF",
     "Vis protokoller som mangler DPA"
   ],
   systems: [
     "Vis i tabellformat",
     "Vis bare navnene",
-    "Vis med kostnader",
     "Filtrer på høy risiko",
     "Vis tredjeparter for systemene"
   ],
   "third-parties": [
+    "Mangler det Transfer Impact Assessment?",
+    "Generer TIA for tredjeparter",
     "Vis i tabellformat",
-    "Vis bare leverandørnavn",
-    "Filtrer på land",
     "Vis kun de uten DPA",
     "Sorter etter risikonivå"
   ],
@@ -247,7 +245,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             // Handle tool calls
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
@@ -306,6 +304,18 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                 description: args.reason || "Tatt deg til riktig side",
               });
             }, 500);
+          } else if (toolCall.name === "generate_tia") {
+            const tiaMessage = args.status_message 
+              ? `${assistantContent}\n\n⚠️ ${args.status_message}`
+              : `${assistantContent}\n\n⚠️ Genererer TIA...`;
+            
+            updateAssistantMessage(tiaMessage);
+            
+            toast({
+              title: "Transfer Impact Assessment",
+              description: args.status_message || "Genererer TIA i bakgrunnen. Du kan fortsette å bruke systemet.",
+              duration: 5000,
+            });
           }
         } catch (e) {
           console.error("Failed to parse tool arguments:", e);
@@ -443,16 +453,19 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         <div className="p-4 space-y-3">
         {/* Suggestions - always visible */}
         <div className="flex flex-wrap gap-2">
-          {suggestions.map((suggestion, i) => (
-            <Badge
-              key={i}
-              variant="secondary"
-              className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-              onClick={() => handleSend(suggestion)}
-            >
-              {suggestion}
-            </Badge>
-          ))}
+          {suggestions.map((suggestion, i) => {
+            const isWarning = suggestion.includes("Mangler") || suggestion.includes("TIA");
+            return (
+              <Badge
+                key={i}
+                variant={isWarning ? "warning" : "secondary"}
+                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                onClick={() => handleSend(suggestion)}
+              >
+                {suggestion}
+              </Badge>
+            );
+          })}
         </div>
         
         <form
