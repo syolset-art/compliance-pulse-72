@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { Send, Sparkles, Loader2, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -30,16 +31,24 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const suggestions = [
+    "Vis behandlingsprotokoller",
+    "Hvilke systemer bruker vi?",
+    "Tredjeparter for Microsoft",
+    "Vis oppgavelisten"
+  ];
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (messageText?: string) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim() || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = { role: "user", content: textToSend };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -243,7 +252,23 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border space-y-3">
+        {/* Suggestions */}
+        {messages.length <= 1 && (
+          <div className="flex flex-wrap gap-2">
+            {suggestions.map((suggestion, i) => (
+              <Badge
+                key={i}
+                variant="secondary"
+                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                onClick={() => handleSend(suggestion)}
+              >
+                {suggestion}
+              </Badge>
+            ))}
+          </div>
+        )}
+        
         <form
           onSubmit={(e) => {
             e.preventDefault();
