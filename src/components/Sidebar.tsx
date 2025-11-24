@@ -12,13 +12,15 @@ import {
   Bot,
   Menu,
   X,
-  Leaf
+  Leaf,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -32,7 +34,11 @@ const navigation = [
   { name: "Åpenhetsloven", href: "/transparency", icon: FileText, highlight: true },
 ];
 
-const SidebarContent = () => {
+interface SidebarContentProps {
+  onToggleChat?: () => void;
+}
+
+const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
   const location = useLocation();
 
   return (
@@ -43,7 +49,19 @@ const SidebarContent = () => {
           <Shield className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold text-primary">Mynder</span>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          {onToggleChat && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleChat}
+              title="Bytt til AI chat"
+            >
+              <MessageSquare className="h-5 w-5" />
+            </Button>
+          )}
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Navigation */}
@@ -121,7 +139,11 @@ const SidebarContent = () => {
   );
 };
 
-export function Sidebar() {
+interface SidebarProps {
+  onToggleChat?: () => void;
+}
+
+export function Sidebar({ onToggleChat }: SidebarProps) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -143,7 +165,7 @@ export function Sidebar() {
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
               <div className="flex h-full flex-col bg-card">
-                <SidebarContent />
+                <SidebarContent onToggleChat={onToggleChat} />
               </div>
             </SheetContent>
           </Sheet>
@@ -156,7 +178,7 @@ export function Sidebar() {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
-      <SidebarContent />
+      <SidebarContent onToggleChat={onToggleChat} />
     </div>
   );
 }
