@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -115,6 +115,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [shopDialogOpen, setShopDialogOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -595,6 +596,16 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setShopDialogOpen(true)}
+            className="h-8 w-8"
+            disabled={isLoading}
+            title="Kjøp tilleggsmoduler"
+          >
+            <ShoppingBag className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleNewConversation}
             className="h-8 w-8"
             disabled={isLoading}
@@ -874,6 +885,200 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             disabled={uploadingFile}
           >
             {uploadingFile ? "Vent..." : "Avbryt"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    {/* Shop Dialog */}
+    <Dialog open={shopDialogOpen} onOpenChange={setShopDialogOpen}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5" />
+            Tilleggsmoduler for compliance og rapportering
+          </DialogTitle>
+          <DialogDescription>
+            Utvid systemet med AI-drevne rapporteringsmoduler i tråd med ISO 27001/27002/27004
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+          {/* Sustainability Reporting Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">Bærekraftsrapportering</h3>
+                <p className="text-sm text-muted-foreground">ISO 14001 / CSRD</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">499,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>AI-generert miljø- og klimarapportering</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Automatisk sporingsdata for CO2, energi, avfall</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>CSRD og GRI compliance</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+
+          {/* Transparency Act Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">Åpenhetsloven</h3>
+                <p className="text-sm text-muted-foreground">Menneskerettigheter</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">399,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>AI-analyse av leverandørkjeder</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Aktsomhetsvurderinger</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Åpenhetsloven §4 og §5 rapporter</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+
+          {/* HMS Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">HMS-rapportering</h3>
+                <p className="text-sm text-muted-foreground">ISO 45001</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">349,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Helse, miljø og sikkerhetsrapporter</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Risikovurdering av arbeidsplasser</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Avviksrapportering og tiltaksplaner</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+
+          {/* ISO 27004 Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">Måling og Monitoring</h3>
+                <p className="text-sm text-muted-foreground">ISO 27004</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">449,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>KPI-dashboards for sikkerhetskontroller</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Måling av effektivitet av tiltak</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Trendanalyse og forbedringsindikatorer</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+
+          {/* Anti-Corruption Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">Anti-korrupsjon</h3>
+                <p className="text-sm text-muted-foreground">ISO 37001</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">399,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Korrupsjonsrisikovurdering</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Due diligence på forretningspartnere</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Compliance-kontroller og varslingssystem</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+
+          {/* Business Continuity Module */}
+          <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">Kontinuitetsplanlegging</h3>
+                <p className="text-sm text-muted-foreground">ISO 22301</p>
+              </div>
+              <span className="text-2xl font-bold text-primary">499,-</span>
+            </div>
+            <ul className="space-y-2 mb-4 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Forretningskontinuitetsplaner</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>BIA - Business Impact Analysis</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Gjenopprettingsstrategier og øvelser</span>
+              </li>
+            </ul>
+            <Button className="w-full" variant="default">
+              Kjøp modul
+            </Button>
+          </div>
+        </div>
+
+        <DialogFooter className="border-t pt-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            <p>Alle moduler inkluderer AI-agenter som automatiserer rapportering og overholdelse.</p>
+          </div>
+          <Button variant="outline" onClick={() => setShopDialogOpen(false)}>
+            Lukk
           </Button>
         </DialogFooter>
       </DialogContent>
