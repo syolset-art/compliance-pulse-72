@@ -17,6 +17,11 @@ import laraButterfly from "@/assets/lara-butterfly.png";
 interface Message {
   role: "user" | "assistant";
   content: string;
+  options?: Array<{
+    text: string;
+    type: "view" | "action" | "warning";
+    prompt: string;
+  }>;
 }
 
 interface ContentViewOptions {
@@ -376,7 +381,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             // Handle tool calls
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
@@ -447,6 +452,19 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
               description: args.status_message || "Genererer TIA i bakgrunnen. Du kan fortsette å bruke systemet.",
               duration: 5000,
             });
+          } else if (toolCall.name === "suggest_options") {
+            // Add options to the assistant message
+            const optionsMessage = args.message || assistantContent;
+            
+            setMessages(prev => {
+              const last = prev[prev.length - 1];
+              if (last?.role === "assistant") {
+                return prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: optionsMessage, options: args.options } : m
+                );
+              }
+              return [...prev, { role: "assistant", content: optionsMessage, options: args.options }];
+            });
           }
         } catch (e) {
           console.error("Failed to parse tool arguments:", e);
@@ -505,24 +523,48 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
           {messages.map((message, i) => (
-            <div
-              key={i}
-              className={`flex gap-3 ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {message.role === "assistant" && (
-                <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
-              )}
+            <div key={i}>
               <div
-                className={`rounded-lg px-3 py-2 max-w-[80%] ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                className={`flex gap-3 ${
+                  message.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                {message.role === "assistant" && (
+                  <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
+                )}
+                <div
+                  className={`rounded-lg px-3 py-2 max-w-[80%] ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                </div>
               </div>
+              {/* Show options as clickable badges if present */}
+              {message.options && message.role === "assistant" && (
+                <div className="flex flex-wrap gap-2 mt-2 ml-9">
+                  {message.options.map((option, optIndex) => {
+                    const variant = option.type === "warning" 
+                      ? "warning" 
+                      : option.type === "action" 
+                      ? "action" 
+                      : "secondary";
+                    
+                    return (
+                      <Badge
+                        key={optIndex}
+                        variant={variant}
+                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                        onClick={() => handleSend(option.prompt)}
+                      >
+                        {option.text}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
           {isLoading && (

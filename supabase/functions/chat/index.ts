@@ -44,7 +44,16 @@ Dette vil starte en bakgrunnsprosess som analyserer tredjeparter og genererer en
 Brukeren kan fortsette å bruke systemet mens dette pågår.
 
 COMPLIANCE RAPPORTER (ISO 27001, GDPR, NIS2, CRA):
-Når brukeren ber om en compliance-rapport, lag en detaljert, strukturert rapport som inkluderer:
+Når brukeren ber om en compliance-rapport men ikke spesifiserer hvilken standard:
+- Bruk suggest_options funksjonen for å la brukeren velge standard
+- Eksempel på options:
+  [
+    { text: "ISO 27001 Rapport", type: "action", prompt: "Lag en detaljert ISO 27001 compliance-rapport..." },
+    { text: "GDPR Rapport", type: "action", prompt: "Lag en detaljert GDPR compliance-rapport..." },
+    { text: "NIS2 Rapport", type: "action", prompt: "Lag en detaljert NIS2 compliance-rapport..." }
+  ]
+
+Når brukeren velger eller spesifiserer en standard, lag en detaljert, strukturert rapport som inkluderer:
 
 ISO 27001 Rapport Struktur:
 1. Executive Summary
@@ -109,6 +118,9 @@ Eksempel på Gap-tabell:
 |----------|-------------|--------|-----|-----------|
 | A.5.1 | Policyer for informasjonssikkerhet | ⚠️ Delvis | Mangler godkjenning fra ledelsen | Høy |
 | A.8.1 | Inventar av informasjonsassets | ✅ Implementert | - | - |
+
+BRUK SUGGEST_OPTIONS AKTIVT:
+Hver gang du trenger at brukeren skal gjøre et valg (velge standard, velge prioritet, velge scope, osv.), bruk suggest_options i stedet for å stille spørsmål i tekst.
 
 Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i normale samtaler, men bruk status-indikatorer i rapporter.`;
 
@@ -228,6 +240,46 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                   }
                 },
                 required: ["status_message"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "suggest_options",
+              description: "Present clickable options/prompts to the user when you need them to make a choice. Use this instead of just asking questions in text.",
+              parameters: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    description: "Brief message explaining what the user should choose"
+                  },
+                  options: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        text: {
+                          type: "string",
+                          description: "The text to display on the button/prompt"
+                        },
+                        type: {
+                          type: "string",
+                          enum: ["view", "action", "warning"],
+                          description: "The visual style of the prompt"
+                        },
+                        prompt: {
+                          type: "string",
+                          description: "The full prompt text that will be sent when user clicks this option"
+                        }
+                      },
+                      required: ["text", "type", "prompt"]
+                    },
+                    description: "Array of clickable options to present to the user"
+                  }
+                },
+                required: ["message", "options"]
               }
             }
           }
