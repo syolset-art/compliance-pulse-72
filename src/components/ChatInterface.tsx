@@ -28,28 +28,32 @@ const suggestionMap: Record<SuggestionContext, string[]> = {
     "Vis oppgavelisten"
   ],
   protocols: [
+    "Vis i tabellformat",
+    "Vis bare titler",
     "Filtrer på høy risiko",
-    "Vis nyeste protokoller",
-    "Hvilke protokoller mangler DPA?",
-    "Vis alle protokoller for Eviny"
+    "Eksporter til PDF",
+    "Vis protokoller som mangler DPA"
   ],
   systems: [
-    "Vis systemer med høy risiko",
-    "Hvilke systemer trenger oppdatering?",
-    "Vis tredjeparter for dette systemet",
-    "Filtrer på skybaserte systemer"
+    "Vis i tabellformat",
+    "Vis bare navnene",
+    "Vis med kostnader",
+    "Filtrer på høy risiko",
+    "Vis tredjeparter for systemene"
   ],
   "third-parties": [
-    "Vis DPA for denne leverandøren",
-    "Sjekk risikoevaluering",
-    "Hvilke andre systemer bruker denne?",
-    "Vis alle Microsoft-tjenester"
+    "Vis i tabellformat",
+    "Vis bare leverandørnavn",
+    "Filtrer på land",
+    "Vis kun de uten DPA",
+    "Sorter etter risikonivå"
   ],
   tasks: [
-    "Vis bare høy prioritet",
-    "Filtrer på AI-håndterte oppgaver",
-    "Vis fullførte oppgaver",
-    "Hvilke oppgaver er forsinket?"
+    "Vis i liste",
+    "Grupér etter prioritet",
+    "Vis bare titler",
+    "Filtrer på AI-håndterte",
+    "Vis fullførte oppgaver"
   ],
   deviations: [
     "Vis åpne avvik",
