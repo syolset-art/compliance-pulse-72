@@ -56,11 +56,21 @@ const mockData = {
       dataProcessing: true,
       country: "Norge",
       dpa: true,
-      certifications: ["ISO 27001", "SOC 2"],
-      systems: ["CRM", "Kundeportal"]
+      certifications: ["ISO 27001", "SOC 2", "GDPR"],
+      systems: ["CRM System", "Kundeportal", "Analytics Platform"]
     },
     {
       id: "2",
+      name: "Microsoft 365",
+      type: "Produktivitetsverktøy",
+      dataProcessing: true,
+      country: "EU",
+      dpa: true,
+      certifications: ["ISO 27001", "SOC 2", "GDPR"],
+      systems: ["E-post", "Dokumenthåndtering", "Teams"]
+    },
+    {
+      id: "3",
       name: "Mailchimp",
       type: "E-postmarkedsføring",
       dataProcessing: true,
@@ -70,14 +80,24 @@ const mockData = {
       systems: ["Markedsføringssystem"]
     },
     {
-      id: "3",
+      id: "4",
       name: "Visma",
       type: "Økonomisystem",
       dataProcessing: true,
       country: "Norge",
       dpa: true,
-      certifications: ["ISO 27001"],
-      systems: ["HR-system", "Lønnssystem"]
+      certifications: ["ISO 27001", "NEN 7510"],
+      systems: ["HR-system", "Lønnssystem", "Regnskap"]
+    },
+    {
+      id: "5",
+      name: "Amazon Web Services",
+      type: "Sky-infrastruktur",
+      dataProcessing: true,
+      country: "EU/USA",
+      dpa: true,
+      certifications: ["ISO 27001", "SOC 2", "GDPR"],
+      systems: ["Database", "Backup-løsning"]
     }
   ],
   systems: [
@@ -111,10 +131,40 @@ const mockData = {
   ]
 };
 
+const filterData = (data: any[], filter?: string) => {
+  if (!filter) return data;
+  
+  const lowerFilter = filter.toLowerCase();
+  return data.filter(item => {
+    // Search in name
+    if (item.name?.toLowerCase().includes(lowerFilter)) return true;
+    // Search in vendor
+    if (item.vendor?.toLowerCase().includes(lowerFilter)) return true;
+    // Search in type
+    if (item.type?.toLowerCase().includes(lowerFilter)) return true;
+    // Search in systems array
+    if (item.systems?.some((s: string) => s.toLowerCase().includes(lowerFilter))) return true;
+    return false;
+  });
+};
+
 export function ContentViewer({ contentType, filter }: ContentViewerProps) {
-  const renderProtocols = () => (
-    <div className="space-y-4">
-      {mockData.protocols.map((protocol) => (
+  const renderProtocols = () => {
+    const filteredData = filterData(mockData.protocols, filter);
+    
+    if (filteredData.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">Ingen behandlingsprotokoller funnet{filter ? ` for "${filter}"` : ''}.</p>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return (
+      <div className="space-y-4">
+        {filteredData.map((protocol) => (
         <Card key={protocol.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -166,11 +216,25 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       ))}
     </div>
-  );
+    );
+  };
 
-  const renderThirdParties = () => (
-    <div className="space-y-4">
-      {mockData["third-parties"].map((party) => (
+  const renderThirdParties = () => {
+    const filteredData = filterData(mockData["third-parties"], filter);
+    
+    if (filteredData.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">Ingen tredjeparter funnet{filter ? ` for "${filter}"` : ''}.</p>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return (
+      <div className="space-y-4">
+        {filteredData.map((party) => (
         <Card key={party.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -233,11 +297,25 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       ))}
     </div>
-  );
+    );
+  };
 
-  const renderSystems = () => (
-    <div className="space-y-4">
-      {mockData.systems.map((system) => (
+  const renderSystems = () => {
+    const filteredData = filterData(mockData.systems, filter);
+    
+    if (filteredData.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">Ingen systemer funnet{filter ? ` for "${filter}"` : ''}.</p>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return (
+      <div className="space-y-4">
+        {filteredData.map((system) => (
         <Card key={system.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -295,7 +373,8 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       ))}
     </div>
-  );
+    );
+  };
 
   const getTitle = () => {
     switch (contentType) {
@@ -324,16 +403,31 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
     }
   };
 
+  const getResultCount = () => {
+    let data: any[] = [];
+    switch (contentType) {
+      case "protocols": data = mockData.protocols; break;
+      case "third-parties": data = mockData["third-parties"]; break;
+      case "systems": data = mockData.systems; break;
+    }
+    const filtered = filterData(data, filter);
+    return filtered.length;
+  };
+
+  const resultCount = getResultCount();
+
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center gap-3 p-6 border-b border-border">
+    <div className="h-full flex flex-col bg-background">
+      <div className="flex items-center gap-3 p-6 border-b border-border bg-card">
         <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
           {getIcon()}
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="text-xl font-semibold text-foreground">{getTitle()}</h2>
           <p className="text-sm text-muted-foreground">
-            {filter ? `Filtrert: ${filter}` : "Alle elementer"}
+            {filter 
+              ? `Viser ${resultCount} resultat${resultCount !== 1 ? 'er' : ''} for "${filter}"` 
+              : `${resultCount} element${resultCount !== 1 ? 'er' : ''} totalt`}
           </p>
         </div>
       </div>
