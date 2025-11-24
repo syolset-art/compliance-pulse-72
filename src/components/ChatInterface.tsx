@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -22,6 +22,8 @@ interface Message {
     type: "view" | "action" | "warning";
     prompt: string;
   }>;
+  feedback?: "up" | "down" | null;
+  isComplete?: boolean;
 }
 
 interface ContentViewOptions {
@@ -121,6 +123,24 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const { toast } = useToast();
 
   const suggestions = suggestionMap[currentContext];
+
+  const handleFeedback = (messageIndex: number, feedbackType: "up" | "down") => {
+    setMessages(prev => prev.map((msg, idx) => {
+      if (idx === messageIndex) {
+        // Toggle feedback: if clicking the same type, remove it; otherwise set new type
+        const newFeedback = msg.feedback === feedbackType ? null : feedbackType;
+        return { ...msg, feedback: newFeedback };
+      }
+      return msg;
+    }));
+    
+    toast({
+      title: feedbackType === "up" ? "Takk for tilbakemeldingen! 👍" : "Vi jobber med å forbedre svaret 👎",
+      description: feedbackType === "up" 
+        ? "Flott at svaret var nyttig!" 
+        : "Takk for tilbakemeldingen, vi bruker den til å forbedre Lara.",
+    });
+  };
 
   const handleUndoLastMessage = () => {
     if (messages.length > 1) {
@@ -345,15 +365,15 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
       let textBuffer = "";
       let toolCall: any = null;
 
-      const updateAssistantMessage = (content: string) => {
+      const updateAssistantMessage = (content: string, isComplete = false) => {
         setMessages(prev => {
           const last = prev[prev.length - 1];
           if (last?.role === "assistant") {
             return prev.map((m, i) => 
-              i === prev.length - 1 ? { ...m, content } : m
+              i === prev.length - 1 ? { ...m, content, isComplete } : m
             );
           }
-          return [...prev, { role: "assistant", content }];
+          return [...prev, { role: "assistant", content, isComplete }];
         });
       };
 
@@ -471,6 +491,16 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         }
       }
 
+      // Mark the message as complete when streaming ends
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant") {
+          return prev.map((m, i) => 
+            i === prev.length - 1 ? { ...m, isComplete: true } : m
+          );
+        }
+        return prev;
+      });
       setIsLoading(false);
     } catch (error) {
       console.error("Chat error:", error);
@@ -524,7 +554,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         <div className="space-y-4">
           {messages.map((message, i) => (
             <div key={i}>
-              <div
+               <div
                 className={`flex gap-3 ${
                   message.role === "user" ? "justify-end" : "justify-start"
                 }`}
@@ -532,14 +562,41 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                 {message.role === "assistant" && (
                   <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
                 )}
-                <div
-                  className={`rounded-lg px-3 py-2 max-w-[80%] ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <div className="flex-1 max-w-[80%]">
+                  <div
+                    className={`rounded-lg px-3 py-2 ${
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                  
+                  {/* Feedback buttons for assistant messages */}
+                  {message.role === "assistant" && message.isComplete && (
+                    <div className="flex items-center gap-2 mt-2 ml-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-7 px-2 ${message.feedback === "up" ? "text-success" : "text-muted-foreground"}`}
+                        onClick={() => handleFeedback(i, "up")}
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-7 px-2 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground"}`}
+                        onClick={() => handleFeedback(i, "down")}
+                      >
+                        <ThumbsDown className="h-3.5 w-3.5" />
+                      </Button>
+                      {message.isComplete && (
+                        <span className="text-xs text-muted-foreground ml-2">✓ Ferdig</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Show options as clickable badges if present */}
