@@ -8,8 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Progress } from "@/components/ui/progress";
 import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
 interface Message {
@@ -105,6 +107,9 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const [shareEmail, setShareEmail] = useState("");
   const [shareType, setShareType] = useState<"internal" | "external">("internal");
   const [isSending, setIsSending] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -192,6 +197,81 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
       });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    setUploadProgress(0);
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Feil",
+          description: "Du må være logget inn for å laste opp filer",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create file path with user ID
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      setUploadProgress(70);
+
+      // Save metadata to database
+      const { error: dbError } = await supabase
+        .from('uploaded_documents')
+        .insert({
+          file_name: file.name,
+          file_path: uploadData.path,
+          file_size: file.size,
+          mime_type: file.type,
+          analysis_status: 'pending'
+        });
+
+      if (dbError) throw dbError;
+
+      setUploadProgress(100);
+
+      toast({
+        title: "Dokument lastet opp",
+        description: `${file.name} er lastet opp og klar for analyse`,
+      });
+
+      setUploadDialogOpen(false);
+      
+      // Trigger analysis via chat
+      setTimeout(() => {
+        handleSend(`Analyser dokumentet ${file.name} for compliance og personverninnhold`);
+      }, 500);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Opplasting feilet",
+        description: error instanceof Error ? error.message : "Kunne ikke laste opp filen",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingFile(false);
+      setUploadProgress(0);
     }
   };
 
@@ -548,11 +628,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuItem
                 onClick={() => {
-                  toast({
-                    title: "Last opp dokumenter",
-                    description: "Velg dokumenter for analyse",
-                  });
-                  // TODO: Implement document upload
+                  setUploadDialogOpen(true);
                 }}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -695,6 +771,67 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                 Del samtale
               </>
             )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    {/* Upload Dialog */}
+    <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Last opp dokument</DialogTitle>
+          <DialogDescription>
+            Last opp dokumenter for automatisk compliance-analyse
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {uploadingFile ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Laster opp...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <Label htmlFor="file-upload" className="cursor-pointer">
+                  <span className="text-primary font-medium hover:underline">
+                    Klikk for å velge fil
+                  </span>
+                  <span className="text-muted-foreground"> eller dra og slipp</span>
+                </Label>
+                <Input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  PDF, Word, Excel eller tekstfiler
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setUploadDialogOpen(false)}
+            disabled={uploadingFile}
+          >
+            {uploadingFile ? "Vent..." : "Avbryt"}
           </Button>
         </DialogFooter>
       </DialogContent>
