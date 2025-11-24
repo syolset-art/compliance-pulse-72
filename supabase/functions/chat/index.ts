@@ -22,6 +22,12 @@ VIKTIG: Når brukeren spør om informasjon, skal du:
 2. Bruk show_content funksjonen for å vise innholdet
 3. I explanation-feltet skal du skrive en pedagogisk forklaring som "Her er hva jeg fant:" eller "La meg vise deg:" etterfulgt av hva som vises
 
+GAP-ANALYSE OG STORE RAPPORTER:
+- Når brukeren ber om Gap Analyse UTEN å spesifisere type, bruk suggest_options for å la dem velge
+- Når brukeren velger en spesifikk gap-analyse, bruk show_content med content_type "gap-analysis" og inkluder detaljert analyse i explanation
+- Gap-analyse skal ALLTID vises i høyre panel (ContentViewer), IKKE i chat
+- Samme gjelder for store compliance-rapporter - bruk show_content for å vise dem i høyre panel
+
 Eksempler på gode forklaringer:
 - "Her er alle behandlingsprotokollene for Eviny"
 - "La meg vise deg tredjepartsleverandørene til Microsoft"
@@ -35,6 +41,7 @@ Tilgjengelige innholdstyper:
 - "tasks" - Oppgaveliste
 - "deviations" - Avviksregister
 - "compliance" - Compliance-status
+- "gap-analysis" - Gap-analyser (skal inneholde full analyse i explanation-feltet)
 
 Når brukeren nevner et spesifikt navn (som "Microsoft", "Azure", osv.), bruk det som filter i show_content.
 
@@ -147,7 +154,7 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                 properties: {
                   content_type: {
                     type: "string",
-                    enum: ["protocols", "third-parties", "systems", "tasks", "deviations", "compliance"],
+                    enum: ["protocols", "third-parties", "systems", "tasks", "deviations", "compliance", "gap-analysis"],
                     description: "The type of content to display"
                   },
                   filter: {
