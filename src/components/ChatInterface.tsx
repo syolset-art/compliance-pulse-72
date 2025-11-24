@@ -18,6 +18,53 @@ interface ChatInterfaceProps {
   onShowContent?: (contentType: string, filter?: string) => void;
 }
 
+type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
+
+const suggestionMap: Record<SuggestionContext, string[]> = {
+  default: [
+    "Vis behandlingsprotokoller",
+    "Hvilke systemer bruker vi?",
+    "Tredjeparter for Microsoft",
+    "Vis oppgavelisten"
+  ],
+  protocols: [
+    "Filtrer på høy risiko",
+    "Vis nyeste protokoller",
+    "Hvilke protokoller mangler DPA?",
+    "Vis alle protokoller for Eviny"
+  ],
+  systems: [
+    "Vis systemer med høy risiko",
+    "Hvilke systemer trenger oppdatering?",
+    "Vis tredjeparter for dette systemet",
+    "Filtrer på skybaserte systemer"
+  ],
+  "third-parties": [
+    "Vis DPA for denne leverandøren",
+    "Sjekk risikoevaluering",
+    "Hvilke andre systemer bruker denne?",
+    "Vis alle Microsoft-tjenester"
+  ],
+  tasks: [
+    "Vis bare høy prioritet",
+    "Filtrer på AI-håndterte oppgaver",
+    "Vis fullførte oppgaver",
+    "Hvilke oppgaver er forsinket?"
+  ],
+  deviations: [
+    "Vis åpne avvik",
+    "Filtrer på kritiske avvik",
+    "Vis avvik siste måned",
+    "Hvilke avvik mangler tiltaksplan?"
+  ],
+  compliance: [
+    "Vis compliance-status",
+    "Hvilke krav mangler dokumentasjon?",
+    "Vis GDPR-status",
+    "Generer compliance-rapport"
+  ]
+};
+
 export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -27,16 +74,12 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentContext, setCurrentContext] = useState<SuggestionContext>("default");
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const suggestions = [
-    "Vis behandlingsprotokoller",
-    "Hvilke systemer bruker vi?",
-    "Tredjeparter for Microsoft",
-    "Vis oppgavelisten"
-  ];
+  const suggestions = suggestionMap[currentContext];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -52,6 +95,22 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+
+    // Detect context from user message
+    const lowerText = textToSend.toLowerCase();
+    if (lowerText.includes("behandlingsprotokoll") || lowerText.includes("protokoll")) {
+      setCurrentContext("protocols");
+    } else if (lowerText.includes("system") || lowerText.includes("it-system")) {
+      setCurrentContext("systems");
+    } else if (lowerText.includes("tredjeparti") || lowerText.includes("leverandør")) {
+      setCurrentContext("third-parties");
+    } else if (lowerText.includes("oppgav")) {
+      setCurrentContext("tasks");
+    } else if (lowerText.includes("avvik")) {
+      setCurrentContext("deviations");
+    } else if (lowerText.includes("compliance") || lowerText.includes("etterlevelse")) {
+      setCurrentContext("compliance");
+    }
 
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -151,6 +210,9 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
           const args = JSON.parse(toolCall.arguments);
           
           if (toolCall.name === "show_content") {
+            // Update context based on content type
+            setCurrentContext(args.content_type as SuggestionContext);
+            
             const contentMessage = args.explanation 
               ? `${assistantContent}\n\n✨ ${args.explanation}`
               : `${assistantContent}\n\n✨ Viser innhold...`;
@@ -264,21 +326,19 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
 
       {/* Input */}
       <div className="p-4 border-t border-border space-y-3">
-        {/* Suggestions */}
-        {messages.length <= 1 && (
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((suggestion, i) => (
-              <Badge
-                key={i}
-                variant="secondary"
-                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-                onClick={() => handleSend(suggestion)}
-              >
-                {suggestion}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {/* Suggestions - always visible */}
+        <div className="flex flex-wrap gap-2">
+          {suggestions.map((suggestion, i) => (
+            <Badge
+              key={i}
+              variant="secondary"
+              className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+              onClick={() => handleSend(suggestion)}
+            >
+              {suggestion}
+            </Badge>
+          ))}
+        </div>
         
         <form
           onSubmit={(e) => {
