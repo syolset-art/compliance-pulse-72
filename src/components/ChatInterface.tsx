@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -24,6 +24,8 @@ interface Message {
   }>;
   feedback?: "up" | "down" | null;
   isComplete?: boolean;
+  thinkingTime?: number;
+  thinkingSummary?: string;
 }
 
 interface ContentViewOptions {
@@ -118,6 +120,8 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
+  const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
+  const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -307,6 +311,17 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
     }
   }, [messages]);
 
+  // Timer for thinking indicator
+  useEffect(() => {
+    if (thinkingStartTime && isLoading) {
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - thinkingStartTime;
+        setCurrentThinkingTime(Math.floor(elapsed / 1000));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [thinkingStartTime, isLoading]);
+
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || input;
     if (!textToSend.trim() || isLoading) return;
@@ -315,6 +330,8 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+    setThinkingStartTime(Date.now());
+    setCurrentThinkingTime(0);
 
     // Detect context from user message
     const lowerText = textToSend.toLowerCase();
@@ -364,16 +381,30 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
       let assistantContent = "";
       let textBuffer = "";
       let toolCall: any = null;
+      let thinkingSummary = "";
+      let hasReceivedFirstContent = false;
 
-      const updateAssistantMessage = (content: string, isComplete = false) => {
+      const updateAssistantMessage = (content: string, isComplete = false, thinking?: { time: number; summary: string }) => {
         setMessages(prev => {
           const last = prev[prev.length - 1];
           if (last?.role === "assistant") {
             return prev.map((m, i) => 
-              i === prev.length - 1 ? { ...m, content, isComplete } : m
+              i === prev.length - 1 ? { 
+                ...m, 
+                content, 
+                isComplete,
+                thinkingTime: thinking?.time,
+                thinkingSummary: thinking?.summary 
+              } : m
             );
           }
-          return [...prev, { role: "assistant", content, isComplete }];
+          return [...prev, { 
+            role: "assistant", 
+            content, 
+            isComplete,
+            thinkingTime: thinking?.time,
+            thinkingSummary: thinking?.summary
+          }];
         });
       };
 
@@ -414,8 +445,25 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
 
             // Handle regular content
             if (delta?.content) {
-              assistantContent += delta.content;
-              updateAssistantMessage(assistantContent);
+              // First content marks end of thinking
+              if (!hasReceivedFirstContent && thinkingStartTime) {
+                const thinkingTime = Math.floor((Date.now() - thinkingStartTime) / 1000);
+                thinkingSummary = delta.content;
+                hasReceivedFirstContent = true;
+                
+                // Show thinking summary
+                updateAssistantMessage("", false, { time: thinkingTime, summary: thinkingSummary });
+              } else {
+                assistantContent += delta.content;
+                
+                // Keep thinking info when updating content
+                const thinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
+                updateAssistantMessage(
+                  assistantContent, 
+                  false,
+                  thinkingTime && thinkingSummary ? { time: thinkingTime, summary: thinkingSummary } : undefined
+                );
+              }
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -491,17 +539,25 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         }
       }
 
-      // Mark the message as complete when streaming ends
+      // Mark the message as complete when streaming ends with thinking info
+      const finalThinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
+      
       setMessages(prev => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant") {
           return prev.map((m, i) => 
-            i === prev.length - 1 ? { ...m, isComplete: true } : m
+            i === prev.length - 1 ? { 
+              ...m, 
+              isComplete: true,
+              thinkingTime: finalThinkingTime || m.thinkingTime,
+              thinkingSummary: thinkingSummary || m.thinkingSummary
+            } : m
           );
         }
         return prev;
       });
       setIsLoading(false);
+      setThinkingStartTime(null);
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -552,7 +608,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
-          {messages.map((message, i) => (
+           {messages.map((message, i) => (
             <div key={i}>
                <div
                 className={`flex gap-3 ${
@@ -563,6 +619,21 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                   <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
                 )}
                 <div className="flex-1 max-w-[80%]">
+                  {/* Thinking indicator */}
+                  {message.role === "assistant" && message.thinkingSummary && (
+                    <div className="mb-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Brain className="h-3.5 w-3.5 text-primary animate-pulse" />
+                        <span className="text-xs font-medium text-primary">
+                          Tenker... {message.thinkingTime ? `(${message.thinkingTime}s)` : ""}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground italic">
+                        {message.thinkingSummary}
+                      </p>
+                    </div>
+                  )}
+                  
                   <div
                     className={`rounded-lg px-3 py-2 ${
                       message.role === "user"
@@ -627,8 +698,13 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
           {isLoading && (
             <div className="flex gap-3 justify-start">
               <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
-              <div className="bg-muted rounded-lg px-3 py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-primary animate-pulse" />
+                  <span className="text-xs text-muted-foreground">
+                    Tenker{currentThinkingTime > 0 ? ` (${currentThinkingTime}s)` : "..."}
+                  </span>
+                </div>
               </div>
             </div>
           )}
