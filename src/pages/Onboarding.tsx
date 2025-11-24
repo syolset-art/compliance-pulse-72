@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Sparkles, Zap, Compass, Building2, Users, Briefcase, Shield, FileText, Cloud, Upload, CheckCircle2, Loader2, Rocket, PartyPopper, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import DocumentAnalysisResults from "@/components/DocumentAnalysisResults";
 
 type OnboardingStep = "intro" | "profile" | "frameworks" | "systems" | "policies" | "risk" | "complete";
 
@@ -36,6 +38,7 @@ export default function Onboarding() {
   const [systemsProcessed, setSystemsProcessed] = useState(0);
   const [uploadedDocuments, setUploadedDocuments] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [documentAnalyses, setDocumentAnalyses] = useState<Record<string, any>>({});
 
   // Policies state
   const [generatedPolicies, setGeneratedPolicies] = useState<string[]>([]);
@@ -158,25 +161,65 @@ export default function Onboarding() {
     }, 2500);
   };
 
-  const handleFileUpload = (files: FileList | null) => {
+  const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
     
     const newFiles = Array.from(files);
     setUploadedDocuments(prev => [...prev, ...newFiles]);
     
     setIsLaraWorking(true);
-    setLaraMessage("Analyserer dokumenter...");
+    setLaraMessage("Analyserer dokumenter med AI...");
     
-    setTimeout(() => {
-      const foundSystems = newFiles.length * 15; // Simulate finding systems from documents
-      setSystemsFound(prev => prev + foundSystems);
-      setIsLaraWorking(false);
-      
-      toast({
-        title: "📄 Dokumenter analysert",
-        description: `Fant ${foundSystems} systemer fra ${newFiles.length} dokument(er)`
-      });
-    }, 2000);
+    // Process each file
+    for (const file of newFiles) {
+      try {
+        const text = await file.text();
+        
+        const { data, error } = await supabase.functions.invoke('analyze-document', {
+          body: { 
+            documentText: text,
+            fileName: file.name
+          }
+        });
+
+        if (error) {
+          console.error("Analysis error:", error);
+          toast({
+            title: "⚠️ Analysefeil",
+            description: `Kunne ikke analysere ${file.name}`,
+            variant: "destructive"
+          });
+          continue;
+        }
+
+        if (data?.analysis) {
+          // Store analysis results
+          setDocumentAnalyses(prev => ({
+            ...prev,
+            [file.name]: data.analysis
+          }));
+
+          // Count found systems
+          const foundSystems = data.analysis.suppliers?.length || 0;
+          setSystemsFound(prev => prev + foundSystems);
+
+          toast({
+            title: "✨ AI-analyse fullført",
+            description: `${file.name}: Fant ${foundSystems} leverandører, ${data.analysis.complianceGaps?.length || 0} gap`
+          });
+        }
+      } catch (err) {
+        console.error("File processing error:", err);
+        toast({
+          title: "❌ Feil",
+          description: `Kunne ikke lese ${file.name}`,
+          variant: "destructive"
+        });
+      }
+    }
+    
+    setIsLaraWorking(false);
+    setLaraMessage("Analyse fullført!");
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -754,6 +797,19 @@ export default function Onboarding() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Show analysis results for each document */}
+                {Object.keys(documentAnalyses).length > 0 && (
+                  <div className="space-y-4">
+                    {Object.entries(documentAnalyses).map(([fileName, analysis]) => (
+                      <DocumentAnalysisResults 
+                        key={fileName}
+                        fileName={fileName}
+                        analysis={analysis}
+                      />
+                    ))}
                   </div>
                 )}
               </CardContent>
