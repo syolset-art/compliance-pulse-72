@@ -21,7 +21,8 @@ import {
   Edit,
   Trash2,
   Info,
-  List
+  List,
+  Sparkles
 } from "lucide-react";
 
 interface ContentViewerProps {
@@ -215,24 +216,232 @@ const sortData = (data: any[], sortBy?: string) => {
 };
 
 export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria, explanation }: ContentViewerProps) {
-  // Render gap analysis or large reports as formatted markdown/text content
+  // Render gap analysis with beautiful visual presentation
   const renderGapAnalysis = () => {
     if (!explanation) {
       return (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">Ingen gap-analyse tilgjengelig</p>
+        <Card className="border-2 border-dashed">
+          <CardContent className="p-12 text-center">
+            <AlertTriangle className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg">Ingen gap-analyse tilgjengelig</p>
+            <p className="text-sm text-muted-foreground/70 mt-2">Velg en analyse-type fra menyen</p>
           </CardContent>
         </Card>
       );
     }
     
+    // Parse sections from explanation text (looking for headers like "## Section")
+    const lines = explanation.split('\n');
+    const sections: Array<{ title: string; content: string[]; type?: 'success' | 'warning' | 'error' }> = [];
+    let currentSection: { title: string; content: string[]; type?: 'success' | 'warning' | 'error' } | null = null;
+    
+    lines.forEach(line => {
+      const headerMatch = line.match(/^##\s+(.+)$/);
+      if (headerMatch) {
+        if (currentSection) {
+          sections.push(currentSection);
+        }
+        const title = headerMatch[1];
+        // Determine section type based on keywords
+        let type: 'success' | 'warning' | 'error' | undefined;
+        if (title.toLowerCase().includes('kritisk') || title.toLowerCase().includes('mangler')) {
+          type = 'error';
+        } else if (title.toLowerCase().includes('advarsel') || title.toLowerCase().includes('bør')) {
+          type = 'warning';
+        } else if (title.toLowerCase().includes('ok') || title.toLowerCase().includes('godkjent')) {
+          type = 'success';
+        }
+        currentSection = { title, content: [], type };
+      } else if (currentSection) {
+        if (line.trim()) {
+          currentSection.content.push(line);
+        }
+      } else if (line.trim()) {
+        // Content before first header
+        if (!currentSection) {
+          currentSection = { title: 'Oversikt', content: [] };
+        }
+        currentSection.content.push(line);
+      }
+    });
+    
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+    
+    // If no sections found, show as single content block
+    if (sections.length === 0) {
+      return (
+        <div className="space-y-4">
+          <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">Gap-analyse resultat</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">Detaljert vurdering av compliance-status</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="prose prose-sm max-w-none dark:prose-invert">
+              <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
+                {explanation}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    
+    // Render structured sections
     return (
-      <Card>
-        <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
-          <div className="whitespace-pre-wrap">{explanation}</div>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        {/* Header Card */}
+        <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-3xl">Gap-analyse</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Detaljert compliance-vurdering og anbefalinger
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-success/5 border-success/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-success" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Oppfylt</p>
+                  <p className="text-2xl font-bold text-success">
+                    {sections.filter(s => s.type === 'success').length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-warning/5 border-warning/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-warning" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Advarsler</p>
+                  <p className="text-2xl font-bold text-warning">
+                    {sections.filter(s => s.type === 'warning').length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-destructive/5 border-destructive/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Kritisk</p>
+                  <p className="text-2xl font-bold text-destructive">
+                    {sections.filter(s => s.type === 'error').length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Detailed Sections */}
+        <div className="space-y-4">
+          {sections.map((section, idx) => {
+            const getBorderColor = () => {
+              if (section.type === 'success') return 'border-success/30';
+              if (section.type === 'warning') return 'border-warning/30';
+              if (section.type === 'error') return 'border-destructive/30';
+              return 'border-border';
+            };
+            
+            const getBgColor = () => {
+              if (section.type === 'success') return 'bg-success/5';
+              if (section.type === 'warning') return 'bg-warning/5';
+              if (section.type === 'error') return 'bg-destructive/5';
+              return 'bg-card';
+            };
+            
+            const getIcon = () => {
+              if (section.type === 'success') return <CheckCircle2 className="h-5 w-5 text-success" />;
+              if (section.type === 'warning') return <AlertTriangle className="h-5 w-5 text-warning" />;
+              if (section.type === 'error') return <AlertTriangle className="h-5 w-5 text-destructive" />;
+              return <Info className="h-5 w-5 text-primary" />;
+            };
+            
+            return (
+              <Card key={idx} className={`${getBorderColor()} ${getBgColor()} transition-all hover:shadow-md`}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">{getIcon()}</div>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl">{section.title}</CardTitle>
+                    </div>
+                    {section.type && (
+                      <Badge 
+                        variant={
+                          section.type === 'success' ? 'default' : 
+                          section.type === 'warning' ? 'secondary' : 
+                          'destructive'
+                        }
+                        className={
+                          section.type === 'success' ? 'bg-success text-success-foreground' :
+                          section.type === 'warning' ? 'bg-warning text-warning-foreground' :
+                          ''
+                        }
+                      >
+                        {section.type === 'success' ? 'OK' : 
+                         section.type === 'warning' ? 'ADVARSEL' : 
+                         'KRITISK'}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
+                      {section.content.join('\n')}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Action Footer */}
+        <Card className="bg-muted/50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Trenger du hjelp med å lukke gap?</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Lara kan hjelpe deg med å prioritere og planlegge tiltak
+                </p>
+              </div>
+              <Button className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Be om hjelp
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   };
 
