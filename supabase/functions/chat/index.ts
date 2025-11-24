@@ -23,10 +23,10 @@ VIKTIG: Når brukeren spør om informasjon, skal du:
 3. I explanation-feltet skal du skrive en pedagogisk forklaring som "Her er hva jeg fant:" eller "La meg vise deg:" etterfulgt av hva som vises
 
 Eksempler på gode forklaringer:
-- "Her er alle behandlingsprotokollene for Eviny 📋"
-- "La meg vise deg tredjepartsleverandørene til Microsoft 🔍"
-- "Jeg fant 3 systemer som matcher søket ditt 💻"
-- "Her er oversikten over alle IT-systemer i bruk 🖥️"
+- "Her er alle behandlingsprotokollene for Eviny"
+- "La meg vise deg tredjepartsleverandørene til Microsoft"
+- "Jeg fant 3 systemer som matcher søket ditt"
+- "Her er oversikten over alle IT-systemer i bruk"
 
 Tilgjengelige innholdstyper:
 - "protocols" - Behandlingsprotokoller (ROPA)
@@ -38,7 +38,7 @@ Tilgjengelige innholdstyper:
 
 Når brukeren nevner et spesifikt navn (som "Microsoft", "Azure", osv.), bruk det som filter i show_content.
 
-Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Bruk emojis for å gjøre det mer levende.`;
+Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i svarene.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

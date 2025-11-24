@@ -84,10 +84,10 @@ const suggestionMap: Record<SuggestionContext, string[]> = {
 
 export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hei! 👋 Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
-    }
+      {
+        role: "assistant",
+        content: "Hei! Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
+      }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -114,7 +114,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
     setMessages([
       {
         role: "assistant",
-        content: "Hei! 👋 Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
+        content: "Hei! Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
       }
     ]);
     setCurrentContext("default");
