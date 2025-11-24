@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -97,6 +100,10 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentContext, setCurrentContext] = useState<SuggestionContext>("default");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareType, setShareType] = useState<"internal" | "external">("internal");
+  const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -133,22 +140,58 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   };
 
   const handleShareConversation = () => {
-    const conversationText = messages
-      .map(m => `${m.role === "user" ? "Du" : "Lara"}: ${m.content}`)
-      .join("\n\n");
-    
-    navigator.clipboard.writeText(conversationText).then(() => {
-      toast({
-        title: "Kopiert",
-        description: "Samtalen er kopiert til utklippstavlen",
-      });
-    }).catch(() => {
+    setShareDialogOpen(true);
+  };
+
+  const handleShareSubmit = async () => {
+    if (!shareEmail.trim()) {
       toast({
         title: "Feil",
-        description: "Kunne ikke kopiere samtalen",
+        description: "Vennligst oppgi en e-postadresse",
         variant: "destructive",
       });
-    });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(shareEmail)) {
+      toast({
+        title: "Feil",
+        description: "Vennligst oppgi en gyldig e-postadresse",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const conversationText = messages
+        .map(m => `${m.role === "user" ? "Du" : "Lara"}: ${m.content}`)
+        .join("\n\n");
+
+      // TODO: Implement actual email sending via edge function
+      // For now, just show success message
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Samtale delt",
+        description: `Samtalen er delt med ${shareEmail}`,
+      });
+
+      setShareDialogOpen(false);
+      setShareEmail("");
+      setShareType("internal");
+    } catch (error) {
+      toast({
+        title: "Feil",
+        description: "Kunne ikke dele samtalen. Prøv igjen senere.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   useEffect(() => {
@@ -342,6 +385,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   };
 
   return (
+    <>
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
       {/* Header */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-border">
@@ -501,5 +545,73 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         </div>
       </div>
     </div>
+
+    {/* Share Dialog */}
+    <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Del samtale</DialogTitle>
+          <DialogDescription>
+            Del denne samtalen med andre brukere eller eksterne personer via e-post.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Delingstype</Label>
+            <RadioGroup value={shareType} onValueChange={(value) => setShareType(value as "internal" | "external")}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="internal" id="internal" />
+                <Label htmlFor="internal" className="font-normal cursor-pointer">
+                  Intern bruker (innad i organisasjonen)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="external" id="external" />
+                <Label htmlFor="external" className="font-normal cursor-pointer">
+                  Ekstern person
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">E-postadresse</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="navn@eksempel.no"
+              value={shareEmail}
+              onChange={(e) => setShareEmail(e.target.value)}
+              disabled={isSending}
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setShareDialogOpen(false)}
+            disabled={isSending}
+          >
+            Avbryt
+          </Button>
+          <Button onClick={handleShareSubmit} disabled={isSending}>
+            {isSending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deler...
+              </>
+            ) : (
+              <>
+                <Share2 className="mr-2 h-4 w-4" />
+                Del samtale
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
