@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   FileText, 
   Users, 
@@ -10,7 +11,8 @@ import {
   Shield,
   ExternalLink,
   Edit,
-  Trash2
+  Trash2,
+  Info
 } from "lucide-react";
 
 interface ContentViewerProps {
@@ -415,6 +417,22 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
   };
 
   const resultCount = getResultCount();
+  const totalCount = (() => {
+    switch (contentType) {
+      case "protocols": return mockData.protocols.length;
+      case "third-parties": return mockData["third-parties"].length;
+      case "systems": return mockData.systems.length;
+      default: return 0;
+    }
+  })();
+
+  const getInfoMessage = () => {
+    const title = getTitle().toLowerCase();
+    if (filter) {
+      return `Viser ${resultCount} av ${totalCount} ${title} som matcher "${filter}"`;
+    }
+    return `Det er registrert ${totalCount} ${title} i systemet`;
+  };
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -431,7 +449,13 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
           </p>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <Alert className="bg-primary/5 border-primary/20">
+          <Info className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-foreground">
+            {getInfoMessage()}
+          </AlertDescription>
+        </Alert>
         {renderContent()}
       </div>
     </div>
