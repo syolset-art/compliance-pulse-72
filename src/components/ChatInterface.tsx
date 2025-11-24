@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, PenTool } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -610,17 +610,13 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             size="icon"
             variant="ghost"
             onClick={() => {
-              toast({
-                title: "Visual Edits",
-                description: "Klikk på elementer for å redigere direkte",
-              });
-              // TODO: Implement visual editing mode
+              handleSend("Gi meg AI-forslag basert på vår nåværende compliance-status og identifiser forbedringområder");
             }}
             disabled={isLoading}
             className="h-10 w-10"
-            title="Visual Edits"
+            title="AI-forslag for forbedringer"
           >
-            <PenTool className="h-5 w-5" />
+            <Lightbulb className="h-5 w-5" />
           </Button>
           <Input
             value={input}
