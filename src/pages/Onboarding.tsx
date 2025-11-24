@@ -614,8 +614,48 @@ export default function Onboarding() {
             
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-3xl font-bold">Systemer & Leverandører</h2>
-              <p className="text-muted-foreground">Lara finner systemene dine automatisk</p>
+              <p className="text-muted-foreground">Få oversikt over alle systemene dere bruker</p>
             </div>
+
+            {/* Explanation Card */}
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-background/80 shadow-sm">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">Hvorfor kartlegge systemene våre?</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Ved å automatisk identifisere alle systemene dere bruker, får dere full oversikt og kontroll. 
+                        Dette sparer tid ved at Lara automatisk:
+                      </p>
+                    </div>
+                    <div className="bg-background/60 rounded-lg p-4 space-y-2">
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">✓</span>
+                          <span><strong>Henter avtaler:</strong> Finner databehandleravtaler (DPA) og sikkerhetsattester</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">✓</span>
+                          <span><strong>Sparer tid:</strong> Slipper manuell kartlegging av systemer og leverandører</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">✓</span>
+                          <span><strong>Reduserer kostnader:</strong> Oppdager ofte overflødig eller duplisert programvare</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">✓</span>
+                          <span><strong>Øker sikkerheten:</strong> Identifiserer systemer som mangler dokumentasjon</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {systemsFound > 0 && (
               <Card className="bg-primary/5 border-primary/20">
@@ -642,50 +682,66 @@ export default function Onboarding() {
               </Card>
             )}
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("firmakort")}>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Firmakort
-                  </CardTitle>
-                  <CardDescription>Hent automatisk via Visa/Mastercard</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant="secondary">🪄 Autopilot</Badge>
-                </CardContent>
-              </Card>
+            <div>
+              <h3 className="font-semibold mb-4">Velg hvordan du vil skanne systemer:</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("firmakort")}>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Firmakort
+                    </CardTitle>
+                    <CardDescription>Hent automatisk via Visa/Mastercard</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="secondary">🪄 Autopilot</Badge>
+                  </CardContent>
+                </Card>
 
-              <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("domene")}>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Cloud className="w-5 h-5" />
-                    Domene
-                  </CardTitle>
-                  <CardDescription>Søk via DNS og SaaS-oppdager</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant="secondary">🌐 Smart skanning</Badge>
-                </CardContent>
-              </Card>
+                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("domene")}>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Cloud className="w-5 h-5" />
+                      Domene
+                    </CardTitle>
+                    <CardDescription>Søk via DNS og SaaS-oppdager</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="secondary">🌐 Smart skanning</Badge>
+                  </CardContent>
+                </Card>
 
-              <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("import")}>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Importer
-                  </CardTitle>
-                  <CardDescription>Last opp CSV/Excel liste</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant="secondary">📄 Manuell</Badge>
-                </CardContent>
-              </Card>
+                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => scanSystems("import")}>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Importer
+                    </CardTitle>
+                    <CardDescription>Last opp CSV/Excel liste</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="secondary">📄 Manuell</Badge>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            <Button onClick={completeSystems} className="w-full" disabled={systemsProcessed === 0}>
-              Fortsett til policyer
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={completeSystems} 
+                className="flex-1"
+              >
+                Hopp over nå
+              </Button>
+              <Button 
+                onClick={completeSystems} 
+                className="flex-1" 
+                disabled={systemsProcessed === 0}
+              >
+                Fortsett til policyer
+              </Button>
+            </div>
           </div>
         )}
 
