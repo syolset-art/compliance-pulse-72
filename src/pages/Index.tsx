@@ -13,12 +13,15 @@ import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
 import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
 import { LaraAgent } from "@/components/LaraAgent";
+import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { CheckCircle2, TrendingUp } from "lucide-react";
+import { CheckCircle2, TrendingUp, Plus } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
+  const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [contentView, setContentView] = useState<{ 
     type: string; 
     filter?: string;
@@ -36,6 +39,20 @@ const Index = () => {
 
   const handleBackToDashboard = () => {
     setContentView(null);
+  };
+
+  const handleModuleCreated = (moduleData: any) => {
+    // Display the created module in the ContentViewer
+    const explanation = `# Modul opprettet: ${moduleData.name}
+
+**Type:** ${moduleData.type?.replace("-", " ")}
+**Beskrivelse:** ${moduleData.description || "Ingen beskrivelse oppgitt"}
+${moduleData.file ? `**Fil:** ${moduleData.file.name}` : ""}
+${moduleData.config ? `\n## Konfigurasjon\n\`\`\`\n${moduleData.config}\n\`\`\`` : ""}
+
+Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhandle med den via chatten.`;
+
+    handleShowContent("module", undefined, undefined, explanation);
   };
 
   return (
@@ -75,9 +92,15 @@ const Index = () => {
           <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
-              <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
+                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
+              </div>
+              <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Legg til modul
+              </Button>
             </div>
             <p className="text-sm md:text-base text-muted-foreground">Compliance og sikkerhetsløsning drevet av Mynder</p>
           </div>
@@ -206,6 +229,13 @@ const Index = () => {
 
       {/* Lara AI Agent */}
       <LaraAgent />
+
+      {/* Add Module Dialog */}
+      <AddModuleDialog 
+        open={isAddModuleOpen}
+        onOpenChange={setIsAddModuleOpen}
+        onModuleCreated={handleModuleCreated}
+      />
     </div>
   );
 };
