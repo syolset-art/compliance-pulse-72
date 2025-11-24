@@ -13,6 +13,7 @@ import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
 import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
 import { LaraAgent } from "@/components/LaraAgent";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { CheckCircle2, TrendingUp } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 
@@ -38,17 +39,28 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {mode === "menu" ? (
-        <Sidebar onToggleChat={toggleMode} />
-      ) : (
-        <ChatInterface 
-          onToggleMode={toggleMode} 
-          onShowContent={handleShowContent}
-          onBackToDashboard={handleBackToDashboard}
-        />
-      )}
-      
-      <main className="flex-1 overflow-y-auto">
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel 
+          defaultSize={20} 
+          minSize={15} 
+          maxSize={40}
+          className="min-w-[240px]"
+        >
+          {mode === "menu" ? (
+            <Sidebar onToggleChat={toggleMode} />
+          ) : (
+            <ChatInterface 
+              onToggleMode={toggleMode} 
+              onShowContent={handleShowContent}
+              onBackToDashboard={handleBackToDashboard}
+            />
+          )}
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        <ResizablePanel defaultSize={80}>
+          <main className="flex-1 h-full overflow-y-auto">
         {contentView && mode === "chat" ? (
           <ContentViewer 
             contentType={contentView.type} 
@@ -184,9 +196,11 @@ const Index = () => {
               </div>
             </div>
           </div>
-        </div>
-        )}
-      </main>
+          </div>
+          )}
+        </main>
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
       {/* Lara AI Agent */}
       <LaraAgent />
