@@ -57,7 +57,7 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Bruk emojis for å gjøre
             type: "function",
             function: {
               name: "show_content",
-              description: "Display specific content directly in the interface. Use this when user asks to see or show something specific.",
+              description: "Display specific content directly in the interface. Use this when user asks to see or show something specific. Parse user's intent for view mode, sorting, and filtering.",
               parameters: {
                 type: "object",
                 properties: {
@@ -68,7 +68,44 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Bruk emojis for å gjøre
                   },
                   filter: {
                     type: "string",
-                    description: "Optional filter or search term"
+                    description: "Optional search term (e.g., 'Microsoft', 'høy risiko')"
+                  },
+                  view_mode: {
+                    type: "string",
+                    enum: ["cards", "table", "list", "names-only"],
+                    description: "How to display the content. Default: cards. Use 'table' for tabellformat, 'names-only' for bare navn/titler, 'list' for enkel liste"
+                  },
+                  sort_by: {
+                    type: "string",
+                    enum: ["name", "date", "risk", "priority", "vendor", "country"],
+                    description: "Sort criterion if user specifies sorting"
+                  },
+                  filter_criteria: {
+                    type: "object",
+                    properties: {
+                      risk_level: {
+                        type: "string",
+                        enum: ["Low", "Medium", "High"],
+                        description: "Filter by risk level"
+                      },
+                      has_dpa: {
+                        type: "boolean",
+                        description: "Filter by DPA status"
+                      },
+                      country: {
+                        type: "string",
+                        description: "Filter by country"
+                      },
+                      priority: {
+                        type: "string",
+                        enum: ["low", "medium", "high"],
+                        description: "Filter by priority (for tasks)"
+                      },
+                      status: {
+                        type: "string",
+                        description: "Filter by status"
+                      }
+                    }
                   },
                   explanation: {
                     type: "string",

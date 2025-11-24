@@ -3,6 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { 
   FileText, 
   Users, 
   Server, 
@@ -12,12 +20,22 @@ import {
   ExternalLink,
   Edit,
   Trash2,
-  Info
+  Info,
+  List
 } from "lucide-react";
 
 interface ContentViewerProps {
   contentType: string;
   filter?: string;
+  viewMode?: "cards" | "table" | "list" | "names-only";
+  sortBy?: string;
+  filterCriteria?: {
+    risk_level?: string;
+    has_dpa?: boolean;
+    country?: string;
+    priority?: string;
+    status?: string;
+  };
 }
 
 const mockData = {
@@ -133,28 +151,75 @@ const mockData = {
   ]
 };
 
-const filterData = (data: any[], filter?: string) => {
-  if (!filter) return data;
+const filterData = (data: any[], filter?: string, filterCriteria?: any) => {
+  let filtered = data;
   
-  const lowerFilter = filter.toLowerCase();
-  return data.filter(item => {
-    // Search in name
-    if (item.name?.toLowerCase().includes(lowerFilter)) return true;
-    // Search in vendor
-    if (item.vendor?.toLowerCase().includes(lowerFilter)) return true;
-    // Search in type
-    if (item.type?.toLowerCase().includes(lowerFilter)) return true;
-    // Search in systems array
-    if (item.systems?.some((s: string) => s.toLowerCase().includes(lowerFilter))) return true;
-    return false;
-  });
+  // Text search filter
+  if (filter) {
+    const lowerFilter = filter.toLowerCase();
+    filtered = filtered.filter(item => {
+      if (item.name?.toLowerCase().includes(lowerFilter)) return true;
+      if (item.vendor?.toLowerCase().includes(lowerFilter)) return true;
+      if (item.type?.toLowerCase().includes(lowerFilter)) return true;
+      if (item.systems?.some((s: string) => s.toLowerCase().includes(lowerFilter))) return true;
+      return false;
+    });
+  }
+  
+  // Advanced criteria filters
+  if (filterCriteria) {
+    if (filterCriteria.risk_level) {
+      filtered = filtered.filter(item => item.riskLevel === filterCriteria.risk_level);
+    }
+    if (filterCriteria.has_dpa !== undefined) {
+      filtered = filtered.filter(item => item.dpa === filterCriteria.has_dpa);
+    }
+    if (filterCriteria.country) {
+      filtered = filtered.filter(item => item.country?.toLowerCase().includes(filterCriteria.country.toLowerCase()));
+    }
+    if (filterCriteria.priority) {
+      filtered = filtered.filter(item => item.priority?.toLowerCase() === filterCriteria.priority.toLowerCase());
+    }
+    if (filterCriteria.status) {
+      filtered = filtered.filter(item => item.status?.toLowerCase().includes(filterCriteria.status.toLowerCase()));
+    }
+  }
+  
+  return filtered;
 };
 
-export function ContentViewer({ contentType, filter }: ContentViewerProps) {
+const sortData = (data: any[], sortBy?: string) => {
+  if (!sortBy) return data;
+  
+  const sorted = [...data];
+  
+  switch (sortBy) {
+    case "name":
+      return sorted.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    case "date":
+      return sorted.sort((a, b) => new Date(b.lastReview || 0).getTime() - new Date(a.lastReview || 0).getTime());
+    case "risk":
+      const riskOrder = { "High": 3, "Medium": 2, "Low": 1 };
+      return sorted.sort((a, b) => (riskOrder[b.riskLevel as keyof typeof riskOrder] || 0) - (riskOrder[a.riskLevel as keyof typeof riskOrder] || 0));
+    case "vendor":
+      return sorted.sort((a, b) => (a.vendor || "").localeCompare(b.vendor || ""));
+    case "country":
+      return sorted.sort((a, b) => (a.country || "").localeCompare(b.country || ""));
+    case "priority":
+      const priorityOrder = { "high": 3, "medium": 2, "low": 1 };
+      return sorted.sort((a, b) => (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - (priorityOrder[a.priority as keyof typeof priorityOrder] || 0));
+    default:
+      return sorted;
+  }
+};
+
+export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria }: ContentViewerProps) {
   const renderProtocols = () => {
-    const filteredData = filterData(mockData.protocols, filter);
+    let data = mockData.protocols;
+    data = filterData(data, filter, filterCriteria);
+    data = sortData(data, sortBy);
     
-    if (filteredData.length === 0) {
+    if (data.length === 0) {
       return (
         <Card>
           <CardContent className="p-8 text-center">
@@ -163,10 +228,98 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       );
     }
+
+    // Names-only view
+    if (viewMode === "names-only") {
+      return (
+        <Card>
+          <CardContent className="p-6">
+            <ul className="space-y-2">
+              {data.map((protocol) => (
+                <li key={protocol.id} className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <span>{protocol.name}</span>
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    {protocol.status}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // List view
+    if (viewMode === "list") {
+      return (
+        <div className="space-y-2">
+          {data.map((protocol) => (
+            <Card key={protocol.id} className="hover:bg-accent/50 transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">{protocol.name}</p>
+                      <p className="text-sm text-muted-foreground">{protocol.legalBasis}</p>
+                    </div>
+                  </div>
+                  <Badge variant={protocol.status === "Aktiv" ? "default" : "secondary"}>
+                    {protocol.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+
+    // Table view
+    if (viewMode === "table") {
+      return (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Navn</TableHead>
+                  <TableHead>Formål</TableHead>
+                  <TableHead>Rettslig grunnlag</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Handlinger</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((protocol) => (
+                  <TableRow key={protocol.id}>
+                    <TableCell className="font-medium">{protocol.name}</TableCell>
+                    <TableCell className="max-w-xs truncate">{protocol.purpose}</TableCell>
+                    <TableCell>{protocol.legalBasis}</TableCell>
+                    <TableCell>
+                      <Badge variant={protocol.status === "Aktiv" ? "default" : "secondary"}>
+                        {protocol.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      );
+    }
     
+    // Default: Cards view
     return (
       <div className="space-y-4">
-        {filteredData.map((protocol) => (
+        {data.map((protocol) => (
         <Card key={protocol.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -222,9 +375,11 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
   };
 
   const renderThirdParties = () => {
-    const filteredData = filterData(mockData["third-parties"], filter);
+    let data = mockData["third-parties"];
+    data = filterData(data, filter, filterCriteria);
+    data = sortData(data, sortBy);
     
-    if (filteredData.length === 0) {
+    if (data.length === 0) {
       return (
         <Card>
           <CardContent className="p-8 text-center">
@@ -233,10 +388,112 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       );
     }
+
+    // Names-only view
+    if (viewMode === "names-only") {
+      return (
+        <Card>
+          <CardContent className="p-6">
+            <ul className="space-y-2">
+              {data.map((party) => (
+                <li key={party.id} className="flex items-center gap-2 text-sm">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span>{party.name}</span>
+                  <span className="text-muted-foreground ml-2">({party.country})</span>
+                  <Badge variant={party.dpa ? "default" : "destructive"} className="ml-auto text-xs">
+                    {party.dpa ? "DPA" : "Ingen DPA"}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // List view
+    if (viewMode === "list") {
+      return (
+        <div className="space-y-2">
+          {data.map((party) => (
+            <Card key={party.id} className="hover:bg-accent/50 transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">{party.name}</p>
+                      <p className="text-sm text-muted-foreground">{party.type} • {party.country}</p>
+                    </div>
+                  </div>
+                  <Badge variant={party.dpa ? "default" : "destructive"}>
+                    {party.dpa ? "DPA signert" : "Mangler DPA"}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+
+    // Table view
+    if (viewMode === "table") {
+      return (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Navn</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Land</TableHead>
+                  <TableHead>DPA Status</TableHead>
+                  <TableHead>Sertifiseringer</TableHead>
+                  <TableHead className="text-right">Handlinger</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((party) => (
+                  <TableRow key={party.id}>
+                    <TableCell className="font-medium">{party.name}</TableCell>
+                    <TableCell>{party.type}</TableCell>
+                    <TableCell>{party.country}</TableCell>
+                    <TableCell>
+                      <Badge variant={party.dpa ? "default" : "destructive"}>
+                        {party.dpa ? "Signert" : "Mangler"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        {party.certifications.slice(0, 2).map((cert, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {cert}
+                          </Badge>
+                        ))}
+                        {party.certifications.length > 2 && (
+                          <span className="text-xs text-muted-foreground">+{party.certifications.length - 2}</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      );
+    }
     
+    // Default: Cards view
     return (
       <div className="space-y-4">
-        {filteredData.map((party) => (
+        {data.map((party) => (
         <Card key={party.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -303,9 +560,11 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
   };
 
   const renderSystems = () => {
-    const filteredData = filterData(mockData.systems, filter);
+    let data = mockData.systems;
+    data = filterData(data, filter, filterCriteria);
+    data = sortData(data, sortBy);
     
-    if (filteredData.length === 0) {
+    if (data.length === 0) {
       return (
         <Card>
           <CardContent className="p-8 text-center">
@@ -314,10 +573,120 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
         </Card>
       );
     }
+
+    // Names-only view
+    if (viewMode === "names-only") {
+      return (
+        <Card>
+          <CardContent className="p-6">
+            <ul className="space-y-2">
+              {data.map((system) => (
+                <li key={system.id} className="flex items-center gap-2 text-sm">
+                  <Server className="h-4 w-4 text-primary" />
+                  <span>{system.name}</span>
+                  <span className="text-muted-foreground ml-2">({system.vendor})</span>
+                  <Badge 
+                    variant={
+                      system.riskLevel === "High" ? "destructive" : 
+                      system.riskLevel === "Medium" ? "default" : 
+                      "secondary"
+                    }
+                    className="ml-auto text-xs"
+                  >
+                    {system.riskLevel}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // List view
+    if (viewMode === "list") {
+      return (
+        <div className="space-y-2">
+          {data.map((system) => (
+            <Card key={system.id} className="hover:bg-accent/50 transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Server className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">{system.name}</p>
+                      <p className="text-sm text-muted-foreground">{system.vendor} • {system.users} brukere</p>
+                    </div>
+                  </div>
+                  <Badge 
+                    variant={
+                      system.riskLevel === "High" ? "destructive" : 
+                      system.riskLevel === "Medium" ? "default" : 
+                      "secondary"
+                    }
+                  >
+                    {system.riskLevel} risiko
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+
+    // Table view
+    if (viewMode === "table") {
+      return (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Navn</TableHead>
+                  <TableHead>Leverandør</TableHead>
+                  <TableHead>Brukere</TableHead>
+                  <TableHead>Risikonivå</TableHead>
+                  <TableHead>Sist gjennomgått</TableHead>
+                  <TableHead className="text-right">Handlinger</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((system) => (
+                  <TableRow key={system.id}>
+                    <TableCell className="font-medium">{system.name}</TableCell>
+                    <TableCell>{system.vendor}</TableCell>
+                    <TableCell>{system.users}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={
+                          system.riskLevel === "High" ? "destructive" : 
+                          system.riskLevel === "Medium" ? "default" : 
+                          "secondary"
+                        }
+                      >
+                        {system.riskLevel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{system.lastReview}</TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      );
+    }
     
+    // Default: Cards view
     return (
       <div className="space-y-4">
-        {filteredData.map((system) => (
+        {data.map((system) => (
         <Card key={system.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -412,7 +781,7 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
       case "third-parties": data = mockData["third-parties"]; break;
       case "systems": data = mockData.systems; break;
     }
-    const filtered = filterData(data, filter);
+    const filtered = filterData(data, filter, filterCriteria);
     return filtered.length;
   };
 
@@ -428,10 +797,29 @@ export function ContentViewer({ contentType, filter }: ContentViewerProps) {
 
   const getInfoMessage = () => {
     const title = getTitle().toLowerCase();
-    if (filter) {
-      return `Viser ${resultCount} av ${totalCount} ${title} som matcher "${filter}"`;
+    const viewModeText = viewMode === "table" ? "i tabellformat" : 
+                         viewMode === "list" ? "som liste" :
+                         viewMode === "names-only" ? "som navneliste" : "";
+    
+    if (filter || filterCriteria) {
+      let filterDesc = [];
+      if (filter) filterDesc.push(`søk: "${filter}"`);
+      if (filterCriteria?.risk_level) filterDesc.push(`risiko: ${filterCriteria.risk_level}`);
+      if (filterCriteria?.has_dpa !== undefined) filterDesc.push(`DPA: ${filterCriteria.has_dpa ? "Ja" : "Nei"}`);
+      if (filterCriteria?.country) filterDesc.push(`land: ${filterCriteria.country}`);
+      
+      return `Viser ${resultCount} av ${totalCount} ${title} ${viewModeText} (${filterDesc.join(", ")})`;
     }
-    return `Det er registrert ${totalCount} ${title} i systemet`;
+    
+    if (sortBy) {
+      const sortDesc = sortBy === "name" ? "sortert alfabetisk" :
+                       sortBy === "risk" ? "sortert etter risiko" :
+                       sortBy === "date" ? "sortert etter dato" :
+                       sortBy === "vendor" ? "sortert etter leverandør" : "";
+      return `Det er registrert ${totalCount} ${title} i systemet ${viewModeText}${sortDesc ? `, ${sortDesc}` : ""}`;
+    }
+    
+    return `Det er registrert ${totalCount} ${title} i systemet${viewModeText ? ` ${viewModeText}` : ""}`;
   };
 
   return (

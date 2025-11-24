@@ -13,9 +13,21 @@ interface Message {
   content: string;
 }
 
+interface ContentViewOptions {
+  viewMode?: "cards" | "table" | "list" | "names-only";
+  sortBy?: string;
+  filterCriteria?: {
+    risk_level?: string;
+    has_dpa?: boolean;
+    country?: string;
+    priority?: string;
+    status?: string;
+  };
+}
+
 interface ChatInterfaceProps {
   onToggleMode: () => void;
-  onShowContent?: (contentType: string, filter?: string) => void;
+  onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions) => void;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -224,7 +236,12 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
             updateAssistantMessage(contentMessage);
             
             if (onShowContent) {
-              onShowContent(args.content_type, args.filter);
+              const options: ContentViewOptions = {
+                viewMode: args.view_mode,
+                sortBy: args.sort_by,
+                filterCriteria: args.filter_criteria
+              };
+              onShowContent(args.content_type, args.filter, options);
             }
           } else if (toolCall.name === "navigate_to" && args.path) {
             const navMessage = args.reason 

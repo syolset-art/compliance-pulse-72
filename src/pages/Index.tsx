@@ -18,10 +18,18 @@ import { useNavigationMode } from "@/hooks/useNavigationMode";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
-  const [contentView, setContentView] = useState<{ type: string; filter?: string } | null>(null);
+  const [contentView, setContentView] = useState<{ 
+    type: string; 
+    filter?: string;
+    options?: {
+      viewMode?: "cards" | "table" | "list" | "names-only";
+      sortBy?: string;
+      filterCriteria?: any;
+    };
+  } | null>(null);
 
-  const handleShowContent = (contentType: string, filter?: string) => {
-    setContentView({ type: contentType, filter });
+  const handleShowContent = (contentType: string, filter?: string, options?: any) => {
+    setContentView({ type: contentType, filter, options });
   };
 
   return (
@@ -34,7 +42,13 @@ const Index = () => {
       
       <main className="flex-1 overflow-y-auto">
         {contentView && mode === "chat" ? (
-          <ContentViewer contentType={contentView.type} filter={contentView.filter} />
+          <ContentViewer 
+            contentType={contentView.type} 
+            filter={contentView.filter}
+            viewMode={contentView.options?.viewMode}
+            sortBy={contentView.options?.sortBy}
+            filterCriteria={contentView.options?.filterCriteria}
+          />
         ) : (
           <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
