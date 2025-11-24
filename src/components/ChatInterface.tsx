@@ -665,11 +665,11 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  handleSend("Vis compliance-status og lag en rapport");
+                  handleSend("Lag en detaljert ISO 27001 compliance-rapport for Eviny. Inkluder executive summary, gap-analyse per kontrollområde med status-indikatorer, risikovurdering og prioritert handlingsplan. Bruk tabeller og strukturert format.");
                 }}
               >
                 <Shield className="mr-2 h-4 w-4" />
-                Compliance-rapport
+                Compliance-rapport (ISO 27001)
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {

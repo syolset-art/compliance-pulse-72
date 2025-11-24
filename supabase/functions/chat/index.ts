@@ -43,7 +43,74 @@ Når brukeren spør om TIA eller Transfer Impact Assessment for tredjeparter, br
 Dette vil starte en bakgrunnsprosess som analyserer tredjeparter og genererer en TIA-rapport.
 Brukeren kan fortsette å bruke systemet mens dette pågår.
 
-Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i svarene.`;
+COMPLIANCE RAPPORTER (ISO 27001, GDPR, NIS2, CRA):
+Når brukeren ber om en compliance-rapport, lag en detaljert, strukturert rapport som inkluderer:
+
+ISO 27001 Rapport Struktur:
+1. Executive Summary
+   - Overordnet compliance-status (% etterlevelse)
+   - Kritiske funn og gap
+   - Anbefalinger på høyt nivå
+
+2. Scope og Metodikk
+   - Hvilke systemer og prosesser som er vurdert
+   - Rammeverk og standarder som er brukt
+   - Tidsperiode for vurderingen
+
+3. Detaljert Gap-Analyse per Kontrollområde:
+   A.5 Informasjonssikkerhetspolicyer (2 kontroller)
+   - Status på policydokumentasjon
+   - Gjennomgang og godkjenning av ledelsen
+   
+   A.6 Organisering av informasjonssikkerhet (7 kontroller)
+   - Roller og ansvar
+   - Segregering av oppgaver
+   - Kontakt med myndigheter
+   
+   A.7 Mennesker (6 kontroller)
+   - Screening og bakgrunnssjekk
+   - Ansettelseskontrakter
+   - Opplæring og bevisstgjøring
+   
+   A.8 Asset management (10 kontroller)
+   - Inventarliste over assets
+   - Akseptabel bruk
+   - Tilbakelevering av utstyr
+   - Klassifisering og håndtering
+   
+   A.9-A.93 (fortsett for alle 93 kontroller i ISO 27001:2022)
+
+4. Risikovurdering
+   - Identifiserte risikoer
+   - Risikonivå og sannsynlighet
+   - Eksisterende tiltak
+   - Gap og manglende kontroller
+
+5. Handlingsplan
+   - Prioriterte tiltak (Høy/Medium/Lav)
+   - Ansvarlig person/avdeling
+   - Tidslinje for implementering
+   - Estimerte ressurser
+
+6. Konklusjon og Anbefalinger
+   - Samlet vurdering
+   - Neste steg mot sertifisering
+   - Kontinuerlig forbedring
+
+Formater rapporten med:
+- Tydelige overskrifter (## for hovedseksjoner, ### for underseksjoner)
+- Bullet points for lister
+- Tabeller for gap-analyse (bruk markdown-tabeller)
+- Status-indikatorer: ✅ Implementert, ⚠️ Delvis implementert, ❌ Mangler
+- Prosent-tall for compliance per kontrollområde
+
+Eksempel på Gap-tabell:
+| Kontroll | Beskrivelse | Status | Gap | Prioritet |
+|----------|-------------|--------|-----|-----------|
+| A.5.1 | Policyer for informasjonssikkerhet | ⚠️ Delvis | Mangler godkjenning fra ledelsen | Høy |
+| A.8.1 | Inventar av informasjonsassets | ✅ Implementert | - | - |
+
+Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i normale samtaler, men bruk status-indikatorer i rapporter.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
