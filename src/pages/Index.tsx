@@ -38,7 +38,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel 
           defaultSize={20} 
@@ -60,7 +60,7 @@ const Index = () => {
         <ResizableHandle withHandle />
         
         <ResizablePanel defaultSize={80}>
-          <main className="flex-1 h-full overflow-y-auto">
+          <main className="h-screen overflow-y-auto">
         {contentView && mode === "chat" ? (
           <ContentViewer 
             contentType={contentView.type} 

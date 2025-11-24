@@ -388,7 +388,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
 
   return (
     <>
-    <div className="flex h-full w-full flex-col border-r border-border bg-card">
+    <div className="flex h-screen w-full flex-col border-r border-border bg-card overflow-hidden">
       {/* Header */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-border">
         <div className="flex items-center gap-2">
