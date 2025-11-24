@@ -27,7 +27,6 @@ export default function Onboarding() {
   const [employees, setEmployees] = useState("");
   const [industry, setIndustry] = useState("");
   const [maturity, setMaturity] = useState("");
-  const [hasComplianceRole, setHasComplianceRole] = useState(false);
 
   // Frameworks state
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
@@ -75,7 +74,7 @@ export default function Onboarding() {
       setCompanyName("Eviny");
       setOrgNumber("999 999 999");
       setIndustry("energi");
-      setEmployees("1000-5000");
+      setEmployees("1001-5000");
       
       toast({
         title: "🤖 Lara jobber",
@@ -102,7 +101,7 @@ export default function Onboarding() {
       setCompanyName("Eviny");
       setOrgNumber("999 999 999");
       setIndustry("energi");
-      setEmployees("1000-5000");
+      setEmployees("1001-5000");
       
       toast({
         title: "✅ Informasjon hentet",
@@ -391,25 +390,28 @@ export default function Onboarding() {
                       <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-foreground">
-                          Organisasjonsdata hentet
+                          Organisasjonsdata hentet fra Brønnøysundregisteret
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Informasjon fra Brønnøysundregisteret er forhåndsutfylt. Verifiser og juster ved behov.
+                          Verifiser og juster informasjonen under ved behov.
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
+                
+                {/* Company Name - Read Only */}
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Bedriftsnavn</Label>
+                  <Input
+                    id="companyName"
+                    value={companyName}
+                    disabled
+                    className="bg-muted/50"
+                  />
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName">Bedriftsnavn</Label>
-                    <Input
-                      id="companyName"
-                      placeholder="Din bedrift AS"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                    />
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="orgNumber">Organisasjonsnummer</Label>
                     <Input
@@ -419,9 +421,6 @@ export default function Onboarding() {
                       onChange={(e) => setOrgNumber(e.target.value)}
                     />
                   </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="employees">Antall ansatte</Label>
                     <Select value={employees} onValueChange={setEmployees}>
@@ -429,59 +428,92 @@ export default function Onboarding() {
                         <SelectValue placeholder="Velg antall" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1-10">1-10</SelectItem>
-                        <SelectItem value="11-50">11-50</SelectItem>
-                        <SelectItem value="51-200">51-200</SelectItem>
-                        <SelectItem value="201-1000">201-1000</SelectItem>
-                        <SelectItem value="1000+">1000+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="industry">Bransje</Label>
-                    <Select value={industry} onValueChange={setIndustry}>
-                      <SelectTrigger id="industry">
-                        <SelectValue placeholder="Velg bransje" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="helse">Helse</SelectItem>
-                        <SelectItem value="finans">Finans</SelectItem>
-                        <SelectItem value="energi">Energi</SelectItem>
-                        <SelectItem value="saas">SaaS</SelectItem>
-                        <SelectItem value="offentlig">Offentlig</SelectItem>
-                        <SelectItem value="annet">Annet</SelectItem>
+                        <SelectItem value="1">1 ansatt</SelectItem>
+                        <SelectItem value="2-5">2-5 ansatte</SelectItem>
+                        <SelectItem value="6-10">6-10 ansatte</SelectItem>
+                        <SelectItem value="11-25">11-25 ansatte</SelectItem>
+                        <SelectItem value="26-50">26-50 ansatte</SelectItem>
+                        <SelectItem value="51-100">51-100 ansatte</SelectItem>
+                        <SelectItem value="101-250">101-250 ansatte</SelectItem>
+                        <SelectItem value="251-500">251-500 ansatte</SelectItem>
+                        <SelectItem value="501-1000">501-1000 ansatte</SelectItem>
+                        <SelectItem value="1001-5000">1001-5000 ansatte</SelectItem>
+                        <SelectItem value="5000+">Over 5000 ansatte</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="maturity">Beskriv modenhet</Label>
-                  <Select value={maturity} onValueChange={setMaturity}>
-                    <SelectTrigger id="maturity">
-                      <SelectValue placeholder="Velg modennivå" />
+                  <Label htmlFor="industry">Bransje</Label>
+                  <Select value={industry} onValueChange={setIndustry}>
+                    <SelectTrigger id="industry">
+                      <SelectValue placeholder="Velg bransje" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ingen">Ingen struktur</SelectItem>
-                      <SelectItem value="grunnleggende">Grunnleggende</SelectItem>
-                      <SelectItem value="iso">ISO-sertifisert</SelectItem>
-                      <SelectItem value="avansert">Avansert</SelectItem>
+                      <SelectItem value="helse">Helse</SelectItem>
+                      <SelectItem value="finans">Finans</SelectItem>
+                      <SelectItem value="energi">Energi</SelectItem>
+                      <SelectItem value="saas">SaaS og teknologi</SelectItem>
+                      <SelectItem value="offentlig">Offentlig sektor</SelectItem>
+                      <SelectItem value="produksjon">Produksjon og industri</SelectItem>
+                      <SelectItem value="handel">Handel og detaljhandel</SelectItem>
+                      <SelectItem value="annet">Annet</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="complianceRole"
-                    checked={hasComplianceRole}
-                    onCheckedChange={(checked) => setHasComplianceRole(checked as boolean)}
-                  />
-                  <Label htmlFor="complianceRole" className="cursor-pointer">
-                    Har dere egen compliance-rolle? (DPO, CISO, IT-ansvarlig)
-                  </Label>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="maturity">Hvor langt er dere kommet med sikkerhet og compliance?</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Dette hjelper oss å gi deg riktig nivå av støtte og anbefalinger
+                    </p>
+                  </div>
+                  <Select value={maturity} onValueChange={setMaturity}>
+                    <SelectTrigger id="maturity">
+                      <SelectValue placeholder="Velg det som passer best" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="starter">
+                        <div className="flex flex-col items-start py-1">
+                          <span className="font-medium">🌱 Helt i starten</span>
+                          <span className="text-xs text-muted-foreground">Vi har ikke begynt med dette ennå</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="grunnleggende">
+                        <div className="flex flex-col items-start py-1">
+                          <span className="font-medium">📝 På god vei</span>
+                          <span className="text-xs text-muted-foreground">Vi har noen policyer og rutiner på plass</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="strukturert">
+                        <div className="flex flex-col items-start py-1">
+                          <span className="font-medium">🏗️ Godt strukturert</span>
+                          <span className="text-xs text-muted-foreground">Vi har systematisk arbeid med sikkerhet og compliance</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="sertifisert">
+                        <div className="flex flex-col items-start py-1">
+                          <span className="font-medium">🏆 Sertifisert nivå</span>
+                          <span className="text-xs text-muted-foreground">Vi har ISO-sertifisering eller tilsvarende</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="avansert">
+                        <div className="flex flex-col items-start py-1">
+                          <span className="font-medium">🚀 Avansert og modenhet</span>
+                          <span className="text-xs text-muted-foreground">Vi har dedikert compliance-team og avanserte prosesser</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <Button onClick={completeProfile} className="w-full" disabled={!companyName || !industry}>
+                <Button 
+                  onClick={completeProfile} 
+                  className="w-full" 
+                  disabled={!orgNumber || !employees || !industry || !maturity}
+                >
                   Fortsett til rammeverk
                 </Button>
               </CardContent>
