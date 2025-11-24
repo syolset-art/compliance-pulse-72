@@ -164,16 +164,59 @@ export default function Onboarding() {
   const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
     
+    console.log("Files received:", files.length);
+    
     const newFiles = Array.from(files);
-    setUploadedDocuments(prev => [...prev, ...newFiles]);
+    const validFiles = newFiles.filter(file => {
+      const validTypes = ['.pdf', '.docx', '.xlsx', '.csv', '.txt'];
+      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+      return validTypes.includes(extension);
+    });
+
+    if (validFiles.length === 0) {
+      toast({
+        title: "❌ Ugyldig filtype",
+        description: "Vennligst last opp PDF, DOCX, XLSX, CSV eller TXT filer",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadedDocuments(prev => [...prev, ...validFiles]);
     
     setIsLaraWorking(true);
     setLaraMessage("Analyserer dokumenter med AI...");
     
     // Process each file
-    for (const file of newFiles) {
+    for (const file of validFiles) {
       try {
-        const text = await file.text();
+        console.log(`Processing file: ${file.name} (${file.type})`);
+        
+        // Read file as text (works for CSV, TXT)
+        let text = '';
+        try {
+          text = await file.text();
+          console.log(`Read ${text.length} characters from ${file.name}`);
+        } catch (readError) {
+          console.error(`Could not read ${file.name} as text:`, readError);
+          toast({
+            title: "⚠️ Feilhåndtering",
+            description: `${file.name} må være en tekstfil (CSV, TXT). For PDF/DOCX kommer snart!`,
+            variant: "destructive"
+          });
+          continue;
+        }
+
+        if (!text || text.trim().length === 0) {
+          toast({
+            title: "⚠️ Tom fil",
+            description: `${file.name} inneholder ingen tekst`,
+            variant: "destructive"
+          });
+          continue;
+        }
+
+        console.log(`Calling analyze-document function for ${file.name}`);
         
         const { data, error } = await supabase.functions.invoke('analyze-document', {
           body: { 
@@ -182,17 +225,21 @@ export default function Onboarding() {
           }
         });
 
+        console.log("Function response:", { data, error });
+
         if (error) {
           console.error("Analysis error:", error);
           toast({
             title: "⚠️ Analysefeil",
-            description: `Kunne ikke analysere ${file.name}`,
+            description: `Kunne ikke analysere ${file.name}: ${error.message || 'Ukjent feil'}`,
             variant: "destructive"
           });
           continue;
         }
 
         if (data?.analysis) {
+          console.log("Analysis result:", data.analysis);
+          
           // Store analysis results
           setDocumentAnalyses(prev => ({
             ...prev,
@@ -207,12 +254,19 @@ export default function Onboarding() {
             title: "✨ AI-analyse fullført",
             description: `${file.name}: Fant ${foundSystems} leverandører, ${data.analysis.complianceGaps?.length || 0} gap`
           });
+        } else {
+          console.warn("No analysis data in response");
+          toast({
+            title: "⚠️ Ingen data",
+            description: `Fikk ingen analyseresultat for ${file.name}`,
+            variant: "destructive"
+          });
         }
       } catch (err) {
-        console.error("File processing error:", err);
+        console.error("File processing error for", file.name, ":", err);
         toast({
           title: "❌ Feil",
-          description: `Kunne ikke lese ${file.name}`,
+          description: `Kunne ikke lese ${file.name}: ${err instanceof Error ? err.message : 'Ukjent feil'}`,
           variant: "destructive"
         });
       }
