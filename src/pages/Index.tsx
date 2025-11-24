@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatInterface } from "@/components/ChatInterface";
+import { ContentViewer } from "@/components/ContentViewer";
 import { AlertBanner } from "@/components/widgets/AlertBanner";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { ROPAStatusWidget } from "@/components/widgets/ROPAStatusWidget";
@@ -16,17 +18,25 @@ import { useNavigationMode } from "@/hooks/useNavigationMode";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
+  const [contentView, setContentView] = useState<{ type: string; filter?: string } | null>(null);
+
+  const handleShowContent = (contentType: string, filter?: string) => {
+    setContentView({ type: contentType, filter });
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
       {mode === "menu" ? (
         <Sidebar onToggleChat={toggleMode} />
       ) : (
-        <ChatInterface onToggleMode={toggleMode} />
+        <ChatInterface onToggleMode={toggleMode} onShowContent={handleShowContent} />
       )}
       
       <main className="flex-1 overflow-y-auto">
-        <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
+        {contentView && mode === "chat" ? (
+          <ContentViewer contentType={contentView.type} filter={contentView.filter} />
+        ) : (
+          <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -153,6 +163,7 @@ const Index = () => {
             </div>
           </div>
         </div>
+        )}
       </main>
 
       {/* Lara AI Agent */}

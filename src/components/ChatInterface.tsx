@@ -14,9 +14,10 @@ interface Message {
 
 interface ChatInterfaceProps {
   onToggleMode: () => void;
+  onShowContent?: (contentType: string, filter?: string) => void;
 }
 
-export function ChatInterface({ onToggleMode }: ChatInterfaceProps) {
+export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -113,7 +114,7 @@ export function ChatInterface({ onToggleMode }: ChatInterfaceProps) {
             // Handle tool calls
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
@@ -139,7 +140,18 @@ export function ChatInterface({ onToggleMode }: ChatInterfaceProps) {
       if (toolCall && toolCall.arguments) {
         try {
           const args = JSON.parse(toolCall.arguments);
-          if (args.path) {
+          
+          if (toolCall.name === "show_content") {
+            const contentMessage = args.explanation 
+              ? `${assistantContent}\n\n✨ ${args.explanation}`
+              : `${assistantContent}\n\n✨ Viser innhold...`;
+            
+            updateAssistantMessage(contentMessage);
+            
+            if (onShowContent) {
+              onShowContent(args.content_type, args.filter);
+            }
+          } else if (toolCall.name === "navigate_to" && args.path) {
             const navMessage = args.reason 
               ? `${assistantContent}\n\n✨ Jeg tar deg til den relevante siden: ${args.reason}`
               : `${assistantContent}\n\n✨ Navigerer til riktig side...`;
