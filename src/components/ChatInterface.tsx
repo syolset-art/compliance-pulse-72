@@ -413,11 +413,9 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
             // Update context based on content type
             setCurrentContext(args.content_type as SuggestionContext);
             
-            const contentMessage = args.explanation 
-              ? `${assistantContent}\n\n✨ ${args.explanation}`
-              : `${assistantContent}\n\n✨ Viser innhold...`;
-            
-            updateAssistantMessage(contentMessage);
+            // Chat only shows the AI's brief status message - NOT the explanation
+            // The explanation (full report) is only shown in the right panel (ContentViewer)
+            updateAssistantMessage(assistantContent || "Viser innhold til høyre...");
             
             if (onShowContent) {
               const options: ContentViewOptions = {
@@ -425,6 +423,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
                 sortBy: args.sort_by,
                 filterCriteria: args.filter_criteria
               };
+              // Pass explanation to ContentViewer to display the full report
               onShowContent(args.content_type, args.filter, options, args.explanation);
             }
           } else if (toolCall.name === "navigate_to" && args.path) {
