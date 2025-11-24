@@ -638,7 +638,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         <div className="p-4 space-y-3">
         {/* Suggestions - always visible */}
         <div className="flex flex-wrap gap-2">
-          {suggestions.map((suggestion, i) => {
+          {suggestions?.map((suggestion, i) => {
             const variant = suggestion.type === "warning" 
               ? "warning" 
               : suggestion.type === "action" 
