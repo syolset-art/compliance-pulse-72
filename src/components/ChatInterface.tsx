@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2 } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -104,6 +105,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
   const [shareEmail, setShareEmail] = useState("");
   const [shareType, setShareType] = useState<"internal" | "external">("internal");
   const [isSending, setIsSending] = useState(false);
+  const [plusMenuOpen, setPlusMenuOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -531,6 +533,16 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
           }}
           className="flex gap-2"
         >
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => setPlusMenuOpen(true)}
+            disabled={isLoading}
+            className="h-10 w-10"
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -612,6 +624,105 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Plus Menu Sheet */}
+    <Sheet open={plusMenuOpen} onOpenChange={setPlusMenuOpen}>
+      <SheetContent side="bottom" className="h-auto max-h-[80vh]">
+        <SheetHeader className="relative">
+          <SheetTitle>Verktøy og integrasjoner</SheetTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 h-6 w-6"
+            onClick={() => setPlusMenuOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </SheetHeader>
+
+        <div className="grid grid-cols-2 gap-3 mt-6">
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              toast({
+                title: "Last opp dokumenter",
+                description: "Velg dokumenter for analyse",
+              });
+              // TODO: Implement document upload
+            }}
+          >
+            <Upload className="h-6 w-6" />
+            <span className="text-sm font-medium">Last opp dokumenter</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              handleSend("Utfør Gap Analyse for personvern og sikkerhet");
+            }}
+          >
+            <FileText className="h-6 w-6" />
+            <span className="text-sm font-medium">Gap Analyse</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              handleSend("Utfør risikovurdering for våre systemer og behandlinger");
+            }}
+          >
+            <AlertTriangle className="h-6 w-6" />
+            <span className="text-sm font-medium">Risikovurdering</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              toast({
+                title: "Systemintegrasjoner",
+                description: "Koble til eksterne systemer",
+              });
+              // TODO: Navigate to integrations page
+            }}
+          >
+            <Link className="h-6 w-6" />
+            <span className="text-sm font-medium">Integrasjoner</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              handleSend("Vis compliance-status og lag en rapport");
+            }}
+          >
+            <Shield className="h-6 w-6" />
+            <span className="text-sm font-medium">Compliance-rapport</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto flex-col gap-2 p-4"
+            onClick={() => {
+              setPlusMenuOpen(false);
+              handleSend("Analyser GDPR-etterlevelse og gi anbefalinger");
+            }}
+          >
+            <FileText className="h-6 w-6" />
+            <span className="text-sm font-medium">GDPR-analyse</span>
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
     </>
   );
 }
