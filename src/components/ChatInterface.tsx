@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Sparkles, Loader2, Menu } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -28,6 +28,7 @@ interface ContentViewOptions {
 interface ChatInterfaceProps {
   onToggleMode: () => void;
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions) => void;
+  onBackToDashboard?: () => void;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -81,7 +82,7 @@ const suggestionMap: Record<SuggestionContext, string[]> = {
   ]
 };
 
-export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProps) {
+export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -96,6 +97,18 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
   const { toast } = useToast();
 
   const suggestions = suggestionMap[currentContext];
+
+  const handleUndoLastMessage = () => {
+    if (messages.length > 1) {
+      // Remove last two messages (user + assistant)
+      setMessages(prev => prev.slice(0, -2));
+      setCurrentContext("default");
+      toast({
+        title: "Angret",
+        description: "Siste melding er fjernet",
+      });
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -346,7 +359,32 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-4 border-t border-border space-y-3">
+      <div className="border-t border-border">
+        {/* Action Buttons Row */}
+        <div className="flex items-center justify-center gap-2 px-4 py-2 border-b border-border bg-muted/30">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBackToDashboard}
+            className="h-8 text-xs gap-1.5"
+            disabled={isLoading}
+          >
+            <Home className="h-3.5 w-3.5" />
+            Dashboard
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleUndoLastMessage}
+            className="h-8 text-xs gap-1.5"
+            disabled={isLoading || messages.length <= 1}
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            Angre siste
+          </Button>
+        </div>
+
+        <div className="p-4 space-y-3">
         {/* Suggestions - always visible */}
         <div className="flex flex-wrap gap-2">
           {suggestions.map((suggestion, i) => (
@@ -379,6 +417,7 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
             <Send className="h-4 w-4" />
           </Button>
         </form>
+        </div>
       </div>
     </div>
   );

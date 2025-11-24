@@ -32,12 +32,20 @@ const Index = () => {
     setContentView({ type: contentType, filter, options });
   };
 
+  const handleBackToDashboard = () => {
+    setContentView(null);
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       {mode === "menu" ? (
         <Sidebar onToggleChat={toggleMode} />
       ) : (
-        <ChatInterface onToggleMode={toggleMode} onShowContent={handleShowContent} />
+        <ChatInterface 
+          onToggleMode={toggleMode} 
+          onShowContent={handleShowContent}
+          onBackToDashboard={handleBackToDashboard}
+        />
       )}
       
       <main className="flex-1 overflow-y-auto">
