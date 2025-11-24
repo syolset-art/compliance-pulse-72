@@ -11,9 +11,9 @@ import {
   ChevronDown,
   Bot,
   Menu,
-  X,
   Leaf,
-  MessageSquare
+  MessageSquare,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -49,20 +49,29 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <Shield className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold text-primary">Mynder</span>
         </div>
-        <div className="flex items-center gap-2">
-          {onToggleChat && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleChat}
-              title="Bytt til AI chat"
-            >
-              <MessageSquare className="h-5 w-5" />
-            </Button>
-          )}
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
       </div>
+
+      {/* Mode Toggle */}
+      {onToggleChat && (
+        <div className="px-3 pt-4 pb-2">
+          <div className="flex gap-2 p-1 bg-muted rounded-lg">
+            <button
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-background text-foreground shadow-sm font-medium text-sm transition-all"
+            >
+              <Menu className="h-4 w-4" />
+              Meny
+            </button>
+            <button
+              onClick={onToggleChat}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground font-medium text-sm transition-all"
+            >
+              <Sparkles className="h-4 w-4" />
+              Chat
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">

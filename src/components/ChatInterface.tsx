@@ -195,7 +195,7 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
       {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-border">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-border">
         <div className="flex items-center gap-2">
           <img src={laraButterfly} alt="Lara" className="w-8 h-8" />
           <div>
@@ -206,14 +206,25 @@ export function ChatInterface({ onToggleMode, onShowContent }: ChatInterfaceProp
             <p className="text-xs text-muted-foreground">AI-assistent</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleMode}
-          title="Bytt til meny"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="px-3 pt-4 pb-2">
+        <div className="flex gap-2 p-1 bg-muted rounded-lg">
+          <button
+            onClick={onToggleMode}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground font-medium text-sm transition-all"
+          >
+            <Menu className="h-4 w-4" />
+            Meny
+          </button>
+          <button
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-background text-foreground shadow-sm font-medium text-sm transition-all"
+          >
+            <Sparkles className="h-4 w-4" />
+            Chat
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
