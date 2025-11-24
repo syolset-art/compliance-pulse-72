@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home } from "lucide-react";
+import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -108,6 +108,42 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
         description: "Siste melding er fjernet",
       });
     }
+  };
+
+  const handleNewConversation = () => {
+    setMessages([
+      {
+        role: "assistant",
+        content: "Hei! 👋 Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
+      }
+    ]);
+    setCurrentContext("default");
+    if (onBackToDashboard) {
+      onBackToDashboard();
+    }
+    toast({
+      title: "Ny samtale",
+      description: "Samtalen er tilbakestilt",
+    });
+  };
+
+  const handleShareConversation = () => {
+    const conversationText = messages
+      .map(m => `${m.role === "user" ? "Du" : "Lara"}: ${m.content}`)
+      .join("\n\n");
+    
+    navigator.clipboard.writeText(conversationText).then(() => {
+      toast({
+        title: "Kopiert",
+        description: "Samtalen er kopiert til utklippstavlen",
+      });
+    }).catch(() => {
+      toast({
+        title: "Feil",
+        description: "Kunne ikke kopiere samtalen",
+        variant: "destructive",
+      });
+    });
   };
 
   useEffect(() => {
@@ -375,12 +411,32 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleNewConversation}
+            className="h-8 w-8"
+            disabled={isLoading}
+            title="Ny samtale"
+          >
+            <MessageSquarePlus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleUndoLastMessage}
             className="h-8 w-8"
             disabled={isLoading || messages.length <= 1}
             title="Angre siste melding"
           >
             <Undo2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShareConversation}
+            className="h-8 w-8"
+            disabled={isLoading || messages.length <= 1}
+            title="Del samtale"
+          >
+            <Share2 className="h-4 w-4" />
           </Button>
         </div>
 
