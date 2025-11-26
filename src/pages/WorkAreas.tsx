@@ -5,8 +5,18 @@ import { Card } from "@/components/ui/card";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Shield, Users as UsersIcon, FileText, Server, AlertCircle } from "lucide-react";
+import { Plus, Shield, Users as UsersIcon, FileText, Server, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface WorkArea {
   id: string;
@@ -17,6 +27,8 @@ interface WorkArea {
 
 export default function WorkAreas() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingWorkArea, setEditingWorkArea] = useState<WorkArea | null>(null);
+  const [deletingWorkArea, setDeletingWorkArea] = useState<WorkArea | null>(null);
   const [workAreas, setWorkAreas] = useState<WorkArea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -49,6 +61,48 @@ export default function WorkAreas() {
 
   const handleWorkAreaAdded = () => {
     fetchWorkAreas();
+    setEditingWorkArea(null);
+  };
+
+  const handleEdit = (area: WorkArea) => {
+    setEditingWorkArea(area);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingWorkArea) return;
+
+    try {
+      const { error } = await supabase
+        .from("work_areas")
+        .delete()
+        .eq("id", deletingWorkArea.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Suksess",
+        description: "Arbeidsområdet ble slettet",
+      });
+
+      fetchWorkAreas();
+    } catch (error) {
+      console.error("Error deleting work area:", error);
+      toast({
+        title: "Feil",
+        description: "Kunne ikke slette arbeidsområde",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingWorkArea(null);
+    }
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setEditingWorkArea(null);
+    }
   };
 
   if (mode === "chat") {
@@ -111,9 +165,11 @@ export default function WorkAreas() {
                 {workAreas.map((area) => (
                   <Card 
                     key={area.id} 
-                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/50"
+                    className="p-6 hover:shadow-lg transition-shadow border-2 hover:border-primary/50"
                   >
                     <div className="flex items-start gap-3 mb-4">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-start gap-3 flex-1">
                       <div className="p-2 rounded-lg bg-primary/10">
                         {area.name.toLowerCase().includes("hr") || 
                          area.name.toLowerCase().includes("personell") ? (
@@ -129,6 +185,30 @@ export default function WorkAreas() {
                         <p className="text-xs text-muted-foreground">
                           Arbeidsområdeansvarlig: {area.responsible_person || "Ikke tildelt"}
                         </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(area);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingWorkArea(area);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
@@ -176,9 +256,28 @@ export default function WorkAreas() {
 
       <AddWorkAreaDialog 
         open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
+        onOpenChange={handleDialogClose}
         onWorkAreaAdded={handleWorkAreaAdded}
+        workArea={editingWorkArea}
       />
+
+      <AlertDialog open={!!deletingWorkArea} onOpenChange={() => setDeletingWorkArea(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bekreft sletting</AlertDialogTitle>
+            <AlertDialogDescription>
+              Er du sikker på at du vil slette arbeidsområdet "{deletingWorkArea?.name}"? 
+              Denne handlingen kan ikke angres.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Slett
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
