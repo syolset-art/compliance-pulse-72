@@ -18,6 +18,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { CheckCircle2, TrendingUp, Plus } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
+import mynderLogo from "@/assets/mynder-logo-inverted.png";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
@@ -56,7 +57,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
   };
 
   return (
-    <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
+    <div className="flex min-h-screen max-h-screen bg-gradient-mynder overflow-hidden">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel 
           defaultSize={20} 
@@ -78,7 +79,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         <ResizableHandle withHandle />
         
         <ResizablePanel defaultSize={80}>
-          <main className="h-screen overflow-y-auto">
+          <main className="h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
         {contentView && mode === "chat" ? (
           <ContentViewer 
             contentType={contentView.type} 
@@ -92,17 +93,17 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Eviny</h1>
-                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">Dashboard</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <img src={mynderLogo} alt="Mynder" className="h-8 md:h-10" />
+                <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">Dashboard</span>
               </div>
-              <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2">
+              <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4" />
                 Legg til modul
               </Button>
             </div>
-            <p className="text-sm md:text-base text-muted-foreground">Compliance og sikkerhetsløsning drevet av Mynder</p>
+            <p className="text-sm md:text-base text-muted-foreground">AI-drevet compliance og sikkerhetsløsning</p>
           </div>
 
           {/* Alert Banner */}
