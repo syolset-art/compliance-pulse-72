@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ContentViewer } from "@/components/ContentViewer";
@@ -14,6 +14,10 @@ import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
 import { ROIWidget } from "@/components/widgets/ROIWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
+import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
+import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
+import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
+import { supabase } from "@/integrations/supabase/client";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { CheckCircle2, TrendingUp, Plus, Server, Building, Users, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -24,6 +28,15 @@ import mynderLogo from "@/assets/mynder-logo-inverted.png";
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
+  const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
+  const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
+  const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [onboardingProgress, setOnboardingProgress] = useState({
+    company_info_completed: true,
+    systems_added: false,
+    work_areas_defined: false,
+    roles_assigned: false
+  });
   const [contentView, setContentView] = useState<{ 
     type: string; 
     filter?: string;
@@ -43,6 +56,26 @@ const Index = () => {
     setContentView(null);
   };
 
+  useEffect(() => {
+    fetchOnboardingProgress();
+  }, []);
+
+  const fetchOnboardingProgress = async () => {
+    const { data, error } = await supabase
+      .from("onboarding_progress")
+      .select("*")
+      .single();
+
+    if (!error && data) {
+      setOnboardingProgress({
+        company_info_completed: data.company_info_completed,
+        systems_added: data.systems_added,
+        work_areas_defined: data.work_areas_defined,
+        roles_assigned: data.roles_assigned
+      });
+    }
+  };
+
   const handleModuleCreated = (moduleData: any) => {
     // Display the created module in the ContentViewer
     const explanation = `# Modul opprettet: ${moduleData.name}
@@ -55,6 +88,29 @@ ${moduleData.config ? `\n## Konfigurasjon\n\`\`\`\n${moduleData.config}\n\`\`\``
 Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhandle med den via chatten.`;
 
     handleShowContent("module", undefined, undefined, explanation);
+  };
+
+  const handleSystemAdded = () => {
+    fetchOnboardingProgress();
+  };
+
+  const handleWorkAreaAdded = () => {
+    fetchOnboardingProgress();
+  };
+
+  const handleRoleAdded = () => {
+    fetchOnboardingProgress();
+  };
+
+  const calculateProgress = () => {
+    const steps = [
+      onboardingProgress.company_info_completed,
+      onboardingProgress.systems_added,
+      onboardingProgress.work_areas_defined,
+      onboardingProgress.roles_assigned
+    ];
+    const completed = steps.filter(Boolean).length;
+    return Math.round((completed / steps.length) * 100);
   };
 
   return (
@@ -120,7 +176,9 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">33%</div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    {calculateProgress()}%
+                  </div>
                   <p className="text-sm text-muted-foreground">fullført</p>
                 </div>
               </div>
@@ -136,34 +194,99 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-background border-2 border-primary hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
-                    <Server className="h-5 w-5" />
+                <div 
+                  onClick={() => setIsAddSystemOpen(true)}
+                  className={`flex items-center gap-4 p-4 rounded-lg transition-all cursor-pointer group ${
+                    onboardingProgress.systems_added 
+                      ? 'bg-success/10 border border-success/20' 
+                      : 'bg-background border-2 border-primary hover:shadow-xl hover:scale-[1.02]'
+                  }`}
+                >
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 transition-colors ${
+                    onboardingProgress.systems_added
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground'
+                  }`}>
+                    {onboardingProgress.systems_added ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <Server className="h-5 w-5" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-foreground">2. Legg til systemer 💻</h4>
-                    <p className="text-sm text-muted-foreground">Registrer alle IT-systemene dere bruker – ta 2 min!</p>
+                    <h4 className="font-semibold text-foreground">
+                      2. Legg til systemer {onboardingProgress.systems_added ? '✓' : '💻'}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {onboardingProgress.systems_added 
+                        ? 'Systemer er registrert – Klikk for å legge til flere' 
+                        : 'Registrer alle IT-systemene dere bruker – ta 2 min!'}
+                    </p>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-primary group-hover:translate-x-1 transition-transform shrink-0" />
+                  {!onboardingProgress.systems_added && (
+                    <ArrowRight className="h-5 w-5 text-primary group-hover:translate-x-1 transition-transform shrink-0" />
+                  )}
                 </div>
                 
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border hover:bg-muted/50 transition-all cursor-pointer group">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
-                    <Building className="h-5 w-5" />
+                <div 
+                  onClick={() => setIsAddWorkAreaOpen(true)}
+                  className={`flex items-center gap-4 p-4 rounded-lg transition-all cursor-pointer group ${
+                    onboardingProgress.work_areas_defined
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-muted/30 border border-border hover:bg-muted/50'
+                  }`}
+                >
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 ${
+                    onboardingProgress.work_areas_defined
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {onboardingProgress.work_areas_defined ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <Building className="h-5 w-5" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-foreground">3. Definer arbeidsområder 🏢</h4>
-                    <p className="text-sm text-muted-foreground">Strukturer virksomheten i arbeidsområder</p>
+                    <h4 className="font-semibold text-foreground">
+                      3. Definer arbeidsområder {onboardingProgress.work_areas_defined ? '✓' : '🏢'}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {onboardingProgress.work_areas_defined
+                        ? 'Arbeidsområder er opprettet'
+                        : 'Strukturer virksomheten i arbeidsområder'}
+                    </p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border hover:bg-muted/50 transition-all cursor-pointer group">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
-                    <Users className="h-5 w-5" />
+                <div 
+                  onClick={() => setIsAddRoleOpen(true)}
+                  className={`flex items-center gap-4 p-4 rounded-lg transition-all cursor-pointer group ${
+                    onboardingProgress.roles_assigned
+                      ? 'bg-success/10 border border-success/20'
+                      : 'bg-muted/30 border border-border hover:bg-muted/50'
+                  }`}
+                >
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full shrink-0 ${
+                    onboardingProgress.roles_assigned
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {onboardingProgress.roles_assigned ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <Users className="h-5 w-5" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-foreground">4. Oppgi roller og ansvar 👥</h4>
-                    <p className="text-sm text-muted-foreground">Fordel ansvarsområder i teamet</p>
+                    <h4 className="font-semibold text-foreground">
+                      4. Oppgi roller og ansvar {onboardingProgress.roles_assigned ? '✓' : '👥'}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {onboardingProgress.roles_assigned
+                        ? 'Roller er tildelt'
+                        : 'Fordel ansvarsområder i teamet'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -306,6 +429,23 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         open={isAddModuleOpen}
         onOpenChange={setIsAddModuleOpen}
         onModuleCreated={handleModuleCreated}
+      />
+
+      {/* Onboarding Dialogs */}
+      <AddSystemDialog
+        open={isAddSystemOpen}
+        onOpenChange={setIsAddSystemOpen}
+        onSystemAdded={handleSystemAdded}
+      />
+      <AddWorkAreaDialog
+        open={isAddWorkAreaOpen}
+        onOpenChange={setIsAddWorkAreaOpen}
+        onWorkAreaAdded={handleWorkAreaAdded}
+      />
+      <AddRoleDialog
+        open={isAddRoleOpen}
+        onOpenChange={setIsAddRoleOpen}
+        onRoleAdded={handleRoleAdded}
       />
     </div>
   );

@@ -41,6 +41,107 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_progress: {
+        Row: {
+          company_info_completed: boolean | null
+          id: string
+          roles_assigned: boolean | null
+          systems_added: boolean | null
+          updated_at: string | null
+          work_areas_defined: boolean | null
+        }
+        Insert: {
+          company_info_completed?: boolean | null
+          id?: string
+          roles_assigned?: boolean | null
+          systems_added?: boolean | null
+          updated_at?: string | null
+          work_areas_defined?: boolean | null
+        }
+        Update: {
+          company_info_completed?: boolean | null
+          id?: string
+          roles_assigned?: boolean | null
+          systems_added?: boolean | null
+          updated_at?: string | null
+          work_areas_defined?: boolean | null
+        }
+        Relationships: []
+      }
+      roles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          responsibilities: string[] | null
+          updated_at: string | null
+          work_area_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          responsibilities?: string[] | null
+          updated_at?: string | null
+          work_area_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          responsibilities?: string[] | null
+          updated_at?: string | null
+          work_area_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      systems: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          risk_level: string | null
+          status: string | null
+          updated_at: string | null
+          vendor: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          risk_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          vendor?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          risk_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          vendor?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           ai_autonomy_level: number
@@ -134,6 +235,33 @@ export type Database = {
           mime_type?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      work_areas: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          responsible_person: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          responsible_person?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          responsible_person?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
