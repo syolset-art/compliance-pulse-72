@@ -15,7 +15,8 @@ import { ROIWidget } from "@/components/widgets/ROIWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { CheckCircle2, TrendingUp, Plus } from "lucide-react";
+import { CheckCircle2, TrendingUp, Plus, Server, Building, Users, ArrowRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
 import mynderLogo from "@/assets/mynder-logo-inverted.png";
@@ -105,6 +106,75 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
             </div>
             <p className="text-sm md:text-base text-muted-foreground">AI-drevet compliance og sikkerhetsløsning</p>
           </div>
+
+          {/* Onboarding Progress Card */}
+          <Card className="mb-6 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 border-primary/20 shadow-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    3 enkle steg til suksess! 🚀
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Kom i gang på under 5 minutter
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">33%</div>
+                  <p className="text-sm text-muted-foreground">fullført</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 p-4 rounded-lg bg-success/10 border border-success/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success text-success-foreground shrink-0">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-foreground">1. Bedriftsinformasjon ✓</h4>
+                    <p className="text-sm text-muted-foreground">Grunnleggende info er lagt inn</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 p-4 rounded-lg bg-background border-2 border-primary hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer group">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                    <Server className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-foreground">2. Legg til systemer 💻</h4>
+                    <p className="text-sm text-muted-foreground">Registrer alle IT-systemene dere bruker – ta 2 min!</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-primary group-hover:translate-x-1 transition-transform shrink-0" />
+                </div>
+                
+                <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border hover:bg-muted/50 transition-all cursor-pointer group">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                    <Building className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-foreground">3. Definer arbeidsområder 🏢</h4>
+                    <p className="text-sm text-muted-foreground">Strukturer virksomheten i arbeidsområder</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border hover:bg-muted/50 transition-all cursor-pointer group">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-foreground">4. Oppgi roller og ansvar 👥</h4>
+                    <p className="text-sm text-muted-foreground">Fordel ansvarsområder i teamet</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
+                <p className="text-sm text-foreground">
+                  <span className="font-semibold">💡 Tips:</span> Når du er ferdig får du full oversikt over compliance-status og AI-agenten kan hjelpe deg med alt!
+                </p>
+              </div>
+            </div>
+          </Card>
 
           {/* Alert Banner */}
           <div className="mb-6">
