@@ -2,33 +2,87 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { X, Sparkles, Leaf, FileText, HardHat } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
 export const LaraAgent = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
   const navigate = useNavigate();
+
+  const newFeatures = [
+    { icon: Leaf, title: "Bærekraftsrapport", badge: "Nytt", link: "/sustainability" },
+    { icon: FileText, title: "Åpenhetsloven", badge: "Nytt", link: "/transparency" },
+    { icon: HardHat, title: "HMS Rapportering", badge: "Beta" }
+  ];
 
   return (
     <>
       {/* Floating Lara Button */}
       <div className="fixed bottom-6 right-6 z-50">
         {!isOpen && (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="relative group animate-fade-in"
-          >
-            <img 
-              src={laraButterfly} 
-              alt="Lara AI Agent" 
-              className="w-20 h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg"
-            />
-            {/* Blinking notification dot */}
-            <span className="absolute top-0 right-0 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-primary"></span>
-            </span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="relative group animate-fade-in"
+            >
+              <img 
+                src={laraButterfly} 
+                alt="Lara AI Agent" 
+                className="w-20 h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg"
+              />
+              {/* Feature notification badge */}
+              <Badge 
+                className="absolute -top-2 -right-2 bg-success text-success-foreground text-xs px-2 cursor-pointer hover:scale-110 transition-transform"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFeatures(!showFeatures);
+                }}
+              >
+                3 nye
+              </Badge>
+            </button>
+
+            {/* Features popup */}
+            {showFeatures && (
+              <Card className="absolute bottom-full right-0 mb-2 w-64 shadow-xl animate-scale-in">
+                <CardContent className="p-3 space-y-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-foreground">Nye funksjoner</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5"
+                      onClick={() => setShowFeatures(false)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  {newFeatures.map((feature, index) => {
+                    const Icon = feature.icon;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          if (feature.link) {
+                            navigate(feature.link);
+                            setShowFeatures(false);
+                          }
+                        }}
+                        className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors text-left"
+                        disabled={!feature.link}
+                      >
+                        <Icon className="h-4 w-4 text-primary" />
+                        <span className="text-sm text-foreground flex-1">{feature.title}</span>
+                        <Badge variant="outline" className="text-xs">{feature.badge}</Badge>
+                      </button>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
 
         {/* Lara Card */}
