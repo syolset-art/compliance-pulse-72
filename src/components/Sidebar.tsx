@@ -27,7 +27,7 @@ const navigation = [
   { name: "AI-agent", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "Behandlingsprotokoller", href: "/protocols", icon: FileText },
   { name: "Systemer", href: "/systems", icon: Grid3x3 },
-  { name: "Tjenesteområder", href: "/services", icon: Users },
+  { name: "Mine Arbeidsområder", href: "/services", icon: Users },
   { name: "Avviksregister", href: "/deviations", icon: AlertTriangle },
   { name: "Mine oppgaver", href: "/tasks", icon: ClipboardList },
   { name: "Bærekraft", href: "/sustainability", icon: Leaf, highlight: true },
