@@ -11,7 +11,7 @@ import { ThirdPartyWidget } from "@/components/widgets/ThirdPartyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { DataTransferWidget } from "@/components/widgets/DataTransferWidget";
 import { SystemsInUseWidget } from "@/components/widgets/SystemsInUseWidget";
-import { NewFeaturesWidget } from "@/components/widgets/NewFeaturesWidget";
+import { ROIWidget } from "@/components/widgets/ROIWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -110,9 +110,9 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
             <AlertBanner />
           </div>
 
-          {/* New Features Widget */}
+          {/* ROI Widget */}
           <div className="mb-6">
-            <NewFeaturesWidget />
+            <ROIWidget />
           </div>
 
           {/* Top Metrics Row */}
