@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
+interface WorkArea {
+  id: string;
+  name: string;
+  description: string | null;
+  responsible_person: string | null;
+}
+
 interface AddWorkAreaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onWorkAreaAdded: () => void;
+  workArea?: WorkArea | null;
 }
 
-export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded }: AddWorkAreaDialogProps) {
+export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workArea }: AddWorkAreaDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -23,32 +31,64 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded }: AddWo
     responsible_person: ""
   });
 
+  useEffect(() => {
+    if (workArea) {
+      setFormData({
+        name: workArea.name,
+        description: workArea.description || "",
+        responsible_person: workArea.responsible_person || ""
+      });
+    } else {
+      setFormData({
+        name: "",
+        description: "",
+        responsible_person: ""
+      });
+    }
+  }, [workArea, open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.from("work_areas").insert([formData]);
+      if (workArea) {
+        // Update existing work area
+        const { error } = await supabase
+          .from("work_areas")
+          .update(formData)
+          .eq("id", workArea.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Update onboarding progress
-      const { data: progressData } = await supabase
-        .from("onboarding_progress")
-        .select("*")
-        .single();
+        toast({
+          title: "Arbeidsområde oppdatert!",
+          description: `${formData.name} er nå oppdatert.`,
+        });
+      } else {
+        // Create new work area
+        const { error } = await supabase.from("work_areas").insert([formData]);
 
-      if (progressData) {
-        await supabase
+        if (error) throw error;
+
+        // Update onboarding progress
+        const { data: progressData } = await supabase
           .from("onboarding_progress")
-          .update({ work_areas_defined: true })
-          .eq("id", progressData.id);
-      }
+          .select("*")
+          .single();
 
-      toast({
-        title: "Arbeidsområde opprettet!",
-        description: `${formData.name} er nå lagt til.`,
-      });
+        if (progressData) {
+          await supabase
+            .from("onboarding_progress")
+            .update({ work_areas_defined: true })
+            .eq("id", progressData.id);
+        }
+
+        toast({
+          title: "Arbeidsområde opprettet!",
+          description: `${formData.name} er nå lagt til.`,
+        });
+      }
 
       setFormData({
         name: "",
@@ -59,10 +99,10 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded }: AddWo
       onWorkAreaAdded();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error adding work area:", error);
+      console.error("Error saving work area:", error);
       toast({
         title: "Feil",
-        description: "Kunne ikke opprette arbeidsområde. Prøv igjen.",
+        description: `Kunne ikke ${workArea ? "oppdatere" : "opprette"} arbeidsområde. Prøv igjen.`,
         variant: "destructive",
       });
     } finally {
@@ -74,9 +114,12 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded }: AddWo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Definer arbeidsområde 🏢</DialogTitle>
+          <DialogTitle>{workArea ? "Rediger arbeidsområde 🏢" : "Definer arbeidsområde 🏢"}</DialogTitle>
           <DialogDescription>
-            Opprett et arbeidsområde for å strukturere virksomheten. Kan være avdelinger, team eller funksjonsområder.
+            {workArea 
+              ? "Oppdater informasjon om arbeidsområdet."
+              : "Opprett et arbeidsområde for å strukturere virksomheten. Kan være avdelinger, team eller funksjonsområder."
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -123,6 +166,8 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded }: AddWo
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Lagrer...
                 </>
+              ) : workArea ? (
+                "Oppdater arbeidsområde"
               ) : (
                 "Opprett arbeidsområde"
               )}
