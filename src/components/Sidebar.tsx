@@ -19,19 +19,21 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "AI-agent", href: "/ai-setup", icon: Bot, highlight: true },
+  { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
+  { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "Behandlingsprotokoller", href: "/protocols", icon: FileText },
   { name: "Systemer", href: "/systems", icon: Grid3x3 },
-  { name: "Mine Arbeidsområder", href: "/services", icon: Users },
+  { name: "nav.myWorkAreas", href: "/services", icon: Users },
   { name: "Avviksregister", href: "/deviations", icon: AlertTriangle },
-  { name: "Mine oppgaver", href: "/tasks", icon: ClipboardList },
-  { name: "Bærekraft", href: "/sustainability", icon: Leaf, highlight: true },
-  { name: "Åpenhetsloven", href: "/transparency", icon: FileText, highlight: true },
+  { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.sustainability", href: "/sustainability", icon: Leaf, highlight: true },
+  { name: "nav.transparency", href: "/transparency", icon: FileText, highlight: true },
 ];
 
 interface SidebarContentProps {
@@ -40,6 +42,7 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -49,7 +52,10 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <Shield className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold text-primary">Mynder</span>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Mode Toggle */}
@@ -89,7 +95,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
               )}
             >
               <item.icon className="h-5 w-5" />
-              {item.name}
+              {t(item.name)}
               {item.highlight && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -104,7 +110,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
-              Administration
+              {t("nav.admin")}
             </div>
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -114,7 +120,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
-              Mynder innstillinger
+              {t("nav.settings")}
             </div>
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -125,7 +131,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <Shield className="h-5 w-5" />
-          Trust Profile
+          {t("nav.trustProfile")}
         </Link>
       </nav>
 
@@ -165,6 +171,7 @@ export function Sidebar({ onToggleChat }: SidebarProps) {
             <span className="text-xl font-bold text-primary">Mynder</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "myWorkAreas": "My Work Areas",
+    "tasks": "Tasks",
+    "aiSetup": "AI Setup",
+    "transparency": "Transparency",
+    "sustainability": "Sustainability",
+    "admin": "Administration",
+    "settings": "Settings",
+    "trustProfile": "Trust Profile"
+  },
+  "workAreas": {
+    "title": "My Work Areas",
+    "subtitle": "Overview of all work areas",
+    "addNew": "New work area",
+    "noWorkAreas": "No work areas found",
+    "noWorkAreasDesc": "Get started by creating your first work area.",
+    "processes": "Processes",
+    "users": "Users",
+    "systems": "Systems",
+    "responsiblePerson": "Responsible",
+    "criticalAlerts": "critical alerts",
+    "deleteConfirm": "Are you sure?",
+    "deleteDescription": "This will permanently delete the work area",
+    "cannotUndo": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "dialog": {
+    "addWorkArea": "Add work area",
+    "editWorkArea": "Edit work area",
+    "addWorkAreaDesc": "Create a new work area for your organization",
+    "editWorkAreaDesc": "Update work area information",
+    "name": "Name",
+    "namePlaceholder": "E.g. HR, IT, Sales",
+    "responsible": "Responsible person",
+    "responsiblePlaceholder": "Name of responsible person",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the work area...",
+    "create": "Create work area",
+    "update": "Update work area",
+    "close": "Close"
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Mynder",
+    "welcomeSubtitle": "Let's get started setting up your workspace",
+    "progress": "Progress",
+    "stepsRemaining": "{{count}} of 4 steps completed",
+    "step1": "Register IT systems",
+    "step1Desc": "Add the systems your organization uses",
+    "step2": "Define work areas",
+    "step2Desc": "Organize your business into work areas",
+    "step3": "Create roles",
+    "step3Desc": "Define roles and responsibilities",
+    "step4": "Complete onboarding",
+    "step4Desc": "Review and confirm your setup",
+    "completed": "Completed",
+    "pending": "Pending"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  }
+}

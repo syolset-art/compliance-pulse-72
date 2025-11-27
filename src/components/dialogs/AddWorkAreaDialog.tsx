@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface WorkArea {
   id: string;
@@ -25,6 +26,7 @@ interface AddWorkAreaDialogProps {
 export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workArea }: AddWorkAreaDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -62,8 +64,8 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
         if (error) throw error;
 
         toast({
-          title: "Arbeidsområde oppdatert!",
-          description: `${formData.name} er nå oppdatert.`,
+          title: t("common.success"),
+          description: `${formData.name} ${t("common.success").toLowerCase()}.`,
         });
       } else {
         // Create new work area
@@ -85,8 +87,8 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
         }
 
         toast({
-          title: "Arbeidsområde opprettet!",
-          description: `${formData.name} er nå lagt til.`,
+          title: t("common.success"),
+          description: `${formData.name} ${t("common.success").toLowerCase()}.`,
         });
       }
 
@@ -101,7 +103,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
     } catch (error) {
       console.error("Error saving work area:", error);
       toast({
-        title: "Feil",
+        title: t("common.error"),
         description: `Kunne ikke ${workArea ? "oppdatere" : "opprette"} arbeidsområde. Prøv igjen.`,
         variant: "destructive",
       });
@@ -114,62 +116,64 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{workArea ? "Rediger arbeidsområde 🏢" : "Definer arbeidsområde 🏢"}</DialogTitle>
+          <DialogTitle>
+            {workArea ? t("dialog.editWorkArea") : t("dialog.addWorkArea")} 🏢
+          </DialogTitle>
           <DialogDescription>
             {workArea 
-              ? "Oppdater informasjon om arbeidsområdet."
-              : "Opprett et arbeidsområde for å strukturere virksomheten. Kan være avdelinger, team eller funksjonsområder."
+              ? t("dialog.editWorkAreaDesc")
+              : t("dialog.addWorkAreaDesc")
             }
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Navn på arbeidsområde *</Label>
+            <Label htmlFor="name">{t("dialog.name")} *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="F.eks. IT-avdelingen, HR, Økonomi"
+              placeholder={t("dialog.namePlaceholder")}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="responsible_person">Ansvarlig person</Label>
+            <Label htmlFor="responsible_person">{t("dialog.responsible")}</Label>
             <Input
               id="responsible_person"
               value={formData.responsible_person}
               onChange={(e) => setFormData({ ...formData, responsible_person: e.target.value })}
-              placeholder="Navn på ansvarlig leder/person"
+              placeholder={t("dialog.responsiblePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">{t("dialog.description")}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Hva gjør dette arbeidsområdet? Hvilke ansvarsområder har det?"
+              placeholder={t("dialog.descriptionPlaceholder")}
               rows={3}
             />
           </div>
 
           <div className="flex gap-2 justify-end pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Avbryt
+              {t("dialog.close")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Lagrer...
+                  {t("common.loading")}
                 </>
               ) : workArea ? (
-                "Oppdater arbeidsområde"
+                t("dialog.update")
               ) : (
-                "Opprett arbeidsområde"
+                t("dialog.create")
               )}
             </Button>
           </div>
