@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Shield, Users as UsersIcon, FileText, Server, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ export default function WorkAreas() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
+  const { t } = useTranslation();
 
   const fetchWorkAreas = async () => {
     try {
@@ -46,7 +48,7 @@ export default function WorkAreas() {
     } catch (error) {
       console.error("Error fetching work areas:", error);
       toast({
-        title: "Feil",
+        title: t("common.error"),
         description: "Kunne ikke hente arbeidsområder",
         variant: "destructive",
       });
@@ -81,7 +83,7 @@ export default function WorkAreas() {
       if (error) throw error;
 
       toast({
-        title: "Suksess",
+        title: t("common.success"),
         description: "Arbeidsområdet ble slettet",
       });
 
@@ -89,7 +91,7 @@ export default function WorkAreas() {
     } catch (error) {
       console.error("Error deleting work area:", error);
       toast({
-        title: "Feil",
+        title: t("common.error"),
         description: "Kunne ikke slette arbeidsområde",
         variant: "destructive",
       });
@@ -119,10 +121,10 @@ export default function WorkAreas() {
           <div className="flex items-center justify-between mb-2">
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Mine arbeidsområder ({workAreas.length})
+                {t("workAreas.title")} ({workAreas.length})
               </h1>
               <p className="text-muted-foreground mt-1">
-                Oversikt over behandlingsprotokoller, systemer og brukere i dine arbeidsområder
+                {t("workAreas.subtitle")}
               </p>
             </div>
             <Button 
@@ -130,7 +132,7 @@ export default function WorkAreas() {
               className="gap-2"
             >
               <Plus className="h-4 w-4" />
-              Nytt arbeidsområde
+              {t("workAreas.addNew")}
             </Button>
           </div>
 
@@ -151,13 +153,13 @@ export default function WorkAreas() {
             ) : workAreas.length === 0 ? (
               <Card className="p-12 text-center">
                 <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Ingen arbeidsområder enda</h3>
+                <h3 className="text-lg font-semibold mb-2">{t("workAreas.noWorkAreas")}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Kom i gang ved å opprette ditt første arbeidsområde
+                  {t("workAreas.noWorkAreasDesc")}
                 </p>
                 <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Opprett arbeidsområde
+                  {t("workAreas.addNew")}
                 </Button>
               </Card>
             ) : (
@@ -183,7 +185,7 @@ export default function WorkAreas() {
                           {area.name}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          Arbeidsområdeansvarlig: {area.responsible_person || "Ikke tildelt"}
+                          {t("workAreas.responsiblePerson")}: {area.responsible_person || "Ikke tildelt"}
                         </p>
                           </div>
                         </div>
@@ -215,15 +217,15 @@ export default function WorkAreas() {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                       <div className="flex items-center gap-1">
                         <FileText className="h-3 w-3" />
-                        <span>0 prosesser</span>
+                        <span>0 {t("workAreas.processes").toLowerCase()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <UsersIcon className="h-3 w-3" />
-                        <span>0 brukere</span>
+                        <span>0 {t("workAreas.users").toLowerCase()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Server className="h-3 w-3" />
-                        <span>0 systemer</span>
+                        <span>0 {t("workAreas.systems").toLowerCase()}</span>
                       </div>
                     </div>
 
@@ -243,7 +245,7 @@ export default function WorkAreas() {
                       </div>
                       <div className="flex items-center gap-1 text-xs text-orange-500">
                         <AlertCircle className="h-3 w-3" />
-                        <span>Høy kritikalitet</span>
+                        <span>2 {t("workAreas.criticalAlerts")}</span>
                       </div>
                     </div>
                   </Card>
@@ -264,16 +266,15 @@ export default function WorkAreas() {
       <AlertDialog open={!!deletingWorkArea} onOpenChange={() => setDeletingWorkArea(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Bekreft sletting</AlertDialogTitle>
+            <AlertDialogTitle>{t("workAreas.deleteConfirm")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Er du sikker på at du vil slette arbeidsområdet "{deletingWorkArea?.name}"? 
-              Denne handlingen kan ikke angres.
+              {t("workAreas.deleteDescription")} "{deletingWorkArea?.name}". {t("workAreas.cannotUndo")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogCancel>{t("workAreas.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Slett
+              {t("workAreas.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "myWorkAreas": "Mine Arbeidsområder",
+    "tasks": "Oppgaver",
+    "aiSetup": "AI Oppsett",
+    "transparency": "Transparens",
+    "sustainability": "Bærekraft",
+    "admin": "Administrasjon",
+    "settings": "Innstillinger",
+    "trustProfile": "Tillitsprofil"
+  },
+  "workAreas": {
+    "title": "Mine Arbeidsområder",
+    "subtitle": "Oversikt over alle arbeidsområder",
+    "addNew": "Nytt arbeidsområde",
+    "noWorkAreas": "Ingen arbeidsområder funnet",
+    "noWorkAreasDesc": "Kom i gang ved å opprette ditt første arbeidsområde.",
+    "processes": "Prosesser",
+    "users": "Brukere",
+    "systems": "Systemer",
+    "responsiblePerson": "Ansvarlig",
+    "criticalAlerts": "kritiske varsler",
+    "deleteConfirm": "Er du sikker?",
+    "deleteDescription": "Dette vil permanent slette arbeidsområdet",
+    "cannotUndo": "Denne handlingen kan ikke angres.",
+    "cancel": "Avbryt",
+    "delete": "Slett"
+  },
+  "dialog": {
+    "addWorkArea": "Legg til arbeidsområde",
+    "editWorkArea": "Rediger arbeidsområde",
+    "addWorkAreaDesc": "Opprett et nytt arbeidsområde for din organisasjon",
+    "editWorkAreaDesc": "Oppdater informasjon om arbeidsområdet",
+    "name": "Navn",
+    "namePlaceholder": "F.eks. HR, IT, Salg",
+    "responsible": "Ansvarlig person",
+    "responsiblePlaceholder": "Navn på ansvarlig",
+    "description": "Beskrivelse",
+    "descriptionPlaceholder": "Beskriv arbeidsområdet...",
+    "create": "Opprett arbeidsområde",
+    "update": "Oppdater arbeidsområde",
+    "close": "Lukk"
+  },
+  "onboarding": {
+    "welcomeTitle": "Velkommen til Mynder",
+    "welcomeSubtitle": "La oss komme i gang med å sette opp ditt arbeidsområde",
+    "progress": "Fremdrift",
+    "stepsRemaining": "{{count}} av 4 trinn fullført",
+    "step1": "Registrer IT-systemer",
+    "step1Desc": "Legg til systemene din organisasjon bruker",
+    "step2": "Definer arbeidsområder",
+    "step2Desc": "Organiser virksomheten i arbeidsområder",
+    "step3": "Opprett roller",
+    "step3Desc": "Definer roller og ansvar",
+    "step4": "Fullfør onboarding",
+    "step4Desc": "Gjennomgå og bekreft oppsettet",
+    "completed": "Fullført",
+    "pending": "Ventende"
+  },
+  "common": {
+    "loading": "Laster...",
+    "error": "Feil",
+    "success": "Suksess",
+    "save": "Lagre",
+    "edit": "Rediger",
+    "delete": "Slett",
+    "cancel": "Avbryt"
+  }
+}
