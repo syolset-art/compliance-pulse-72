@@ -1,7 +1,10 @@
 import { AlertTriangle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 export function AlertBanner() {
+  const { t } = useTranslation();
+  
   return (
     <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
       <div className="flex items-center justify-between">
@@ -10,14 +13,14 @@ export function AlertBanner() {
             <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Kritiske oppgaver</h3>
+            <h3 className="font-semibold text-foreground">{t("widgets.alertBanner.title")}</h3>
             <p className="text-sm text-muted-foreground">
-              Dette er dine mest kritiske oppgaver som krever umiddelbar oppfølging!
+              {t("widgets.alertBanner.description")}
             </p>
           </div>
         </div>
         <Button variant="destructive" size="sm" className="gap-1">
-          5 OPPGAVER
+          5 {t("widgets.alertBanner.button")}
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

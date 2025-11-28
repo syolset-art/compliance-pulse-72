@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "react-i18next";
 
 const icons = {
   gdpr: Shield,
@@ -71,6 +72,7 @@ const complianceDetails: Record<string, ComplianceItem[]> = {
 };
 
 export function ComplianceCard({ standard, title, percentage, subtitle }: ComplianceCardProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const Icon = icons[standard];
   const isGood = percentage >= 80;
@@ -118,7 +120,7 @@ export function ComplianceCard({ standard, title, percentage, subtitle }: Compli
           
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Info className="h-3 w-3" />
-            <span>Klikk for detaljer</span>
+            <span>{t("widgets.compliance.clickForDetails")}</span>
           </div>
         </div>
       </Card>
@@ -131,7 +133,7 @@ export function ComplianceCard({ standard, title, percentage, subtitle }: Compli
                 "h-6 w-6",
                 isGood ? "text-success" : "text-warning"
               )} />
-              {title} - {percentage}% etterlevelse
+              {title} - {percentage}% {t("widgets.compliance.compliance")}
             </DialogTitle>
             <DialogDescription>
               {subtitle}
@@ -142,11 +144,11 @@ export function ComplianceCard({ standard, title, percentage, subtitle }: Compli
             <div className="flex gap-4">
               <Badge variant="outline" className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-success" />
-                {compliantCount} oppfylt
+                {compliantCount} {t("widgets.compliance.compliant")}
               </Badge>
               <Badge variant="outline" className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3 text-warning" />
-                {needsAttentionCount} trenger oppfølging
+                {needsAttentionCount} {t("widgets.compliance.needsFollowUp")}
               </Badge>
             </div>
 
@@ -155,7 +157,7 @@ export function ComplianceCard({ standard, title, percentage, subtitle }: Compli
                 <div>
                   <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-success" />
-                    Oppfylte krav
+                    {t("widgets.compliance.compliantRequirements")}
                   </h4>
                   <div className="space-y-2">
                     {details
@@ -176,7 +178,7 @@ export function ComplianceCard({ standard, title, percentage, subtitle }: Compli
                   <div>
                     <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                       <AlertCircle className="h-4 w-4 text-warning" />
-                      Trenger oppfølging
+                      {t("widgets.compliance.needsAttention")}
                     </h4>
                     <div className="space-y-2">
                       {details

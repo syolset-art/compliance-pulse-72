@@ -15,19 +15,19 @@ export function ROIWidget() {
 
   const comparisons = [
     {
-      task: "GDPR gap-analyse",
+      taskKey: "gdprGapAnalysis",
       traditional: "3-4 uker",
       withAI: "2 timer",
       savings: "95%"
     },
     {
-      task: "Behandlingsprotokoll",
+      taskKey: "treatmentProtocol",
       traditional: "5-7 dager",
       withAI: "45 min",
       savings: "92%"
     },
     {
-      task: "Compliance-rapport",
+      taskKey: "complianceReport",
       traditional: "2-3 uker",
       withAI: "1.5 timer",
       savings: "96%"
@@ -100,7 +100,7 @@ export function ROIWidget() {
               className="p-3 rounded-lg bg-muted/50 border border-border/50 hover:border-primary/30 transition-colors"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">{comparison.task}</span>
+                <span className="text-sm font-medium text-foreground">{t(`widgets.roi.tasks.${comparison.taskKey}`)}</span>
                 <span className="text-xs font-semibold text-success bg-success/10 px-2 py-1 rounded">
                   {comparison.savings} {t("widgets.roi.faster")}
                 </span>
