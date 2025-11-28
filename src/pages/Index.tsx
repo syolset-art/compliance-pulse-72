@@ -406,12 +406,12 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               <div className="grid grid-cols-2 gap-6">
                 <div className="p-6 rounded-lg border border-dashed border-border bg-muted/20">
                   <p className="text-sm text-muted-foreground text-center">
-                    System risiko oversikt
+                    {t("widgets.placeholders.systemRiskOverview")}
                   </p>
                 </div>
                 <div className="p-6 rounded-lg border border-dashed border-border bg-muted/20">
                   <p className="text-sm text-muted-foreground text-center">
-                    AI analyse
+                    {t("widgets.placeholders.aiAnalysis")}
                   </p>
                 </div>
               </div>

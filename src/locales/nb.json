@@ -74,12 +74,65 @@
       "traditional": "Tradisjonell:",
       "withAI": "Med AI:",
       "faster": "raskere",
-      "note": "Beregninger basert på gjennomsnittlig timepris på NOK 2,250 og faktisk tidsbruk"
+      "note": "Beregninger basert på gjennomsnittlig timepris på NOK 2,250 og faktisk tidsbruk",
+      "tasks": {
+        "gdprGapAnalysis": "GDPR gap-analyse",
+        "treatmentProtocol": "Behandlingsprotokoll",
+        "complianceReport": "Compliance-rapport"
+      }
     },
     "systems": {
       "title": "Systemer i bruk",
       "withoutIssues": "Systemer uten mangler",
       "withIssues": "Systemer med mangler"
+    },
+    "thirdParty": {
+      "title": "Tredjepartsleverandører",
+      "subtitle": "Leverandørrisiko",
+      "total": "Totalt",
+      "missingDPA": "Mangler DPA",
+      "missingCertification": "Mangler sertifisering",
+      "fullyDocumented": "Fullstendig dokumentert"
+    },
+    "criticalProcesses": {
+      "title": "Kritiske prosesser",
+      "highRiskTreatments": "høyrisiko behandlinger",
+      "seeAllButton": "Se alle kritiske prosesser",
+      "areas": {
+        "hrPayroll": "HR og lønn",
+        "customerData": "Kunde- og kontaktdata",
+        "healthInfo": "Helseinformasjon",
+        "itInfrastructure": "IT-infrastruktur",
+        "finance": "Økonomi"
+      }
+    },
+    "compliance": {
+      "clickForDetails": "Klikk for detaljer",
+      "compliance": "etterlevelse",
+      "compliant": "oppfylt",
+      "needsFollowUp": "trenger oppfølging",
+      "compliantRequirements": "Oppfylte krav",
+      "needsAttention": "Trenger oppfølging"
+    },
+    "placeholders": {
+      "systemRiskOverview": "System risiko oversikt",
+      "aiAnalysis": "AI analyse"
+    },
+    "alertBanner": {
+      "title": "Kritiske oppgaver",
+      "description": "Dette er dine mest kritiske oppgaver som krever umiddelbar oppfølging!",
+      "button": "OPPGAVER"
+    },
+    "ropaGap": {
+      "title": "ROPA-dekning",
+      "subtitle": "Behandlingsprotokoller",
+      "systemsWithRopa": "Systemer med ROPA",
+      "completed": "Fullført",
+      "missing": "mangler"
+    },
+    "ropaStatus": {
+      "title": "Samlet samsvar",
+      "highCompliance": "Høy etterlevelse"
     }
   },
   "tasks": {

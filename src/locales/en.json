@@ -74,12 +74,65 @@
       "traditional": "Traditional:",
       "withAI": "With AI:",
       "faster": "faster",
-      "note": "Calculations based on average hourly rate of NOK 2,250 and actual time spent"
+      "note": "Calculations based on average hourly rate of NOK 2,250 and actual time spent",
+      "tasks": {
+        "gdprGapAnalysis": "GDPR gap analysis",
+        "treatmentProtocol": "Treatment protocol",
+        "complianceReport": "Compliance report"
+      }
     },
     "systems": {
       "title": "Systems in use",
       "withoutIssues": "Systems without issues",
       "withIssues": "Systems with issues"
+    },
+    "thirdParty": {
+      "title": "Third-party vendors",
+      "subtitle": "Vendor risk",
+      "total": "Total",
+      "missingDPA": "Missing DPA",
+      "missingCertification": "Missing certification",
+      "fullyDocumented": "Fully documented"
+    },
+    "criticalProcesses": {
+      "title": "Critical processes",
+      "highRiskTreatments": "high-risk treatments",
+      "seeAllButton": "See all critical processes",
+      "areas": {
+        "hrPayroll": "HR and payroll",
+        "customerData": "Customer and contact data",
+        "healthInfo": "Health information",
+        "itInfrastructure": "IT infrastructure",
+        "finance": "Finance"
+      }
+    },
+    "compliance": {
+      "clickForDetails": "Click for details",
+      "compliance": "compliance",
+      "compliant": "compliant",
+      "needsFollowUp": "needs follow-up",
+      "compliantRequirements": "Compliant requirements",
+      "needsAttention": "Needs attention"
+    },
+    "placeholders": {
+      "systemRiskOverview": "System risk overview",
+      "aiAnalysis": "AI analysis"
+    },
+    "alertBanner": {
+      "title": "Critical tasks",
+      "description": "These are your most critical tasks requiring immediate attention!",
+      "button": "TASKS"
+    },
+    "ropaGap": {
+      "title": "ROPA coverage",
+      "subtitle": "Treatment protocols",
+      "systemsWithRopa": "Systems with ROPA",
+      "completed": "Completed",
+      "missing": "missing"
+    },
+    "ropaStatus": {
+      "title": "Overall compliance",
+      "highCompliance": "High compliance"
     }
   },
   "tasks": {

@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function ROPAStatusWidget() {
+  const { t } = useTranslation();
   const percentage = 78;
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -10,7 +12,7 @@ export function ROPAStatusWidget() {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-foreground">Samlet samsvar</h3>
+        <h3 className="font-semibold text-foreground">{t("widgets.ropaStatus.title")}</h3>
         <Info className="h-4 w-4 text-muted-foreground" />
       </div>
       
@@ -42,7 +44,7 @@ export function ROPAStatusWidget() {
             <span className="text-4xl font-bold text-foreground">{percentage}%</span>
           </div>
         </div>
-        <p className="text-sm font-medium text-muted-foreground mt-4">Høy etterlevelse</p>
+        <p className="text-sm font-medium text-muted-foreground mt-4">{t("widgets.ropaStatus.highCompliance")}</p>
       </div>
     </Card>
   );

@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function ROPAGapWidget() {
+  const { t } = useTranslation();
   const total = 50;
   const withROPA = 38;
   const missing = total - withROPA;
@@ -15,14 +17,14 @@ export function ROPAGapWidget() {
           <AlertCircle className="h-5 w-5 text-warning" />
         </div>
         <div>
-          <h3 className="font-semibold text-foreground">ROPA-dekning</h3>
-          <p className="text-sm text-muted-foreground">Behandlingsprotokoller</p>
+          <h3 className="font-semibold text-foreground">{t("widgets.ropaGap.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("widgets.ropaGap.subtitle")}</p>
         </div>
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Systemer med ROPA</span>
+          <span className="text-sm text-muted-foreground">{t("widgets.ropaGap.systemsWithRopa")}</span>
           <span className="text-sm font-medium text-foreground">{withROPA} av {total}</span>
         </div>
 
@@ -36,10 +38,10 @@ export function ROPAGapWidget() {
         <div className="flex items-center justify-between pt-2">
           <div>
             <p className="text-2xl font-bold text-foreground">{percentage}%</p>
-            <p className="text-xs text-muted-foreground">Fullført</p>
+            <p className="text-xs text-muted-foreground">{t("widgets.ropaGap.completed")}</p>
           </div>
           <Button variant="outline" size="sm" className="gap-1">
-            {missing} mangler
+            {missing} {t("widgets.ropaGap.missing")}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
