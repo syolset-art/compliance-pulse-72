@@ -13,57 +13,57 @@ import { useTranslation } from "react-i18next";
 const autonomyLevels = [
   {
     value: 0,
-    label: "Assisterende",
-    title: "Kun anbefalinger",
-    description: "AI gir forslag, du bestemmer alt",
-    risk: "Lav",
+    labelKey: "assisting",
+    titleKey: "assistingTitle",
+    descKey: "assistingDesc",
+    risk: "low",
     riskColor: "text-success",
     icon: Info,
-    requirements: ["Manuell godkjenning av alle tiltak", "Full dokumentasjon av beslutninger", "Kontinuerlig vurdering"],
+    requirements: ["Manual approval of all measures", "Full documentation of decisions", "Continuous evaluation"],
     compliance: ["ISO/IEC 42001: Level 1", "EU AI Act: Minimal risk"],
   },
   {
     value: 25,
-    label: "Begrenset autonom",
-    title: "Enkel automatisering",
-    description: "AI utfører enkle oppgaver automatisk, du godkjenner viktige valg",
-    risk: "Lav-medium",
+    labelKey: "limitedAutonomous",
+    titleKey: "limitedTitle",
+    descKey: "limitedDesc",
+    risk: "lowMedium",
     riskColor: "text-success",
     icon: Zap,
-    requirements: ["Automatisk logging", "Godkjenning av kritiske tiltak", "Månedlig gjennomgang"],
+    requirements: ["Automatic logging", "Approval of critical measures", "Monthly review"],
     compliance: ["ISO/IEC 42001: Level 2", "EU AI Act: Limited risk"],
   },
   {
     value: 50,
-    label: "Semi-autonom",
-    title: "Balansert samarbeid",
-    description: "AI håndterer rutineoppgaver, du fokuserer på strategiske beslutninger",
-    risk: "Medium",
+    labelKey: "semiAutonomous",
+    titleKey: "semiTitle",
+    descKey: "semiDesc",
+    risk: "medium",
     riskColor: "text-warning",
     icon: Target,
-    requirements: ["Automatisk risikovurdering", "Godkjenning av høyrisiko-tiltak", "Ukentlig rapportering"],
-    compliance: ["ISO/IEC 42001: Level 3", "ISO 27001 kontroller", "EU AI Act: Controlled risk"],
+    requirements: ["Automatic risk assessment", "Approval of high-risk measures", "Weekly reporting"],
+    compliance: ["ISO/IEC 42001: Level 3", "ISO 27001 controls", "EU AI Act: Controlled risk"],
   },
   {
     value: 75,
-    label: "Høy autonom",
-    title: "Avansert automatisering",
-    description: "AI driver det meste, du godkjenner kun kritiske beslutninger",
-    risk: "Medium-høy",
+    labelKey: "highAutonomous",
+    titleKey: "highTitle",
+    descKey: "highDesc",
+    risk: "mediumHigh",
     riskColor: "text-warning",
     icon: Bot,
-    requirements: ["Kontinuerlig overvåking", "Bias-testing", "Leverandørrisiko-vurdering", "Ukentlig audit"],
+    requirements: ["Continuous monitoring", "Bias testing", "Vendor risk assessment", "Weekly audit"],
     compliance: ["ISO/IEC 42001: Level 4", "ISO 27001 + 37301", "EU AI Act: High risk - compliance required"],
   },
   {
     value: 100,
-    label: "Maksimal autonom",
-    title: "Full automatisering",
-    description: "AI opererer selvstendig innenfor definerte rammer",
-    risk: "Høy",
+    labelKey: "maximalAutonomous",
+    titleKey: "maximalTitle",
+    descKey: "maximalDesc",
+    risk: "high",
     riskColor: "text-destructive",
     icon: Lock,
-    requirements: ["Real-time overvåking", "Automatisk avviksrapportering", "Daglig compliance-sjekk", "Impact assessment", "Human oversight"],
+    requirements: ["Real-time monitoring", "Automatic deviation reporting", "Daily compliance check", "Impact assessment", "Human oversight"],
     compliance: ["ISO/IEC 42001: Level 5", "ISO 42005 assessment", "EU AI Act: High risk - full compliance"],
   },
 ];
@@ -115,8 +115,8 @@ const AIAgentSetup = () => {
                 <Bot className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">AI-agent konfigurasjon</h1>
-                <p className="text-muted-foreground">Definer hvordan AI skal støtte din etterlevelse</p>
+                <h1 className="text-3xl font-bold text-foreground">{t("aiSetup.title")}</h1>
+                <p className="text-muted-foreground">{t("aiSetup.subtitle")}</p>
               </div>
             </div>
           </div>
@@ -126,10 +126,9 @@ const AIAgentSetup = () => {
             <div className="flex items-start gap-4">
               <Shield className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-2">Trygg bruk av AI i henhold til regelverk</h3>
+                <h3 className="font-semibold text-foreground mb-2">{t("aiSetup.banner.title")}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Mynder følger ISO/IEC 42001:2023 (AI Management System) og ISO 42005 (Impact Assessment) 
-                  for å sikre ansvarlig bruk av AI. Alle autonominivåer dokumenteres automatisk.
+                  {t("aiSetup.banner.description")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline" className="text-xs">ISO/IEC 42001:2023</Badge>
@@ -144,10 +143,10 @@ const AIAgentSetup = () => {
           {/* Autonomy Configuration */}
           <Tabs defaultValue="system" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="system">Systemnivå</TabsTrigger>
-              <TabsTrigger value="service">Tjenestenivå</TabsTrigger>
-              <TabsTrigger value="process">Prosessnivå</TabsTrigger>
-              <TabsTrigger value="admin">Administrasjon</TabsTrigger>
+              <TabsTrigger value="system">{t("aiSetup.tabs.system")}</TabsTrigger>
+              <TabsTrigger value="service">{t("aiSetup.tabs.service")}</TabsTrigger>
+              <TabsTrigger value="process">{t("aiSetup.tabs.process")}</TabsTrigger>
+              <TabsTrigger value="admin">{t("aiSetup.tabs.admin")}</TabsTrigger>
             </TabsList>
 
             {/* System Level */}
@@ -155,15 +154,15 @@ const AIAgentSetup = () => {
               <Card className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Bot className="w-5 h-5 text-primary" />
-                  Hele plattformen
+                  {t("aiSetup.wholePlatform")}
                 </h3>
                 
                 <div className="space-y-8">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <label className="text-sm font-medium">Autonominivå</label>
+                      <label className="text-sm font-medium">{t("aiSetup.autonomyLevel")}</label>
                       <Badge className={getCurrentLevel(systemLevel[0]).riskColor}>
-                        {getCurrentLevel(systemLevel[0]).label}
+                        {t(`aiSetup.levels.${getCurrentLevel(systemLevel[0]).labelKey}`)}
                       </Badge>
                     </div>
                     
@@ -187,7 +186,7 @@ const AIAgentSetup = () => {
                           }`}
                         >
                           <level.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
-                          <div className="text-xs font-medium">{level.label}</div>
+                          <div className="text-xs font-medium">{t(`aiSetup.levels.${level.labelKey}`)}</div>
                         </button>
                       ))}
                     </div>
@@ -203,15 +202,15 @@ const AIAgentSetup = () => {
               <Card className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Target className="w-5 h-5 text-primary" />
-                  Spesifikke moduler
+                  {t("aiSetup.specificModules")}
                 </h3>
                 
                 <div className="space-y-8">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <label className="text-sm font-medium">Autonominivå for tjenester</label>
+                      <label className="text-sm font-medium">{t("aiSetup.autonomyLevelFor")} {t("aiSetup.services")}</label>
                       <Badge className={getCurrentLevel(serviceLevel[0]).riskColor}>
-                        {getCurrentLevel(serviceLevel[0]).label}
+                        {t(`aiSetup.levels.${getCurrentLevel(serviceLevel[0]).labelKey}`)}
                       </Badge>
                     </div>
                     
@@ -235,7 +234,7 @@ const AIAgentSetup = () => {
                           }`}
                         >
                           <level.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
-                          <div className="text-xs font-medium">{level.label}</div>
+                          <div className="text-xs font-medium">{t(`aiSetup.levels.${level.labelKey}`)}</div>
                         </button>
                       ))}
                     </div>
@@ -250,8 +249,8 @@ const AIAgentSetup = () => {
             <TabsContent value="process" className="space-y-6">
               <Card className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  Per prosess
+                  <FileText className="w-5 w-5 text-primary" />
+                  {t("aiSetup.perProcess")}
                 </h3>
                 
                 <div className="space-y-6">
@@ -268,14 +267,14 @@ const AIAgentSetup = () => {
                               {process.critical && (
                                 <Badge variant="outline" className="text-warning border-warning">
                                   <Lock className="w-3 h-3 mr-1" />
-                                  Kritisk prosess
+                                  {t("aiSetup.criticalProcess")}
                                 </Badge>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">{process.area}</p>
                           </div>
                           <Badge className={getCurrentLevel(currentValue).riskColor}>
-                            {getCurrentLevel(currentValue).label}
+                            {t(`aiSetup.levels.${getCurrentLevel(currentValue).labelKey}`)}
                           </Badge>
                         </div>
 
@@ -284,7 +283,7 @@ const AIAgentSetup = () => {
                             <div className="flex items-start gap-2">
                               <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
                               <p className="text-xs text-muted-foreground">
-                                Kritiske prosesser er begrenset til maksimalt <strong>Begrenset autonom</strong> nivå for å sikre tilstrekkelig menneskelig kontroll.
+                                {t("aiSetup.criticalProcessWarning")}
                               </p>
                             </div>
                           </div>
@@ -316,7 +315,7 @@ const AIAgentSetup = () => {
                                 }`}
                               >
                                 <level.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
-                                <div className="text-xs font-medium">{level.label}</div>
+                                <div className="text-xs font-medium">{t(`aiSetup.levels.${level.labelKey}`)}</div>
                               </button>
                             ))}
                         </div>
@@ -332,15 +331,15 @@ const AIAgentSetup = () => {
               <Card className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Lock className="w-5 h-5 text-primary" />
-                  Policyer og godkjenninger
+                  {t("aiSetup.policiesApprovals")}
                 </h3>
                 
                 <div className="space-y-8">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <label className="text-sm font-medium">Autonominivå for administrasjon</label>
+                      <label className="text-sm font-medium">{t("aiSetup.autonomyLevelFor")} {t("aiSetup.administration")}</label>
                       <Badge className={getCurrentLevel(adminLevel[0]).riskColor}>
-                        {getCurrentLevel(adminLevel[0]).label}
+                        {t(`aiSetup.levels.${getCurrentLevel(adminLevel[0]).labelKey}`)}
                       </Badge>
                     </div>
                     
@@ -364,7 +363,7 @@ const AIAgentSetup = () => {
                           }`}
                         >
                           <level.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
-                          <div className="text-xs font-medium">{level.label}</div>
+                          <div className="text-xs font-medium">{t(`aiSetup.levels.${level.labelKey}`)}</div>
                         </button>
                       ))}
                     </div>
@@ -379,11 +378,11 @@ const AIAgentSetup = () => {
           {/* Action Buttons */}
           <div className="flex justify-between items-center mt-8">
             <Button variant="outline" onClick={() => navigate("/")}>
-              Avbryt
+              {t("aiSetup.cancel")}
             </Button>
             <Button onClick={handleSave} size="lg">
               <CheckCircle2 className="w-5 h-5 mr-2" />
-              Lagre konfigurasjon
+              {t("aiSetup.save")}
             </Button>
           </div>
         </div>
@@ -393,22 +392,24 @@ const AIAgentSetup = () => {
 };
 
 const LevelDetails = ({ level }: { level: typeof autonomyLevels[0] }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-6 p-6 rounded-lg bg-muted/30 border border-border">
       <div>
-        <h4 className="font-semibold text-foreground mb-2">{level.title}</h4>
-        <p className="text-sm text-muted-foreground">{level.description}</p>
+        <h4 className="font-semibold text-foreground mb-2">{t(`aiSetup.levels.${level.titleKey}`)}</h4>
+        <p className="text-sm text-muted-foreground">{t(`aiSetup.levels.${level.descKey}`)}</p>
       </div>
 
       <div>
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle className="w-4 h-4 text-warning" />
-          <span className="text-sm font-medium">Risikonivå: <span className={level.riskColor}>{level.risk}</span></span>
+          <span className="text-sm font-medium">{t("aiSetup.risk")}: <span className={level.riskColor}>{t(`aiSetup.${level.risk}`)}</span></span>
         </div>
       </div>
 
       <div>
-        <h5 className="text-sm font-semibold mb-3">Krav og kontroller:</h5>
+        <h5 className="text-sm font-semibold mb-3">{t("aiSetup.requirements")}:</h5>
         <ul className="space-y-2">
           {level.requirements.map((req, idx) => (
             <li key={idx} className="flex items-start gap-2 text-sm">
@@ -420,7 +421,7 @@ const LevelDetails = ({ level }: { level: typeof autonomyLevels[0] }) => {
       </div>
 
       <div>
-        <h5 className="text-sm font-semibold mb-3">Compliance:</h5>
+        <h5 className="text-sm font-semibold mb-3">{t("aiSetup.compliance")}:</h5>
         <div className="flex flex-wrap gap-2">
           {level.compliance.map((comp, idx) => (
             <Badge key={idx} variant="secondary" className="text-xs">
