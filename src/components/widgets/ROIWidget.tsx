@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, Clock, DollarSign, CheckCircle } from "lucide-react";
 import { MetricCard } from "./MetricCard";
+import { useTranslation } from "react-i18next";
 
 export function ROIWidget() {
+  const { t } = useTranslation();
   // Kalkulerte besparelser basert på bruk av Mynders AI Agenter
   const roiMetrics = {
     timeSavedHours: 127,
@@ -41,8 +43,8 @@ export function ROIWidget() {
               <TrendingUp className="h-5 w-5 text-success" />
             </div>
             <div>
-              <CardTitle>Din ROI med Mynders AI</CardTitle>
-              <CardDescription>Tids- og kostnadsbesparelser denne måneden</CardDescription>
+              <CardTitle>{t("widgets.roi.title")}</CardTitle>
+              <CardDescription>{t("widgets.roi.subtitle")}</CardDescription>
             </div>
           </div>
         </div>
@@ -53,16 +55,16 @@ export function ROIWidget() {
           <div className="p-4 rounded-lg bg-card border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Tid spart</span>
+              <span className="text-sm font-medium text-muted-foreground">{t("widgets.roi.timeSaved")}</span>
             </div>
             <p className="text-3xl font-bold text-foreground">{roiMetrics.timeSavedHours}</p>
-            <p className="text-sm text-muted-foreground">timer</p>
+            <p className="text-sm text-muted-foreground">{t("widgets.roi.hours")}</p>
           </div>
 
           <div className="p-4 rounded-lg bg-card border border-border">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="h-4 w-4 text-success" />
-              <span className="text-sm font-medium text-muted-foreground">Kostnader spart</span>
+              <span className="text-sm font-medium text-muted-foreground">{t("widgets.roi.costSaved")}</span>
             </div>
             <p className="text-3xl font-bold text-foreground">
               {roiMetrics.costSavedNOK.toLocaleString('nb-NO')}
@@ -75,7 +77,7 @@ export function ROIWidget() {
           <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Oppgaver fullført</span>
+              <span className="text-sm font-medium text-muted-foreground">{t("widgets.roi.tasksCompleted")}</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{roiMetrics.tasksCompleted}</p>
           </div>
@@ -83,7 +85,7 @@ export function ROIWidget() {
           <div className="p-4 rounded-lg bg-success/5 border border-success/20">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-success" />
-              <span className="text-sm font-medium text-muted-foreground">Effektivitet</span>
+              <span className="text-sm font-medium text-muted-foreground">{t("widgets.roi.efficiency")}</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{roiMetrics.efficiency}%</p>
           </div>
@@ -91,7 +93,7 @@ export function ROIWidget() {
 
         {/* Comparison table */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-foreground mb-3">Sammenligning: Tradisjonell vs AI-drevet</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-3">{t("widgets.roi.comparisonTitle")}</h4>
           {comparisons.map((comparison, index) => (
             <div 
               key={index}
@@ -100,16 +102,16 @@ export function ROIWidget() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">{comparison.task}</span>
                 <span className="text-xs font-semibold text-success bg-success/10 px-2 py-1 rounded">
-                  {comparison.savings} raskere
+                  {comparison.savings} {t("widgets.roi.faster")}
                 </span>
               </div>
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Tradisjonell:</span>
+                  <span className="text-muted-foreground">{t("widgets.roi.traditional")}</span>
                   <span className="font-medium text-muted-foreground line-through">{comparison.traditional}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Med AI:</span>
+                  <span className="text-muted-foreground">{t("widgets.roi.withAI")}</span>
                   <span className="font-medium text-success">{comparison.withAI}</span>
                 </div>
               </div>
@@ -120,7 +122,7 @@ export function ROIWidget() {
         {/* Footer note */}
         <div className="pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground text-center">
-            Beregninger basert på gjennomsnittlig timepris på NOK 2,250 og faktisk tidsbruk
+            {t("widgets.roi.note")}
           </p>
         </div>
       </CardContent>
