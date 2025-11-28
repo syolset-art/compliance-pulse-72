@@ -41,7 +41,8 @@
       "completedTasks": "Completed tasks",
       "completedTasksDesc": "49% of tasks completed",
       "totalRisk": "Total risk level",
-      "totalRiskDesc": "22 of 50 systems have an assessment"
+      "totalRiskDesc": "22 of 50 systems have an assessment",
+      "high": "High"
     },
     "compliance": {
       "title": "Detailed compliance analysis",
