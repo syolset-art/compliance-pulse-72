@@ -133,6 +133,15 @@
     "ropaStatus": {
       "title": "Samlet samsvar",
       "highCompliance": "Høy etterlevelse"
+    },
+    "dataTransfer": {
+      "title": "Dataoverføringer",
+      "subtitle": "Geografisk fordeling",
+      "euEea": "EU/EØS",
+      "usaScc": "USA (SCC)",
+      "thirdCountryScc": "Tredjeland (SCC)",
+      "withoutScc": "Uten SCC-avtale",
+      "followUpRequired": "system krever oppfølging for lovlig overføring"
     }
   },
   "tasks": {

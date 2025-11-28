@@ -133,6 +133,15 @@
     "ropaStatus": {
       "title": "Overall compliance",
       "highCompliance": "High compliance"
+    },
+    "dataTransfer": {
+      "title": "Data Transfers",
+      "subtitle": "Geographic distribution",
+      "euEea": "EU/EEA",
+      "usaScc": "USA (SCC)",
+      "thirdCountryScc": "Third country (SCC)",
+      "withoutScc": "Without SCC agreement",
+      "followUpRequired": "system requires follow-up for legal transfer"
     }
   },
   "tasks": {
