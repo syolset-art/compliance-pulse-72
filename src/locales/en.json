@@ -10,37 +10,151 @@
     "settings": "Settings",
     "trustProfile": "Trust Profile"
   },
-  "workAreas": {
-    "title": "My Work Areas",
-    "subtitle": "Overview of all work areas",
-    "addNew": "New work area",
-    "noWorkAreas": "No work areas found",
-    "noWorkAreasDesc": "Get started by creating your first work area.",
-    "processes": "Processes",
-    "users": "Users",
-    "systems": "Systems",
-    "responsiblePerson": "Responsible",
-    "criticalAlerts": "critical alerts",
-    "deleteConfirm": "Are you sure?",
-    "deleteDescription": "This will permanently delete the work area",
-    "cannotUndo": "This action cannot be undone.",
-    "cancel": "Cancel",
-    "delete": "Delete"
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "AI-powered compliance and security solution",
+    "addModule": "Add module",
+    "onboarding": {
+      "title": "3 simple steps to success! 🚀",
+      "subtitle": "Get started in under 5 minutes",
+      "completed": "completed",
+      "step1": "1. Company information ✓",
+      "step1Desc": "Basic info has been entered",
+      "step2": "2. Add systems",
+      "step2Desc": "Register all IT systems you use – takes 2 min!",
+      "step2DescCompleted": "Systems registered – Click to add more",
+      "step3": "3. Define work areas",
+      "step3Desc": "Structure your business into work areas",
+      "step3DescCompleted": "Work areas created",
+      "step4": "4. Assign roles and responsibilities",
+      "step4Desc": "Distribute areas of responsibility in the team",
+      "step4DescCompleted": "Roles assigned",
+      "tip": "💡 Tip: When you're done, you'll get a complete overview of compliance status and the AI agent can help you with everything!"
+    },
+    "metrics": {
+      "completedTasks": "Completed tasks",
+      "completedTasksDesc": "49% of tasks completed",
+      "totalRisk": "Total risk level",
+      "totalRiskDesc": "22 of 50 systems have an assessment"
+    },
+    "compliance": {
+      "title": "Detailed compliance analysis",
+      "subtitle": "Overview of how well the organization meets requirements in important security standards",
+      "gdpr": "GDPR",
+      "gdprDesc": "Privacy and data protection",
+      "iso": "ISO 27001",
+      "isoDesc": "Information security",
+      "nis2": "NIS2",
+      "nis2Desc": "Network and information security",
+      "cra": "CRA",
+      "craDesc": "Cyber Resilience Act"
+    },
+    "info": {
+      "title": "Comparison with security standards",
+      "description": "We adjust the weighting based on what each standard emphasizes, making the comparison more realistic.",
+      "details": "See details"
+    }
   },
-  "dialog": {
-    "addWorkArea": "Add work area",
-    "editWorkArea": "Edit work area",
-    "addWorkAreaDesc": "Create a new work area for your organization",
-    "editWorkAreaDesc": "Update work area information",
-    "name": "Name",
-    "namePlaceholder": "E.g. HR, IT, Sales",
-    "responsible": "Responsible person",
-    "responsiblePlaceholder": "Name of responsible person",
-    "description": "Description",
-    "descriptionPlaceholder": "Describe the work area...",
-    "create": "Create work area",
-    "update": "Update work area",
-    "close": "Close"
+  "tasks": {
+    "title": "All tasks",
+    "subtitle": "Overview of all tasks and systems requiring follow-up",
+    "aiWorking": "AI agent actively working",
+    "tasksUnderTreatment": "{{count}} task under treatment",
+    "tasksUnderTreatment_plural": "{{count}} tasks under treatment",
+    "autonomousWork": "Autonomous work in progress",
+    "overallCompliance": "Overall compliance",
+    "systemsProcesses": "Systems & processes",
+    "systemsProcessesDesc": "Risk management and security measures",
+    "organizationGovernance": "Organization & governance",
+    "organizationGovernanceDesc": "Documentation, procedures & control",
+    "rolesAccess": "Roles & access",
+    "rolesAccessDesc": "Key roles and system responsibility",
+    "filters": {
+      "all": "All tasks",
+      "aiHandling": "AI handles autonomously",
+      "requiresAction": "Requires action",
+      "hybrid": "Hybrid"
+    },
+    "filterBy": "Filter by type:",
+    "showing": "Showing {{count}} tasks",
+    "priority": {
+      "high": "High priority",
+      "medium": "Medium priority",
+      "low": "Low priority"
+    },
+    "relevantFor": "Relevant for:",
+    "progress": "Progress:",
+    "completedByAI": "Completed by AI",
+    "aiWorking": "AI working...",
+    "aiCanHelp": "AI can help",
+    "viewDetails": "View details",
+    "requestAI": "Request AI help",
+    "autonomyLevel": "Autonomy level required:",
+    "autonomyLevelDesc": "AI can handle this task"
+  },
+  "aiSetup": {
+    "title": "AI agent configuration",
+    "subtitle": "Define how AI should support your compliance",
+    "banner": {
+      "title": "Safe use of AI in accordance with regulations",
+      "description": "Mynder follows ISO/IEC 42001:2023 (AI Management System) and ISO 42005 (Impact Assessment) to ensure responsible use of AI. All autonomy levels are automatically documented."
+    },
+    "tabs": {
+      "system": "System level",
+      "service": "Service level",
+      "process": "Process level",
+      "admin": "Administration"
+    },
+    "levels": {
+      "assisting": "Assisting",
+      "limitedAutonomous": "Limited autonomous",
+      "semiAutonomous": "Semi-autonomous",
+      "highAutonomous": "High autonomous",
+      "maximalAutonomous": "Maximal autonomous"
+    },
+    "autonomyLevel": "Autonomy level",
+    "criticalProcess": "Critical process",
+    "criticalProcessWarning": "Critical processes are limited to maximum Limited autonomous level to ensure sufficient human control.",
+    "save": "Save configuration",
+    "cancel": "Cancel",
+    "saved": "AI configuration saved",
+    "savedDesc": "Your autonomy settings are updated and documented in accordance with ISO/IEC 42001."
+  },
+  "transparency": {
+    "title": "Report on the Transparency Act in 25 minutes 🛡️",
+    "subtitle": "Lara helps you with due diligence assessments, supplier mapping and human rights analysis – tailored to your industry and supply chain.",
+    "autopilot": {
+      "title": "Let Lara do the job ⚡️",
+      "subtitle": "Autopilot mode. Lara maps suppliers, assesses risk and creates reports automatically.",
+      "feature1": "Automatic supplier mapping",
+      "feature2": "AI-driven risk assessment",
+      "feature3": "Ready in 25 minutes"
+    },
+    "manual": {
+      "title": "Customize yourself 🧭",
+      "subtitle": "Manual configuration. You control every part of the due diligence assessment.",
+      "feature1": "Full control over the process",
+      "feature2": "Detailed customization",
+      "feature3": "Flexible timeframe"
+    }
+  },
+  "sustainability": {
+    "title": "Map your sustainability in 3 minutes 🌍",
+    "subtitle": "Lara, your AI partner, helps you retrieve data, create policies and set goals – tailored to your industry and competence level.",
+    "autopilot": {
+      "title": "Let Lara do the job ⚡️",
+      "subtitle": "Autopilot mode. Lara does all the work for you and just asks you to approve along the way.",
+      "feature1": "Automatic data retrieval",
+      "feature2": "AI-generated policies",
+      "feature3": "Ready in 3 minutes"
+    },
+    "manual": {
+      "title": "Customize yourself 🧭",
+      "subtitle": "Manual configuration. You have full control over every part of the process.",
+      "feature1": "Detailed control",
+      "feature2": "Customize everything yourself",
+      "feature3": "Flexible timeframe"
+    }
   },
   "onboarding": {
     "welcomeTitle": "Welcome to Mynder",
@@ -58,6 +172,43 @@
     "completed": "Completed",
     "pending": "Pending"
   },
+  "workAreas": {
+    "title": "My Work Areas",
+    "subtitle": "Overview of all work areas",
+    "addNew": "New work area",
+    "noWorkAreas": "No work areas found",
+    "noWorkAreasDesc": "Get started by creating your first work area.",
+    "processes": "Processes",
+    "users": "Users",
+    "systems": "Systems",
+    "responsiblePerson": "Responsible",
+    "criticalAlerts": "critical alerts",
+    "deleteConfirm": "Are you sure?",
+    "deleteDescription": "This will permanently delete the work area",
+    "cannotUndo": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteSuccess": "Work area deleted",
+    "deleteSuccessDesc": "The work area has been successfully deleted.",
+    "deleteError": "Could not delete work area",
+    "updateSuccess": "Work area updated",
+    "updateSuccessDesc": "Changes have been saved."
+  },
+  "dialog": {
+    "addWorkArea": "Add work area",
+    "editWorkArea": "Edit work area",
+    "addWorkAreaDesc": "Create a new work area for your organization",
+    "editWorkAreaDesc": "Update work area information",
+    "name": "Name",
+    "namePlaceholder": "E.g. HR, IT, Sales",
+    "responsible": "Responsible person",
+    "responsiblePlaceholder": "Name of responsible person",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the work area...",
+    "create": "Create work area",
+    "update": "Update work area",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -65,6 +216,11 @@
     "save": "Save",
     "edit": "Edit",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "close": "Close"
   }
 }
