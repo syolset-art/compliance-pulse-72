@@ -27,12 +27,14 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type SetupMode = "autopilot" | "manual" | null;
 type Step = "intro" | "profile" | "data" | "policies" | "goals" | "report" | "complete";
 
 const Sustainability = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [setupMode, setSetupMode] = useState<SetupMode>(null);
   const [currentStep, setCurrentStep] = useState<Step>("intro");
   const [isLaraWorking, setIsLaraWorking] = useState(false);

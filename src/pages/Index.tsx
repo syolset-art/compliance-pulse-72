@@ -24,9 +24,11 @@ import { Card } from "@/components/ui/card";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
 import mynderLogo from "@/assets/mynder-logo-inverted.png";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
+  const { t } = useTranslation();
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -153,14 +155,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
                 <img src={mynderLogo} alt="Mynder" className="h-8 md:h-10" />
-                <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">Dashboard</span>
+                <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
               </div>
               <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4" />
-                Legg til modul
+                {t("dashboard.addModule")}
               </Button>
             </div>
-            <p className="text-sm md:text-base text-muted-foreground">AI-drevet compliance og sikkerhetsløsning</p>
+            <p className="text-sm md:text-base text-muted-foreground">{t("dashboard.subtitle")}</p>
           </div>
 
           {/* Onboarding Progress Card */}
@@ -169,17 +171,17 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h3 className="text-2xl font-bold text-foreground mb-2">
-                    3 enkle steg til suksess! 🚀
+                    {t("dashboard.onboarding.title")}
                   </h3>
                   <p className="text-muted-foreground">
-                    Kom i gang på under 5 minutter
+                    {t("dashboard.onboarding.subtitle")}
                   </p>
                 </div>
                 <div className="text-right">
                   <div className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                     {calculateProgress()}%
                   </div>
-                  <p className="text-sm text-muted-foreground">fullført</p>
+                  <p className="text-sm text-muted-foreground">{t("dashboard.onboarding.completed")}</p>
                 </div>
               </div>
               
@@ -189,8 +191,8 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-foreground">1. Bedriftsinformasjon ✓</h4>
-                    <p className="text-sm text-muted-foreground">Grunnleggende info er lagt inn</p>
+                    <h4 className="font-semibold text-foreground">{t("dashboard.onboarding.step1")}</h4>
+                    <p className="text-sm text-muted-foreground">{t("dashboard.onboarding.step1Desc")}</p>
                   </div>
                 </div>
                 
@@ -215,12 +217,12 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-foreground">
-                      2. Legg til systemer {onboardingProgress.systems_added ? '✓' : '💻'}
+                      {t("dashboard.onboarding.step2")} {onboardingProgress.systems_added ? '✓' : '💻'}
                     </h4>
                     <p className="text-sm text-muted-foreground">
                       {onboardingProgress.systems_added 
-                        ? 'Systemer er registrert – Klikk for å legge til flere' 
-                        : 'Registrer alle IT-systemene dere bruker – ta 2 min!'}
+                        ? t("dashboard.onboarding.step2DescCompleted")
+                        : t("dashboard.onboarding.step2Desc")}
                     </p>
                   </div>
                   {!onboardingProgress.systems_added && (
@@ -249,12 +251,12 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-foreground">
-                      3. Definer arbeidsområder {onboardingProgress.work_areas_defined ? '✓' : '🏢'}
+                      {t("dashboard.onboarding.step3")} {onboardingProgress.work_areas_defined ? '✓' : '🏢'}
                     </h4>
                     <p className="text-sm text-muted-foreground">
                       {onboardingProgress.work_areas_defined
-                        ? 'Arbeidsområder er opprettet'
-                        : 'Strukturer virksomheten i arbeidsområder'}
+                        ? t("dashboard.onboarding.step3DescCompleted")
+                        : t("dashboard.onboarding.step3Desc")}
                     </p>
                   </div>
                 </div>
@@ -280,12 +282,12 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-foreground">
-                      4. Oppgi roller og ansvar {onboardingProgress.roles_assigned ? '✓' : '👥'}
+                      {t("dashboard.onboarding.step4")} {onboardingProgress.roles_assigned ? '✓' : '👥'}
                     </h4>
                     <p className="text-sm text-muted-foreground">
                       {onboardingProgress.roles_assigned
-                        ? 'Roller er tildelt'
-                        : 'Fordel ansvarsområder i teamet'}
+                        ? t("dashboard.onboarding.step4DescCompleted")
+                        : t("dashboard.onboarding.step4Desc")}
                     </p>
                   </div>
                 </div>
@@ -293,7 +295,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               
               <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
                 <p className="text-sm text-foreground">
-                  <span className="font-semibold">💡 Tips:</span> Når du er ferdig får du full oversikt over compliance-status og AI-agenten kan hjelpe deg med alt!
+                  {t("dashboard.onboarding.tip")}
                 </p>
               </div>
             </div>
@@ -313,16 +315,16 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <ROPAStatusWidget />
             <MetricCard
-              title="Fullførte oppgaver"
+              title={t("dashboard.metrics.completedTasks")}
               value="245"
-              subtitle="49% av oppgaver fullført"
+              subtitle={t("dashboard.metrics.completedTasksDesc")}
               icon={CheckCircle2}
             />
             <SystemsInUseWidget />
             <MetricCard
-              title="Totalt risikonivå"
+              title={t("dashboard.metrics.totalRisk")}
               value="Høy"
-              subtitle="22 av 50 systemer har en vurdering"
+              subtitle={t("dashboard.metrics.totalRiskDesc")}
               icon={TrendingUp}
             />
           </div>
@@ -330,39 +332,39 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           {/* Compliance Analysis Section */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-xl font-semibold text-foreground">Detaljert samsvarsanalyse</h2>
+              <h2 className="text-xl font-semibold text-foreground">{t("dashboard.compliance.title")}</h2>
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
                 <span className="text-xs text-muted-foreground">i</span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
-              Oversikt over hvor godt organisasjonen oppfyller kravene i viktige sikkerhetsstandarder
+              {t("dashboard.compliance.subtitle")}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <ComplianceCard
                 standard="gdpr"
-                title="GDPR"
+                title={t("dashboard.compliance.gdpr")}
                 percentage={77}
-                subtitle="Personvern og databeskyttelse"
+                subtitle={t("dashboard.compliance.gdprDesc")}
               />
               <ComplianceCard
                 standard="iso"
-                title="ISO 27001"
+                title={t("dashboard.compliance.iso")}
                 percentage={77}
-                subtitle="Informasjonssikkerhet"
+                subtitle={t("dashboard.compliance.isoDesc")}
               />
               <ComplianceCard
                 standard="nis2"
-                title="NIS2"
+                title={t("dashboard.compliance.nis2")}
                 percentage={82}
-                subtitle="Nettverk- og informasjonssikkerhet"
+                subtitle={t("dashboard.compliance.nis2Desc")}
               />
               <ComplianceCard
                 standard="cra"
-                title="CRA"
+                title={t("dashboard.compliance.cra")}
                 percentage={82}
-                subtitle="Cyber Resilience Act"
+                subtitle={t("dashboard.compliance.craDesc")}
               />
             </div>
           </div>
@@ -375,14 +377,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground mb-1">
-                  Sammenligning med sikkerhetsstandarder
+                  {t("dashboard.info.title")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Vi justerer vektingen basert på hva hver standard legger vekt på, slik at sammenligningen blir mer realistisk.
+                  {t("dashboard.info.description")}
                 </p>
               </div>
               <button className="text-sm font-medium text-primary hover:underline whitespace-nowrap">
-                Se detaljer
+                {t("dashboard.info.details")}
               </button>
             </div>
           </div>

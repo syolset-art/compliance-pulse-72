@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/Sidebar";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: string;
@@ -61,6 +62,7 @@ const mockTasks: Task[] = [
 ];
 
 export default function Tasks() {
+  const { t } = useTranslation();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
@@ -219,9 +221,9 @@ export default function Tasks() {
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Alle oppgaver</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
           <p className="text-muted-foreground">
-            Oversikt over alle oppgaver og systemer som krever oppfølging
+            {t("tasks.subtitle")}
           </p>
         </div>
 
@@ -234,14 +236,14 @@ export default function Tasks() {
                 <Loader2 className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-spin" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-foreground">AI-agent jobber aktivt</p>
+                <p className="font-semibold text-foreground">{t("tasks.aiWorking")}</p>
                 <p className="text-sm text-muted-foreground">
-                  {aiWorkingTasks.size} {aiWorkingTasks.size === 1 ? 'oppgave' : 'oppgaver'} under behandling
+                  {t("tasks.tasksUnderTreatment", { count: aiWorkingTasks.size })}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                <span className="text-sm font-medium text-primary">Autonomt arbeid pågår</span>
+                <span className="text-sm font-medium text-primary">{t("tasks.autonomousWork")}</span>
               </div>
             </div>
           </Card>
@@ -251,7 +253,7 @@ export default function Tasks() {
         <Card className="p-6 mb-6">
           <div className="flex items-baseline gap-2 mb-4">
             <span className="text-5xl font-bold text-primary transition-all duration-500">{overallCompliance}%</span>
-            <span className="text-lg text-muted-foreground">Samlet samsvar</span>
+            <span className="text-lg text-muted-foreground">{t("tasks.overallCompliance")}</span>
             {overallCompliance > 81 && (
               <span className="text-green-500 text-sm flex items-center gap-1 ml-2 animate-fade-in">
                 <CheckCircle2 className="w-4 h-4" />
@@ -263,29 +265,29 @@ export default function Tasks() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">System & prosesser</span>
+                <span className="font-medium text-foreground">{t("tasks.systemsProcesses")}</span>
                 <span className="font-semibold text-primary">67%</span>
               </div>
               <Progress value={67} className="h-2" />
-              <p className="text-xs text-muted-foreground">Risikostyring og sikkerhetstiltak</p>
+              <p className="text-xs text-muted-foreground">{t("tasks.systemsProcessesDesc")}</p>
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">Organisasjon & styring</span>
+                <span className="font-medium text-foreground">{t("tasks.organizationGovernance")}</span>
                 <span className="font-semibold text-primary">97%</span>
               </div>
               <Progress value={97} className="h-2" />
-              <p className="text-xs text-muted-foreground">Dokumentasjon, rutiner & kontroll</p>
+              <p className="text-xs text-muted-foreground">{t("tasks.organizationGovernanceDesc")}</p>
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">Roller & tilgang</span>
+                <span className="font-medium text-foreground">{t("tasks.rolesAccess")}</span>
                 <span className="font-semibold text-primary">75%</span>
               </div>
               <Progress value={75} className="h-2" />
-              <p className="text-xs text-muted-foreground">Nøkkelroller og systemansvar</p>
+              <p className="text-xs text-muted-foreground">{t("tasks.rolesAccessDesc")}</p>
             </div>
           </div>
         </Card>
@@ -298,7 +300,7 @@ export default function Tasks() {
               onClick={() => setAiStatusFilter("all")}
               className="gap-2"
             >
-              Alle oppgaver
+              {t("tasks.filters.all")}
               <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
             </Button>
             <Button
@@ -307,7 +309,7 @@ export default function Tasks() {
               className="gap-2"
             >
               <Bot className="w-4 h-4" />
-              AI håndterer autonomt
+              {t("tasks.filters.aiHandling")}
               <Badge variant="secondary" className="ml-1">{aiHandlingCount}</Badge>
             </Button>
             <Button
@@ -315,7 +317,7 @@ export default function Tasks() {
               onClick={() => setAiStatusFilter("requires-action")}
               className="gap-2"
             >
-              Krever handling
+              {t("tasks.filters.requiresAction")}
               <Badge variant="secondary" className="ml-1">{requiresActionCount}</Badge>
             </Button>
             <Button
@@ -324,7 +326,7 @@ export default function Tasks() {
               className="gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              Hybrid
+              {t("tasks.filters.hybrid")}
               <Badge variant="secondary" className="ml-1">{hybridCount}</Badge>
             </Button>
           </div>
@@ -333,7 +335,7 @@ export default function Tasks() {
         {/* Filters */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">Filtrer etter type:</span>
+            <span className="text-sm text-muted-foreground">{t("tasks.filterBy")}</span>
             {["SYSTEM", "PROSESS", "PROTOKOLL", "TJENESTEOMRÅDE", "HØY PRIORITET", "MIDDELS PRIORITET", "LAV PRIORITET"].map(filter => (
               <Button
                 key={filter}
@@ -346,7 +348,7 @@ export default function Tasks() {
               </Button>
             ))}
           </div>
-          <p className="text-sm text-muted-foreground">Viser {filteredTasks.length} oppgaver</p>
+          <p className="text-sm text-muted-foreground">{t("tasks.showing", { count: filteredTasks.length })}</p>
         </div>
 
         {/* Tasks list */}
