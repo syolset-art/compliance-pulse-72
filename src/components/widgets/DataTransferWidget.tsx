@@ -1,12 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Globe, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function DataTransferWidget() {
+  const { t } = useTranslation();
+  
   const transfers = [
-    { region: "EU/EØS", count: 18, risk: "low" },
-    { region: "USA (SCC)", count: 4, risk: "medium" },
-    { region: "Tredjeland (SCC)", count: 2, risk: "medium" },
-    { region: "Uten SCC-avtale", count: 1, risk: "high" },
+    { regionKey: "euEea", count: 18, risk: "low" },
+    { regionKey: "usaScc", count: 4, risk: "medium" },
+    { regionKey: "thirdCountryScc", count: 2, risk: "medium" },
+    { regionKey: "withoutScc", count: 1, risk: "high" },
   ];
 
   return (
@@ -16,8 +19,8 @@ export function DataTransferWidget() {
           <Globe className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h3 className="font-semibold text-foreground">Dataoverføringer</h3>
-          <p className="text-sm text-muted-foreground">Geografisk fordeling</p>
+          <h3 className="font-semibold text-foreground">{t("widgets.dataTransfer.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("widgets.dataTransfer.subtitle")}</p>
         </div>
       </div>
 
@@ -41,12 +44,12 @@ export function DataTransferWidget() {
 
           return (
             <div 
-              key={transfer.region} 
+              key={transfer.regionKey} 
               className={`flex items-center justify-between p-3 rounded-lg ${getRiskBg(transfer.risk)}`}
             >
               <div className="flex items-center gap-2">
                 {transfer.risk === "high" && <AlertTriangle className="h-4 w-4 text-destructive" />}
-                <span className="text-sm font-medium text-foreground">{transfer.region}</span>
+                <span className="text-sm font-medium text-foreground">{t(`widgets.dataTransfer.${transfer.regionKey}`)}</span>
               </div>
               <span className={`text-sm font-semibold ${getRiskColor(transfer.risk)}`}>
                 {transfer.count}
@@ -58,7 +61,7 @@ export function DataTransferWidget() {
 
       <div className="mt-4 p-3 rounded-lg bg-muted/50 text-center">
         <p className="text-xs text-muted-foreground">
-          1 system krever oppfølging for lovlig overføring
+          1 {t("widgets.dataTransfer.followUpRequired")}
         </p>
       </div>
     </Card>
