@@ -10,37 +10,151 @@
     "settings": "Innstillinger",
     "trustProfile": "Tillitsprofil"
   },
-  "workAreas": {
-    "title": "Mine Arbeidsområder",
-    "subtitle": "Oversikt over alle arbeidsområder",
-    "addNew": "Nytt arbeidsområde",
-    "noWorkAreas": "Ingen arbeidsområder funnet",
-    "noWorkAreasDesc": "Kom i gang ved å opprette ditt første arbeidsområde.",
-    "processes": "Prosesser",
-    "users": "Brukere",
-    "systems": "Systemer",
-    "responsiblePerson": "Ansvarlig",
-    "criticalAlerts": "kritiske varsler",
-    "deleteConfirm": "Er du sikker?",
-    "deleteDescription": "Dette vil permanent slette arbeidsområdet",
-    "cannotUndo": "Denne handlingen kan ikke angres.",
-    "cancel": "Avbryt",
-    "delete": "Slett"
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "AI-drevet compliance og sikkerhetsløsning",
+    "addModule": "Legg til modul",
+    "onboarding": {
+      "title": "3 enkle steg til suksess! 🚀",
+      "subtitle": "Kom i gang på under 5 minutter",
+      "completed": "fullført",
+      "step1": "1. Bedriftsinformasjon ✓",
+      "step1Desc": "Grunnleggende info er lagt inn",
+      "step2": "2. Legg til systemer",
+      "step2Desc": "Registrer alle IT-systemene dere bruker – ta 2 min!",
+      "step2DescCompleted": "Systemer er registrert – Klikk for å legge til flere",
+      "step3": "3. Definer arbeidsområder",
+      "step3Desc": "Strukturer virksomheten i arbeidsområder",
+      "step3DescCompleted": "Arbeidsområder er opprettet",
+      "step4": "4. Oppgi roller og ansvar",
+      "step4Desc": "Fordel ansvarsområder i teamet",
+      "step4DescCompleted": "Roller er tildelt",
+      "tip": "💡 Tips: Når du er ferdig får du full oversikt over compliance-status og AI-agenten kan hjelpe deg med alt!"
+    },
+    "metrics": {
+      "completedTasks": "Fullførte oppgaver",
+      "completedTasksDesc": "49% av oppgaver fullført",
+      "totalRisk": "Totalt risikonivå",
+      "totalRiskDesc": "22 av 50 systemer har en vurdering"
+    },
+    "compliance": {
+      "title": "Detaljert samsvarsanalyse",
+      "subtitle": "Oversikt over hvor godt organisasjonen oppfyller kravene i viktige sikkerhetsstandarder",
+      "gdpr": "GDPR",
+      "gdprDesc": "Personvern og databeskyttelse",
+      "iso": "ISO 27001",
+      "isoDesc": "Informasjonssikkerhet",
+      "nis2": "NIS2",
+      "nis2Desc": "Nettverk- og informasjonssikkerhet",
+      "cra": "CRA",
+      "craDesc": "Cyber Resilience Act"
+    },
+    "info": {
+      "title": "Sammenligning med sikkerhetsstandarder",
+      "description": "Vi justerer vektingen basert på hva hver standard legger vekt på, slik at sammenligningen blir mer realistisk.",
+      "details": "Se detaljer"
+    }
   },
-  "dialog": {
-    "addWorkArea": "Legg til arbeidsområde",
-    "editWorkArea": "Rediger arbeidsområde",
-    "addWorkAreaDesc": "Opprett et nytt arbeidsområde for din organisasjon",
-    "editWorkAreaDesc": "Oppdater informasjon om arbeidsområdet",
-    "name": "Navn",
-    "namePlaceholder": "F.eks. HR, IT, Salg",
-    "responsible": "Ansvarlig person",
-    "responsiblePlaceholder": "Navn på ansvarlig",
-    "description": "Beskrivelse",
-    "descriptionPlaceholder": "Beskriv arbeidsområdet...",
-    "create": "Opprett arbeidsområde",
-    "update": "Oppdater arbeidsområde",
-    "close": "Lukk"
+  "tasks": {
+    "title": "Alle oppgaver",
+    "subtitle": "Oversikt over alle oppgaver og systemer som krever oppfølging",
+    "aiWorking": "AI-agent jobber aktivt",
+    "tasksUnderTreatment": "{{count}} oppgave under behandling",
+    "tasksUnderTreatment_plural": "{{count}} oppgaver under behandling",
+    "autonomousWork": "Autonomt arbeid pågår",
+    "overallCompliance": "Samlet samsvar",
+    "systemsProcesses": "System & prosesser",
+    "systemsProcessesDesc": "Risikostyring og sikkerhetstiltak",
+    "organizationGovernance": "Organisasjon & styring",
+    "organizationGovernanceDesc": "Dokumentasjon, rutiner & kontroll",
+    "rolesAccess": "Roller & tilgang",
+    "rolesAccessDesc": "Nøkkelroller og systemansvar",
+    "filters": {
+      "all": "Alle oppgaver",
+      "aiHandling": "AI håndterer autonomt",
+      "requiresAction": "Krever handling",
+      "hybrid": "Hybrid"
+    },
+    "filterBy": "Filtrer etter type:",
+    "showing": "Viser {{count}} oppgaver",
+    "priority": {
+      "high": "Høy prioritet",
+      "medium": "Middels prioritet",
+      "low": "Lav prioritet"
+    },
+    "relevantFor": "Relevant for:",
+    "progress": "Fremgang:",
+    "completedByAI": "Fullført av AI",
+    "aiWorking": "AI jobber...",
+    "aiCanHelp": "AI kan hjelpe",
+    "viewDetails": "Se detaljer",
+    "requestAI": "Be AI om hjelp",
+    "autonomyLevel": "Autonominivå påkrevd:",
+    "autonomyLevelDesc": "AI kan håndtere denne oppgaven"
+  },
+  "aiSetup": {
+    "title": "AI-agent konfigurasjon",
+    "subtitle": "Definer hvordan AI skal støtte din etterlevelse",
+    "banner": {
+      "title": "Trygg bruk av AI i henhold til regelverk",
+      "description": "Mynder følger ISO/IEC 42001:2023 (AI Management System) og ISO 42005 (Impact Assessment) for å sikre ansvarlig bruk av AI. Alle autonominivåer dokumenteres automatisk."
+    },
+    "tabs": {
+      "system": "Systemnivå",
+      "service": "Tjenestenivå",
+      "process": "Prosessnivå",
+      "admin": "Administrasjon"
+    },
+    "levels": {
+      "assisting": "Assisterende",
+      "limitedAutonomous": "Begrenset autonom",
+      "semiAutonomous": "Semi-autonom",
+      "highAutonomous": "Høy autonom",
+      "maximalAutonomous": "Maksimal autonom"
+    },
+    "autonomyLevel": "Autonominivå",
+    "criticalProcess": "Kritisk prosess",
+    "criticalProcessWarning": "Kritiske prosesser er begrenset til maksimalt Begrenset autonom nivå for å sikre tilstrekkelig menneskelig kontroll.",
+    "save": "Lagre konfigurasjon",
+    "cancel": "Avbryt",
+    "saved": "AI-konfigurasjon lagret",
+    "savedDesc": "Dine autonomiinnstillinger er oppdatert og dokumentert i henhold til ISO/IEC 42001."
+  },
+  "transparency": {
+    "title": "Rapporter på Åpenhetsloven på 25 minutter 🛡️",
+    "subtitle": "Lara hjelper deg med aktsomhetsvurderinger, leverandørkartlegging og menneskerettighetsanalyse – tilpasset din bransje og leverandørkjede.",
+    "autopilot": {
+      "title": "La Lara gjøre jobben ⚡️",
+      "subtitle": "Autopilot-modus. Lara kartlegger leverandører, vurderer risiko og lager rapport automatisk.",
+      "feature1": "Automatisk leverandørkartlegging",
+      "feature2": "AI-drevet risikovurdering",
+      "feature3": "Ferdig på 25 minutter"
+    },
+    "manual": {
+      "title": "Tilpass selv 🧭",
+      "subtitle": "Manuell konfigurasjon. Du styrer hver del av aktsomhetsvurderingen selv.",
+      "feature1": "Full kontroll over prosessen",
+      "feature2": "Detaljert tilpasning",
+      "feature3": "Fleksibel tidsramme"
+    }
+  },
+  "sustainability": {
+    "title": "Kartlegg bærekraften din på 3 minutter 🌍",
+    "subtitle": "Lara, din AI-partner, hjelper deg å hente data, lage policyer og sette mål – tilpasset din bransje og kompetansenivå.",
+    "autopilot": {
+      "title": "La Lara gjøre jobben ⚡️",
+      "subtitle": "Autopilot-modus. Lara gjør alt arbeidet for deg og ber deg bare om å godkjenne underveis.",
+      "feature1": "Automatisk datainnhenting",
+      "feature2": "AI-genererte policyer",
+      "feature3": "Ferdig på 3 minutter"
+    },
+    "manual": {
+      "title": "Tilpass selv 🧭",
+      "subtitle": "Manuell konfigurasjon. Du har full kontroll over hver del av prosessen.",
+      "feature1": "Detaljert kontroll",
+      "feature2": "Tilpass alt selv",
+      "feature3": "Fleksibel tidsramme"
+    }
   },
   "onboarding": {
     "welcomeTitle": "Velkommen til Mynder",
@@ -58,6 +172,43 @@
     "completed": "Fullført",
     "pending": "Ventende"
   },
+  "workAreas": {
+    "title": "Mine Arbeidsområder",
+    "subtitle": "Oversikt over alle arbeidsområder",
+    "addNew": "Nytt arbeidsområde",
+    "noWorkAreas": "Ingen arbeidsområder funnet",
+    "noWorkAreasDesc": "Kom i gang ved å opprette ditt første arbeidsområde.",
+    "processes": "Prosesser",
+    "users": "Brukere",
+    "systems": "Systemer",
+    "responsiblePerson": "Ansvarlig",
+    "criticalAlerts": "kritiske varsler",
+    "deleteConfirm": "Er du sikker?",
+    "deleteDescription": "Dette vil permanent slette arbeidsområdet",
+    "cannotUndo": "Denne handlingen kan ikke angres.",
+    "cancel": "Avbryt",
+    "delete": "Slett",
+    "deleteSuccess": "Arbeidsområde slettet",
+    "deleteSuccessDesc": "Arbeidsområdet ble slettet.",
+    "deleteError": "Kunne ikke slette arbeidsområdet",
+    "updateSuccess": "Arbeidsområde oppdatert",
+    "updateSuccessDesc": "Endringene er lagret."
+  },
+  "dialog": {
+    "addWorkArea": "Legg til arbeidsområde",
+    "editWorkArea": "Rediger arbeidsområde",
+    "addWorkAreaDesc": "Opprett et nytt arbeidsområde for din organisasjon",
+    "editWorkAreaDesc": "Oppdater informasjon om arbeidsområdet",
+    "name": "Navn",
+    "namePlaceholder": "F.eks. HR, IT, Salg",
+    "responsible": "Ansvarlig person",
+    "responsiblePlaceholder": "Navn på ansvarlig",
+    "description": "Beskrivelse",
+    "descriptionPlaceholder": "Beskriv arbeidsområdet...",
+    "create": "Opprett arbeidsområde",
+    "update": "Oppdater arbeidsområde",
+    "close": "Lukk"
+  },
   "common": {
     "loading": "Laster...",
     "error": "Feil",
@@ -65,6 +216,11 @@
     "save": "Lagre",
     "edit": "Rediger",
     "delete": "Slett",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "continue": "Fortsett",
+    "back": "Tilbake",
+    "next": "Neste",
+    "finish": "Fullfør",
+    "close": "Lukk"
   }
 }
