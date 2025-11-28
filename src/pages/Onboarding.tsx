@@ -12,11 +12,13 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DocumentAnalysisResults from "@/components/DocumentAnalysisResults";
+import { useTranslation } from "react-i18next";
 
 type OnboardingStep = "intro" | "profile" | "frameworks" | "systems" | "policies" | "risk" | "complete";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("intro");
   const [overallProgress, setOverallProgress] = useState(0);
   const [isLaraWorking, setIsLaraWorking] = useState(false);

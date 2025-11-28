@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Shield, CheckCircle2, AlertTriangle, Info, Zap, Target, Lock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 const autonomyLevels = [
   {
@@ -79,6 +80,7 @@ const mockProcesses = [
 const AIAgentSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [systemLevel, setSystemLevel] = useState([50]);
   const [serviceLevel, setServiceLevel] = useState([50]);
   const [adminLevel, setAdminLevel] = useState([25]);
@@ -94,8 +96,8 @@ const AIAgentSetup = () => {
 
   const handleSave = () => {
     toast({
-      title: "AI-konfigurasjon lagret",
-      description: "Dine autonomiinnstillinger er oppdatert og dokumentert i henhold til ISO/IEC 42001.",
+      title: t("aiSetup.saved"),
+      description: t("aiSetup.savedDesc"),
     });
     navigate("/");
   };
