@@ -323,7 +323,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
             <SystemsInUseWidget />
             <MetricCard
               title={t("dashboard.metrics.totalRisk")}
-              value="Høy"
+              value={t("dashboard.metrics.high")}
               subtitle={t("dashboard.metrics.totalRiskDesc")}
               icon={TrendingUp}
             />

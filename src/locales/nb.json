@@ -41,7 +41,8 @@
       "completedTasks": "Fullførte oppgaver",
       "completedTasksDesc": "49% av oppgaver fullført",
       "totalRisk": "Totalt risikonivå",
-      "totalRiskDesc": "22 av 50 systemer har en vurdering"
+      "totalRiskDesc": "22 av 50 systemer har en vurdering",
+      "high": "Høy"
     },
     "compliance": {
       "title": "Detaljert samsvarsanalyse",
