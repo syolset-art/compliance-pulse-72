@@ -27,10 +27,10 @@ import { useTranslation } from "react-i18next";
 const navigation = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
-  { name: "Behandlingsprotokoller", href: "/protocols", icon: FileText },
-  { name: "Systemer", href: "/systems", icon: Grid3x3 },
+  { name: "nav.protocols", href: "/protocols", icon: FileText },
+  { name: "nav.systems", href: "/systems", icon: Grid3x3 },
   { name: "nav.myWorkAreas", href: "/services", icon: Users },
-  { name: "Avviksregister", href: "/deviations", icon: AlertTriangle },
+  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.sustainability", href: "/sustainability", icon: Leaf, highlight: true },
   { name: "nav.transparency", href: "/transparency", icon: FileText, highlight: true },
@@ -66,14 +66,14 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-background text-foreground shadow-sm font-medium text-sm transition-all"
             >
               <Menu className="h-4 w-4" />
-              Meny
+              {t("nav.menu")}
             </button>
             <button
               onClick={onToggleChat}
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground font-medium text-sm transition-all"
             >
               <Sparkles className="h-4 w-4" />
-              Chat
+              {t("nav.chat")}
             </button>
           </div>
         </div>
@@ -144,7 +144,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">Eviny</p>
             <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <span>Bytt organisasjon</span>
+              <span>{t("nav.switchOrganization")}</span>
               <ChevronDown className="h-3 w-3" />
             </button>
           </div>

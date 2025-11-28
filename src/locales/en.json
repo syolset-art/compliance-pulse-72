@@ -8,7 +8,13 @@
     "sustainability": "Sustainability",
     "admin": "Administration",
     "settings": "Settings",
-    "trustProfile": "Trust Profile"
+    "trustProfile": "Trust Profile",
+    "protocols": "Treatment Protocols",
+    "systems": "Systems",
+    "deviations": "Deviation Register",
+    "menu": "Menu",
+    "chat": "Chat",
+    "switchOrganization": "Switch organization"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -53,6 +59,27 @@
       "title": "Comparison with security standards",
       "description": "We adjust the weighting based on what each standard emphasizes, making the comparison more realistic.",
       "details": "See details"
+    }
+  },
+  "widgets": {
+    "roi": {
+      "title": "Your ROI with Mynder's AI",
+      "subtitle": "Time and cost savings this month",
+      "timeSaved": "Time saved",
+      "hours": "hours",
+      "costSaved": "Costs saved",
+      "tasksCompleted": "Tasks completed",
+      "efficiency": "Efficiency",
+      "comparisonTitle": "Comparison: Traditional vs AI-driven",
+      "traditional": "Traditional:",
+      "withAI": "With AI:",
+      "faster": "faster",
+      "note": "Calculations based on average hourly rate of NOK 2,250 and actual time spent"
+    },
+    "systems": {
+      "title": "Systems in use",
+      "withoutIssues": "Systems without issues",
+      "withIssues": "Systems with issues"
     }
   },
   "tasks": {

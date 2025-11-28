@@ -8,7 +8,13 @@
     "sustainability": "Bærekraft",
     "admin": "Administrasjon",
     "settings": "Innstillinger",
-    "trustProfile": "Tillitsprofil"
+    "trustProfile": "Tillitsprofil",
+    "protocols": "Behandlingsprotokoller",
+    "systems": "Systemer",
+    "deviations": "Avviksregister",
+    "menu": "Meny",
+    "chat": "Chat",
+    "switchOrganization": "Bytt organisasjon"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -53,6 +59,27 @@
       "title": "Sammenligning med sikkerhetsstandarder",
       "description": "Vi justerer vektingen basert på hva hver standard legger vekt på, slik at sammenligningen blir mer realistisk.",
       "details": "Se detaljer"
+    }
+  },
+  "widgets": {
+    "roi": {
+      "title": "Din ROI med Mynders AI",
+      "subtitle": "Tids- og kostnadsbesparelser denne måneden",
+      "timeSaved": "Tid spart",
+      "hours": "timer",
+      "costSaved": "Kostnader spart",
+      "tasksCompleted": "Oppgaver fullført",
+      "efficiency": "Effektivitet",
+      "comparisonTitle": "Sammenligning: Tradisjonell vs AI-drevet",
+      "traditional": "Tradisjonell:",
+      "withAI": "Med AI:",
+      "faster": "raskere",
+      "note": "Beregninger basert på gjennomsnittlig timepris på NOK 2,250 og faktisk tidsbruk"
+    },
+    "systems": {
+      "title": "Systemer i bruk",
+      "withoutIssues": "Systemer uten mangler",
+      "withIssues": "Systemer med mangler"
     }
   },
   "tasks": {
