@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Upload, Key, FileText, Database } from "lucide-react";
 
@@ -17,6 +17,7 @@ interface AddModuleDialogProps {
 type ModuleType = "file-upload" | "api-integration" | "data-source" | "custom";
 
 export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModuleDialogProps) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [moduleType, setModuleType] = useState<ModuleType | "">("");
   const [moduleName, setModuleName] = useState("");
@@ -37,11 +38,11 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
 
   const handleNext = () => {
     if (step === 1 && !moduleType) {
-      toast.error("Velg modultype");
+      toast.error(t("addModule.errors.selectType"));
       return;
     }
     if (step === 2 && !moduleName) {
-      toast.error("Oppgi modulnavn");
+      toast.error(t("addModule.errors.enterName"));
       return;
     }
     setStep(step + 1);
@@ -50,7 +51,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setUploadedFile(e.target.files[0]);
-      toast.success(`Fil lastet opp: ${e.target.files[0].name}`);
+      toast.success(t("addModule.success.fileUploaded", { name: e.target.files[0].name }));
     }
   };
 
@@ -66,18 +67,28 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
     };
 
     onModuleCreated(moduleData);
-    toast.success(`Modul "${moduleName}" er opprettet!`);
+    toast.success(t("addModule.success.moduleCreated", { name: moduleName }));
     handleReset();
     onOpenChange(false);
   };
 
   const getStepTitle = () => {
     switch (step) {
-      case 1: return "Velg modultype";
-      case 2: return "Grunnleggende informasjon";
-      case 3: return "Konfigurasjon";
-      case 4: return "Bekreft og opprett";
+      case 1: return t("addModule.steps.selectType");
+      case 2: return t("addModule.steps.basicInfo");
+      case 3: return t("addModule.steps.configuration");
+      case 4: return t("addModule.steps.confirm");
       default: return "";
+    }
+  };
+
+  const getModuleTypeDisplay = (type: string) => {
+    switch (type) {
+      case "file-upload": return t("addModule.types.fileUpload");
+      case "api-integration": return t("addModule.types.apiIntegration");
+      case "data-source": return t("addModule.types.dataSource");
+      case "custom": return t("addModule.types.custom");
+      default: return type;
     }
   };
 
@@ -87,10 +98,10 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5 text-primary" />
-            Legg til tilleggsmodul
+            {t("addModule.title")}
           </DialogTitle>
           <DialogDescription>
-            Steg {step} av 4: {getStepTitle()}
+            {t("addModule.step", { step })} {getStepTitle()}
           </DialogDescription>
         </DialogHeader>
 
@@ -98,7 +109,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
           {/* Step 1: Module Type */}
           {step === 1 && (
             <div className="space-y-4">
-              <Label>Velg type modul</Label>
+              <Label>{t("addModule.selectTypeLabel")}</Label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setModuleType("file-upload")}
@@ -107,8 +118,8 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                   }`}
                 >
                   <Upload className="h-8 w-8 mb-2 text-primary" />
-                  <div className="font-medium">Filopplasting</div>
-                  <div className="text-xs text-muted-foreground mt-1">Last opp dokumenter og data</div>
+                  <div className="font-medium">{t("addModule.types.fileUpload")}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.fileUploadDesc")}</div>
                 </button>
 
                 <button
@@ -118,8 +129,8 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                   }`}
                 >
                   <Key className="h-8 w-8 mb-2 text-primary" />
-                  <div className="font-medium">API-integrasjon</div>
-                  <div className="text-xs text-muted-foreground mt-1">Koble til eksterne tjenester</div>
+                  <div className="font-medium">{t("addModule.types.apiIntegration")}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.apiIntegrationDesc")}</div>
                 </button>
 
                 <button
@@ -129,8 +140,8 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                   }`}
                 >
                   <Database className="h-8 w-8 mb-2 text-primary" />
-                  <div className="font-medium">Datakilde</div>
-                  <div className="text-xs text-muted-foreground mt-1">Koble til database eller kilde</div>
+                  <div className="font-medium">{t("addModule.types.dataSource")}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.dataSourceDesc")}</div>
                 </button>
 
                 <button
@@ -140,8 +151,8 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                   }`}
                 >
                   <FileText className="h-8 w-8 mb-2 text-primary" />
-                  <div className="font-medium">Tilpasset</div>
-                  <div className="text-xs text-muted-foreground mt-1">Egendefinert modultype</div>
+                  <div className="font-medium">{t("addModule.types.custom")}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.customDesc")}</div>
                 </button>
               </div>
             </div>
@@ -151,20 +162,20 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
           {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="moduleName">Modulnavn *</Label>
+                <Label htmlFor="moduleName">{t("addModule.moduleName")}</Label>
                 <Input
                   id="moduleName"
-                  placeholder="F.eks. 'GDPR Dokumenter' eller 'Salesforce API'"
+                  placeholder={t("addModule.moduleNamePlaceholder")}
                   value={moduleName}
                   onChange={(e) => setModuleName(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="moduleDescription">Beskrivelse</Label>
+                <Label htmlFor="moduleDescription">{t("addModule.description")}</Label>
                 <Textarea
                   id="moduleDescription"
-                  placeholder="Beskriv hva denne modulen skal brukes til..."
+                  placeholder={t("addModule.descriptionPlaceholder")}
                   value={moduleDescription}
                   onChange={(e) => setModuleDescription(e.target.value)}
                   rows={3}
@@ -178,7 +189,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
             <div className="space-y-4">
               {moduleType === "file-upload" && (
                 <div className="space-y-2">
-                  <Label htmlFor="fileUpload">Last opp fil</Label>
+                  <Label htmlFor="fileUpload">{t("addModule.uploadFile")}</Label>
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                     <Input
                       id="fileUpload"
@@ -189,10 +200,10 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                     <label htmlFor="fileUpload" className="cursor-pointer">
                       <Upload className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">
-                        {uploadedFile ? uploadedFile.name : "Klikk for å laste opp fil"}
+                        {uploadedFile ? uploadedFile.name : t("addModule.clickToUpload")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        PDF, Word, Excel eller andre dokumenter
+                        {t("addModule.fileTypes")}
                       </p>
                     </label>
                   </div>
@@ -201,25 +212,25 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
 
               {moduleType === "api-integration" && (
                 <div className="space-y-2">
-                  <Label htmlFor="apiKey">API-nøkkel *</Label>
+                  <Label htmlFor="apiKey">{t("addModule.apiKey")}</Label>
                   <Input
                     id="apiKey"
                     type="password"
-                    placeholder="Skriv inn API-nøkkel..."
+                    placeholder={t("addModule.apiKeyPlaceholder")}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    API-nøkkelen lagres sikkert og kryptert
+                    {t("addModule.apiKeySecure")}
                   </p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="additionalConfig">Tilleggskonfigurasjon (valgfritt)</Label>
+                <Label htmlFor="additionalConfig">{t("addModule.additionalConfig")}</Label>
                 <Textarea
                   id="additionalConfig"
-                  placeholder="JSON-konfigurasjon eller andre innstillinger..."
+                  placeholder={t("addModule.additionalConfigPlaceholder")}
                   value={additionalConfig}
                   onChange={(e) => setAdditionalConfig(e.target.value)}
                   rows={4}
@@ -233,34 +244,34 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
             <div className="space-y-4">
               <div className="bg-muted p-4 rounded-lg space-y-3">
                 <div>
-                  <div className="text-xs text-muted-foreground">Modultype</div>
-                  <div className="font-medium capitalize">{moduleType?.replace("-", " ")}</div>
+                  <div className="text-xs text-muted-foreground">{t("addModule.summary.moduleType")}</div>
+                  <div className="font-medium">{getModuleTypeDisplay(moduleType)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Navn</div>
+                  <div className="text-xs text-muted-foreground">{t("addModule.summary.name")}</div>
                   <div className="font-medium">{moduleName}</div>
                 </div>
                 {moduleDescription && (
                   <div>
-                    <div className="text-xs text-muted-foreground">Beskrivelse</div>
+                    <div className="text-xs text-muted-foreground">{t("addModule.summary.description")}</div>
                     <div className="text-sm">{moduleDescription}</div>
                   </div>
                 )}
                 {uploadedFile && (
                   <div>
-                    <div className="text-xs text-muted-foreground">Opplastet fil</div>
+                    <div className="text-xs text-muted-foreground">{t("addModule.summary.uploadedFile")}</div>
                     <div className="text-sm">{uploadedFile.name}</div>
                   </div>
                 )}
                 {apiKey && (
                   <div>
-                    <div className="text-xs text-muted-foreground">API-nøkkel</div>
+                    <div className="text-xs text-muted-foreground">{t("addModule.summary.apiKey")}</div>
                     <div className="text-sm">•••••••••••••</div>
                   </div>
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Når du oppretter modulen, vil den bli tilgjengelig for bruk i AI-agenten.
+                {t("addModule.confirmText")}
               </p>
             </div>
           )}
@@ -269,17 +280,17 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
         <div className="flex justify-between gap-2">
           {step > 1 && (
             <Button variant="outline" onClick={() => setStep(step - 1)}>
-              Tilbake
+              {t("common.back")}
             </Button>
           )}
           <div className="flex-1" />
           {step < 4 ? (
             <Button onClick={handleNext}>
-              Neste
+              {t("common.next")}
             </Button>
           ) : (
             <Button onClick={handleSubmit}>
-              Opprett modul
+              {t("addModule.createModule")}
             </Button>
           )}
         </div>
