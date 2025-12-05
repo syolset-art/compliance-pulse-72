@@ -338,5 +338,55 @@
     "next": "Next",
     "finish": "Finish",
     "close": "Close"
+  },
+  "addModule": {
+    "title": "Add additional module",
+    "step": "Step {{step}} of 4:",
+    "steps": {
+      "selectType": "Select module type",
+      "basicInfo": "Basic information",
+      "configuration": "Configuration",
+      "confirm": "Confirm and create"
+    },
+    "selectTypeLabel": "Select module type",
+    "types": {
+      "fileUpload": "File upload",
+      "fileUploadDesc": "Upload documents and data",
+      "apiIntegration": "API integration",
+      "apiIntegrationDesc": "Connect to external services",
+      "dataSource": "Data source",
+      "dataSourceDesc": "Connect to database or source",
+      "custom": "Custom",
+      "customDesc": "Custom module type"
+    },
+    "moduleName": "Module name *",
+    "moduleNamePlaceholder": "E.g. 'GDPR Documents' or 'Salesforce API'",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe what this module will be used for...",
+    "uploadFile": "Upload file",
+    "clickToUpload": "Click to upload file",
+    "fileTypes": "PDF, Word, Excel or other documents",
+    "apiKey": "API key *",
+    "apiKeyPlaceholder": "Enter API key...",
+    "apiKeySecure": "API key is stored securely and encrypted",
+    "additionalConfig": "Additional configuration (optional)",
+    "additionalConfigPlaceholder": "JSON configuration or other settings...",
+    "summary": {
+      "moduleType": "Module type",
+      "name": "Name",
+      "description": "Description",
+      "uploadedFile": "Uploaded file",
+      "apiKey": "API key"
+    },
+    "confirmText": "When you create the module, it will be available for use in the AI agent.",
+    "createModule": "Create module",
+    "errors": {
+      "selectType": "Select module type",
+      "enterName": "Enter module name"
+    },
+    "success": {
+      "fileUploaded": "File uploaded: {{name}}",
+      "moduleCreated": "Module \"{{name}}\" has been created!"
+    }
   }
 }

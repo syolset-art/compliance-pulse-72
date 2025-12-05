@@ -338,5 +338,55 @@
     "next": "Neste",
     "finish": "Fullfør",
     "close": "Lukk"
+  },
+  "addModule": {
+    "title": "Legg til tilleggsmodul",
+    "step": "Steg {{step}} av 4:",
+    "steps": {
+      "selectType": "Velg modultype",
+      "basicInfo": "Grunnleggende informasjon",
+      "configuration": "Konfigurasjon",
+      "confirm": "Bekreft og opprett"
+    },
+    "selectTypeLabel": "Velg type modul",
+    "types": {
+      "fileUpload": "Filopplasting",
+      "fileUploadDesc": "Last opp dokumenter og data",
+      "apiIntegration": "API-integrasjon",
+      "apiIntegrationDesc": "Koble til eksterne tjenester",
+      "dataSource": "Datakilde",
+      "dataSourceDesc": "Koble til database eller kilde",
+      "custom": "Tilpasset",
+      "customDesc": "Egendefinert modultype"
+    },
+    "moduleName": "Modulnavn *",
+    "moduleNamePlaceholder": "F.eks. 'GDPR Dokumenter' eller 'Salesforce API'",
+    "description": "Beskrivelse",
+    "descriptionPlaceholder": "Beskriv hva denne modulen skal brukes til...",
+    "uploadFile": "Last opp fil",
+    "clickToUpload": "Klikk for å laste opp fil",
+    "fileTypes": "PDF, Word, Excel eller andre dokumenter",
+    "apiKey": "API-nøkkel *",
+    "apiKeyPlaceholder": "Skriv inn API-nøkkel...",
+    "apiKeySecure": "API-nøkkelen lagres sikkert og kryptert",
+    "additionalConfig": "Tilleggskonfigurasjon (valgfritt)",
+    "additionalConfigPlaceholder": "JSON-konfigurasjon eller andre innstillinger...",
+    "summary": {
+      "moduleType": "Modultype",
+      "name": "Navn",
+      "description": "Beskrivelse",
+      "uploadedFile": "Opplastet fil",
+      "apiKey": "API-nøkkel"
+    },
+    "confirmText": "Når du oppretter modulen, vil den bli tilgjengelig for bruk i AI-agenten.",
+    "createModule": "Opprett modul",
+    "errors": {
+      "selectType": "Velg modultype",
+      "enterName": "Oppgi modulnavn"
+    },
+    "success": {
+      "fileUploaded": "Fil lastet opp: {{name}}",
+      "moduleCreated": "Modul \"{{name}}\" er opprettet!"
+    }
   }
 }
