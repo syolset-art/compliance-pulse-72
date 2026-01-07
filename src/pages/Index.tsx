@@ -25,10 +25,12 @@ import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
 import mynderLogo from "@/assets/mynder-logo-inverted.png";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -115,6 +117,198 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
     return Math.round((completed / steps.length) * 100);
   };
 
+  // Mobile layout - simplified without resizable panels
+  if (isMobile) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-mynder">
+        <Sidebar onToggleChat={toggleMode} />
+        
+        <main className="flex-1 overflow-y-auto bg-background/95 backdrop-blur-sm">
+          {contentView && mode === "chat" ? (
+            <ContentViewer 
+              contentType={contentView.type} 
+              filter={contentView.filter}
+              viewMode={contentView.options?.viewMode}
+              sortBy={contentView.options?.sortBy}
+              filterCriteria={contentView.options?.filterCriteria}
+              explanation={contentView.explanation}
+            />
+          ) : (
+            <div className="container max-w-7xl mx-auto p-4 pt-6">
+              {/* Header */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <img src={mynderLogo} alt="Mynder" className="h-8" />
+                    <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
+                  </div>
+                  <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90" size="sm">
+                    <Plus className="h-4 w-4" />
+                    {t("dashboard.addModule")}
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
+              </div>
+
+              {/* Onboarding Progress Card */}
+              <Card className="mb-6 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 border-primary/20 shadow-lg overflow-hidden">
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground mb-1">
+                        {t("dashboard.onboarding.title")}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {t("dashboard.onboarding.subtitle")}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                        {calculateProgress()}%
+                      </div>
+                      <p className="text-xs text-muted-foreground">{t("dashboard.onboarding.completed")}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success text-success-foreground shrink-0">
+                        <CheckCircle2 className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-foreground">{t("dashboard.onboarding.step1")}</h4>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      onClick={() => setIsAddSystemOpen(true)}
+                      className={`flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer ${
+                        onboardingProgress.systems_added 
+                          ? 'bg-success/10 border border-success/20' 
+                          : 'bg-background border-2 border-primary'
+                      }`}
+                    >
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${
+                        onboardingProgress.systems_added
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-primary/10 text-primary'
+                      }`}>
+                        {onboardingProgress.systems_added ? <CheckCircle2 className="h-4 w-4" /> : <Server className="h-4 w-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-foreground">{t("dashboard.onboarding.step2")}</h4>
+                      </div>
+                      {!onboardingProgress.systems_added && <ArrowRight className="h-4 w-4 text-primary shrink-0" />}
+                    </div>
+                    
+                    <div 
+                      onClick={() => setIsAddWorkAreaOpen(true)}
+                      className={`flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer ${
+                        onboardingProgress.work_areas_defined
+                          ? 'bg-success/10 border border-success/20'
+                          : 'bg-muted/30 border border-border'
+                      }`}
+                    >
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${
+                        onboardingProgress.work_areas_defined
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {onboardingProgress.work_areas_defined ? <CheckCircle2 className="h-4 w-4" /> : <Building className="h-4 w-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-foreground">{t("dashboard.onboarding.step3")}</h4>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      onClick={() => setIsAddRoleOpen(true)}
+                      className={`flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer ${
+                        onboardingProgress.roles_assigned
+                          ? 'bg-success/10 border border-success/20'
+                          : 'bg-muted/30 border border-border'
+                      }`}
+                    >
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${
+                        onboardingProgress.roles_assigned
+                          ? 'bg-success text-success-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {onboardingProgress.roles_assigned ? <CheckCircle2 className="h-4 w-4" /> : <Users className="h-4 w-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-foreground">{t("dashboard.onboarding.step4")}</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Alert Banner */}
+              <div className="mb-6">
+                <AlertBanner />
+              </div>
+
+              {/* ROI Widget */}
+              <div className="mb-6">
+                <ROIWidget />
+              </div>
+
+              {/* Metrics */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <ROPAStatusWidget />
+                <SystemsInUseWidget />
+              </div>
+
+              {/* Compliance */}
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-foreground mb-4">{t("dashboard.compliance.title")}</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <ComplianceCard standard="gdpr" title={t("dashboard.compliance.gdpr")} percentage={77} subtitle={t("dashboard.compliance.gdprDesc")} />
+                  <ComplianceCard standard="iso" title={t("dashboard.compliance.iso")} percentage={77} subtitle={t("dashboard.compliance.isoDesc")} />
+                  <ComplianceCard standard="nis2" title={t("dashboard.compliance.nis2")} percentage={82} subtitle={t("dashboard.compliance.nis2Desc")} />
+                  <ComplianceCard standard="cra" title={t("dashboard.compliance.cra")} percentage={82} subtitle={t("dashboard.compliance.craDesc")} />
+                </div>
+              </div>
+
+              {/* Widgets */}
+              <div className="space-y-6">
+                <ROPAGapWidget />
+                <CriticalProcessesWidget />
+                <DataTransferWidget />
+                <ThirdPartyWidget />
+              </div>
+            </div>
+          )}
+        </main>
+
+        <LaraAgent />
+
+        <AddModuleDialog 
+          open={isAddModuleOpen}
+          onOpenChange={setIsAddModuleOpen}
+          onModuleCreated={handleModuleCreated}
+        />
+        <AddSystemDialog
+          open={isAddSystemOpen}
+          onOpenChange={setIsAddSystemOpen}
+          onSystemAdded={handleSystemAdded}
+        />
+        <AddWorkAreaDialog
+          open={isAddWorkAreaOpen}
+          onOpenChange={setIsAddWorkAreaOpen}
+          onWorkAreaAdded={handleWorkAreaAdded}
+        />
+        <AddRoleDialog
+          open={isAddRoleOpen}
+          onOpenChange={setIsAddRoleOpen}
+          onRoleAdded={handleRoleAdded}
+        />
+      </div>
+    );
+  }
+
+  // Desktop layout with resizable panels
   return (
     <div className="flex min-h-screen max-h-screen bg-gradient-mynder overflow-hidden">
       <ResizablePanelGroup direction="horizontal">
