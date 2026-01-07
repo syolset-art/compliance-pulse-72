@@ -121,12 +121,12 @@ export function AddRoleDialog({ open, onOpenChange, onRoleAdded }: AddRoleDialog
 
           <div className="space-y-2">
             <Label htmlFor="work_area_id">Arbeidsområde</Label>
-            <Select value={formData.work_area_id} onValueChange={(value) => setFormData({ ...formData, work_area_id: value })}>
+            <Select value={formData.work_area_id || "none"} onValueChange={(value) => setFormData({ ...formData, work_area_id: value === "none" ? "" : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Velg arbeidsområde (valgfritt)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Ingen</SelectItem>
+                <SelectItem value="none">Ingen</SelectItem>
                 {workAreas.map((area) => (
                   <SelectItem key={area.id} value={area.id}>
                     {area.name}
