@@ -339,6 +339,24 @@
     "finish": "Fullfør",
     "close": "Lukk"
   },
+  "systems": {
+    "title": "Systemer",
+    "addSystem": "Legg til system",
+    "filterByName": "Filtrer etter systemnavn",
+    "filterByType": "Filtrer etter systemtype",
+    "filterByOwner": "Filtrer etter Eier (Arbeidsområde)",
+    "allTypes": "Alle typer",
+    "allOwners": "Alle eiere",
+    "system": "System",
+    "type": "Type",
+    "compliance": "Samsvar",
+    "risk": "Risiko",
+    "owner": "Eier (Arbeidsområde)",
+    "notSet": "Ikke satt",
+    "noSystems": "Ingen systemer funnet",
+    "deleteSuccess": "System slettet",
+    "deleteError": "Kunne ikke slette system"
+  },
   "addModule": {
     "title": "Legg til tilleggsmodul",
     "step": "Steg {{step}} av 4:",

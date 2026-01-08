@@ -339,6 +339,24 @@
     "finish": "Finish",
     "close": "Close"
   },
+  "systems": {
+    "title": "Systems",
+    "addSystem": "Add system",
+    "filterByName": "Filter by system name",
+    "filterByType": "Filter by system type",
+    "filterByOwner": "Filter by Owner (Work Area)",
+    "allTypes": "All types",
+    "allOwners": "All owners",
+    "system": "System",
+    "type": "Type",
+    "compliance": "Compliance",
+    "risk": "Risk",
+    "owner": "Owner (Work Area)",
+    "notSet": "Not set",
+    "noSystems": "No systems found",
+    "deleteSuccess": "System deleted",
+    "deleteError": "Could not delete system"
+  },
   "addModule": {
     "title": "Add additional module",
     "step": "Step {{step}} of 4:",
