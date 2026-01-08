@@ -8,15 +8,35 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, X } from "lucide-react";
+import { 
+  Loader2, 
+  Users, 
+  Zap, 
+  Network, 
+  ShieldCheck, 
+  Monitor, 
+  TrendingUp, 
+  UserCheck, 
+  Sun,
+  Sparkles,
+  Check
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface WorkArea {
   id: string;
   name: string;
   description: string | null;
   responsible_person: string | null;
+}
+
+interface WorkAreaTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
 }
 
 interface AddWorkAreaDialogProps {
@@ -37,10 +57,25 @@ const contactPersons = [
   "Anne Kristiansen"
 ];
 
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Zap,
+  Network,
+  Users,
+  ShieldCheck,
+  Monitor,
+  TrendingUp,
+  UserCheck,
+  Sun,
+};
+
 export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workArea }: AddWorkAreaDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0); // 0 = suggestions, 1-6 = form steps
   const [isActive, setIsActive] = useState(true);
+  const [templates, setTemplates] = useState<WorkAreaTemplate[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<Set<string>>(new Set());
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
@@ -50,6 +85,43 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
   });
   const [nameError, setNameError] = useState(false);
 
+  // Fetch templates based on company industry
+  const fetchTemplates = async () => {
+    setIsLoadingTemplates(true);
+    try {
+      // Get company profile to know the industry
+      const { data: profile } = await supabase
+        .from("company_profile")
+        .select("industry")
+        .single();
+
+      if (profile?.industry) {
+        const { data: templateData } = await supabase
+          .from("work_area_templates")
+          .select("*")
+          .eq("industry", profile.industry)
+          .order("sort_order", { ascending: true });
+
+        if (templateData) {
+          setTemplates(templateData as WorkAreaTemplate[]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    } finally {
+      setIsLoadingTemplates(false);
+    }
+  };
+
+  useEffect(() => {
+    if (open && !workArea) {
+      fetchTemplates();
+      setCurrentStep(0);
+      setShowManualForm(false);
+      setSelectedTemplates(new Set());
+    }
+  }, [open, workArea]);
+
   useEffect(() => {
     if (workArea) {
       setFormData({
@@ -58,16 +130,76 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
         responsible_person: workArea.responsible_person || ""
       });
       setCurrentStep(1);
+      setShowManualForm(true);
     } else {
       setFormData({
         name: "",
         description: "",
         responsible_person: ""
       });
-      setCurrentStep(1);
       setNameError(false);
     }
   }, [workArea, open]);
+
+  const toggleTemplateSelection = (templateId: string) => {
+    setSelectedTemplates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(templateId)) {
+        newSet.delete(templateId);
+      } else {
+        newSet.add(templateId);
+      }
+      return newSet;
+    });
+  };
+
+  const createFromTemplates = async () => {
+    if (selectedTemplates.size === 0) return;
+    
+    setIsLoading(true);
+    try {
+      const selectedTemplateData = templates.filter(t => selectedTemplates.has(t.id));
+      const workAreasToCreate = selectedTemplateData.map(template => ({
+        name: template.name,
+        description: template.description,
+        responsible_person: null,
+      }));
+
+      const { error } = await supabase.from("work_areas").insert(workAreasToCreate);
+      if (error) throw error;
+
+      // Update onboarding progress
+      const { data: progressData } = await supabase
+        .from("onboarding_progress")
+        .select("*")
+        .single();
+
+      if (progressData) {
+        await supabase
+          .from("onboarding_progress")
+          .update({ work_areas_defined: true })
+          .eq("id", progressData.id);
+      }
+
+      toast({
+        title: t("common.success"),
+        description: `${selectedTemplates.size} arbeidsområder opprettet`,
+      });
+
+      setSelectedTemplates(new Set());
+      onWorkAreaAdded();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error creating work areas:", error);
+      toast({
+        title: t("common.error"),
+        description: "Kunne ikke opprette arbeidsområder",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateStep = () => {
     if (currentStep === 1) {
@@ -93,7 +225,15 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+    } else if (currentStep === 1 && !workArea) {
+      setShowManualForm(false);
+      setCurrentStep(0);
     }
+  };
+
+  const startManualForm = () => {
+    setShowManualForm(true);
+    setCurrentStep(1);
   };
 
   const handleSubmit = async () => {
@@ -101,7 +241,6 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
 
     try {
       if (workArea) {
-        // Update existing work area
         const { error } = await supabase
           .from("work_areas")
           .update(formData)
@@ -114,12 +253,9 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
           description: `${formData.name} ${t("common.success").toLowerCase()}.`,
         });
       } else {
-        // Create new work area
         const { error } = await supabase.from("work_areas").insert([formData]);
-
         if (error) throw error;
 
-        // Update onboarding progress
         const { data: progressData } = await supabase
           .from("onboarding_progress")
           .select("*")
@@ -159,7 +295,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
     }
   };
 
-  const progress = (currentStep / TOTAL_STEPS) * 100;
+  const progress = showManualForm ? (currentStep / TOTAL_STEPS) * 100 : 0;
 
   const getStepTitle = () => {
     switch (currentStep) {
@@ -169,9 +305,88 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
       case 4: return "Innstillinger";
       case 5: return "Systemer";
       case 6: return "Bekreft";
-      default: return "Navn";
+      default: return "Forslag";
     }
   };
+
+  const getIconComponent = (iconName: string | null) => {
+    if (!iconName || !iconMap[iconName]) return Users;
+    return iconMap[iconName];
+  };
+
+  // Suggestions view
+  const renderSuggestions = () => (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+        <Sparkles className="h-4 w-4 text-primary" />
+        <span>Forslag basert på din bransje</span>
+      </div>
+
+      {isLoadingTemplates ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : templates.length > 0 ? (
+        <>
+          <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1">
+            {templates.map((template) => {
+              const IconComponent = getIconComponent(template.icon);
+              const isSelected = selectedTemplates.has(template.id);
+              
+              return (
+                <button
+                  key={template.id}
+                  onClick={() => toggleTemplateSelection(template.id)}
+                  className={cn(
+                    "flex items-start gap-3 p-3 rounded-lg border text-left transition-all",
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50 bg-card"
+                  )}
+                >
+                  <div className={cn(
+                    "p-2 rounded-lg shrink-0",
+                    isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                  )}>
+                    <IconComponent className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm text-foreground truncate">
+                        {template.name}
+                      </p>
+                      {isSelected && (
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                      )}
+                    </div>
+                    {template.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        {template.description}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 border-t border-border">
+            <button
+              onClick={startManualForm}
+              className="text-sm text-primary hover:underline"
+            >
+              Eller opprett manuelt →
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-6">
+          <p className="text-muted-foreground mb-4">Ingen forslag tilgjengelig</p>
+          <Button onClick={startManualForm}>Opprett manuelt</Button>
+        </div>
+      )}
+    </div>
+  );
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -369,48 +584,78 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
           </div>
         </DialogHeader>
 
-        {/* Progress section */}
-        <div className="px-6 pb-4">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">
-              Steg {currentStep} av {TOTAL_STEPS}: {getStepTitle()}
-            </span>
-            <span className="text-muted-foreground">{Math.round(progress)}%</span>
+        {/* Progress section - only show in form mode */}
+        {showManualForm && (
+          <div className="px-6 pb-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-muted-foreground">
+                Steg {currentStep} av {TOTAL_STEPS}: {getStepTitle()}
+              </span>
+              <span className="text-muted-foreground">{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-1" />
           </div>
-          <Progress value={progress} className="h-1" />
-        </div>
+        )}
 
         {/* Content */}
         <div className="px-6 pb-6 min-h-[200px]">
-          {renderStepContent()}
+          {!showManualForm && !workArea ? renderSuggestions() : renderStepContent()}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between p-4 bg-muted/30 border-t border-border">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleBack}
-            disabled={currentStep === 1}
-          >
-            Tilbake
-          </Button>
-          <Button 
-            onClick={handleNext}
-            disabled={isLoading}
-            className="min-w-[100px]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Lagrer...
-              </>
-            ) : currentStep === TOTAL_STEPS ? (
-              workArea ? "Oppdater" : "Opprett"
-            ) : (
-              "Neste"
-            )}
-          </Button>
+          {!showManualForm && !workArea ? (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+              >
+                Avbryt
+              </Button>
+              <Button 
+                onClick={createFromTemplates}
+                disabled={isLoading || selectedTemplates.size === 0}
+                className="min-w-[100px]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Oppretter...
+                  </>
+                ) : (
+                  `Opprett ${selectedTemplates.size > 0 ? `(${selectedTemplates.size})` : ""}`
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleBack}
+                disabled={currentStep === 1 && workArea !== null}
+              >
+                Tilbake
+              </Button>
+              <Button 
+                onClick={handleNext}
+                disabled={isLoading}
+                className="min-w-[100px]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Lagrer...
+                  </>
+                ) : currentStep === TOTAL_STEPS ? (
+                  workArea ? "Oppdater" : "Opprett"
+                ) : (
+                  "Neste"
+                )}
+              </Button>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
