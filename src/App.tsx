@@ -14,6 +14,7 @@ import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
 import Assets from "./pages/Assets";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
+import ProcessingRecords from "./pages/ProcessingRecords";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/services" element={<WorkAreas />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/assets/:id" element={<AssetTrustProfile />} />
+            <Route path="/protocols" element={<ProcessingRecords />} />
             {/* Legacy routes for backwards compatibility */}
             <Route path="/systems" element={<Assets />} />
             <Route path="/systems/:id" element={<AssetTrustProfile />} />
