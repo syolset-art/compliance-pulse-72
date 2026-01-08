@@ -41,6 +41,167 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_relationships: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          relationship_type: string
+          source_asset_id: string
+          target_asset_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          relationship_type: string
+          source_asset_id: string
+          target_asset_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          relationship_type?: string
+          source_asset_id?: string
+          target_asset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_relationships_source_asset_id_fkey"
+            columns: ["source_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_relationships_target_asset_id_fkey"
+            columns: ["target_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asset_type_templates: {
+        Row: {
+          applicable_standards: string[] | null
+          asset_type: string
+          color: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          display_name: string
+          display_name_plural: string
+          enabled_tabs: string[] | null
+          icon: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          applicable_standards?: string[] | null
+          asset_type: string
+          color?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          display_name: string
+          display_name_plural: string
+          enabled_tabs?: string[] | null
+          icon?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          applicable_standards?: string[] | null
+          asset_type?: string
+          color?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          display_name?: string
+          display_name_plural?: string
+          enabled_tabs?: string[] | null
+          icon?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      assets: {
+        Row: {
+          asset_manager: string | null
+          asset_owner: string | null
+          asset_type: string
+          category: string | null
+          compliance_score: number | null
+          created_at: string | null
+          criticality: string | null
+          description: string | null
+          external_id: string | null
+          id: string
+          lifecycle_status: string | null
+          metadata: Json | null
+          name: string
+          next_review_date: string | null
+          risk_level: string | null
+          risk_score: number | null
+          updated_at: string | null
+          url: string | null
+          vendor: string | null
+          work_area_id: string | null
+        }
+        Insert: {
+          asset_manager?: string | null
+          asset_owner?: string | null
+          asset_type: string
+          category?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          criticality?: string | null
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          lifecycle_status?: string | null
+          metadata?: Json | null
+          name: string
+          next_review_date?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          updated_at?: string | null
+          url?: string | null
+          vendor?: string | null
+          work_area_id?: string | null
+        }
+        Update: {
+          asset_manager?: string | null
+          asset_owner?: string | null
+          asset_type?: string
+          category?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          criticality?: string | null
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          lifecycle_status?: string | null
+          metadata?: Json | null
+          name?: string
+          next_review_date?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          updated_at?: string | null
+          url?: string | null
+          vendor?: string | null
+          work_area_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
