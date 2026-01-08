@@ -23,7 +23,8 @@ import {
   ChevronRight,
   Settings,
   Info,
-  Grid3x3
+  Grid3x3,
+  Loader2
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
@@ -45,6 +46,21 @@ interface WorkArea {
   name: string;
   description: string | null;
   responsible_person: string | null;
+}
+
+interface WorkAreaTemplate {
+  id: string;
+  industry: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  sort_order: number;
+}
+
+interface CompanyProfile {
+  id: string;
+  name: string;
+  industry: string;
 }
 
 // Mock data for systems in work area
@@ -114,6 +130,10 @@ export default function WorkAreas() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAllAreas, setShowAllAreas] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [templates, setTemplates] = useState<WorkAreaTemplate[]>([]);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
+  const [selectedTemplates, setSelectedTemplates] = useState<Set<string>>(new Set());
+  const [isCreatingFromTemplates, setIsCreatingFromTemplates] = useState(false);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -142,9 +162,116 @@ export default function WorkAreas() {
     }
   };
 
+  const fetchCompanyAndTemplates = async () => {
+    try {
+      // Fetch company profile using raw query approach for new tables
+      const { data: profileData, error: profileError } = await supabase
+        .from("company_profile" as any)
+        .select("*")
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching company profile:", profileError);
+        return;
+      }
+
+      if (profileData) {
+        const profile = profileData as unknown as CompanyProfile;
+        setCompanyProfile(profile);
+        
+        // Fetch templates for company's industry
+        const { data: templateData, error: templateError } = await supabase
+          .from("work_area_templates" as any)
+          .select("*")
+          .eq("industry", profile.industry)
+          .order("sort_order", { ascending: true });
+
+        if (templateError) {
+          console.error("Error fetching templates:", templateError);
+          return;
+        }
+
+        if (templateData) {
+          setTemplates(templateData as unknown as WorkAreaTemplate[]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching company/templates:", error);
+    }
+  };
+
   useEffect(() => {
     fetchWorkAreas();
+    fetchCompanyAndTemplates();
   }, []);
+
+  const toggleTemplateSelection = (templateId: string) => {
+    setSelectedTemplates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(templateId)) {
+        newSet.delete(templateId);
+      } else {
+        newSet.add(templateId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllTemplates = () => {
+    if (selectedTemplates.size === templates.length) {
+      setSelectedTemplates(new Set());
+    } else {
+      setSelectedTemplates(new Set(templates.map(t => t.id)));
+    }
+  };
+
+  const createWorkAreasFromTemplates = async () => {
+    if (selectedTemplates.size === 0) return;
+
+    setIsCreatingFromTemplates(true);
+    try {
+      const selectedTemplateData = templates.filter(t => selectedTemplates.has(t.id));
+      const workAreasToCreate = selectedTemplateData.map(template => ({
+        name: template.name,
+        description: template.description,
+        responsible_person: null,
+      }));
+
+      const { error } = await supabase.from("work_areas").insert(workAreasToCreate);
+
+      if (error) throw error;
+
+      // Update onboarding progress
+      const { data: progressData } = await supabase
+        .from("onboarding_progress")
+        .select("*")
+        .single();
+
+      if (progressData) {
+        await supabase
+          .from("onboarding_progress")
+          .update({ work_areas_defined: true })
+          .eq("id", progressData.id);
+      }
+
+      toast({
+        title: t("common.success"),
+        description: `${selectedTemplates.size} arbeidsområder opprettet`,
+      });
+
+      setSelectedTemplates(new Set());
+      fetchWorkAreas();
+    } catch (error) {
+      console.error("Error creating work areas:", error);
+      toast({
+        title: t("common.error"),
+        description: "Kunne ikke opprette arbeidsområder",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingFromTemplates(false);
+    }
+  };
 
   const handleWorkAreaAdded = () => {
     fetchWorkAreas();
@@ -536,18 +663,105 @@ export default function WorkAreas() {
             </Tabs>
           )}
 
-          {/* Empty State */}
+          {/* Empty State with Templates */}
           {!isLoading && workAreas.length === 0 && (
-            <Card className="p-12 text-center">
-              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">{t("workAreas.noWorkAreas")}</h3>
-              <p className="text-muted-foreground mb-4">
-                {t("workAreas.noWorkAreasDesc")}
-              </p>
-              <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-                <Plus className="h-4 w-4" />
-                {t("workAreas.addNew")}
-              </Button>
+            <Card className="p-8">
+              <div className="text-center mb-6">
+                <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t("workAreas.noWorkAreas")}</h3>
+                <p className="text-muted-foreground">
+                  {companyProfile 
+                    ? `Vi har foreslått arbeidsområder basert på din bransje (${companyProfile.industry}). Velg de som passer for ${companyProfile.name}.`
+                    : t("workAreas.noWorkAreasDesc")
+                  }
+                </p>
+              </div>
+
+              {templates.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Foreslåtte arbeidsområder</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={selectAllTemplates}
+                    >
+                      {selectedTemplates.size === templates.length ? "Fjern alle" : "Velg alle"}
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {templates.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => toggleTemplateSelection(template.id)}
+                        className={cn(
+                          "flex items-start gap-3 p-4 rounded-lg border text-left transition-all",
+                          selectedTemplates.has(template.id)
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5",
+                          selectedTemplates.has(template.id)
+                            ? "border-primary bg-primary"
+                            : "border-muted-foreground/30"
+                        )}>
+                          {selectedTemplates.has(template.id) && (
+                            <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium">{template.name}</p>
+                          {template.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{template.description}</p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      {selectedTemplates.size} av {templates.length} valgt
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Opprett egendefinert
+                      </Button>
+                      <Button
+                        onClick={createWorkAreasFromTemplates}
+                        disabled={selectedTemplates.size === 0 || isCreatingFromTemplates}
+                      >
+                        {isCreatingFromTemplates ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Oppretter...
+                          </>
+                        ) : (
+                          <>Opprett valgte ({selectedTemplates.size})</>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {templates.length === 0 && (
+                <div className="text-center">
+                  <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    {t("workAreas.addNew")}
+                  </Button>
+                </div>
+              )}
             </Card>
           )}
         </div>
