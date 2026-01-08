@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/sustainability" element={<Sustainability />} />
             <Route path="/transparency" element={<Transparency />} />
             <Route path="/services" element={<WorkAreas />} />
+            <Route path="/work-areas" element={<WorkAreas />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/assets/:id" element={<AssetTrustProfile />} />
             <Route path="/protocols" element={<ProcessingRecords />} />
