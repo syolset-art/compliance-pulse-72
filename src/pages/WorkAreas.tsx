@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
+import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -61,7 +62,10 @@ interface WorkAreaTemplate {
 interface CompanyProfile {
   id: string;
   name: string;
+  org_number: string | null;
   industry: string;
+  employees: string | null;
+  maturity: string | null;
 }
 
 // Mock data for systems in work area
@@ -137,6 +141,7 @@ export default function WorkAreas() {
   const [isCreatingFromTemplates, setIsCreatingFromTemplates] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [isCompanyProfileDialogOpen, setIsCompanyProfileDialogOpen] = useState(false);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -401,8 +406,22 @@ export default function WorkAreas() {
               </h1>
               <p className="text-muted-foreground mt-1">
                 {t("myWorkAreas.subtitle")}
+                {companyProfile && (
+                  <span className="ml-2 text-foreground font-medium">• {companyProfile.name}</span>
+                )}
               </p>
             </div>
+            {companyProfile && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsCompanyProfileDialogOpen(true)}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Selskapsinnstillinger
+              </Button>
+            )}
           </div>
 
           {/* Filter Button */}
@@ -806,6 +825,13 @@ export default function WorkAreas() {
         onOpenChange={handleDialogClose}
         onWorkAreaAdded={handleWorkAreaAdded}
         workArea={editingWorkArea}
+      />
+
+      <EditCompanyProfileDialog
+        open={isCompanyProfileDialogOpen}
+        onOpenChange={setIsCompanyProfileDialogOpen}
+        companyProfile={companyProfile}
+        onProfileUpdated={fetchCompanyAndTemplates}
       />
 
       <AlertDialog open={!!deletingWorkArea} onOpenChange={() => setDeletingWorkArea(null)}>
