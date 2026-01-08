@@ -5,7 +5,24 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
-import { HelpCircle, Trash2, X, Plus } from "lucide-react";
+import { 
+  HelpCircle, 
+  Trash2, 
+  Plus, 
+  Mail, 
+  Users, 
+  DollarSign, 
+  MessageSquare, 
+  Video, 
+  Briefcase, 
+  Calculator, 
+  KanbanSquare, 
+  Github, 
+  Cloud, 
+  Megaphone, 
+  Headphones,
+  LucideIcon
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
@@ -113,6 +130,52 @@ export default function Systems() {
     return "bg-red-500";
   };
 
+  // Map vendor/system names to icons
+  const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon; color: string } => {
+    const lowerName = name.toLowerCase();
+    const lowerVendor = (vendor || "").toLowerCase();
+    
+    if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft")) {
+      return { icon: Mail, color: "bg-orange-500/20 text-orange-500" };
+    }
+    if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce")) {
+      return { icon: Users, color: "bg-blue-500/20 text-blue-500" };
+    }
+    if (lowerName.includes("sap") || lowerVendor.includes("sap")) {
+      return { icon: DollarSign, color: "bg-yellow-500/20 text-yellow-500" };
+    }
+    if (lowerName.includes("slack") || lowerVendor.includes("slack")) {
+      return { icon: MessageSquare, color: "bg-purple-500/20 text-purple-500" };
+    }
+    if (lowerName.includes("zoom") || lowerVendor.includes("zoom")) {
+      return { icon: Video, color: "bg-blue-400/20 text-blue-400" };
+    }
+    if (lowerName.includes("visma") || lowerVendor.includes("visma")) {
+      return { icon: Briefcase, color: "bg-green-600/20 text-green-600" };
+    }
+    if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex")) {
+      return { icon: Calculator, color: "bg-indigo-500/20 text-indigo-500" };
+    }
+    if (lowerName.includes("jira") || lowerVendor.includes("atlassian")) {
+      return { icon: KanbanSquare, color: "bg-blue-600/20 text-blue-600" };
+    }
+    if (lowerName.includes("github") || lowerVendor.includes("github")) {
+      return { icon: Github, color: "bg-gray-500/20 text-gray-400" };
+    }
+    if (lowerName.includes("aws") || lowerVendor.includes("amazon")) {
+      return { icon: Cloud, color: "bg-orange-400/20 text-orange-400" };
+    }
+    if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot")) {
+      return { icon: Megaphone, color: "bg-orange-600/20 text-orange-600" };
+    }
+    if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk")) {
+      return { icon: Headphones, color: "bg-teal-500/20 text-teal-500" };
+    }
+    
+    // Default icon
+    return { icon: Cloud, color: "bg-primary/20 text-primary" };
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       {!isMobile && <Sidebar />}
@@ -200,9 +263,14 @@ export default function Systems() {
                 >
                   {/* System Name with Icon */}
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-semibold text-xs">
-                      {system.name.substring(0, 2).toUpperCase()}
-                    </div>
+                    {(() => {
+                      const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
+                      return (
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
+                          <IconComponent className="h-4 w-4" />
+                        </div>
+                      );
+                    })()}
                     <span className="text-foreground font-medium">{system.name}</span>
                   </div>
 
