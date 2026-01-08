@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ContentViewer } from "@/components/ContentViewer";
@@ -21,9 +21,9 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { CheckCircle2, TrendingUp, Plus } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
-import mynderLogo from "@/assets/mynder-logo-inverted.png";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { mode, toggleMode } = useNavigationMode();
@@ -33,6 +33,7 @@ const Index = () => {
   const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const [contentView, setContentView] = useState<{ 
     type: string; 
     filter?: string;
@@ -43,6 +44,21 @@ const Index = () => {
     };
     explanation?: string;
   } | null>(null);
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      const { data } = await supabase
+        .from("company_profile")
+        .select("name")
+        .limit(1)
+        .maybeSingle();
+      
+      if (data?.name) {
+        setCompanyName(data.name);
+      }
+    };
+    fetchCompany();
+  }, []);
 
   const handleShowContent = (contentType: string, filter?: string, options?: any, explanation?: string) => {
     setContentView({ type: contentType, filter, options, explanation });
@@ -87,7 +103,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
-                    <img src={mynderLogo} alt="Mynder" className="h-8" />
+                    <h1 className="text-2xl font-bold text-foreground">{companyName || t("dashboard.title")}</h1>
                     <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
                   </div>
                   <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90" size="sm">
@@ -205,7 +221,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <img src={mynderLogo} alt="Mynder" className="h-8 md:h-10" />
+                      <h1 className="text-2xl md:text-3xl font-bold text-foreground">{companyName || t("dashboard.title")}</h1>
                       <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
                     </div>
                     <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
