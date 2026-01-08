@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -13,7 +13,10 @@ import {
   Menu,
   Leaf,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Building2,
+  CreditCard,
+  FileCheck
 } from "lucide-react";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { cn } from "@/lib/utils";
@@ -21,15 +24,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 
 const navigation = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
   { name: "nav.assets", href: "/assets", icon: Package },
-  { name: "nav.myWorkAreas", href: "/services", icon: Users },
+  { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.sustainability", href: "/sustainability", icon: Leaf, highlight: true },
@@ -46,12 +50,31 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [adminOpen, setAdminOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      const { data } = await supabase
+        .from("company_profile")
+        .select("name")
+        .limit(1)
+        .maybeSingle();
+      
+      if (data?.name) {
+        setCompanyName(data.name);
+      }
+    };
+    fetchCompany();
+  }, []);
 
   // Check if any admin submenu item is active
   const isAdminActive = adminSubMenu.some(item => location.pathname === item.href);
+  
   return (
     <>
       {/* Logo */}
@@ -85,7 +108,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -179,20 +202,76 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
         </Link>
       </nav>
 
-      {/* User info at bottom */}
-      <div className="border-t border-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-primary">EV</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">Eviny</p>
-            <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <span>{t("nav.switchOrganization")}</span>
-              <ChevronDown className="h-3 w-3" />
+      {/* Company section at bottom */}
+      <div className="border-t border-border">
+        {companyName ? (
+          <div className="p-3">
+            <button 
+              onClick={() => setCompanyOpen(!companyOpen)}
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-sm font-medium text-primary">
+                    {companyName.substring(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground truncate max-w-[120px]">
+                    {companyName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Selskap</p>
+                </div>
+              </div>
+              <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", companyOpen && "rotate-180")} />
             </button>
+
+            {/* Company submenu */}
+            {companyOpen && (
+              <div className="mt-2 ml-2 space-y-1 animate-fade-in">
+                <button
+                  onClick={() => navigate('/work-areas', { state: { openCompanySettings: true } })}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <Building2 className="h-4 w-4" />
+                  Selskapsinnstillinger
+                </button>
+                <button
+                  onClick={() => {}}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Abonnementer
+                </button>
+                <button
+                  onClick={() => {}}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <FileCheck className="h-4 w-4" />
+                  Betingelser og samtykke
+                </button>
+                <div className="border-t border-border my-2" />
+                <button
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <span className="text-xs">{t("nav.switchOrganization")}</span>
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <div className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground">Ikke registrert</p>
+                <p className="text-xs text-muted-foreground">Klikk på Lara for å starte</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
