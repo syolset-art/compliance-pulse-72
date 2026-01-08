@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
-  Grid3x3, 
+  Package, 
   Users, 
   AlertTriangle, 
   ClipboardList,
@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 const navigation = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
-  { name: "nav.assets", href: "/assets", icon: Grid3x3 },
+  { name: "nav.assets", href: "/assets", icon: Package },
   { name: "nav.myWorkAreas", href: "/services", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
