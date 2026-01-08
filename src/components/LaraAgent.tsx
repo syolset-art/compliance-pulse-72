@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { X, Sparkles, Check, Server, Building, Users, Building2, ChevronRight } 
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
+import confetti from "canvas-confetti";
 
 interface LaraAgentProps {
   onOpenSystemDialog?: () => void;
@@ -20,9 +21,46 @@ const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Users
 };
 
+const triggerConfetti = () => {
+  const duration = 3000;
+  const end = Date.now() + duration;
+
+  const frame = () => {
+    confetti({
+      particleCount: 3,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.8 },
+      colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+    });
+    confetti({
+      particleCount: 3,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.8 },
+      colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  };
+
+  // Initial burst
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+    colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+  });
+
+  frame();
+};
+
 export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
+  const hasShownConfetti = useRef(false);
   const navigate = useNavigate();
   const { 
     steps, 
@@ -36,6 +74,14 @@ export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentPro
   } = useOnboardingProgress();
 
   const remainingSteps = totalCount - completedCount;
+
+  // Trigger confetti when onboarding is fully complete
+  useEffect(() => {
+    if (isFullyComplete && !isLoading && !hasShownConfetti.current) {
+      hasShownConfetti.current = true;
+      triggerConfetti();
+    }
+  }, [isFullyComplete, isLoading]);
 
   const handleStepAction = (step: typeof steps[0]) => {
     if (step.isCompleted) return;
