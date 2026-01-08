@@ -1,25 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sparkles, Leaf, FileText, HardHat } from "lucide-react";
+import { X, Sparkles, Check, Server, Building, Users, Building2, ChevronRight } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
+import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
 
-export const LaraAgent = () => {
+interface LaraAgentProps {
+  onOpenSystemDialog?: () => void;
+  onOpenRoleDialog?: () => void;
+}
+
+const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  Building2,
+  Server,
+  Building,
+  Users
+};
+
+export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showFeatures, setShowFeatures] = useState(false);
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
   const navigate = useNavigate();
+  const { 
+    steps, 
+    completedCount, 
+    totalCount, 
+    percentComplete, 
+    nextStep, 
+    isFullyComplete,
+    isLoading,
+    refetch 
+  } = useOnboardingProgress();
 
-  const newFeatures = [
-    { icon: Leaf, title: "Bærekraftsrapport", badge: "Nytt", link: "/sustainability" },
-    { icon: FileText, title: "Åpenhetsloven", badge: "Nytt", link: "/transparency" },
-    { icon: HardHat, title: "HMS Rapportering", badge: "Beta" }
-  ];
+  const remainingSteps = totalCount - completedCount;
+
+  const handleStepAction = (step: typeof steps[0]) => {
+    if (step.isCompleted) return;
+
+    switch (step.id) {
+      case 'company-info':
+        setShowCompanyForm(true);
+        break;
+      case 'systems':
+        if (onOpenSystemDialog) {
+          onOpenSystemDialog();
+          setIsOpen(false);
+        }
+        break;
+      case 'work-areas':
+        navigate('/work-areas');
+        setIsOpen(false);
+        break;
+      case 'roles':
+        if (onOpenRoleDialog) {
+          onOpenRoleDialog();
+          setIsOpen(false);
+        }
+        break;
+    }
+  };
+
+  const handleCompanyFormComplete = () => {
+    setShowCompanyForm(false);
+    refetch();
+  };
+
+  const getStepIcon = (iconName: string) => {
+    const Icon = stepIcons[iconName] || Building2;
+    return Icon;
+  };
+
+  // Calculate the circumference and offset for the progress ring
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentComplete / 100) * circumference;
 
   return (
     <>
-      {/* Floating Lara Button */}
+      {/* Floating Lara Button with Progress Ring */}
       <div className="fixed bottom-6 right-6 z-50">
         {!isOpen && (
           <div className="relative">
@@ -27,61 +88,61 @@ export const LaraAgent = () => {
               onClick={() => setIsOpen(true)}
               className="relative group animate-fade-in"
             >
+              {/* Progress ring behind butterfly */}
+              <svg 
+                className="absolute -inset-2 w-24 h-24 -rotate-90"
+                viewBox="0 0 88 88"
+              >
+                {/* Background ring */}
+                <circle
+                  cx="44"
+                  cy="44"
+                  r={radius}
+                  fill="none"
+                  stroke="hsl(var(--muted))"
+                  strokeWidth="4"
+                />
+                {/* Progress ring */}
+                <circle
+                  cx="44"
+                  cy="44"
+                  r={radius}
+                  fill="none"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  className="transition-all duration-700 ease-out"
+                />
+              </svg>
+              
               <img 
                 src={laraButterfly} 
                 alt="Lara AI Agent" 
-                className="w-20 h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg"
+                className={`w-20 h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg ${
+                  !isFullyComplete ? 'animate-pulse' : ''
+                }`}
               />
-              {/* Feature notification badge */}
-              <Badge 
-                className="absolute -top-2 -right-2 bg-success text-success-foreground text-xs px-2 cursor-pointer hover:scale-110 transition-transform"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFeatures(!showFeatures);
-                }}
-              >
-                3 nye
-              </Badge>
+              
+              {/* Remaining steps badge */}
+              {!isFullyComplete && (
+                <Badge 
+                  className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 animate-bounce"
+                >
+                  {remainingSteps} igjen
+                </Badge>
+              )}
+              
+              {/* Completed badge */}
+              {isFullyComplete && (
+                <Badge 
+                  className="absolute -top-2 -right-2 bg-success text-success-foreground text-xs px-2"
+                >
+                  <Check className="h-3 w-3" />
+                </Badge>
+              )}
             </button>
-
-            {/* Features popup */}
-            {showFeatures && (
-              <Card className="absolute bottom-full right-0 mb-2 w-64 shadow-xl animate-scale-in">
-                <CardContent className="p-3 space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-foreground">Nye funksjoner</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5"
-                      onClick={() => setShowFeatures(false)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  {newFeatures.map((feature, index) => {
-                    const Icon = feature.icon;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          if (feature.link) {
-                            navigate(feature.link);
-                            setShowFeatures(false);
-                          }
-                        }}
-                        className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors text-left"
-                        disabled={!feature.link}
-                      >
-                        <Icon className="h-4 w-4 text-primary" />
-                        <span className="text-sm text-foreground flex-1">{feature.title}</span>
-                        <Badge variant="outline" className="text-xs">{feature.badge}</Badge>
-                      </button>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            )}
           </div>
         )}
 
@@ -89,7 +150,8 @@ export const LaraAgent = () => {
         {isOpen && (
           <Card className="w-80 shadow-2xl animate-scale-in border-primary/20">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-3">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <img 
                     src={laraButterfly} 
@@ -104,47 +166,141 @@ export const LaraAgent = () => {
                     <p className="text-xs text-muted-foreground">Din AI-assistent</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm text-foreground">
-                  👋 Hei! Jeg har lagt merke til at du ikke har fullført innledende oppsett ennå.
-                </p>
-                
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Anbefalt handling:
-                  </p>
-                  <p className="text-sm font-medium text-foreground">
-                    Fullføre organisasjonsoppsett og sikkerhetsrammeverk
-                  </p>
+                <div className="flex items-center gap-2">
+                  {/* Progress percentage */}
+                  <span className="text-sm font-bold text-primary">{percentComplete}%</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => {
+                      setIsOpen(false);
+                      setShowCompanyForm(false);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-
-                <Button 
-                  onClick={() => {
-                    navigate("/onboarding");
-                    setIsOpen(false);
-                  }}
-                  className="w-full"
-                >
-                  Start oppsett
-                </Button>
-
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-center"
-                >
-                  Gjør dette senere
-                </button>
               </div>
+
+              {/* Company Form View */}
+              {showCompanyForm ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setShowCompanyForm(false)}
+                    >
+                      ← Tilbake
+                    </Button>
+                  </div>
+                  <CompactCompanyOnboarding onComplete={handleCompanyFormComplete} />
+                </div>
+              ) : (
+                <>
+                  {/* Welcome message */}
+                  <div className="mb-4">
+                    {isFullyComplete ? (
+                      <p className="text-sm text-foreground">
+                        🎉 Gratulerer! Du har fullført oppsettet. Utforsk dashbordet for å komme i gang.
+                      </p>
+                    ) : (
+                      <p className="text-sm text-foreground">
+                        👋 Hei! La oss fullføre oppsettet sammen. {remainingSteps} steg gjenstår.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mb-4">
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
+                        style={{ width: `${percentComplete}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {completedCount} av {totalCount} steg fullført
+                    </p>
+                  </div>
+
+                  {/* Steps list */}
+                  <div className="space-y-2 mb-4">
+                    {steps.map((step, index) => {
+                      const Icon = getStepIcon(step.icon);
+                      const isNext = nextStep?.id === step.id;
+                      
+                      return (
+                        <button
+                          key={step.id}
+                          onClick={() => handleStepAction(step)}
+                          disabled={step.isCompleted}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left ${
+                            step.isCompleted
+                              ? 'bg-success/10 border border-success/20'
+                              : isNext
+                                ? 'bg-primary/10 border-2 border-primary hover:bg-primary/20'
+                                : 'bg-muted/30 border border-border hover:bg-muted/50'
+                          }`}
+                        >
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${
+                            step.isCompleted
+                              ? 'bg-success text-success-foreground'
+                              : isNext
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {step.isCompleted ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Icon className="h-4 w-4" />
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`text-sm font-medium ${
+                              step.isCompleted ? 'text-muted-foreground' : 'text-foreground'
+                            }`}>
+                              {step.title}
+                            </h4>
+                            {isNext && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {step.description}
+                              </p>
+                            )}
+                          </div>
+                          
+                          {!step.isCompleted && (
+                            <ChevronRight className={`h-4 w-4 shrink-0 ${
+                              isNext ? 'text-primary' : 'text-muted-foreground'
+                            }`} />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Quick action for next step */}
+                  {nextStep && !isFullyComplete && (
+                    <Button 
+                      onClick={() => handleStepAction(nextStep)}
+                      className="w-full"
+                    >
+                      {nextStep.id === 'company-info' ? 'Start oppsett' : `Fortsett: ${nextStep.title}`}
+                    </Button>
+                  )}
+
+                  {/* Later button */}
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-center mt-3"
+                  >
+                    Gjør dette senere
+                  </button>
+                </>
+              )}
             </CardContent>
           </Card>
         )}
