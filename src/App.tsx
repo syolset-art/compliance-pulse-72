@@ -12,8 +12,8 @@ import Onboarding from "./pages/Onboarding";
 import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
-import Systems from "./pages/Systems";
-import SystemTrustProfile from "./pages/SystemTrustProfile";
+import Assets from "./pages/Assets";
+import AssetTrustProfile from "./pages/AssetTrustProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,8 +34,11 @@ const App = () => (
             <Route path="/sustainability" element={<Sustainability />} />
             <Route path="/transparency" element={<Transparency />} />
             <Route path="/services" element={<WorkAreas />} />
-            <Route path="/systems" element={<Systems />} />
-            <Route path="/systems/:id" element={<SystemTrustProfile />} />
+            <Route path="/assets" element={<Assets />} />
+            <Route path="/assets/:id" element={<AssetTrustProfile />} />
+            {/* Legacy routes for backwards compatibility */}
+            <Route path="/systems" element={<Assets />} />
+            <Route path="/systems/:id" element={<AssetTrustProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
