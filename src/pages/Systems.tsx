@@ -21,7 +21,10 @@ import {
   Cloud, 
   Megaphone, 
   Headphones,
-  LucideIcon
+  LucideIcon,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
@@ -60,6 +63,8 @@ export default function Systems() {
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch systems
   const { data: systems = [], isLoading } = useQuery({
@@ -101,21 +106,73 @@ export default function Systems() {
     },
   });
 
-  // Filter systems
+  // Filter and sort systems
   const filteredSystems = useMemo(() => {
-    return systems.filter((system) => {
+    let result = systems.filter((system) => {
       const matchesName = system.name.toLowerCase().includes(nameFilter.toLowerCase());
-      const matchesType = !typeFilter || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
+      const matchesType = !typeFilter || typeFilter === "all" || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
       const matchesOwner = !ownerFilter || ownerFilter === "all";
       return matchesName && matchesType && matchesOwner;
     });
-  }, [systems, nameFilter, typeFilter, ownerFilter]);
+
+    // Apply sorting
+    if (sortColumn) {
+      result = [...result].sort((a, b) => {
+        let aValue: string | number = "";
+        let bValue: string | number = "";
+
+        switch (sortColumn) {
+          case "name":
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case "type":
+            aValue = (a.category || "").toLowerCase();
+            bValue = (b.category || "").toLowerCase();
+            break;
+          case "compliance":
+            aValue = a.compliance_score || 0;
+            bValue = b.compliance_score || 0;
+            break;
+          case "risk":
+            aValue = a.compliance_score || 0;
+            bValue = b.compliance_score || 0;
+            break;
+        }
+
+        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [systems, nameFilter, typeFilter, ownerFilter, sortColumn, sortDirection]);
 
   // Get unique categories for filter
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
     return Array.from(cats);
   }, [systems]);
+
+  // Handle column sorting
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-3.5 w-3.5 ml-1 opacity-50" />;
+    }
+    return sortDirection === "asc" 
+      ? <ArrowUp className="h-3.5 w-3.5 ml-1" /> 
+      : <ArrowDown className="h-3.5 w-3.5 ml-1" />;
+  };
 
   const getComplianceLabel = (score: number) => {
     if (score >= 85) return { label: `${score}% - Samsvar`, color: "bg-green-500/20 text-green-400 border-green-500/30" };
@@ -231,13 +288,35 @@ export default function Systems() {
         <div className="rounded-lg border border-border overflow-hidden">
           {/* Table Header */}
           <div className="grid grid-cols-[2fr_2fr_1fr_80px_2fr_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
-            <div>{t("systems.system")}</div>
-            <div>{t("systems.type")}</div>
-            <div className="flex items-center gap-1">
+            <button 
+              onClick={() => handleSort("name")}
+              className="flex items-center hover:text-foreground transition-colors text-left"
+            >
+              {t("systems.system")}
+              <SortIcon column="name" />
+            </button>
+            <button 
+              onClick={() => handleSort("type")}
+              className="flex items-center hover:text-foreground transition-colors text-left"
+            >
+              {t("systems.type")}
+              <SortIcon column="type" />
+            </button>
+            <button 
+              onClick={() => handleSort("compliance")}
+              className="flex items-center gap-1 hover:text-foreground transition-colors text-left"
+            >
               {t("systems.compliance")}
               <HelpCircle className="h-3.5 w-3.5" />
-            </div>
-            <div>{t("systems.risk")}</div>
+              <SortIcon column="compliance" />
+            </button>
+            <button 
+              onClick={() => handleSort("risk")}
+              className="flex items-center hover:text-foreground transition-colors text-left"
+            >
+              {t("systems.risk")}
+              <SortIcon column="risk" />
+            </button>
             <div>{t("systems.owner")}</div>
             <div></div>
           </div>
