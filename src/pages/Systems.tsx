@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
@@ -56,6 +57,7 @@ interface WorkArea {
 
 export default function Systems() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   
@@ -338,7 +340,8 @@ export default function Systems() {
               return (
                 <div
                   key={system.id}
-                  className="grid grid-cols-[2fr_2fr_1fr_80px_2fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/20 transition-colors"
+                  onClick={() => navigate(`/systems/${system.id}`)}
+                  className="grid grid-cols-[2fr_2fr_1fr_80px_2fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
                 >
                   {/* System Name with Icon */}
                   <div className="flex items-center gap-3">

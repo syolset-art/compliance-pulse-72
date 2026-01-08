@@ -13,6 +13,7 @@ import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
 import Systems from "./pages/Systems";
+import SystemTrustProfile from "./pages/SystemTrustProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/transparency" element={<Transparency />} />
             <Route path="/services" element={<WorkAreas />} />
             <Route path="/systems" element={<Systems />} />
+            <Route path="/systems/:id" element={<SystemTrustProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
