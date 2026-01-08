@@ -7,6 +7,10 @@ import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget"
 import { SLAWidget } from "@/components/widgets/SLAWidget";
 import { InherentRiskWidget } from "@/components/widgets/InherentRiskWidget";
 import { ControlsWidget } from "@/components/widgets/ControlsWidget";
+import { UpcomingTasksWidget } from "@/components/widgets/UpcomingTasksWidget";
+import { SystemLibraryWidget } from "@/components/widgets/SystemLibraryWidget";
+import { TaskProgressWidget } from "@/components/widgets/TaskProgressWidget";
+import { ThirdPartyManagementWidget } from "@/components/widgets/ThirdPartyManagementWidget";
 import { ComplianceCard } from "@/components/widgets/ComplianceCard";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
@@ -122,9 +126,21 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               </div>
 
               {/* Risk & Controls */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <InherentRiskWidget />
                 <ControlsWidget />
+              </div>
+
+              {/* Tasks & Systems Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <UpcomingTasksWidget />
+                <SystemLibraryWidget />
+              </div>
+
+              {/* Progress & Third Party Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TaskProgressWidget />
+                <ThirdPartyManagementWidget />
               </div>
             </div>
           )}
@@ -225,6 +241,18 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                   <InherentRiskWidget />
                   <ControlsWidget />
+                </div>
+
+                {/* Tasks & Systems Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  <UpcomingTasksWidget />
+                  <SystemLibraryWidget />
+                </div>
+
+                {/* Progress & Third Party Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  <TaskProgressWidget />
+                  <ThirdPartyManagementWidget />
                 </div>
 
                 {/* Compliance Analysis Section */}
