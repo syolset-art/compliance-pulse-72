@@ -310,6 +310,44 @@
     "updateSuccess": "Arbeidsområde oppdatert",
     "updateSuccessDesc": "Endringene er lagret."
   },
+  "myWorkAreas": {
+    "title": "Mine arbeidsområder",
+    "subtitle": "Oversikt over behandlingsprotokoller, systemer og brukerere i dine arbeidsområder",
+    "filter": "Filtrer",
+    "addNew": "Legg til",
+    "systemsShort": "systemer",
+    "showMore": "Vis mer",
+    "showLess": "Vis mindre",
+    "manager": "Arbeidsområdeansvarlig",
+    "notAssigned": "Ikke tildelt",
+    "risk": "Risiko",
+    "riskLow": "Lav risiko",
+    "riskMedium": "Moderat risiko",
+    "riskHigh": "Høy risiko",
+    "riskCritical": "Kritisk risiko",
+    "highCriticality": "Høy kritikalitet",
+    "processes": "Prosesser",
+    "users": "Brukere",
+    "systems": "Systemer",
+    "tabs": {
+      "systems": "Systemer",
+      "protocols": "Behandlingsprotokoller",
+      "processes": "Prosesser",
+      "users": "Brukere",
+      "documents": "Dokumenter",
+      "settings": "Innstillinger"
+    },
+    "table": {
+      "systemName": "SYSTEMNAVN",
+      "purpose": "FORMÅL",
+      "dataType": "DATATYPE",
+      "risk": "RISIKO",
+      "protocol": "PROTOKOLL"
+    },
+    "hasProtocol": "HAR PROTOKOLL",
+    "newProtocol": "Ny protokoll",
+    "comingSoon": "Kommer snart..."
+  },
   "dialog": {
     "addWorkArea": "Legg til arbeidsområde",
     "editWorkArea": "Rediger arbeidsområde",
