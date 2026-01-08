@@ -192,10 +192,12 @@ export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentPro
           </div>
         )}
 
-        {/* Lara Card */}
+        {/* Lara Card - Larger when open */}
         {isOpen && (
-          <Card className="w-80 shadow-2xl animate-scale-in border-primary/20">
-            <CardContent className="p-4">
+          <Card className={`shadow-2xl animate-scale-in border-primary/20 transition-all duration-300 ${
+            showCompanyForm ? 'w-[420px]' : 'w-96'
+          }`}>
+            <CardContent className="p-5">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
