@@ -310,6 +310,44 @@
     "updateSuccess": "Work area updated",
     "updateSuccessDesc": "Changes have been saved."
   },
+  "myWorkAreas": {
+    "title": "My work areas",
+    "subtitle": "Overview of processing records, systems and users in your work areas",
+    "filter": "Filter",
+    "addNew": "Add",
+    "systemsShort": "systems",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "manager": "Work area manager",
+    "notAssigned": "Not assigned",
+    "risk": "Risk",
+    "riskLow": "Low risk",
+    "riskMedium": "Moderate risk",
+    "riskHigh": "High risk",
+    "riskCritical": "Critical risk",
+    "highCriticality": "High criticality",
+    "processes": "Processes",
+    "users": "Users",
+    "systems": "Systems",
+    "tabs": {
+      "systems": "Systems",
+      "protocols": "Processing records",
+      "processes": "Processes",
+      "users": "Users",
+      "documents": "Documents",
+      "settings": "Settings"
+    },
+    "table": {
+      "systemName": "SYSTEM NAME",
+      "purpose": "PURPOSE",
+      "dataType": "DATA TYPE",
+      "risk": "RISK",
+      "protocol": "PROTOCOL"
+    },
+    "hasProtocol": "HAS PROTOCOL",
+    "newProtocol": "New protocol",
+    "comingSoon": "Coming soon..."
+  },
   "dialog": {
     "addWorkArea": "Add work area",
     "editWorkArea": "Edit work area",
