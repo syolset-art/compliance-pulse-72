@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
+import Systems from "./pages/Systems";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/sustainability" element={<Sustainability />} />
             <Route path="/transparency" element={<Transparency />} />
             <Route path="/services" element={<WorkAreas />} />
+            <Route path="/systems" element={<Systems />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
