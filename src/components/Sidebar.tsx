@@ -27,7 +27,6 @@ import { useTranslation } from "react-i18next";
 
 const navigation = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
-  { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
   { name: "nav.systems", href: "/systems", icon: Grid3x3 },
   { name: "nav.myWorkAreas", href: "/services", icon: Users },
@@ -37,6 +36,10 @@ const navigation = [
   { name: "nav.transparency", href: "/transparency", icon: FileText, highlight: true },
 ];
 
+const adminSubMenu = [
+  { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
+];
+
 interface SidebarContentProps {
   onToggleChat?: () => void;
 }
@@ -44,7 +47,11 @@ interface SidebarContentProps {
 const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
   const location = useLocation();
   const { t } = useTranslation();
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
+  // Check if any admin submenu item is active
+  const isAdminActive = adminSubMenu.some(item => location.pathname === item.href);
   return (
     <>
       {/* Logo */}
@@ -105,22 +112,61 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
         })}
 
         <div className="pt-4">
-          <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+          <button 
+            onClick={() => setAdminOpen(!adminOpen)}
+            className={cn(
+              "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              isAdminActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            )}
+          >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
               {t("nav.admin")}
             </div>
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
           </button>
+          
+          {/* Admin Submenu */}
+          {adminOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              {adminSubMenu.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors relative",
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {t(item.name)}
+                    {item.highlight && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="pt-1">
-          <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+          <button 
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
               {t("nav.settings")}
             </div>
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className={cn("h-4 w-4 transition-transform", settingsOpen && "rotate-180")} />
           </button>
         </div>
 
