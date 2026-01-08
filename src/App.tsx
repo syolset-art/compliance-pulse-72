@@ -15,6 +15,9 @@ import WorkAreas from "./pages/WorkAreas";
 import Assets from "./pages/Assets";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
 import ProcessingRecords from "./pages/ProcessingRecords";
+import CompanySettings from "./pages/CompanySettings";
+import Subscriptions from "./pages/Subscriptions";
+import TermsAndConsent from "./pages/TermsAndConsent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/assets" element={<Assets />} />
             <Route path="/assets/:id" element={<AssetTrustProfile />} />
             <Route path="/protocols" element={<ProcessingRecords />} />
+            <Route path="/company-settings" element={<CompanySettings />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/terms-and-consent" element={<TermsAndConsent />} />
             {/* Legacy routes for backwards compatibility */}
             <Route path="/systems" element={<Assets />} />
             <Route path="/systems/:id" element={<AssetTrustProfile />} />
