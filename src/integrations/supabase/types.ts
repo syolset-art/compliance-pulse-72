@@ -106,41 +106,319 @@ export type Database = {
           },
         ]
       }
-      systems: {
+      system_compliance: {
         Row: {
-          category: string | null
+          created_at: string | null
+          id: string
+          score: number | null
+          standard: string
+          status: string | null
+          system_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          standard: string
+          status?: string | null
+          system_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          standard?: string
+          status?: string | null
+          system_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_compliance_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_data_handling: {
+        Row: {
+          ai_usage: boolean | null
+          ai_usage_description: string | null
+          created_at: string | null
+          data_locations: string[] | null
+          documents: string[] | null
+          id: string
+          retention_keywords: string[] | null
+          system_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          ai_usage?: boolean | null
+          ai_usage_description?: string | null
+          created_at?: string | null
+          data_locations?: string[] | null
+          documents?: string[] | null
+          id?: string
+          retention_keywords?: string[] | null
+          system_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          ai_usage?: boolean | null
+          ai_usage_description?: string | null
+          created_at?: string | null
+          data_locations?: string[] | null
+          documents?: string[] | null
+          id?: string
+          retention_keywords?: string[] | null
+          system_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_data_handling_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_incidents: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          last_updated: string | null
+          responsible: string | null
+          risk_level: string | null
+          status: string | null
+          system_id: string
+          time_hours: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          last_updated?: string | null
+          responsible?: string | null
+          risk_level?: string | null
+          status?: string | null
+          system_id: string
+          time_hours?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          last_updated?: string | null
+          responsible?: string | null
+          risk_level?: string | null
+          status?: string | null
+          system_id?: string
+          time_hours?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_incidents_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_processes: {
+        Row: {
           created_at: string | null
           description: string | null
           id: string
           name: string
-          risk_level: string | null
           status: string | null
+          system_id: string
           updated_at: string | null
-          vendor: string | null
         }
         Insert: {
-          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
           name: string
-          risk_level?: string | null
           status?: string | null
+          system_id: string
           updated_at?: string | null
-          vendor?: string | null
         }
         Update: {
-          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
           name?: string
-          risk_level?: string | null
           status?: string | null
+          system_id?: string
           updated_at?: string | null
-          vendor?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "system_processes_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_risk_assessments: {
+        Row: {
+          created_at: string | null
+          id: string
+          next_review: string | null
+          notes: string | null
+          risk_distribution: Json | null
+          risk_score: number | null
+          status: string | null
+          system_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          next_review?: string | null
+          notes?: string | null
+          risk_distribution?: Json | null
+          risk_score?: number | null
+          status?: string | null
+          system_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          next_review?: string | null
+          notes?: string | null
+          risk_distribution?: Json | null
+          risk_score?: number | null
+          status?: string | null
+          system_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_risk_assessments_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_vendors: {
+        Row: {
+          created_at: string | null
+          eu_eos_compliant: boolean | null
+          id: string
+          name: string
+          purpose: string | null
+          source: string | null
+          system_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          eu_eos_compliant?: boolean | null
+          id?: string
+          name: string
+          purpose?: string | null
+          source?: string | null
+          system_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          eu_eos_compliant?: boolean | null
+          id?: string
+          name?: string
+          purpose?: string | null
+          source?: string | null
+          system_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_vendors_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      systems: {
+        Row: {
+          category: string | null
+          compliance_score: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          next_review_date: string | null
+          risk_level: string | null
+          risk_score: number | null
+          status: string | null
+          system_manager: string | null
+          updated_at: string | null
+          url: string | null
+          vendor: string | null
+          work_area_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          next_review_date?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          status?: string | null
+          system_manager?: string | null
+          updated_at?: string | null
+          url?: string | null
+          vendor?: string | null
+          work_area_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          next_review_date?: string | null
+          risk_level?: string | null
+          risk_score?: number | null
+          status?: string | null
+          system_manager?: string | null
+          updated_at?: string | null
+          url?: string | null
+          vendor?: string | null
+          work_area_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "systems_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
