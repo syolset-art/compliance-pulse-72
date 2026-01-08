@@ -230,21 +230,21 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
             {companyOpen && (
               <div className="mt-2 ml-2 space-y-1 animate-fade-in">
                 <button
-                  onClick={() => navigate('/work-areas', { state: { openCompanySettings: true } })}
+                  onClick={() => navigate('/company-settings')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                 >
                   <Building2 className="h-4 w-4" />
                   Selskapsinnstillinger
                 </button>
                 <button
-                  onClick={() => {}}
+                  onClick={() => navigate('/subscriptions')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                 >
                   <CreditCard className="h-4 w-4" />
                   Abonnementer
                 </button>
                 <button
-                  onClick={() => {}}
+                  onClick={() => navigate('/terms-and-consent')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                 >
                   <FileCheck className="h-4 w-4" />
