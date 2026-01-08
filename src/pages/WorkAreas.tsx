@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
+import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -134,6 +135,8 @@ export default function WorkAreas() {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [selectedTemplates, setSelectedTemplates] = useState<Set<string>>(new Set());
   const [isCreatingFromTemplates, setIsCreatingFromTemplates] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -170,8 +173,16 @@ export default function WorkAreas() {
         .select("*")
         .single();
 
+      if (profileError && profileError.code === "PGRST116") {
+        // No company profile exists - show onboarding
+        setShowOnboarding(true);
+        setInitialLoadComplete(true);
+        return;
+      }
+
       if (profileError) {
         console.error("Error fetching company profile:", profileError);
+        setInitialLoadComplete(true);
         return;
       }
 
@@ -188,6 +199,7 @@ export default function WorkAreas() {
 
         if (templateError) {
           console.error("Error fetching templates:", templateError);
+          setInitialLoadComplete(true);
           return;
         }
 
@@ -195,9 +207,17 @@ export default function WorkAreas() {
           setTemplates(templateData as unknown as WorkAreaTemplate[]);
         }
       }
+      setInitialLoadComplete(true);
     } catch (error) {
       console.error("Error fetching company/templates:", error);
+      setInitialLoadComplete(true);
     }
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    fetchCompanyAndTemplates();
+    fetchWorkAreas();
   };
 
   useEffect(() => {
@@ -351,6 +371,20 @@ export default function WorkAreas() {
 
   if (mode === "chat") {
     return null;
+  }
+
+  // Show onboarding if no company profile exists
+  if (showOnboarding) {
+    return <CompanyOnboarding onComplete={handleOnboardingComplete} />;
+  }
+
+  // Show loading state while checking for company profile
+  if (!initialLoadComplete) {
+    return (
+      <div className="flex h-screen bg-background items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
