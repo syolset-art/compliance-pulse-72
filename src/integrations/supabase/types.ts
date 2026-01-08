@@ -202,6 +202,39 @@ export type Database = {
           },
         ]
       }
+      company_profile: {
+        Row: {
+          created_at: string | null
+          employees: string | null
+          id: string
+          industry: string
+          maturity: string | null
+          name: string
+          org_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          employees?: string | null
+          id?: string
+          industry: string
+          maturity?: string | null
+          name: string
+          org_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          employees?: string | null
+          id?: string
+          industry?: string
+          maturity?: string | null
+          name?: string
+          org_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
@@ -674,6 +707,36 @@ export type Database = {
           mime_type?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      work_area_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          industry: string
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          industry: string
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          industry?: string
+          name?: string
+          sort_order?: number | null
         }
         Relationships: []
       }
