@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
+import { AssetSummaryWidget } from "@/components/widgets/AssetSummaryWidget";
 import { 
   HelpCircle, 
   Trash2, 
@@ -244,6 +245,9 @@ export default function Assets() {
             {t("assets.addAsset")}
           </Button>
         </div>
+
+        {/* Summary Widget */}
+        <AssetSummaryWidget assets={assets} />
 
         {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
