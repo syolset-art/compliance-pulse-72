@@ -125,37 +125,63 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     setStep("select-method");
   };
 
+  // Synthetic data for prototype - simulates AI suggestions based on asset type
+  const getSyntheticSuggestions = (assetType: string): AssetSuggestion[] => {
+    const suggestionsByType: Record<string, AssetSuggestion[]> = {
+      system: [
+        { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post, dokumenthåndtering og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard for de fleste virksomheter" },
+        { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi, logistikk og forretningsprosesser", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem for energibransjen" },
+        { name: "Salesforce CRM", vendor: "Salesforce", description: "Kundeoppfølging og salgsprosesser", category: "CRM", risk_level: "low", criticality: "medium", reason: "Viktig for kundedata" },
+        { name: "Power BI", vendor: "Microsoft", description: "Business intelligence og rapportering", category: "Analyse", risk_level: "low", criticality: "medium", reason: "Datavisualisering og innsikt" },
+        { name: "ServiceNow", vendor: "ServiceNow", description: "IT Service Management og arbeidsflytstyring", category: "ITSM", risk_level: "medium", criticality: "high", reason: "Støtter IT-drift" },
+        { name: "DocuSign", vendor: "DocuSign", description: "Digital signering av kontrakter og dokumenter", category: "Dokumenthåndtering", risk_level: "low", criticality: "medium", reason: "Effektiviserer avtalesignering" },
+      ],
+      vendor: [
+        { name: "Accenture", vendor: "", description: "Konsulent for digital transformasjon og IT-strategi", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Støtter strategiske prosjekter" },
+        { name: "TietoEvry", vendor: "", description: "IT-drift og systemutvikling", category: "IT-leverandør", risk_level: "medium", criticality: "high", reason: "Kritisk for IT-drift" },
+        { name: "Atea", vendor: "", description: "Hardware og infrastruktur-leverandør", category: "IT-leverandør", risk_level: "low", criticality: "medium", reason: "Utstyrsleverandør" },
+        { name: "Capgemini", vendor: "", description: "Systemintegrasjon og rådgivning", category: "Konsulent", risk_level: "medium", criticality: "medium", reason: "Prosjektleveranser" },
+        { name: "Nets", vendor: "", description: "Betalingsløsninger og transaksjonstjenester", category: "Finans", risk_level: "high", criticality: "high", reason: "Kritisk for betalinger" },
+      ],
+      hardware: [
+        { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører kritiske applikasjoner" },
+        { name: "Cisco Catalyst 9300", vendor: "Cisco", description: "Enterprise nettverkssvitsj", category: "Nettverk", risk_level: "medium", criticality: "high", reason: "Backbone for nettverk" },
+        { name: "HP EliteBook 850", vendor: "HP", description: "Bærbar PC for ansatte", category: "Arbeidsstasjon", risk_level: "low", criticality: "medium", reason: "Standard arbeidsstasjon" },
+        { name: "NetApp AFF A400", vendor: "NetApp", description: "Enterprise storage-løsning", category: "Lagring", risk_level: "high", criticality: "critical", reason: "Kritisk datalagring" },
+        { name: "Fortinet FortiGate 600E", vendor: "Fortinet", description: "Next-gen brannmur", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Beskytter nettverket" },
+      ],
+      network: [
+        { name: "Azure Virtual Network", vendor: "Microsoft", description: "Skybasert nettverk i Azure", category: "Sky-nettverk", risk_level: "medium", criticality: "high", reason: "Infrastruktur i skyen" },
+        { name: "AWS Direct Connect", vendor: "Amazon", description: "Dedikert forbindelse til AWS", category: "Sky-tilkobling", risk_level: "medium", criticality: "high", reason: "Sikker sky-tilgang" },
+        { name: "Palo Alto Panorama", vendor: "Palo Alto", description: "Nettverkssikkerhet og brannmur-administrasjon", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Sentral sikkerhetsstyring" },
+        { name: "Cisco SD-WAN", vendor: "Cisco", description: "Software-defined WAN for filialer", category: "WAN", risk_level: "medium", criticality: "high", reason: "Forbinder lokasjoner" },
+      ],
+      location: [
+        { name: "Hovedkontor Oslo", vendor: "", description: "Sentralt hovedkontor med administrasjon", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
+        { name: "Datacenter Lørenskog", vendor: "Green Mountain", description: "Primært datasenter", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur" },
+        { name: "Regionkontor Bergen", vendor: "", description: "Regionalt kontor for Vestlandet", category: "Kontor", risk_level: "low", criticality: "medium", reason: "Regional tilstedeværelse" },
+      ],
+      integration: [
+        { name: "Azure API Management", vendor: "Microsoft", description: "API gateway og administrasjon", category: "API", risk_level: "medium", criticality: "high", reason: "Sentral API-styring" },
+        { name: "MuleSoft Anypoint", vendor: "Salesforce", description: "Enterprise integrasjonsplattform", category: "Integrasjon", risk_level: "medium", criticality: "high", reason: "Systemintegrasjon" },
+        { name: "Zapier Enterprise", vendor: "Zapier", description: "Automatisering mellom SaaS-applikasjoner", category: "Automatisering", risk_level: "low", criticality: "medium", reason: "Prosessautomatisering" },
+      ],
+    };
+
+    return suggestionsByType[assetType] || suggestionsByType.system;
+  };
+
   const fetchAISuggestions = async () => {
     setIsLoadingSuggestions(true);
     setStep("ai-suggestions");
     
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/suggest-assets`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ asset_type: selectedType }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch suggestions");
-      }
-
-      const data = await response.json();
-      setSuggestions(data.suggestions || []);
-      setCompanyName(data.company || "");
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      toast.error("Kunne ikke hente forslag. Prøv igjen.");
-      setSuggestions([]);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
+    // Simulate AI processing delay for realistic prototype feel
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const syntheticSuggestions = getSyntheticSuggestions(selectedType);
+    setSuggestions(syntheticSuggestions);
+    setCompanyName("Demo Energi AS");
+    setIsLoadingSuggestions(false);
   };
 
   const toggleSuggestion = (index: number) => {
