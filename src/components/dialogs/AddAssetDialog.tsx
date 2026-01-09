@@ -38,7 +38,11 @@ import {
   FileSpreadsheet,
   ArrowLeft,
   Zap,
-  AlertTriangle
+  AlertTriangle,
+  Building,
+  Users,
+  TrendingUp,
+  Info
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +62,16 @@ interface AssetSuggestion {
   risk_level: string;
   criticality: string;
   reason: string;
+  industryRelevant?: boolean;
+}
+
+interface CompanyProfile {
+  id: string;
+  name: string;
+  industry: string;
+  employees: string | null;
+  maturity: string | null;
+  org_number: string | null;
 }
 
 interface AddAssetDialogProps {
@@ -88,7 +102,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const [suggestions, setSuggestions] = useState<AssetSuggestion[]>([]);
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<number>>(new Set());
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [companyName, setCompanyName] = useState("");
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
+  const [existingAssetNames, setExistingAssetNames] = useState<string[]>([]);
+  const [workAreasCount, setWorkAreasCount] = useState(0);
   
   const [formData, setFormData] = useState({
     asset_type: "",
@@ -99,6 +115,23 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     risk_level: "medium",
     criticality: "medium",
   });
+
+  // Fetch company profile and existing data on mount
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      const [profileRes, assetsRes, workAreasRes] = await Promise.all([
+        supabase.from("company_profile").select("*").single(),
+        supabase.from("assets").select("name"),
+        supabase.from("work_areas").select("id")
+      ]);
+      
+      if (profileRes.data) setCompanyProfile(profileRes.data);
+      if (assetsRes.data) setExistingAssetNames(assetsRes.data.map(a => a.name.toLowerCase()));
+      if (workAreasRes.data) setWorkAreasCount(workAreasRes.data.length);
+    };
+    
+    fetchCompanyData();
+  }, []);
 
   // Reset state when dialog opens/closes
   useEffect(() => {
@@ -125,50 +158,87 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     setStep("select-method");
   };
 
-  // Synthetic data for prototype - simulates AI suggestions based on asset type
-  const getSyntheticSuggestions = (assetType: string): AssetSuggestion[] => {
-    const suggestionsByType: Record<string, AssetSuggestion[]> = {
+  // Industry-specific suggestions for prototype
+  const getSyntheticSuggestionsByIndustry = (assetType: string, industry: string): AssetSuggestion[] => {
+    // Energy-specific systems
+    const energySystems: AssetSuggestion[] = [
+      { name: "SCADA", vendor: "Siemens", description: "Overvåking og styring av kraftproduksjon og distribusjon", category: "OT", risk_level: "high", criticality: "critical", reason: "Kritisk for kraftstyring", industryRelevant: true },
+      { name: "Elhub", vendor: "Statnett", description: "Nasjonal datahub for målerdata og strømmarked", category: "Bransjesystem", risk_level: "medium", criticality: "critical", reason: "Lovpålagt for energiselskaper", industryRelevant: true },
+      { name: "DMS", vendor: "ABB", description: "Distribution Management System for nettdrift", category: "Nettdrift", risk_level: "high", criticality: "critical", reason: "Styrer strømnettet", industryRelevant: true },
+      { name: "EAM/Vedlikeholdssystem", vendor: "IFS", description: "Enterprise Asset Management for vedlikehold av infrastruktur", category: "Vedlikehold", risk_level: "medium", criticality: "high", reason: "Drift av kraftanlegg", industryRelevant: true },
+      { name: "NIS (Nettinformasjonssystem)", vendor: "Powel", description: "Kartlegging og dokumentasjon av strømnett", category: "GIS", risk_level: "medium", criticality: "high", reason: "Oversikt over infrastruktur", industryRelevant: true },
+      { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post, dokumenthåndtering og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard kontorverktøy" },
+      { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi, logistikk og forretningsprosesser", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem for økonomi" },
+      { name: "HMS Portal", vendor: "Synergi", description: "Sikkerhetsrapportering og avvikshåndtering", category: "HMS", risk_level: "medium", criticality: "high", reason: "Påkrevd for kraftbransjen", industryRelevant: true },
+    ];
+
+    const energyVendors: AssetSuggestion[] = [
+      { name: "ABB", vendor: "", description: "Leverandør av SCADA, DMS og kraftutstyr", category: "OT-leverandør", risk_level: "medium", criticality: "critical", reason: "Kritisk teknologipartner", industryRelevant: true },
+      { name: "Siemens Energy", vendor: "", description: "Turbiner, transformatorer og styringssystemer", category: "OT-leverandør", risk_level: "medium", criticality: "critical", reason: "Kjerneleverandør kraft", industryRelevant: true },
+      { name: "Powel/Volue", vendor: "", description: "Energihandel og nettplanlegging", category: "Software", risk_level: "medium", criticality: "high", reason: "Bransjestandard i Norge", industryRelevant: true },
+      { name: "TietoEvry", vendor: "", description: "IT-drift og systemutvikling", category: "IT-leverandør", risk_level: "medium", criticality: "high", reason: "Kritisk for IT-drift" },
+      { name: "Capgemini", vendor: "", description: "Systemintegrasjon og rådgivning", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Prosjektleveranser" },
+    ];
+
+    const energyHardware: AssetSuggestion[] = [
+      { name: "RTU (Remote Terminal Unit)", vendor: "ABB", description: "Fjernstyring av kraftstasjoner og transformatorer", category: "OT", risk_level: "high", criticality: "critical", reason: "Kritisk for nettdrift", industryRelevant: true },
+      { name: "Smart Meters", vendor: "Kamstrup", description: "Avanserte strømmålere (AMS)", category: "Måleutstyr", risk_level: "medium", criticality: "high", reason: "Lovpålagt måleutstyr", industryRelevant: true },
+      { name: "Industrial Switch", vendor: "Cisco", description: "Nettverksutstyr for driftsmiljø", category: "OT-nettverk", risk_level: "high", criticality: "high", reason: "Kommunikasjon i felt", industryRelevant: true },
+      { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører applikasjoner" },
+      { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur for IT/OT-segmentering", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Beskytter OT-nett", industryRelevant: true },
+    ];
+
+    const energyLocations: AssetSuggestion[] = [
+      { name: "Kontrollrom", vendor: "", description: "Sentralt driftsenter for nettovervåking", category: "Driftssenter", risk_level: "high", criticality: "critical", reason: "Kjernen i nettdrift", industryRelevant: true },
+      { name: "Transformatorstasjon", vendor: "", description: "Høyspent transformator for distribusjon", category: "Kraftanlegg", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur", industryRelevant: true },
+      { name: "Hovedkontor Bergen", vendor: "", description: "Administrasjon og ledelse", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
+      { name: "Datacenter", vendor: "Green Mountain", description: "Datasenter for IT-systemer", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk IT-infrastruktur" },
+    ];
+
+    // Default generic suggestions
+    const genericSuggestions: Record<string, AssetSuggestion[]> = {
       system: [
-        { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post, dokumenthåndtering og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard for de fleste virksomheter" },
-        { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi, logistikk og forretningsprosesser", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem for energibransjen" },
+        { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard kontorverktøy" },
+        { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi og logistikk", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem" },
         { name: "Salesforce CRM", vendor: "Salesforce", description: "Kundeoppfølging og salgsprosesser", category: "CRM", risk_level: "low", criticality: "medium", reason: "Viktig for kundedata" },
-        { name: "Power BI", vendor: "Microsoft", description: "Business intelligence og rapportering", category: "Analyse", risk_level: "low", criticality: "medium", reason: "Datavisualisering og innsikt" },
-        { name: "ServiceNow", vendor: "ServiceNow", description: "IT Service Management og arbeidsflytstyring", category: "ITSM", risk_level: "medium", criticality: "high", reason: "Støtter IT-drift" },
-        { name: "DocuSign", vendor: "DocuSign", description: "Digital signering av kontrakter og dokumenter", category: "Dokumenthåndtering", risk_level: "low", criticality: "medium", reason: "Effektiviserer avtalesignering" },
+        { name: "ServiceNow", vendor: "ServiceNow", description: "IT Service Management", category: "ITSM", risk_level: "medium", criticality: "high", reason: "Støtter IT-drift" },
       ],
       vendor: [
-        { name: "Accenture", vendor: "", description: "Konsulent for digital transformasjon og IT-strategi", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Støtter strategiske prosjekter" },
         { name: "TietoEvry", vendor: "", description: "IT-drift og systemutvikling", category: "IT-leverandør", risk_level: "medium", criticality: "high", reason: "Kritisk for IT-drift" },
-        { name: "Atea", vendor: "", description: "Hardware og infrastruktur-leverandør", category: "IT-leverandør", risk_level: "low", criticality: "medium", reason: "Utstyrsleverandør" },
-        { name: "Capgemini", vendor: "", description: "Systemintegrasjon og rådgivning", category: "Konsulent", risk_level: "medium", criticality: "medium", reason: "Prosjektleveranser" },
-        { name: "Nets", vendor: "", description: "Betalingsløsninger og transaksjonstjenester", category: "Finans", risk_level: "high", criticality: "high", reason: "Kritisk for betalinger" },
+        { name: "Atea", vendor: "", description: "Hardware og infrastruktur", category: "IT-leverandør", risk_level: "low", criticality: "medium", reason: "Utstyrsleverandør" },
+        { name: "Accenture", vendor: "", description: "Konsulent for digital transformasjon", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Strategiske prosjekter" },
       ],
       hardware: [
-        { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører kritiske applikasjoner" },
-        { name: "Cisco Catalyst 9300", vendor: "Cisco", description: "Enterprise nettverkssvitsj", category: "Nettverk", risk_level: "medium", criticality: "high", reason: "Backbone for nettverk" },
-        { name: "HP EliteBook 850", vendor: "HP", description: "Bærbar PC for ansatte", category: "Arbeidsstasjon", risk_level: "low", criticality: "medium", reason: "Standard arbeidsstasjon" },
-        { name: "NetApp AFF A400", vendor: "NetApp", description: "Enterprise storage-løsning", category: "Lagring", risk_level: "high", criticality: "critical", reason: "Kritisk datalagring" },
-        { name: "Fortinet FortiGate 600E", vendor: "Fortinet", description: "Next-gen brannmur", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Beskytter nettverket" },
+        { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører applikasjoner" },
+        { name: "Cisco Catalyst 9300", vendor: "Cisco", description: "Enterprise nettverkssvitsj", category: "Nettverk", risk_level: "medium", criticality: "high", reason: "Backbone" },
+        { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Nettverkssikkerhet" },
       ],
       network: [
-        { name: "Azure Virtual Network", vendor: "Microsoft", description: "Skybasert nettverk i Azure", category: "Sky-nettverk", risk_level: "medium", criticality: "high", reason: "Infrastruktur i skyen" },
-        { name: "AWS Direct Connect", vendor: "Amazon", description: "Dedikert forbindelse til AWS", category: "Sky-tilkobling", risk_level: "medium", criticality: "high", reason: "Sikker sky-tilgang" },
-        { name: "Palo Alto Panorama", vendor: "Palo Alto", description: "Nettverkssikkerhet og brannmur-administrasjon", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Sentral sikkerhetsstyring" },
-        { name: "Cisco SD-WAN", vendor: "Cisco", description: "Software-defined WAN for filialer", category: "WAN", risk_level: "medium", criticality: "high", reason: "Forbinder lokasjoner" },
+        { name: "Azure Virtual Network", vendor: "Microsoft", description: "Skybasert nettverk", category: "Sky-nettverk", risk_level: "medium", criticality: "high", reason: "Sky-infrastruktur" },
+        { name: "Cisco SD-WAN", vendor: "Cisco", description: "Software-defined WAN", category: "WAN", risk_level: "medium", criticality: "high", reason: "Forbinder lokasjoner" },
       ],
       location: [
-        { name: "Hovedkontor Oslo", vendor: "", description: "Sentralt hovedkontor med administrasjon", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
-        { name: "Datacenter Lørenskog", vendor: "Green Mountain", description: "Primært datasenter", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur" },
-        { name: "Regionkontor Bergen", vendor: "", description: "Regionalt kontor for Vestlandet", category: "Kontor", risk_level: "low", criticality: "medium", reason: "Regional tilstedeværelse" },
+        { name: "Hovedkontor", vendor: "", description: "Administrasjon og ledelse", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
+        { name: "Datacenter", vendor: "Green Mountain", description: "Primært datasenter", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur" },
       ],
       integration: [
-        { name: "Azure API Management", vendor: "Microsoft", description: "API gateway og administrasjon", category: "API", risk_level: "medium", criticality: "high", reason: "Sentral API-styring" },
-        { name: "MuleSoft Anypoint", vendor: "Salesforce", description: "Enterprise integrasjonsplattform", category: "Integrasjon", risk_level: "medium", criticality: "high", reason: "Systemintegrasjon" },
-        { name: "Zapier Enterprise", vendor: "Zapier", description: "Automatisering mellom SaaS-applikasjoner", category: "Automatisering", risk_level: "low", criticality: "medium", reason: "Prosessautomatisering" },
+        { name: "Azure API Management", vendor: "Microsoft", description: "API gateway", category: "API", risk_level: "medium", criticality: "high", reason: "Sentral API-styring" },
+        { name: "MuleSoft Anypoint", vendor: "Salesforce", description: "Integrasjonsplattform", category: "Integrasjon", risk_level: "medium", criticality: "high", reason: "Systemintegrasjon" },
       ],
     };
 
-    return suggestionsByType[assetType] || suggestionsByType.system;
+    // Return industry-specific or generic based on industry
+    if (industry === "energi") {
+      switch (assetType) {
+        case "system": return energySystems;
+        case "vendor": return energyVendors;
+        case "hardware": return energyHardware;
+        case "location": return energyLocations;
+        default: return genericSuggestions[assetType] || genericSuggestions.system;
+      }
+    }
+
+    return genericSuggestions[assetType] || genericSuggestions.system;
   };
 
   const fetchAISuggestions = async () => {
@@ -176,11 +246,17 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     setStep("ai-suggestions");
     
     // Simulate AI processing delay for realistic prototype feel
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1800));
     
-    const syntheticSuggestions = getSyntheticSuggestions(selectedType);
-    setSuggestions(syntheticSuggestions);
-    setCompanyName("Demo Energi AS");
+    const industry = companyProfile?.industry || "general";
+    let suggestions = getSyntheticSuggestionsByIndustry(selectedType, industry);
+    
+    // Filter out existing assets
+    suggestions = suggestions.filter(s => 
+      !existingAssetNames.includes(s.name.toLowerCase())
+    );
+    
+    setSuggestions(suggestions);
     setIsLoadingSuggestions(false);
   };
 
@@ -404,102 +480,168 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   );
 
   // Step 3a: AI Suggestions
-  const renderAISuggestions = () => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <span className="text-muted-foreground">
-          AI-forslag for {companyName || "ditt selskap"}
-        </span>
-      </div>
+  const renderAISuggestions = () => {
+    const getIndustryLabel = (industry: string) => {
+      const labels: Record<string, string> = {
+        energi: "Energibransjen",
+        technology: "Teknologi",
+        finance: "Finans",
+        healthcare: "Helse",
+        retail: "Varehandel",
+      };
+      return labels[industry] || industry;
+    };
 
-      {isLoadingSuggestions ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-4">
-          <div className="relative">
-            <div className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-            <Sparkles className="h-6 w-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+    const getEmployeeLabel = (employees: string | null) => {
+      const labels: Record<string, string> = {
+        "1-10": "1-10 ansatte",
+        "11-50": "11-50 ansatte",
+        "51-200": "51-200 ansatte",
+        "201-500": "201-500 ansatte",
+        "500+": "500+ ansatte",
+      };
+      return employees ? labels[employees] || employees : null;
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Context panel - "Basert på" */}
+        <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Info className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground">
+              Forslagene er basert på:
+            </span>
           </div>
-          <div className="text-center">
-            <p className="font-medium">Analyserer din virksomhet...</p>
-            <p className="text-sm text-muted-foreground">Mynder finner relevante {selectedTemplate?.display_name_plural?.toLowerCase()}</p>
+          <div className="flex flex-wrap gap-2">
+            {companyProfile?.name && (
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                <Building className="h-3 w-3" />
+                {companyProfile.name}
+              </span>
+            )}
+            {companyProfile?.industry && (
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                <TrendingUp className="h-3 w-3" />
+                {getIndustryLabel(companyProfile.industry)}
+              </span>
+            )}
+            {companyProfile?.employees && (
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                <Users className="h-3 w-3" />
+                {getEmployeeLabel(companyProfile.employees)}
+              </span>
+            )}
+            {existingAssetNames.length > 0 && (
+              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                {existingAssetNames.length} eiendeler registrert
+              </span>
+            )}
+            {workAreasCount > 0 && (
+              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                {workAreasCount} arbeidsområder
+              </span>
+            )}
           </div>
         </div>
-      ) : suggestions.length > 0 ? (
-        <>
-          <div className="max-h-[350px] overflow-y-auto space-y-2 pr-1">
-            {suggestions.map((suggestion, index) => {
-              const isSelected = selectedSuggestions.has(index);
-              return (
-                <button
-                  key={index}
-                  onClick={() => toggleSuggestion(index)}
-                  className={cn(
-                    "w-full flex items-start gap-3 p-3 rounded-lg border-2 text-left transition-all",
-                    isSelected
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary/50"
-                  )}
-                >
-                  <div className={cn(
-                    "mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
-                    isSelected
-                      ? "bg-primary border-primary text-primary-foreground"
-                      : "border-muted-foreground/30"
-                  )}>
-                    {isSelected && <Check className="h-3 w-3" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-foreground">{suggestion.name}</p>
-                      {suggestion.vendor && (
-                        <span className="text-xs text-muted-foreground">• {suggestion.vendor}</span>
-                      )}
+
+        {isLoadingSuggestions ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="relative">
+              <div className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+              <Sparkles className="h-6 w-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <div className="text-center">
+              <p className="font-medium">
+                Analyserer {companyProfile?.name || "din virksomhet"}...
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Finner {selectedTemplate?.display_name_plural?.toLowerCase()} for {getIndustryLabel(companyProfile?.industry || "")}
+              </p>
+            </div>
+          </div>
+        ) : suggestions.length > 0 ? (
+          <>
+            <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+              {suggestions.map((suggestion, index) => {
+                const isSelected = selectedSuggestions.has(index);
+                return (
+                  <button
+                    key={index}
+                    onClick={() => toggleSuggestion(index)}
+                    className={cn(
+                      "w-full flex items-start gap-3 p-3 rounded-lg border-2 text-left transition-all",
+                      isSelected
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className={cn(
+                      "mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
+                      isSelected
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "border-muted-foreground/30"
+                    )}>
+                      {isSelected && <Check className="h-3 w-3" />}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                      {suggestion.description}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                        {suggestion.category}
-                      </span>
-                      <span className={cn(
-                        "text-xs px-2 py-0.5 rounded-full",
-                        suggestion.risk_level === "high" ? "bg-red-500/20 text-red-400" :
-                        suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-400" :
-                        "bg-green-500/20 text-green-400"
-                      )}>
-                        {suggestion.risk_level === "high" ? "Høy risiko" :
-                         suggestion.risk_level === "medium" ? "Medium risiko" : "Lav risiko"}
-                      </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium text-foreground">{suggestion.name}</p>
+                        {suggestion.vendor && (
+                          <span className="text-xs text-muted-foreground">• {suggestion.vendor}</span>
+                        )}
+                        {suggestion.industryRelevant && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
+                            Energi
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                        {suggestion.description}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          {suggestion.category}
+                        </span>
+                        <span className={cn(
+                          "text-xs px-2 py-0.5 rounded-full",
+                          suggestion.risk_level === "high" ? "bg-destructive/20 text-destructive" :
+                          suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-500" :
+                          "bg-green-500/20 text-green-600"
+                        )}>
+                          {suggestion.risk_level === "high" ? "Høy risiko" :
+                           suggestion.risk_level === "medium" ? "Medium risiko" : "Lav risiko"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="pt-2 border-t border-border">
+              <button
+                onClick={() => setStep("manual-form")}
+                className="text-sm text-primary hover:underline"
+              >
+                Finner du ikke det du leter etter? Legg til manuelt →
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <AlertTriangle className="h-10 w-10 text-muted-foreground" />
+            <div className="text-center">
+              <p className="font-medium">Ingen forslag tilgjengelig</p>
+              <p className="text-sm text-muted-foreground">Alle relevante {selectedTemplate?.display_name_plural?.toLowerCase()} er allerede registrert</p>
+            </div>
+            <Button onClick={() => setStep("manual-form")} variant="outline">
+              Legg til manuelt
+            </Button>
           </div>
-          <div className="pt-2 border-t border-border">
-            <button
-              onClick={() => setStep("manual-form")}
-              className="text-sm text-primary hover:underline"
-            >
-              Finner du ikke det du leter etter? Legg til manuelt →
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12 gap-4">
-          <AlertTriangle className="h-10 w-10 text-muted-foreground" />
-          <div className="text-center">
-            <p className="font-medium">Ingen forslag tilgjengelig</p>
-            <p className="text-sm text-muted-foreground">Prøv å legge til manuelt i stedet</p>
-          </div>
-          <Button onClick={() => setStep("manual-form")} variant="outline">
-            Legg til manuelt
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   // Step 3b: Manual form
   const renderManualForm = () => (
