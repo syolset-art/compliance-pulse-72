@@ -233,21 +233,20 @@ export default function Assets() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {!isMobile && <Sidebar />}
-      {isMobile && <Sidebar />}
+      <Sidebar />
       
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-4 md:p-6 overflow-auto pt-16 md:pt-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-primary">{t("assets.title")}</h1>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h1 className="text-xl md:text-2xl font-bold text-primary">{t("assets.title")}</h1>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             {t("assets.addAsset")}
           </Button>
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Input
             placeholder={t("assets.filterByName")}
             value={nameFilter}
@@ -295,125 +294,189 @@ export default function Assets() {
           </Select>
         </div>
 
-        {/* Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
-            <button 
-              onClick={() => handleSort("name")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("assets.name")}
-              <SortIcon column="name" />
-            </button>
-            <button 
-              onClick={() => handleSort("assetType")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("assets.assetType")}
-              <SortIcon column="assetType" />
-            </button>
-            <button 
-              onClick={() => handleSort("type")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("assets.category")}
-              <SortIcon column="type" />
-            </button>
-            <button 
-              onClick={() => handleSort("compliance")}
-              className="flex items-center gap-1 hover:text-foreground transition-colors text-left"
-            >
-              {t("assets.compliance")}
-              <HelpCircle className="h-3.5 w-3.5" />
-              <SortIcon column="compliance" />
-            </button>
-            <button 
-              onClick={() => handleSort("risk")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("assets.risk")}
-              <SortIcon column="risk" />
-            </button>
-            <div>{t("assets.owner")}</div>
-            <div></div>
-          </div>
+        {/* Mobile Card View */}
+        {isMobile ? (
+          <div className="space-y-3">
+            {isLoading ? (
+              <div className="p-8 text-center text-muted-foreground">
+                {t("common.loading")}
+              </div>
+            ) : filteredAssets.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                {t("assets.noAssets")}
+              </div>
+            ) : (
+              filteredAssets.map((asset) => {
+                const compliance = getComplianceLabel(asset.compliance_score || 0);
+                const riskColor = getRiskIndicator(asset.risk_level);
+                const { icon: IconComponent, color } = getAssetTypeIcon(asset.asset_type);
 
-          {/* Table Body */}
-          {isLoading ? (
-            <div className="p-8 text-center text-muted-foreground">
-              {t("common.loading")}
-            </div>
-          ) : filteredAssets.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              {t("assets.noAssets")}
-            </div>
-          ) : (
-            filteredAssets.map((asset) => {
-              const compliance = getComplianceLabel(asset.compliance_score || 0);
-              const riskColor = getRiskIndicator(asset.risk_level);
-              const { icon: IconComponent, color } = getAssetTypeIcon(asset.asset_type);
-
-              return (
-                <div
-                  key={asset.id}
-                  onClick={() => navigate(`/assets/${asset.id}`)}
-                  className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
-                >
-                  {/* Asset Name with Icon */}
-                  <div className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
-                      <IconComponent className="h-4 w-4" />
+                return (
+                  <div
+                    key={asset.id}
+                    onClick={() => navigate(`/assets/${asset.id}`)}
+                    className="p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                          <IconComponent className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">{asset.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {getAssetTypeLabel(asset.asset_type)} • {asset.category || "-"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`h-3 w-3 rounded-full ${riskColor}`} />
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium border ${compliance.color}`}>
+                          {compliance.label}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-foreground font-medium">{asset.name}</span>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {asset.asset_owner || t("assets.notSet")}
+                      </span>
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => deleteAsset.mutate(asset.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
+                );
+              })
+            )}
+          </div>
+        ) : (
+          /* Desktop Table View */
+          <div className="rounded-lg border border-border overflow-hidden">
+            {/* Table Header */}
+            <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+              <button 
+                onClick={() => handleSort("name")}
+                className="flex items-center hover:text-foreground transition-colors text-left"
+              >
+                {t("assets.name")}
+                <SortIcon column="name" />
+              </button>
+              <button 
+                onClick={() => handleSort("assetType")}
+                className="flex items-center hover:text-foreground transition-colors text-left"
+              >
+                {t("assets.assetType")}
+                <SortIcon column="assetType" />
+              </button>
+              <button 
+                onClick={() => handleSort("type")}
+                className="flex items-center hover:text-foreground transition-colors text-left"
+              >
+                {t("assets.category")}
+                <SortIcon column="type" />
+              </button>
+              <button 
+                onClick={() => handleSort("compliance")}
+                className="flex items-center gap-1 hover:text-foreground transition-colors text-left"
+              >
+                {t("assets.compliance")}
+                <HelpCircle className="h-3.5 w-3.5" />
+                <SortIcon column="compliance" />
+              </button>
+              <button 
+                onClick={() => handleSort("risk")}
+                className="flex items-center hover:text-foreground transition-colors text-left"
+              >
+                {t("assets.risk")}
+                <SortIcon column="risk" />
+              </button>
+              <div>{t("assets.owner")}</div>
+              <div></div>
+            </div>
 
-                  {/* Asset Type Badge */}
-                  <div>
-                    <Badge variant="outline" className="text-xs">
-                      {getAssetTypeLabel(asset.asset_type)}
-                    </Badge>
+            {/* Table Body */}
+            {isLoading ? (
+              <div className="p-8 text-center text-muted-foreground">
+                {t("common.loading")}
+              </div>
+            ) : filteredAssets.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                {t("assets.noAssets")}
+              </div>
+            ) : (
+              filteredAssets.map((asset) => {
+                const compliance = getComplianceLabel(asset.compliance_score || 0);
+                const riskColor = getRiskIndicator(asset.risk_level);
+                const { icon: IconComponent, color } = getAssetTypeIcon(asset.asset_type);
+
+                return (
+                  <div
+                    key={asset.id}
+                    onClick={() => navigate(`/assets/${asset.id}`)}
+                    className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    {/* Asset Name with Icon */}
+                    <div className="flex items-center gap-3">
+                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
+                        <IconComponent className="h-4 w-4" />
+                      </div>
+                      <span className="text-foreground font-medium">{asset.name}</span>
+                    </div>
+
+                    {/* Asset Type Badge */}
+                    <div>
+                      <Badge variant="outline" className="text-xs">
+                        {getAssetTypeLabel(asset.asset_type)}
+                      </Badge>
+                    </div>
+
+                    {/* Category */}
+                    <div className="text-muted-foreground">{asset.category || "-"}</div>
+
+                    {/* Compliance Badge */}
+                    <div>
+                      <span className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${compliance.color}`}>
+                        {compliance.label}
+                      </span>
+                    </div>
+
+                    {/* Risk Indicator */}
+                    <div className="flex justify-center">
+                      <div className={`h-3 w-3 rounded-full ${riskColor}`} />
+                    </div>
+
+                    {/* Owner */}
+                    <div className="text-muted-foreground text-sm">
+                      {asset.asset_owner || t("assets.notSet")}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                        <HelpCircle className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => deleteAsset.mutate(asset.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-
-                  {/* Category */}
-                  <div className="text-muted-foreground">{asset.category || "-"}</div>
-
-                  {/* Compliance Badge */}
-                  <div>
-                    <span className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${compliance.color}`}>
-                      {compliance.label}
-                    </span>
-                  </div>
-
-                  {/* Risk Indicator */}
-                  <div className="flex justify-center">
-                    <div className={`h-3 w-3 rounded-full ${riskColor}`} />
-                  </div>
-
-                  {/* Owner */}
-                  <div className="text-muted-foreground text-sm">
-                    {asset.asset_owner || t("assets.notSet")}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                      <HelpCircle className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => deleteAsset.mutate(asset.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                );
+              })
+            )}
+          </div>
+        )}
       </main>
 
       <AddAssetDialog 
