@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { ChatInterface } from "@/components/ChatInterface";
+import { ChatPanel } from "@/components/ChatPanel";
 import { ContentViewer } from "@/components/ContentViewer";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
@@ -19,20 +19,19 @@ import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Plus } from "lucide-react";
-import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const { mode, toggleMode } = useNavigationMode();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [contentView, setContentView] = useState<{ 
     type: string; 
@@ -68,6 +67,10 @@ const Index = () => {
     setContentView(null);
   };
 
+  const handleToggleChat = () => {
+    setIsChatOpen(prev => !prev);
+  };
+
   const handleModuleCreated = (moduleData: any) => {
     const explanation = `# Modul opprettet: ${moduleData.name}
 
@@ -85,10 +88,10 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
   if (isMobile) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-mynder">
-        <Sidebar onToggleChat={toggleMode} />
+        <Sidebar />
         
         <main className="flex-1 overflow-y-auto bg-background/95 backdrop-blur-sm">
-          {contentView && mode === "chat" ? (
+          {contentView ? (
             <ContentViewer 
               contentType={contentView.type} 
               filter={contentView.filter}
@@ -148,6 +151,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
 
         <LaraAgent 
           onOpenSystemDialog={() => setIsAddSystemOpen(true)}
+          onToggleChat={handleToggleChat}
+        />
+
+        <ChatPanel
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          onShowContent={handleShowContent}
+          onBackToDashboard={handleBackToDashboard}
         />
 
         <AddModuleDialog 
@@ -181,25 +192,17 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         <ResizablePanel 
           defaultSize={20} 
           minSize={15} 
-          maxSize={40}
+          maxSize={30}
           className="min-w-[240px]"
         >
-          {mode === "menu" ? (
-            <Sidebar onToggleChat={toggleMode} />
-          ) : (
-            <ChatInterface 
-              onToggleMode={toggleMode} 
-              onShowContent={handleShowContent}
-              onBackToDashboard={handleBackToDashboard}
-            />
-          )}
+          <Sidebar />
         </ResizablePanel>
         
         <ResizableHandle withHandle />
         
         <ResizablePanel defaultSize={80}>
           <main className="h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
-            {contentView && mode === "chat" ? (
+            {contentView ? (
               <ContentViewer 
                 contentType={contentView.type} 
                 filter={contentView.filter}
@@ -302,6 +305,15 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
       {/* Lara AI Agent */}
       <LaraAgent 
         onOpenSystemDialog={() => setIsAddSystemOpen(true)}
+        onToggleChat={handleToggleChat}
+      />
+
+      {/* Chat Panel - Right side */}
+      <ChatPanel
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onShowContent={handleShowContent}
+        onBackToDashboard={handleBackToDashboard}
       />
 
       {/* Add Module Dialog */}
