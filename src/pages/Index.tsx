@@ -148,7 +148,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
 
         <LaraAgent 
           onOpenSystemDialog={() => setIsAddSystemOpen(true)}
-          onOpenRoleDialog={() => setIsAddRoleOpen(true)}
         />
 
         <AddModuleDialog 
@@ -303,7 +302,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
       {/* Lara AI Agent */}
       <LaraAgent 
         onOpenSystemDialog={() => setIsAddSystemOpen(true)}
-        onOpenRoleDialog={() => setIsAddRoleOpen(true)}
       />
 
       {/* Add Module Dialog */}

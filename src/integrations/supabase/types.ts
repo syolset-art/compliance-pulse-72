@@ -211,7 +211,9 @@ export type Database = {
           maturity: string | null
           name: string
           org_number: string | null
+          team_size: string | null
           updated_at: string | null
+          use_cases: string[] | null
         }
         Insert: {
           created_at?: string | null
@@ -221,7 +223,9 @@ export type Database = {
           maturity?: string | null
           name: string
           org_number?: string | null
+          team_size?: string | null
           updated_at?: string | null
+          use_cases?: string[] | null
         }
         Update: {
           created_at?: string | null
@@ -231,7 +235,9 @@ export type Database = {
           maturity?: string | null
           name?: string
           org_number?: string | null
+          team_size?: string | null
           updated_at?: string | null
+          use_cases?: string[] | null
         }
         Relationships: []
       }

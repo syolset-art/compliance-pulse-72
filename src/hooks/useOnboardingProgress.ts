@@ -26,7 +26,6 @@ export const useOnboardingProgress = () => {
   const [companyInfoCompleted, setCompanyInfoCompleted] = useState(false);
   const [systemsAdded, setSystemsAdded] = useState(false);
   const [workAreasDefined, setWorkAreasDefined] = useState(false);
-  const [rolesAssigned, setRolesAssigned] = useState(false);
 
   const fetchProgress = useCallback(async () => {
     setIsLoading(true);
@@ -48,17 +47,10 @@ export const useOnboardingProgress = () => {
       .from("work_areas")
       .select("id")
       .limit(1);
-    
-    // Check roles table
-    const { data: rolesData } = await supabase
-      .from("roles")
-      .select("id")
-      .limit(1);
 
     setCompanyInfoCompleted(!!companyData && companyData.length > 0);
     setSystemsAdded(!!systemsData && systemsData.length > 0);
     setWorkAreasDefined(!!workAreasData && workAreasData.length > 0);
-    setRolesAssigned(!!rolesData && rolesData.length > 0);
     setIsLoading(false);
   }, []);
 
@@ -92,15 +84,6 @@ export const useOnboardingProgress = () => {
       action: 'navigate',
       actionTarget: '/work-areas',
       icon: 'Building'
-    },
-    {
-      id: 'roles',
-      title: 'Tilordne roller',
-      description: 'Definer roller og ansvarsområder',
-      isCompleted: rolesAssigned,
-      action: 'dialog',
-      actionTarget: 'AddRoleDialog',
-      icon: 'Users'
     }
   ];
 
