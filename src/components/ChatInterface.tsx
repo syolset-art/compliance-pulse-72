@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Sparkles, Loader2, Menu, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown, Brain } from "lucide-react";
+import { Send, Sparkles, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown, Brain } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -41,7 +41,6 @@ interface ContentViewOptions {
 }
 
 interface ChatInterfaceProps {
-  onToggleMode: () => void;
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
 }
@@ -102,7 +101,7 @@ const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   ]
 };
 
-export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }: ChatInterfaceProps) {
+export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
       {
         role: "assistant",
@@ -571,40 +570,7 @@ export function ChatInterface({ onToggleMode, onShowContent, onBackToDashboard }
 
   return (
     <>
-    <div className="flex h-screen w-full flex-col border-r border-border bg-card overflow-hidden">
-      {/* Header */}
-      <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-        <div className="flex items-center gap-2">
-          <img src={laraButterfly} alt="Lara" className="w-8 h-8" />
-          <div>
-            <h3 className="font-semibold text-foreground flex items-center gap-1">
-              Lara
-              <Sparkles className="w-3 h-3 text-primary" />
-            </h3>
-            <p className="text-xs text-muted-foreground">AI-assistent</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Mode Toggle */}
-      <div className="px-3 pt-4 pb-2">
-        <div className="flex gap-2 p-1 bg-muted rounded-lg">
-          <button
-            onClick={onToggleMode}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground font-medium text-sm transition-all"
-          >
-            <Menu className="h-4 w-4" />
-            Meny
-          </button>
-          <button
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-background text-foreground shadow-sm font-medium text-sm transition-all"
-          >
-            <Sparkles className="h-4 w-4" />
-            Chat
-          </button>
-        </div>
-      </div>
-
+    <div className="flex h-full w-full flex-col bg-card overflow-hidden">
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">

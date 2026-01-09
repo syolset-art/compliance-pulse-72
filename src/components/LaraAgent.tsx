@@ -11,6 +11,7 @@ import confetti from "canvas-confetti";
 
 interface LaraAgentProps {
   onOpenSystemDialog?: () => void;
+  onToggleChat?: () => void;
 }
 
 const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -55,7 +56,7 @@ const triggerConfetti = () => {
   frame();
 };
 
-export const LaraAgent = ({ onOpenSystemDialog }: LaraAgentProps) => {
+export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const hasShownConfetti = useRef(false);
@@ -123,7 +124,13 @@ export const LaraAgent = ({ onOpenSystemDialog }: LaraAgentProps) => {
         {!isOpen && (
           <div className="relative">
             <button
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                if (isFullyComplete && onToggleChat) {
+                  onToggleChat();
+                } else {
+                  setIsOpen(true);
+                }
+              }}
               className="relative group animate-fade-in"
             >
               {/* Progress ring behind butterfly */}

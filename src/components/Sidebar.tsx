@@ -12,8 +12,6 @@ import {
   Bot,
   Menu,
   Leaf,
-  MessageSquare,
-  Sparkles,
   Building2,
   CreditCard,
   FileCheck
@@ -44,11 +42,7 @@ const adminSubMenu = [
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
 ];
 
-interface SidebarContentProps {
-  onToggleChat?: () => void;
-}
-
-const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
+const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -85,27 +79,6 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
           <ThemeToggle />
         </div>
       </div>
-
-      {/* Mode Toggle */}
-      {onToggleChat && (
-        <div className="px-3 pt-4 pb-2">
-          <div className="flex gap-2 p-1 bg-muted rounded-lg">
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-background text-foreground shadow-sm font-medium text-sm transition-all"
-            >
-              <Menu className="h-4 w-4" />
-              {t("nav.menu")}
-            </button>
-            <button
-              onClick={onToggleChat}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground font-medium text-sm transition-all"
-            >
-              <Sparkles className="h-4 w-4" />
-              {t("nav.chat")}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
@@ -277,11 +250,7 @@ const SidebarContent = ({ onToggleChat }: SidebarContentProps) => {
   );
 };
 
-interface SidebarProps {
-  onToggleChat?: () => void;
-}
-
-export function Sidebar({ onToggleChat }: SidebarProps) {
+export function Sidebar() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -301,7 +270,7 @@ export function Sidebar({ onToggleChat }: SidebarProps) {
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
               <div className="flex h-full flex-col bg-card">
-                <SidebarContent onToggleChat={onToggleChat} />
+                <SidebarContent />
               </div>
             </SheetContent>
           </Sheet>
@@ -314,7 +283,7 @@ export function Sidebar({ onToggleChat }: SidebarProps) {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
-      <SidebarContent onToggleChat={onToggleChat} />
+      <SidebarContent />
     </div>
   );
 }

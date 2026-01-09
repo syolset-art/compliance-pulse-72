@@ -60,7 +60,7 @@ const SystemTrustProfile = () => {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
-          <Sidebar onToggleChat={() => {}} />
+          <Sidebar />
           <main className="flex-1 p-6">
             <div className="animate-pulse space-y-4">
               <div className="h-8 w-48 bg-muted rounded" />
@@ -76,7 +76,7 @@ const SystemTrustProfile = () => {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
-          <Sidebar onToggleChat={() => {}} />
+          <Sidebar />
           <main className="flex-1 p-6">
             <Button variant="ghost" onClick={() => navigate("/systems")} className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -92,7 +92,7 @@ const SystemTrustProfile = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
-        <Sidebar onToggleChat={() => {}} />
+        <Sidebar />
         <main className="flex-1 overflow-auto">
           <div className="p-6 space-y-6">
             {/* Back button */}
