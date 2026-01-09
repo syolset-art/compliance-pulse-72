@@ -120,7 +120,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) 
   return (
     <>
       {/* Floating Lara Button with Progress Ring */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {!isOpen && (
           <div className="relative">
             <button
@@ -191,11 +191,11 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) 
           </div>
         )}
 
-        {/* Lara Card - Larger when open */}
+      {/* Lara Card - Larger when open */}
         {isOpen && (
           <Card className={`shadow-2xl animate-scale-in border-primary/20 transition-all duration-300 ${
-            showCompanyForm ? 'w-[420px]' : 'w-96'
-          }`}>
+            showCompanyForm ? 'w-[calc(100vw-2rem)] sm:w-[420px]' : 'w-[calc(100vw-2rem)] sm:w-96'
+          } max-w-[420px]`}>
             <CardContent className="p-5">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
