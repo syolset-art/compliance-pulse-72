@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sparkles, Check, Server, Building, Users, Building2, ChevronRight } from "lucide-react";
+import { X, Sparkles, Check, Server, Building, Building2, ChevronRight } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
@@ -11,14 +11,12 @@ import confetti from "canvas-confetti";
 
 interface LaraAgentProps {
   onOpenSystemDialog?: () => void;
-  onOpenRoleDialog?: () => void;
 }
 
 const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Building2,
   Server,
-  Building,
-  Users
+  Building
 };
 
 const triggerConfetti = () => {
@@ -57,7 +55,7 @@ const triggerConfetti = () => {
   frame();
 };
 
-export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentProps) => {
+export const LaraAgent = ({ onOpenSystemDialog }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const hasShownConfetti = useRef(false);
@@ -99,12 +97,6 @@ export const LaraAgent = ({ onOpenSystemDialog, onOpenRoleDialog }: LaraAgentPro
       case 'work-areas':
         navigate('/work-areas');
         setIsOpen(false);
-        break;
-      case 'roles':
-        if (onOpenRoleDialog) {
-          onOpenRoleDialog();
-          setIsOpen(false);
-        }
         break;
     }
   };

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -15,9 +16,15 @@ import {
   Building,
   ArrowRight,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Shield,
+  Brain,
+  Leaf,
+  AlertTriangle,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { suggestRolesForCompany, useCaseOptions, teamSizeOptions } from "@/lib/rolesSuggestions";
 
 interface CompanyOnboardingProps {
   onComplete: () => void;
@@ -46,7 +53,15 @@ const maturityLevels = [
   { id: "advanced", name: "Avansert", description: "Vi har modne prosesser og systemer" },
 ];
 
-type Step = "company" | "industry" | "size" | "complete";
+const useCaseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  "personvern": Shield,
+  "sikkerhet": Shield,
+  "ai-styring": Brain,
+  "barekraft": Leaf,
+  "risikostyring": AlertTriangle,
+};
+
+type Step = "company" | "industry" | "size" | "use-cases" | "team-size" | "complete";
 
 export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const [step, setStep] = useState<Step>("company");
@@ -59,6 +74,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     industry: "",
     employees: "",
     maturity: "intermediate",
+    use_cases: [] as string[],
+    team_size: "",
   });
 
   const handleNext = () => {
@@ -75,6 +92,18 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       }
       setStep("size");
     } else if (step === "size") {
+      setStep("use-cases");
+    } else if (step === "use-cases") {
+      if (formData.use_cases.length === 0) {
+        toast({ title: "Feil", description: "Vennligst velg minst ett bruksområde", variant: "destructive" });
+        return;
+      }
+      setStep("team-size");
+    } else if (step === "team-size") {
+      if (!formData.team_size) {
+        toast({ title: "Feil", description: "Vennligst velg teamstørrelse", variant: "destructive" });
+        return;
+      }
       handleSubmit();
     }
   };
@@ -82,16 +111,46 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const handleBack = () => {
     if (step === "industry") setStep("company");
     else if (step === "size") setStep("industry");
+    else if (step === "use-cases") setStep("size");
+    else if (step === "team-size") setStep("use-cases");
+  };
+
+  const toggleUseCase = (useCaseId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      use_cases: prev.use_cases.includes(useCaseId)
+        ? prev.use_cases.filter(id => id !== useCaseId)
+        : [...prev.use_cases, useCaseId]
+    }));
   };
 
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase
+      // Save company profile
+      const { error: profileError } = await supabase
         .from("company_profile" as any)
         .upsert([formData], { onConflict: "id" });
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Generate and save suggested roles
+      const suggestedRoles = suggestRolesForCompany({
+        industry: formData.industry,
+        employees: formData.employees,
+        use_cases: formData.use_cases,
+        team_size: formData.team_size,
+      });
+
+      if (suggestedRoles.length > 0) {
+        const rolesToInsert = suggestedRoles.map(role => ({
+          name: role.name,
+          description: role.description,
+          responsibilities: role.responsibilities,
+        }));
+
+        await supabase.from("roles").insert(rolesToInsert);
+      }
 
       setStep("complete");
       
@@ -116,9 +175,18 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       case "company": return 1;
       case "industry": return 2;
       case "size": return 3;
-      case "complete": return 4;
+      case "use-cases": return 4;
+      case "team-size": return 5;
+      case "complete": return 5;
     }
   };
+
+  const suggestedRolesPreview = suggestRolesForCompany({
+    industry: formData.industry,
+    employees: formData.employees,
+    use_cases: formData.use_cases,
+    team_size: formData.team_size,
+  });
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
@@ -126,12 +194,12 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         {/* Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av 3</span>
+            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av 5</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div 
               className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${(getStepNumber() / 3) * 100}%` }}
+              style={{ width: `${(getStepNumber() / 5) * 100}%` }}
             />
           </div>
         </div>
@@ -313,6 +381,142 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           </Card>
         )}
 
+        {/* Step: Use Cases */}
+        {step === "use-cases" && (
+          <Card className="p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold mb-2">Hva skal dere bruke Mynder til?</h1>
+              <p className="text-muted-foreground">
+                Velg områdene som er relevante for dere (kan velge flere)
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              {useCaseOptions.map((useCase) => {
+                const Icon = useCaseIcons[useCase.id] || Shield;
+                const isSelected = formData.use_cases.includes(useCase.id);
+                return (
+                  <button
+                    key={useCase.id}
+                    onClick={() => toggleUseCase(useCase.id)}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border text-left transition-all",
+                      isSelected
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <Checkbox checked={isSelected} className="pointer-events-none" />
+                    <div className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center",
+                      isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                    )}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{useCase.name}</p>
+                      <p className="text-sm text-muted-foreground">{useCase.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 flex justify-between">
+              <Button variant="ghost" onClick={handleBack}>
+                Tilbake
+              </Button>
+              <Button onClick={handleNext} size="lg" className="gap-2">
+                Neste
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Step: Team Size */}
+        {step === "team-size" && (
+          <Card className="p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Hvor mange skal bruke Mynder?</h1>
+              <p className="text-muted-foreground">
+                Vi tilpasser roller og tilganger basert på teamstørrelsen
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              {teamSizeOptions.map((option) => {
+                const isSelected = formData.team_size === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => setFormData({ ...formData, team_size: option.id })}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border text-left transition-all",
+                      isSelected
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center",
+                      isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                    )}>
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{option.name}</p>
+                      <p className="text-sm text-muted-foreground">{option.description}</p>
+                    </div>
+                    {isSelected && (
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Preview of suggested roles */}
+            {suggestedRolesPreview.length > 0 && (
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  Mynder vil foreslå disse rollene:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedRolesPreview.map((role) => (
+                    <span 
+                      key={role.name}
+                      className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md"
+                    >
+                      {role.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex justify-between">
+              <Button variant="ghost" onClick={handleBack}>
+                Tilbake
+              </Button>
+              <Button onClick={handleNext} size="lg" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Lagrer...
+                  </>
+                ) : (
+                  "Fullfør oppsett"
+                )}
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Step: Complete */}
         {step === "complete" && (
           <Card className="p-8 text-center">
@@ -321,8 +525,13 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
             </div>
             <h1 className="text-2xl font-bold mb-2">Alt klart!</h1>
             <p className="text-muted-foreground">
-              Vi setter opp arbeidsområdene dine basert på bransjen din...
+              Vi setter opp arbeidsområdene og rollene dine...
             </p>
+            {suggestedRolesPreview.length > 0 && (
+              <div className="mt-4 text-sm text-muted-foreground">
+                {suggestedRolesPreview.length} roller opprettet basert på dine valg
+              </div>
+            )}
             <div className="mt-6">
               <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
             </div>
