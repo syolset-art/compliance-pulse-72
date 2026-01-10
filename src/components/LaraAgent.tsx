@@ -12,6 +12,7 @@ import confetti from "canvas-confetti";
 interface LaraAgentProps {
   onOpenSystemDialog?: () => void;
   onToggleChat?: () => void;
+  isChatOpen?: boolean;
 }
 
 const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -56,7 +57,7 @@ const triggerConfetti = () => {
   frame();
 };
 
-export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) => {
+export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const hasShownConfetti = useRef(false);
@@ -119,8 +120,8 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) 
 
   return (
     <>
-      {/* Floating Lara Button with Progress Ring */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+      {/* Floating Lara Button with Progress Ring - Hidden on mobile when chat is open */}
+      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 ${isChatOpen ? 'hidden sm:block' : ''}`}>
         {!isOpen && (
           <div className="relative">
             <button

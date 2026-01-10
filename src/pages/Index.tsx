@@ -152,6 +152,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         <LaraAgent 
           onOpenSystemDialog={() => setIsAddSystemOpen(true)}
           onToggleChat={handleToggleChat}
+          isChatOpen={isChatOpen}
         />
 
         <ChatPanel
@@ -306,6 +307,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
       <LaraAgent 
         onOpenSystemDialog={() => setIsAddSystemOpen(true)}
         onToggleChat={handleToggleChat}
+        isChatOpen={isChatOpen}
       />
 
       {/* Chat Panel - Right side */}
