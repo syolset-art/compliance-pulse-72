@@ -41,12 +41,12 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
     );
   }
 
-  // Desktop: sliding panel
+  // Desktop: sliding panel (not full height)
   return (
     <div 
       className={cn(
-        "fixed right-0 top-0 h-screen w-[400px] bg-card border-l border-border shadow-2xl z-40 transition-transform duration-300 ease-out flex flex-col",
-        isOpen ? "translate-x-0" : "translate-x-full"
+        "fixed right-4 top-4 bottom-4 w-[380px] bg-card border border-border rounded-xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
+        isOpen ? "translate-x-0 opacity-100" : "translate-x-[calc(100%+1rem)] opacity-0"
       )}
     >
       <ChatPanelHeader onClose={onClose} />

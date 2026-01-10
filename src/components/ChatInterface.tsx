@@ -747,8 +747,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
         {/* Notion-style input container */}
         <div className="rounded-xl border border-border bg-background focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
           {/* Context chip */}
-          <div className="px-3 pt-2 pb-1">
-            <span className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+          <div className="px-4 pt-3 pb-2">
+            <span className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-md">
               @ {companyName}
             </span>
           </div>
@@ -759,7 +759,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
               e.preventDefault();
               handleSend();
             }}
-            className="flex items-center gap-2 px-3 pb-2"
+            className="flex items-center gap-2 px-4 pb-3"
           >
             {/* Attachment button */}
             <Button
@@ -768,19 +768,19 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
               variant="ghost"
               onClick={() => setUploadDialogOpen(true)}
               disabled={isLoading}
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-9 w-9 text-muted-foreground hover:text-foreground"
               title="Last opp dokument"
             >
               <Paperclip className="h-4 w-4" />
             </Button>
 
-            {/* Input field */}
+            {/* Input field - larger */}
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Spør, søk eller be om hjelp..."
               disabled={isLoading}
-              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/60"
+              className="flex-1 h-10 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/60"
             />
 
             {/* Mode indicator */}
