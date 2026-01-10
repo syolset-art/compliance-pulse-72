@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Sparkles, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, X, Upload, FileText, AlertTriangle, Shield, Link, Lightbulb, ShoppingBag, ThumbsUp, ThumbsDown, Brain } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -26,6 +26,7 @@ interface Message {
   isComplete?: boolean;
   thinkingTime?: number;
   thinkingSummary?: string;
+  timestamp?: Date;
 }
 
 interface ContentViewOptions {
@@ -52,62 +53,104 @@ type SuggestionType = "view" | "action" | "warning";
 interface Suggestion {
   text: string;
   type: SuggestionType;
+  icon?: React.ComponentType<{ className?: string }>;
 }
 
 const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
-    { text: "Vis behandlingsprotokoller", type: "view" },
-    { text: "Hvilke systemer bruker vi?", type: "view" },
-    { text: "Tredjeparter for Microsoft", type: "view" },
-    { text: "Vis oppgavelisten", type: "view" }
+    { text: "Vis behandlingsprotokoller", type: "view", icon: FileCheck },
+    { text: "Hvilke systemer bruker vi?", type: "view", icon: Database },
+    { text: "Gap-analyse", type: "action", icon: Search },
+    { text: "Vis oppgavelisten", type: "view", icon: ListTodo }
   ],
   protocols: [
-    { text: "Vis i tabellformat", type: "view" },
-    { text: "Vis bare titler", type: "view" },
-    { text: "Filtrer på høy risiko", type: "view" },
-    { text: "Vis protokoller som mangler DPA", type: "warning" }
+    { text: "Vis i tabellformat", type: "view", icon: FileText },
+    { text: "Vis bare titler", type: "view", icon: ListTodo },
+    { text: "Filtrer på høy risiko", type: "view", icon: AlertTriangle },
+    { text: "Vis protokoller som mangler DPA", type: "warning", icon: AlertTriangle }
   ],
   systems: [
-    { text: "Vis i tabellformat", type: "view" },
-    { text: "Vis bare navnene", type: "view" },
-    { text: "Filtrer på høy risiko", type: "view" },
-    { text: "Vis tredjeparter for systemene", type: "view" }
+    { text: "Vis i tabellformat", type: "view", icon: FileText },
+    { text: "Vis bare navnene", type: "view", icon: ListTodo },
+    { text: "Filtrer på høy risiko", type: "view", icon: AlertTriangle },
+    { text: "Vis tredjeparter for systemene", type: "view", icon: Database }
   ],
   "third-parties": [
-    { text: "Mangler det Transfer Impact Assessment?", type: "warning" },
-    { text: "Generer TIA for tredjeparter", type: "action" },
-    { text: "Vis i tabellformat", type: "view" },
-    { text: "Vis kun de uten DPA", type: "view" },
-    { text: "Sorter etter risikonivå", type: "view" }
+    { text: "Mangler det Transfer Impact Assessment?", type: "warning", icon: AlertTriangle },
+    { text: "Generer TIA for tredjeparter", type: "action", icon: FileCheck },
+    { text: "Vis i tabellformat", type: "view", icon: FileText },
+    { text: "Vis kun de uten DPA", type: "view", icon: Search }
   ],
   tasks: [
-    { text: "Vis i liste", type: "view" },
-    { text: "Grupér etter prioritet", type: "view" },
-    { text: "Vis bare titler", type: "view" },
-    { text: "Filtrer på AI-håndterte", type: "view" },
-    { text: "Vis fullførte oppgaver", type: "view" }
+    { text: "Vis i liste", type: "view", icon: ListTodo },
+    { text: "Grupér etter prioritet", type: "view", icon: FileText },
+    { text: "Vis bare titler", type: "view", icon: ListTodo },
+    { text: "Filtrer på AI-håndterte", type: "view", icon: Zap }
   ],
   deviations: [
-    { text: "Vis åpne avvik", type: "view" },
-    { text: "Filtrer på kritiske avvik", type: "view" },
-    { text: "Vis avvik siste måned", type: "view" },
-    { text: "Hvilke avvik mangler tiltaksplan?", type: "warning" }
+    { text: "Vis åpne avvik", type: "view", icon: AlertTriangle },
+    { text: "Filtrer på kritiske avvik", type: "view", icon: AlertTriangle },
+    { text: "Vis avvik siste måned", type: "view", icon: Search },
+    { text: "Hvilke avvik mangler tiltaksplan?", type: "warning", icon: AlertTriangle }
   ],
   compliance: [
-    { text: "Vis compliance-status", type: "view" },
-    { text: "Hvilke krav mangler dokumentasjon?", type: "warning" },
-    { text: "Vis GDPR-status", type: "view" },
-    { text: "Generer compliance-rapport", type: "action" }
+    { text: "Vis compliance-status", type: "view", icon: FileCheck },
+    { text: "Hvilke krav mangler dokumentasjon?", type: "warning", icon: AlertTriangle },
+    { text: "Vis GDPR-status", type: "view", icon: Shield },
+    { text: "Generer compliance-rapport", type: "action", icon: FileText }
   ]
 };
 
+// Empty state welcome component
+function EmptyStateWelcome({ onSuggestionClick, suggestions }: { 
+  onSuggestionClick: (text: string) => void;
+  suggestions: Suggestion[];
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full px-4 py-8">
+      {/* Large centered butterfly */}
+      <img 
+        src={laraButterfly} 
+        alt="Lara" 
+        className="w-16 h-16 mb-6 animate-pulse"
+      />
+      
+      {/* Welcome question */}
+      <h2 className="text-lg font-medium text-foreground mb-6 text-center">
+        Hva kan jeg hjelpe deg med?
+      </h2>
+      
+      {/* Vertical list of suggestions with icons */}
+      <div className="w-full max-w-sm space-y-2">
+        {suggestions.map((suggestion, i) => {
+          const Icon = suggestion.icon;
+          return (
+            <button
+              key={i}
+              onClick={() => onSuggestionClick(suggestion.text)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
+            >
+              {Icon && (
+                <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              )}
+              <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                {suggestion.text}
+              </span>
+              {suggestion.type === "action" && (
+                <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
+                  Ny
+                </Badge>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-      {
-        role: "assistant",
-        content: "Hei! Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
-      }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentContext, setCurrentContext] = useState<SuggestionContext>("default");
@@ -121,16 +164,32 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
+  const [companyName, setCompanyName] = useState<string>("Eviny AS");
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const suggestions = suggestionMap[currentContext];
+  const isEmptyState = messages.length === 0;
+
+  // Fetch company name on mount
+  useEffect(() => {
+    const fetchCompanyName = async () => {
+      const { data } = await supabase
+        .from('company_profile')
+        .select('name')
+        .limit(1)
+        .single();
+      if (data?.name) {
+        setCompanyName(data.name);
+      }
+    };
+    fetchCompanyName();
+  }, []);
 
   const handleFeedback = (messageIndex: number, feedbackType: "up" | "down") => {
     setMessages(prev => prev.map((msg, idx) => {
       if (idx === messageIndex) {
-        // Toggle feedback: if clicking the same type, remove it; otherwise set new type
         const newFeedback = msg.feedback === feedbackType ? null : feedbackType;
         return { ...msg, feedback: newFeedback };
       }
@@ -146,8 +205,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
   };
 
   const handleUndoLastMessage = () => {
-    if (messages.length > 1) {
-      // Remove last two messages (user + assistant)
+    if (messages.length >= 2) {
       setMessages(prev => prev.slice(0, -2));
       setCurrentContext("default");
       toast({
@@ -158,12 +216,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
   };
 
   const handleNewConversation = () => {
-    setMessages([
-      {
-        role: "assistant",
-        content: "Hei! Jeg er Lara, din AI-assistent. Still meg et spørsmål eller si hva du leter etter, så hjelper jeg deg å finne det."
-      }
-    ]);
+    setMessages([]);
     setCurrentContext("default");
     if (onBackToDashboard) {
       onBackToDashboard();
@@ -188,7 +241,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(shareEmail)) {
       toast({
@@ -202,12 +254,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
     setIsSending(true);
 
     try {
-      const conversationText = messages
-        .map(m => `${m.role === "user" ? "Du" : "Lara"}: ${m.content}`)
-        .join("\n\n");
-
-      // TODO: Implement actual email sending via edge function
-      // For now, just show success message
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
@@ -237,7 +283,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
     setUploadProgress(0);
 
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
@@ -248,11 +293,9 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
         return;
       }
 
-      // Create file path with user ID
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-      // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(fileName, file, {
@@ -264,7 +307,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
 
       setUploadProgress(70);
 
-      // Save metadata to database
       const { error: dbError } = await supabase
         .from('uploaded_documents')
         .insert({
@@ -286,7 +328,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
 
       setUploadDialogOpen(false);
       
-      // Trigger analysis via chat
       setTimeout(() => {
         handleSend(`Analyser dokumentet ${file.name} for compliance og personverninnhold`);
       }, 500);
@@ -310,7 +351,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
     }
   }, [messages]);
 
-  // Timer for thinking indicator
   useEffect(() => {
     if (thinkingStartTime && isLoading) {
       const interval = setInterval(() => {
@@ -325,14 +365,13 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
     const textToSend = messageText || input;
     if (!textToSend.trim() || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: textToSend };
+    const userMessage: Message = { role: "user", content: textToSend, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
     setThinkingStartTime(Date.now());
     setCurrentThinkingTime(0);
 
-    // Detect context from user message
     const lowerText = textToSend.toLowerCase();
     if (lowerText.includes("behandlingsprotokoll") || lowerText.includes("protokoll")) {
       setCurrentContext("protocols");
@@ -393,7 +432,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
                 content, 
                 isComplete,
                 thinkingTime: thinking?.time,
-                thinkingSummary: thinking?.summary 
+                thinkingSummary: thinking?.summary,
+                timestamp: m.timestamp || new Date()
               } : m
             );
           }
@@ -402,7 +442,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
             content, 
             isComplete,
             thinkingTime: thinking?.time,
-            thinkingSummary: thinking?.summary
+            thinkingSummary: thinking?.summary,
+            timestamp: new Date()
           }];
         });
       };
@@ -429,7 +470,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
             const parsed = JSON.parse(jsonStr);
             const delta = parsed.choices?.[0]?.delta;
 
-            // Handle tool calls
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
               if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options") {
@@ -442,20 +482,16 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
               }
             }
 
-            // Handle regular content
             if (delta?.content) {
-              // First content marks end of thinking
               if (!hasReceivedFirstContent && thinkingStartTime) {
                 const thinkingTime = Math.floor((Date.now() - thinkingStartTime) / 1000);
                 thinkingSummary = delta.content;
                 hasReceivedFirstContent = true;
                 
-                // Show thinking summary
                 updateAssistantMessage("", false, { time: thinkingTime, summary: thinkingSummary });
               } else {
                 assistantContent += delta.content;
                 
-                // Keep thinking info when updating content
                 const thinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
                 updateAssistantMessage(
                   assistantContent, 
@@ -471,17 +507,13 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
         }
       }
 
-      // Process tool call if any
       if (toolCall && toolCall.arguments) {
         try {
           const args = JSON.parse(toolCall.arguments);
           
           if (toolCall.name === "show_content") {
-            // Update context based on content type
             setCurrentContext(args.content_type as SuggestionContext);
             
-            // Chat only shows the AI's brief status message - NOT the explanation
-            // The explanation (full report) is only shown in the right panel (ContentViewer)
             updateAssistantMessage(assistantContent || "Viser innhold til høyre...");
             
             if (onShowContent) {
@@ -490,7 +522,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
                 sortBy: args.sort_by,
                 filterCriteria: args.filter_criteria
               };
-              // Pass explanation to ContentViewer to display the full report
               onShowContent(args.content_type, args.filter, options, args.explanation);
             }
           } else if (toolCall.name === "navigate_to" && args.path) {
@@ -520,7 +551,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
               duration: 5000,
             });
           } else if (toolCall.name === "suggest_options") {
-            // Add options to the assistant message
             const optionsMessage = args.message || assistantContent;
             
             setMessages(prev => {
@@ -538,7 +568,6 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
         }
       }
 
-      // Mark the message as complete when streaming ends with thinking info
       const finalThinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
       
       setMessages(prev => {
@@ -568,294 +597,289 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
     }
   };
 
+  // Format timestamp
+  const formatTime = (date?: Date) => {
+    if (!date) return "";
+    return date.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" });
+  };
+
   return (
     <>
     <div className="flex h-full w-full flex-col bg-card overflow-hidden">
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4">
-           {messages.map((message, i) => (
-            <div key={i}>
-               <div
-                className={`flex gap-3 ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                {message.role === "assistant" && (
-                  <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
-                )}
-                <div className="flex-1 max-w-[80%]">
-                  {/* Thinking indicator */}
-                  {message.role === "assistant" && message.thinkingSummary && (
-                    <div className="mb-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Brain className="h-3.5 w-3.5 text-primary animate-pulse" />
-                        <span className="text-xs font-medium text-primary">
-                          Tenker... {message.thinkingTime ? `(${message.thinkingTime}s)` : ""}
+      {/* Messages or Empty State */}
+      {isEmptyState ? (
+        <div className="flex-1 overflow-hidden">
+          <EmptyStateWelcome 
+            onSuggestionClick={handleSend} 
+            suggestions={suggestions}
+          />
+        </div>
+      ) : (
+        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <div className="space-y-4">
+            {messages.map((message, i) => (
+              <div key={i}>
+                <div
+                  className={`flex gap-3 ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {message.role === "assistant" && (
+                    <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 max-w-[85%]">
+                    {/* Subtle thinking indicator - inline */}
+                    {message.role === "assistant" && message.thinkingSummary && (
+                      <div className="flex items-center gap-1.5 mb-1.5 text-xs text-muted-foreground">
+                        <Brain className="h-3 w-3" />
+                        <span>Tenkte {message.thinkingTime}s</span>
+                      </div>
+                    )}
+                    
+                    <div
+                      className={`rounded-2xl px-4 py-2.5 ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    </div>
+                    
+                    {/* Timestamp and feedback for assistant messages */}
+                    {message.role === "assistant" && message.isComplete && (
+                      <div className="flex items-center gap-2 mt-1.5 ml-1">
+                        <span className="text-[10px] text-muted-foreground">
+                          {formatTime(message.timestamp)}
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={`h-6 w-6 p-0 ${message.feedback === "up" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                            onClick={() => handleFeedback(i, "up")}
+                          >
+                            <ThumbsUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={`h-6 w-6 p-0 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
+                            onClick={() => handleFeedback(i, "down")}
+                          >
+                            <ThumbsDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* User message timestamp */}
+                    {message.role === "user" && (
+                      <div className="flex justify-end mt-1">
+                        <span className="text-[10px] text-muted-foreground">
+                          {formatTime(message.timestamp)}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground italic">
-                        {message.thinkingSummary}
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div
-                    className={`rounded-lg px-3 py-2 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    )}
                   </div>
-                  
-                  {/* Feedback buttons for assistant messages */}
-                  {message.role === "assistant" && message.isComplete && (
-                    <div className="flex items-center gap-2 mt-2 ml-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className={`h-7 px-2 ${message.feedback === "up" ? "text-success" : "text-muted-foreground"}`}
-                        onClick={() => handleFeedback(i, "up")}
-                      >
-                        <ThumbsUp className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className={`h-7 px-2 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground"}`}
-                        onClick={() => handleFeedback(i, "down")}
-                      >
-                        <ThumbsDown className="h-3.5 w-3.5" />
-                      </Button>
-                      {message.isComplete && (
-                        <span className="text-xs text-muted-foreground ml-2">✓ Ferdig</span>
-                      )}
-                    </div>
-                  )}
                 </div>
+                {/* Show options as clickable badges if present */}
+                {message.options && message.role === "assistant" && (
+                  <div className="flex flex-wrap gap-2 mt-2 ml-9">
+                    {message.options.map((option, optIndex) => {
+                      const variant = option.type === "warning" 
+                        ? "warning" 
+                        : option.type === "action" 
+                        ? "action" 
+                        : "secondary";
+                      
+                      return (
+                        <Badge
+                          key={optIndex}
+                          variant={variant}
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                          onClick={() => handleSend(option.prompt)}
+                        >
+                          {option.text}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              {/* Show options as clickable badges if present */}
-              {message.options && message.role === "assistant" && (
-                <div className="flex flex-wrap gap-2 mt-2 ml-9">
-                  {message.options.map((option, optIndex) => {
-                    const variant = option.type === "warning" 
-                      ? "warning" 
-                      : option.type === "action" 
-                      ? "action" 
-                      : "secondary";
-                    
-                    return (
-                      <Badge
-                        key={optIndex}
-                        variant={variant}
-                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-                        onClick={() => handleSend(option.prompt)}
-                      >
-                        {option.text}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1" />
-              <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-primary animate-pulse" />
-                  <span className="text-xs text-muted-foreground">
+            ))}
+            {isLoading && (
+              <div className="flex gap-3 justify-start items-center">
+                <img src={laraButterfly} alt="Lara" className="w-6 h-6 flex-shrink-0" />
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Brain className="h-4 w-4 animate-pulse" />
+                  <span className="text-xs">
                     Tenker{currentThinkingTime > 0 ? ` (${currentThinkingTime}s)` : "..."}
                   </span>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+            )}
+          </div>
+        </ScrollArea>
+      )}
 
-      {/* Input */}
-      <div className="border-t border-border">
-        {/* Action Buttons Row */}
-        <div className="flex items-center justify-center gap-2 px-4 py-2 border-b border-border bg-muted/30">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBackToDashboard}
-            className="h-8 w-8"
-            disabled={isLoading}
-            title="Gå til dashboard"
-          >
-            <Home className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShopDialogOpen(true)}
-            className="h-8 w-8"
-            disabled={isLoading}
-            title="Kjøp tilleggsmoduler"
-          >
-            <ShoppingBag className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNewConversation}
-            className="h-8 w-8"
-            disabled={isLoading}
-            title="Ny samtale"
-          >
-            <MessageSquarePlus className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleUndoLastMessage}
-            className="h-8 w-8"
-            disabled={isLoading || messages.length <= 1}
-            title="Angre siste melding"
-          >
-            <Undo2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleShareConversation}
-            className="h-8 w-8"
-            disabled={isLoading || messages.length <= 1}
-            title="Del samtale"
-          >
-            <Share2 className="h-4 w-4" />
-          </Button>
-        </div>
+      {/* Notion-style Input Area */}
+      <div className="border-t border-border p-3">
+        {/* Context-aware suggestions when not in empty state */}
+        {!isEmptyState && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {suggestions?.slice(0, 3).map((suggestion, i) => {
+              const Icon = suggestion.icon;
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleSend(suggestion.text)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground"
+                >
+                  {Icon && <Icon className="w-3 h-3" />}
+                  {suggestion.text}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        <div className="p-4 space-y-3">
-        {/* Suggestions - always visible */}
-        <div className="flex flex-wrap gap-2">
-          {suggestions?.map((suggestion, i) => {
-            const variant = suggestion.type === "warning" 
-              ? "warning" 
-              : suggestion.type === "action" 
-              ? "action" 
-              : "secondary";
-            
-            return (
-              <Badge
-                key={i}
-                variant={variant}
-                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-                onClick={() => handleSend(suggestion.text)}
-              >
-                {suggestion.text}
-              </Badge>
-            );
-          })}
-        </div>
-        
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex gap-2"
-        >
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                disabled={isLoading}
-                className="h-10 w-10"
-                title="Åpne verktøymeny"
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuItem
-                onClick={() => {
-                  setUploadDialogOpen(true);
-                }}
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Last opp dokumenter
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  handleSend("Hvilken type gap-analyse ønsker du? Presenter alternativer jeg kan velge.");
-                }}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Gap Analyse
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  handleSend("Utfør risikovurdering for våre systemer og behandlinger");
-                }}
-              >
-                <AlertTriangle className="mr-2 h-4 w-4" />
-                Risikovurdering
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  toast({
-                    title: "Systemintegrasjoner",
-                    description: "Koble til eksterne systemer",
-                  });
-                  // TODO: Navigate to integrations page
-                }}
-              >
-                <Link className="mr-2 h-4 w-4" />
-                Integrasjoner
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  handleSend("Lag en detaljert ISO 27001 compliance-rapport for Eviny. Inkluder executive summary, gap-analyse per kontrollområde med status-indikatorer, risikovurdering og prioritert handlingsplan. Bruk tabeller og strukturert format.");
-                }}
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                Compliance-rapport (ISO 27001)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  handleSend("Analyser GDPR-etterlevelse og gi anbefalinger");
-                }}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                GDPR-analyse
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            onClick={() => {
-              handleSend("Gi meg AI-forslag basert på vår nåværende compliance-status og identifiser forbedringområder");
+        {/* Notion-style input container */}
+        <div className="rounded-xl border border-border bg-background focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+          {/* Context chip */}
+          <div className="px-3 pt-2 pb-1">
+            <span className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+              @ {companyName}
+            </span>
+          </div>
+          
+          {/* Input row */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
             }}
-            disabled={isLoading}
-            className="h-10 w-10"
-            title="AI-forslag for forbedringer"
+            className="flex items-center gap-2 px-3 pb-2"
           >
-            <Lightbulb className="h-5 w-5" />
-          </Button>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Still et spørsmål..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+            {/* Attachment button */}
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={() => setUploadDialogOpen(true)}
+              disabled={isLoading}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Last opp dokument"
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+
+            {/* Input field */}
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Spør, søk eller be om hjelp..."
+              disabled={isLoading}
+              className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/60"
+            />
+
+            {/* Mode indicator */}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+              <Zap className="w-3 h-3" />
+              <span>Auto</span>
+            </div>
+
+            {/* More options menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  disabled={isLoading}
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={onBackToDashboard}>
+                  <Home className="mr-2 h-4 w-4" />
+                  Gå til dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleNewConversation}>
+                  <MessageSquarePlus className="mr-2 h-4 w-4" />
+                  Ny samtale
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShopDialogOpen(true)}>
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Tilleggsmoduler
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleUndoLastMessage}
+                  disabled={messages.length < 2}
+                >
+                  <Undo2 className="mr-2 h-4 w-4" />
+                  Angre siste melding
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={handleShareConversation}
+                  disabled={messages.length === 0}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Del samtale
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleSend("Hvilken type gap-analyse ønsker du? Presenter alternativer jeg kan velge.");
+                  }}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Gap Analyse
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleSend("Utfør risikovurdering for våre systemer og behandlinger");
+                  }}
+                >
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  Risikovurdering
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleSend("Lag en detaljert ISO 27001 compliance-rapport. Inkluder executive summary, gap-analyse per kontrollområde med status-indikatorer, risikovurdering og prioritert handlingsplan.");
+                  }}
+                >
+                  <Shield className="mr-2 h-4 w-4" />
+                  Compliance-rapport (ISO 27001)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    toast({
+                      title: "Systemintegrasjoner",
+                      description: "Koble til eksterne systemer",
+                    });
+                  }}
+                >
+                  <Link className="mr-2 h-4 w-4" />
+                  Integrasjoner
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Send button */}
+            <Button 
+              type="submit" 
+              size="icon" 
+              disabled={isLoading || !input.trim()}
+              className="h-8 w-8 rounded-lg"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
         </div>
       </div>
     </div>
