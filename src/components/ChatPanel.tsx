@@ -41,12 +41,12 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
     );
   }
 
-  // Desktop: sliding panel (not full height)
+  // Desktop: floating panel (compact height, anchored to bottom-right)
   return (
     <div 
       className={cn(
-        "fixed right-4 top-4 bottom-4 w-[380px] bg-card border border-border rounded-xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
-        isOpen ? "translate-x-0 opacity-100" : "translate-x-[calc(100%+1rem)] opacity-0"
+        "fixed right-4 bottom-4 w-[400px] h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
+        isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none"
       )}
     >
       <ChatPanelHeader onClose={onClose} />
