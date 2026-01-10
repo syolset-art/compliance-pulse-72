@@ -135,7 +135,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) 
             >
               {/* Progress ring behind butterfly */}
               <svg 
-                className="absolute -inset-2 w-24 h-24 -rotate-90"
+                className="absolute -inset-1.5 sm:-inset-2 w-[76px] h-[76px] sm:w-24 sm:h-24 -rotate-90"
                 viewBox="0 0 88 88"
               >
                 {/* Background ring */}
@@ -165,7 +165,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat }: LaraAgentProps) 
               <img 
                 src={laraButterfly} 
                 alt="Lara AI Agent" 
-                className={`w-20 h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg ${
                   !isFullyComplete ? 'animate-pulse' : ''
                 }`}
               />
