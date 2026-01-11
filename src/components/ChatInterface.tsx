@@ -44,6 +44,7 @@ interface ContentViewOptions {
 interface ChatInterfaceProps {
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
+  onMessagesChange?: (hasMessages: boolean) => void;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -101,34 +102,36 @@ const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   ]
 };
 
-// Empty state welcome component
+// Empty state welcome component - centered butterfly
 function EmptyStateWelcome({ onSuggestionClick, suggestions }: { 
   onSuggestionClick: (text: string) => void;
   suggestions: Suggestion[];
 }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 py-8">
+    <div className="flex flex-col items-center justify-center h-full px-4">
       {/* Large centered butterfly */}
-      <img 
-        src={laraButterfly} 
-        alt="Lara" 
-        className="w-16 h-16 mb-6 animate-pulse"
-      />
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <img 
+          src={laraButterfly} 
+          alt="Lara" 
+          className="w-20 h-20 mb-4"
+        />
+        
+        {/* Welcome question */}
+        <h2 className="text-base font-medium text-foreground mb-6 text-center">
+          Hva kan jeg hjelpe deg med?
+        </h2>
+      </div>
       
-      {/* Welcome question */}
-      <h2 className="text-lg font-medium text-foreground mb-6 text-center">
-        Hva kan jeg hjelpe deg med?
-      </h2>
-      
-      {/* Vertical list of suggestions with icons */}
-      <div className="w-full max-w-sm space-y-2">
+      {/* Suggestions at bottom */}
+      <div className="w-full max-w-sm space-y-2 pb-3">
         {suggestions.map((suggestion, i) => {
           const Icon = suggestion.icon;
           return (
             <button
               key={i}
               onClick={() => onSuggestionClick(suggestion.text)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
             >
               {Icon && (
                 <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -149,7 +152,7 @@ function EmptyStateWelcome({ onSuggestionClick, suggestions }: {
   );
 }
 
-export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfaceProps) {
+export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -171,6 +174,11 @@ export function ChatInterface({ onShowContent, onBackToDashboard }: ChatInterfac
 
   const suggestions = suggestionMap[currentContext];
   const isEmptyState = messages.length === 0;
+
+  // Notify parent about messages state
+  useEffect(() => {
+    onMessagesChange?.(messages.length > 0);
+  }, [messages.length, onMessagesChange]);
 
   // Fetch company name on mount
   useEffect(() => {

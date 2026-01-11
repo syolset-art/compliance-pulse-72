@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -21,6 +22,7 @@ interface ChatPanelProps {
 
 export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
   const isMobile = useIsMobile();
+  const [hasMessages, setHasMessages] = useState(false);
 
   // Mobile: use Sheet
   if (isMobile) {
@@ -28,11 +30,13 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
       <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <SheetContent side="right" className="w-full sm:w-[400px] p-0">
           <div className="flex h-full flex-col">
-            <ChatPanelHeader onClose={onClose} />
+            {hasMessages && <ChatPanelHeader onClose={onClose} />}
+            {!hasMessages && <MinimalHeader onClose={onClose} />}
             <div className="flex-1 overflow-hidden">
               <ChatInterface 
                 onShowContent={onShowContent}
                 onBackToDashboard={onBackToDashboard}
+                onMessagesChange={setHasMessages}
               />
             </div>
           </div>
@@ -49,13 +53,31 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
         isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none"
       )}
     >
-      <ChatPanelHeader onClose={onClose} />
+      {hasMessages && <ChatPanelHeader onClose={onClose} />}
+      {!hasMessages && <MinimalHeader onClose={onClose} />}
       <div className="flex-1 overflow-hidden">
         <ChatInterface 
           onShowContent={onShowContent}
           onBackToDashboard={onBackToDashboard}
+          onMessagesChange={setHasMessages}
         />
       </div>
+    </div>
+  );
+}
+
+function MinimalHeader({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex items-center justify-between px-4 py-2">
+      <span className="text-sm font-medium text-primary">Snakk med Lara</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={onClose}
+      >
+        <X className="h-4 w-4" />
+      </Button>
     </div>
   );
 }
