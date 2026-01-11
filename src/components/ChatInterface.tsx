@@ -770,7 +770,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               e.preventDefault();
               handleSend();
             }}
-            className="flex items-center gap-2 px-4 pb-3"
+            className="flex items-start gap-2 px-4 pb-3"
           >
             {/* Attachment button */}
             <Button
@@ -779,19 +779,32 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               variant="ghost"
               onClick={() => setUploadDialogOpen(true)}
               disabled={isLoading}
-              className="h-9 w-9 text-muted-foreground hover:text-foreground"
+              className="h-9 w-9 text-muted-foreground hover:text-foreground flex-shrink-0 mt-0.5"
               title="Last opp dokument"
             >
               <Paperclip className="h-4 w-4" />
             </Button>
 
-            {/* Input field - larger */}
-            <Input
+            {/* Textarea field - expandable */}
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder="Spør, søk eller be om hjelp..."
               disabled={isLoading}
-              className="flex-1 h-10 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0 placeholder:text-muted-foreground/60"
+              rows={1}
+              className="flex-1 min-h-[40px] max-h-[120px] py-2 text-base border-0 bg-transparent focus:outline-none focus:ring-0 resize-none placeholder:text-muted-foreground/60"
+              style={{ height: 'auto', overflowY: input.split('\n').length > 3 ? 'auto' : 'hidden' }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+              }}
             />
 
             {/* Mode indicator */}
