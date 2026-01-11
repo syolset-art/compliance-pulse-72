@@ -120,8 +120,8 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
 
   return (
     <>
-      {/* Floating Lara Button with Progress Ring - Hidden on mobile when chat is open */}
-      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 ${isChatOpen ? 'hidden sm:block' : ''}`}>
+      {/* Floating Lara Button with Progress Ring - Hidden when chat is open */}
+      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-all duration-300 ${isChatOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'}`}>
         {!isOpen && (
           <div className="relative">
             <button
