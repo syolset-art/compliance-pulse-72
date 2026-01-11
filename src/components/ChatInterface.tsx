@@ -59,10 +59,10 @@ interface Suggestion {
 
 const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
-    { text: "Vis behandlingsprotokoller", type: "view", icon: FileCheck },
-    { text: "Hvilke systemer bruker vi?", type: "view", icon: Database },
-    { text: "Gap-analyse", type: "action", icon: Search },
-    { text: "Vis oppgavelisten", type: "view", icon: ListTodo }
+    { text: "Sjekk compliance-status for våre systemer", type: "view", icon: Shield },
+    { text: "Vis risikovurderinger som trenger oppfølging", type: "warning", icon: AlertTriangle },
+    { text: "Hvilke assets mangler dokumentasjon?", type: "action", icon: Search },
+    { text: "Foreslå tiltak for å redusere gap", type: "action", icon: FileCheck }
   ],
   protocols: [
     { text: "Vis i tabellformat", type: "view", icon: FileText },
@@ -117,10 +117,13 @@ function EmptyStateWelcome({ onSuggestionClick, suggestions }: {
           className="w-20 h-20 mb-4"
         />
         
-        {/* Welcome question */}
-        <h2 className="text-base font-medium text-foreground mb-6 text-center">
-          Hva kan jeg hjelpe deg med?
+        {/* Welcome message */}
+        <h2 className="text-base font-medium text-foreground mb-2 text-center">
+          Hei! Jeg er Lara 👋
         </h2>
+        <p className="text-sm text-muted-foreground text-center max-w-xs mb-6">
+          Jeg hjelper deg med compliance, personvern og informasjonssikkerhet
+        </p>
       </div>
       
       {/* Suggestions at bottom */}
