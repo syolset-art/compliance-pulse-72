@@ -9,10 +9,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { useOnboardingProgress, OnboardingStep } from "@/hooks/useOnboardingProgress";
 
 interface Message {
   role: "user" | "assistant";
@@ -102,51 +103,167 @@ const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   ]
 };
 
-// Empty state welcome component - centered butterfly
-function EmptyStateWelcome({ onSuggestionClick, suggestions }: { 
+const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  Building2,
+  Server,
+  Building
+};
+
+// Empty state welcome component - centered butterfly with onboarding
+function EmptyStateWelcome({ 
+  onSuggestionClick, 
+  suggestions,
+  onboardingSteps,
+  onStepAction,
+  isOnboardingComplete,
+  completedCount,
+  totalCount,
+  percentComplete
+}: { 
   onSuggestionClick: (text: string) => void;
   suggestions: Suggestion[];
+  onboardingSteps: OnboardingStep[];
+  onStepAction: (step: OnboardingStep) => void;
+  isOnboardingComplete: boolean;
+  completedCount: number;
+  totalCount: number;
+  percentComplete: number;
 }) {
+  const getStepIcon = (iconName: string) => {
+    const Icon = stepIcons[iconName] || Building2;
+    return Icon;
+  };
+
+  const nextStep = onboardingSteps.find(s => !s.isCompleted);
+  const remainingSteps = totalCount - completedCount;
+
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4">
-      {/* Large centered butterfly */}
-      <div className="flex-1 flex flex-col items-center justify-center">
+    <div className="flex flex-col h-full px-4">
+      {/* Header with butterfly and welcome */}
+      <div className="flex flex-col items-center pt-6 pb-4">
         <img 
           src={laraButterfly} 
           alt="Lara" 
-          className="w-20 h-20 mb-4"
+          className="w-16 h-16 mb-3"
         />
-        
-        {/* Welcome message */}
-        <h2 className="text-base font-medium text-foreground mb-2 text-center">
+        <h2 className="text-base font-medium text-foreground mb-1 text-center">
           Hei! Jeg er Lara 👋
         </h2>
-        <p className="text-sm text-muted-foreground text-center max-w-xs mb-6">
+        <p className="text-sm text-muted-foreground text-center max-w-xs">
           Jeg hjelper deg med compliance, personvern og informasjonssikkerhet
         </p>
       </div>
+
+      {/* Onboarding section - show if not complete */}
+      {!isOnboardingComplete && (
+        <div className="mb-4 bg-accent/50 rounded-xl p-4 border border-primary/20">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">ISO-klargjøring</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              {remainingSteps} gjenstår
+            </Badge>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="mb-3">
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
+                style={{ width: `${percentComplete}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {completedCount} av {totalCount} steg fullført
+            </p>
+          </div>
+
+          {/* Onboarding steps */}
+          <div className="space-y-1.5">
+            {onboardingSteps.map((step) => {
+              const Icon = getStepIcon(step.icon);
+              const isNext = nextStep?.id === step.id;
+              
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => onStepAction(step)}
+                  disabled={step.isCompleted}
+                  className={`w-full flex items-center gap-2.5 p-2.5 rounded-lg transition-all text-left ${
+                    step.isCompleted
+                      ? 'bg-success/10 opacity-60'
+                      : isNext
+                        ? 'bg-primary/10 border border-primary/30 hover:bg-primary/20'
+                        : 'bg-background/50 hover:bg-background'
+                  }`}
+                >
+                  <div className={`flex h-6 w-6 items-center justify-center rounded-full shrink-0 ${
+                    step.isCompleted
+                      ? 'bg-success text-success-foreground'
+                      : isNext
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {step.isCompleted ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <Icon className="h-3 w-3" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <span className={`text-xs font-medium ${
+                      step.isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'
+                    }`}>
+                      {step.title}
+                    </span>
+                  </div>
+                  
+                  {!step.isCompleted && (
+                    <ChevronRight className={`h-3.5 w-3.5 shrink-0 ${
+                      isNext ? 'text-primary' : 'text-muted-foreground'
+                    }`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Completed badge when fully done */}
+      {isOnboardingComplete && (
+        <div className="mb-4 bg-success/10 rounded-xl p-3 border border-success/20 flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-success flex items-center justify-center">
+            <Check className="h-4 w-4 text-success-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Oppsett fullført! 🎉</p>
+            <p className="text-xs text-muted-foreground">Du er klar til å utforske</p>
+          </div>
+        </div>
+      )}
       
-      {/* Suggestions at bottom */}
-      <div className="w-full max-w-sm space-y-2 pb-3">
-        {suggestions.map((suggestion, i) => {
+      {/* Suggestions */}
+      <div className="flex-1" />
+      <div className="w-full max-w-sm mx-auto space-y-2 pb-3">
+        <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-2">Forslag</p>
+        {suggestions.slice(0, 3).map((suggestion, i) => {
           const Icon = suggestion.icon;
           return (
             <button
               key={i}
               onClick={() => onSuggestionClick(suggestion.text)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
             >
               {Icon && (
-                <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
               )}
-              <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+              <span className="text-xs text-foreground group-hover:text-primary transition-colors">
                 {suggestion.text}
               </span>
-              {suggestion.type === "action" && (
-                <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
-                  Ny
-                </Badge>
-              )}
             </button>
           );
         })}
@@ -155,7 +272,11 @@ function EmptyStateWelcome({ onSuggestionClick, suggestions }: {
   );
 }
 
-export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange }: ChatInterfaceProps) {
+interface ChatInterfacePropsExtended extends ChatInterfaceProps {
+  onOpenSystemDialog?: () => void;
+}
+
+export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog }: ChatInterfacePropsExtended) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -171,12 +292,42 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
   const [companyName, setCompanyName] = useState<string>("Eviny AS");
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Get onboarding progress
+  const { 
+    steps: onboardingSteps, 
+    completedCount, 
+    totalCount, 
+    percentComplete, 
+    isFullyComplete: isOnboardingComplete,
+    refetch: refetchOnboarding 
+  } = useOnboardingProgress();
+
   const suggestions = suggestionMap[currentContext];
   const isEmptyState = messages.length === 0;
+
+  // Handle onboarding step action
+  const handleOnboardingStepAction = (step: OnboardingStep) => {
+    if (step.isCompleted) return;
+
+    switch (step.id) {
+      case 'company-info':
+        setShowCompanyForm(true);
+        break;
+      case 'systems':
+        if (onOpenSystemDialog) {
+          onOpenSystemDialog();
+        }
+        break;
+      case 'work-areas':
+        navigate('/work-areas');
+        break;
+    }
+  };
 
   // Notify parent about messages state
   useEffect(() => {
@@ -623,6 +774,12 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <EmptyStateWelcome 
             onSuggestionClick={handleSend} 
             suggestions={suggestions}
+            onboardingSteps={onboardingSteps}
+            onStepAction={handleOnboardingStepAction}
+            isOnboardingComplete={isOnboardingComplete}
+            completedCount={completedCount}
+            totalCount={totalCount}
+            percentComplete={percentComplete}
           />
         </div>
       ) : (
