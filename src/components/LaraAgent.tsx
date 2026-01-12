@@ -75,13 +75,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
 
   const remainingSteps = totalCount - completedCount;
 
-  // Trigger confetti when onboarding is fully complete
-  useEffect(() => {
-    if (isFullyComplete && !isLoading && !hasShownConfetti.current) {
-      hasShownConfetti.current = true;
-      triggerConfetti();
-    }
-  }, [isFullyComplete, isLoading]);
+  // Confetti disabled - was triggering on every page load
 
   const handleStepAction = (step: typeof steps[0]) => {
     if (step.isCompleted) return;
