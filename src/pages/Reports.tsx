@@ -1,0 +1,407 @@
+import { Sidebar } from "@/components/Sidebar";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  FileText, 
+  Shield, 
+  AlertTriangle, 
+  Users, 
+  Globe, 
+  Server, 
+  Lock,
+  ClipboardCheck,
+  Download,
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  FileWarning,
+  Building2,
+  Network,
+  Eye
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+interface ReportCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  status: 'ready' | 'draft' | 'pending' | 'overdue';
+  lastGenerated?: string;
+  nextDue?: string;
+  standard: string[];
+  onClick?: () => void;
+}
+
+const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, standard, onClick }: ReportCardProps) => {
+  const getStatusBadge = () => {
+    switch (status) {
+      case 'ready':
+        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>;
+      case 'draft':
+        return <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20"><Clock className="h-3 w-3 mr-1" /> Utkast</Badge>;
+      case 'pending':
+        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20"><Clock className="h-3 w-3 mr-1" /> Venter</Badge>;
+      case 'overdue':
+        return <Badge className="bg-red-500/10 text-red-600 border-red-500/20"><AlertCircle className="h-3 w-3 mr-1" /> Forfalt</Badge>;
+    }
+  };
+
+  return (
+    <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={onClick}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+              {icon}
+            </div>
+            <div>
+              <CardTitle className="text-base">{title}</CardTitle>
+              <CardDescription className="text-xs mt-1">{description}</CardDescription>
+            </div>
+          </div>
+          {getStatusBadge()}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex flex-wrap gap-1 mb-3">
+          {standard.map((s) => (
+            <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
+          ))}
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            {lastGenerated && (
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                Sist: {lastGenerated}
+              </span>
+            )}
+            {nextDue && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Frist: {nextDue}
+              </span>
+            )}
+          </div>
+          <Button variant="ghost" size="sm" className="h-7 px-2">
+            <Download className="h-3 w-3 mr-1" />
+            Last ned
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const Reports = () => {
+  const { t } = useTranslation();
+
+  const gdprReports = [
+    {
+      title: "Behandlingsprotokoll (ROPA)",
+      description: "Komplett oversikt over all personopplysningsbehandling i virksomheten",
+      icon: <FileText className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "10. jan 2026",
+      nextDue: "10. apr 2026",
+      standard: ["GDPR Art. 30"]
+    },
+    {
+      title: "DPIA - Konsekvensanalyse",
+      description: "Vurdering av personvernkonsekvenser for høyrisikobehandlinger",
+      icon: <AlertTriangle className="h-5 w-5" />,
+      status: 'draft' as const,
+      lastGenerated: "5. des 2025",
+      nextDue: "15. jan 2026",
+      standard: ["GDPR Art. 35"]
+    },
+    {
+      title: "Databehandleravtaler",
+      description: "Oversikt over alle databehandlere og avtalestatus",
+      icon: <Users className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "8. jan 2026",
+      standard: ["GDPR Art. 28"]
+    },
+    {
+      title: "Dataoverføringsrapport",
+      description: "Oversikt over overføringer til tredjeland og rettsgrunnlag",
+      icon: <Globe className="h-5 w-5" />,
+      status: 'pending' as const,
+      nextDue: "20. jan 2026",
+      standard: ["GDPR Art. 44-49"]
+    },
+    {
+      title: "Avvikslogg (Bruddregister)",
+      description: "Register over sikkerhetsbrudd og tiltak",
+      icon: <FileWarning className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "12. jan 2026",
+      standard: ["GDPR Art. 33-34"]
+    },
+    {
+      title: "Innsynsforespørsler",
+      description: "Logg over registrertes henvendelser og behandling",
+      icon: <Eye className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "11. jan 2026",
+      standard: ["GDPR Art. 15-22"]
+    }
+  ];
+
+  const nis2Reports = [
+    {
+      title: "Risikovurderingsrapport",
+      description: "Omfattende vurdering av cybersikkerhetsrisiko",
+      icon: <Shield className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "3. jan 2026",
+      nextDue: "3. apr 2026",
+      standard: ["NIS2 Art. 21"]
+    },
+    {
+      title: "Hendelsesrapport",
+      description: "Dokumentasjon av sikkerhetshendelser og respons",
+      icon: <AlertCircle className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "12. jan 2026",
+      standard: ["NIS2 Art. 23"]
+    },
+    {
+      title: "Forsyningskjedesikkerhet",
+      description: "Vurdering av leverandører og underleverandører",
+      icon: <Network className="h-5 w-5" />,
+      status: 'draft' as const,
+      lastGenerated: "20. des 2025",
+      nextDue: "31. jan 2026",
+      standard: ["NIS2 Art. 21(2)(d)"]
+    },
+    {
+      title: "Kontinuitetsplan",
+      description: "Business continuity og krisehåndteringsplan",
+      icon: <Server className="h-5 w-5" />,
+      status: 'pending' as const,
+      nextDue: "28. feb 2026",
+      standard: ["NIS2 Art. 21(2)(c)"]
+    },
+    {
+      title: "Sikkerhetstiltak",
+      description: "Dokumentasjon av implementerte sikkerhetstiltak",
+      icon: <Lock className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "8. jan 2026",
+      standard: ["NIS2 Art. 21(2)"]
+    },
+    {
+      title: "Opplæringsrapport",
+      description: "Oversikt over sikkerhetsopplæring og kompetanse",
+      icon: <Users className="h-5 w-5" />,
+      status: 'overdue' as const,
+      nextDue: "1. jan 2026",
+      standard: ["NIS2 Art. 21(2)(g)"]
+    }
+  ];
+
+  const iso27001Reports = [
+    {
+      title: "Statement of Applicability (SoA)",
+      description: "Oversikt over valgte kontroller og begrunnelser",
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "1. jan 2026",
+      nextDue: "1. jul 2026",
+      standard: ["ISO 27001 A.5-A.18"]
+    },
+    {
+      title: "ISMS Statusrapport",
+      description: "Status for informasjonssikkerhetssystemet",
+      icon: <Shield className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "5. jan 2026",
+      standard: ["ISO 27001 §4-10"]
+    },
+    {
+      title: "Intern revisjonsrapport",
+      description: "Funn og avvik fra interne revisjoner",
+      icon: <FileText className="h-5 w-5" />,
+      status: 'draft' as const,
+      lastGenerated: "15. des 2025",
+      nextDue: "15. mar 2026",
+      standard: ["ISO 27001 §9.2"]
+    },
+    {
+      title: "Ledelsens gjennomgang",
+      description: "Dokumentasjon fra ledelsens gjennomgang",
+      icon: <Building2 className="h-5 w-5" />,
+      status: 'pending' as const,
+      nextDue: "31. mar 2026",
+      standard: ["ISO 27001 §9.3"]
+    },
+    {
+      title: "Risikobehandlingsplan",
+      description: "Plan for håndtering av identifiserte risikoer",
+      icon: <AlertTriangle className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "10. jan 2026",
+      standard: ["ISO 27001 §6.1.3"]
+    },
+    {
+      title: "Avviksrapport",
+      description: "Oversikt over avvik og korrigerende tiltak",
+      icon: <FileWarning className="h-5 w-5" />,
+      status: 'ready' as const,
+      lastGenerated: "12. jan 2026",
+      standard: ["ISO 27001 §10.1"]
+    }
+  ];
+
+  // Calculate summary stats
+  const allReports = [...gdprReports, ...nis2Reports, ...iso27001Reports];
+  const readyCount = allReports.filter(r => r.status === 'ready').length;
+  const draftCount = allReports.filter(r => r.status === 'draft').length;
+  const pendingCount = allReports.filter(r => r.status === 'pending').length;
+  const overdueCount = allReports.filter(r => r.status === 'overdue').length;
+  const completionRate = Math.round((readyCount / allReports.length) * 100);
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <main className="flex-1 overflow-auto">
+        <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{t('reports.title', 'Rapporter')}</h1>
+              <p className="text-muted-foreground mt-1">{t('reports.subtitle', 'Compliance-rapporter for GDPR, NIS2 og ISO 27001')}</p>
+            </div>
+            <Button>
+              <FileText className="h-4 w-4 mr-2" />
+              Generer ny rapport
+            </Button>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Totalt</p>
+                    <p className="text-2xl font-bold">{allReports.length}</p>
+                  </div>
+                  <FileText className="h-8 w-8 text-muted-foreground/50" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Klare</p>
+                    <p className="text-2xl font-bold text-green-600">{readyCount}</p>
+                  </div>
+                  <CheckCircle className="h-8 w-8 text-green-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Utkast</p>
+                    <p className="text-2xl font-bold text-yellow-600">{draftCount}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-yellow-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Venter</p>
+                    <p className="text-2xl font-bold text-blue-600">{pendingCount}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-blue-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Forfalt</p>
+                    <p className="text-2xl font-bold text-red-600">{overdueCount}</p>
+                  </div>
+                  <AlertCircle className="h-8 w-8 text-red-500/50" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Completion Progress */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Rapportfullføring</span>
+                <span className="text-sm text-muted-foreground">{completionRate}% komplett</span>
+              </div>
+              <Progress value={completionRate} className="h-2" />
+            </CardContent>
+          </Card>
+
+          {/* Report Tabs */}
+          <Tabs defaultValue="gdpr" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="gdpr" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                GDPR
+                <Badge variant="secondary" className="ml-1">{gdprReports.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="nis2" className="flex items-center gap-2">
+                <Server className="h-4 w-4" />
+                NIS2
+                <Badge variant="secondary" className="ml-1">{nis2Reports.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="iso27001" className="flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4" />
+                ISO 27001
+                <Badge variant="secondary" className="ml-1">{iso27001Reports.length}</Badge>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="gdpr" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {gdprReports.map((report, index) => (
+                  <ReportCard key={index} {...report} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="nis2" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {nis2Reports.map((report, index) => (
+                  <ReportCard key={index} {...report} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="iso27001" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {iso27001Reports.map((report, index) => (
+                  <ReportCard key={index} {...report} />
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Reports;

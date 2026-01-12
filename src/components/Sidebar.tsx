@@ -14,7 +14,8 @@ import {
   Leaf,
   Building2,
   CreditCard,
-  FileCheck
+  FileCheck,
+  FileBarChart
 } from "lucide-react";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ const navigation = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.reports", href: "/reports", icon: FileBarChart },
   { name: "nav.sustainability", href: "/sustainability", icon: Leaf, highlight: true },
   { name: "nav.transparency", href: "/transparency", icon: FileText, highlight: true },
 ];

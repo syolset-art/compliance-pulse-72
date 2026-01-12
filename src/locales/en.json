@@ -12,9 +12,14 @@
     "protocols": "Treatment Protocols",
     "assets": "Assets",
     "deviations": "Deviation Register",
+    "reports": "Reports",
     "menu": "Menu",
     "chat": "Chat",
     "switchOrganization": "Switch organization"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Compliance reports for GDPR, NIS2 and ISO 27001"
   },
   "dashboard": {
     "title": "Dashboard",

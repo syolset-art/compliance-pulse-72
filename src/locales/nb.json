@@ -12,9 +12,14 @@
     "protocols": "Behandlingsprotokoller",
     "assets": "Eiendeler",
     "deviations": "Avviksregister",
+    "reports": "Rapporter",
     "menu": "Meny",
     "chat": "Chat",
     "switchOrganization": "Bytt organisasjon"
+  },
+  "reports": {
+    "title": "Rapporter",
+    "subtitle": "Compliance-rapporter for GDPR, NIS2 og ISO 27001"
   },
   "dashboard": {
     "title": "Dashboard",
