@@ -15,6 +15,7 @@ import { DataHandlingTab } from "@/components/asset-profile/tabs/DataHandlingTab
 import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagementTab";
 import { IncidentManagementTab } from "@/components/asset-profile/tabs/IncidentManagementTab";
 import { RelationsTab } from "@/components/asset-profile/tabs/RelationsTab";
+import { AIUsageTab } from "@/components/asset-profile/tabs/AIUsageTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +76,7 @@ const AssetTrustProfile = () => {
     enabled: !!id,
   });
 
-  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations'];
+  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'aiUsage', 'dataHandling', 'riskManagement', 'incidents', 'relations'];
 
   if (isLoading) {
     return (
@@ -144,6 +145,11 @@ const AssetTrustProfile = () => {
                     {t("trustProfile.tabs.usage")}
                   </TabsTrigger>
                 )}
+                {enabledTabs.includes('aiUsage') && (
+                  <TabsTrigger value="aiUsage" className="data-[state=active]:bg-background">
+                    {t("trustProfile.tabs.aiUsage")}
+                  </TabsTrigger>
+                )}
                 {enabledTabs.includes('dataHandling') && (
                   <TabsTrigger value="dataHandling" className="data-[state=active]:bg-background">
                     {t("trustProfile.tabs.dataHandling")}
@@ -176,6 +182,15 @@ const AssetTrustProfile = () => {
 
               <TabsContent value="usage" className="mt-6">
                 <UsageTab assetId={asset.id} />
+              </TabsContent>
+
+              <TabsContent value="aiUsage" className="mt-6">
+                <AIUsageTab 
+                  assetId={asset.id} 
+                  assetCategory={asset.category || undefined}
+                  assetVendor={asset.vendor || undefined}
+                  assetName={asset.name}
+                />
               </TabsContent>
 
               <TabsContent value="dataHandling" className="mt-6">

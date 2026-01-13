@@ -404,9 +404,11 @@
     "tabs": {
       "validation": "Validation from Mynder",
       "usage": "System Usage",
+      "aiUsage": "AI Usage",
       "dataHandling": "Data Handling",
       "riskManagement": "Audit & Risk Management",
       "incidents": "Incident Management",
+      "relations": "Relations",
       "components": "Components"
     },
     "systemTasks": "System Tasks",
