@@ -41,6 +41,125 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_ai_documents: {
+        Row: {
+          asset_ai_usage_id: string
+          description: string | null
+          document_type: string
+          file_path: string | null
+          id: string
+          title: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          asset_ai_usage_id: string
+          description?: string | null
+          document_type: string
+          file_path?: string | null
+          id?: string
+          title: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          asset_ai_usage_id?: string
+          description?: string | null
+          document_type?: string
+          file_path?: string | null
+          id?: string
+          title?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_ai_documents_asset_ai_usage_id_fkey"
+            columns: ["asset_ai_usage_id"]
+            isOneToOne: false
+            referencedRelation: "asset_ai_usage"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asset_ai_usage: {
+        Row: {
+          affected_persons: string[] | null
+          ai_features: Json | null
+          ai_provider: string | null
+          annex_iii_category: string | null
+          assessment_completed_by: string | null
+          asset_id: string
+          compliance_status: string | null
+          created_at: string
+          data_used_for_training: boolean | null
+          has_ai: boolean
+          human_oversight_description: string | null
+          human_oversight_level: string | null
+          id: string
+          last_assessment_date: string | null
+          logging_enabled: boolean | null
+          model_info: string | null
+          next_assessment_date: string | null
+          purpose_description: string | null
+          risk_category: string | null
+          risk_justification: string | null
+          transparency_description: string | null
+          transparency_implemented: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          affected_persons?: string[] | null
+          ai_features?: Json | null
+          ai_provider?: string | null
+          annex_iii_category?: string | null
+          assessment_completed_by?: string | null
+          asset_id: string
+          compliance_status?: string | null
+          created_at?: string
+          data_used_for_training?: boolean | null
+          has_ai?: boolean
+          human_oversight_description?: string | null
+          human_oversight_level?: string | null
+          id?: string
+          last_assessment_date?: string | null
+          logging_enabled?: boolean | null
+          model_info?: string | null
+          next_assessment_date?: string | null
+          purpose_description?: string | null
+          risk_category?: string | null
+          risk_justification?: string | null
+          transparency_description?: string | null
+          transparency_implemented?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          affected_persons?: string[] | null
+          ai_features?: Json | null
+          ai_provider?: string | null
+          annex_iii_category?: string | null
+          assessment_completed_by?: string | null
+          asset_id?: string
+          compliance_status?: string | null
+          created_at?: string
+          data_used_for_training?: boolean | null
+          has_ai?: boolean
+          human_oversight_description?: string | null
+          human_oversight_level?: string | null
+          id?: string
+          last_assessment_date?: string | null
+          logging_enabled?: boolean | null
+          model_info?: string | null
+          next_assessment_date?: string | null
+          purpose_description?: string | null
+          risk_category?: string | null
+          risk_justification?: string | null
+          transparency_description?: string | null
+          transparency_implemented?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       asset_relationships: {
         Row: {
           created_at: string | null

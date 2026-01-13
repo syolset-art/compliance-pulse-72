@@ -404,9 +404,11 @@
     "tabs": {
       "validation": "Validering fra Mynder",
       "usage": "Bruk av systemet",
+      "aiUsage": "AI-bruk",
       "dataHandling": "Datahåndtering",
       "riskManagement": "Revisjon og risikostyring",
       "incidents": "Hendelseshåndtering",
+      "relations": "Relasjoner",
       "components": "Komponenter"
     },
     "systemTasks": "Systemoppgaver",
