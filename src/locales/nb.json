@@ -445,6 +445,18 @@
     "highRiskWarning": "{{count}} høy-risiko AI krever ekstra dokumentasjon",
     "noAIRegistered": "Ingen AI-bruk registrert ennå"
   },
+  "processList": {
+    "noProcesses": "Ingen prosesser registrert",
+    "noProcessesDesc": "Legg til prosesser for å dokumentere AI-bruk og sikre compliance.",
+    "addProcess": "Legg til prosess",
+    "processes": "Prosesser",
+    "notAssessed": "Ikke vurdert",
+    "aiUsage": "AI-bruk",
+    "details": "Detaljer",
+    "status": "Status",
+    "createdAt": "Opprettet",
+    "selectProcess": "Velg en prosess for å se detaljer"
+  },
   "trustProfile": {
     "notFound": "System ikke funnet",
     "owner": "Eier (Tjenesteområde)",
