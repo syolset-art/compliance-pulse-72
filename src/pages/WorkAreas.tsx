@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
+import { ProcessList } from "@/components/process/ProcessList";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -26,7 +27,8 @@ import {
   Settings,
   Info,
   Grid3x3,
-  Loader2
+  Loader2,
+  Workflow
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
@@ -674,9 +676,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="processes" className="mt-4">
-                <Card className="p-8 text-center text-muted-foreground">
-                  {t("myWorkAreas.comingSoon")}
-                </Card>
+                <ProcessList workAreaId={selectedWorkArea.id} />
               </TabsContent>
 
               <TabsContent value="users" className="mt-4">

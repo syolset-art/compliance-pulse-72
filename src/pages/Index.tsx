@@ -11,6 +11,7 @@ import { UpcomingTasksWidget } from "@/components/widgets/UpcomingTasksWidget";
 import { SystemLibraryWidget } from "@/components/widgets/SystemLibraryWidget";
 import { TaskProgressWidget } from "@/components/widgets/TaskProgressWidget";
 import { ThirdPartyManagementWidget } from "@/components/widgets/ThirdPartyManagementWidget";
+import { AIUsageOverviewWidget } from "@/components/widgets/AIUsageOverviewWidget";
 import { ComplianceCard } from "@/components/widgets/ComplianceCard";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
@@ -141,9 +142,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               </div>
 
               {/* Progress & Third Party Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <TaskProgressWidget />
                 <ThirdPartyManagementWidget />
+              </div>
+
+              {/* AI Usage Overview */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <AIUsageOverviewWidget />
               </div>
             </div>
           )}
@@ -254,6 +260,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                   <TaskProgressWidget />
                   <ThirdPartyManagementWidget />
+                </div>
+
+                {/* AI Usage Overview */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                  <AIUsageOverviewWidget />
                 </div>
 
                 {/* Compliance Analysis Section */}
