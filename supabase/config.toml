@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.chat]
 verify_jwt = false
+
+[functions.suggest-assets]
+verify_jwt = false
+
+[functions.suggest-processes]
+verify_jwt = false

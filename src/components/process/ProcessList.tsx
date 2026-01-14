@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,14 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Workflow, Bot, ChevronRight, AlertCircle } from "lucide-react";
 import { ProcessAITab } from "./ProcessAITab";
+import { AddProcessDialog } from "@/components/dialogs/AddProcessDialog";
 
 interface ProcessListProps {
   workAreaId: string;
+  workAreaName?: string;
 }
 
-export const ProcessList = ({ workAreaId }: ProcessListProps) => {
+export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: ProcessListProps) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // Fetch processes for this work area (via systems)
   const { data: processes, isLoading } = useQuery({
@@ -86,21 +90,30 @@ export const ProcessList = ({ workAreaId }: ProcessListProps) => {
 
   if (!processes || processes.length === 0) {
     return (
-      <Card className="p-8">
-        <div className="text-center">
-          <Workflow className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">
-            {t("processList.noProcesses", "Ingen prosesser registrert")}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("processList.noProcessesDesc", "Legg til prosesser for å dokumentere AI-bruk og sikre compliance.")}
-          </p>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("processList.addProcess", "Legg til prosess")}
-          </Button>
-        </div>
-      </Card>
+      <>
+        <Card className="p-8">
+          <div className="text-center">
+            <Workflow className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">
+              {t("processList.noProcesses", "Ingen prosesser registrert")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t("processList.noProcessesDesc", "Legg til prosesser for å dokumentere AI-bruk og sikre compliance.")}
+            </p>
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("processList.addProcess", "Legg til prosess")}
+            </Button>
+          </div>
+        </Card>
+        <AddProcessDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          workAreaId={workAreaId}
+          workAreaName={workAreaName}
+          onProcessAdded={() => queryClient.invalidateQueries({ queryKey: ["work-area-processes", workAreaId] })}
+        />
+      </>
     );
   }
 
@@ -110,7 +123,7 @@ export const ProcessList = ({ workAreaId }: ProcessListProps) => {
       <div className="lg:col-span-1 space-y-2">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h3 className="font-medium text-sm sm:text-base">{t("processList.processes", "Prosesser")}</h3>
-          <Button size="sm" variant="outline" className="text-xs sm:text-sm">
+          <Button size="sm" variant="outline" className="text-xs sm:text-sm" onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
             <span className="hidden sm:inline">{t("common.add", "Legg til")}</span>
             <span className="sm:hidden">Ny</span>
@@ -235,6 +248,13 @@ export const ProcessList = ({ workAreaId }: ProcessListProps) => {
           </Card>
         )}
       </div>
+      <AddProcessDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        workAreaId={workAreaId}
+        workAreaName={workAreaName}
+        onProcessAdded={() => queryClient.invalidateQueries({ queryKey: ["work-area-processes", workAreaId] })}
+      />
     </div>
   );
 };
