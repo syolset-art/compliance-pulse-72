@@ -199,8 +199,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           <Sidebar />
         </ResizablePanel>
         
-        <ResizableHandle />
-        
         <ResizablePanel defaultSize={80}>
           <main className="h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
             {contentView ? (
