@@ -399,17 +399,17 @@ export default function WorkAreas() {
       <Sidebar />
       
       <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-6 py-8 max-w-7xl">
+        <div className="container mx-auto px-3 py-4 sm:px-6 sm:py-8 max-w-7xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                 {t("myWorkAreas.title")} ({workAreas.length})
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {t("myWorkAreas.subtitle")}
                 {companyProfile && (
-                  <span className="ml-2 text-foreground font-medium">• {companyProfile.name}</span>
+                  <span className="block sm:inline sm:ml-2 text-foreground font-medium">• {companyProfile.name}</span>
                 )}
               </p>
             </div>
@@ -418,55 +418,57 @@ export default function WorkAreas() {
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsCompanyProfileDialogOpen(true)}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 <Settings className="h-4 w-4" />
-                Selskapsinnstillinger
+                <span className="sm:inline">Selskapsinnstillinger</span>
               </Button>
             )}
           </div>
 
           {/* Filter Button */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <Button variant="outline" size="sm" className="gap-2">
               <Filter className="h-4 w-4" />
               {t("myWorkAreas.filter")}
             </Button>
           </div>
 
-          {/* Work Area Chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {displayedAreas.map((area, index) => (
-              <button
-                key={area.id}
-                onClick={() => setSelectedWorkArea(area)}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                  selectedWorkArea?.id === area.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border hover:border-primary/50 text-foreground"
-                )}
+          {/* Work Area Chips - Horizontal scroll on mobile */}
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 mb-3 sm:mb-4">
+            <div className="flex gap-2 pb-2 sm:pb-0 sm:flex-wrap min-w-max sm:min-w-0">
+              {displayedAreas.map((area, index) => (
+                <button
+                  key={area.id}
+                  onClick={() => setSelectedWorkArea(area)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
+                    selectedWorkArea?.id === area.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border hover:border-primary/50 text-foreground"
+                  )}
+                >
+                  <div className={cn(
+                    "w-2 h-2 rounded-full flex-shrink-0",
+                    workAreaColors[index % workAreaColors.length]
+                  )} />
+                  <span className="truncate max-w-[100px] sm:max-w-[120px]">{area.name}</span>
+                  <span className="text-xs opacity-70 hidden sm:inline">
+                    <Server className="h-3 w-3 inline mr-1" />
+                    10 {t("myWorkAreas.systemsShort")}
+                  </span>
+                </button>
+              ))}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsAddDialogOpen(true)}
+                className="gap-1 flex-shrink-0"
               >
-                <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  workAreaColors[index % workAreaColors.length]
-                )} />
-                <span className="truncate max-w-[120px]">{area.name}</span>
-                <span className="text-xs opacity-70">
-                  <Server className="h-3 w-3 inline mr-1" />
-                  10 {t("myWorkAreas.systemsShort")}
-                </span>
-              </button>
-            ))}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsAddDialogOpen(true)}
-              className="gap-1"
-            >
-              <Plus className="h-4 w-4" />
-              {t("myWorkAreas.addNew")}
-            </Button>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("myWorkAreas.addNew")}</span>
+              </Button>
+            </div>
           </div>
 
           {workAreas.length > 6 && (
@@ -481,43 +483,43 @@ export default function WorkAreas() {
 
           {/* Selected Work Area Card */}
           {selectedWorkArea && (
-            <Card className="p-6 mb-6">
-              <div className="flex items-start justify-between mb-4">
+            <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Shield className="h-6 w-6 text-primary" />
+                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
-                    <p className="text-sm text-muted-foreground">
+                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {t("myWorkAreas.manager")}: {selectedWorkArea.responsible_person || t("myWorkAreas.notAssigned")}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" />
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>2 {t("myWorkAreas.processes").toLowerCase()}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <UsersIcon className="h-4 w-4" />
+                    <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>0 {t("myWorkAreas.users").toLowerCase()}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Server className="h-4 w-4" />
+                    <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>10 {t("myWorkAreas.systems").toLowerCase()}</span>
                   </div>
                 </div>
               </div>
 
               {selectedWorkArea.description && (
-                <p className="text-sm text-muted-foreground mb-4">{selectedWorkArea.description}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">{selectedWorkArea.description}</p>
               )}
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
                   <span className="text-muted-foreground">{t("myWorkAreas.risk")}</span>
-                  <Info className="h-4 w-4 text-muted-foreground" />
+                  <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-muted rounded-full h-2">
@@ -529,9 +531,9 @@ export default function WorkAreas() {
                       }} 
                     />
                   </div>
-                  <span className="text-sm font-medium text-warning">{t("myWorkAreas.riskMedium")}</span>
+                  <span className="text-xs sm:text-sm font-medium text-warning">{t("myWorkAreas.riskMedium")}</span>
                 </div>
-                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20 text-xs">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   {t("myWorkAreas.highCriticality")}
                 </Badge>
@@ -556,55 +558,62 @@ export default function WorkAreas() {
           {/* Tabs Section */}
           {selectedWorkArea && (
             <Tabs defaultValue="systems" className="w-full">
-              <TabsList className="w-full justify-start border-b border-border rounded-none h-auto p-0 bg-transparent">
-                <TabsTrigger 
-                  value="systems" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <Grid3x3 className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.systems")}
-                  <Badge variant="secondary" className="ml-1">10</Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="protocols" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.protocols")}
-                  <Badge variant="secondary" className="ml-1">28</Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="processes" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.processes")}
-                  <Badge variant="secondary" className="ml-1">110</Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="users" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <UsersIcon className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.users")}
-                  <Badge variant="secondary" className="ml-1">0</Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="documents" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.documents")}
-                  <Badge variant="secondary" className="ml-1">5</Badge>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="settings" 
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  {t("myWorkAreas.tabs.settings")}
-                </TabsTrigger>
-              </TabsList>
+              <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+                <TabsList className="w-max sm:w-full justify-start border-b border-border rounded-none h-auto p-0 bg-transparent">
+                  <TabsTrigger 
+                    value="systems" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <Grid3x3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.systems")}</span>
+                    <span className="sm:hidden">Sys</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">10</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="protocols" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.protocols")}</span>
+                    <span className="sm:hidden">Prot</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">28</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="processes" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.processes")}</span>
+                    <span className="sm:hidden">Pros</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">110</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="users" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.users")}</span>
+                    <span className="sm:hidden">Bruk</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">0</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="documents" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.documents")}</span>
+                    <span className="sm:hidden">Dok</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="settings" 
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.settings")}</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
               <TabsContent value="systems" className="mt-4">
                 <Card>
