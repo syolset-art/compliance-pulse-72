@@ -387,6 +387,99 @@ export type Database = {
         }
         Relationships: []
       }
+      process_ai_usage: {
+        Row: {
+          affected_persons: string[] | null
+          ai_features: Json | null
+          ai_purpose: string | null
+          assessed_by: string | null
+          automated_decisions: boolean | null
+          compliance_checklist: Json | null
+          compliance_status: string | null
+          created_at: string
+          decision_impact: string | null
+          has_ai: boolean
+          human_oversight_description: string | null
+          human_oversight_level: string | null
+          human_oversight_required: boolean | null
+          id: string
+          last_review_date: string | null
+          next_review_date: string | null
+          process_id: string
+          risk_category: string | null
+          risk_justification: string | null
+          transparency_description: string | null
+          transparency_status: string | null
+          updated_at: string
+          work_area_id: string | null
+        }
+        Insert: {
+          affected_persons?: string[] | null
+          ai_features?: Json | null
+          ai_purpose?: string | null
+          assessed_by?: string | null
+          automated_decisions?: boolean | null
+          compliance_checklist?: Json | null
+          compliance_status?: string | null
+          created_at?: string
+          decision_impact?: string | null
+          has_ai?: boolean
+          human_oversight_description?: string | null
+          human_oversight_level?: string | null
+          human_oversight_required?: boolean | null
+          id?: string
+          last_review_date?: string | null
+          next_review_date?: string | null
+          process_id: string
+          risk_category?: string | null
+          risk_justification?: string | null
+          transparency_description?: string | null
+          transparency_status?: string | null
+          updated_at?: string
+          work_area_id?: string | null
+        }
+        Update: {
+          affected_persons?: string[] | null
+          ai_features?: Json | null
+          ai_purpose?: string | null
+          assessed_by?: string | null
+          automated_decisions?: boolean | null
+          compliance_checklist?: Json | null
+          compliance_status?: string | null
+          created_at?: string
+          decision_impact?: string | null
+          has_ai?: boolean
+          human_oversight_description?: string | null
+          human_oversight_level?: string | null
+          human_oversight_required?: boolean | null
+          id?: string
+          last_review_date?: string | null
+          next_review_date?: string | null
+          process_id?: string
+          risk_category?: string | null
+          risk_justification?: string | null
+          transparency_description?: string | null
+          transparency_status?: string | null
+          updated_at?: string
+          work_area_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_ai_usage_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "system_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "process_ai_usage_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles: {
         Row: {
           created_at: string | null
