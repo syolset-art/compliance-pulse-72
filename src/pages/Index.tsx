@@ -149,9 +149,49 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               </div>
 
               {/* AI Usage Overview */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <AIUsageOverviewWidget />
                 <AIActComplianceWidget />
+              </div>
+
+              {/* Compliance Analysis Section */}
+              <div className="mb-6 pb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <h2 className="text-xl font-semibold text-foreground">{t("dashboard.compliance.title")}</h2>
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
+                    <span className="text-xs text-muted-foreground">i</span>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {t("dashboard.compliance.subtitle")}
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <ComplianceCard
+                    standard="gdpr"
+                    title={t("dashboard.compliance.gdpr")}
+                    percentage={77}
+                    subtitle={t("dashboard.compliance.gdprDesc")}
+                  />
+                  <ComplianceCard
+                    standard="iso"
+                    title={t("dashboard.compliance.iso")}
+                    percentage={77}
+                    subtitle={t("dashboard.compliance.isoDesc")}
+                  />
+                  <ComplianceCard
+                    standard="nis2"
+                    title={t("dashboard.compliance.nis2")}
+                    percentage={82}
+                    subtitle={t("dashboard.compliance.nis2Desc")}
+                  />
+                  <ComplianceCard
+                    standard="cra"
+                    title={t("dashboard.compliance.cra")}
+                    percentage={82}
+                    subtitle={t("dashboard.compliance.craDesc")}
+                  />
+                </div>
               </div>
             </div>
           )}
