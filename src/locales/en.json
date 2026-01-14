@@ -430,7 +430,11 @@
     "riskHigh": "High",
     "riskLimited": "Limited",
     "riskMinimal": "Minimal",
-    "notAssessed": "Not assessed"
+    "notAssessed": "Not assessed",
+    "systemAIDetected": "AI detected in linked system",
+    "systemAIDescription": "The system uses {{count}} AI feature(s). These may be relevant for the process:",
+    "systemRisk": "System risk classification:",
+    "systemHasAI": "System uses AI"
   },
   "aiOverview": {
     "title": "AI Usage Overview",

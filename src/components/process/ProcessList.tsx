@@ -213,6 +213,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                     processName={selectedProcess.name}
                     processDescription={selectedProcess.description || undefined}
                     workAreaId={workAreaId}
+                    systemId={selectedProcess.system_id}
                   />
                 </TabsContent>
 

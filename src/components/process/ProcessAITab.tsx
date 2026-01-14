@@ -24,6 +24,7 @@ interface ProcessAITabProps {
   processName: string;
   processDescription?: string;
   workAreaId?: string;
+  systemId?: string;
 }
 
 export const ProcessAITab = ({
@@ -31,6 +32,7 @@ export const ProcessAITab = ({
   processName,
   processDescription,
   workAreaId,
+  systemId,
 }: ProcessAITabProps) => {
   const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -140,6 +142,7 @@ export const ProcessAITab = ({
           processName={processName}
           processDescription={processDescription}
           workAreaId={workAreaId}
+          systemId={systemId}
         />
       </div>
     );
@@ -351,6 +354,7 @@ export const ProcessAITab = ({
         processName={processName}
         processDescription={processDescription}
         workAreaId={workAreaId}
+        systemId={systemId}
       />
     </div>
   );

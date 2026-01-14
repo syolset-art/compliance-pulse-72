@@ -34,9 +34,11 @@ import {
   Shield,
   Eye,
   Users,
-  FileText
+  FileText,
+  Server
 } from "lucide-react";
 import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processAISuggestions";
+import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
 
 interface ProcessAIDialogProps {
   open: boolean;
@@ -45,6 +47,7 @@ interface ProcessAIDialogProps {
   processName: string;
   processDescription?: string;
   workAreaId?: string;
+  systemId?: string;
 }
 
 interface AIFeature {
@@ -74,6 +77,7 @@ export const ProcessAIDialog = ({
   processName,
   processDescription,
   workAreaId,
+  systemId,
 }: ProcessAIDialogProps) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -98,6 +102,9 @@ export const ProcessAIDialog = ({
 
   // Get AI suggestions based on process name
   const [suggestions, setSuggestions] = useState<ProcessAISuggestion | null>(null);
+
+  // Get system AI features for suggestions
+  const { data: systemAI } = useSystemAIFeatures(systemId || null);
 
   // Fetch existing process AI usage data
   const { data: existingData } = useQuery({
@@ -140,7 +147,7 @@ export const ProcessAIDialog = ({
     }
   }, [existingData]);
 
-  // Get suggestions when dialog opens
+  // Get suggestions when dialog opens - combine process suggestions with system AI data
   useEffect(() => {
     if (open && processName) {
       const processSuggestions = getProcessAISuggestion(processName, processDescription);
@@ -148,13 +155,28 @@ export const ProcessAIDialog = ({
       
       // If no existing data, pre-fill with suggestions
       if (!existingData) {
+        // Combine process suggestions with system AI features
+        let combinedFeatures: string[] = [];
+        
+        // Add process-based suggestions
         if (processSuggestions.suggestedAIFeatures.length > 0) {
-          setAiFeatures(processSuggestions.suggestedAIFeatures.map((f, i) => ({
+          combinedFeatures = [...processSuggestions.suggestedAIFeatures];
+        }
+        
+        // Add system AI features if available
+        if (systemAI?.suggestedFeatures && systemAI.suggestedFeatures.length > 0) {
+          combinedFeatures = [...new Set([...combinedFeatures, ...systemAI.suggestedFeatures])];
+        }
+        
+        if (combinedFeatures.length > 0) {
+          setAiFeatures(combinedFeatures.map((f, i) => ({
             id: `suggested-${i}`,
             name: f,
             selected: false,
           })));
         }
+
+        // Combine checklist suggestions
         if (processSuggestions.suggestedChecks.length > 0) {
           setChecklist(processSuggestions.suggestedChecks.map((q, i) => ({
             id: `check-${i}`,
@@ -162,12 +184,26 @@ export const ProcessAIDialog = ({
             checked: false,
           })));
         }
-        if (processSuggestions.suggestedRiskCategory) {
+        
+        // Use system risk if available, otherwise use process suggestion
+        if (systemAI?.suggestedRisk) {
+          setRiskCategory(systemAI.suggestedRisk);
+        } else if (processSuggestions.suggestedRiskCategory) {
           setRiskCategory(processSuggestions.suggestedRiskCategory);
+        }
+
+        // Pre-fill affected persons from system
+        if (systemAI?.suggestedAffectedPersons && systemAI.suggestedAffectedPersons.length > 0) {
+          setAffectedPersons(systemAI.suggestedAffectedPersons);
+        }
+
+        // If system has AI, suggest that process likely uses AI too
+        if (systemAI?.totalWithAI && systemAI.totalWithAI > 0) {
+          // Don't auto-set hasAI, but the UI will show a suggestion
         }
       }
     }
-  }, [open, processName, processDescription, existingData]);
+  }, [open, processName, processDescription, existingData, systemAI]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -336,20 +372,65 @@ export const ProcessAIDialog = ({
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Lara suggestion */}
-        {suggestions && suggestions.aiActNote && currentStep === 0 && (
+        {/* Lara suggestion - combined from process and system AI */}
+        {currentStep === 0 && (suggestions?.aiActNote || (systemAI?.totalWithAI && systemAI.totalWithAI > 0)) && (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
-                <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-                <div>
+                <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div className="space-y-3 flex-1">
                   <p className="font-medium text-sm">{t("processAI.laraSuggestion", "Lara's vurdering")}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{suggestions.aiActNote}</p>
-                  {suggestions.likelyAI && (
-                    <Badge variant="secondary" className="mt-2">
-                      {t("processAI.likelyUsesAI", "Sannsynlig AI-bruk")}
-                    </Badge>
+                  
+                  {/* Process-based suggestion */}
+                  {suggestions?.aiActNote && (
+                    <p className="text-sm text-muted-foreground">{suggestions.aiActNote}</p>
                   )}
+                  
+                  {/* System AI-based suggestion */}
+                  {systemAI && systemAI.totalWithAI > 0 && (
+                    <div className="p-3 bg-background/50 rounded-lg border border-primary/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Server className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">
+                          {t("processAI.systemAIDetected", "AI oppdaget i tilknyttet system")}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {t("processAI.systemAIDescription", "Systemet bruker {{count}} AI-funksjon(er). Disse kan være relevante for prosessen:", { count: systemAI.suggestedFeatures.length })}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {systemAI.suggestedFeatures.slice(0, 5).map((feature, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                        {systemAI.suggestedFeatures.length > 5 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{systemAI.suggestedFeatures.length - 5} {t("common.more", "flere")}
+                          </Badge>
+                        )}
+                      </div>
+                      {systemAI.suggestedRisk && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {t("processAI.systemRisk", "Systemets risikoklassifisering:")} <Badge variant="outline" className="ml-1">{systemAI.suggestedRisk}</Badge>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {suggestions?.likelyAI && (
+                      <Badge variant="secondary">
+                        {t("processAI.likelyUsesAI", "Sannsynlig AI-bruk")}
+                      </Badge>
+                    )}
+                    {systemAI && systemAI.totalWithAI > 0 && (
+                      <Badge variant="default">
+                        {t("processAI.systemHasAI", "System bruker AI")}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
