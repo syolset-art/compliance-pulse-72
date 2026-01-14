@@ -21,9 +21,11 @@ import {
   FileWarning,
   Building2,
   Network,
-  Eye
+  Eye,
+  Bot
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { AIActReportDialog } from "@/components/reports/AIActReportDialog";
 
 interface ReportCardProps {
   title: string;
@@ -356,7 +358,7 @@ const Reports = () => {
 
           {/* Report Tabs */}
           <Tabs defaultValue="gdpr" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
               <TabsTrigger value="gdpr" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 GDPR
@@ -371,6 +373,10 @@ const Reports = () => {
                 <ClipboardCheck className="h-4 w-4" />
                 ISO 27001
                 <Badge variant="secondary" className="ml-1">{iso27001Reports.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="aiact" className="flex items-center gap-2">
+                <Bot className="h-4 w-4" />
+                AI Act
               </TabsTrigger>
             </TabsList>
 
@@ -396,6 +402,64 @@ const Reports = () => {
                   <ReportCard key={index} {...report} />
                 ))}
               </div>
+            </TabsContent>
+
+            <TabsContent value="aiact" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bot className="h-5 w-5 text-primary" />
+                    AI Act Compliance Rapport
+                  </CardTitle>
+                  <CardDescription>
+                    Generer en komplett PDF-rapport som dokumenterer all AI-bruk i virksomheten, 
+                    inkludert risikovurderinger, transparenskrav og compliance-status.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm">Rapporten inkluderer:</h4>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Oversikt over alle AI-systemer og prosesser
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Risikoklassifisering iht. AI Act
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Transparens- og tilsynskrav
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Berørte persongrupper
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Compliance-anbefalinger
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="flex flex-col justify-center items-center p-6 bg-muted/50 rounded-lg">
+                      <Bot className="h-16 w-16 text-primary/50 mb-4" />
+                      <AIActReportDialog 
+                        trigger={
+                          <Button size="lg" className="w-full">
+                            <Download className="h-4 w-4 mr-2" />
+                            Generer AI Act Rapport
+                          </Button>
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground mt-3 text-center">
+                        Rapporten genereres basert på registrerte data
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
