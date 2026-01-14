@@ -685,7 +685,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="processes" className="mt-4">
-                <ProcessList workAreaId={selectedWorkArea.id} />
+                <ProcessList workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="users" className="mt-4">
