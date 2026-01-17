@@ -13,6 +13,7 @@ import { TaskProgressWidget } from "@/components/widgets/TaskProgressWidget";
 import { ThirdPartyManagementWidget } from "@/components/widgets/ThirdPartyManagementWidget";
 import { AIUsageOverviewWidget } from "@/components/widgets/AIUsageOverviewWidget";
 import { AIActComplianceWidget } from "@/components/widgets/AIActComplianceWidget";
+import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget";
 import { ComplianceCard } from "@/components/widgets/ComplianceCard";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
@@ -152,6 +153,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <AIUsageOverviewWidget />
                 <AIActComplianceWidget />
+              </div>
+
+              {/* Activity Report - Only visible for leaders */}
+              <div className="mb-6">
+                <ActivityReportWidget />
               </div>
 
               {/* Compliance Analysis Section */}
@@ -308,6 +314,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                   <AIUsageOverviewWidget />
                   <AIActComplianceWidget />
+                </div>
+
+                {/* Activity Report - Only visible for leaders */}
+                <div className="mb-6">
+                  <ActivityReportWidget />
                 </div>
 
                 {/* Compliance Analysis Section */}
