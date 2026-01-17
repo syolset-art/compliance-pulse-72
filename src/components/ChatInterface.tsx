@@ -60,10 +60,10 @@ interface Suggestion {
 
 const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
+    { text: "Legg til eiendeler fra eksterne kilder", type: "action", icon: Database },
     { text: "Sjekk compliance-status for våre systemer", type: "view", icon: Shield },
     { text: "Vis risikovurderinger som trenger oppfølging", type: "warning", icon: AlertTriangle },
-    { text: "Hvilke assets mangler dokumentasjon?", type: "action", icon: Search },
-    { text: "Foreslå tiltak for å redusere gap", type: "action", icon: FileCheck }
+    { text: "Hvilke assets mangler dokumentasjon?", type: "action", icon: Search }
   ],
   protocols: [
     { text: "Vis i tabellformat", type: "view", icon: FileText },
