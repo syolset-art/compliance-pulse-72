@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { 
   Table,
   TableBody,
@@ -22,8 +26,27 @@ import {
   Trash2,
   Info,
   List,
-  Sparkles
+  Sparkles,
+  Download,
+  RefreshCw,
+  HardDrive,
+  Monitor,
+  Database as DatabaseIcon
 } from "lucide-react";
+
+interface AssetPreview {
+  id: string;
+  name: string;
+  description: string;
+  asset_type: string;
+  vendor: string;
+  category: string;
+  risk_level: string;
+  external_source_id: string;
+  external_source_provider: string;
+  already_imported?: boolean;
+  metadata?: Record<string, unknown>;
+}
 
 interface ContentViewerProps {
   contentType: string;
@@ -38,6 +61,8 @@ interface ContentViewerProps {
     status?: string;
   };
   explanation?: string;
+  assetPreviewData?: AssetPreview[];
+  onImportAssets?: (assetIds: string[], enableSync: boolean, syncFrequency: string) => void;
 }
 
 const mockData = {
@@ -215,7 +240,267 @@ const sortData = (data: any[], sortBy?: string) => {
   }
 };
 
-export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria, explanation }: ContentViewerProps) {
+export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy, filterCriteria, explanation, assetPreviewData, onImportAssets }: ContentViewerProps) {
+  const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
+  const [enableSync, setEnableSync] = useState(true);
+  const [syncFrequency, setSyncFrequency] = useState("daily");
+
+  // Toggle asset selection
+  const toggleAssetSelection = (id: string) => {
+    setSelectedAssets(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  // Select all assets that aren't already imported
+  const selectAllNew = () => {
+    if (assetPreviewData) {
+      const newIds = assetPreviewData
+        .filter(a => !a.already_imported)
+        .map(a => a.external_source_id);
+      setSelectedAssets(new Set(newIds));
+    }
+  };
+
+  // Get icon for asset type
+  const getAssetTypeIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "server": return <Server className="h-4 w-4" />;
+      case "workstation": return <Monitor className="h-4 w-4" />;
+      case "storage": return <HardDrive className="h-4 w-4" />;
+      default: return <DatabaseIcon className="h-4 w-4" />;
+    }
+  };
+
+  // Render asset import preview
+  const renderAssetImportPreview = () => {
+    if (!assetPreviewData || assetPreviewData.length === 0) {
+      return (
+        <Card className="border-2 border-dashed">
+          <CardContent className="p-12 text-center">
+            <Download className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg">Ingen eiendeler funnet</p>
+            <p className="text-sm text-muted-foreground/70 mt-2">Prøv å koble til på nytt eller sjekk API-nøkkelen</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const newAssets = assetPreviewData.filter(a => !a.already_imported);
+    const existingAssets = assetPreviewData.filter(a => a.already_imported);
+    const selectedCount = selectedAssets.size;
+
+    return (
+      <div className="space-y-6">
+        {/* Header Card */}
+        <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Download className="h-8 w-8 text-primary" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-2xl">Importer eiendeler fra Acronis</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Fant {assetPreviewData.length} enheter • {newAssets.length} nye • {existingAssets.length} allerede importert
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Server className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Servere</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {assetPreviewData.filter(a => a.category === "server").length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-success/5 border-success/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Monitor className="h-5 w-5 text-success" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Arbeidsstasjoner</p>
+                  <p className="text-2xl font-bold text-success">
+                    {assetPreviewData.filter(a => a.category === "workstation").length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-warning/5 border-warning/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <HardDrive className="h-5 w-5 text-warning" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Lagring</p>
+                  <p className="text-2xl font-bold text-warning">
+                    {assetPreviewData.filter(a => a.category === "storage").length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Selection Controls */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <Button variant="outline" size="sm" onClick={selectAllNew}>
+                  Velg alle nye ({newAssets.length})
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedAssets(new Set())}>
+                  Fjern valg
+                </Button>
+                <Badge variant="secondary">
+                  {selectedCount} valgt
+                </Badge>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="enable-sync"
+                    checked={enableSync}
+                    onCheckedChange={(checked) => setEnableSync(checked === true)}
+                  />
+                  <Label htmlFor="enable-sync" className="text-sm">
+                    Automatisk synkronisering
+                  </Label>
+                </div>
+                
+                {enableSync && (
+                  <RadioGroup value={syncFrequency} onValueChange={setSyncFrequency} className="flex gap-4">
+                    <div className="flex items-center gap-1">
+                      <RadioGroupItem value="daily" id="daily" />
+                      <Label htmlFor="daily" className="text-sm">Daglig</Label>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <RadioGroupItem value="weekly" id="weekly" />
+                      <Label htmlFor="weekly" className="text-sm">Ukentlig</Label>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <RadioGroupItem value="monthly" id="monthly" />
+                      <Label htmlFor="monthly" className="text-sm">Månedlig</Label>
+                    </div>
+                  </RadioGroup>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Asset Table */}
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Navn</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>OS</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Risiko</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assetPreviewData.map((asset) => (
+                  <TableRow 
+                    key={asset.external_source_id}
+                    className={asset.already_imported ? "opacity-50" : "cursor-pointer hover:bg-muted/50"}
+                    onClick={() => !asset.already_imported && toggleAssetSelection(asset.external_source_id)}
+                  >
+                    <TableCell>
+                      {asset.already_imported ? (
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                      ) : (
+                        <Checkbox 
+                          checked={selectedAssets.has(asset.external_source_id)}
+                          onCheckedChange={() => toggleAssetSelection(asset.external_source_id)}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getAssetTypeIcon(asset.category)}
+                        <div>
+                          <p className="font-medium">{asset.name}</p>
+                          <p className="text-xs text-muted-foreground">{asset.description}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {asset.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {(asset.metadata as Record<string, string>)?.os || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={(asset.metadata as Record<string, string>)?.status === "protected" ? "default" : "secondary"}
+                        className={(asset.metadata as Record<string, string>)?.status === "protected" ? "bg-success text-success-foreground" : ""}
+                      >
+                        {(asset.metadata as Record<string, string>)?.status || "Ukjent"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={asset.risk_level === "high" ? "destructive" : asset.risk_level === "medium" ? "secondary" : "outline"}
+                      >
+                        {asset.risk_level === "high" ? "Høy" : asset.risk_level === "medium" ? "Medium" : "Lav"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Import Button */}
+        <div className="flex justify-end gap-4">
+          <Button 
+            size="lg"
+            disabled={selectedCount === 0}
+            onClick={() => {
+              if (onImportAssets) {
+                onImportAssets(Array.from(selectedAssets), enableSync, syncFrequency);
+              }
+            }}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Importer {selectedCount} eiendel{selectedCount !== 1 ? "er" : ""}
+            {enableSync && (
+              <RefreshCw className="h-4 w-4 ml-2" />
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   // Render gap analysis with beautiful visual presentation
   const renderGapAnalysis = () => {
     if (!explanation) {
@@ -984,6 +1269,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "third-parties": return "Tredjepartsleverandører";
       case "systems": return "IT-systemer";
       case "gap-analysis": return "Gap-analyse";
+      case "asset-import-preview": return "Importer eiendeler";
       default: return "Innhold";
     }
   };
@@ -994,6 +1280,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "third-parties": return <Users className="h-6 w-6" />;
       case "systems": return <Server className="h-6 w-6" />;
       case "gap-analysis": return <AlertTriangle className="h-6 w-6" />;
+      case "asset-import-preview": return <Download className="h-6 w-6" />;
       default: return <Shield className="h-6 w-6" />;
     }
   };
@@ -1004,6 +1291,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "third-parties": return renderThirdParties();
       case "systems": return renderSystems();
       case "gap-analysis": return renderGapAnalysis();
+      case "asset-import-preview": return renderAssetImportPreview();
       default: return <p className="text-muted-foreground">Innholdstype ikke støttet ennå</p>;
     }
   };
