@@ -143,13 +143,14 @@ function EmptyStateWelcome({
       <div className="flex flex-col items-center pt-6 pb-4">
         <img 
           src={laraButterfly} 
-          alt="Lara" 
+          alt="" 
           className="w-16 h-16 mb-3"
+          aria-hidden="true"
         />
-        <h2 className="text-base font-medium text-foreground mb-1 text-center">
+        <h2 className="text-lg font-medium text-foreground mb-1 text-center">
           Hei! Jeg er Lara 👋
         </h2>
-        <p className="text-sm text-muted-foreground text-center max-w-xs">
+        <p className="text-base text-muted-foreground text-center max-w-xs">
           Jeg hjelper deg med compliance, personvern og informasjonssikkerhet
         </p>
       </div>
@@ -159,29 +160,29 @@ function EmptyStateWelcome({
         <div className="mb-4 bg-accent/50 rounded-xl p-4 border border-primary/20">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">ISO-klargjøring</span>
+              <Shield className="w-5 h-5 text-primary" aria-hidden="true" />
+              <span className="text-base font-medium text-foreground">ISO-klargjøring</span>
             </div>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-sm">
               {remainingSteps} gjenstår
             </Badge>
           </div>
           
           {/* Progress bar */}
           <div className="mb-3">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden" role="progressbar" aria-valuenow={percentComplete} aria-valuemin={0} aria-valuemax={100}>
               <div 
                 className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
                 style={{ width: `${percentComplete}%` }}
               />
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1.5">
               {completedCount} av {totalCount} steg fullført
             </p>
           </div>
 
           {/* Onboarding steps */}
-          <div className="space-y-1.5">
+          <div className="space-y-2" role="list" aria-label="Onboarding-steg">
             {onboardingSteps.map((step) => {
               const Icon = getStepIcon(step.icon);
               const isNext = nextStep?.id === step.id;
@@ -191,7 +192,8 @@ function EmptyStateWelcome({
                   key={step.id}
                   onClick={() => onStepAction(step)}
                   disabled={step.isCompleted}
-                  className={`w-full flex items-center gap-2.5 p-2.5 rounded-lg transition-all text-left ${
+                  aria-current={isNext ? "step" : undefined}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left ${
                     step.isCompleted
                       ? 'bg-success/10 opacity-60'
                       : isNext
@@ -199,7 +201,7 @@ function EmptyStateWelcome({
                         : 'bg-background/50 hover:bg-background'
                   }`}
                 >
-                  <div className={`flex h-6 w-6 items-center justify-center rounded-full shrink-0 ${
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-full shrink-0 ${
                     step.isCompleted
                       ? 'bg-success text-success-foreground'
                       : isNext
@@ -207,14 +209,14 @@ function EmptyStateWelcome({
                         : 'bg-muted text-muted-foreground'
                   }`}>
                     {step.isCompleted ? (
-                      <Check className="h-3 w-3" />
+                      <Check className="h-4 w-4" aria-hidden="true" />
                     ) : (
-                      <Icon className="h-3 w-3" />
+                      <Icon className="h-4 w-4" aria-hidden="true" />
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <span className={`text-xs font-medium ${
+                    <span className={`text-sm font-medium ${
                       step.isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'
                     }`}>
                       {step.title}
@@ -222,9 +224,9 @@ function EmptyStateWelcome({
                   </div>
                   
                   {!step.isCompleted && (
-                    <ChevronRight className={`h-3.5 w-3.5 shrink-0 ${
+                    <ChevronRight className={`h-4 w-4 shrink-0 ${
                       isNext ? 'text-primary' : 'text-muted-foreground'
-                    }`} />
+                    }`} aria-hidden="true" />
                   )}
                 </button>
               );
@@ -235,39 +237,39 @@ function EmptyStateWelcome({
 
       {/* Completed badge when fully done */}
       {isOnboardingComplete && (
-        <div className="mb-4 bg-success/10 rounded-xl p-3 border border-success/20 flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-success flex items-center justify-center">
-            <Check className="h-4 w-4 text-success-foreground" />
+        <div className="mb-4 bg-success/10 rounded-xl p-4 border border-success/20 flex items-center gap-3" role="status">
+          <div className="h-9 w-9 rounded-full bg-success flex items-center justify-center">
+            <Check className="h-5 w-5 text-success-foreground" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">Oppsett fullført! 🎉</p>
-            <p className="text-xs text-muted-foreground">Du er klar til å utforske</p>
+            <p className="text-base font-medium text-foreground">Oppsett fullført! 🎉</p>
+            <p className="text-sm text-muted-foreground">Du er klar til å utforske</p>
           </div>
         </div>
       )}
       
       {/* Suggestions */}
       <div className="flex-1" />
-      <div className="w-full max-w-sm mx-auto space-y-2 pb-3">
-        <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-2">Forslag</p>
+      <nav className="w-full max-w-sm mx-auto space-y-2 pb-3" aria-label="Forslag">
+        <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">Forslag</p>
         {suggestions.slice(0, 3).map((suggestion, i) => {
           const Icon = suggestion.icon;
           return (
             <button
               key={i}
               onClick={() => onSuggestionClick(suggestion.text)}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
             >
               {Icon && (
-                <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
               )}
-              <span className="text-xs text-foreground group-hover:text-primary transition-colors">
+              <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                 {suggestion.text}
               </span>
             </button>
           );
         })}
-      </div>
+      </nav>
     </div>
   );
 }
@@ -798,44 +800,46 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                   <div className="flex-1 max-w-[85%]">
                     {/* Subtle thinking indicator - inline */}
                     {message.role === "assistant" && message.thinkingSummary && (
-                      <div className="flex items-center gap-1.5 mb-1.5 text-xs text-muted-foreground">
-                        <Brain className="h-3 w-3" />
+                      <div className="flex items-center gap-1.5 mb-2 text-sm text-muted-foreground">
+                        <Brain className="h-3.5 w-3.5" />
                         <span>Tenkte {message.thinkingTime}s</span>
                       </div>
                     )}
                     
                     <div
-                      className={`rounded-2xl px-4 py-2.5 ${
+                      className={`rounded-2xl px-4 py-3 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-foreground"
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                      <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     </div>
                     
                     {/* Timestamp and feedback for assistant messages */}
                     {message.role === "assistant" && message.isComplete && (
-                      <div className="flex items-center gap-2 mt-1.5 ml-1">
-                        <span className="text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-2 mt-2 ml-1">
+                        <span className="text-xs text-muted-foreground">
                           {formatTime(message.timestamp)}
                         </span>
-                        <div className="flex items-center gap-0.5">
+                        <div className="flex items-center gap-1">
                           <Button
                             size="sm"
                             variant="ghost"
-                            className={`h-6 w-6 p-0 ${message.feedback === "up" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                            className={`h-7 w-7 p-0 ${message.feedback === "up" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                             onClick={() => handleFeedback(i, "up")}
+                            aria-label="Nyttig svar"
                           >
-                            <ThumbsUp className="h-3 w-3" />
+                            <ThumbsUp className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className={`h-6 w-6 p-0 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
+                            className={`h-7 w-7 p-0 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
                             onClick={() => handleFeedback(i, "down")}
+                            aria-label="Ikke nyttig svar"
                           >
-                            <ThumbsDown className="h-3 w-3" />
+                            <ThumbsDown className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -843,8 +847,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                     
                     {/* User message timestamp */}
                     {message.role === "user" && (
-                      <div className="flex justify-end mt-1">
-                        <span className="text-[10px] text-muted-foreground">
+                      <div className="flex justify-end mt-1.5">
+                        <span className="text-xs text-muted-foreground">
                           {formatTime(message.timestamp)}
                         </span>
                       </div>
@@ -865,7 +869,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                         <Badge
                           key={optIndex}
                           variant={variant}
-                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-sm py-1.5 px-3"
                           onClick={() => handleSend(option.prompt)}
                         >
                           {option.text}
@@ -877,11 +881,11 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-3 justify-start items-center">
-                <img src={laraButterfly} alt="Lara" className="w-6 h-6 flex-shrink-0" />
+              <div className="flex gap-3 justify-start items-center" role="status" aria-live="polite">
+                <img src={laraButterfly} alt="" className="w-6 h-6 flex-shrink-0" aria-hidden="true" />
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Brain className="h-4 w-4 animate-pulse" />
-                  <span className="text-xs">
+                  <Brain className="h-4 w-4 animate-pulse" aria-hidden="true" />
+                  <span className="text-sm">
                     Tenker{currentThinkingTime > 0 ? ` (${currentThinkingTime}s)` : "..."}
                   </span>
                 </div>
@@ -895,16 +899,16 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       <div className="border-t border-border p-3">
         {/* Context-aware suggestions when not in empty state */}
         {!isEmptyState && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label="Forslag">
             {suggestions?.slice(0, 3).map((suggestion, i) => {
               const Icon = suggestion.icon;
               return (
                 <button
                   key={i}
                   onClick={() => handleSend(suggestion.text)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground"
                 >
-                  {Icon && <Icon className="w-3 h-3" />}
+                  {Icon && <Icon className="w-4 h-4" aria-hidden="true" />}
                   {suggestion.text}
                 </button>
               );
@@ -916,7 +920,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
         <div className="rounded-xl border border-border bg-background focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
           {/* Context chip */}
           <div className="px-4 pt-3 pb-2">
-            <span className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-md">
+            <span className="inline-flex items-center gap-1 text-sm text-primary bg-primary/10 px-2.5 py-1 rounded-md">
               @ {companyName}
             </span>
           </div>
@@ -936,10 +940,10 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               variant="ghost"
               onClick={() => setUploadDialogOpen(true)}
               disabled={isLoading}
-              className="h-9 w-9 text-muted-foreground hover:text-foreground flex-shrink-0 mt-0.5"
-              title="Last opp dokument"
+              className="h-10 w-10 text-muted-foreground hover:text-foreground flex-shrink-0"
+              aria-label="Last opp dokument"
             >
-              <Paperclip className="h-4 w-4" />
+              <Paperclip className="h-5 w-5" />
             </Button>
 
             {/* Textarea field - expandable */}
@@ -965,8 +969,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             />
 
             {/* Mode indicator */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
-              <Zap className="w-3 h-3" />
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-muted px-2.5 py-1.5 rounded-md">
+              <Zap className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Auto</span>
             </div>
 
