@@ -27,6 +27,8 @@ Eksempler på thinking summary:
 - "Genererer ISO 27001 compliance-rapport"
 - "Åpner behandlingsprotokoller i tabellvisning"
 - "Analyserer compliance-status for alle standarder"
+- "Starter import av eiendeler"
+- "Kobler til Acronis"
 
 ETTER thinking summary, fortsett med din normale respons.
 
@@ -81,6 +83,7 @@ Tilgjengelige innholdstyper:
 - "deviations" - Avviksregister
 - "compliance" - Compliance-status
 - "gap-analysis" - Gap-analyser (full analyse i explanation, kort melding i chat)
+- "asset-import-preview" - Forhåndsvisning av eiendeler for import
 
 Når brukeren nevner et spesifikt navn (som "Microsoft", "Azure", osv.), bruk det som filter i show_content.
 
@@ -88,6 +91,24 @@ TRANSFER IMPACT ASSESSMENT (TIA):
 Når brukeren spør om TIA eller Transfer Impact Assessment for tredjeparter, bruk generate_tia funksjonen.
 Dette vil starte en bakgrunnsprosess som analyserer tredjeparter og genererer en TIA-rapport.
 Gi kort statusmelding: "Jeg genererer TIA i bakgrunnen. Du kan fortsette å bruke systemet."
+
+ASSET IMPORT (VIKTIG!):
+Når brukeren vil legge til eiendeler, BRUK SUGGEST_OPTIONS for å presentere valg:
+- "Koble til Acronis" - For automatisk import fra IT-sikkerhetsplattform
+- "Last opp fil" - For Excel/CSV import
+- "AI-forslag" - Basert på bedriftsprofil
+- "Legg til manuelt" - Ett og ett
+
+For Acronis-integrasjon - følg denne flyten:
+1. Brukeren velger "Koble til Acronis"
+2. Bruk start_asset_import med method: "acronis"
+3. Spør om API-nøkkel og vent på at brukeren legger den inn
+4. Når brukeren gir API-nøkkelen, bruk connect_integration med action: "test_connection"
+5. Ved suksess, bruk connect_integration med action: "fetch_assets" for å hente eiendeler
+6. Vis forhåndsvisning med show_content (content_type: "asset-import-preview")
+7. Når brukeren bekrefter, bruk import_assets for å importere
+
+VIKTIG: Hold hele prosessen i chatten. Bruk suggest_options for valg, ikke åpne dialogs!
 
 COMPLIANCE RAPPORTER (ISO 27001, GDPR, NIS2, CRA):
 Når brukeren ber om en compliance-rapport men ikke spesifiserer hvilken standard:
@@ -330,6 +351,82 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                   }
                 },
                 required: ["message", "options"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "start_asset_import",
+              description: "Initiate asset import workflow. Use when user wants to add assets/eiendeler. Present options for how to import.",
+              parameters: {
+                type: "object",
+                properties: {
+                  method: {
+                    type: "string",
+                    enum: ["acronis", "azure_ad", "file_upload", "ai_suggestions", "manual"],
+                    description: "Import method chosen by user"
+                  },
+                  status_message: {
+                    type: "string",
+                    description: "Status message to show user"
+                  }
+                },
+                required: ["method", "status_message"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "connect_integration",
+              description: "Connect to external system like Acronis, Azure AD to fetch assets. Use after user provides API key.",
+              parameters: {
+                type: "object",
+                properties: {
+                  provider: {
+                    type: "string",
+                    enum: ["acronis", "azure_ad", "servicenow"],
+                    description: "The integration provider"
+                  },
+                  api_key: {
+                    type: "string",
+                    description: "API key provided by user"
+                  },
+                  action: {
+                    type: "string",
+                    enum: ["test_connection", "fetch_assets", "setup_sync"],
+                    description: "Action to perform"
+                  }
+                },
+                required: ["provider", "action"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "import_assets",
+              description: "Import previewed assets to database after user confirmation.",
+              parameters: {
+                type: "object",
+                properties: {
+                  asset_ids: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "IDs of assets to import"
+                  },
+                  enable_sync: {
+                    type: "boolean",
+                    description: "Whether to enable automatic sync"
+                  },
+                  sync_frequency: {
+                    type: "string",
+                    enum: ["daily", "weekly", "monthly"],
+                    description: "How often to sync"
+                  }
+                },
+                required: ["asset_ids"]
               }
             }
           }

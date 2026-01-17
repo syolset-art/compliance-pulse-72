@@ -255,13 +255,17 @@ export type Database = {
           criticality: string | null
           description: string | null
           external_id: string | null
+          external_source_id: string | null
+          external_source_provider: string | null
           id: string
+          last_synced_at: string | null
           lifecycle_status: string | null
           metadata: Json | null
           name: string
           next_review_date: string | null
           risk_level: string | null
           risk_score: number | null
+          sync_enabled: boolean | null
           updated_at: string | null
           url: string | null
           vendor: string | null
@@ -277,13 +281,17 @@ export type Database = {
           criticality?: string | null
           description?: string | null
           external_id?: string | null
+          external_source_id?: string | null
+          external_source_provider?: string | null
           id?: string
+          last_synced_at?: string | null
           lifecycle_status?: string | null
           metadata?: Json | null
           name: string
           next_review_date?: string | null
           risk_level?: string | null
           risk_score?: number | null
+          sync_enabled?: boolean | null
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
@@ -299,13 +307,17 @@ export type Database = {
           criticality?: string | null
           description?: string | null
           external_id?: string | null
+          external_source_id?: string | null
+          external_source_provider?: string | null
           id?: string
+          last_synced_at?: string | null
           lifecycle_status?: string | null
           metadata?: Json | null
           name?: string
           next_review_date?: string | null
           risk_level?: string | null
           risk_score?: number | null
+          sync_enabled?: boolean | null
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
@@ -357,6 +369,45 @@ export type Database = {
           team_size?: string | null
           updated_at?: string | null
           use_cases?: string[] | null
+        }
+        Relationships: []
+      }
+      integration_connections: {
+        Row: {
+          api_key_encrypted: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          provider: string
+          sync_frequency: string | null
+          sync_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_key_encrypted?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          provider: string
+          sync_frequency?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_key_encrypted?: string | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          provider?: string
+          sync_frequency?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
