@@ -6,6 +6,8 @@ import laraButterfly from "@/assets/lara-butterfly.png";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { usePageContext, PageContext } from "@/hooks/usePageContext";
+import { DemoHighlight, useDemoState } from "@/components/DemoHighlight";
 
 interface ContentViewOptions {
   viewMode?: "cards" | "table" | "list" | "names-only";
@@ -23,46 +25,78 @@ interface ChatPanelProps {
 export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
   const isMobile = useIsMobile();
   const [hasMessages, setHasMessages] = useState(false);
+  const pageContext = usePageContext();
+  const demoState = useDemoState();
+
+  const handleStartDemo = (scenarioId: string) => {
+    demoState.startDemo(scenarioId);
+  };
 
   // Mobile: use Sheet
   if (isMobile) {
     return (
-      <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent side="right" className="w-full sm:w-[400px] p-0">
-          <div className="flex h-full flex-col">
-            {hasMessages && <ChatPanelHeader onClose={onClose} />}
-            {!hasMessages && <MinimalHeader onClose={onClose} />}
-            <div className="flex-1 overflow-hidden">
-              <ChatInterface 
-                onShowContent={onShowContent}
-                onBackToDashboard={onBackToDashboard}
-                onMessagesChange={setHasMessages}
-              />
+      <>
+        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+          <SheetContent side="right" className="w-full sm:w-[400px] p-0">
+            <div className="flex h-full flex-col">
+              {hasMessages && <ChatPanelHeader onClose={onClose} />}
+              {!hasMessages && <MinimalHeader onClose={onClose} />}
+              <div className="flex-1 overflow-hidden">
+                <ChatInterface 
+                  onShowContent={onShowContent}
+                  onBackToDashboard={onBackToDashboard}
+                  onMessagesChange={setHasMessages}
+                  pageContext={pageContext}
+                  onStartDemo={handleStartDemo}
+                />
+              </div>
             </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
+        <DemoHighlight 
+          isActive={demoState.isActive}
+          scenario={demoState.currentScenario}
+          currentStep={demoState.currentStep}
+          onNext={demoState.nextStep}
+          onPrev={demoState.prevStep}
+          onClose={demoState.closeDemo}
+          onComplete={demoState.completeDemo}
+        />
+      </>
     );
   }
 
   // Desktop: floating panel (compact height, anchored to bottom-right)
   return (
-    <div 
-      className={cn(
-        "fixed right-4 bottom-4 w-[400px] h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
-        isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none"
-      )}
-    >
-      {hasMessages && <ChatPanelHeader onClose={onClose} />}
-      {!hasMessages && <MinimalHeader onClose={onClose} />}
-      <div className="flex-1 overflow-hidden">
-        <ChatInterface 
-          onShowContent={onShowContent}
-          onBackToDashboard={onBackToDashboard}
-          onMessagesChange={setHasMessages}
-        />
+    <>
+      <div 
+        className={cn(
+          "fixed right-4 bottom-4 w-[400px] h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
+          isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none"
+        )}
+      >
+        {hasMessages && <ChatPanelHeader onClose={onClose} />}
+        {!hasMessages && <MinimalHeader onClose={onClose} />}
+        <div className="flex-1 overflow-hidden">
+          <ChatInterface 
+            onShowContent={onShowContent}
+            onBackToDashboard={onBackToDashboard}
+            onMessagesChange={setHasMessages}
+            pageContext={pageContext}
+            onStartDemo={handleStartDemo}
+          />
+        </div>
       </div>
-    </div>
+      <DemoHighlight 
+        isActive={demoState.isActive}
+        scenario={demoState.currentScenario}
+        currentStep={demoState.currentStep}
+        onNext={demoState.nextStep}
+        onPrev={demoState.prevStep}
+        onClose={demoState.closeDemo}
+        onComplete={demoState.completeDemo}
+      />
+    </>
   );
 }
 

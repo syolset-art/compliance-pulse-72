@@ -9,11 +9,68 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages } = await req.json();
+    const { messages, context } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen. 
+    // Build context-aware system prompt section
+    const contextSection = context ? `
+
+BRUKERENS KONTEKST:
+- Nåværende side: ${context.currentRoute || "Ukjent"}
+- Sidenavn: ${context.pageName || "Ukjent"}
+- Sidebeskrivelse: ${context.pageDescription || "Ingen beskrivelse"}
+- Tilgjengelige handlinger: ${context.availableActions?.join(", ") || "Ingen"}
+- Tilgjengelige demo-scenarier: ${context.demoScenarios?.join(", ") || "Ingen"}
+
+DEMO-AGENT MODUS:
+Når brukeren ber om hjelp, demo, veiledning eller ikke forstår noe:
+1. Forklar FØRST hva siden/funksjonen er til i korte trekk
+2. Gi deretter steg-for-steg veiledning tilpasset konteksten
+3. Bruk suggest_options for å la brukeren velge neste steg
+4. Tilby å starte en interaktiv demo med start_demo funksjonen
+
+KONTEKSTSPESIFIKKE HJELPE-SVAR:
+
+For Dashboard (/):
+- Forklar at dashboardet gir oversikt over compliance-status, oppgaver og risiko
+- Vis hvordan de ulike widgetene fungerer
+- Tilby å starte demo for å legge til eiendeler eller generere rapporter
+
+For Eiendeler (/assets):
+- Forklar at eiendeler er alle IT-systemer, lokasjoner, leverandører osv. som behandler data
+- Demonstrer hvordan legge til en eiendel
+- Forklar forskjellen på asset-typer (system, vendor, location, etc.)
+
+For Legge til eiendel (AddAssetDialog):
+- Forklar hver asset-type og når man bruker den
+- Guide gjennom skjemaet felt for felt
+- Forklar hva "AI-forslag" gjør vs manuell utfylling
+- Gi eksempler på verdier for hvert felt
+
+For Arbeidsområder (/work-areas):
+- Forklar at arbeidsområder strukturerer organisasjonen
+- Vis hvordan de kobles til eiendeler og prosesser
+- Tilby demo for å opprette arbeidsområder
+
+For Behandlingsprotokoller (/protocols):
+- Forklar at dette er ROPA (Record of Processing Activities)
+- Guide gjennom opprettelse av ny protokoll
+- Forklar GDPR-kravene
+
+For Rapporter (/reports):
+- Forklar hvilke typer rapporter som er tilgjengelige
+- Guide gjennom generering av compliance-rapporter
+- Vis hvordan eksportere til PDF
+
+Når bruker sier "hjelp", "demo", "vis meg hvordan", "forstår ikke", "veiledning":
+1. Identifiser kontekst fra currentRoute og pageName
+2. Gi pedagogisk forklaring tilpasset siden de er på
+3. Tilby interaktiv gjennomgang med suggest_options eller start_demo
+4. Vær proaktiv og foreslå relevante funksjoner
+` : "";
+
+    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen.${contextSection}
 
 Din rolle er å hjelpe brukere med å finne og vise informasjon i systemet på en pedagogisk og intuitiv måte.
 
@@ -432,6 +489,28 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                   }
                 },
                 required: ["asset_ids"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "start_demo",
+              description: "Start an interactive demo/walkthrough for a specific feature. Use when user asks for help, demo, or doesn't understand something. The demo will highlight UI elements and guide the user step by step.",
+              parameters: {
+                type: "object",
+                properties: {
+                  scenario_id: {
+                    type: "string",
+                    enum: ["add-asset", "gdpr-gap", "compliance-report", "work-areas"],
+                    description: "Which demo scenario to start. add-asset: Learn to add assets. gdpr-gap: GDPR gap analysis walkthrough. compliance-report: Generate compliance reports. work-areas: Organize with work areas."
+                  },
+                  intro_message: {
+                    type: "string",
+                    description: "A brief intro message to show before starting the demo"
+                  }
+                },
+                required: ["scenario_id", "intro_message"]
               }
             }
           }
