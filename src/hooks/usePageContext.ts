@@ -1,13 +1,79 @@
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 
+export interface DemoScenario {
+  id: string;
+  title: string;
+  description: string;
+  steps?: {
+    instruction: string;
+    selector?: string;
+  }[];
+}
+
 export interface PageContext {
   currentRoute: string;
   pageName: string;
   availableActions: string[];
   pageDescription: string;
-  demoScenarios: string[];
+  demoScenarios: DemoScenario[];
 }
+
+// Demo scenarios with full details
+const DEMO_SCENARIOS: Record<string, DemoScenario> = {
+  "add-asset": {
+    id: "add-asset",
+    title: "Legg til en eiendel",
+    description: "Lær hvordan du registrerer systemer, leverandører og andre eiendeler",
+    steps: [
+      { instruction: "Klikk på '+ Ny eiendel' knappen", selector: "[data-demo='add-asset-button']" },
+      { instruction: "Velg type eiendel du vil legge til", selector: "[data-demo='asset-type-select']" },
+      { instruction: "Fyll inn navn og beskrivelse", selector: "[data-demo='asset-form']" },
+      { instruction: "Klikk 'Lagre' for å fullføre", selector: "[data-demo='save-button']" }
+    ]
+  },
+  "gdpr-gap": {
+    id: "gdpr-gap",
+    title: "GDPR Gap-analyse",
+    description: "Forstå hvordan du identifiserer mangler i GDPR-etterlevelsen",
+    steps: [
+      { instruction: "Se oversikt over compliance-status", selector: "[data-demo='compliance-widget']" },
+      { instruction: "Klikk for å se detaljer om GDPR", selector: "[data-demo='gdpr-card']" },
+      { instruction: "Gjennomgå identifiserte gap", selector: "[data-demo='gap-list']" }
+    ]
+  },
+  "compliance-report": {
+    id: "compliance-report",
+    title: "Generer compliance-rapport",
+    description: "Lag en rapport for styret eller tilsyn",
+    steps: [
+      { instruction: "Gå til Rapporter-siden", selector: "[data-demo='reports-nav']" },
+      { instruction: "Velg rapporttype", selector: "[data-demo='report-type']" },
+      { instruction: "Konfigurer rapporten", selector: "[data-demo='report-config']" },
+      { instruction: "Last ned eller del rapporten", selector: "[data-demo='report-download']" }
+    ]
+  },
+  "work-areas": {
+    id: "work-areas",
+    title: "Organiser arbeidsområder",
+    description: "Strukturer organisasjonen for bedre oversikt",
+    steps: [
+      { instruction: "Se eksisterende arbeidsområder", selector: "[data-demo='work-areas-list']" },
+      { instruction: "Legg til et nytt arbeidsområde", selector: "[data-demo='add-work-area']" },
+      { instruction: "Tilknytt systemer og prosesser", selector: "[data-demo='work-area-systems']" }
+    ]
+  },
+  "getting-started": {
+    id: "getting-started",
+    title: "Kom i gang med Mynder",
+    description: "En rask introduksjon til plattformen",
+    steps: [
+      { instruction: "Dette er dashbordet - din oversikt over alt", selector: "[data-demo='dashboard']" },
+      { instruction: "Her ser du compliance-status", selector: "[data-demo='compliance-section']" },
+      { instruction: "Sidemenyen gir tilgang til alle funksjoner", selector: "[data-demo='sidebar']" }
+    ]
+  }
+};
 
 const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
   "/": {
@@ -20,7 +86,12 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "generate-report"
     ],
     pageDescription: "Hovedoversikt med widgets for compliance-status, oppgaver, risiko og systemoversikt",
-    demoScenarios: ["add-asset", "compliance-report", "gdpr-gap"]
+    demoScenarios: [
+      DEMO_SCENARIOS["getting-started"],
+      DEMO_SCENARIOS["add-asset"],
+      DEMO_SCENARIOS["compliance-report"],
+      DEMO_SCENARIOS["gdpr-gap"]
+    ]
   },
   "/assets": {
     pageName: "Eiendeler",
@@ -32,7 +103,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "export-assets"
     ],
     pageDescription: "Oversikt over alle eiendeler (systemer, leverandører, lokasjoner, etc.) med filtrering og sortering",
-    demoScenarios: ["add-asset"]
+    demoScenarios: [DEMO_SCENARIOS["add-asset"]]
   },
   "/work-areas": {
     pageName: "Mine arbeidsområder",
@@ -43,7 +114,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "view-work-area-protocols"
     ],
     pageDescription: "Organisasjonsstruktur med arbeidsområder som grupperer systemer, protokoller og prosesser",
-    demoScenarios: ["work-areas"]
+    demoScenarios: [DEMO_SCENARIOS["work-areas"]]
   },
   "/protocols": {
     pageName: "Behandlingsprotokoller",
@@ -54,7 +125,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "generate-ropa-report"
     ],
     pageDescription: "ROPA - Record of Processing Activities for GDPR-dokumentasjon",
-    demoScenarios: ["gdpr-gap"]
+    demoScenarios: [DEMO_SCENARIOS["gdpr-gap"]]
   },
   "/systems": {
     pageName: "Systemer",
@@ -65,7 +136,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "view-system-vendors"
     ],
     pageDescription: "IT-systemer i bruk med risikovurdering og compliance-status",
-    demoScenarios: ["add-asset"]
+    demoScenarios: [DEMO_SCENARIOS["add-asset"]]
   },
   "/tasks": {
     pageName: "Oppgaver",
@@ -87,7 +158,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "export-report"
     ],
     pageDescription: "Generering av compliance-rapporter for ulike standarder",
-    demoScenarios: ["compliance-report", "gdpr-gap"]
+    demoScenarios: [DEMO_SCENARIOS["compliance-report"], DEMO_SCENARIOS["gdpr-gap"]]
   },
   "/ai-setup": {
     pageName: "AI-oppsett",
@@ -124,7 +195,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "skip-step"
     ],
     pageDescription: "Veiledning for å komme i gang med Mynder",
-    demoScenarios: []
+    demoScenarios: [DEMO_SCENARIOS["getting-started"]]
   },
   "/company-settings": {
     pageName: "Innstillinger",
@@ -158,4 +229,8 @@ export function getPageContextForRoute(route: string): PageContext {
     currentRoute: route,
     ...contextData
   };
+}
+
+export function getDemoScenarioById(id: string): DemoScenario | undefined {
+  return DEMO_SCENARIOS[id];
 }
