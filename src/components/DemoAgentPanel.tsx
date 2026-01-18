@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Play, Sparkles, ChevronRight, BookOpen, Lightbulb, Target, Zap } from "lucide-react";
+import { Play, Sparkles, ChevronRight, BookOpen, Lightbulb, Target, Zap, Eye, Handshake, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { PageContext, DemoScenario } from "@/hooks/usePageContext";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
+export type DemoModeType = "auto-demo" | "conversational";
+
 interface DemoAgentPanelProps {
   pageContext?: PageContext;
-  onStartDemo: (scenarioId: string) => void;
+  onStartDemo: (scenarioId: string, mode: DemoModeType) => void;
   onAskQuestion: (question: string) => void;
   isVisible: boolean;
   onClose: () => void;
@@ -116,6 +119,116 @@ const toDisplayScenarios = (scenarios?: DemoScenario[]): DisplayScenario[] => {
   }));
 };
 
+interface DemoModeSelectorProps {
+  scenario: DisplayScenario;
+  onSelect: (mode: DemoModeType) => void;
+  onCancel: () => void;
+  rememberChoice: boolean;
+  onRememberChoiceChange: (remember: boolean) => void;
+}
+
+function DemoModeSelector({ scenario, onSelect, onCancel, rememberChoice, onRememberChoiceChange }: DemoModeSelectorProps) {
+  const [hoveredMode, setHoveredMode] = useState<DemoModeType | null>(null);
+
+  return (
+    <div className="absolute inset-0 bg-card z-20 flex flex-col overflow-hidden animate-in fade-in duration-200">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onCancel}>
+            <X className="h-4 w-4" />
+          </Button>
+          <h3 className="font-semibold text-foreground">Hvordan vil du lære?</h3>
+        </div>
+      </div>
+
+      {/* Selected scenario info */}
+      <div className="px-4 py-3 bg-muted/30 border-b border-border">
+        <p className="text-sm text-muted-foreground">Valgt scenario:</p>
+        <p className="font-medium text-foreground">{scenario.title}</p>
+      </div>
+
+      {/* Mode selection cards */}
+      <div className="flex-1 p-4 space-y-3">
+        {/* Auto-demo mode */}
+        <button
+          onClick={() => onSelect("auto-demo")}
+          onMouseEnter={() => setHoveredMode("auto-demo")}
+          onMouseLeave={() => setHoveredMode(null)}
+          className={cn(
+            "w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all",
+            hoveredMode === "auto-demo"
+              ? "border-primary bg-primary/5 shadow-sm"
+              : "border-border bg-background hover:border-primary/50"
+          )}
+        >
+          <div className={cn(
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
+            hoveredMode === "auto-demo" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            <Eye className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-semibold text-foreground mb-1">Se demo</p>
+            <p className="text-sm text-muted-foreground">
+              Jeg viser deg hele prosessen visuelt. Du ser på mens jeg demonstrerer steg for steg.
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="secondary" className="text-xs">
+                ~{scenario.estimatedTime || "2 min"}
+              </Badge>
+              <span className="text-xs text-muted-foreground">Demo-modus</span>
+            </div>
+          </div>
+        </button>
+
+        {/* Conversational mode */}
+        <button
+          onClick={() => onSelect("conversational")}
+          onMouseEnter={() => setHoveredMode("conversational")}
+          onMouseLeave={() => setHoveredMode(null)}
+          className={cn(
+            "w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all",
+            hoveredMode === "conversational"
+              ? "border-primary bg-primary/5 shadow-sm"
+              : "border-border bg-background hover:border-primary/50"
+          )}
+        >
+          <div className={cn(
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors",
+            hoveredMode === "conversational" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            <Handshake className="h-6 w-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-semibold text-foreground mb-1">Gjør sammen med meg</p>
+            <p className="text-sm text-muted-foreground">
+              Fortell meg hva du vil gjøre, så hjelper jeg deg underveis. Jeg fyller ut skjemaene for deg.
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                Anbefalt
+              </Badge>
+              <span className="text-xs text-muted-foreground">Hands-on</span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* Remember choice */}
+      <div className="px-4 py-3 border-t border-border bg-muted/30">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <Checkbox
+            checked={rememberChoice}
+            onCheckedChange={(checked) => onRememberChoiceChange(checked as boolean)}
+          />
+          <span className="text-sm text-muted-foreground">Husk mitt valg</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
 export function DemoAgentPanel({ 
   pageContext, 
   onStartDemo, 
@@ -124,15 +237,68 @@ export function DemoAgentPanel({
   onClose 
 }: DemoAgentPanelProps) {
   const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<DisplayScenario | null>(null);
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [rememberChoice, setRememberChoice] = useState(false);
 
   // Get scenarios - use page-specific if available, otherwise defaults
   const scenarios = toDisplayScenarios(pageContext?.demoScenarios);
   const quickQuestions = getQuickQuestions(pageContext?.pageName);
 
+  // Check for saved preference
+  const getSavedPreference = (): DemoModeType | null => {
+    const saved = localStorage.getItem("demo-mode-preference");
+    return saved === "auto-demo" || saved === "conversational" ? saved : null;
+  };
+
+  const handleScenarioClick = (scenario: DisplayScenario) => {
+    const savedPreference = getSavedPreference();
+    
+    if (savedPreference) {
+      // Use saved preference directly
+      onStartDemo(scenario.id, savedPreference);
+      onClose();
+    } else {
+      // Show mode selector
+      setSelectedScenario(scenario);
+      setShowModeSelector(true);
+    }
+  };
+
+  const handleModeSelect = (mode: DemoModeType) => {
+    if (rememberChoice) {
+      localStorage.setItem("demo-mode-preference", mode);
+    }
+    
+    if (selectedScenario) {
+      onStartDemo(selectedScenario.id, mode);
+    }
+    
+    setShowModeSelector(false);
+    setSelectedScenario(null);
+    onClose();
+  };
+
+  const handleCancelModeSelector = () => {
+    setShowModeSelector(false);
+    setSelectedScenario(null);
+  };
+
   if (!isVisible) return null;
 
   return (
     <div className="absolute inset-0 bg-card z-10 flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-200">
+      {/* Mode selector overlay */}
+      {showModeSelector && selectedScenario && (
+        <DemoModeSelector
+          scenario={selectedScenario}
+          onSelect={handleModeSelect}
+          onCancel={handleCancelModeSelector}
+          rememberChoice={rememberChoice}
+          onRememberChoiceChange={setRememberChoice}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-border bg-gradient-to-r from-primary/5 to-transparent">
         <div className="relative">
@@ -179,12 +345,10 @@ export function DemoAgentPanel({
               return (
                 <button
                   key={scenario.id}
-                  onClick={() => {
-                    onStartDemo(scenario.id);
-                    onClose();
-                  }}
+                  onClick={() => handleScenarioClick(scenario)}
                   onMouseEnter={() => setHoveredScenario(scenario.id)}
                   onMouseLeave={() => setHoveredScenario(null)}
+                  data-demo={`demo-scenario-${scenario.id}`}
                   className={cn(
                     "w-full flex items-start gap-3 p-3 rounded-xl border transition-all text-left group",
                     isHovered 

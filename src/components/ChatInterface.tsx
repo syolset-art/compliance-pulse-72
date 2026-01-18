@@ -51,6 +51,7 @@ interface ChatInterfaceProps {
   onStartDemo?: (scenarioId: string) => void;
   pendingMessage?: string | null;
   onPendingMessageSent?: () => void;
+  demoMode?: "auto-demo" | "conversational" | null;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -283,6 +284,7 @@ interface ChatInterfacePropsExtended extends ChatInterfaceProps {
   onOpenSystemDialog?: () => void;
   pendingMessage?: string | null;
   onPendingMessageSent?: () => void;
+  demoMode?: "auto-demo" | "conversational" | null;
 }
 
 export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo, pendingMessage, onPendingMessageSent }: ChatInterfacePropsExtended) {
