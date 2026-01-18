@@ -9,11 +9,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress, OnboardingStep } from "@/hooks/useOnboardingProgress";
+import { PageContext } from "@/hooks/usePageContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -46,6 +47,8 @@ interface ChatInterfaceProps {
   onShowContent?: (contentType: string, filter?: string, options?: ContentViewOptions, explanation?: string) => void;
   onBackToDashboard?: () => void;
   onMessagesChange?: (hasMessages: boolean) => void;
+  pageContext?: PageContext;
+  onStartDemo?: (scenarioId: string) => void;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -278,7 +281,7 @@ interface ChatInterfacePropsExtended extends ChatInterfaceProps {
   onOpenSystemDialog?: () => void;
 }
 
-export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog }: ChatInterfacePropsExtended) {
+export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo }: ChatInterfacePropsExtended) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -559,7 +562,16 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          context: pageContext ? {
+            currentRoute: pageContext.currentRoute,
+            pageName: pageContext.pageName,
+            pageDescription: pageContext.pageDescription,
+            availableActions: pageContext.availableActions,
+            demoScenarios: pageContext.demoScenarios
+          } : undefined
+        }),
       });
 
       if (!response.ok) {
@@ -636,7 +648,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options" || tc.function?.name === "start_demo") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
@@ -726,6 +738,15 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               }
               return [...prev, { role: "assistant", content: optionsMessage, options: args.options }];
             });
+          } else if (toolCall.name === "start_demo") {
+            const demoMessage = args.intro_message || `Starter demo: ${args.scenario_id}`;
+            updateAssistantMessage(demoMessage);
+            
+            if (onStartDemo && args.scenario_id) {
+              setTimeout(() => {
+                onStartDemo(args.scenario_id);
+              }, 500);
+            }
           }
         } catch (e) {
           console.error("Failed to parse tool arguments:", e);
