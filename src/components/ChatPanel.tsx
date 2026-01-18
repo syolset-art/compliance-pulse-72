@@ -8,7 +8,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { usePageContext, PageContext } from "@/hooks/usePageContext";
 import { DemoHighlight, useDemoState } from "@/components/DemoHighlight";
-import { DemoAgentPanel } from "@/components/DemoAgentPanel";
+import { DemoAgentPanel, DemoModeType } from "@/components/DemoAgentPanel";
+import { DemoSyncProvider } from "@/contexts/DemoSyncContext";
+import { DemoModeIndicator } from "@/components/DemoModeIndicator";
+import { useDemoController } from "@/hooks/useDemoController";
 
 interface ContentViewOptions {
   viewMode?: "cards" | "table" | "list" | "names-only";
@@ -23,28 +26,60 @@ interface ChatPanelProps {
   onBackToDashboard?: () => void;
 }
 
-export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
+function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
   const isMobile = useIsMobile();
   const [hasMessages, setHasMessages] = useState(false);
   const [showDemoPanel, setShowDemoPanel] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [activeDemoMode, setActiveDemoMode] = useState<DemoModeType | null>(null);
   const pageContext = usePageContext();
   const demoState = useDemoState();
+  const demoController = useDemoController();
 
-  const handleStartDemo = (scenarioId: string) => {
+  const handleStartDemo = (scenarioId: string, mode: DemoModeType) => {
     setShowDemoPanel(false);
-    demoState.startDemo(scenarioId);
+    setActiveDemoMode(mode);
+    
+    if (mode === "auto-demo") {
+      // Start the visual auto-demo
+      demoController.startDemo(scenarioId);
+    } else {
+      // Conversational mode - send a message to Lara
+      const scenarioMessages: Record<string, string> = {
+        "add-asset": "Hjelp meg legge til en eiendel",
+        "gdpr-gap": "Vis meg GDPR gap-analysen",
+        "compliance-report": "Generer en compliance-rapport",
+        "work-areas": "Hjelp meg organisere arbeidsområder",
+        "getting-started": "Vis meg hvordan jeg kommer i gang med Mynder"
+      };
+      setPendingMessage(scenarioMessages[scenarioId] || `Hjelp meg med ${scenarioId}`);
+    }
   };
 
   const handleAskQuestion = (question: string) => {
     setPendingMessage(question);
     setShowDemoPanel(false);
   };
+  
+  const handleStopDemo = () => {
+    demoController.stopDemo();
+    setActiveDemoMode(null);
+  };
 
   // Mobile: use Sheet
   if (isMobile) {
     return (
       <>
+        {/* Demo mode indicator */}
+        <DemoModeIndicator
+          isRunning={demoController.isDemoRunning}
+          currentStep={demoController.currentStep}
+          totalSteps={demoController.totalSteps}
+          narration={demoController.currentNarration}
+          onStop={handleStopDemo}
+          onSkip={demoController.nextStep}
+        />
+        
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
           <SheetContent side="right" className="w-full sm:w-[400px] p-0">
             <div className="flex h-full flex-col relative">
@@ -56,9 +91,9 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
                   onBackToDashboard={onBackToDashboard}
                   onMessagesChange={setHasMessages}
                   pageContext={pageContext}
-                  onStartDemo={handleStartDemo}
                   pendingMessage={pendingMessage}
                   onPendingMessageSent={() => setPendingMessage(null)}
+                  demoMode={activeDemoMode}
                 />
               </div>
               <DemoAgentPanel 
@@ -87,6 +122,16 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
   // Desktop: floating panel (compact height, anchored to bottom-right)
   return (
     <>
+      {/* Demo mode indicator */}
+      <DemoModeIndicator
+        isRunning={demoController.isDemoRunning}
+        currentStep={demoController.currentStep}
+        totalSteps={demoController.totalSteps}
+        narration={demoController.currentNarration}
+        onStop={handleStopDemo}
+        onSkip={demoController.nextStep}
+      />
+      
       <div 
         className={cn(
           "fixed right-4 bottom-4 w-[400px] h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
@@ -102,9 +147,9 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
               onBackToDashboard={onBackToDashboard}
               onMessagesChange={setHasMessages}
               pageContext={pageContext}
-              onStartDemo={handleStartDemo}
               pendingMessage={pendingMessage}
               onPendingMessageSent={() => setPendingMessage(null)}
+              demoMode={activeDemoMode}
             />
           </div>
           <DemoAgentPanel 
@@ -126,6 +171,15 @@ export function ChatPanel({ isOpen, onClose, onShowContent, onBackToDashboard }:
         onComplete={demoState.completeDemo}
       />
     </>
+  );
+}
+
+// Wrap with DemoSyncProvider
+export function ChatPanel(props: ChatPanelProps) {
+  return (
+    <DemoSyncProvider>
+      <ChatPanelContent {...props} />
+    </DemoSyncProvider>
   );
 }
 

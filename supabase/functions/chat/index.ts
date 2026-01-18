@@ -513,6 +513,74 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                 required: ["scenario_id", "intro_message"]
               }
             }
+          },
+          {
+            type: "function",
+            function: {
+              name: "perform_ui_action",
+              description: "Perform UI actions on behalf of the user. Use this in conversational mode to fill forms, select options, and interact with dialogs while chatting.",
+              parameters: {
+                type: "object",
+                properties: {
+                  action: {
+                    type: "string",
+                    enum: ["open_dialog", "fill_field", "select_option", "click_button", "set_step"],
+                    description: "The UI action to perform"
+                  },
+                  target: {
+                    type: "string",
+                    description: "Target element ID or field name"
+                  },
+                  value: {
+                    type: "string",
+                    description: "Value to set (for fill_field, select_option)"
+                  },
+                  narration: {
+                    type: "string",
+                    description: "What to say while performing the action"
+                  }
+                },
+                required: ["action", "target"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "collect_asset_info",
+              description: "Guide user through collecting asset information conversationally. Use this when user wants to add an asset together with you.",
+              parameters: {
+                type: "object",
+                properties: {
+                  step: {
+                    type: "string",
+                    enum: ["ask_type", "ask_name", "ask_details", "ask_risk", "confirm", "create"],
+                    description: "Current step in asset collection"
+                  },
+                  collected_data: {
+                    type: "object",
+                    description: "Data collected so far",
+                    properties: {
+                      asset_type: { type: "string" },
+                      name: { type: "string" },
+                      vendor: { type: "string" },
+                      description: { type: "string" },
+                      risk_level: { type: "string" },
+                      criticality: { type: "string" }
+                    }
+                  },
+                  show_preview: {
+                    type: "boolean",
+                    description: "Whether to show a preview of the asset"
+                  },
+                  message: {
+                    type: "string",
+                    description: "Message to show the user"
+                  }
+                },
+                required: ["step", "message"]
+              }
+            }
           }
         ],
         stream: true,
