@@ -49,6 +49,8 @@ interface ChatInterfaceProps {
   onMessagesChange?: (hasMessages: boolean) => void;
   pageContext?: PageContext;
   onStartDemo?: (scenarioId: string) => void;
+  pendingMessage?: string | null;
+  onPendingMessageSent?: () => void;
 }
 
 type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" | "tasks" | "deviations" | "compliance";
@@ -279,9 +281,11 @@ function EmptyStateWelcome({
 
 interface ChatInterfacePropsExtended extends ChatInterfaceProps {
   onOpenSystemDialog?: () => void;
+  pendingMessage?: string | null;
+  onPendingMessageSent?: () => void;
 }
 
-export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo }: ChatInterfacePropsExtended) {
+export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo, pendingMessage, onPendingMessageSent }: ChatInterfacePropsExtended) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -314,6 +318,14 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
   const suggestions = suggestionMap[currentContext];
   const isEmptyState = messages.length === 0;
+
+  // Handle pending message from demo panel
+  useEffect(() => {
+    if (pendingMessage && !isLoading) {
+      handleSend(pendingMessage);
+      onPendingMessageSent?.();
+    }
+  }, [pendingMessage]);
 
   // Handle onboarding step action
   const handleOnboardingStepAction = (step: OnboardingStep) => {
