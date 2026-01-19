@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Search, Check, Building2 } from "lucide-react";
+import { Loader2, Search, Check, Building2, ChevronRight } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CompactCompanyOnboardingProps {
   onComplete: () => void;
@@ -19,6 +20,12 @@ interface BrregCompany {
   antallAnsatte?: number;
   forretningsadresse?: {
     kommune: string;
+  };
+}
+
+interface BrregSearchResult {
+  _embedded?: {
+    enheter: BrregCompany[];
   };
 }
 
@@ -48,8 +55,10 @@ const mapEmployeeRange = (antall?: number): string => {
 export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardingProps) => {
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<BrregCompany[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const [companyFound, setCompanyFound] = useState(false);
-  const [orgNumber, setOrgNumber] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     orgNumber: "",
@@ -59,43 +68,58 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
   });
 
   const searchBrreg = async () => {
-    const cleanedOrgNumber = orgNumber.replace(/\s/g, "");
+    const trimmedName = companyName.trim();
     
-    if (cleanedOrgNumber.length !== 9) {
-      toast.error("Org.nummer må være 9 siffer");
+    if (trimmedName.length < 2) {
+      toast.error("Skriv inn minst 2 tegn for å søke");
       return;
     }
 
     setIsSearching(true);
+    setHasSearched(true);
+    setSearchResults([]);
+    
     try {
-      const response = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${cleanedOrgNumber}`);
+      const response = await fetch(
+        `https://data.brreg.no/enhetsregisteret/api/enheter?navn=${encodeURIComponent(trimmedName)}&size=10`
+      );
       
       if (!response.ok) {
-        if (response.status === 404) {
-          toast.error("Fant ingen bedrift med dette org.nummeret");
-        } else {
-          toast.error("Kunne ikke søke i Brønnøysundregistrene");
-        }
+        toast.error("Kunne ikke søke i Brønnøysundregistrene");
         return;
       }
 
-      const data: BrregCompany = await response.json();
+      const data: BrregSearchResult = await response.json();
+      const companies = data._embedded?.enheter || [];
       
-      setFormData({
-        name: data.navn,
-        orgNumber: data.organisasjonsnummer,
-        industry: mapIndustry(data.naeringskode1?.beskrivelse),
-        employees: mapEmployeeRange(data.antallAnsatte),
-        kommune: data.forretningsadresse?.kommune || ""
-      });
-      setCompanyFound(true);
-      toast.success(`Fant ${data.navn}`);
+      if (companies.length === 0) {
+        toast.info("Fant ingen bedrifter med dette navnet");
+      } else if (companies.length === 1) {
+        // Automatically select if only one result
+        selectCompany(companies[0]);
+      } else {
+        setSearchResults(companies);
+        toast.success(`Fant ${companies.length} bedrifter`);
+      }
     } catch (error) {
       console.error("Brreg search error:", error);
       toast.error("Kunne ikke søke i Brønnøysundregistrene");
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const selectCompany = (company: BrregCompany) => {
+    setFormData({
+      name: company.navn,
+      orgNumber: company.organisasjonsnummer,
+      industry: mapIndustry(company.naeringskode1?.beskrivelse),
+      employees: mapEmployeeRange(company.antallAnsatte),
+      kommune: company.forretningsadresse?.kommune || ""
+    });
+    setCompanyFound(true);
+    setSearchResults([]);
+    toast.success(`Valgte ${company.navn}`);
   };
 
   const handleSubmit = async () => {
@@ -141,7 +165,9 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
 
   const resetSearch = () => {
     setCompanyFound(false);
-    setOrgNumber("");
+    setHasSearched(false);
+    setSearchResults([]);
+    setCompanyName("");
     setFormData({
       name: "",
       orgNumber: "",
@@ -150,6 +176,57 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       kommune: ""
     });
   };
+
+  // Show search results for selection
+  if (searchResults.length > 0) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center mb-2">
+          <p className="text-sm font-medium text-foreground">
+            Velg riktig bedrift
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Fant {searchResults.length} treff for "{companyName}"
+          </p>
+        </div>
+        
+        <ScrollArea className="h-[240px] pr-2">
+          <div className="space-y-2">
+            {searchResults.map((company) => (
+              <button
+                key={company.organisasjonsnummer}
+                onClick={() => selectCompany(company)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-left"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted shrink-0">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-medium text-foreground truncate">
+                    {company.navn}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Org.nr: {company.organisasjonsnummer}
+                    {company.forretningsadresse?.kommune && ` • ${company.forretningsadresse.kommune}`}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={resetSearch}
+          className="w-full"
+        >
+          Søk på nytt
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -165,21 +242,21 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="orgSearch" className="text-xs font-medium">
-              Organisasjonsnummer
+            <Label htmlFor="companySearch" className="text-xs font-medium">
+              Bedriftsnavn
             </Label>
             <div className="flex gap-2">
               <Input
-                id="orgSearch"
-                value={orgNumber}
-                onChange={(e) => setOrgNumber(e.target.value)}
+                id="companySearch"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="123 456 789"
+                placeholder="Skriv inn bedriftsnavn..."
                 className="flex-1"
               />
               <Button 
                 onClick={searchBrreg} 
-                disabled={isSearching || orgNumber.replace(/\s/g, "").length < 9}
+                disabled={isSearching || companyName.trim().length < 2}
                 size="icon"
               >
                 {isSearching ? (
@@ -190,7 +267,10 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Skriv inn org.nummer og trykk søk
+              {hasSearched && searchResults.length === 0 && !isSearching
+                ? "Ingen treff. Prøv et annet søkeord."
+                : "Skriv inn bedriftsnavn og trykk søk"
+              }
             </p>
           </div>
         </div>
