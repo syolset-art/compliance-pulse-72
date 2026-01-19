@@ -256,7 +256,7 @@ function EmptyStateWelcome({
       
       {/* Suggestions */}
       <div className="flex-1" />
-      <nav className="w-full max-w-sm mx-auto space-y-2 pb-3" aria-label="Forslag">
+      <nav className="w-full space-y-2 pb-3 px-2" aria-label="Forslag">
         <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">Forslag</p>
         {suggestions.slice(0, 3).map((suggestion, i) => {
           const Icon = suggestion.icon;
@@ -934,17 +934,17 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       <div className="border-t border-border p-3">
         {/* Context-aware suggestions when not in empty state */}
         {!isEmptyState && (
-          <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label="Forslag">
+          <div className="space-y-2 mb-3" role="group" aria-label="Forslag">
             {suggestions?.slice(0, 3).map((suggestion, i) => {
               const Icon = suggestion.icon;
               return (
                 <button
                   key={i}
                   onClick={() => handleSend(suggestion.text)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground text-left"
                 >
-                  {Icon && <Icon className="w-4 h-4" aria-hidden="true" />}
-                  {suggestion.text}
+                  {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
+                  <span className="truncate">{suggestion.text}</span>
                 </button>
               );
             })}
