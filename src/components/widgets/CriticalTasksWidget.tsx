@@ -64,7 +64,7 @@ export function CriticalTasksWidget() {
       color: "text-destructive", 
       bgColor: "hsl(var(--destructive))",
       icon: <AlertTriangle className="h-3.5 w-3.5" />,
-      navigateTo: "/systems"
+      navigateTo: "/tasks?filter=open_incidents"
     },
     { 
       label: t("widgets.reviewsOverdue", "systemer krever revisjon"), 
@@ -72,7 +72,7 @@ export function CriticalTasksWidget() {
       color: "text-warning", 
       bgColor: "hsl(var(--warning))",
       icon: <Clock className="h-3.5 w-3.5" />,
-      navigateTo: "/systems"
+      navigateTo: "/tasks?filter=overdue_reviews"
     },
     { 
       label: t("widgets.pendingApprovals", "risikovurderinger venter godkjenning"), 
@@ -80,7 +80,7 @@ export function CriticalTasksWidget() {
       color: "text-yellow-500", 
       bgColor: "hsl(48, 96%, 53%)",
       icon: <Shield className="h-3.5 w-3.5" />,
-      navigateTo: "/systems"
+      navigateTo: "/tasks?filter=pending_approvals"
     },
   ];
   

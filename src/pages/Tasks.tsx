@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -27,9 +27,89 @@ interface Task {
   systemCount?: number;
   processCount?: number;
   aiAutonomyLevel: number; // 0-100, what autonomy level needed for AI to handle this
+  actionCategory?: "open_incidents" | "overdue_reviews" | "pending_approvals"; // Category for action filters
 }
 
 const mockTasks: Task[] = [
+  // Action-required tasks
+  {
+    id: "incident-1",
+    type: "system",
+    priority: "høy",
+    title: "Uautorisert tilgangsforsøk oppdaget",
+    description: "Flere mislykkede innloggingsforsøk registrert på HR-systemet. Undersøk og bekreft at det ikke foreligger sikkerhetsbrudd.",
+    relevantFor: ["ISO27001", "NIS2"],
+    systemCount: 1,
+    aiAutonomyLevel: 90,
+    actionCategory: "open_incidents"
+  },
+  {
+    id: "incident-2",
+    type: "system",
+    priority: "høy",
+    title: "Potensiell datalekkasje i CRM-system",
+    description: "Uvanlig dataeksport oppdaget. Verifiser at det var autorisert aktivitet og dokumenter hendelsen.",
+    relevantFor: ["GDPR", "ISO27001"],
+    systemCount: 1,
+    aiAutonomyLevel: 95,
+    actionCategory: "open_incidents"
+  },
+  {
+    id: "review-1",
+    type: "system",
+    priority: "høy",
+    title: "Revisjon av SharePoint er forfalt",
+    description: "Planlagt sikkerhetsvurdering for SharePoint skulle vært gjennomført. Planlegg ny revisjon.",
+    relevantFor: ["ISO27001", "GDPR"],
+    systemCount: 1,
+    aiAutonomyLevel: 40,
+    actionCategory: "overdue_reviews"
+  },
+  {
+    id: "review-2",
+    type: "system",
+    priority: "middels",
+    title: "SAP-system krever årlig revisjon",
+    description: "Årlig sikkerhetsrevisjon av SAP-systemet er forfalt. Iverksett revisjonsprosess.",
+    relevantFor: ["ISO27001", "NIS2"],
+    systemCount: 1,
+    aiAutonomyLevel: 45,
+    actionCategory: "overdue_reviews"
+  },
+  {
+    id: "approval-1",
+    type: "prosess",
+    priority: "høy",
+    title: "Godkjenn risikovurdering for nytt AI-system",
+    description: "Risikovurdering for det nye ChatGPT-integrasjonen venter på din godkjenning før produksjonssetting.",
+    relevantFor: ["EU AI Act", "ISO27001"],
+    processCount: 1,
+    aiAutonomyLevel: 100,
+    actionCategory: "pending_approvals"
+  },
+  {
+    id: "approval-2",
+    type: "prosess",
+    priority: "høy",
+    title: "Godkjenn DPIA for kundeportal",
+    description: "Personvernkonsekvensvurdering for ny kundeportal er klar for godkjenning.",
+    relevantFor: ["GDPR"],
+    processCount: 1,
+    aiAutonomyLevel: 100,
+    actionCategory: "pending_approvals"
+  },
+  {
+    id: "approval-3",
+    type: "prosess",
+    priority: "middels",
+    title: "Godkjenn oppdatert tilgangspolicy",
+    description: "Revidert tilgangspolicy for leverandører venter på godkjenning.",
+    relevantFor: ["ISO27001", "NIS2"],
+    processCount: 1,
+    aiAutonomyLevel: 100,
+    actionCategory: "pending_approvals"
+  },
+  // Regular tasks
   {
     id: "1",
     type: "system",
@@ -173,11 +253,28 @@ const domainFrameworkMapping: Record<string, { frameworks: string[]; name: strin
   }
 };
 
+// Filter type labels for display
+const actionFilterLabels: Record<string, { label: string; description: string }> = {
+  open_incidents: { 
+    label: "Åpne sikkerhetshendelser", 
+    description: "Sikkerhetshendelser som krever umiddelbar handling" 
+  },
+  overdue_reviews: { 
+    label: "Systemer krever revisjon", 
+    description: "Systemer hvor planlagt revisjonsdato har passert" 
+  },
+  pending_approvals: { 
+    label: "Risikovurderinger venter godkjenning", 
+    description: "Risikovurderinger som venter på din godkjenning" 
+  }
+};
+
 export default function Tasks() {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const domainFilter = searchParams.get("domain");
+  const actionFilter = searchParams.get("filter");
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
@@ -194,6 +291,12 @@ export default function Tasks() {
     service: 50,
     admin: 25,
     process: 25
+  };
+
+  const clearActionFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("filter");
+    setSearchParams(newParams);
   };
 
   // Simulate AI working on tasks automatically
@@ -309,6 +412,11 @@ export default function Tasks() {
 
   const filteredTasks = mockTasks
     .filter(task => {
+      // Action filter from URL (open_incidents, overdue_reviews, pending_approvals)
+      if (actionFilter && actionFilterLabels[actionFilter]) {
+        if (task.actionCategory !== actionFilter) return false;
+      }
+      
       // Domain filter from URL or state
       if (domainFilter && domainFrameworkMapping[domainFilter]) {
         const relevantFrameworks = domainFrameworkMapping[domainFilter].frameworks;
@@ -340,6 +448,8 @@ export default function Tasks() {
     })
     // Sort by priority (høy first, then middels, then lav)
     .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  
+  const activeActionFilter = actionFilter ? actionFilterLabels[actionFilter] : null;
   
   const setDomainFilter = (domain: string | null) => {
     if (domain) {
@@ -376,52 +486,85 @@ export default function Tasks() {
           <p className="text-muted-foreground">{t("tasks.subtitle")}</p>
         </div>
 
-        {/* Domain Filter - Primary filter section */}
-        <Card className="p-4 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-foreground">Filtrer etter domene</span>
-            {domainFilter && (
+        {/* Action Filter Banner - Shows when navigating from dashboard widget */}
+        {activeActionFilter && (
+          <Card className="p-4 mb-6 border-warning/50 bg-warning/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-warning/20 flex items-center justify-center">
+                  {actionFilter === "open_incidents" && <AlertTriangle className="h-5 w-5 text-destructive" />}
+                  {actionFilter === "overdue_reviews" && <Clock className="h-5 w-5 text-warning" />}
+                  {actionFilter === "pending_approvals" && <Shield className="h-5 w-5 text-yellow-500" />}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{activeActionFilter.label}</h3>
+                  <p className="text-sm text-muted-foreground">{activeActionFilter.description}</p>
+                </div>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setDomainFilter(null)}
-                className="text-xs text-muted-foreground hover:text-foreground gap-1"
+                onClick={clearActionFilter}
+                className="text-muted-foreground hover:text-foreground gap-1"
               >
-                <X className="w-3 h-3" />
-                Fjern filter
+                <X className="w-4 h-4" />
+                Vis alle oppgaver
               </Button>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant={!domainFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDomainFilter(null)}
-              className="gap-2"
-            >
-              Alle domener
-              <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
-            </Button>
-            {Object.entries(domainFrameworkMapping).map(([key, domain]) => (
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Viser {filteredTasks.length} {filteredTasks.length === 1 ? 'oppgave' : 'oppgaver'} som krever din handling
+            </p>
+          </Card>
+        )}
+
+        {/* Domain Filter - Primary filter section */}
+        {!activeActionFilter && (
+          <Card className="p-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-foreground">Filtrer etter domene</span>
+              {domainFilter && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDomainFilter(null)}
+                  className="text-xs text-muted-foreground hover:text-foreground gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Fjern filter
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
               <Button
-                key={key}
-                variant={domainFilter === key ? "default" : "outline"}
+                variant={!domainFilter ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDomainFilter(key)}
+                onClick={() => setDomainFilter(null)}
                 className="gap-2"
               >
-                {domain.icon}
-                {domain.name}
-                <Badge variant="secondary" className="ml-1">{getTaskCountForDomain(key)}</Badge>
+                Alle domener
+                <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
               </Button>
-            ))}
-          </div>
-          {activeDomain && (
-            <p className="text-xs text-muted-foreground mt-3">
-              Viser {filteredTasks.length} oppgaver for {activeDomain.name}, sortert etter prioritet
-            </p>
-          )}
-        </Card>
+              {Object.entries(domainFrameworkMapping).map(([key, domain]) => (
+                <Button
+                  key={key}
+                  variant={domainFilter === key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setDomainFilter(key)}
+                  className="gap-2"
+                >
+                  {domain.icon}
+                  {domain.name}
+                  <Badge variant="secondary" className="ml-1">{getTaskCountForDomain(key)}</Badge>
+                </Button>
+              ))}
+            </div>
+            {activeDomain && (
+              <p className="text-xs text-muted-foreground mt-3">
+                Viser {filteredTasks.length} oppgaver for {activeDomain.name}, sortert etter prioritet
+              </p>
+            )}
+          </Card>
+        )}
 
         {/* AI Status Banner - Now shows specific task details */}
         {aiWorkingTasks.size > 0 && (
