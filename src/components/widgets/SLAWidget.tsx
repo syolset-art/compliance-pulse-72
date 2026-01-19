@@ -31,16 +31,16 @@ export function SLAWidget() {
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
             SLA-oppnåelse
           </CardTitle>
-          <div className="flex gap-1 p-1 bg-muted rounded-lg">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg overflow-x-auto">
             {periods.map((p) => (
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                   period === p.value
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -56,13 +56,13 @@ export function SLAWidget() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {slaData.map((item) => (
             <Card key={item.title} className="bg-muted/30 border-border">
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground mb-3">{item.title}</p>
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-3xl font-bold text-foreground">
+              <CardContent className="p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">{item.title}</p>
+                <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 mb-2">
+                  <span className="text-2xl sm:text-3xl font-bold text-foreground">
                     {item.percentage}%
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {item.current} av {item.total} i tide
                   </span>
                 </div>
