@@ -10,7 +10,7 @@ import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompany
 import confetti from "canvas-confetti";
 
 interface LaraAgentProps {
-  onOpenSystemDialog?: () => void;
+  onOpenAssetDialog?: () => void;
   onToggleChat?: () => void;
   isChatOpen?: boolean;
 }
@@ -57,7 +57,7 @@ const triggerConfetti = () => {
   frame();
 };
 
-export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false }: LaraAgentProps) => {
+export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const hasShownConfetti = useRef(false);
@@ -86,9 +86,9 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
       case 'company-info':
         setShowCompanyForm(true);
         break;
-      case 'systems':
-        if (onOpenSystemDialog) {
-          onOpenSystemDialog();
+      case 'assets':
+        if (onOpenAssetDialog) {
+          onOpenAssetDialog();
           setIsOpen(false);
         }
         break;
