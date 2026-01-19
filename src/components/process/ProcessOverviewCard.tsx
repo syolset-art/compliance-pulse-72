@@ -69,79 +69,79 @@ export const ProcessOverviewCard = ({
 
   return (
     <Card
-      className="cursor-pointer hover:bg-muted/50 transition-colors border-border/50"
+      className="cursor-pointer hover:bg-muted/50 transition-colors border-border/50 active:scale-[0.99]"
       onClick={onClick}
     >
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         {/* Title & Description */}
         <div>
-          <h4 className="font-semibold text-sm leading-tight line-clamp-2">
+          <h4 className="font-semibold text-xs sm:text-sm leading-tight line-clamp-2">
             {process.name}
           </h4>
           {process.description && (
-            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-1.5 line-clamp-2 sm:line-clamp-3">
               {process.description}
             </p>
           )}
         </div>
 
-        {/* Criticality Badge */}
+        {/* Criticality Badge - Compact on mobile */}
         <div
-          className={`flex items-center justify-between px-3 py-2 rounded-md border ${critConfig.bgClass} ${critConfig.borderClass}`}
+          className={`flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border ${critConfig.bgClass} ${critConfig.borderClass}`}
         >
-          <div className="flex items-center gap-2">
-            <Shield className={`h-4 w-4 ${critConfig.textClass}`} />
-            <span className="text-xs font-medium">Kritikalitetsnivå</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Shield className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${critConfig.textClass}`} />
+            <span className="text-[10px] sm:text-xs font-medium">Kritikalitet</span>
           </div>
           <Badge
             variant="outline"
-            className={`${critConfig.bgClass} ${critConfig.textClass} border-0 text-xs`}
+            className={`${critConfig.bgClass} ${critConfig.textClass} border-0 text-[10px] sm:text-xs`}
           >
             {critConfig.label}
           </Badge>
         </div>
 
-        {/* Process Statistics */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <BarChart3 className="h-3.5 w-3.5" />
-            <span className="font-medium">Prosessstatistikk</span>
+        {/* Process Statistics - More compact on mobile */}
+        <div className="space-y-1.5 sm:space-y-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+            <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="font-medium">Statistikk</span>
           </div>
-          <div className="space-y-1.5 pl-5">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${getStatDotColor(stats.dataTypes)}`} />
+          <div className="grid grid-cols-2 gap-1.5 sm:space-y-1.5 sm:block sm:pl-5">
+            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${getStatDotColor(stats.dataTypes)}`} />
                 <span className="text-muted-foreground">Datatyper</span>
               </div>
-              <Badge variant="secondary" className="h-5 min-w-5 justify-center text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
                 {stats.dataTypes}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${getStatDotColor(stats.systems)}`} />
+            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${getStatDotColor(stats.systems)}`} />
                 <span className="text-muted-foreground">Systemer</span>
               </div>
-              <Badge variant="secondary" className="h-5 min-w-5 justify-center text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
                 {stats.systems}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${stats.riskScenarios > 0 ? "bg-orange-400" : "bg-blue-400"}`} />
-                <span className="text-muted-foreground">Risikoscenarioer</span>
+            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${stats.riskScenarios > 0 ? "bg-orange-400" : "bg-blue-400"}`} />
+                <span className="text-muted-foreground">Risikoer</span>
               </div>
-              <Badge variant="secondary" className="h-5 min-w-5 justify-center text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
                 {stats.riskScenarios}
               </Badge>
             </div>
             {stats.pendingMitigations > 0 && (
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-3 w-3 text-orange-400" />
-                  <span className="text-orange-400">Tiltak ikke iverksatt</span>
+              <div className="flex items-center justify-between text-[10px] sm:text-xs bg-orange-50 dark:bg-orange-950/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-orange-400" />
+                  <span className="text-orange-400 truncate">Tiltak mangler</span>
                 </div>
-                <Badge variant="outline" className="h-5 min-w-5 justify-center text-xs text-orange-400 border-orange-400/50">
+                <Badge variant="outline" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs text-orange-400 border-orange-400/50">
                   {stats.pendingMitigations}
                 </Badge>
               </div>
@@ -149,15 +149,15 @@ export const ProcessOverviewCard = ({
           </div>
         </div>
 
-        {/* Process Owner */}
-        <div className="space-y-1.5 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <User className="h-3.5 w-3.5" />
-            <span className="font-medium">Prosessansvarlig</span>
+        {/* Process Owner - Compact on mobile */}
+        <div className="space-y-1 sm:space-y-1.5 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+            <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="font-medium">Ansvarlig</span>
           </div>
-          <div className="flex items-center gap-2 pl-5 text-xs">
-            <Check className="h-3 w-3 text-green-400" />
-            <span>{processOwner}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 pl-4 sm:pl-5 text-[10px] sm:text-xs">
+            <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-400" />
+            <span className="truncate">{processOwner}</span>
           </div>
         </div>
       </CardContent>

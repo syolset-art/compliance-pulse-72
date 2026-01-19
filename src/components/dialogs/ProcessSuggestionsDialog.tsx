@@ -168,138 +168,140 @@ export const ProcessSuggestionsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Prosessforslag fra Lara Soft
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] sm:max-h-[85vh] flex flex-col p-4 sm:p-6">
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+            <span className="truncate">Prosessforslag fra Lara Soft</span>
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Velg hvilke prosesser du vil opprette. Prosesser med AI-bruk vil automatisk få registrert AI-informasjon.
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Velg prosesser du vil opprette. AI-prosesser registreres automatisk.
           </p>
         </DialogHeader>
 
-        {/* Quick stats */}
-        <div className="flex items-center gap-4 py-2 px-1 border-b">
-          <div className="text-sm">
+        {/* Quick stats - mobile optimized */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 py-2 border-b">
+          <div className="text-xs sm:text-sm">
             <span className="font-medium">{editableSuggestions.length}</span> forslag
           </div>
           {aiProcessCount > 0 && (
-            <div className="flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-500">
-              <Bot className="h-4 w-4" />
-              <span className="font-medium">{aiProcessCount}</span> med AI-bruk
+            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-amber-600 dark:text-amber-500">
+              <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="font-medium">{aiProcessCount}</span> AI
             </div>
           )}
-          <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs h-7">
+          <div className="flex items-center gap-1 sm:gap-2 ml-auto">
+            <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs h-6 sm:h-7 px-2">
               Velg alle
             </Button>
-            <Button variant="ghost" size="sm" onClick={deselectAll} className="text-xs h-7">
-              Fjern valg
+            <Button variant="ghost" size="sm" onClick={deselectAll} className="text-xs h-6 sm:h-7 px-2">
+              Fjern
             </Button>
           </div>
         </div>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
-          <div className="space-y-3 py-2">
+        <ScrollArea className="flex-1 -mx-4 sm:-mx-6 px-4 sm:px-6">
+          <div className="space-y-2 sm:space-y-3 py-2">
             {editableSuggestions.map((suggestion, index) => (
               <div
                 key={index}
                 className={cn(
-                  "border rounded-lg p-4 transition-colors",
+                  "border rounded-lg p-3 sm:p-4 transition-colors",
                   selectedIndices.has(index) ? "border-primary bg-primary/5" : "border-border",
                   suggestion.likely_has_ai && "ring-1 ring-amber-200 dark:ring-amber-800"
                 )}
               >
                 {suggestion.isEditing ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <Input
                       value={suggestion.editedName}
                       onChange={(e) => updateEditField(index, "editedName", e.target.value)}
                       placeholder="Prosessnavn"
-                      className="font-medium"
+                      className="font-medium text-sm"
                     />
                     <Textarea
                       value={suggestion.editedDescription}
                       onChange={(e) => updateEditField(index, "editedDescription", e.target.value)}
                       placeholder="Beskrivelse"
-                      rows={3}
+                      rows={2}
+                      className="text-sm"
                     />
                     <div className="flex items-center gap-2">
-                      <Button size="sm" onClick={() => saveEdit(index)}>
-                        <Check className="h-4 w-4 mr-1" />
+                      <Button size="sm" onClick={() => saveEdit(index)} className="h-8 text-xs">
+                        <Check className="h-3.5 w-3.5 mr-1" />
                         Lagre
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => cancelEdit(index)}>
-                        <X className="h-4 w-4 mr-1" />
+                      <Button size="sm" variant="outline" onClick={() => cancelEdit(index)} className="h-8 text-xs">
+                        <X className="h-3.5 w-3.5 mr-1" />
                         Avbryt
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 sm:gap-3">
                       <Checkbox
                         checked={selectedIndices.has(index)}
                         onCheckedChange={() => toggleSelection(index)}
-                        className="mt-1"
+                        className="mt-0.5"
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-medium text-sm">{suggestion.name}</h4>
+                        {/* Mobile: Stack vertically, Desktop: Row */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                            <h4 className="font-medium text-xs sm:text-sm break-words">{suggestion.name}</h4>
                             {suggestion.likely_has_ai && (
-                              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800">
-                                <Bot className="h-3 w-3 mr-1" />
+                              <Badge variant="outline" className="text-[10px] sm:text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800 shrink-0">
+                                <Bot className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                                 AI
                               </Badge>
                             )}
                             {getPriorityBadge(suggestion.priority)}
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 -ml-0.5 sm:ml-0">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-muted-foreground h-7 px-2"
+                              className="text-muted-foreground h-6 sm:h-7 px-1.5 sm:px-2"
                               onClick={() => toggleExpand(index)}
                             >
                               {suggestion.isExpanded ? (
-                                <ChevronUp className="h-4 w-4" />
+                                <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               ) : (
-                                <ChevronDown className="h-4 w-4" />
+                                <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               )}
                             </Button>
                             <Button
                               variant="link"
                               size="sm"
-                              className="text-primary h-auto p-0 shrink-0"
+                              className="text-primary h-auto p-0 text-xs shrink-0"
                               onClick={() => toggleEdit(index)}
                             >
-                              <Edit2 className="h-3 w-3 mr-1" />
+                              <Edit2 className="h-3 w-3 mr-0.5 sm:mr-1" />
                               Rediger
                             </Button>
                           </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
                           {suggestion.description}
                         </p>
                         
-                        {/* Expanded details */}
+                        {/* Expanded details - mobile optimized */}
                         {suggestion.isExpanded && (
-                          <div className="mt-3 pt-3 border-t space-y-3">
+                          <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t space-y-2 sm:space-y-3">
                             {suggestion.likely_has_ai && suggestion.ai_use_description && (
-                              <div className="bg-amber-50 dark:bg-amber-950/50 rounded-md p-3 space-y-1">
-                                <div className="flex items-center gap-1.5 text-sm font-medium text-amber-800 dark:text-amber-300">
-                                  <Bot className="h-4 w-4" />
+                              <div className="bg-amber-50 dark:bg-amber-950/50 rounded-md p-2 sm:p-3 space-y-1">
+                                <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-300">
+                                  <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                   AI-bruk identifisert
                                 </div>
-                                <p className="text-sm text-amber-700 dark:text-amber-400">
+                                <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
                                   {suggestion.ai_use_description}
                                 </p>
-                                <div className="flex items-start gap-1.5 mt-2 text-xs text-amber-600 dark:text-amber-500">
-                                  <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                                <div className="flex items-start gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-amber-600 dark:text-amber-500">
+                                  <AlertTriangle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mt-0.5 shrink-0" />
                                   <span>
-                                    AI-bruk vil bli registrert automatisk og krever videre risikovurdering.
+                                    AI-bruk registreres automatisk og krever risikovurdering.
                                   </span>
                                 </div>
                               </div>
@@ -307,10 +309,10 @@ export const ProcessSuggestionsDialog = ({
                             
                             {suggestion.related_systems.length > 0 && (
                               <div>
-                                <span className="text-xs font-medium text-muted-foreground">Relaterte systemer:</span>
+                                <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">Relaterte systemer:</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {suggestion.related_systems.map((sys, sysIdx) => (
-                                    <Badge key={sysIdx} variant="secondary" className="text-xs">
+                                    <Badge key={sysIdx} variant="secondary" className="text-[10px] sm:text-xs">
                                       {sys}
                                     </Badge>
                                   ))}
@@ -320,10 +322,10 @@ export const ProcessSuggestionsDialog = ({
 
                             {suggestion.data_types && suggestion.data_types.length > 0 && (
                               <div>
-                                <span className="text-xs font-medium text-muted-foreground">Datatyper:</span>
+                                <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">Datatyper:</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {suggestion.data_types.map((dt, dtIdx) => (
-                                    <Badge key={dtIdx} variant="outline" className="text-xs">
+                                    <Badge key={dtIdx} variant="outline" className="text-[10px] sm:text-xs">
                                       {dt}
                                     </Badge>
                                   ))}
@@ -331,14 +333,14 @@ export const ProcessSuggestionsDialog = ({
                               </div>
                             )}
 
-                            <div className="text-xs text-muted-foreground italic">
+                            <div className="text-[10px] sm:text-xs text-muted-foreground italic">
                               {suggestion.reason}
                             </div>
                           </div>
                         )}
 
                         {!suggestion.isExpanded && suggestion.related_systems.length > 0 && (
-                          <p className="text-xs text-muted-foreground mt-2">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2 truncate">
                             Systemer: {suggestion.related_systems.join(", ")}
                           </p>
                         )}
@@ -351,24 +353,28 @@ export const ProcessSuggestionsDialog = ({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2 pt-4 border-t">
-          <div className="text-sm text-muted-foreground mr-auto space-y-1">
+        <DialogFooter className="flex-col gap-2 sm:gap-3 pt-3 sm:pt-4 border-t">
+          {/* Status info - always on top on mobile */}
+          <div className="text-xs sm:text-sm text-muted-foreground w-full space-y-0.5 sm:space-y-1">
             <div>{selectedCount} av {editableSuggestions.length} prosesser valgt</div>
             {selectedAICount > 0 && (
               <div className="flex items-center gap-1 text-amber-600 dark:text-amber-500">
-                <Bot className="h-3.5 w-3.5" />
+                <Bot className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {selectedAICount} med AI-bruk vil bli registrert
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10" onClick={handleRejectAll}>
-              Avslå alle
-            </Button>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Avbryt
-            </Button>
-            <Button onClick={handleCreate} disabled={selectedCount === 0 || isCreating}>
+          {/* Action buttons - stack on mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 order-2 sm:order-1">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-initial text-destructive border-destructive/50 hover:bg-destructive/10 text-xs sm:text-sm h-8 sm:h-9" onClick={handleRejectAll}>
+                Avslå alle
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-initial text-xs sm:text-sm h-8 sm:h-9" onClick={() => onOpenChange(false)}>
+                Avbryt
+              </Button>
+            </div>
+            <Button onClick={handleCreate} disabled={selectedCount === 0 || isCreating} className="w-full sm:w-auto order-1 sm:order-2 text-xs sm:text-sm h-9 sm:h-10">
               {isCreating ? "Oppretter..." : `Opprett valgte (${selectedCount})`}
             </Button>
           </div>
