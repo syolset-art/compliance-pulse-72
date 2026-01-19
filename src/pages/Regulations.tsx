@@ -33,6 +33,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 
 interface SelectedFramework {
   id: string;
@@ -70,6 +71,8 @@ const Regulations = () => {
   const [showAvailable, setShowAvailable] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [initializing, setInitializing] = useState(false);
+  const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
+  const [showActivationDialog, setShowActivationDialog] = useState(false);
 
   // Fetch company profile and frameworks
   useEffect(() => {
@@ -298,12 +301,19 @@ const Regulations = () => {
       
       setSelectedFrameworks(data || []);
       
-      toast({
-        title: currentlySelected ? "Regelverk deaktivert" : "Regelverk aktivert",
-        description: currentlySelected 
-          ? "Regelverket er fjernet fra listen din" 
-          : "Regelverket er lagt til i listen din"
-      });
+      // Show activation dialog when activating (not deactivating)
+      if (!currentlySelected) {
+        const framework = frameworks.find(f => f.id === frameworkId);
+        if (framework) {
+          setActivatedFramework(framework);
+          setShowActivationDialog(true);
+        }
+      } else {
+        toast({
+          title: "Regelverk deaktivert",
+          description: "Regelverket er fjernet fra listen din"
+        });
+      }
     } catch (error) {
       console.error('Error toggling framework:', error);
       toast({
@@ -670,6 +680,18 @@ const Regulations = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Framework Activation Dialog */}
+          <FrameworkActivationDialog
+            open={showActivationDialog}
+            onOpenChange={setShowActivationDialog}
+            framework={activatedFramework}
+            onNavigate={(path) => navigate(path)}
+            onOpenChat={(message) => {
+              // Navigate to dashboard and trigger chat
+              navigate('/', { state: { openChat: true, chatMessage: message } });
+            }}
+          />
         </div>
       </main>
     </div>
