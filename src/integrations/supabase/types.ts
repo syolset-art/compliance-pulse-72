@@ -692,38 +692,62 @@ export type Database = {
       }
       system_incidents: {
         Row: {
+          category: string | null
           created_at: string | null
+          criticality: string | null
           description: string | null
+          due_date: string | null
           id: string
           last_updated: string | null
+          measures_completed: number | null
+          measures_count: number | null
+          processes_count: number | null
+          relevant_frameworks: string[] | null
           responsible: string | null
           risk_level: string | null
           status: string | null
           system_id: string
+          systems_count: number | null
           time_hours: number | null
           title: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
+          due_date?: string | null
           id?: string
           last_updated?: string | null
+          measures_completed?: number | null
+          measures_count?: number | null
+          processes_count?: number | null
+          relevant_frameworks?: string[] | null
           responsible?: string | null
           risk_level?: string | null
           status?: string | null
           system_id: string
+          systems_count?: number | null
           time_hours?: number | null
           title: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
+          due_date?: string | null
           id?: string
           last_updated?: string | null
+          measures_completed?: number | null
+          measures_count?: number | null
+          processes_count?: number | null
+          relevant_frameworks?: string[] | null
           responsible?: string | null
           risk_level?: string | null
           status?: string | null
           system_id?: string
+          systems_count?: number | null
           time_hours?: number | null
           title?: string
         }
