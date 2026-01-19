@@ -157,7 +157,7 @@ function EmptyStateWelcome({
           Hei! Jeg er Lara 👋
         </h2>
         <p className="text-base text-muted-foreground text-center max-w-xs">
-          Jeg hjelper deg med compliance, personvern og informasjonssikkerhet
+          Jeg hjelper deg med Personvern, informasjonssikkerhet og AI Governance
         </p>
       </div>
 
