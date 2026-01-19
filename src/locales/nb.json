@@ -70,9 +70,9 @@
   "widgets": {
     "requiresAction": "Krever handling",
     "thingsWaiting": "ting venter på deg",
-    "openIncidents": "åpne hendelser",
-    "reviewsOverdue": "gjennomganger forfalt",
-    "missingPlan": "system mangler plan",
+    "openIncidents": "åpne sikkerhetshendelser",
+    "reviewsOverdue": "systemer krever revisjon",
+    "pendingApprovals": "risikovurderinger venter godkjenning",
     "takeAction": "Ta tak i det",
     "riskPicture": "Risikobilde",
     "howItLooksNow": "Slik ser det ut nå",

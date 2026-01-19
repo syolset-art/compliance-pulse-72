@@ -70,9 +70,9 @@
   "widgets": {
     "requiresAction": "Requires action",
     "thingsWaiting": "things waiting for you",
-    "openIncidents": "open incidents",
-    "reviewsOverdue": "reviews overdue",
-    "missingPlan": "system missing plan",
+    "openIncidents": "open security incidents",
+    "reviewsOverdue": "systems require review",
+    "pendingApprovals": "risk assessments pending approval",
     "takeAction": "Take action",
     "riskPicture": "Risk picture",
     "howItLooksNow": "How it looks now",
