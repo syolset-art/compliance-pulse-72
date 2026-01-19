@@ -15,6 +15,7 @@ import { AIUsageOverviewWidget } from "@/components/widgets/AIUsageOverviewWidge
 import { AIActComplianceWidget } from "@/components/widgets/AIActComplianceWidget";
 import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget";
 import { ComplianceCard } from "@/components/widgets/ComplianceCard";
+import { MyRegulationsWidget } from "@/components/widgets/MyRegulationsWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
@@ -169,6 +170,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               {/* AI Usage Overview */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <AIUsageOverviewWidget />
+                <MyRegulationsWidget />
+              </div>
+
+              {/* AI Act Compliance */}
+              <div className="mb-6">
                 <AIActComplianceWidget />
               </div>
 
@@ -321,9 +327,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   <ThirdPartyManagementWidget />
                 </div>
 
-                {/* AI Usage Overview */}
+                {/* AI Usage & Regulations Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                   <AIUsageOverviewWidget />
+                  <MyRegulationsWidget />
+                </div>
+
+                {/* AI Act Compliance */}
+                <div className="mb-6">
                   <AIActComplianceWidget />
                 </div>
 
