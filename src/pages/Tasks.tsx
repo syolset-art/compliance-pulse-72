@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -61,8 +62,31 @@ const mockTasks: Task[] = [
   }
 ];
 
+// Mapping between domain IDs and relevant regulatory frameworks
+const domainFrameworkMapping: Record<string, { frameworks: string[]; name: string; icon: React.ReactNode }> = {
+  privacy: {
+    frameworks: ["GDPR", "Personopplysningsloven"],
+    name: "Personvern",
+    icon: <Shield className="w-4 h-4" />
+  },
+  infosec: {
+    frameworks: ["ISO27001", "NIS2", "CRA"],
+    name: "Informasjonssikkerhet",
+    icon: <Lock className="w-4 h-4" />
+  },
+  "ai-governance": {
+    frameworks: ["EU AI Act", "AI Act"],
+    name: "AI Governance",
+    icon: <Bot className="w-4 h-4" />
+  }
+};
+
 export default function Tasks() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const domainFilter = searchParams.get("domain");
+  
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
@@ -189,6 +213,15 @@ export default function Tasks() {
   };
 
   const filteredTasks = mockTasks.filter(task => {
+    // Domain filter from URL
+    if (domainFilter && domainFrameworkMapping[domainFilter]) {
+      const relevantFrameworks = domainFrameworkMapping[domainFilter].frameworks;
+      const hasRelevantFramework = task.relevantFor.some(framework => 
+        relevantFrameworks.some(rf => framework.toLowerCase().includes(rf.toLowerCase()) || rf.toLowerCase().includes(framework.toLowerCase()))
+      );
+      if (!hasRelevantFramework) return false;
+    }
+    
     // AI status filter
     if (aiStatusFilter !== "all") {
       const aiCanHandle = canAIHandle(task);
@@ -209,6 +242,12 @@ export default function Tasks() {
       return false;
     });
   });
+  
+  const clearDomainFilter = () => {
+    navigate("/tasks");
+  };
+  
+  const activeDomain = domainFilter ? domainFrameworkMapping[domainFilter] : null;
 
   const aiHandlingCount = mockTasks.filter(canAIHandle).length;
   const requiresActionCount = mockTasks.filter(task => !canAIHandle(task)).length;
@@ -221,9 +260,25 @@ export default function Tasks() {
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-foreground">{t("tasks.title")}</h1>
+            {activeDomain && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                {activeDomain.icon}
+                <span className="text-sm font-medium text-primary">{activeDomain.name}</span>
+                <button
+                  onClick={clearDomainFilter}
+                  className="ml-1 p-0.5 rounded-full hover:bg-primary/20 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5 text-primary" />
+                </button>
+              </div>
+            )}
+          </div>
           <p className="text-muted-foreground">
-            {t("tasks.subtitle")}
+            {activeDomain 
+              ? `Viser oppgaver relatert til ${activeDomain.name}`
+              : t("tasks.subtitle")}
           </p>
         </div>
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Shield, Lock, Bot, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Shield, Lock, Bot, TrendingUp, TrendingDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface DomainStatus {
   id: string;
@@ -88,6 +90,7 @@ const getProgressColor = (status: string) => {
 };
 
 export function StatusOverviewWidget() {
+  const navigate = useNavigate();
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
   
   const totalScore = Math.round(
@@ -166,6 +169,18 @@ export function StatusOverviewWidget() {
                     value={domain.slaPercentage} 
                     className={`h-1 ${getProgressColor(domain.status)}`}
                   />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-3 gap-2 text-primary hover:text-primary hover:bg-primary/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/tasks?domain=${domain.id}`);
+                    }}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Se alle oppgaver for {domain.name}
+                  </Button>
                 </div>
               </div>
             )}
