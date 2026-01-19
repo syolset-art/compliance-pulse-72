@@ -93,6 +93,18 @@ export const useOnboardingProgress = () => {
   const nextStep = steps.find(s => !s.isCompleted) || null;
   const isFullyComplete = completedCount === totalCount;
 
+  const resetOnboarding = useCallback(async () => {
+    setIsLoading(true);
+    
+    // Delete all data from relevant tables to reset onboarding
+    await supabase.from("company_profile").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("systems").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("work_areas").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    
+    // Refetch to update state
+    await fetchProgress();
+  }, [fetchProgress]);
+
   return {
     steps,
     completedCount,
@@ -101,6 +113,7 @@ export const useOnboardingProgress = () => {
     nextStep,
     isFullyComplete,
     isLoading,
-    refetch: fetchProgress
+    refetch: fetchProgress,
+    resetOnboarding
   };
 };

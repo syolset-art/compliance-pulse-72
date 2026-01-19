@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sparkles, Check, Server, Building, Building2, ChevronRight } from "lucide-react";
+import { X, Sparkles, Check, Server, Building, Building2, ChevronRight, RotateCcw } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
@@ -62,6 +62,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const hasShownConfetti = useRef(false);
   const navigate = useNavigate();
+  const [isResetting, setIsResetting] = useState(false);
   const { 
     steps, 
     completedCount, 
@@ -70,7 +71,8 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
     nextStep, 
     isFullyComplete,
     isLoading,
-    refetch 
+    refetch,
+    resetOnboarding
   } = useOnboardingProgress();
 
   const remainingSteps = totalCount - completedCount;
@@ -342,13 +344,28 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
                     </Button>
                   )}
 
-                  {/* Later button */}
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-center mt-3"
-                  >
-                    Gjør dette senere
-                  </button>
+                  {/* Reset onboarding button */}
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Gjør dette senere
+                    </button>
+                    <span className="text-muted-foreground">•</span>
+                    <button
+                      onClick={async () => {
+                        setIsResetting(true);
+                        await resetOnboarding();
+                        setIsResetting(false);
+                      }}
+                      disabled={isResetting}
+                      className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                    >
+                      <RotateCcw className={`h-3 w-3 ${isResetting ? 'animate-spin' : ''}`} />
+                      {isResetting ? 'Tilbakestiller...' : 'Tilbakestill'}
+                    </button>
+                  </div>
                 </>
               )}
             </CardContent>
