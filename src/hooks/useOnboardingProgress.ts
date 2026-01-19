@@ -24,7 +24,7 @@ export interface OnboardingProgress {
 export const useOnboardingProgress = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [companyInfoCompleted, setCompanyInfoCompleted] = useState(false);
-  const [systemsAdded, setSystemsAdded] = useState(false);
+  const [assetsAdded, setAssetsAdded] = useState(false);
   const [workAreasDefined, setWorkAreasDefined] = useState(false);
 
   const fetchProgress = useCallback(async () => {
@@ -36,9 +36,9 @@ export const useOnboardingProgress = () => {
       .select("id")
       .limit(1);
     
-    // Check systems table
-    const { data: systemsData } = await supabase
-      .from("systems")
+    // Check assets table
+    const { data: assetsData } = await supabase
+      .from("assets")
       .select("id")
       .limit(1);
     
@@ -49,7 +49,7 @@ export const useOnboardingProgress = () => {
       .limit(1);
 
     setCompanyInfoCompleted(!!companyData && companyData.length > 0);
-    setSystemsAdded(!!systemsData && systemsData.length > 0);
+    setAssetsAdded(!!assetsData && assetsData.length > 0);
     setWorkAreasDefined(!!workAreasData && workAreasData.length > 0);
     setIsLoading(false);
   }, []);
@@ -68,12 +68,12 @@ export const useOnboardingProgress = () => {
       icon: 'Building2'
     },
     {
-      id: 'systems',
-      title: 'Legg til systemer',
-      description: 'Registrer IT-systemer og applikasjoner',
-      isCompleted: systemsAdded,
+      id: 'assets',
+      title: 'Legg til eiendeler',
+      description: 'Registrer systemer, leverandører og annen infrastruktur',
+      isCompleted: assetsAdded,
       action: 'dialog',
-      actionTarget: 'AddSystemDialog',
+      actionTarget: 'AddAssetDialog',
       icon: 'Server'
     },
     {
@@ -98,7 +98,7 @@ export const useOnboardingProgress = () => {
     
     // Delete all data from relevant tables to reset onboarding
     await supabase.from("company_profile").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    await supabase.from("systems").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("assets").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("work_areas").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     
     // Refetch to update state

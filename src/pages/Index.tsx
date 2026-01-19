@@ -17,7 +17,7 @@ import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget"
 import { ComplianceCard } from "@/components/widgets/ComplianceCard";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
-import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
+import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -31,11 +31,18 @@ const Index = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
-  const [isAddSystemOpen, setIsAddSystemOpen] = useState(false);
+  const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
+    asset_type: string;
+    display_name: string;
+    display_name_plural: string;
+    icon: string;
+    color: string;
+  }>>([]);
   const [contentView, setContentView] = useState<{ 
     type: string; 
     filter?: string;
@@ -48,18 +55,28 @@ const Index = () => {
   } | null>(null);
 
   useEffect(() => {
-    const fetchCompany = async () => {
-      const { data } = await supabase
+    const fetchData = async () => {
+      // Fetch company name
+      const { data: companyData } = await supabase
         .from("company_profile")
         .select("name")
         .limit(1)
         .maybeSingle();
       
-      if (data?.name) {
-        setCompanyName(data.name);
+      if (companyData?.name) {
+        setCompanyName(companyData.name);
+      }
+
+      // Fetch asset type templates
+      const { data: templates } = await supabase
+        .from("asset_type_templates")
+        .select("asset_type, display_name, display_name_plural, icon, color");
+      
+      if (templates) {
+        setAssetTypeTemplates(templates);
       }
     };
-    fetchCompany();
+    fetchData();
   }, []);
 
   const handleShowContent = (contentType: string, filter?: string, options?: any, explanation?: string) => {
@@ -204,7 +221,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         </main>
 
         <LaraAgent 
-          onOpenSystemDialog={() => setIsAddSystemOpen(true)}
+          onOpenAssetDialog={() => setIsAddAssetOpen(true)}
           onToggleChat={handleToggleChat}
           isChatOpen={isChatOpen}
         />
@@ -221,10 +238,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           onOpenChange={setIsAddModuleOpen}
           onModuleCreated={handleModuleCreated}
         />
-        <AddSystemDialog
-          open={isAddSystemOpen}
-          onOpenChange={setIsAddSystemOpen}
-          onSystemAdded={() => {}}
+        <AddAssetDialog
+          open={isAddAssetOpen}
+          onOpenChange={setIsAddAssetOpen}
+          onAssetAdded={() => {}}
+          assetTypeTemplates={assetTypeTemplates}
         />
         <AddWorkAreaDialog
           open={isAddWorkAreaOpen}
@@ -359,7 +377,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
 
       {/* Lara AI Agent */}
       <LaraAgent 
-        onOpenSystemDialog={() => setIsAddSystemOpen(true)}
+        onOpenAssetDialog={() => setIsAddAssetOpen(true)}
         onToggleChat={handleToggleChat}
         isChatOpen={isChatOpen}
       />
@@ -380,10 +398,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
       />
 
       {/* Onboarding Dialogs */}
-      <AddSystemDialog
-        open={isAddSystemOpen}
-        onOpenChange={setIsAddSystemOpen}
-        onSystemAdded={() => {}}
+      <AddAssetDialog
+        open={isAddAssetOpen}
+        onOpenChange={setIsAddAssetOpen}
+        onAssetAdded={() => {}}
+        assetTypeTemplates={assetTypeTemplates}
       />
       <AddWorkAreaDialog
         open={isAddWorkAreaOpen}
