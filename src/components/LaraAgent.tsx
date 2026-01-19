@@ -119,13 +119,7 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
         {!isOpen && (
           <div className="relative">
             <button
-              onClick={() => {
-                if (isFullyComplete && onToggleChat) {
-                  onToggleChat();
-                } else {
-                  setIsOpen(true);
-                }
-              }}
+              onClick={() => setIsOpen(true)}
               className="relative group animate-fade-in"
             >
               {/* Progress ring behind butterfly */}
@@ -331,6 +325,20 @@ export const LaraAgent = ({ onOpenSystemDialog, onToggleChat, isChatOpen = false
                       className="w-full"
                     >
                       {nextStep.id === 'company-info' ? 'Start oppsett' : `Fortsett: ${nextStep.title}`}
+                    </Button>
+                  )}
+
+                  {/* Open chat button when onboarding is complete */}
+                  {isFullyComplete && onToggleChat && (
+                    <Button 
+                      onClick={() => {
+                        setIsOpen(false);
+                        onToggleChat();
+                      }}
+                      className="w-full"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Åpne chat med Lara
                     </Button>
                   )}
 
