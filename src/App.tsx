@@ -19,6 +19,7 @@ import CompanySettings from "./pages/CompanySettings";
 import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
+import ProcessProfile from "./pages/ProcessProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/assets" element={<Assets />} />
             <Route path="/assets/:id" element={<AssetTrustProfile />} />
             <Route path="/protocols" element={<ProcessingRecords />} />
+            <Route path="/processes/:id" element={<ProcessProfile />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/company-settings" element={<CompanySettings />} />
             <Route path="/subscriptions" element={<Subscriptions />} />

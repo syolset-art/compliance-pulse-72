@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Workflow, Bot, ChevronRight, AlertCircle } from "lucide-react";
+import { Plus, Workflow, Bot, ChevronRight, AlertCircle, ExternalLink } from "lucide-react";
 import { ProcessAITab } from "./ProcessAITab";
 import { AddProcessDialog } from "@/components/dialogs/AddProcessDialog";
 
@@ -17,6 +18,7 @@ interface ProcessListProps {
 
 export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: ProcessListProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -185,15 +187,27 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
         {selectedProcess ? (
           <Card>
             <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Workflow className="h-4 w-4 sm:h-5 sm:w-5" />
-                {selectedProcess.name}
-              </CardTitle>
-              {selectedProcess.description && (
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {selectedProcess.description}
-                </p>
-              )}
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <Workflow className="h-4 w-4 sm:h-5 sm:w-5" />
+                    {selectedProcess.name}
+                  </CardTitle>
+                  {selectedProcess.description && (
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                      {selectedProcess.description}
+                    </p>
+                  )}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate(`/processes/${selectedProcess.id}`)}
+                >
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  {t("processList.openCard", "Åpne prosesskort")}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
               <Tabs defaultValue="ai">
@@ -235,6 +249,14 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                         {new Date(selectedProcess.created_at).toLocaleDateString('nb-NO')}
                       </p>
                     </div>
+                    <Button 
+                      variant="default" 
+                      className="w-full sm:w-auto mt-4"
+                      onClick={() => navigate(`/processes/${selectedProcess.id}`)}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      {t("processList.viewFullCard", "Se fullstendig prosesskort")}
+                    </Button>
                   </div>
                 </TabsContent>
               </Tabs>
