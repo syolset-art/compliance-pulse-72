@@ -284,7 +284,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-screen w-full flex-col bg-card">
+    <div className="flex h-screen w-full flex-col bg-card shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_8px_-2px_rgba(0,0,0,0.3)]">
       <SidebarContent />
     </div>
   );
