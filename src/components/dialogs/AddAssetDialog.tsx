@@ -751,6 +751,80 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </div>
   );
 
+  // Integration options for "Connect to resource"
+  const integrationOptions = [
+    {
+      id: "acronis",
+      name: "Acronis",
+      description: "Importer enheter fra Acronis Cyber Protect",
+      logo: "🛡️",
+      bgColor: "bg-[#00D4AA]/20",
+      textColor: "text-[#00D4AA]",
+      available: true,
+      category: "IT-sikkerhet",
+    },
+    {
+      id: "azure-ad",
+      name: "Microsoft Entra ID",
+      description: "Hent applikasjoner og enheter fra Azure AD",
+      logo: "AD",
+      bgColor: "bg-[#0078D4]/20",
+      textColor: "text-[#0078D4]",
+      available: true,
+      category: "Identitet",
+    },
+    {
+      id: "sharepoint",
+      name: "SharePoint",
+      description: "Importer fra SharePoint-lister og dokumentbibliotek",
+      logo: "SP",
+      bgColor: "bg-[#038387]/20",
+      textColor: "text-[#038387]",
+      available: true,
+      category: "Dokumenter",
+    },
+    {
+      id: "intune",
+      name: "Microsoft Intune",
+      description: "Importer administrerte enheter fra Intune",
+      logo: "📱",
+      bgColor: "bg-[#0078D4]/20",
+      textColor: "text-[#0078D4]",
+      available: true,
+      category: "Enhetsadministrasjon",
+    },
+    {
+      id: "servicenow",
+      name: "ServiceNow",
+      description: "Synkroniser fra ServiceNow CMDB",
+      logo: "SN",
+      bgColor: "bg-[#81B5A1]/20",
+      textColor: "text-[#81B5A1]",
+      available: true,
+      category: "ITSM",
+    },
+    {
+      id: "qualys",
+      name: "Qualys",
+      description: "Importer eiendeler fra Qualys sårbarhetsskanning",
+      logo: "Q",
+      bgColor: "bg-[#ED1C24]/20",
+      textColor: "text-[#ED1C24]",
+      available: false,
+      category: "Sikkerhet",
+    },
+    {
+      id: "crowdstrike",
+      name: "CrowdStrike",
+      description: "Hent endepunkter fra Falcon-plattformen",
+      logo: "🦅",
+      bgColor: "bg-[#FC0039]/20",
+      textColor: "text-[#FC0039]",
+      available: false,
+      category: "EDR",
+    },
+  ];
+
   // Step 3d: Connect
   const renderConnect = () => (
     <div className="space-y-4">
@@ -758,36 +832,64 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         Koble til en datakilde for å importere {selectedTemplate?.display_name_plural?.toLowerCase()} automatisk
       </p>
 
-      <div className="grid gap-3">
-        <button className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-left">
-          <div className="h-10 w-10 rounded-lg bg-[#0078D4]/20 flex items-center justify-center">
-            <span className="text-[#0078D4] font-bold text-sm">SP</span>
-          </div>
-          <div>
-            <p className="font-medium">SharePoint</p>
-            <p className="text-sm text-muted-foreground">Importer fra SharePoint-lister</p>
-          </div>
-        </button>
+      <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-1">
+        {integrationOptions.map((integration) => (
+          <button
+            key={integration.id}
+            onClick={() => {
+              if (integration.available) {
+                toast.info(`Kobler til ${integration.name}...`, {
+                  description: "Denne funksjonen er under utvikling",
+                });
+              }
+            }}
+            disabled={!integration.available}
+            className={cn(
+              "flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left",
+              integration.available 
+                ? "border-border hover:border-primary/50 hover:bg-muted/30" 
+                : "border-border/50 opacity-50 cursor-not-allowed"
+            )}
+          >
+            <div className={cn(
+              "h-12 w-12 rounded-lg flex items-center justify-center shrink-0",
+              integration.bgColor
+            )}>
+              {integration.logo.length <= 2 ? (
+                <span className={cn("font-bold text-sm", integration.textColor)}>
+                  {integration.logo}
+                </span>
+              ) : (
+                <span className="text-xl">{integration.logo}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-medium">{integration.name}</p>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  {integration.category}
+                </span>
+                {!integration.available && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600">
+                    Kommer snart
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {integration.description}
+              </p>
+            </div>
+            {integration.available && (
+              <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
+            )}
+          </button>
+        ))}
+      </div>
 
-        <button className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-left">
-          <div className="h-10 w-10 rounded-lg bg-[#0078D4]/20 flex items-center justify-center">
-            <span className="text-[#0078D4] font-bold text-sm">AD</span>
-          </div>
-          <div>
-            <p className="font-medium">Azure AD / Entra ID</p>
-            <p className="text-sm text-muted-foreground">Hent applikasjoner fra Azure</p>
-          </div>
-        </button>
-
-        <button className="flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-left opacity-50">
-          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-            <Link2 className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="font-medium">Flere integrasjoner kommer</p>
-            <p className="text-sm text-muted-foreground">ServiceNow, Jira, osv.</p>
-          </div>
-        </button>
+      <div className="pt-3 border-t border-border">
+        <p className="text-xs text-muted-foreground text-center">
+          Trenger du en integrasjon vi ikke støtter? <button className="text-primary hover:underline">Kontakt oss</button>
+        </p>
       </div>
     </div>
   );
