@@ -21,9 +21,9 @@ export function ControlsWidget() {
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg font-semibold text-foreground">
+            <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
               Tildelte kontroller
             </CardTitle>
             <button className="text-muted-foreground hover:text-foreground">
@@ -37,9 +37,9 @@ export function ControlsWidget() {
         <div className="space-y-4">
           {controlData.map((item) => (
             <div key={item.name} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">{item.name}</span>
-                <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center justify-between flex-wrap gap-1">
+                <span className="text-xs sm:text-sm text-foreground">{item.name}</span>
+                <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
                   <span className="text-muted-foreground">{item.previous}</span>
                   <span className="text-muted-foreground">→</span>
                   <span className="font-semibold text-foreground">{item.current}</span>

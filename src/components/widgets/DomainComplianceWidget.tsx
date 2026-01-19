@@ -229,9 +229,9 @@ export function DomainComplianceWidget() {
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg font-semibold text-foreground">
+            <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
               Detaljert samsvarsanalyse
             </CardTitle>
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
@@ -248,7 +248,7 @@ export function DomainComplianceWidget() {
             </span>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Se status og fremdrift for hvert domene og tilhørende regelverk
         </p>
       </CardHeader>
@@ -264,25 +264,28 @@ export function DomainComplianceWidget() {
               expandedDomain === domain.id ? "border-primary/30 shadow-sm" : "border-border"
             )}>
               <CollapsibleTrigger asChild>
-                <button className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-lg", domain.bgColor, domain.color)}>
+                <button className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-lg">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <div className={cn("p-2 sm:p-2.5 rounded-lg flex-shrink-0", domain.bgColor, domain.color)}>
                       {domain.icon}
                     </div>
-                    <div className="text-left">
-                      <span className="text-sm font-medium text-foreground">{domain.name}</span>
+                    <div className="text-left min-w-0 flex-1">
+                      <span className="text-xs sm:text-sm font-medium text-foreground">{domain.name}</span>
                       <div className="flex items-center gap-2 mt-1">
                         <Progress
                           value={domain.overallProgress}
-                          className={cn("h-1.5 w-32", getProgressColor(domain.overallProgress))}
+                          className={cn("h-1.5 w-20 sm:w-32", getProgressColor(domain.overallProgress))}
                         />
                         <span className="text-xs text-muted-foreground">{domain.overallProgress}%</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <span className="text-xs text-muted-foreground hidden sm:inline">
                       {domain.frameworks.length} regelverk
+                    </span>
+                    <span className="text-xs text-muted-foreground sm:hidden">
+                      {domain.frameworks.length}
                     </span>
                     {expandedDomain === domain.id ? (
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -312,42 +315,42 @@ export function DomainComplianceWidget() {
                     </div>
                   ) : (
                     <div className="space-y-3 pt-3">
-                      {domain.frameworks.map((framework) => (
-                        <div
-                          key={framework.id}
-                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground truncate">
-                                {framework.name}
-                              </span>
-                              {framework.isMandatory && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Obligatorisk
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1.5">
-                              <Progress
-                                value={framework.progress}
-                                className={cn("h-1 flex-1 max-w-[200px]", getProgressColor(framework.progress))}
-                              />
-                              <span className="text-xs font-medium text-foreground">
-                                {framework.progress}%
-                              </span>
-                              {framework.tasksTotal > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({framework.tasksCompleted}/{framework.tasksTotal} oppgaver)
+                        {domain.frameworks.map((framework) => (
+                          <div
+                            key={framework.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-muted/30 rounded-lg"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs sm:text-sm font-medium text-foreground">
+                                  {framework.name}
                                 </span>
-                              )}
+                                {framework.isMandatory && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Obligatorisk
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1.5">
+                                <Progress
+                                  value={framework.progress}
+                                  className={cn("h-1 flex-1 max-w-[150px] sm:max-w-[200px]", getProgressColor(framework.progress))}
+                                />
+                                <span className="text-xs font-medium text-foreground">
+                                  {framework.progress}%
+                                </span>
+                                {framework.tasksTotal > 0 && (
+                                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                                    ({framework.tasksCompleted}/{framework.tasksTotal} oppgaver)
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="self-start sm:self-center">
+                              {getStatusBadge(framework.progress)}
                             </div>
                           </div>
-                          <div className="ml-3">
-                            {getStatusBadge(framework.progress)}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                       
                       <Button
                         variant="ghost"
@@ -366,15 +369,15 @@ export function DomainComplianceWidget() {
           </Collapsible>
         ))}
 
-        <div className="pt-3 border-t border-border flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Totalt <span className="text-foreground font-semibold">{totalFrameworks} aktive regelverk</span> på tvers av domener
           </p>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/regulations")}
-            className="gap-1 text-xs"
+            className="gap-1 text-xs self-start sm:self-auto"
           >
             Administrer regelverk
             <ExternalLink className="h-3 w-3" />

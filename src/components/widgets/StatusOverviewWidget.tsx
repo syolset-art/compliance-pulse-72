@@ -104,8 +104,8 @@ export function StatusOverviewWidget() {
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
             Hvordan ligger vi an?
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -124,25 +124,25 @@ export function StatusOverviewWidget() {
           >
             <button
               onClick={() => setExpandedDomain(expandedDomain === domain.id ? null : domain.id)}
-              className="w-full p-3 flex items-center justify-between"
+              className="w-full p-2.5 sm:p-3 flex items-center justify-between"
             >
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${domain.status === "bra" ? "bg-success/20 text-success" : domain.status === "ok" ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${domain.status === "bra" ? "bg-success/20 text-success" : domain.status === "ok" ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
                   {domain.icon}
                 </div>
-                <div className="text-left">
-                  <span className="text-sm font-medium text-foreground">{domain.name}</span>
+                <div className="text-left min-w-0 flex-1">
+                  <span className="text-xs sm:text-sm font-medium text-foreground">{domain.name}</span>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Progress 
                       value={domain.score} 
-                      className={`h-1.5 w-24 ${getProgressColor(domain.status)}`}
+                      className={`h-1.5 w-16 sm:w-24 ${getProgressColor(domain.status)}`}
                     />
                     <span className="text-xs text-muted-foreground">{domain.score}%</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className={`text-sm font-medium px-2 py-0.5 rounded ${getStatusColor(domain.status)} ${getStatusBg(domain.status)}`}>
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <span className={`text-xs sm:text-sm font-medium px-1.5 sm:px-2 py-0.5 rounded ${getStatusColor(domain.status)} ${getStatusBg(domain.status)}`}>
                   {getStatusLabel(domain.status)}
                 </span>
                 <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${expandedDomain === domain.id ? "rotate-90" : ""}`} />
