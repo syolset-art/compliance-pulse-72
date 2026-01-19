@@ -13,6 +13,7 @@ import {
   Menu,
   Leaf,
   Building2,
+  Scale,
   CreditCard,
   FileCheck,
   FileBarChart
@@ -226,6 +227,13 @@ const SidebarContent = () => {
                 >
                   <FileCheck className="h-4 w-4" />
                   Betingelser og samtykke
+                </button>
+                <button
+                  onClick={() => navigate('/regulations')}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <Scale className="h-4 w-4" />
+                  Regelverk og krav
                 </button>
                 <div className="border-t border-border my-2" />
                 <button
