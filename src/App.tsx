@@ -16,6 +16,7 @@ import Assets from "./pages/Assets";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
 import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
+import Regulations from "./pages/Regulations";
 import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/processes/:id" element={<ProcessProfile />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/company-settings" element={<CompanySettings />} />
+            <Route path="/regulations" element={<Regulations />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/terms-and-consent" element={<TermsAndConsent />} />
             {/* Legacy routes for backwards compatibility */}
