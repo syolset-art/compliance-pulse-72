@@ -21,6 +21,7 @@ import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
+import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/regulations" element={<Regulations />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/terms-and-consent" element={<TermsAndConsent />} />
+            <Route path="/deviations" element={<Deviations />} />
             {/* Legacy routes for backwards compatibility */}
             <Route path="/systems" element={<Assets />} />
             <Route path="/systems/:id" element={<AssetTrustProfile />} />
