@@ -843,6 +843,45 @@ export type Database = {
           },
         ]
       }
+      system_templates: {
+        Row: {
+          ai_features: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          has_ai: boolean | null
+          id: string
+          name: string
+          sort_order: number | null
+          vendor: string | null
+          work_area_type: string
+        }
+        Insert: {
+          ai_features?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          has_ai?: boolean | null
+          id?: string
+          name: string
+          sort_order?: number | null
+          vendor?: string | null
+          work_area_type: string
+        }
+        Update: {
+          ai_features?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          has_ai?: boolean | null
+          id?: string
+          name?: string
+          sort_order?: number | null
+          vendor?: string | null
+          work_area_type?: string
+        }
+        Relationships: []
+      }
       system_vendors: {
         Row: {
           created_at: string | null
