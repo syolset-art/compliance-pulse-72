@@ -94,7 +94,7 @@ export function CriticalTasksWidget() {
   
   let currentOffset = 0;
   const segments = categories.map((cat) => {
-    const percentage = cat.count / totalTasks;
+    const percentage = totalTasks > 0 ? cat.count / totalTasks : 0;
     const dashArray = circumference * percentage;
     const segment = {
       ...cat,
