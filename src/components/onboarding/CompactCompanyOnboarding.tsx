@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
 import { Loader2, Search, Check, Building2, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -145,6 +146,9 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       await supabase
         .from("onboarding_progress")
         .upsert({ id: "default", company_info_completed: true });
+
+      // Auto-create default work areas based on industry
+      await createDefaultWorkAreas(formData.industry);
 
       toast.success("Selskapsinformasjon lagret!");
       onComplete();

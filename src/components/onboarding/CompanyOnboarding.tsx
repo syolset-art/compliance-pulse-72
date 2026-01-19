@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { suggestRolesForCompany, useCaseOptions, teamSizeOptions } from "@/lib/rolesSuggestions";
+import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
 
 interface CompanyOnboardingProps {
   onComplete: () => void;
@@ -133,6 +134,9 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         .upsert([formData], { onConflict: "id" });
 
       if (profileError) throw profileError;
+
+      // Auto-create default work areas based on industry
+      await createDefaultWorkAreas(formData.industry);
 
       // Generate and save suggested roles
       const suggestedRoles = suggestRolesForCompany({
