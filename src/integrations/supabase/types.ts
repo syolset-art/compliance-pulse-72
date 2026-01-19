@@ -569,6 +569,45 @@ export type Database = {
           },
         ]
       }
+      selected_frameworks: {
+        Row: {
+          category: string
+          created_at: string
+          framework_id: string
+          framework_name: string
+          id: string
+          is_mandatory: boolean | null
+          is_recommended: boolean | null
+          is_selected: boolean | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          framework_id: string
+          framework_name: string
+          id?: string
+          is_mandatory?: boolean | null
+          is_recommended?: boolean | null
+          is_selected?: boolean | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          framework_id?: string
+          framework_name?: string
+          id?: string
+          is_mandatory?: boolean | null
+          is_recommended?: boolean | null
+          is_selected?: boolean | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_compliance: {
         Row: {
           created_at: string | null

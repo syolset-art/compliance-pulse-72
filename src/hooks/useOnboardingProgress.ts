@@ -24,6 +24,7 @@ export interface OnboardingProgress {
 export const useOnboardingProgress = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [companyInfoCompleted, setCompanyInfoCompleted] = useState(false);
+  const [frameworksCompleted, setFrameworksCompleted] = useState(false);
   const [assetsAdded, setAssetsAdded] = useState(false);
   const [workAreasDefined, setWorkAreasDefined] = useState(false);
 
@@ -34,6 +35,13 @@ export const useOnboardingProgress = () => {
     const { data: companyData } = await supabase
       .from("company_profile")
       .select("id")
+      .limit(1);
+    
+    // Check selected_frameworks table for at least one selected framework
+    const { data: frameworksData } = await supabase
+      .from("selected_frameworks")
+      .select("id")
+      .eq("is_selected", true)
       .limit(1);
     
     // Check assets table
@@ -49,6 +57,7 @@ export const useOnboardingProgress = () => {
       .limit(1);
 
     setCompanyInfoCompleted(!!companyData && companyData.length > 0);
+    setFrameworksCompleted(!!frameworksData && frameworksData.length > 0);
     setAssetsAdded(!!assetsData && assetsData.length > 0);
     setWorkAreasDefined(!!workAreasData && workAreasData.length > 0);
     setIsLoading(false);
@@ -66,6 +75,14 @@ export const useOnboardingProgress = () => {
       isCompleted: companyInfoCompleted,
       action: 'inline-form',
       icon: 'Building2'
+    },
+    {
+      id: 'frameworks',
+      title: 'Regelverk og krav',
+      description: 'Kartlegg hvilke regelverk virksomheten må følge',
+      isCompleted: frameworksCompleted,
+      action: 'inline-form',
+      icon: 'Scale'
     },
     {
       id: 'assets',
@@ -98,6 +115,7 @@ export const useOnboardingProgress = () => {
     
     // Delete all data from relevant tables to reset onboarding
     await supabase.from("company_profile").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await supabase.from("selected_frameworks").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("assets").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("work_areas").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     

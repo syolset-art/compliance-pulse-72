@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sparkles, Check, Server, Building, Building2, ChevronRight, RotateCcw } from "lucide-react";
+import { X, Sparkles, Check, Server, Building, Building2, ChevronRight, RotateCcw, Scale } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
+import { FrameworkAssessment } from "@/components/onboarding/FrameworkAssessment";
 import confetti from "canvas-confetti";
 
 interface LaraAgentProps {
@@ -18,7 +19,8 @@ interface LaraAgentProps {
 const stepIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Building2,
   Server,
-  Building
+  Building,
+  Scale
 };
 
 const triggerConfetti = () => {
@@ -60,6 +62,7 @@ const triggerConfetti = () => {
 export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false }: LaraAgentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
+  const [showFrameworkForm, setShowFrameworkForm] = useState(false);
   const hasShownConfetti = useRef(false);
   const navigate = useNavigate();
   const [isResetting, setIsResetting] = useState(false);
@@ -85,6 +88,11 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
     switch (step.id) {
       case 'company-info':
         setShowCompanyForm(true);
+        setShowFrameworkForm(false);
+        break;
+      case 'frameworks':
+        setShowFrameworkForm(true);
+        setShowCompanyForm(false);
         break;
       case 'assets':
         if (onOpenAssetDialog) {
@@ -101,6 +109,11 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
 
   const handleCompanyFormComplete = () => {
     setShowCompanyForm(false);
+    refetch();
+  };
+
+  const handleFrameworkFormComplete = () => {
+    setShowFrameworkForm(false);
     refetch();
   };
 
@@ -214,6 +227,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                     onClick={() => {
                       setIsOpen(false);
                       setShowCompanyForm(false);
+                      setShowFrameworkForm(false);
                     }}
                   >
                     <X className="h-4 w-4" />
@@ -235,6 +249,20 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                     </Button>
                   </div>
                   <CompactCompanyOnboarding onComplete={handleCompanyFormComplete} />
+                </div>
+              ) : showFrameworkForm ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setShowFrameworkForm(false)}
+                    >
+                      ← Tilbake
+                    </Button>
+                  </div>
+                  <FrameworkAssessment onComplete={handleFrameworkFormComplete} />
                 </div>
               ) : (
                 <>
