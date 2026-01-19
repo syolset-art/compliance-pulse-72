@@ -123,10 +123,15 @@ export function CriticalTasksWidget() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-6">
-          {/* Donut Chart - Larger */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          {/* Donut Chart - Responsive size */}
           <div className="relative flex-shrink-0">
-            <svg width={svgSize} height={svgSize} viewBox={`0 0 ${svgSize} ${svgSize}`} className="transform -rotate-90">
+            <svg 
+              width={svgSize} 
+              height={svgSize} 
+              viewBox={`0 0 ${svgSize} ${svgSize}`} 
+              className="transform -rotate-90 w-28 h-28 sm:w-[140px] sm:h-[140px]"
+            >
               {/* Background circle */}
               <circle
                 cx={svgSize / 2}
@@ -158,35 +163,35 @@ export function CriticalTasksWidget() {
             </svg>
             {/* Center number */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-3xl font-bold text-foreground">{totalTasks}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-foreground">{totalTasks}</span>
               <span className="text-xs text-muted-foreground">oppgaver</span>
             </div>
           </div>
           
-          {/* Categories List - Improved styling */}
-          <div className="flex-1 space-y-2">
+          {/* Categories List - Responsive */}
+          <div className="flex-1 w-full space-y-2">
             {categories.map((cat, index) => (
               <div 
                 key={index} 
-                className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-2 sm:p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors cursor-pointer"
                 onClick={() => navigate(cat.navigateTo)}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                   <div 
-                    className="h-8 w-8 rounded-lg flex items-center justify-center"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: `${cat.bgColor}20` }}
                   >
                     <span style={{ color: cat.bgColor }}>{cat.icon}</span>
                   </div>
-                  <div>
-                    <span className="text-sm font-medium text-foreground capitalize">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs sm:text-sm font-medium text-foreground capitalize line-clamp-2">
                       {cat.label}
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                   <span 
-                    className="text-lg font-bold"
+                    className="text-base sm:text-lg font-bold"
                     style={{ color: cat.bgColor }}
                   >
                     {cat.count}
