@@ -14,7 +14,7 @@ import { ThirdPartyManagementWidget } from "@/components/widgets/ThirdPartyManag
 import { AIUsageOverviewWidget } from "@/components/widgets/AIUsageOverviewWidget";
 import { AIActComplianceWidget } from "@/components/widgets/AIActComplianceWidget";
 import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget";
-import { ComplianceCard } from "@/components/widgets/ComplianceCard";
+import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { MyRegulationsWidget } from "@/components/widgets/MyRegulationsWidget";
 import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
@@ -185,42 +185,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
 
               {/* Compliance Analysis Section */}
               <div className="mb-6 pb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-xl font-semibold text-foreground">{t("dashboard.compliance.title")}</h2>
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-                    <span className="text-xs text-muted-foreground">i</span>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {t("dashboard.compliance.subtitle")}
-                </p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <ComplianceCard
-                    standard="gdpr"
-                    title={t("dashboard.compliance.gdpr")}
-                    percentage={77}
-                    subtitle={t("dashboard.compliance.gdprDesc")}
-                  />
-                  <ComplianceCard
-                    standard="iso"
-                    title={t("dashboard.compliance.iso")}
-                    percentage={77}
-                    subtitle={t("dashboard.compliance.isoDesc")}
-                  />
-                  <ComplianceCard
-                    standard="nis2"
-                    title={t("dashboard.compliance.nis2")}
-                    percentage={82}
-                    subtitle={t("dashboard.compliance.nis2Desc")}
-                  />
-                  <ComplianceCard
-                    standard="cra"
-                    title={t("dashboard.compliance.cra")}
-                    percentage={82}
-                    subtitle={t("dashboard.compliance.craDesc")}
-                  />
-                </div>
+                <DomainComplianceWidget />
               </div>
             </div>
           )}
@@ -345,42 +310,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
 
                 {/* Compliance Analysis Section */}
                 <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-xl font-semibold text-foreground">{t("dashboard.compliance.title")}</h2>
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-                      <span className="text-xs text-muted-foreground">i</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    {t("dashboard.compliance.subtitle")}
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <ComplianceCard
-                      standard="gdpr"
-                      title={t("dashboard.compliance.gdpr")}
-                      percentage={77}
-                      subtitle={t("dashboard.compliance.gdprDesc")}
-                    />
-                    <ComplianceCard
-                      standard="iso"
-                      title={t("dashboard.compliance.iso")}
-                      percentage={77}
-                      subtitle={t("dashboard.compliance.isoDesc")}
-                    />
-                    <ComplianceCard
-                      standard="nis2"
-                      title={t("dashboard.compliance.nis2")}
-                      percentage={82}
-                      subtitle={t("dashboard.compliance.nis2Desc")}
-                    />
-                    <ComplianceCard
-                      standard="cra"
-                      title={t("dashboard.compliance.cra")}
-                      percentage={82}
-                      subtitle={t("dashboard.compliance.craDesc")}
-                    />
-                  </div>
+                  <DomainComplianceWidget />
                 </div>
               </div>
             )}
