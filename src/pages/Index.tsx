@@ -240,21 +240,14 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
     );
   }
 
-  // Desktop layout with resizable panels
+  // Desktop layout with fixed sidebar
   return (
     <div className="flex min-h-screen max-h-screen bg-gradient-mynder overflow-hidden">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel 
-          defaultSize={20} 
-          minSize={15} 
-          maxSize={30}
-          className="min-w-[240px]"
-        >
-          <Sidebar />
-        </ResizablePanel>
-        
-        <ResizablePanel defaultSize={80}>
-          <main className="h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
+      <div className="w-64 flex-shrink-0">
+        <Sidebar />
+      </div>
+      
+      <main className="flex-1 h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
             {contentView ? (
               <ContentViewer 
                 contentType={contentView.type} 
@@ -363,8 +356,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               </div>
             )}
           </main>
-        </ResizablePanel>
-      </ResizablePanelGroup>
 
       {/* Lara AI Agent */}
       <LaraAgent 
