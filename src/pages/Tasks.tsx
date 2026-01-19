@@ -59,6 +59,98 @@ const mockTasks: Task[] = [
     relevantFor: ["ISO27001", "GDPR", "NIS2"],
     processCount: 5,
     aiAutonomyLevel: 25
+  },
+  // AI Governance tasks
+  {
+    id: "4",
+    type: "system",
+    priority: "høy",
+    title: "Klassifiser AI-systemer etter risikonivå",
+    description: "Alle AI-systemer må klassifiseres etter EU AI Act risikonivåer: uakseptabel, høy, begrenset eller minimal risiko.",
+    relevantFor: ["EU AI Act"],
+    systemCount: 5,
+    aiAutonomyLevel: 50
+  },
+  {
+    id: "5",
+    type: "prosess",
+    priority: "høy",
+    title: "Dokumenter AI-beslutningslogikk",
+    description: "For høyrisiko AI-systemer kreves full dokumentasjon av beslutningslogikk og treningsdata iht. EU AI Act artikkel 11.",
+    relevantFor: ["EU AI Act", "AI Act"],
+    processCount: 3,
+    aiAutonomyLevel: 60
+  },
+  {
+    id: "6",
+    type: "prosess",
+    priority: "middels",
+    title: "Etabler menneske-i-løkka-prosedyrer",
+    description: "Implementer krav om menneskelig tilsyn for AI-systemer som fatter beslutninger med vesentlig påvirkning på enkeltpersoner.",
+    relevantFor: ["EU AI Act"],
+    processCount: 4,
+    aiAutonomyLevel: 40
+  },
+  {
+    id: "7",
+    type: "system",
+    priority: "høy",
+    title: "Gjennomfør FRIA (Fundamental Rights Impact Assessment)",
+    description: "Høyrisiko AI-systemer må ha gjennomført konsekvensanalyse for grunnleggende rettigheter før produksjonssetting.",
+    relevantFor: ["EU AI Act", "AI Act"],
+    systemCount: 2,
+    aiAutonomyLevel: 75
+  },
+  {
+    id: "8",
+    type: "system",
+    priority: "middels",
+    title: "Registrer AI-systemer i EU-databasen",
+    description: "Høyrisiko AI-systemer skal registreres i EUs offisielle AI-database før de tas i bruk.",
+    relevantFor: ["EU AI Act"],
+    systemCount: 3,
+    aiAutonomyLevel: 30
+  },
+  {
+    id: "9",
+    type: "prosess",
+    priority: "lav",
+    title: "Oppdater transparensinformasjon for AI-chat",
+    description: "Brukere må informeres tydelig når de kommuniserer med AI-systemer iht. transparenskravene i EU AI Act.",
+    relevantFor: ["AI Act", "EU AI Act"],
+    processCount: 2,
+    aiAutonomyLevel: 25
+  },
+  {
+    id: "10",
+    type: "system",
+    priority: "middels",
+    title: "Verifiser AI-leverandørens samsvarserklæring",
+    description: "Innhent og verifiser samsvarserklæring (CE-merking) fra leverandører av høyrisiko AI-systemer.",
+    relevantFor: ["EU AI Act"],
+    systemCount: 4,
+    aiAutonomyLevel: 45
+  },
+  // Additional InfoSec tasks
+  {
+    id: "11",
+    type: "system",
+    priority: "høy",
+    title: "Oppdater tilgangskontroll-policy",
+    description: "Gjennomgå og oppdater tilgangskontroll i henhold til ISO 27001 Annex A.9 og NIS2-direktivets krav.",
+    relevantFor: ["ISO27001", "NIS2"],
+    systemCount: 6,
+    aiAutonomyLevel: 35
+  },
+  {
+    id: "12",
+    type: "prosess",
+    priority: "middels",
+    title: "Etabler hendelseshåndteringsprosess",
+    description: "Dokumenter og implementer prosess for håndtering av sikkerhetshendelser iht. NIS2 artikkel 23.",
+    relevantFor: ["NIS2", "ISO27001"],
+    processCount: 1,
+    aiAutonomyLevel: 55
   }
 ];
 
@@ -282,23 +374,47 @@ export default function Tasks() {
           </p>
         </div>
 
-        {/* AI Status Banner */}
+        {/* AI Status Banner - Now shows specific task details */}
         {aiWorkingTasks.size > 0 && (
           <Card className="p-4 mb-6 bg-primary/5 border-primary/20 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="relative">
+            <div className="flex items-start gap-3">
+              <div className="relative mt-1">
                 <Bot className="w-8 h-8 text-primary" />
                 <Loader2 className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-spin" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-foreground">{t("tasks.aiWorking")}</p>
-                <p className="text-sm text-muted-foreground">
-                  {t("tasks.tasksUnderTreatment", { count: aiWorkingTasks.size })}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                <span className="text-sm font-medium text-primary">{t("tasks.autonomousWork")}</span>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold text-foreground">{t("tasks.aiWorking")}</p>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                    <span className="text-sm font-medium text-primary">{t("tasks.autonomousWork")}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {Array.from(aiWorkingTasks).map(taskId => {
+                    const task = mockTasks.find(t => t.id === taskId);
+                    const progress = taskProgress[taskId] || 0;
+                    if (!task) return null;
+                    return (
+                      <div key={taskId} className="bg-background/50 rounded-lg p-3 border border-primary/10">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                            <span className="text-sm font-medium text-foreground">{task.title}</span>
+                          </div>
+                          <span className="text-sm font-semibold text-primary">{Math.round(progress)}%</span>
+                        </div>
+                        <Progress value={progress} className="h-1.5" />
+                        <p className="text-xs text-muted-foreground mt-1.5">
+                          {progress < 30 ? "Analyserer oppgaven..." : 
+                           progress < 60 ? "Henter og validerer data..." : 
+                           progress < 90 ? "Utfører endringer..." : 
+                           "Sluttfører og verifiserer..."}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </Card>
