@@ -75,7 +75,9 @@ const SidebarContent = () => {
     <>
       {/* Logo */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-        <img src={mynderLogo} alt="Mynder" className="h-8" />
+        <Link to="/" className="cursor-pointer">
+          <img src={mynderLogo} alt="Mynder" className="h-8" />
+        </Link>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
