@@ -88,7 +88,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
     },
   });
 
-  // Create processes mutation
+  // Create processes mutation with automatic AI usage registration
   const createProcessesMutation = useMutation({
     mutationFn: async (processesToCreate: ProcessSuggestion[]) => {
       if (!systems || systems.length === 0) {
@@ -96,6 +96,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
       }
 
       const defaultSystemId = systems[0].id;
+      const createdProcesses: { id: string; suggestion: ProcessSuggestion }[] = [];
 
       for (const process of processesToCreate) {
         // Find matching system by name or use default
@@ -106,18 +107,58 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
           )
         );
 
-        const { error } = await supabase.from("system_processes").insert({
-          system_id: matchingSystem?.id || defaultSystemId,
-          name: process.name,
-          description: process.description,
-        });
+        const { data: processData, error } = await supabase
+          .from("system_processes")
+          .insert({
+            system_id: matchingSystem?.id || defaultSystemId,
+            name: process.name,
+            description: process.description,
+          })
+          .select("id")
+          .single();
 
         if (error) throw error;
+        
+        if (processData) {
+          createdProcesses.push({ id: processData.id, suggestion: process });
+        }
       }
+
+      // Automatically register AI usage for processes that have AI
+      const aiUsageRecords = createdProcesses
+        .filter(p => p.suggestion.likely_has_ai)
+        .map(p => ({
+          process_id: p.id,
+          work_area_id: workAreaId,
+          has_ai: true,
+          ai_purpose: p.suggestion.ai_use_description || null,
+          ai_features: p.suggestion.data_types ? 
+            JSON.stringify(p.suggestion.data_types.map(dt => ({ name: dt, description: '' }))) : 
+            '[]',
+          risk_category: 'not_assessed',
+          compliance_status: 'needs_review',
+          affected_persons: p.suggestion.data_types || [],
+        }));
+
+      if (aiUsageRecords.length > 0) {
+        const { error: aiError } = await supabase
+          .from("process_ai_usage")
+          .insert(aiUsageRecords);
+
+        if (aiError) {
+          console.error("Error creating AI usage records:", aiError);
+          // Don't throw - processes are created, just log the error
+        }
+      }
+
+      return { total: createdProcesses.length, withAI: aiUsageRecords.length };
     },
-    onSuccess: (_, variables) => {
-      toast.success(`${variables.length} prosess${variables.length > 1 ? 'er' : ''} opprettet`);
+    onSuccess: (result) => {
+      const aiMessage = result.withAI > 0 ? 
+        ` (${result.withAI} med AI-bruk registrert)` : '';
+      toast.success(`${result.total} prosess${result.total > 1 ? 'er' : ''} opprettet${aiMessage}`);
       queryClient.invalidateQueries({ queryKey: ["work-area-processes", workAreaId] });
+      queryClient.invalidateQueries({ queryKey: ["process-ai-usage-list", workAreaId] });
       setShowSuggestionDialog(false);
       setSuggestions([]);
       setIsComplete(false);
