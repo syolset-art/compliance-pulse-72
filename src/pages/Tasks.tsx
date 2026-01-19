@@ -304,42 +304,62 @@ export default function Tasks() {
     return "Høy autonomi";
   };
 
-  const filteredTasks = mockTasks.filter(task => {
-    // Domain filter from URL
-    if (domainFilter && domainFrameworkMapping[domainFilter]) {
-      const relevantFrameworks = domainFrameworkMapping[domainFilter].frameworks;
-      const hasRelevantFramework = task.relevantFor.some(framework => 
-        relevantFrameworks.some(rf => framework.toLowerCase().includes(rf.toLowerCase()) || rf.toLowerCase().includes(framework.toLowerCase()))
-      );
-      if (!hasRelevantFramework) return false;
-    }
-    
-    // AI status filter
-    if (aiStatusFilter !== "all") {
-      const aiCanHandle = canAIHandle(task);
-      if (aiStatusFilter === "ai-handling" && !aiCanHandle) return false;
-      if (aiStatusFilter === "requires-action" && aiCanHandle) return false;
-      if (aiStatusFilter === "hybrid" && (task.aiAutonomyLevel < 40 || task.aiAutonomyLevel > 60)) return false;
-    }
-    
-    // Type/priority filters
-    if (selectedFilters.length === 0) return true;
-    return selectedFilters.some(filter => {
-      const filterLower = filter.toLowerCase();
-      if (filterLower === "system" && task.type === "system") return true;
-      if (filterLower === "prosess" && task.type === "prosess") return true;
-      if (filterLower === "høy prioritet" && task.priority === "høy") return true;
-      if (filterLower === "middels prioritet" && task.priority === "middels") return true;
-      if (filterLower === "lav prioritet" && task.priority === "lav") return true;
-      return false;
-    });
-  });
+  // Priority order for sorting
+  const priorityOrder = { "høy": 0, "middels": 1, "lav": 2 };
+
+  const filteredTasks = mockTasks
+    .filter(task => {
+      // Domain filter from URL or state
+      if (domainFilter && domainFrameworkMapping[domainFilter]) {
+        const relevantFrameworks = domainFrameworkMapping[domainFilter].frameworks;
+        const hasRelevantFramework = task.relevantFor.some(framework => 
+          relevantFrameworks.some(rf => framework.toLowerCase().includes(rf.toLowerCase()) || rf.toLowerCase().includes(framework.toLowerCase()))
+        );
+        if (!hasRelevantFramework) return false;
+      }
+      
+      // AI status filter
+      if (aiStatusFilter !== "all") {
+        const aiCanHandle = canAIHandle(task);
+        if (aiStatusFilter === "ai-handling" && !aiCanHandle) return false;
+        if (aiStatusFilter === "requires-action" && aiCanHandle) return false;
+        if (aiStatusFilter === "hybrid" && (task.aiAutonomyLevel < 40 || task.aiAutonomyLevel > 60)) return false;
+      }
+      
+      // Type/priority filters
+      if (selectedFilters.length === 0) return true;
+      return selectedFilters.some(filter => {
+        const filterLower = filter.toLowerCase();
+        if (filterLower === "system" && task.type === "system") return true;
+        if (filterLower === "prosess" && task.type === "prosess") return true;
+        if (filterLower === "høy prioritet" && task.priority === "høy") return true;
+        if (filterLower === "middels prioritet" && task.priority === "middels") return true;
+        if (filterLower === "lav prioritet" && task.priority === "lav") return true;
+        return false;
+      });
+    })
+    // Sort by priority (høy first, then middels, then lav)
+    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   
-  const clearDomainFilter = () => {
-    navigate("/tasks");
+  const setDomainFilter = (domain: string | null) => {
+    if (domain) {
+      navigate(`/tasks?domain=${domain}`);
+    } else {
+      navigate("/tasks");
+    }
   };
   
   const activeDomain = domainFilter ? domainFrameworkMapping[domainFilter] : null;
+
+  // Count tasks per domain
+  const getTaskCountForDomain = (domainId: string) => {
+    const frameworks = domainFrameworkMapping[domainId]?.frameworks || [];
+    return mockTasks.filter(task => 
+      task.relevantFor.some(framework => 
+        frameworks.some(rf => framework.toLowerCase().includes(rf.toLowerCase()) || rf.toLowerCase().includes(framework.toLowerCase()))
+      )
+    ).length;
+  };
 
   const aiHandlingCount = mockTasks.filter(canAIHandle).length;
   const requiresActionCount = mockTasks.filter(task => !canAIHandle(task)).length;
@@ -352,27 +372,56 @@ export default function Tasks() {
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-foreground">{t("tasks.title")}</h1>
-            {activeDomain && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                {activeDomain.icon}
-                <span className="text-sm font-medium text-primary">{activeDomain.name}</span>
-                <button
-                  onClick={clearDomainFilter}
-                  className="ml-1 p-0.5 rounded-full hover:bg-primary/20 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5 text-primary" />
-                </button>
-              </div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
+          <p className="text-muted-foreground">{t("tasks.subtitle")}</p>
+        </div>
+
+        {/* Domain Filter - Primary filter section */}
+        <Card className="p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-foreground">Filtrer etter domene</span>
+            {domainFilter && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDomainFilter(null)}
+                className="text-xs text-muted-foreground hover:text-foreground gap-1"
+              >
+                <X className="w-3 h-3" />
+                Fjern filter
+              </Button>
             )}
           </div>
-          <p className="text-muted-foreground">
-            {activeDomain 
-              ? `Viser oppgaver relatert til ${activeDomain.name}`
-              : t("tasks.subtitle")}
-          </p>
-        </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant={!domainFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => setDomainFilter(null)}
+              className="gap-2"
+            >
+              Alle domener
+              <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
+            </Button>
+            {Object.entries(domainFrameworkMapping).map(([key, domain]) => (
+              <Button
+                key={key}
+                variant={domainFilter === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDomainFilter(key)}
+                className="gap-2"
+              >
+                {domain.icon}
+                {domain.name}
+                <Badge variant="secondary" className="ml-1">{getTaskCountForDomain(key)}</Badge>
+              </Button>
+            ))}
+          </div>
+          {activeDomain && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Viser {filteredTasks.length} oppgaver for {activeDomain.name}, sortert etter prioritet
+            </p>
+          )}
+        </Card>
 
         {/* AI Status Banner - Now shows specific task details */}
         {aiWorkingTasks.size > 0 && (
