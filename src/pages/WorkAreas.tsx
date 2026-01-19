@@ -9,6 +9,7 @@ import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
+import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -489,11 +490,21 @@ export default function WorkAreas() {
                   <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
                     <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <h2 className="text-lg sm:text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {t("myWorkAreas.manager")}: {selectedWorkArea.responsible_person || t("myWorkAreas.notAssigned")}
-                    </p>
+                    <ResponsiblePersonEditor
+                      workAreaId={selectedWorkArea.id}
+                      currentPerson={selectedWorkArea.responsible_person}
+                      onUpdate={(newPerson) => {
+                        // Update local state
+                        setSelectedWorkArea({ ...selectedWorkArea, responsible_person: newPerson });
+                        setWorkAreas(workAreas.map(wa => 
+                          wa.id === selectedWorkArea.id 
+                            ? { ...wa, responsible_person: newPerson } 
+                            : wa
+                        ));
+                      }}
+                    />
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
