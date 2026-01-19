@@ -68,6 +68,21 @@
     }
   },
   "widgets": {
+    "requiresAction": "Krever handling",
+    "thingsWaiting": "ting venter på deg",
+    "openIncidents": "åpne hendelser",
+    "reviewsOverdue": "gjennomganger forfalt",
+    "missingPlan": "system mangler plan",
+    "takeAction": "Ta tak i det",
+    "riskPicture": "Risikobilde",
+    "howItLooksNow": "Slik ser det ut nå",
+    "totalRisks": "Totalt",
+    "risks": "risikoer",
+    "fewerCritical": "færre kritiske",
+    "critical": "Kritisk",
+    "high": "Høy",
+    "medium": "Medium",
+    "low": "Lav",
     "roi": {
       "title": "Din ROI med Mynders AI",
       "subtitle": "Tids- og kostnadsbesparelser denne måneden",

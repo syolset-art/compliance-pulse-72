@@ -68,6 +68,21 @@
     }
   },
   "widgets": {
+    "requiresAction": "Requires action",
+    "thingsWaiting": "things waiting for you",
+    "openIncidents": "open incidents",
+    "reviewsOverdue": "reviews overdue",
+    "missingPlan": "system missing plan",
+    "takeAction": "Take action",
+    "riskPicture": "Risk picture",
+    "howItLooksNow": "How it looks now",
+    "totalRisks": "Total",
+    "risks": "risks",
+    "fewerCritical": "fewer critical",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
     "roi": {
       "title": "Your ROI with Mynder's AI",
       "subtitle": "Time and cost savings this month",
