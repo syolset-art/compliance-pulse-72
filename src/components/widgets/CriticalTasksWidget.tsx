@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, ArrowRight, Shield, FileWarning, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ interface TaskCategory {
   count: number;
   color: string;
   bgColor: string;
+  icon: React.ReactNode;
 }
 
 export function CriticalTasksWidget() {
@@ -17,17 +18,36 @@ export function CriticalTasksWidget() {
   
   // TODO: Replace with real data from database
   const categories: TaskCategory[] = [
-    { label: t("widgets.openIncidents", "åpne hendelser"), count: 2, color: "text-destructive", bgColor: "hsl(var(--destructive))" },
-    { label: t("widgets.reviewsOverdue", "gjennomganger forfalt"), count: 3, color: "text-warning", bgColor: "hsl(var(--warning))" },
-    { label: t("widgets.missingPlan", "system mangler plan"), count: 1, color: "text-yellow-500", bgColor: "hsl(48, 96%, 53%)" },
+    { 
+      label: t("widgets.openIncidents", "åpne hendelser"), 
+      count: 2, 
+      color: "text-destructive", 
+      bgColor: "hsl(var(--destructive))",
+      icon: <AlertTriangle className="h-3.5 w-3.5" />
+    },
+    { 
+      label: t("widgets.reviewsOverdue", "gjennomganger forfalt"), 
+      count: 3, 
+      color: "text-warning", 
+      bgColor: "hsl(var(--warning))",
+      icon: <Clock className="h-3.5 w-3.5" />
+    },
+    { 
+      label: t("widgets.missingPlan", "system mangler plan"), 
+      count: 1, 
+      color: "text-yellow-500", 
+      bgColor: "hsl(48, 96%, 53%)",
+      icon: <FileWarning className="h-3.5 w-3.5" />
+    },
   ];
   
   const totalTasks = categories.reduce((sum, cat) => sum + cat.count, 0);
   
-  // Calculate donut chart segments
-  const radius = 36;
-  const strokeWidth = 10;
+  // Calculate donut chart segments - larger size
+  const radius = 54;
+  const strokeWidth = 14;
   const circumference = 2 * Math.PI * radius;
+  const svgSize = 140;
   
   let currentOffset = 0;
   const segments = categories.map((cat) => {
@@ -45,24 +65,29 @@ export function CriticalTasksWidget() {
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            </div>
+            <CardTitle className="text-lg font-semibold text-foreground">
+              {t("widgets.requiresAction", "Krever handling")}
+            </CardTitle>
           </div>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {t("widgets.requiresAction", "Krever handling")}
-          </CardTitle>
+          <span className="text-sm text-muted-foreground">
+            {totalTasks} {t("widgets.items", "elementer")}
+          </span>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-start gap-6">
-          {/* Donut Chart */}
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-6">
+          {/* Donut Chart - Larger */}
           <div className="relative flex-shrink-0">
-            <svg width="100" height="100" viewBox="0 0 100 100" className="transform -rotate-90">
+            <svg width={svgSize} height={svgSize} viewBox={`0 0 ${svgSize} ${svgSize}`} className="transform -rotate-90">
               {/* Background circle */}
               <circle
-                cx="50"
-                cy="50"
+                cx={svgSize / 2}
+                cy={svgSize / 2}
                 r={radius}
                 fill="none"
                 stroke="hsl(var(--muted))"
@@ -72,8 +97,8 @@ export function CriticalTasksWidget() {
               {segments.map((segment, index) => (
                 <circle
                   key={index}
-                  cx="50"
-                  cy="50"
+                  cx={svgSize / 2}
+                  cy={svgSize / 2}
                   r={radius}
                   fill="none"
                   stroke={segment.bgColor}
@@ -89,36 +114,50 @@ export function CriticalTasksWidget() {
               ))}
             </svg>
             {/* Center number */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-foreground">{totalTasks}</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-3xl font-bold text-foreground">{totalTasks}</span>
+              <span className="text-xs text-muted-foreground">oppgaver</span>
             </div>
           </div>
           
-          {/* Summary */}
-          <div className="flex-1 space-y-1">
-            <p className="text-lg font-semibold text-foreground mb-3">
-              {totalTasks} {t("widgets.thingsWaiting", "ting venter på deg")}
-            </p>
-            <div className="space-y-2">
-              {categories.map((cat, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm">
+          {/* Categories List - Improved styling */}
+          <div className="flex-1 space-y-2">
+            {categories.map((cat, index) => (
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors cursor-pointer"
+                onClick={() => navigate("/tasks")}
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="h-8 w-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: `${cat.bgColor}20` }}
+                  >
+                    <span style={{ color: cat.bgColor }}>{cat.icon}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-foreground capitalize">
+                      {cat.label}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
                   <span 
-                    className="h-2.5 w-2.5 rounded-full flex-shrink-0" 
-                    style={{ backgroundColor: cat.bgColor }}
-                  />
-                  <span className={cat.color}>
-                    {cat.count} {cat.label}
+                    className="text-lg font-bold"
+                    style={{ color: cat.bgColor }}
+                  >
+                    {cat.count}
                   </span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
         
         {/* Action button */}
         <Button 
           variant="ghost" 
-          className="w-full mt-4 text-primary hover:text-primary/80 hover:bg-primary/10"
+          className="w-full text-primary hover:text-primary/80 hover:bg-primary/10"
           onClick={() => navigate("/tasks")}
         >
           {t("widgets.takeAction", "Ta tak i det")}
