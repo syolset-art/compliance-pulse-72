@@ -83,8 +83,8 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
           <SheetContent side="right" className="w-full sm:w-[400px] p-0">
             <div className="flex h-full flex-col relative">
-              {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton />}
-              {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} />}
+{hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
+              {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
               <div className="flex-1 overflow-hidden">
                 <ChatInterface 
                   onShowContent={onShowContent}
@@ -140,8 +140,8 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
         )}
       >
         <div className="relative flex-1 flex flex-col overflow-hidden">
-          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton />}
-          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} />}
+{hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
+          {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
           <div className="flex-1 overflow-hidden">
             <ChatInterface 
               onShowContent={onShowContent}
@@ -184,10 +184,17 @@ export function ChatPanel(props: ChatPanelProps) {
   );
 }
 
-function MinimalHeader({ onClose, onShowDemo }: { onClose: () => void; onShowDemo: () => void }) {
+function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void; onShowDemo: () => void; pageName?: string }) {
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-      <span className="text-sm font-medium text-primary">Snakk med Lara</span>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-primary">Snakk med Lara</span>
+        {pageName && (
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+            📍 {pageName}
+          </span>
+        )}
+      </div>
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"
@@ -211,7 +218,7 @@ function MinimalHeader({ onClose, onShowDemo }: { onClose: () => void; onShowDem
   );
 }
 
-function ChatPanelHeader({ onClose, onShowDemo, showDemoButton }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean }) {
+function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string }) {
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
       <div className="flex items-center gap-2">
@@ -221,10 +228,17 @@ function ChatPanelHeader({ onClose, onShowDemo, showDemoButton }: { onClose: () 
           className="w-8 h-8"
         />
         <div>
-          <h3 className="font-semibold text-foreground flex items-center gap-1 text-sm">
-            Lara
-            <Sparkles className="w-3 h-3 text-primary" />
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-foreground flex items-center gap-1 text-sm">
+              Lara
+              <Sparkles className="w-3 h-3 text-primary" />
+            </h3>
+            {pageName && (
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                📍 {pageName}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">AI-assistent</p>
         </div>
       </div>
