@@ -455,7 +455,23 @@
     "fromSystem": "Fra system",
     "requiresInput": "Krever input",
     "autoFilled": "Auto-utfylt",
-    "customDefined": "Egendefinert"
+    "customDefined": "Egendefinert",
+    "proactive": {
+      "nextSteps": "Neste steg: Legg til manglende informasjon",
+      "fieldsComplete": "felt fullført",
+      "ready": "Klar!",
+      "affectedPersonsTitle": "Hvem påvirkes av AI-bruken?",
+      "affectedPersonsDesc": "Velg alle gruppene som berøres når AI-systemet tar avgjørelser eller gir anbefalinger.",
+      "transparencyTitle": "Hvordan informeres berørte personer?",
+      "transparencyDesc": "Beskriv kort hvordan dere gir beskjed om at AI brukes i denne prosessen.",
+      "transparencyPlaceholder": "F.eks. 'Brukere får en melding ved innlogging som forklarer at AI brukes til...'",
+      "oversightTitle": "Hvordan sikres menneskelig kontroll?",
+      "oversightDesc": "Beskriv hvordan mennesker kan overstyre eller kontrollere AI-avgjørelser.",
+      "oversightPlaceholder": "F.eks. 'Alle AI-anbefalinger gjennomgås av en saksbehandler før vedtak fattes.'",
+      "addCustomGroup": "Legg til annen gruppe...",
+      "completeNow": "Fullfør dokumentasjonen",
+      "openFullForm": "Åpne fullstendig skjema"
+    }
   },
   "aiOverview": {
     "title": "AI-bruk oversikt",

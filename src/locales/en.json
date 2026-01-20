@@ -455,7 +455,23 @@
     "fromSystem": "From system",
     "requiresInput": "Requires input",
     "autoFilled": "Auto-filled",
-    "customDefined": "Custom"
+    "customDefined": "Custom",
+    "proactive": {
+      "nextSteps": "Next step: Add missing information",
+      "fieldsComplete": "fields complete",
+      "ready": "Ready!",
+      "affectedPersonsTitle": "Who is affected by the AI usage?",
+      "affectedPersonsDesc": "Select all groups affected when the AI system makes decisions or recommendations.",
+      "transparencyTitle": "How are affected persons informed?",
+      "transparencyDesc": "Briefly describe how you communicate that AI is used in this process.",
+      "transparencyPlaceholder": "E.g. 'Users receive a message at login explaining that AI is used for...'",
+      "oversightTitle": "How is human control ensured?",
+      "oversightDesc": "Describe how humans can override or control AI decisions.",
+      "oversightPlaceholder": "E.g. 'All AI recommendations are reviewed by a case worker before decisions are made.'",
+      "addCustomGroup": "Add another group...",
+      "completeNow": "Complete documentation",
+      "openFullForm": "Open full form"
+    }
   },
   "aiOverview": {
     "title": "AI Usage Overview",
