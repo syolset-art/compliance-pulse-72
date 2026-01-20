@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { ChatPanel } from "@/components/ChatPanel";
 import { ContentViewer } from "@/components/ContentViewer";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
@@ -16,12 +15,10 @@ import { AIActComplianceWidget } from "@/components/widgets/AIActComplianceWidge
 import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { MyRegulationsWidget } from "@/components/widgets/MyRegulationsWidget";
-import { LaraAgent } from "@/components/LaraAgent";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -35,7 +32,6 @@ const Index = () => {
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
     asset_type: string;
@@ -86,10 +82,6 @@ const Index = () => {
 
   const handleBackToDashboard = () => {
     setContentView(null);
-  };
-
-  const handleToggleChat = () => {
-    setIsChatOpen(prev => !prev);
   };
 
   const handleModuleCreated = (moduleData: any) => {
@@ -191,18 +183,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           )}
         </main>
 
-        <LaraAgent 
-          onOpenAssetDialog={() => setIsAddAssetOpen(true)}
-          onToggleChat={handleToggleChat}
-          isChatOpen={isChatOpen}
-        />
-
-        <ChatPanel
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-          onShowContent={handleShowContent}
-          onBackToDashboard={handleBackToDashboard}
-        />
 
         <AddModuleDialog 
           open={isAddModuleOpen}
@@ -316,20 +296,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
             )}
           </main>
 
-      {/* Lara AI Agent */}
-      <LaraAgent 
-        onOpenAssetDialog={() => setIsAddAssetOpen(true)}
-        onToggleChat={handleToggleChat}
-        isChatOpen={isChatOpen}
-      />
-
-      {/* Chat Panel - Right side */}
-      <ChatPanel
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        onShowContent={handleShowContent}
-        onBackToDashboard={handleBackToDashboard}
-      />
 
       {/* Add Module Dialog */}
       <AddModuleDialog 
