@@ -449,7 +449,13 @@
     "systemAIDetected": "AI detected in linked system",
     "systemAIDescription": "The system uses {{count}} AI feature(s). These may be relevant for the process:",
     "systemRisk": "System risk classification:",
-    "systemHasAI": "System uses AI"
+    "systemHasAI": "System uses AI",
+    "aiGenerated": "AI-generated",
+    "aiSuggested": "Suggested",
+    "fromSystem": "From system",
+    "requiresInput": "Requires input",
+    "autoFilled": "Auto-filled",
+    "customDefined": "Custom"
   },
   "aiOverview": {
     "title": "AI Usage Overview",

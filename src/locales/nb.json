@@ -449,7 +449,13 @@
     "systemAIDetected": "AI oppdaget i tilknyttet system",
     "systemAIDescription": "Systemet bruker {{count}} AI-funksjon(er). Disse kan være relevante for prosessen:",
     "systemRisk": "Systemets risikoklassifisering:",
-    "systemHasAI": "System bruker AI"
+    "systemHasAI": "System bruker AI",
+    "aiGenerated": "AI-generert",
+    "aiSuggested": "Foreslått",
+    "fromSystem": "Fra system",
+    "requiresInput": "Krever input",
+    "autoFilled": "Auto-utfylt",
+    "customDefined": "Egendefinert"
   },
   "aiOverview": {
     "title": "AI-bruk oversikt",
