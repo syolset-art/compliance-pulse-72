@@ -42,6 +42,7 @@ import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processA
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
 import { useProcessAIDraft, type AutoFilledField } from "@/hooks/useProcessAIDraft";
 import { AIGeneratedBadge, AIFieldWrapper, AIBadgeLegend } from "./AIGeneratedBadge";
+import { AIRiskPyramid } from "./AIRiskPyramid";
 
 interface ProcessAIDialogProps {
   open: boolean;
@@ -657,58 +658,70 @@ export const ProcessAIDialog = ({
           {/* Step 4: Risk Classification */}
           {currentStep === 3 && hasAI && (
             <div className="space-y-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <Label className="text-base font-medium">
-                    {t("processAI.riskCategory", "Risikoklassifisering")}
-                  </Label>
-                  {isFieldAutoFilled('risk_category') && (
-                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                      <AIGeneratedBadge 
-                        variant="ai-generated" 
-                        source={getFieldSource('risk_category')}
-                        size="sm"
-                      />
-                      <span>Foreslått basert på systemanalyse</span>
-                    </p>
-                  )}
-                </div>
+              <div className="text-center">
+                <Label className="text-base font-medium">
+                  {t("processAI.riskCategory", "Risikoklassifisering")}
+                </Label>
+                {isFieldAutoFilled('risk_category') && (
+                  <p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-2">
+                    <AIGeneratedBadge 
+                      variant="ai-generated" 
+                      source={getFieldSource('risk_category')}
+                      size="sm"
+                    />
+                    <span>Foreslått basert på systemanalyse</span>
+                  </p>
+                )}
               </div>
 
-              <RadioGroup
-                value={riskCategory}
-                onValueChange={setRiskCategory}
-                className="grid grid-cols-2 gap-3"
-              >
-                {[
-                  { value: 'minimal', label: 'Minimal risiko', description: 'Ingen spesifikke krav', color: 'bg-green-100 dark:bg-green-900/30' },
-                  { value: 'limited', label: 'Begrenset risiko', description: 'Transparenskrav', color: 'bg-yellow-100 dark:bg-yellow-900/30' },
-                  { value: 'high', label: 'Høy risiko', description: 'Strenge krav (Annex III)', color: 'bg-orange-100 dark:bg-orange-900/30' },
-                  { value: 'unacceptable', label: 'Uakseptabel risiko', description: 'Forbudt under AI Act', color: 'bg-red-100 dark:bg-red-900/30' },
-                ].map((option) => {
-                  const isSuggested = isFieldAutoFilled('risk_category', option.value);
-                  
-                  return (
-                    <Label
-                      key={option.value}
-                      className={`relative flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                        riskCategory === option.value ? `border-primary ${option.color}` : 'hover:bg-muted/50'
-                      } ${isSuggested ? 'ring-2 ring-purple-300 dark:ring-purple-700' : ''}`}
-                    >
-                      <RadioGroupItem value={option.value} className="mt-1" />
+              {/* Interactive Risk Pyramid */}
+              <Card className="border-dashed">
+                <CardContent className="pt-6">
+                  <AIRiskPyramid
+                    selectedRisk={riskCategory}
+                    onSelectRisk={setRiskCategory}
+                    interactive={true}
+                    size="md"
+                    showLabels={true}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Selected risk info card */}
+              {riskCategory && (
+                <Card className={`transition-all ${
+                  riskCategory === 'unacceptable' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' :
+                  riskCategory === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' :
+                  riskCategory === 'limited' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' :
+                  'border-green-500 bg-green-50 dark:bg-green-950/20'
+                }`}>
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-start gap-3">
+                      {riskCategory === 'unacceptable' && <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />}
+                      {riskCategory === 'high' && <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />}
+                      {riskCategory === 'limited' && <Eye className="h-5 w-5 text-yellow-600 mt-0.5" />}
+                      {riskCategory === 'minimal' && <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />}
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{option.label}</p>
-                          {isSuggested && (
-                            <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">{option.description}</p>
+                        <p className="font-medium text-sm">
+                          {riskCategory === 'unacceptable' && 'Uakseptabel risiko - Forbudt under AI Act'}
+                          {riskCategory === 'high' && 'Høy risiko - Strenge krav (Annex III)'}
+                          {riskCategory === 'limited' && 'Begrenset risiko - Transparenskrav'}
+                          {riskCategory === 'minimal' && 'Minimal risiko - Ingen spesifikke krav'}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {riskCategory === 'unacceptable' && 'Denne typen AI-bruk er forbudt og må avvikles umiddelbart.'}
+                          {riskCategory === 'high' && 'Krever samsvarsvurdering, risikovurdering og løpende overvåking.'}
+                          {riskCategory === 'limited' && 'Krever at brukere informeres om at de samhandler med AI.'}
+                          {riskCategory === 'minimal' && 'Frivillige retningslinjer gjelder, ingen obligatoriske krav.'}
+                        </p>
                       </div>
-                    </Label>
-                  );
-                })}
-              </RadioGroup>
+                      {isFieldAutoFilled('risk_category', riskCategory) && (
+                        <AIGeneratedBadge variant="suggested" size="sm" />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Risk justification - show "requires input" if not provided */}
               <AIFieldWrapper
