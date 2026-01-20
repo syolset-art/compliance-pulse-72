@@ -159,9 +159,10 @@ export default function ProcessingRecords() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 overflow-auto">
+        <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t("processingRecords.title")}</h1>
             <p className="text-muted-foreground">{t("processingRecords.subtitle")}</p>
@@ -173,7 +174,7 @@ export default function ProcessingRecords() {
         </div>
 
         {/* Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {metrics.map((metric, index) => (
             <Card key={index} className="p-4">
               <div className="flex items-start justify-between mb-2">
@@ -189,7 +190,7 @@ export default function ProcessingRecords() {
         </div>
 
         {/* Risk Distribution Chart */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6">
           <h3 className="font-semibold text-foreground mb-4">{t("processingRecords.riskDistribution")}</h3>
           <div className="flex items-center gap-8">
             <div className="w-48 h-48">
@@ -224,13 +225,13 @@ export default function ProcessingRecords() {
         </Card>
 
         {/* Summary Card */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6">
           <h3 className="font-semibold text-foreground mb-2">{t("processingRecords.summary")}</h3>
           <p className="text-sm text-muted-foreground italic">{t("processingRecords.loadingSummary")}</p>
         </Card>
 
         {/* Responsible Persons */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6">
           <h3 className="font-semibold text-foreground mb-1">{t("processingRecords.responsiblePersons")}</h3>
           <p className="text-sm text-muted-foreground mb-4">{t("processingRecords.responsiblePersonsSub")}</p>
           
@@ -257,7 +258,7 @@ export default function ProcessingRecords() {
         </Card>
 
         {/* Filters and Actions */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Checkbox 
               checked={selectedRecords.length === mockRecords.length && mockRecords.length > 0}
@@ -271,7 +272,7 @@ export default function ProcessingRecords() {
         </div>
 
         {/* Search and Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -429,6 +430,7 @@ export default function ProcessingRecords() {
               </div>
             </Card>
           ))}
+        </div>
         </div>
       </main>
     </div>

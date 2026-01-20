@@ -321,9 +321,10 @@ export default function Deviations() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className={cn("flex-1 p-4 md:p-8", isMobile ? "pb-24" : "")}>
+      <main className={cn("flex-1 overflow-auto", isMobile ? "pb-24" : "")}>
+        <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Avviksregister</h1>
             <p className="text-sm text-muted-foreground">Administrer og følg opp alle avvik</p>
@@ -335,7 +336,7 @@ export default function Deviations() {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card className="bg-card border-border">
             <CardContent className="p-4 flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -384,7 +385,7 @@ export default function Deviations() {
         </div>
 
         {/* Filters */}
-        <Card className="mb-6 bg-card border-border">
+        <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
@@ -561,6 +562,7 @@ export default function Deviations() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </main>
     </div>
   );
