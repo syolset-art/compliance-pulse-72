@@ -135,8 +135,8 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
           ai_features: p.suggestion.data_types ? 
             JSON.stringify(p.suggestion.data_types.map(dt => ({ name: dt, description: '' }))) : 
             '[]',
-          risk_category: 'not_assessed',
-          compliance_status: 'needs_review',
+          risk_category: null,
+          compliance_status: 'not_assessed',
           affected_persons: p.suggestion.data_types || [],
         }));
 

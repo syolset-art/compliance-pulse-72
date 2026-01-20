@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Bot,
   Shield,
@@ -23,8 +26,12 @@ import {
   Lightbulb,
   HelpCircle,
   Check,
+  ArrowRight,
+  Plus,
+  X,
 } from "lucide-react";
 import { ProcessAIDialog } from "./ProcessAIDialog";
+import { ProactiveInputSection } from "./ProactiveInputSection";
 import { useProcessAIDraft, type AIDraft } from "@/hooks/useProcessAIDraft";
 
 interface ProcessAITabProps {
@@ -82,7 +89,7 @@ export const ProcessAITab = ({
           question: q,
           checked: false,
         })) as unknown as null,
-        compliance_status: 'needs_review',
+        compliance_status: 'not_assessed',
         last_review_date: new Date().toISOString().split('T')[0],
       };
 
@@ -340,24 +347,12 @@ export const ProcessAITab = ({
               </div>
             )}
 
-            {/* Required user input warning */}
+            {/* Proactive next steps section */}
             {aiDraft.requiresUserInput.length > 0 && (
-              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <HelpCircle className="h-4 w-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                    {t("processAI.requiresInput", "Krever din input")}
-                  </span>
-                </div>
-                <ul className="space-y-1">
-                  {aiDraft.requiresUserInput.map((input, idx) => (
-                    <li key={idx} className="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                      {input.label}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ProactiveInputSection 
+                requiresUserInput={aiDraft.requiresUserInput}
+                onOpenDialog={() => setDialogOpen(true)}
+              />
             )}
 
             {/* Action buttons */}
@@ -406,7 +401,7 @@ export const ProcessAITab = ({
       ? (checklist.filter((c) => c.checked).length / checklist.length) * 100
       : 0;
 
-  const needsReview = aiUsage.compliance_status === 'needs_review';
+  const needsReview = aiUsage.compliance_status === 'not_assessed';
 
   return (
     <div className="space-y-6">
