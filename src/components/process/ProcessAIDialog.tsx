@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,10 +35,13 @@ import {
   Eye,
   Users,
   FileText,
-  Server
+  Server,
+  AlertCircle
 } from "lucide-react";
 import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
+import { useProcessAIDraft, type AutoFilledField } from "@/hooks/useProcessAIDraft";
+import { AIGeneratedBadge, AIFieldWrapper, AIBadgeLegend } from "./AIGeneratedBadge";
 
 interface ProcessAIDialogProps {
   open: boolean;
@@ -105,6 +108,26 @@ export const ProcessAIDialog = ({
 
   // Get system AI features for suggestions
   const { data: systemAI } = useSystemAIFeatures(systemId || null);
+
+  // Get comprehensive AI draft with auto-filled fields tracking
+  const { data: aiDraft } = useProcessAIDraft(processName, processDescription, systemId);
+
+  // Helper to check if a field is auto-filled
+  const isFieldAutoFilled = useMemo(() => {
+    const fields = aiDraft?.autoFilledFields || [];
+    return (fieldName: string, value?: any) => {
+      return fields.find(f => 
+        f.field === fieldName && 
+        (value === undefined || f.value === value)
+      );
+    };
+  }, [aiDraft?.autoFilledFields]);
+
+  // Get source for an auto-filled field
+  const getFieldSource = (fieldName: string, value?: any): string | undefined => {
+    const field = isFieldAutoFilled(fieldName, value);
+    return field?.source;
+  };
 
   // Fetch existing process AI usage data
   const { data: existingData } = useQuery({
@@ -372,6 +395,11 @@ export const ProcessAIDialog = ({
           <Progress value={progress} className="h-2" />
         </div>
 
+        {/* Legend for AI-generated fields */}
+        {currentStep > 0 && hasAI && aiDraft?.autoFilledFields && aiDraft.autoFilledFields.length > 0 && (
+          <AIBadgeLegend />
+        )}
+
         {/* Lara suggestion - combined from process and system AI */}
         {currentStep === 0 && (suggestions?.aiActNote || (systemAI?.totalWithAI && systemAI.totalWithAI > 0)) && (
           <Card className="border-primary/20 bg-primary/5">
@@ -442,13 +470,21 @@ export const ProcessAIDialog = ({
           {/* Step 1: AI Identification */}
           {currentStep === 0 && (
             <div className="space-y-6">
-              <div>
-                <Label className="text-base font-medium">
-                  {t("processAI.hasAIQuestion", "Bruker denne prosessen AI?")}
-                </Label>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("processAI.hasAIDescription", "Inkluderer maskinlæring, automatiserte beslutninger, chatbots, prediktiv analyse etc.")}
-                </p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label className="text-base font-medium">
+                    {t("processAI.hasAIQuestion", "Bruker denne prosessen AI?")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("processAI.hasAIDescription", "Inkluderer maskinlæring, automatiserte beslutninger, chatbots, prediktiv analyse etc.")}
+                  </p>
+                </div>
+                {isFieldAutoFilled('has_ai') && (
+                  <AIGeneratedBadge 
+                    variant="ai-generated" 
+                    source={getFieldSource('has_ai')} 
+                  />
+                )}
               </div>
 
               <RadioGroup
@@ -458,13 +494,18 @@ export const ProcessAIDialog = ({
               >
                 <Label
                   htmlFor="ai-yes"
-                  className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
+                  className={`relative flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                     hasAI === true ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                  }`}
+                  } ${isFieldAutoFilled('has_ai', true) ? 'ring-2 ring-purple-300 dark:ring-purple-700' : ''}`}
                 >
                   <RadioGroupItem value="yes" id="ai-yes" />
-                  <div>
-                    <p className="font-medium">{t("common.yes", "Ja")}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{t("common.yes", "Ja")}</p>
+                      {isFieldAutoFilled('has_ai', true) && (
+                        <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">{t("processAI.usesAI", "Prosessen bruker AI")}</p>
                   </div>
                 </Label>
@@ -483,14 +524,26 @@ export const ProcessAIDialog = ({
               </RadioGroup>
 
               {hasAI && (
-                <div className="space-y-2">
-                  <Label>{t("processAI.aiPurpose", "Formål med AI i prosessen")}</Label>
+                <AIFieldWrapper 
+                  isAIGenerated={!!isFieldAutoFilled('ai_purpose')} 
+                  source={getFieldSource('ai_purpose')}
+                  label={t("processAI.aiPurpose", "Formål med AI i prosessen")}
+                >
                   <Textarea
                     value={aiPurpose}
                     onChange={(e) => setAiPurpose(e.target.value)}
                     placeholder={t("processAI.aiPurposePlaceholder", "Beskriv hva AI brukes til i denne prosessen...")}
                     rows={3}
+                    className={isFieldAutoFilled('ai_purpose') ? 'border-purple-300 dark:border-purple-700' : ''}
                   />
+                </AIFieldWrapper>
+              )}
+
+              {/* Show required input indicator if AI purpose is not auto-filled */}
+              {hasAI && !isFieldAutoFilled('ai_purpose') && !aiPurpose && (
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>Beskriv formålet med AI-bruk i denne prosessen</span>
                 </div>
               )}
             </div>
@@ -509,20 +562,35 @@ export const ProcessAIDialog = ({
               </div>
 
               <div className="space-y-2">
-                {aiFeatures.map((feature) => (
-                  <Label
-                    key={feature.id}
-                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                      feature.selected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <Checkbox
-                      checked={feature.selected}
-                      onCheckedChange={() => toggleFeature(feature.id)}
-                    />
-                    <span>{feature.name}</span>
-                  </Label>
-                ))}
+                {aiFeatures.map((feature) => {
+                  const autoFilledFeature = isFieldAutoFilled('ai_features', feature.name);
+                  const isAIGenerated = !!autoFilledFeature;
+                  
+                  return (
+                    <Label
+                      key={feature.id}
+                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                        feature.selected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                      } ${isAIGenerated ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}`}
+                    >
+                      <Checkbox
+                        checked={feature.selected}
+                        onCheckedChange={() => toggleFeature(feature.id)}
+                      />
+                      <span className="flex-1">{feature.name}</span>
+                      {isAIGenerated && (
+                        <AIGeneratedBadge 
+                          variant="from-system" 
+                          source={autoFilledFeature?.source}
+                          size="sm"
+                        />
+                      )}
+                      {!isAIGenerated && feature.id.startsWith('custom-') && (
+                        <Badge variant="outline" className="text-[10px]">Egendefinert</Badge>
+                      )}
+                    </Label>
+                  );
+                })}
               </div>
 
               <div className="flex gap-2">
@@ -531,7 +599,7 @@ export const ProcessAIDialog = ({
                   value={customFeature}
                   onChange={(e) => setCustomFeature(e.target.value)}
                   placeholder={t("processAI.addCustomFeature", "Legg til annen AI-funksjon...")}
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                  className="flex-1 px-3 py-2 border rounded-lg text-sm bg-background"
                   onKeyPress={(e) => e.key === 'Enter' && addCustomFeature()}
                 />
                 <Button type="button" variant="outline" onClick={addCustomFeature}>
@@ -554,21 +622,28 @@ export const ProcessAIDialog = ({
               </div>
 
               <div className="space-y-2">
-                {checklist.map((item) => (
-                  <Label
-                    key={item.id}
-                    className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                      item.checked ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <Checkbox
-                      checked={item.checked}
-                      onCheckedChange={() => toggleChecklistItem(item.id)}
-                      className="mt-0.5"
-                    />
-                    <span className="text-sm">{item.question}</span>
-                  </Label>
-                ))}
+                {checklist.map((item) => {
+                  const isAISuggested = isFieldAutoFilled('compliance_checklist', item.question);
+                  
+                  return (
+                    <Label
+                      key={item.id}
+                      className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                        item.checked ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'hover:bg-muted/50'
+                      } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}`}
+                    >
+                      <Checkbox
+                        checked={item.checked}
+                        onCheckedChange={() => toggleChecklistItem(item.id)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-sm flex-1">{item.question}</span>
+                      {isAISuggested && (
+                        <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />
+                      )}
+                    </Label>
+                  );
+                })}
               </div>
 
               {checklist.length === 0 && (
@@ -582,18 +657,22 @@ export const ProcessAIDialog = ({
           {/* Step 4: Risk Classification */}
           {currentStep === 3 && hasAI && (
             <div className="space-y-6">
-              <div>
-                <Label className="text-base font-medium">
-                  {t("processAI.riskCategory", "Risikoklassifisering")}
-                </Label>
-                {suggestions?.suggestedRiskCategory && (
-                  <p className="text-sm text-primary mt-1">
-                    {t("processAI.suggestedRisk", "Foreslått:")}{" "}
-                    <Badge variant={getRiskBadgeVariant(suggestions.suggestedRiskCategory)}>
-                      {suggestions.suggestedRiskCategory}
-                    </Badge>
-                  </p>
-                )}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label className="text-base font-medium">
+                    {t("processAI.riskCategory", "Risikoklassifisering")}
+                  </Label>
+                  {isFieldAutoFilled('risk_category') && (
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                      <AIGeneratedBadge 
+                        variant="ai-generated" 
+                        source={getFieldSource('risk_category')}
+                        size="sm"
+                      />
+                      <span>Foreslått basert på systemanalyse</span>
+                    </p>
+                  )}
+                </div>
               </div>
 
               <RadioGroup
@@ -602,47 +681,71 @@ export const ProcessAIDialog = ({
                 className="grid grid-cols-2 gap-3"
               >
                 {[
-                  { value: 'minimal', label: 'Minimal risiko', description: 'Ingen spesifikke krav' },
-                  { value: 'limited', label: 'Begrenset risiko', description: 'Transparenskrav' },
-                  { value: 'high', label: 'Høy risiko', description: 'Strenge krav (Annex III)' },
-                  { value: 'unacceptable', label: 'Uakseptabel risiko', description: 'Forbudt under AI Act' },
-                ].map((option) => (
-                  <Label
-                    key={option.value}
-                    className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                      riskCategory === option.value ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <RadioGroupItem value={option.value} className="mt-1" />
-                    <div>
-                      <p className="font-medium">{option.label}</p>
-                      <p className="text-xs text-muted-foreground">{option.description}</p>
-                    </div>
-                  </Label>
-                ))}
+                  { value: 'minimal', label: 'Minimal risiko', description: 'Ingen spesifikke krav', color: 'bg-green-100 dark:bg-green-900/30' },
+                  { value: 'limited', label: 'Begrenset risiko', description: 'Transparenskrav', color: 'bg-yellow-100 dark:bg-yellow-900/30' },
+                  { value: 'high', label: 'Høy risiko', description: 'Strenge krav (Annex III)', color: 'bg-orange-100 dark:bg-orange-900/30' },
+                  { value: 'unacceptable', label: 'Uakseptabel risiko', description: 'Forbudt under AI Act', color: 'bg-red-100 dark:bg-red-900/30' },
+                ].map((option) => {
+                  const isSuggested = isFieldAutoFilled('risk_category', option.value);
+                  
+                  return (
+                    <Label
+                      key={option.value}
+                      className={`relative flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                        riskCategory === option.value ? `border-primary ${option.color}` : 'hover:bg-muted/50'
+                      } ${isSuggested ? 'ring-2 ring-purple-300 dark:ring-purple-700' : ''}`}
+                    >
+                      <RadioGroupItem value={option.value} className="mt-1" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{option.label}</p>
+                          {isSuggested && (
+                            <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{option.description}</p>
+                      </div>
+                    </Label>
+                  );
+                })}
               </RadioGroup>
 
-              <div className="space-y-2">
-                <Label>{t("processAI.riskJustification", "Begrunnelse for klassifisering")}</Label>
-                <Textarea
-                  value={riskJustification}
-                  onChange={(e) => setRiskJustification(e.target.value)}
-                  placeholder={t("processAI.riskJustificationPlaceholder", "Forklar hvorfor denne risikoklassifiseringen er valgt...")}
-                  rows={3}
-                />
-              </div>
+              {/* Risk justification - show "requires input" if not provided */}
+              <AIFieldWrapper
+                isAIGenerated={false}
+                label={t("processAI.riskJustification", "Begrunnelse for klassifisering")}
+              >
+                <div className="relative">
+                  <Textarea
+                    value={riskJustification}
+                    onChange={(e) => setRiskJustification(e.target.value)}
+                    placeholder={t("processAI.riskJustificationPlaceholder", "Forklar hvorfor denne risikoklassifiseringen er valgt...")}
+                    rows={3}
+                  />
+                  {!riskJustification && (
+                    <div className="absolute top-2 right-2">
+                      <AIGeneratedBadge variant="requires-input" size="sm" />
+                    </div>
+                  )}
+                </div>
+              </AIFieldWrapper>
 
               <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  {t("processAI.affectedPersons", "Hvem påvirkes av AI-beslutninger?")}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    {t("processAI.affectedPersons", "Hvem påvirkes av AI-beslutninger?")}
+                  </Label>
+                  {affectedPersons.length === 0 && (
+                    <AIGeneratedBadge variant="requires-input" size="sm" />
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {['Ansatte', 'Kunder', 'Leverandører', 'Publikum', 'Kandidater'].map((person) => (
                     <Badge
                       key={person}
                       variant={affectedPersons.includes(person) ? 'default' : 'outline'}
-                      className="cursor-pointer"
+                      className="cursor-pointer transition-all"
                       onClick={() => toggleAffectedPerson(person)}
                     >
                       {person}
@@ -656,10 +759,30 @@ export const ProcessAIDialog = ({
           {/* Step 5: Transparency & Oversight */}
           {currentStep === 4 && hasAI && (
             <div className="space-y-6">
+              {/* Required input notice */}
+              <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-900/10">
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                        Disse feltene krever manuell vurdering
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                        AI kan ikke automatisk bestemme transparens- og tilsynskrav. Vennligst fyll ut basert på prosessens kontekst.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="space-y-4">
-                <Label className="text-base font-medium">
-                  {t("processAI.transparency", "Transparens")}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-medium">
+                    {t("processAI.transparency", "Transparens")}
+                  </Label>
+                  <AIGeneratedBadge variant="requires-input" size="sm" />
+                </div>
                 
                 <Select value={transparencyStatus} onValueChange={setTransparencyStatus}>
                   <SelectTrigger>
@@ -683,15 +806,18 @@ export const ProcessAIDialog = ({
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="oversight"
-                    checked={humanOversightRequired}
-                    onCheckedChange={(checked) => setHumanOversightRequired(checked as boolean)}
-                  />
-                  <Label htmlFor="oversight" className="text-base font-medium cursor-pointer">
-                    {t("processAI.humanOversight", "Krever menneskelig tilsyn")}
-                  </Label>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="oversight"
+                      checked={humanOversightRequired}
+                      onCheckedChange={(checked) => setHumanOversightRequired(checked as boolean)}
+                    />
+                    <Label htmlFor="oversight" className="text-base font-medium cursor-pointer">
+                      {t("processAI.humanOversight", "Krever menneskelig tilsyn")}
+                    </Label>
+                  </div>
+                  <AIGeneratedBadge variant="requires-input" size="sm" />
                 </div>
 
                 {humanOversightRequired && (

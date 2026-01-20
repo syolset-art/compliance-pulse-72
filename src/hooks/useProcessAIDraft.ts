@@ -2,6 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getProcessAISuggestion } from "@/lib/processAISuggestions";
 
+export interface AutoFilledField {
+  field: string;
+  value: any;
+  source: string;
+  sourceType: 'system' | 'template' | 'data_handling' | 'asset' | 'process_analysis';
+}
+
 export interface AIDraft {
   hasAI: boolean;
   likelyHasAI: boolean;
@@ -15,6 +22,7 @@ export interface AIDraft {
   systemName: string | null;
   aiActNote: string;
   requiresUserInput: RequiredInput[];
+  autoFilledFields: AutoFilledField[];
 }
 
 export interface DraftSource {
@@ -27,6 +35,7 @@ export interface RequiredInput {
   field: string;
   label: string;
   reason: string;
+  priority: 'high' | 'medium' | 'low';
 }
 
 interface SystemWithAI {
@@ -200,6 +209,76 @@ export function useProcessAIDraft(
         aiPurpose = `Prosessen bruker AI for: ${allFeatures.slice(0, 3).join(', ')}.`;
       }
 
+      // Track auto-filled fields
+      const autoFilledFields: AutoFilledField[] = [];
+
+      // Track hasAI field
+      if (systemInfo?.hasAI) {
+        autoFilledFields.push({
+          field: 'has_ai',
+          value: true,
+          source: systemInfo.name,
+          sourceType: 'system',
+        });
+      }
+
+      // Track AI purpose
+      if (aiPurpose && systemInfo?.aiDescription) {
+        autoFilledFields.push({
+          field: 'ai_purpose',
+          value: aiPurpose,
+          source: systemInfo.name,
+          sourceType: 'data_handling',
+        });
+      } else if (aiPurpose && allFeatures.length > 0) {
+        autoFilledFields.push({
+          field: 'ai_purpose',
+          value: aiPurpose,
+          source: 'Prosessanalyse',
+          sourceType: 'process_analysis',
+        });
+      }
+
+      // Track each suggested feature with its source
+      allFeatures.forEach(feature => {
+        const isFromTemplate = templateAIFeatures.includes(feature);
+        const isFromAsset = systemInfo?.aiFeatures.includes(feature) && !isFromTemplate;
+        
+        autoFilledFields.push({
+          field: 'ai_features',
+          value: feature,
+          source: isFromTemplate 
+            ? sources.find(s => s.type === 'system_template')?.name || 'Systemmal'
+            : isFromAsset 
+              ? sources.find(s => s.type === 'asset_ai_usage')?.name || 'Eiendel'
+              : 'Prosessanalyse',
+          sourceType: isFromTemplate ? 'template' : isFromAsset ? 'asset' : 'process_analysis',
+        });
+      });
+
+      // Track suggested risk
+      if (suggestedRisk) {
+        const riskSource = systemInfo?.riskCategory 
+          ? sources.find(s => s.type === 'asset_ai_usage')?.name || systemInfo.name
+          : 'Prosessanalyse';
+        autoFilledFields.push({
+          field: 'risk_category',
+          value: suggestedRisk,
+          source: riskSource,
+          sourceType: systemInfo?.riskCategory ? 'asset' : 'process_analysis',
+        });
+      }
+
+      // Track suggested checks
+      processSuggestion.suggestedChecks.forEach(check => {
+        autoFilledFields.push({
+          field: 'compliance_checklist',
+          value: check,
+          source: processName,
+          sourceType: 'process_analysis',
+        });
+      });
+
       // Determine what requires user input
       const requiresUserInput: RequiredInput[] = [];
       
@@ -208,6 +287,7 @@ export function useProcessAIDraft(
           field: 'ai_purpose',
           label: 'Formål med AI',
           reason: 'Beskriv hva AI brukes til i denne prosessen',
+          priority: 'high',
         });
       }
       
@@ -215,12 +295,14 @@ export function useProcessAIDraft(
         field: 'affected_persons',
         label: 'Berørte personer',
         reason: 'Hvilke persongrupper påvirkes av AI-beslutninger?',
+        priority: 'high',
       });
       
       requiresUserInput.push({
         field: 'human_oversight',
         label: 'Menneskelig tilsyn',
         reason: 'Beskriv hvordan menneskelig kontroll sikres',
+        priority: 'medium',
       });
 
       if (!suggestedRisk || suggestedRisk === 'minimal') {
@@ -228,6 +310,7 @@ export function useProcessAIDraft(
           field: 'risk_justification',
           label: 'Begrunnelse for risikoklassifisering',
           reason: 'Dokumenter hvorfor denne risikokategorien er valgt',
+          priority: 'medium',
         });
       }
 
@@ -244,6 +327,7 @@ export function useProcessAIDraft(
         systemName: systemInfo?.name || null,
         aiActNote: processSuggestion.aiActNote,
         requiresUserInput,
+        autoFilledFields,
       };
     },
     enabled: !!processName,
