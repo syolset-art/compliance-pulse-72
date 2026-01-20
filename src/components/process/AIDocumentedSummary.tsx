@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
   ShieldAlert,
@@ -9,6 +8,7 @@ import {
   Pencil,
   Users,
   Calendar,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -26,37 +26,37 @@ interface AIDocumentedSummaryProps {
 
 const RISK_CONFIG: Record<string, { 
   label: string; 
-  shortLabel: string;
   color: string; 
   bgColor: string;
+  borderColor: string;
   icon: React.ReactNode;
 }> = {
   unacceptable: {
     label: "Uakseptabel",
-    shortLabel: "Uakseptabel",
-    color: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-100 dark:bg-red-900/30",
+    color: "text-red-700 dark:text-red-300",
+    bgColor: "bg-red-50 dark:bg-red-950/50",
+    borderColor: "border-red-200 dark:border-red-800",
     icon: <ShieldAlert className="h-4 w-4" />,
   },
   high: {
     label: "Høy risiko",
-    shortLabel: "Høy",
-    color: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-100 dark:bg-orange-900/30",
+    color: "text-orange-700 dark:text-orange-300",
+    bgColor: "bg-orange-50 dark:bg-orange-950/50",
+    borderColor: "border-orange-200 dark:border-orange-800",
     icon: <AlertTriangle className="h-4 w-4" />,
   },
   limited: {
-    label: "Begrenset risiko",
-    shortLabel: "Begrenset",
-    color: "text-yellow-600 dark:text-yellow-400",
-    bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+    label: "Begrenset",
+    color: "text-amber-700 dark:text-amber-300",
+    bgColor: "bg-amber-50 dark:bg-amber-950/50",
+    borderColor: "border-amber-200 dark:border-amber-800",
     icon: <Eye className="h-4 w-4" />,
   },
   minimal: {
-    label: "Minimal risiko",
-    shortLabel: "Minimal",
-    color: "text-green-600 dark:text-green-400",
-    bgColor: "bg-green-100 dark:bg-green-900/30",
+    label: "Minimal",
+    color: "text-emerald-700 dark:text-emerald-300",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
 };
@@ -77,11 +77,11 @@ export const AIDocumentedSummary = ({
   // If process doesn't use AI
   if (!hasAI) {
     return (
-      <div className="rounded-xl border bg-muted/30 p-5">
+      <div className="rounded-2xl border bg-card shadow-sm p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-muted rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
+            <div className="p-2.5 bg-muted rounded-xl">
+              <Bot className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
               <p className="font-medium">Ingen AI-bruk</p>
@@ -91,7 +91,7 @@ export const AIDocumentedSummary = ({
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={onEdit}>
-            <Pencil className="h-4 w-4 mr-1" />
+            <Pencil className="h-4 w-4 mr-1.5" />
             Endre
           </Button>
         </div>
@@ -100,79 +100,71 @@ export const AIDocumentedSummary = ({
   }
 
   return (
-    <div className="rounded-xl border bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800 p-5">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+      {/* Success header */}
+      <div className="px-5 py-3 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-100 dark:border-emerald-900 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-          <span className="font-medium text-green-700 dark:text-green-300">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
             AI-bruk dokumentert
           </span>
         </div>
-        <Button variant="ghost" size="sm" onClick={onEdit}>
-          <Pencil className="h-4 w-4 mr-1" />
+        <Button variant="ghost" size="sm" onClick={onEdit} className="h-8 px-3">
+          <Pencil className="h-3.5 w-3.5 mr-1.5" />
           Rediger
         </Button>
       </div>
 
-      {/* Key metrics in a row */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Risk level */}
-        {riskConfig && (
-          <div className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-full",
-            riskConfig.bgColor
-          )}>
-            <span className={riskConfig.color}>{riskConfig.icon}</span>
-            <span className={cn("text-sm font-medium", riskConfig.color)}>
-              {riskConfig.shortLabel}
-            </span>
-          </div>
-        )}
-
-        {/* Separator dot */}
-        <span className="text-muted-foreground">•</span>
-
-        {/* Purpose (truncated) */}
-        {purpose && (
-          <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-            {purpose}
-          </span>
-        )}
-
-        {/* Separator dot */}
-        {affectedPersons.length > 0 && (
-          <>
-            <span className="text-muted-foreground">•</span>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              <span>{affectedPersons.length} berørte</span>
-            </div>
-          </>
-        )}
-
-        {/* Last review date */}
-        {lastReviewDate && (
-          <>
-            <span className="text-muted-foreground hidden sm:inline">•</span>
-            <div className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>
-                {format(new Date(lastReviewDate), "d. MMM yyyy", { locale: nb })}
+      {/* Content */}
+      <div className="p-5 space-y-4">
+        {/* Risk badge + purpose */}
+        <div className="flex items-start gap-4">
+          {riskConfig && (
+            <div className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-lg border shrink-0",
+              riskConfig.bgColor,
+              riskConfig.borderColor
+            )}>
+              <span className={riskConfig.color}>{riskConfig.icon}</span>
+              <span className={cn("text-sm font-medium", riskConfig.color)}>
+                {riskConfig.label}
               </span>
             </div>
-          </>
-        )}
-      </div>
-
-      {/* Needs review badge */}
-      {complianceStatus === "not_assessed" && (
-        <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-800">
-          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
-            Trenger gjennomgang
-          </Badge>
+          )}
+          
+          {purpose && (
+            <p className="text-sm text-muted-foreground leading-relaxed pt-1.5">
+              {purpose}
+            </p>
+          )}
         </div>
-      )}
+
+        {/* Meta info row */}
+        <div className="flex flex-wrap items-center gap-4 pt-2 border-t">
+          {affectedPersons.length > 0 && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{affectedPersons.length} berørte grupper</span>
+            </div>
+          )}
+
+          {lastReviewDate && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Sist oppdatert {format(new Date(lastReviewDate), "d. MMM yyyy", { locale: nb })}
+              </span>
+            </div>
+          )}
+
+          {complianceStatus === "not_assessed" && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              Trenger gjennomgang
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
