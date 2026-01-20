@@ -1,16 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   ChevronDown,
   ChevronUp,
   Check,
-  Sparkles,
   ShieldAlert,
   AlertTriangle,
   Eye,
   CheckCircle2,
   Loader2,
+  Settings2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,35 +29,40 @@ const RISK_CONFIG: Record<string, {
   color: string; 
   bgColor: string; 
   borderColor: string;
+  ringColor: string;
   icon: React.ReactNode;
 }> = {
   unacceptable: {
     label: "Uakseptabel risiko",
-    color: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-100 dark:bg-red-900/30",
-    borderColor: "border-red-300 dark:border-red-700",
-    icon: <ShieldAlert className="h-8 w-8" />,
+    color: "text-red-700 dark:text-red-300",
+    bgColor: "bg-red-50 dark:bg-red-950/50",
+    borderColor: "border-red-200 dark:border-red-800",
+    ringColor: "ring-red-500/20",
+    icon: <ShieldAlert className="h-6 w-6" />,
   },
   high: {
     label: "Høy risiko",
-    color: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-100 dark:bg-orange-900/30",
-    borderColor: "border-orange-300 dark:border-orange-700",
-    icon: <AlertTriangle className="h-8 w-8" />,
+    color: "text-orange-700 dark:text-orange-300",
+    bgColor: "bg-orange-50 dark:bg-orange-950/50",
+    borderColor: "border-orange-200 dark:border-orange-800",
+    ringColor: "ring-orange-500/20",
+    icon: <AlertTriangle className="h-6 w-6" />,
   },
   limited: {
     label: "Begrenset risiko",
-    color: "text-yellow-600 dark:text-yellow-400",
-    bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
-    borderColor: "border-yellow-300 dark:border-yellow-700",
-    icon: <Eye className="h-8 w-8" />,
+    color: "text-amber-700 dark:text-amber-300",
+    bgColor: "bg-amber-50 dark:bg-amber-950/50",
+    borderColor: "border-amber-200 dark:border-amber-800",
+    ringColor: "ring-amber-500/20",
+    icon: <Eye className="h-6 w-6" />,
   },
   minimal: {
     label: "Minimal risiko",
-    color: "text-green-600 dark:text-green-400",
-    bgColor: "bg-green-100 dark:bg-green-900/30",
-    borderColor: "border-green-300 dark:border-green-700",
-    icon: <CheckCircle2 className="h-8 w-8" />,
+    color: "text-emerald-700 dark:text-emerald-300",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+    ringColor: "ring-emerald-500/20",
+    icon: <CheckCircle2 className="h-6 w-6" />,
   },
 };
 
@@ -75,79 +79,77 @@ export const AIHeroSummary = ({
   const { t } = useTranslation();
   
   const riskConfig = riskLevel ? RISK_CONFIG[riskLevel] : RISK_CONFIG.minimal;
-  
-  const confidenceLabel = {
-    high: "Høy sikkerhet",
-    medium: "Middels sikkerhet",
-    low: "Lav sikkerhet",
-  }[confidence];
 
   return (
-    <div className="rounded-xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6 space-y-5">
-      {/* Header with Lara badge */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 rounded-full">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">Lara</span>
+    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+      {/* Header bar */}
+      <div className="px-5 py-3 bg-muted/40 border-b flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-sm font-medium text-muted-foreground">
+            AI-analyse klar
+          </span>
         </div>
-        <span className="text-sm text-muted-foreground">har analysert prosessen</span>
+        <span className="text-xs text-muted-foreground">
+          {confidence === "high" ? "Høy" : confidence === "medium" ? "Middels" : "Lav"} sikkerhet
+        </span>
       </div>
 
-      {/* Main visual risk indicator */}
-      <div className="flex flex-col items-center text-center py-4">
-        <div className={cn(
-          "p-6 rounded-2xl border-2 mb-4 transition-all",
-          riskConfig.bgColor,
-          riskConfig.borderColor
-        )}>
-          <div className={riskConfig.color}>
-            {riskConfig.icon}
+      {/* Main content */}
+      <div className="p-6 space-y-5">
+        {/* Risk indicator - centered and prominent */}
+        <div className="flex flex-col items-center text-center">
+          <div className={cn(
+            "inline-flex items-center gap-3 px-5 py-3 rounded-xl border ring-4 mb-3",
+            riskConfig.bgColor,
+            riskConfig.borderColor,
+            riskConfig.ringColor
+          )}>
+            <span className={riskConfig.color}>
+              {riskConfig.icon}
+            </span>
+            <span className={cn("text-lg font-semibold", riskConfig.color)}>
+              {riskConfig.label}
+            </span>
           </div>
-        </div>
-        
-        <h3 className={cn("text-xl font-semibold", riskConfig.color)}>
-          {riskConfig.label}
-        </h3>
-        
-        <Badge variant="outline" className="mt-2 text-xs">
-          {confidenceLabel}
-        </Badge>
-      </div>
-
-      {/* Short purpose description */}
-      {purpose && (
-        <p className="text-center text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
-          "{purpose}"
-        </p>
-      )}
-
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-2 pt-2">
-        <Button 
-          onClick={onAccept} 
-          className="flex-1"
-          disabled={isAccepting}
-        >
-          {isAccepting ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4 mr-2" />
+          
+          {/* Purpose description */}
+          {purpose && (
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mt-2">
+              {purpose}
+            </p>
           )}
-          Bekreft
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={onAdjust}
-          className="flex-1"
-        >
-          Juster og fullfør
-        </Button>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-3 pt-1">
+          <Button 
+            onClick={onAccept} 
+            className="flex-1 h-11"
+            disabled={isAccepting}
+          >
+            {isAccepting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4 mr-2" />
+            )}
+            Bekreft og lagre
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={onAdjust}
+            className="flex-1 h-11"
+          >
+            <Settings2 className="h-4 w-4 mr-2" />
+            Juster
+          </Button>
+        </div>
       </div>
 
-      {/* Expand details toggle */}
+      {/* Expand toggle - subtle footer */}
       <button
         onClick={onToggleExpand}
-        className="w-full flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-2"
+        className="w-full px-5 py-3 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 border-t transition-colors"
       >
         {isExpanded ? (
           <>
@@ -156,7 +158,7 @@ export const AIHeroSummary = ({
           </>
         ) : (
           <>
-            <span>Se detaljer</span>
+            <span>Vis detaljer</span>
             <ChevronDown className="h-4 w-4" />
           </>
         )}

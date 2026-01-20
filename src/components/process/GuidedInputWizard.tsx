@@ -7,13 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   Users,
   Eye,
-  MessageSquare,
-  ChevronRight,
-  ChevronLeft,
+  UserCheck,
+  ArrowRight,
+  ArrowLeft,
   Plus,
   X,
   Check,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RequiredInput } from "@/hooks/useProcessAIDraft";
@@ -43,21 +42,21 @@ interface StepConfig {
 const STEP_CONFIGS: Record<string, StepConfig> = {
   affectedPersons: {
     field: "affectedPersons",
-    title: "Hvem påvirkes?",
-    subtitle: "Velg alle gruppene som berøres av AI-bruken",
-    icon: <Users className="h-6 w-6" />,
+    title: "Hvem påvirkes av AI-bruken?",
+    subtitle: "Velg alle relevante grupper",
+    icon: <Users className="h-5 w-5" />,
   },
   transparencyDescription: {
     field: "transparencyDescription",
-    title: "Hvordan informeres de?",
-    subtitle: "Beskriv kort hvordan berørte får vite om AI-bruken",
-    icon: <Eye className="h-6 w-6" />,
+    title: "Hvordan informeres de berørte?",
+    subtitle: "Beskriv hvordan brukere får vite om AI-bruken",
+    icon: <Eye className="h-5 w-5" />,
   },
   humanOversightDescription: {
     field: "humanOversightDescription",
-    title: "Menneskelig kontroll",
-    subtitle: "Hvordan sikres at mennesker kan gripe inn?",
-    icon: <MessageSquare className="h-6 w-6" />,
+    title: "Hvordan sikres menneskelig kontroll?",
+    subtitle: "Beskriv hvordan mennesker kan overstyre AI-beslutninger",
+    icon: <UserCheck className="h-5 w-5" />,
   },
 };
 
@@ -138,159 +137,151 @@ export const GuidedInputWizard = ({
   if (!currentStepConfig) return null;
 
   return (
-    <div className="rounded-xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 rounded-full">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-medium text-primary">Lara</span>
-          </div>
-          <span className="text-sm text-muted-foreground">trenger litt mer info</span>
+    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+      {/* Header with progress */}
+      <div className="px-5 py-4 bg-muted/40 border-b">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-muted-foreground">
+            Steg {currentStep + 1} av {steps.length}
+          </span>
         </div>
-        
-        {/* Progress dots */}
-        <div className="flex items-center gap-1.5">
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={cn(
-                "h-2 w-2 rounded-full transition-colors",
-                index === currentStep
-                  ? "bg-primary"
-                  : index < currentStep
-                  ? "bg-primary/50"
-                  : "bg-muted"
-              )}
-            />
-          ))}
+        {/* Progress bar */}
+        <div className="h-1 bg-muted rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-primary transition-all duration-300 ease-out rounded-full"
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+          />
         </div>
       </div>
 
       {/* Step content */}
-      <div className="text-center py-4">
-        <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4">
-          <div className="text-primary">
+      <div className="p-6 space-y-6">
+        {/* Question header */}
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
             {currentStepConfig.icon}
           </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-1">
+              {currentStepConfig.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {currentStepConfig.subtitle}
+            </p>
+          </div>
         </div>
-        
-        <h3 className="text-lg font-semibold mb-1">
-          {currentStepConfig.title}
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          {currentStepConfig.subtitle}
-        </p>
-      </div>
 
-      {/* Input area based on field type */}
-      <div className="space-y-4">
-        {currentStepConfig.field === "affectedPersons" && (
-          <>
-            {/* Chip selector */}
-            <div className="flex flex-wrap justify-center gap-2">
-              {AFFECTED_PERSONS_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => togglePerson(option.label)}
-                  className={cn(
-                    "px-4 py-2.5 text-sm rounded-full border-2 transition-all",
-                    values.affectedPersons.includes(option.label)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background hover:bg-muted border-border hover:border-primary/50"
-                  )}
-                >
-                  {values.affectedPersons.includes(option.label) && (
-                    <Check className="h-3.5 w-3.5 inline mr-1.5" />
-                  )}
-                  {option.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Custom input */}
-            <div className="flex gap-2 max-w-xs mx-auto">
-              <Input
-                placeholder="Legg til annen..."
-                value={customPerson}
-                onChange={(e) => setCustomPerson(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addCustomPerson()}
-                className="text-center"
-              />
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={addCustomPerson}
-                disabled={!customPerson.trim()}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Custom persons badges */}
-            {values.affectedPersons.filter(
-              (p: string) => !AFFECTED_PERSONS_OPTIONS.map(o => o.label).includes(p)
-            ).length > 0 && (
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {values.affectedPersons
-                  .filter((p: string) => !AFFECTED_PERSONS_OPTIONS.map(o => o.label).includes(p))
-                  .map((person: string) => (
-                    <Badge key={person} variant="secondary" className="pr-1">
-                      {person}
-                      <button
-                        onClick={() => removeCustomPerson(person)}
-                        className="ml-1.5 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+        {/* Input area */}
+        <div className="space-y-4">
+          {currentStepConfig.field === "affectedPersons" && (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {AFFECTED_PERSONS_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => togglePerson(option.label)}
+                    className={cn(
+                      "px-4 py-3 text-sm rounded-xl border transition-all text-left",
+                      values.affectedPersons.includes(option.label)
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background hover:bg-muted border-border hover:border-primary/40"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {values.affectedPersons.includes(option.label) && (
+                        <Check className="h-4 w-4 shrink-0" />
+                      )}
+                      <span>{option.label}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
-            )}
-          </>
-        )}
 
-        {currentStepConfig.field === "transparencyDescription" && (
-          <Textarea
-            placeholder="F.eks. 'Brukere informeres via et banner i appen...'"
-            value={values.transparencyDescription}
-            onChange={(e) => setValues(prev => ({ ...prev, transparencyDescription: e.target.value }))}
-            rows={3}
-            className="resize-none text-center"
-          />
-        )}
+              {/* Custom input */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Legg til annen gruppe..."
+                  value={customPerson}
+                  onChange={(e) => setCustomPerson(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addCustomPerson()}
+                  className="h-11"
+                />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={addCustomPerson}
+                  disabled={!customPerson.trim()}
+                  className="h-11 w-11 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
 
-        {currentStepConfig.field === "humanOversightDescription" && (
-          <Textarea
-            placeholder="F.eks. 'Alle AI-avgjørelser gjennomgås av en saksbehandler...'"
-            value={values.humanOversightDescription}
-            onChange={(e) => setValues(prev => ({ ...prev, humanOversightDescription: e.target.value }))}
-            rows={3}
-            className="resize-none text-center"
-          />
-        )}
+              {/* Custom persons badges */}
+              {values.affectedPersons.filter(
+                (p: string) => !AFFECTED_PERSONS_OPTIONS.map(o => o.label).includes(p)
+              ).length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {values.affectedPersons
+                    .filter((p: string) => !AFFECTED_PERSONS_OPTIONS.map(o => o.label).includes(p))
+                    .map((person: string) => (
+                      <Badge key={person} variant="secondary" className="pr-1.5 py-1.5">
+                        {person}
+                        <button
+                          onClick={() => removeCustomPerson(person)}
+                          className="ml-2 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {currentStepConfig.field === "transparencyDescription" && (
+            <Textarea
+              placeholder="F.eks. «Brukere informeres via et banner når de først logger inn, samt i personvernerklæringen»"
+              value={values.transparencyDescription}
+              onChange={(e) => setValues(prev => ({ ...prev, transparencyDescription: e.target.value }))}
+              rows={4}
+              className="resize-none text-base"
+            />
+          )}
+
+          {currentStepConfig.field === "humanOversightDescription" && (
+            <Textarea
+              placeholder="F.eks. «Alle automatiske vedtak kan ankes og vil da bli gjennomgått manuelt av en saksbehandler»"
+              value={values.humanOversightDescription}
+              onChange={(e) => setValues(prev => ({ ...prev, humanOversightDescription: e.target.value }))}
+              rows={4}
+              className="resize-none text-base"
+            />
+          )}
+        </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex gap-2 pt-2">
-        <Button variant="ghost" onClick={handleBack} className="flex-1">
-          <ChevronLeft className="h-4 w-4 mr-1" />
+      {/* Footer navigation */}
+      <div className="px-6 py-4 bg-muted/20 border-t flex gap-3">
+        <Button variant="ghost" onClick={handleBack} className="h-11">
+          <ArrowLeft className="h-4 w-4 mr-2" />
           {currentStep === 0 ? "Avbryt" : "Tilbake"}
         </Button>
         <Button 
           onClick={handleNext} 
           disabled={!canProceed()}
-          className="flex-1"
+          className="flex-1 h-11"
         >
           {isLastStep ? (
             <>
-              <Check className="h-4 w-4 mr-1" />
-              Fullfør
+              <Check className="h-4 w-4 mr-2" />
+              Fullfør dokumentasjon
             </>
           ) : (
             <>
               Neste
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <ArrowRight className="h-4 w-4 ml-2" />
             </>
           )}
         </Button>
