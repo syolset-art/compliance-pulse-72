@@ -346,16 +346,24 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
 
       {/* Process Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {processes.map((process) => (
-          <ProcessOverviewCard
-            key={process.id}
-            process={process}
-            stats={getProcessStats(process.id)}
-            criticality={getProcessCriticality(process.id)}
-            processOwner="Ukjent bruker"
-            onClick={() => navigate(`/processes/${process.id}`)}
-          />
-        ))}
+        {processes.map((process) => {
+          const aiInfo = processAIUsage?.find(p => p.process_id === process.id);
+          return (
+            <ProcessOverviewCard
+              key={process.id}
+              process={process}
+              stats={getProcessStats(process.id)}
+              criticality={getProcessCriticality(process.id)}
+              processOwner="Ukjent bruker"
+              aiUsage={aiInfo ? {
+                hasAI: aiInfo.has_ai,
+                riskCategory: aiInfo.risk_category,
+                complianceStatus: aiInfo.compliance_status
+              } : undefined}
+              onClick={() => navigate(`/processes/${process.id}`)}
+            />
+          );
+        })}
       </div>
 
       <AddProcessDialog
