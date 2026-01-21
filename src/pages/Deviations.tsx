@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,16 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertTriangle,
   Clock,
@@ -40,7 +30,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
-import { toast } from "sonner";
+import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
+import { deviationCategories } from "@/lib/deviationCategories";
 
 interface Deviation {
   id: string;
@@ -60,15 +51,10 @@ interface Deviation {
   system_id: string;
 }
 
-const categoryLabels: Record<string, string> = {
-  datainnbrudd: "Datainnbrudd",
-  tilgangskontroll: "Tilgangskontroll",
-  hendelseshåndtering: "Hendelseshåndtering",
-  prosess_og_rutiner: "Prosess og rutiner",
-  personvern: "Personvern",
-  sikkerhet: "Sikkerhet",
-  annet: "Annet",
-};
+const categoryLabels: Record<string, string> = Object.fromEntries(
+  deviationCategories.map((c) => [c.id, c.label])
+);
+categoryLabels["annet"] = "Annet";
 
 const criticalityConfig: Record<string, { label: string; color: string; bgColor: string }> = {
   critical: { label: "KRITISK", color: "text-red-400", bgColor: "bg-red-500/20" },
@@ -85,19 +71,10 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
 
 export default function Deviations() {
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
   const [titleFilter, setTitleFilter] = useState("");
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newDeviation, setNewDeviation] = useState({
-    title: "",
-    description: "",
-    category: "annet",
-    criticality: "medium",
-    responsible: "",
-    relevant_frameworks: [] as string[],
-  });
 
   // Fetch deviations
   const { data: deviations = [], isLoading } = useQuery({
@@ -109,53 +86,6 @@ export default function Deviations() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as Deviation[];
-    },
-  });
-
-  // Fetch systems for adding new deviations
-  const { data: systems = [] } = useQuery({
-    queryKey: ["systems-for-deviations"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("systems").select("id, name");
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Create deviation mutation
-  const createDeviation = useMutation({
-    mutationFn: async (deviation: typeof newDeviation & { system_id: string }) => {
-      const { error } = await supabase.from("system_incidents").insert({
-        system_id: deviation.system_id,
-        title: deviation.title,
-        description: deviation.description,
-        category: deviation.category,
-        criticality: deviation.criticality,
-        responsible: deviation.responsible,
-        relevant_frameworks: deviation.relevant_frameworks,
-        status: "open",
-        measures_count: 0,
-        measures_completed: 0,
-        systems_count: 1,
-        processes_count: 0,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["deviations"] });
-      setIsAddDialogOpen(false);
-      setNewDeviation({
-        title: "",
-        description: "",
-        category: "annet",
-        criticality: "medium",
-        responsible: "",
-        relevant_frameworks: [],
-      });
-      toast.success("Avvik opprettet");
-    },
-    onError: () => {
-      toast.error("Kunne ikke opprette avvik");
     },
   });
 
@@ -189,29 +119,6 @@ export default function Deviations() {
     } catch {
       return "-";
     }
-  };
-
-  const handleAddDeviation = () => {
-    if (!newDeviation.title.trim()) {
-      toast.error("Tittel er påkrevd");
-      return;
-    }
-    // Use first system if available, or create a placeholder
-    const systemId = systems[0]?.id;
-    if (!systemId) {
-      toast.error("Du må opprette et system først");
-      return;
-    }
-    createDeviation.mutate({ ...newDeviation, system_id: systemId });
-  };
-
-  const toggleFramework = (framework: string) => {
-    setNewDeviation((prev) => ({
-      ...prev,
-      relevant_frameworks: prev.relevant_frameworks.includes(framework)
-        ? prev.relevant_frameworks.filter((f) => f !== framework)
-        : [...prev.relevant_frameworks, framework],
-    }));
   };
 
   const DeviationCard = ({ deviation }: { deviation: Deviation }) => {
@@ -455,113 +362,10 @@ export default function Deviations() {
         )}
 
         {/* Add Deviation Dialog */}
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Legg til nytt avvik</DialogTitle>
-              <DialogDescription>
-                Registrer et nytt avvik eller hendelse som krever oppfølging
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Tittel *</Label>
-                <Input
-                  id="title"
-                  value={newDeviation.title}
-                  onChange={(e) => setNewDeviation((p) => ({ ...p, title: e.target.value }))}
-                  placeholder="Beskriv avviket kort"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Beskrivelse</Label>
-                <Textarea
-                  id="description"
-                  value={newDeviation.description}
-                  onChange={(e) => setNewDeviation((p) => ({ ...p, description: e.target.value }))}
-                  placeholder="Gi en detaljert beskrivelse av avviket..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Kategori</Label>
-                  <Select
-                    value={newDeviation.category}
-                    onValueChange={(v) => setNewDeviation((p) => ({ ...p, category: v }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(categoryLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Kritikalitet</Label>
-                  <Select
-                    value={newDeviation.criticality}
-                    onValueChange={(v) => setNewDeviation((p) => ({ ...p, criticality: v }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="critical">Kritisk</SelectItem>
-                      <SelectItem value="high">Høy</SelectItem>
-                      <SelectItem value="medium">Middels</SelectItem>
-                      <SelectItem value="low">Lav</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="responsible">Ansvarlig</Label>
-                <Input
-                  id="responsible"
-                  value={newDeviation.responsible}
-                  onChange={(e) => setNewDeviation((p) => ({ ...p, responsible: e.target.value }))}
-                  placeholder="Navn på ansvarlig person"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2 block">Relevante regelverk</Label>
-                <div className="flex flex-wrap gap-2">
-                  {["GDPR", "ISO27001", "NIS2", "CRA", "AI Act"].map((fw) => (
-                    <Badge
-                      key={fw}
-                      variant={newDeviation.relevant_frameworks.includes(fw) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleFramework(fw)}
-                    >
-                      {fw}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Avbryt
-              </Button>
-              <Button onClick={handleAddDeviation} disabled={createDeviation.isPending}>
-                {createDeviation.isPending ? "Oppretter..." : "Opprett avvik"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <AddDeviationDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+        />
         </div>
       </main>
     </div>
