@@ -884,6 +884,9 @@ export const ProcessAIDialog = ({
                     placeholder="Beskriv konsekvensen av automatiserte beslutninger..."
                     rows={2}
                   />
+                )}
+              </div>
+            </div>
           )}
 
           {/* Step 6: Usage Scope */}
