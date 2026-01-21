@@ -7,14 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
+import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { 
+import {
   Plus, 
   Shield, 
   Users as UsersIcon, 
@@ -117,11 +118,13 @@ export default function WorkAreas() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [isCompanyProfileDialogOpen, setIsCompanyProfileDialogOpen] = useState(false);
+  const [isAssignAssetDialogOpen, setIsAssignAssetDialogOpen] = useState(false);
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Fetch assets owned by this work area
   const { data: ownedAssets = [] } = useQuery({
@@ -698,37 +701,43 @@ export default function WorkAreas() {
 
               <TabsContent value="assets" className="mt-4">
                 {/* Asset type filter */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Button 
-                    variant={assetTypeFilter === "all" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => setAssetTypeFilter("all")}
-                  >
-                    {t("myWorkAreas.filterAll")}
-                  </Button>
-                  <Button 
-                    variant={assetTypeFilter === "system" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setAssetTypeFilter("system")}
-                  >
-                    <Server className="h-4 w-4 mr-1" />
-                    {t("myWorkAreas.assetTypes.system")}
-                  </Button>
-                  <Button 
-                    variant={assetTypeFilter === "location" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setAssetTypeFilter("location")}
-                  >
-                    <Building2 className="h-4 w-4 mr-1" />
-                    {t("myWorkAreas.assetTypes.location")}
-                  </Button>
-                  <Button 
-                    variant={assetTypeFilter === "network" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setAssetTypeFilter("network")}
-                  >
-                    <Network className="h-4 w-4 mr-1" />
-                    {t("myWorkAreas.assetTypes.network")}
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant={assetTypeFilter === "all" ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setAssetTypeFilter("all")}
+                    >
+                      {t("myWorkAreas.filterAll")}
+                    </Button>
+                    <Button 
+                      variant={assetTypeFilter === "system" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAssetTypeFilter("system")}
+                    >
+                      <Server className="h-4 w-4 mr-1" />
+                      {t("myWorkAreas.assetTypes.system")}
+                    </Button>
+                    <Button 
+                      variant={assetTypeFilter === "location" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAssetTypeFilter("location")}
+                    >
+                      <Building2 className="h-4 w-4 mr-1" />
+                      {t("myWorkAreas.assetTypes.location")}
+                    </Button>
+                    <Button 
+                      variant={assetTypeFilter === "network" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAssetTypeFilter("network")}
+                    >
+                      <Network className="h-4 w-4 mr-1" />
+                      {t("myWorkAreas.assetTypes.network")}
+                    </Button>
+                  </div>
+                  <Button onClick={() => setIsAssignAssetDialogOpen(true)} size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    {t("myWorkAreas.addAsset")}
                   </Button>
                 </div>
 
@@ -984,6 +993,20 @@ export default function WorkAreas() {
         companyProfile={companyProfile}
         onProfileUpdated={fetchCompanyAndTemplates}
       />
+
+      {selectedWorkArea && (
+        <AssignAssetDialog
+          open={isAssignAssetDialogOpen}
+          onOpenChange={setIsAssignAssetDialogOpen}
+          workAreaId={selectedWorkArea.id}
+          workAreaName={selectedWorkArea.name}
+          existingAssetIds={allAssets.map((a) => a.id)}
+          onAssetsUpdated={() => {
+            queryClient.invalidateQueries({ queryKey: ["work-area-assets-owned"] });
+            queryClient.invalidateQueries({ queryKey: ["work-area-assets-used"] });
+          }}
+        />
+      )}
 
       <AlertDialog open={!!deletingWorkArea} onOpenChange={() => setDeletingWorkArea(null)}>
         <AlertDialogContent>

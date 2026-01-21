@@ -381,7 +381,28 @@
     },
     "hasProtocol": "HAR PROTOKOLL",
     "newProtocol": "Ny protokoll",
-    "comingSoon": "Kommer snart..."
+    "comingSoon": "Kommer snart...",
+    "addAsset": "Legg til eiendel"
+  },
+  "assignAsset": {
+    "title": "Legg til eiendel til {{workArea}}",
+    "description": "Velg fra din eksisterende portefølje eller legg til nye fra Mynders maler",
+    "myPortfolio": "Min portefølje",
+    "mynderTemplates": "Mynders maler",
+    "assignAsOwner": "Tilknytt som eier",
+    "assignAsUser": "Tilknytt som bruker",
+    "addAndAssign": "Legg til og tilknytt",
+    "selectedCount": "{{count}} valgt",
+    "alreadyAssigned": "Allerede tilknyttet",
+    "noAssetsAvailable": "Ingen tilgjengelige eiendeler",
+    "tryTemplates": "Prøv å legge til fra Mynders maler",
+    "recommended": "Anbefalt",
+    "assetsAssigned": "eiendel(er) tilknyttet",
+    "assetsLinked": "eiendel(er) koblet",
+    "assetsCreated": "eiendel(er) opprettet",
+    "errorAssigning": "Kunne ikke tilknytte eiendeler",
+    "errorCreating": "Kunne ikke opprette eiendeler",
+    "needOwnerFirst": "Du må eie minst én eiendel før du kan legge til som bruker"
   },
   "dialog": {
     "addWorkArea": "Legg til arbeidsområde",
