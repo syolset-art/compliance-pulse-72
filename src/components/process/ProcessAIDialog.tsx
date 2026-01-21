@@ -72,6 +72,7 @@ const STEPS = [
   { id: 'checklist', title: 'AI Act sjekkliste', icon: FileText },
   { id: 'risk', title: 'Risikoklassifisering', icon: Shield },
   { id: 'transparency', title: 'Transparens og tilsyn', icon: Eye },
+  { id: 'usage', title: 'Bruksomfang', icon: Users },
 ];
 
 export const ProcessAIDialog = ({
@@ -103,6 +104,12 @@ export const ProcessAIDialog = ({
   const [affectedPersons, setAffectedPersons] = useState<string[]>([]);
   const [automatedDecisions, setAutomatedDecisions] = useState(false);
   const [decisionImpact, setDecisionImpact] = useState("");
+  
+  // New: Usage scope state
+  const [usageFrequency, setUsageFrequency] = useState("");
+  const [estimatedMonthlyDecisions, setEstimatedMonthlyDecisions] = useState<number>(0);
+  const [estimatedAffectedPersons, setEstimatedAffectedPersons] = useState<number>(0);
+  const [overrideRate, setOverrideRate] = useState("");
 
   // Get AI suggestions based on process name
   const [suggestions, setSuggestions] = useState<ProcessAISuggestion | null>(null);
@@ -245,6 +252,11 @@ export const ProcessAIDialog = ({
         compliance_checklist: checklist as unknown as null,
         compliance_status: calculateComplianceStatus(),
         last_review_date: new Date().toISOString().split('T')[0],
+        // New: Usage scope fields
+        usage_frequency: usageFrequency || null,
+        estimated_monthly_decisions: estimatedMonthlyDecisions || 0,
+        estimated_affected_persons: estimatedAffectedPersons || 0,
+        override_rate: overrideRate || null,
       };
 
       if (existingData) {
@@ -300,6 +312,10 @@ export const ProcessAIDialog = ({
     setAffectedPersons([]);
     setAutomatedDecisions(false);
     setDecisionImpact("");
+    setUsageFrequency("");
+    setEstimatedMonthlyDecisions(0);
+    setEstimatedAffectedPersons(0);
+    setOverrideRate("");
   };
 
   const addCustomFeature = () => {
@@ -868,7 +884,74 @@ export const ProcessAIDialog = ({
                     placeholder="Beskriv konsekvensen av automatiserte beslutninger..."
                     rows={2}
                   />
-                )}
+          )}
+
+          {/* Step 6: Usage Scope */}
+          {currentStep === 5 && hasAI && (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Hvor ofte brukes AI i denne prosessen?</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: "daily", label: "Daglig" },
+                    { value: "weekly", label: "Ukentlig" },
+                    { value: "monthly", label: "Månedlig" },
+                    { value: "rarely", label: "Sjelden" },
+                  ].map((freq) => (
+                    <Button
+                      key={freq.value}
+                      variant={usageFrequency === freq.value ? "default" : "outline"}
+                      className="w-full"
+                      onClick={() => setUsageFrequency(freq.value)}
+                    >
+                      {freq.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Estimert AI-beslutninger per måned</Label>
+                  <input
+                    type="number"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={estimatedMonthlyDecisions || ""}
+                    onChange={(e) => setEstimatedMonthlyDecisions(parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Estimert berørte personer per måned</Label>
+                  <input
+                    type="number"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={estimatedAffectedPersons || ""}
+                    onChange={(e) => setEstimatedAffectedPersons(parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Hvor ofte overstyres AI-anbefalingen?</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: "never", label: "Aldri (0-10%)" },
+                    { value: "rarely", label: "Sjelden (10-30%)" },
+                    { value: "often", label: "Ofte (30-60%)" },
+                    { value: "always", label: "Alltid (60%+)" },
+                  ].map((rate) => (
+                    <Button
+                      key={rate.value}
+                      variant={overrideRate === rate.value ? "default" : "outline"}
+                      className="w-full text-xs"
+                      onClick={() => setOverrideRate(rate.value)}
+                    >
+                      {rate.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           )}

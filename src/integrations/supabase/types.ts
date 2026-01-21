@@ -41,6 +41,173 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_system_registry: {
+        Row: {
+          accuracy_percent: number | null
+          affected_persons: Json | null
+          annex_iii_category: string | null
+          automation_level: string | null
+          complaints_count: number | null
+          compliance_status: string | null
+          created_at: string | null
+          decisions_per_month: number | null
+          estimated_affected_persons: number | null
+          estimated_daily_uses: number | null
+          human_oversight_level: string | null
+          id: string
+          incidents_count: number | null
+          last_assessment_date: string | null
+          last_performance_review: string | null
+          linked_asset_ids: string[] | null
+          linked_process_count: number | null
+          logging_enabled: boolean | null
+          name: string
+          next_assessment_date: string | null
+          override_rate_percent: number | null
+          performance_notes: string | null
+          provider: string | null
+          risk_category: string | null
+          risk_justification: string | null
+          status: string | null
+          transparency_measures: string | null
+          updated_at: string | null
+          usage_frequency: string | null
+          use_cases: Json | null
+          version: string | null
+        }
+        Insert: {
+          accuracy_percent?: number | null
+          affected_persons?: Json | null
+          annex_iii_category?: string | null
+          automation_level?: string | null
+          complaints_count?: number | null
+          compliance_status?: string | null
+          created_at?: string | null
+          decisions_per_month?: number | null
+          estimated_affected_persons?: number | null
+          estimated_daily_uses?: number | null
+          human_oversight_level?: string | null
+          id?: string
+          incidents_count?: number | null
+          last_assessment_date?: string | null
+          last_performance_review?: string | null
+          linked_asset_ids?: string[] | null
+          linked_process_count?: number | null
+          logging_enabled?: boolean | null
+          name: string
+          next_assessment_date?: string | null
+          override_rate_percent?: number | null
+          performance_notes?: string | null
+          provider?: string | null
+          risk_category?: string | null
+          risk_justification?: string | null
+          status?: string | null
+          transparency_measures?: string | null
+          updated_at?: string | null
+          usage_frequency?: string | null
+          use_cases?: Json | null
+          version?: string | null
+        }
+        Update: {
+          accuracy_percent?: number | null
+          affected_persons?: Json | null
+          annex_iii_category?: string | null
+          automation_level?: string | null
+          complaints_count?: number | null
+          compliance_status?: string | null
+          created_at?: string | null
+          decisions_per_month?: number | null
+          estimated_affected_persons?: number | null
+          estimated_daily_uses?: number | null
+          human_oversight_level?: string | null
+          id?: string
+          incidents_count?: number | null
+          last_assessment_date?: string | null
+          last_performance_review?: string | null
+          linked_asset_ids?: string[] | null
+          linked_process_count?: number | null
+          logging_enabled?: boolean | null
+          name?: string
+          next_assessment_date?: string | null
+          override_rate_percent?: number | null
+          performance_notes?: string | null
+          provider?: string | null
+          risk_category?: string | null
+          risk_justification?: string | null
+          status?: string | null
+          transparency_measures?: string | null
+          updated_at?: string | null
+          usage_frequency?: string | null
+          use_cases?: Json | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      ai_usage_metrics: {
+        Row: {
+          accuracy_score: number | null
+          affected_persons_count: number | null
+          ai_system_id: string | null
+          automated_decisions: number | null
+          complaints: number | null
+          corrections: number | null
+          created_at: string | null
+          false_negative_count: number | null
+          false_positive_count: number | null
+          id: string
+          incidents: number | null
+          overridden_decisions: number | null
+          period_end: string
+          period_start: string
+          total_decisions: number | null
+          total_uses: number | null
+        }
+        Insert: {
+          accuracy_score?: number | null
+          affected_persons_count?: number | null
+          ai_system_id?: string | null
+          automated_decisions?: number | null
+          complaints?: number | null
+          corrections?: number | null
+          created_at?: string | null
+          false_negative_count?: number | null
+          false_positive_count?: number | null
+          id?: string
+          incidents?: number | null
+          overridden_decisions?: number | null
+          period_end: string
+          period_start: string
+          total_decisions?: number | null
+          total_uses?: number | null
+        }
+        Update: {
+          accuracy_score?: number | null
+          affected_persons_count?: number | null
+          ai_system_id?: string | null
+          automated_decisions?: number | null
+          complaints?: number | null
+          corrections?: number | null
+          created_at?: string | null
+          false_negative_count?: number | null
+          false_positive_count?: number | null
+          id?: string
+          incidents?: number | null
+          overridden_decisions?: number | null
+          period_end?: string
+          period_start?: string
+          total_decisions?: number | null
+          total_uses?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_metrics_ai_system_id_fkey"
+            columns: ["ai_system_id"]
+            isOneToOne: false
+            referencedRelation: "ai_system_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       asset_ai_documents: {
         Row: {
           asset_ai_usage_id: string
@@ -588,12 +755,15 @@ export type Database = {
           affected_persons: string[] | null
           ai_features: Json | null
           ai_purpose: string | null
+          ai_system_id: string | null
           assessed_by: string | null
           automated_decisions: boolean | null
           compliance_checklist: Json | null
           compliance_status: string | null
           created_at: string
           decision_impact: string | null
+          estimated_affected_persons: number | null
+          estimated_monthly_decisions: number | null
           has_ai: boolean
           human_oversight_description: string | null
           human_oversight_level: string | null
@@ -601,24 +771,29 @@ export type Database = {
           id: string
           last_review_date: string | null
           next_review_date: string | null
+          override_rate: string | null
           process_id: string
           risk_category: string | null
           risk_justification: string | null
           transparency_description: string | null
           transparency_status: string | null
           updated_at: string
+          usage_frequency: string | null
           work_area_id: string | null
         }
         Insert: {
           affected_persons?: string[] | null
           ai_features?: Json | null
           ai_purpose?: string | null
+          ai_system_id?: string | null
           assessed_by?: string | null
           automated_decisions?: boolean | null
           compliance_checklist?: Json | null
           compliance_status?: string | null
           created_at?: string
           decision_impact?: string | null
+          estimated_affected_persons?: number | null
+          estimated_monthly_decisions?: number | null
           has_ai?: boolean
           human_oversight_description?: string | null
           human_oversight_level?: string | null
@@ -626,24 +801,29 @@ export type Database = {
           id?: string
           last_review_date?: string | null
           next_review_date?: string | null
+          override_rate?: string | null
           process_id: string
           risk_category?: string | null
           risk_justification?: string | null
           transparency_description?: string | null
           transparency_status?: string | null
           updated_at?: string
+          usage_frequency?: string | null
           work_area_id?: string | null
         }
         Update: {
           affected_persons?: string[] | null
           ai_features?: Json | null
           ai_purpose?: string | null
+          ai_system_id?: string | null
           assessed_by?: string | null
           automated_decisions?: boolean | null
           compliance_checklist?: Json | null
           compliance_status?: string | null
           created_at?: string
           decision_impact?: string | null
+          estimated_affected_persons?: number | null
+          estimated_monthly_decisions?: number | null
           has_ai?: boolean
           human_oversight_description?: string | null
           human_oversight_level?: string | null
@@ -651,15 +831,24 @@ export type Database = {
           id?: string
           last_review_date?: string | null
           next_review_date?: string | null
+          override_rate?: string | null
           process_id?: string
           risk_category?: string | null
           risk_justification?: string | null
           transparency_description?: string | null
           transparency_status?: string | null
           updated_at?: string
+          usage_frequency?: string | null
           work_area_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "process_ai_usage_ai_system_id_fkey"
+            columns: ["ai_system_id"]
+            isOneToOne: false
+            referencedRelation: "ai_system_registry"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "process_ai_usage_process_id_fkey"
             columns: ["process_id"]
@@ -879,12 +1068,14 @@ export type Database = {
       }
       system_incidents: {
         Row: {
+          ai_system_id: string | null
           category: string | null
           created_at: string | null
           criticality: string | null
           description: string | null
           due_date: string | null
           id: string
+          is_ai_related: boolean | null
           last_updated: string | null
           measures_completed: number | null
           measures_count: number | null
@@ -899,12 +1090,14 @@ export type Database = {
           title: string
         }
         Insert: {
+          ai_system_id?: string | null
           category?: string | null
           created_at?: string | null
           criticality?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          is_ai_related?: boolean | null
           last_updated?: string | null
           measures_completed?: number | null
           measures_count?: number | null
@@ -919,12 +1112,14 @@ export type Database = {
           title: string
         }
         Update: {
+          ai_system_id?: string | null
           category?: string | null
           created_at?: string | null
           criticality?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          is_ai_related?: boolean | null
           last_updated?: string | null
           measures_completed?: number | null
           measures_count?: number | null
@@ -939,6 +1134,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "system_incidents_ai_system_id_fkey"
+            columns: ["ai_system_id"]
+            isOneToOne: false
+            referencedRelation: "ai_system_registry"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "system_incidents_system_id_fkey"
             columns: ["system_id"]
