@@ -380,7 +380,28 @@
     },
     "hasProtocol": "HAS PROTOCOL",
     "newProtocol": "New protocol",
-    "comingSoon": "Coming soon..."
+    "comingSoon": "Coming soon...",
+    "addAsset": "Add asset"
+  },
+  "assignAsset": {
+    "title": "Add asset to {{workArea}}",
+    "description": "Select from your existing portfolio or add new from Mynder's templates",
+    "myPortfolio": "My portfolio",
+    "mynderTemplates": "Mynder templates",
+    "assignAsOwner": "Assign as owner",
+    "assignAsUser": "Assign as user",
+    "addAndAssign": "Add and assign",
+    "selectedCount": "{{count}} selected",
+    "alreadyAssigned": "Already assigned",
+    "noAssetsAvailable": "No assets available",
+    "tryTemplates": "Try adding from Mynder templates",
+    "recommended": "Recommended",
+    "assetsAssigned": "asset(s) assigned",
+    "assetsLinked": "asset(s) linked",
+    "assetsCreated": "asset(s) created",
+    "errorAssigning": "Could not assign assets",
+    "errorCreating": "Could not create assets",
+    "needOwnerFirst": "You must own at least one asset before adding as user"
   },
   "dialog": {
     "addWorkArea": "Add work area",
