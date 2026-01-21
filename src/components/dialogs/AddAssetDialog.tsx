@@ -92,7 +92,7 @@ const iconMap: Record<string, LucideIcon> = {
   FileText,
 };
 
-type Step = "select-type" | "select-method" | "ai-suggestions" | "manual-form" | "upload" | "connect";
+type Step = "select-approach" | "select-type" | "select-manual-method" | "ai-suggestions" | "manual-form" | "upload" | "connect";
 
 export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemplates }: AddAssetDialogProps) {
   const { t } = useTranslation();
@@ -136,7 +136,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   // Reset state when dialog opens/closes
   useEffect(() => {
     if (open) {
-      setStep("select-type");
+      setStep("select-approach");
       setSelectedType("");
       setSuggestions([]);
       setSelectedSuggestions(new Set());
@@ -155,7 +155,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const handleTypeSelect = (assetType: string) => {
     setSelectedType(assetType);
     setFormData(prev => ({ ...prev, asset_type: assetType }));
-    setStep("select-method");
+    setStep("select-manual-method");
   };
 
   // Industry-specific suggestions for prototype
@@ -340,34 +340,103 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
   const getStepProgress = () => {
     switch (step) {
-      case "select-type": return 25;
-      case "select-method": return 50;
-      case "ai-suggestions": return 75;
-      case "manual-form": return 75;
-      case "upload": return 75;
-      case "connect": return 75;
+      case "select-approach": return 20;
+      case "select-type": return 40;
+      case "select-manual-method": return 60;
+      case "ai-suggestions": return 80;
+      case "manual-form": return 80;
+      case "upload": return 60;
+      case "connect": return 60;
       default: return 0;
     }
   };
 
   const goBack = () => {
     switch (step) {
-      case "select-method":
+      case "select-type":
+        setStep("select-approach");
+        setSelectedType("");
+        break;
+      case "connect":
+      case "upload":
+        setStep("select-approach");
+        break;
+      case "select-manual-method":
         setStep("select-type");
         setSelectedType("");
         break;
       case "ai-suggestions":
       case "manual-form":
-      case "upload":
-      case "connect":
-        setStep("select-method");
+        setStep("select-manual-method");
         setSuggestions([]);
         setSelectedSuggestions(new Set());
         break;
     }
   };
 
-  // Step 1: Select asset type
+  // Step 0: Select approach (automatic vs manual)
+  const renderSelectApproach = () => (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Hvordan vil du legge til eiendeler?
+      </p>
+      <div className="grid gap-3">
+        {/* Automatic - Connect to data source */}
+        <button
+          onClick={() => setStep("connect")}
+          className="flex items-start gap-4 p-5 rounded-xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all text-left"
+        >
+          <div className="p-3 rounded-lg bg-primary/20">
+            <Link2 className="h-7 w-7 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-lg text-foreground">Automatisk import</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Koble til Acronis, Azure AD, SharePoint eller andre datakilder for å hente eiendeler automatisk
+            </p>
+            <div className="flex items-center gap-2 mt-3 text-xs text-primary">
+              <Zap className="h-3 w-3" />
+              <span>Anbefalt for rask oppstart</span>
+            </div>
+          </div>
+        </button>
+
+        {/* Manual approach */}
+        <button
+          onClick={() => setStep("select-type")}
+          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+        >
+          <div className="p-3 rounded-lg bg-muted">
+            <FileText className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-lg text-foreground">Manuell registrering</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Velg type eiendel og bruk AI-forslag eller fyll ut skjema manuelt
+            </p>
+          </div>
+        </button>
+
+        {/* Upload file */}
+        <button
+          onClick={() => setStep("upload")}
+          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+        >
+          <div className="p-3 rounded-lg bg-muted">
+            <FileSpreadsheet className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-lg text-foreground">Last opp fra fil</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Importer eiendeler fra en Excel- eller CSV-fil
+            </p>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+
+  // Step 1: Select asset type (for manual path)
   const renderSelectType = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
@@ -394,8 +463,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </div>
   );
 
-  // Step 2: Select method
-  const renderSelectMethod = () => (
+  // Step 2: Select manual method (AI suggestions vs manual form)
+  const renderSelectManualMethod = () => (
     <div className="space-y-4">
       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
         <div className="p-2 rounded-lg bg-primary/10">
@@ -425,38 +494,6 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               <Zap className="h-3 w-3" />
               <span>Anbefalt</span>
             </div>
-          </div>
-        </button>
-
-        {/* Upload Excel */}
-        <button
-          onClick={() => setStep("upload")}
-          className="flex items-start gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
-        >
-          <div className="p-3 rounded-lg bg-muted">
-            <FileSpreadsheet className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Last opp Excel-liste</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Importer fra en eksisterende Excel-fil med {selectedTemplate?.display_name_plural?.toLowerCase()}
-            </p>
-          </div>
-        </button>
-
-        {/* Connect to source */}
-        <button
-          onClick={() => setStep("connect")}
-          className="flex items-start gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
-        >
-          <div className="p-3 rounded-lg bg-muted">
-            <Link2 className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">Koble til datakilde</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Hent fra SharePoint, Azure AD, eller andre integrasjoner
-            </p>
           </div>
         </button>
 
@@ -896,8 +933,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
   const getTitle = () => {
     switch (step) {
-      case "select-type": return "Legg til eiendel";
-      case "select-method": return `Legg til ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
+      case "select-approach": return "Legg til eiendel";
+      case "select-type": return "Velg type eiendel";
+      case "select-manual-method": return `Legg til ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
       case "ai-suggestions": return `AI-forslag: ${selectedTemplate?.display_name_plural || "Eiendeler"}`;
       case "manual-form": return `Ny ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
       case "upload": return "Last opp fra fil";
@@ -911,7 +949,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       <DialogContent className="sm:max-w-[550px] p-0 gap-0 overflow-hidden">
         <DialogHeader className="p-6 pb-4">
           <div className="flex items-center gap-3">
-            {step !== "select-type" && (
+            {step !== "select-approach" && (
               <Button variant="ghost" size="icon" onClick={goBack} className="h-8 w-8">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -925,10 +963,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           <Progress value={getStepProgress()} className="h-1" />
         </div>
 
-        {/* Content */}
         <div className="px-6 pb-6 max-h-[60vh] overflow-y-auto">
+          {step === "select-approach" && renderSelectApproach()}
           {step === "select-type" && renderSelectType()}
-          {step === "select-method" && renderSelectMethod()}
+          {step === "select-manual-method" && renderSelectManualMethod()}
           {step === "ai-suggestions" && renderAISuggestions()}
           {step === "manual-form" && renderManualForm()}
           {step === "upload" && renderUpload()}
