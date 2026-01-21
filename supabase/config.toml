@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.suggest-processes]
 verify_jwt = false
+
+[functions.suggest-deviations]
+verify_jwt = false
