@@ -22,7 +22,9 @@ import {
   HardDrive,
   Database,
   FileText,
-  LucideIcon
+  LucideIcon,
+  RefreshCw,
+  CheckCircle2
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
@@ -52,6 +54,8 @@ interface Asset {
   asset_manager: string | null;
   created_at?: string;
   external_source_provider?: string | null;
+  sync_enabled?: boolean | null;
+  last_synced_at?: string | null;
 }
 
 interface WorkArea {
@@ -243,13 +247,29 @@ export default function Assets() {
       case "high": return "bg-red-500";
       case "medium": return "bg-orange-500";
       case "low": return "bg-green-500";
-      default: return "bg-gray-400";
+    default: return "bg-gray-400";
     }
   };
 
   const getAssetTypeLabel = (assetType: string) => {
     const template = assetTypeTemplates.find((t: AssetTypeTemplate) => t.asset_type === assetType);
     return template?.display_name || assetType;
+  };
+
+  const formatSyncTime = (dateString: string | null | undefined) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return "Akkurat nå";
+    if (diffMins < 60) return `${diffMins} min siden`;
+    if (diffHours < 24) return `${diffHours}t siden`;
+    if (diffDays < 7) return `${diffDays}d siden`;
+    return date.toLocaleDateString("nb-NO", { day: "numeric", month: "short" });
   };
 
   return (
@@ -385,7 +405,7 @@ export default function Assets() {
           /* Desktop Table View */
           <div className="rounded-lg border border-border overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+            <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_120px_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
               <button 
                 onClick={() => handleSort("name")}
                 className="flex items-center hover:text-foreground transition-colors text-left"
@@ -423,6 +443,10 @@ export default function Assets() {
                 <SortIcon column="risk" />
               </button>
               <div>{t("assets.owner")}</div>
+              <div className="flex items-center gap-1">
+                <RefreshCw className="h-3.5 w-3.5" />
+                Synk
+              </div>
               <div></div>
             </div>
 
@@ -445,7 +469,7 @@ export default function Assets() {
                   <div
                     key={asset.id}
                     onClick={() => navigate(`/assets/${asset.id}`)}
-                    className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                    className="grid grid-cols-[2fr_1fr_1.5fr_1fr_80px_1.5fr_120px_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
                   >
                     {/* Asset Name with Icon */}
                     <div className="flex items-center gap-3">
@@ -485,6 +509,25 @@ export default function Assets() {
                     {/* Owner */}
                     <div className="text-muted-foreground text-sm">
                       {asset.asset_owner || t("assets.notSet")}
+                    </div>
+
+                    {/* Sync Status */}
+                    <div className="text-xs">
+                      {asset.sync_enabled ? (
+                        <div className="flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          <span className="text-muted-foreground">
+                            {formatSyncTime(asset.last_synced_at) || "Venter..."}
+                          </span>
+                        </div>
+                      ) : asset.external_source_provider ? (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <RefreshCw className="h-3.5 w-3.5 opacity-50" />
+                          <span>Manuell</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground/50">—</span>
+                      )}
                     </div>
 
                     {/* Actions */}
