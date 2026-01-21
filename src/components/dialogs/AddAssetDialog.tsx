@@ -592,11 +592,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "ai-suggestions": return 70;
       case "manual-form": return 70;
       case "upload": return 50;
-      case "connect": return 30;
+      case "connect": return 25;
       case "connect-select-types": return 40;
-      case "connect-auth": return 50;
-      case "connect-fetching": return 60;
-      case "connect-preview": return 75;
+      case "connect-fetching": return 55;
+      case "connect-preview": return 70;
       case "connect-importing": return 90;
       case "connect-complete": return 100;
       default: return 0;
@@ -617,11 +616,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         setStep("connect");
         setSelectedIntegration("");
         break;
-      case "connect-auth":
-        setStep("connect-select-types");
-        break;
       case "connect-preview":
-        setStep("connect-auth");
+        setStep("connect-select-types");
         break;
       case "select-manual-method":
         setStep("select-type");
@@ -1616,8 +1612,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           {step === "upload" && renderUpload()}
           {step === "connect" && renderConnect()}
           {step === "connect-select-types" && renderConnectSelectTypes()}
-          {step === "connect-auth" && renderConnectAuth()}
           {step === "connect-fetching" && renderConnectFetching()}
+          {step === "connect-preview" && renderConnectPreview()}
           {step === "connect-preview" && renderConnectPreview()}
           {step === "connect-importing" && renderConnectImporting()}
           {step === "connect-complete" && renderConnectComplete()}
@@ -1672,17 +1668,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               )}
 
               {step === "connect-select-types" && (
-                <Button onClick={() => setStep("connect-auth")}>
-                  Neste
-                </Button>
-              )}
-
-              {step === "connect-auth" && (
-                <Button 
-                  onClick={startFetching}
-                  disabled={apiKey.length < 10}
-                >
-                  Koble til
+                <Button onClick={startFetching}>
+                  Hent eiendeler
                 </Button>
               )}
 
