@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -35,14 +37,24 @@ import {
   Loader2,
   Upload,
   Link2,
-  FileSpreadsheet,
   ArrowLeft,
   Zap,
   AlertTriangle,
   Building,
   Users,
   TrendingUp,
-  Info
+  Info,
+  Key,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Shield,
+  Bot,
+  Globe,
+  Wifi,
+  Box,
+  Clock,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -81,6 +93,17 @@ interface AddAssetDialogProps {
   assetTypeTemplates: AssetTypeTemplate[];
 }
 
+// Mock assets from Acronis for prototype
+interface MockAcronisAsset {
+  id: string;
+  name: string;
+  hostname: string;
+  type: "server" | "workstation" | "storage" | "network";
+  os: string;
+  status: "protected" | "warning" | "critical";
+  lastSeen: string;
+}
+
 const iconMap: Record<string, LucideIcon> = {
   Server,
   Building2,
@@ -92,7 +115,58 @@ const iconMap: Record<string, LucideIcon> = {
   FileText,
 };
 
-type Step = "select-approach" | "select-type" | "select-manual-method" | "ai-suggestions" | "manual-form" | "upload" | "connect";
+// Asset type options for integration import
+const INTEGRATION_ASSET_TYPES = [
+  { id: "system", label: "Systemer", icon: Server, priority: "high" },
+  { id: "vendor", label: "Leverandører", icon: Building2, priority: "high" },
+  { id: "location", label: "Lokasjoner", icon: MapPin, priority: "high" },
+  { id: "network", label: "Nettverk", icon: Wifi, priority: "high" },
+  { id: "integration", label: "Integrasjoner", icon: Plug, priority: "high" },
+  { id: "hardware", label: "Digitale enheter", icon: HardDrive, priority: "high" },
+  { id: "domain", label: "Domener", icon: Globe, priority: "medium" },
+  { id: "physical", label: "Fysiske enheter", icon: Box, priority: "medium" },
+];
+
+// Mock data for Acronis prototype
+const MOCK_ACRONIS_ASSETS: MockAcronisAsset[] = [
+  { id: "1", name: "SRV-DC01", hostname: "srv-dc01.company.local", type: "server", os: "Windows Server 2022", status: "protected", lastSeen: "2 min siden" },
+  { id: "2", name: "SRV-SQL01", hostname: "srv-sql01.company.local", type: "server", os: "Windows Server 2019", status: "protected", lastSeen: "5 min siden" },
+  { id: "3", name: "SRV-WEB01", hostname: "srv-web01.company.local", type: "server", os: "Ubuntu 22.04 LTS", status: "protected", lastSeen: "1 min siden" },
+  { id: "4", name: "SRV-APP01", hostname: "srv-app01.company.local", type: "server", os: "Windows Server 2022", status: "warning", lastSeen: "15 min siden" },
+  { id: "5", name: "WS-ADMIN01", hostname: "ws-admin01.company.local", type: "workstation", os: "Windows 11 Pro", status: "protected", lastSeen: "3 min siden" },
+  { id: "6", name: "WS-DEV01", hostname: "ws-dev01.company.local", type: "workstation", os: "Windows 11 Pro", status: "protected", lastSeen: "8 min siden" },
+  { id: "7", name: "WS-DEV02", hostname: "ws-dev02.company.local", type: "workstation", os: "macOS Sonoma 14.2", status: "protected", lastSeen: "12 min siden" },
+  { id: "8", name: "NAS-BACKUP01", hostname: "nas-backup01.company.local", type: "storage", os: "Synology DSM 7.2", status: "protected", lastSeen: "1 min siden" },
+  { id: "9", name: "FW-MAIN01", hostname: "fw-main01.company.local", type: "network", os: "Fortinet FortiOS 7.4", status: "protected", lastSeen: "30 sek siden" },
+  { id: "10", name: "SW-CORE01", hostname: "sw-core01.company.local", type: "network", os: "Cisco IOS XE 17.9", status: "protected", lastSeen: "45 sek siden" },
+];
+
+// AI import messages for simulation
+const AI_IMPORT_MESSAGES = [
+  { asset: "SRV-DC01", message: "Kartlegger compliance-krav for domene-kontroller..." },
+  { asset: "SRV-DC01", message: "Identifisert: ISO 27001 A.9, GDPR Artikkel 32" },
+  { asset: "SRV-SQL01", message: "Analyserer databaseserver for personopplysninger..." },
+  { asset: "SRV-SQL01", message: "Flagget som kritisk - inneholder persondata" },
+  { asset: "SRV-WEB01", message: "Vurderer eksponering mot internett..." },
+  { asset: "SRV-APP01", message: "Advarsel fra Acronis - anbefaler risikovurdering" },
+  { asset: "NAS-BACKUP01", message: "Klassifiserer som backup-infrastruktur" },
+  { asset: "FW-MAIN01", message: "Identifisert som sikkerhetsinfrastruktur - høy kritikalitet" },
+];
+
+type Step = 
+  | "select-approach" 
+  | "select-type" 
+  | "select-manual-method" 
+  | "ai-suggestions" 
+  | "manual-form" 
+  | "upload" 
+  | "connect"
+  | "connect-select-types"
+  | "connect-auth"
+  | "connect-fetching"
+  | "connect-preview"
+  | "connect-importing"
+  | "connect-complete";
 
 export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemplates }: AddAssetDialogProps) {
   const { t } = useTranslation();
@@ -105,6 +179,21 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [existingAssetNames, setExistingAssetNames] = useState<string[]>([]);
   const [workAreasCount, setWorkAreasCount] = useState(0);
+  
+  // Connect flow state
+  const [selectedIntegration, setSelectedIntegration] = useState<string>("");
+  const [selectedAssetTypes, setSelectedAssetTypes] = useState<Set<string>>(new Set(["all"]));
+  const [apiKey, setApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [fetchedAssets, setFetchedAssets] = useState<MockAcronisAsset[]>([]);
+  const [selectedAssetIds, setSelectedAssetIds] = useState<Set<string>>(new Set());
+  const [importProgress, setImportProgress] = useState(0);
+  const [aiMessages, setAiMessages] = useState<string[]>([]);
+  const [currentAiMessage, setCurrentAiMessage] = useState("");
+  const [enableSync, setEnableSync] = useState(false);
+  const [syncFrequency, setSyncFrequency] = useState("daily");
+  const [importedCount, setImportedCount] = useState(0);
+  const [previewFilter, setPreviewFilter] = useState<string>("all");
   
   const [formData, setFormData] = useState({
     asset_type: "",
@@ -140,6 +229,18 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       setSelectedType("");
       setSuggestions([]);
       setSelectedSuggestions(new Set());
+      setSelectedIntegration("");
+      setSelectedAssetTypes(new Set(["all"]));
+      setApiKey("");
+      setShowApiKey(false);
+      setFetchedAssets([]);
+      setSelectedAssetIds(new Set());
+      setImportProgress(0);
+      setAiMessages([]);
+      setCurrentAiMessage("");
+      setEnableSync(false);
+      setImportedCount(0);
+      setPreviewFilter("all");
       setFormData({
         asset_type: "",
         name: "",
@@ -335,18 +436,169 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     }
   };
 
+  // ============ CONNECT FLOW FUNCTIONS ============
+
+  const handleIntegrationSelect = (integrationId: string) => {
+    setSelectedIntegration(integrationId);
+    setStep("connect-select-types");
+  };
+
+  const handleAssetTypeToggle = (typeId: string) => {
+    setSelectedAssetTypes(prev => {
+      const newSet = new Set(prev);
+      if (typeId === "all") {
+        // If selecting "all", clear others and add "all"
+        return new Set(["all"]);
+      } else {
+        // Remove "all" if it was selected
+        newSet.delete("all");
+        if (newSet.has(typeId)) {
+          newSet.delete(typeId);
+        } else {
+          newSet.add(typeId);
+        }
+        // If nothing selected, default back to "all"
+        if (newSet.size === 0) {
+          return new Set(["all"]);
+        }
+        return newSet;
+      }
+    });
+  };
+
+  const startFetching = async () => {
+    setStep("connect-fetching");
+    
+    // Simulate connection and fetch process
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Set mock data
+    setFetchedAssets(MOCK_ACRONIS_ASSETS);
+    // Pre-select all assets
+    setSelectedAssetIds(new Set(MOCK_ACRONIS_ASSETS.map(a => a.id)));
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setStep("connect-preview");
+  };
+
+  const toggleAssetSelection = (assetId: string) => {
+    setSelectedAssetIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(assetId)) {
+        newSet.delete(assetId);
+      } else {
+        newSet.add(assetId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllAssets = () => {
+    const filteredIds = getFilteredPreviewAssets().map(a => a.id);
+    setSelectedAssetIds(new Set(filteredIds));
+  };
+
+  const deselectAllAssets = () => {
+    setSelectedAssetIds(new Set());
+  };
+
+  const getFilteredPreviewAssets = () => {
+    if (previewFilter === "all") return fetchedAssets;
+    return fetchedAssets.filter(a => a.type === previewFilter);
+  };
+
+  const startImporting = async () => {
+    setStep("connect-importing");
+    setImportProgress(0);
+    setAiMessages([]);
+    
+    const selectedAssets = fetchedAssets.filter(a => selectedAssetIds.has(a.id));
+    const totalSteps = selectedAssets.length * 2; // Each asset has 2 AI messages
+    let currentStep = 0;
+    
+    // Create assets in database
+    const assetsToCreate = selectedAssets.map(asset => ({
+      name: asset.name,
+      description: `${asset.hostname} - ${asset.os}`,
+      asset_type: asset.type === "server" || asset.type === "workstation" ? "hardware" : 
+                  asset.type === "network" ? "network" : "hardware",
+      vendor: "Acronis",
+      category: asset.type.charAt(0).toUpperCase() + asset.type.slice(1),
+      risk_level: asset.status === "warning" ? "medium" : asset.status === "critical" ? "high" : "low",
+      criticality: asset.type === "server" ? "high" : "medium",
+      external_source_id: asset.id,
+      external_source_provider: "acronis",
+      sync_enabled: enableSync,
+      lifecycle_status: "active",
+    }));
+
+    // Simulate import with AI messages
+    for (let i = 0; i < selectedAssets.length; i++) {
+      const asset = selectedAssets[i];
+      
+      // First message - importing
+      setCurrentAiMessage(`Importerer ${asset.name}...`);
+      setAiMessages(prev => [...prev, `✓ Importert: ${asset.name}`]);
+      currentStep++;
+      setImportProgress(Math.round((currentStep / totalSteps) * 100));
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // Second message - AI analysis
+      const aiMsg = AI_IMPORT_MESSAGES.find(m => m.asset === asset.name);
+      if (aiMsg) {
+        setCurrentAiMessage(aiMsg.message);
+        await new Promise(resolve => setTimeout(resolve, 600));
+        setAiMessages(prev => [...prev, `  → ${aiMsg.message}`]);
+      } else {
+        setCurrentAiMessage(`Kartlegger compliance-krav...`);
+        await new Promise(resolve => setTimeout(resolve, 400));
+      }
+      currentStep++;
+      setImportProgress(Math.round((currentStep / totalSteps) * 100));
+    }
+
+    // Actually insert to database
+    try {
+      const { error } = await supabase.from("assets").insert(assetsToCreate);
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error importing assets:", error);
+    }
+
+    setImportedCount(selectedAssets.length);
+    setImportProgress(100);
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setStep("connect-complete");
+  };
+
+  const finishImport = () => {
+    onAssetAdded();
+    onOpenChange(false);
+    toast.success(`${importedCount} nye eiendeler importert og klare for tilordning`);
+  };
+
+  // ============ END CONNECT FLOW FUNCTIONS ============
+
   const selectedTemplate = assetTypeTemplates.find(t => t.asset_type === selectedType);
   const IconComponent = selectedTemplate ? (iconMap[selectedTemplate.icon] || Server) : Server;
 
   const getStepProgress = () => {
     switch (step) {
-      case "select-approach": return 20;
-      case "select-type": return 40;
-      case "select-manual-method": return 60;
-      case "ai-suggestions": return 80;
-      case "manual-form": return 80;
-      case "upload": return 60;
-      case "connect": return 60;
+      case "select-approach": return 10;
+      case "select-type": return 25;
+      case "select-manual-method": return 40;
+      case "ai-suggestions": return 70;
+      case "manual-form": return 70;
+      case "upload": return 50;
+      case "connect": return 30;
+      case "connect-select-types": return 40;
+      case "connect-auth": return 50;
+      case "connect-fetching": return 60;
+      case "connect-preview": return 75;
+      case "connect-importing": return 90;
+      case "connect-complete": return 100;
       default: return 0;
     }
   };
@@ -360,6 +612,16 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "connect":
       case "upload":
         setStep("select-approach");
+        break;
+      case "connect-select-types":
+        setStep("connect");
+        setSelectedIntegration("");
+        break;
+      case "connect-auth":
+        setStep("connect-select-types");
+        break;
+      case "connect-preview":
+        setStep("connect-auth");
         break;
       case "select-manual-method":
         setStep("select-type");
@@ -392,43 +654,43 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           <div className="flex-1">
             <p className="font-semibold text-lg text-foreground">Automatisk import</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Koble til Acronis, Azure AD, SharePoint eller andre datakilder for å hente eiendeler automatisk
+              Koble til Acronis, Azure AD, ServiceNow eller andre kilder
             </p>
-            <div className="flex items-center gap-2 mt-3 text-xs text-primary">
-              <Zap className="h-3 w-3" />
-              <span>Anbefalt for rask oppstart</span>
+            <div className="flex gap-2 mt-3">
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Anbefalt</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">Synkronisering</span>
             </div>
           </div>
         </button>
 
-        {/* Manual approach */}
+        {/* Manual */}
         <button
           onClick={() => setStep("select-type")}
-          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-left"
         >
           <div className="p-3 rounded-lg bg-muted">
-            <FileText className="h-7 w-7 text-muted-foreground" />
+            <Sparkles className="h-7 w-7 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-foreground">Manuell registrering</p>
+            <p className="font-semibold text-lg text-foreground">Manuelt / AI-forslag</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Velg type eiendel og bruk AI-forslag eller fyll ut skjema manuelt
+              Velg type, få AI-forslag basert på din bransje, eller fyll ut manuelt
             </p>
           </div>
         </button>
 
-        {/* Upload file */}
+        {/* Upload */}
         <button
           onClick={() => setStep("upload")}
-          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+          className="flex items-start gap-4 p-5 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-left"
         >
           <div className="p-3 rounded-lg bg-muted">
-            <FileSpreadsheet className="h-7 w-7 text-muted-foreground" />
+            <Upload className="h-7 w-7 text-muted-foreground" />
           </div>
           <div className="flex-1">
             <p className="font-semibold text-lg text-foreground">Last opp fra fil</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Importer eiendeler fra en Excel- eller CSV-fil
+              Importer fra Excel, CSV eller annen strukturert fil
             </p>
           </div>
         </button>
@@ -436,26 +698,32 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </div>
   );
 
-  // Step 1: Select asset type (for manual path)
+  // Step 1: Select type
   const renderSelectType = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Velg type eiendel du vil legge til
+        Hvilken type eiendel vil du legge til?
       </p>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {assetTypeTemplates.map((template) => {
           const Icon = iconMap[template.icon] || Server;
           return (
             <button
               key={template.asset_type}
-              type="button"
               onClick={() => handleTypeSelect(template.asset_type)}
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+              className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
+                "hover:border-primary/50 hover:bg-muted/30",
+                "border-border"
+              )}
             >
-              <div className="p-3 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors">
-                <Icon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              <div className={cn("p-2 rounded-lg", `bg-${template.color}/20`)}>
+                <Icon className={cn("h-5 w-5", `text-${template.color}`)} />
               </div>
-              <span className="text-sm font-medium text-center">{template.display_name}</span>
+              <div>
+                <p className="font-medium">{template.display_name}</p>
+                <p className="text-xs text-muted-foreground">{template.display_name_plural}</p>
+              </div>
             </button>
           );
         })}
@@ -463,238 +731,190 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </div>
   );
 
-  // Step 2: Select manual method (AI suggestions vs manual form)
+  // Step 2: Select method for the selected type
   const renderSelectManualMethod = () => (
     <div className="space-y-4">
       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-        <div className="p-2 rounded-lg bg-primary/10">
-          <IconComponent className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <p className="font-medium">{selectedTemplate?.display_name}</p>
-          <p className="text-sm text-muted-foreground">Hvordan vil du legge til?</p>
-        </div>
+        <IconComponent className="h-5 w-5 text-primary" />
+        <span className="font-medium">{selectedTemplate?.display_name}</span>
       </div>
 
       <div className="grid gap-3">
-        {/* AI Suggestions - Primary option */}
+        {/* AI Suggestions */}
         <button
           onClick={fetchAISuggestions}
+          disabled={isLoadingSuggestions}
           className="flex items-start gap-4 p-4 rounded-xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all text-left"
         >
-          <div className="p-3 rounded-lg bg-primary/20">
+          <div className="p-2 rounded-lg bg-primary/20">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-foreground">AI-forslag fra Mynder</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Få intelligente forslag basert på din bransje og selskapsprofil
-            </p>
-            <div className="flex items-center gap-2 mt-2 text-xs text-primary">
-              <Zap className="h-3 w-3" />
-              <span>Anbefalt</span>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">AI-forslag</p>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Anbefalt</span>
             </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Få forslag basert på bransje og bedriftsprofil
+            </p>
           </div>
         </button>
 
         {/* Manual entry */}
         <button
           onClick={() => setStep("manual-form")}
-          className="flex items-start gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/50 transition-all text-left"
+          className="flex items-start gap-4 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-muted/30 transition-all text-left"
         >
-          <div className="p-3 rounded-lg bg-muted">
+          <div className="p-2 rounded-lg bg-muted">
             <FileText className="h-6 w-6 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-foreground">Legg til manuelt</p>
+            <p className="font-semibold">Fyll ut manuelt</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Fyll ut skjema for én {selectedTemplate?.display_name?.toLowerCase()} om gangen
+              Legg til én {selectedTemplate?.display_name?.toLowerCase() || "eiendel"} med alle detaljer
             </p>
           </div>
         </button>
       </div>
+
+      {companyProfile && (
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+          <p className="text-xs text-blue-300">
+            AI-forslag er tilpasset <span className="font-medium">{companyProfile.name}</span> i 
+            {" "}<span className="font-medium">{companyProfile.industry}</span>-bransjen
+          </p>
+        </div>
+      )}
     </div>
   );
 
-  // Step 3a: AI Suggestions
-  const renderAISuggestions = () => {
-    const getIndustryLabel = (industry: string) => {
-      const labels: Record<string, string> = {
-        energi: "Energibransjen",
-        technology: "Teknologi",
-        finance: "Finans",
-        healthcare: "Helse",
-        retail: "Varehandel",
-      };
-      return labels[industry] || industry;
-    };
-
-    const getEmployeeLabel = (employees: string | null) => {
-      const labels: Record<string, string> = {
-        "1-10": "1-10 ansatte",
-        "11-50": "11-50 ansatte",
-        "51-200": "51-200 ansatte",
-        "201-500": "201-500 ansatte",
-        "500+": "500+ ansatte",
-      };
-      return employees ? labels[employees] || employees : null;
-    };
-
-    return (
-      <div className="space-y-4">
-        {/* Context panel - "Basert på" */}
-        <div className="rounded-lg border border-border bg-muted/30 p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <Info className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Forslagene er basert på:
-            </span>
+  // Step 3a: AI suggestions
+  const renderAISuggestions = () => (
+    <div className="space-y-4">
+      {isLoadingSuggestions ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-4">
+          <div className="relative">
+            <Sparkles className="h-10 w-10 text-primary animate-pulse" />
+            <Loader2 className="h-6 w-6 text-primary animate-spin absolute -bottom-1 -right-1" />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {companyProfile?.name && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                <Building className="h-3 w-3" />
-                {companyProfile.name}
-              </span>
-            )}
-            {companyProfile?.industry && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                <TrendingUp className="h-3 w-3" />
-                {getIndustryLabel(companyProfile.industry)}
-              </span>
-            )}
-            {companyProfile?.employees && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                <Users className="h-3 w-3" />
-                {getEmployeeLabel(companyProfile.employees)}
-              </span>
-            )}
-            {existingAssetNames.length > 0 && (
-              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                {existingAssetNames.length} eiendeler registrert
-              </span>
-            )}
-            {workAreasCount > 0 && (
-              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                {workAreasCount} arbeidsområder
-              </span>
-            )}
+          <div className="text-center">
+            <p className="font-medium">Analyserer din bedriftsprofil...</p>
+            <p className="text-sm text-muted-foreground">
+              Finner relevante {selectedTemplate?.display_name_plural?.toLowerCase() || "eiendeler"} for {companyProfile?.industry || "din bransje"}
+            </p>
           </div>
         </div>
-
-        {isLoadingSuggestions ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <div className="relative">
-              <div className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-              <Sparkles className="h-6 w-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-            </div>
-            <div className="text-center">
-              <p className="font-medium">
-                Analyserer {companyProfile?.name || "din virksomhet"}...
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Finner {selectedTemplate?.display_name_plural?.toLowerCase()} for {getIndustryLabel(companyProfile?.industry || "")}
-              </p>
-            </div>
-          </div>
-        ) : suggestions.length > 0 ? (
-          <>
-            <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1">
-              {suggestions.map((suggestion, index) => {
-                const isSelected = selectedSuggestions.has(index);
-                return (
-                  <button
-                    key={index}
-                    onClick={() => toggleSuggestion(index)}
-                    className={cn(
-                      "w-full flex items-start gap-3 p-3 rounded-lg border-2 text-left transition-all",
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <div className={cn(
-                      "mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
-                      isSelected
-                        ? "bg-primary border-primary text-primary-foreground"
-                        : "border-muted-foreground/30"
-                    )}>
-                      {isSelected && <Check className="h-3 w-3" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-foreground">{suggestion.name}</p>
-                        {suggestion.vendor && (
-                          <span className="text-xs text-muted-foreground">• {suggestion.vendor}</span>
-                        )}
-                        {suggestion.industryRelevant && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
-                            Energi
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                        {suggestion.description}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          {suggestion.category}
-                        </span>
-                        <span className={cn(
-                          "text-xs px-2 py-0.5 rounded-full",
-                          suggestion.risk_level === "high" ? "bg-destructive/20 text-destructive" :
-                          suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-500" :
-                          "bg-green-500/20 text-green-600"
-                        )}>
-                          {suggestion.risk_level === "high" ? "Høy risiko" :
-                           suggestion.risk_level === "medium" ? "Medium risiko" : "Lav risiko"}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="pt-2 border-t border-border">
-              <button
-                onClick={() => setStep("manual-form")}
-                className="text-sm text-primary hover:underline"
-              >
-                Finner du ikke det du leter etter? Legg til manuelt →
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <AlertTriangle className="h-10 w-10 text-muted-foreground" />
-            <div className="text-center">
-              <p className="font-medium">Ingen forslag tilgjengelig</p>
-              <p className="text-sm text-muted-foreground">Alle relevante {selectedTemplate?.display_name_plural?.toLowerCase()} er allerede registrert</p>
-            </div>
-            <Button onClick={() => setStep("manual-form")} variant="outline">
-              Legg til manuelt
+      ) : suggestions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-4">
+          <p className="text-muted-foreground">Ingen nye forslag tilgjengelig</p>
+          <Button variant="outline" onClick={() => setStep("manual-form")}>
+            Legg til manuelt
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {suggestions.length} forslag funnet
+            </p>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                if (selectedSuggestions.size === suggestions.length) {
+                  setSelectedSuggestions(new Set());
+                } else {
+                  setSelectedSuggestions(new Set(suggestions.map((_, i) => i)));
+                }
+              }}
+            >
+              {selectedSuggestions.size === suggestions.length ? "Fjern alle" : "Velg alle"}
             </Button>
           </div>
-        )}
-      </div>
-    );
-  };
+
+          <ScrollArea className="h-[300px] pr-4">
+            <div className="space-y-2">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => toggleSuggestion(index)}
+                  className={cn(
+                    "w-full flex items-start gap-3 p-3 rounded-lg border-2 transition-all text-left",
+                    selectedSuggestions.has(index)
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/30"
+                  )}
+                >
+                  <div className={cn(
+                    "h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5",
+                    selectedSuggestions.has(index)
+                      ? "border-primary bg-primary"
+                      : "border-muted-foreground"
+                  )}>
+                    {selectedSuggestions.has(index) && (
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium">{suggestion.name}</p>
+                      {suggestion.vendor && (
+                        <span className="text-xs text-muted-foreground">({suggestion.vendor})</span>
+                      )}
+                      {suggestion.industryRelevant && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                          Bransjerelevant
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {suggestion.description}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {suggestion.category}
+                      </span>
+                      <span className={cn(
+                        "text-xs px-2 py-0.5 rounded-full",
+                        suggestion.risk_level === "high" ? "bg-red-500/20 text-red-400" :
+                        suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-400" :
+                        "bg-green-500/20 text-green-400"
+                      )}>
+                        {suggestion.risk_level === "high" ? "Høy risiko" : 
+                         suggestion.risk_level === "medium" ? "Medium risiko" : "Lav risiko"}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </>
+      )}
+    </div>
+  );
 
   // Step 3b: Manual form
   const renderManualForm = () => (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+        <IconComponent className="h-5 w-5 text-primary" />
+        <span className="font-medium">{selectedTemplate?.display_name}</span>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="name">{t("assets.name")} *</Label>
         <Input
           id="name"
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          placeholder={`Navn på ${selectedTemplate?.display_name?.toLowerCase()}`}
+          placeholder={`F.eks. ${selectedTemplate?.display_name || "Eiendel"} navn`}
           required
         />
       </div>
 
-      {["system", "hardware", "network"].includes(selectedType) && (
+      {selectedType !== "location" && (
         <div className="space-y-2">
           <Label htmlFor="vendor">{t("assets.vendor")}</Label>
           <Input
@@ -862,11 +1082,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     },
   ];
 
-  // Step 3d: Connect
+  // Step 3d: Connect (select integration)
   const renderConnect = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Koble til en datakilde for å importere {selectedTemplate?.display_name_plural?.toLowerCase()} automatisk
+        Velg en datakilde å koble til for automatisk import av eiendeler
       </p>
 
       <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-1">
@@ -875,9 +1095,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             key={integration.id}
             onClick={() => {
               if (integration.available) {
-                toast.info(`Kobler til ${integration.name}...`, {
-                  description: "Denne funksjonen er under utvikling",
-                });
+                handleIntegrationSelect(integration.id);
               }
             }}
             disabled={!integration.available}
@@ -931,6 +1149,424 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </div>
   );
 
+  // Step: Connect - Select asset types
+  const renderConnectSelectTypes = () => {
+    const integration = integrationOptions.find(i => i.id === selectedIntegration);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+          <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center", integration?.bgColor)}>
+            {integration?.logo.length === 2 ? (
+              <span className={cn("font-bold text-sm", integration?.textColor)}>{integration?.logo}</span>
+            ) : (
+              <span className="text-lg">{integration?.logo}</span>
+            )}
+          </div>
+          <div>
+            <p className="font-medium">{integration?.name}</p>
+            <p className="text-xs text-muted-foreground">Velg hva du vil importere</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm font-medium">Hvilke eiendelstyper vil du hente?</p>
+          
+          {/* All types option */}
+          <button
+            onClick={() => handleAssetTypeToggle("all")}
+            className={cn(
+              "w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
+              selectedAssetTypes.has("all")
+                ? "border-primary bg-primary/10"
+                : "border-border hover:border-primary/30"
+            )}
+          >
+            <div className={cn(
+              "h-5 w-5 rounded border-2 flex items-center justify-center shrink-0",
+              selectedAssetTypes.has("all")
+                ? "border-primary bg-primary"
+                : "border-muted-foreground"
+            )}>
+              {selectedAssetTypes.has("all") && <Check className="h-3 w-3 text-primary-foreground" />}
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">Alle typer</p>
+              <p className="text-xs text-muted-foreground">Importer alle tilgjengelige eiendelstyper</p>
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Anbefalt</span>
+          </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-2 text-muted-foreground">eller velg spesifikke</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {INTEGRATION_ASSET_TYPES.map((type) => {
+              const Icon = type.icon;
+              const isSelected = selectedAssetTypes.has(type.id);
+              const isDisabled = selectedAssetTypes.has("all");
+              
+              return (
+                <button
+                  key={type.id}
+                  onClick={() => !isDisabled && handleAssetTypeToggle(type.id)}
+                  disabled={isDisabled}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border transition-all text-left",
+                    isDisabled && "opacity-40 cursor-not-allowed",
+                    isSelected && !isDisabled
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/30"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", isSelected ? "text-primary" : "text-muted-foreground")} />
+                  <span className="text-sm">{type.label}</span>
+                  {type.priority === "medium" && (
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground ml-auto">
+                      Valgfri
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Step: Connect - API key auth
+  const renderConnectAuth = () => {
+    const integration = integrationOptions.find(i => i.id === selectedIntegration);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+          <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center", integration?.bgColor)}>
+            {integration?.logo.length === 2 ? (
+              <span className={cn("font-bold text-sm", integration?.textColor)}>{integration?.logo}</span>
+            ) : (
+              <span className="text-lg">{integration?.logo}</span>
+            )}
+          </div>
+          <div>
+            <p className="font-medium">Koble til {integration?.name}</p>
+            <p className="text-xs text-muted-foreground">Skriv inn API-nøkkel for å fortsette</p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="api-key">API-nøkkel</Label>
+          <div className="relative">
+            <Input
+              id="api-key"
+              type={showApiKey ? "text" : "password"}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Lim inn API-nøkkel her..."
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowApiKey(!showApiKey)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 space-y-2">
+          <div className="flex items-start gap-2">
+            <Key className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-blue-300">Hvor finner jeg API-nøkkelen?</p>
+              <ol className="text-xs text-blue-300/80 mt-2 space-y-1 list-decimal list-inside">
+                <li>Logg inn på {integration?.name} Management Console</li>
+                <li>Gå til Innstillinger → API-tilgang</li>
+                <li>Klikk "Generer ny nøkkel"</li>
+                <li>Kopier nøkkelen og lim inn over</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50">
+          <Shield className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            API-nøkkelen lagres sikkert og kryptert. Den brukes kun til å hente data fra {integration?.name}.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Step: Connect - Fetching animation
+  const renderConnectFetching = () => {
+    const integration = integrationOptions.find(i => i.id === selectedIntegration);
+    
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-6">
+        <div className="relative">
+          <div className={cn("h-16 w-16 rounded-xl flex items-center justify-center", integration?.bgColor)}>
+            {integration?.logo.length === 2 ? (
+              <span className={cn("font-bold text-xl", integration?.textColor)}>{integration?.logo}</span>
+            ) : (
+              <span className="text-2xl">{integration?.logo}</span>
+            )}
+          </div>
+          <div className="absolute -bottom-2 -right-2 bg-background rounded-full p-1">
+            <Loader2 className="h-6 w-6 text-primary animate-spin" />
+          </div>
+        </div>
+
+        <div className="text-center space-y-2">
+          <p className="font-medium text-lg">Kobler til {integration?.name}...</p>
+          <p className="text-sm text-muted-foreground">
+            Henter tilgjengelige eiendeler
+          </p>
+        </div>
+
+        <div className="w-full max-w-xs space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span className="text-muted-foreground">Tilkobling verifisert</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Loader2 className="h-4 w-4 text-primary animate-spin" />
+            <span className="text-muted-foreground">Henter enhetsliste...</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm opacity-50">
+            <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
+            <span className="text-muted-foreground">Analyserer enheter</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Step: Connect - Preview assets
+  const renderConnectPreview = () => {
+    const integration = integrationOptions.find(i => i.id === selectedIntegration);
+    const filteredAssets = getFilteredPreviewAssets();
+    const selectedCount = selectedAssetIds.size;
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <span className="font-medium">{fetchedAssets.length} eiendeler funnet</span>
+          </div>
+          <span className="text-sm text-muted-foreground">{integration?.name}</span>
+        </div>
+
+        {/* Filter tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {[
+            { id: "all", label: "Alle" },
+            { id: "server", label: "Servere" },
+            { id: "workstation", label: "Arbeidsstasjoner" },
+            { id: "storage", label: "Lagring" },
+            { id: "network", label: "Nettverk" },
+          ].map((filter) => (
+            <button
+              key={filter.id}
+              onClick={() => setPreviewFilter(filter.id)}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-sm transition-colors",
+                previewFilter === filter.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80 text-muted-foreground"
+              )}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Select/deselect all */}
+        <div className="flex items-center justify-between py-2 border-b border-border">
+          <span className="text-sm text-muted-foreground">{selectedCount} valgt</span>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={selectAllAssets}>Velg alle</Button>
+            <Button variant="ghost" size="sm" onClick={deselectAllAssets}>Fjern alle</Button>
+          </div>
+        </div>
+
+        {/* Asset list */}
+        <ScrollArea className="h-[250px]">
+          <div className="space-y-2 pr-4">
+            {filteredAssets.map((asset) => (
+              <button
+                key={asset.id}
+                onClick={() => toggleAssetSelection(asset.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left",
+                  selectedAssetIds.has(asset.id)
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/50"
+                )}
+              >
+                <Checkbox 
+                  checked={selectedAssetIds.has(asset.id)}
+                  className="pointer-events-none"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{asset.name}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize">
+                      {asset.type === "workstation" ? "PC" : asset.type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{asset.os}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{asset.lastSeen}</span>
+                  <div className={cn(
+                    "h-2 w-2 rounded-full",
+                    asset.status === "protected" ? "bg-green-500" :
+                    asset.status === "warning" ? "bg-orange-500" : "bg-red-500"
+                  )} />
+                </div>
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* Sync option */}
+        <div className="p-4 rounded-lg border border-border space-y-3">
+          <div className="flex items-center gap-3">
+            <Checkbox 
+              id="enable-sync"
+              checked={enableSync}
+              onCheckedChange={(checked) => setEnableSync(!!checked)}
+            />
+            <Label htmlFor="enable-sync" className="cursor-pointer">
+              Aktiver automatisk synkronisering
+            </Label>
+          </div>
+          {enableSync && (
+            <div className="flex items-center gap-2 pl-7">
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+              <Select value={syncFrequency} onValueChange={setSyncFrequency}>
+                <SelectTrigger className="w-[140px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daglig</SelectItem>
+                  <SelectItem value="weekly">Ukentlig</SelectItem>
+                  <SelectItem value="monthly">Månedlig</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Step: Connect - Importing with AI feedback
+  const renderConnectImporting = () => (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <p className="font-medium text-lg">Importerer og klargjør eiendeler...</p>
+        <p className="text-sm text-muted-foreground">
+          Lara analyserer hver eiendel for compliance-krav
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Fremgang</span>
+          <span className="font-medium">{importProgress}%</span>
+        </div>
+        <Progress value={importProgress} className="h-2" />
+      </div>
+
+      <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-3">
+        <div className="flex items-center gap-2">
+          <Bot className="h-5 w-5 text-primary" />
+          <span className="font-medium text-sm">Lara jobber...</span>
+        </div>
+        
+        <ScrollArea className="h-[150px]">
+          <div className="space-y-1 text-sm font-mono">
+            {aiMessages.map((msg, i) => (
+              <p key={i} className={cn(
+                "text-muted-foreground",
+                msg.startsWith("✓") && "text-green-400",
+                msg.startsWith("  →") && "text-blue-400 pl-4"
+              )}>
+                {msg}
+              </p>
+            ))}
+            {currentAiMessage && (
+              <p className="text-primary animate-pulse">
+                ⟳ {currentAiMessage}
+              </p>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
+  );
+
+  // Step: Connect - Complete
+  const renderConnectComplete = () => (
+    <div className="flex flex-col items-center justify-center py-8 gap-6">
+      <div className="relative">
+        <div className="h-20 w-20 rounded-full bg-green-500/20 flex items-center justify-center">
+          <CheckCircle2 className="h-10 w-10 text-green-500" />
+        </div>
+      </div>
+
+      <div className="text-center space-y-2">
+        <p className="font-semibold text-xl">Import fullført!</p>
+        <p className="text-muted-foreground">
+          {importedCount} eiendeler importert og klargjort
+        </p>
+      </div>
+
+      <div className="w-full p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+        <div className="flex items-start gap-3">
+          <Bot className="h-5 w-5 text-primary mt-0.5" />
+          <div className="space-y-2">
+            <p className="font-medium text-sm">Lara sier:</p>
+            <p className="text-sm text-muted-foreground">
+              "Jeg har importert {importedCount} eiendeler og klargjort dem i Mynder. 
+              Eiendelene ligger nå øverst i listen din.
+            </p>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p>For hver eiendel har jeg:</p>
+              <ul className="list-disc list-inside pl-2 space-y-0.5">
+                <li>Kartlagt relevante regelverk (ISO 27001, GDPR)</li>
+                <li>Identifisert dokumentasjonskrav</li>
+                <li>Satt risikonivå basert på Acronis-status</li>
+              </ul>
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">
+              Neste steg: Tilordne en ansvarlig for hver eiendel."
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {enableSync && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <RefreshCw className="h-4 w-4" />
+          <span>Synkronisering aktivert ({syncFrequency === "daily" ? "daglig" : syncFrequency === "weekly" ? "ukentlig" : "månedlig"})</span>
+        </div>
+      )}
+    </div>
+  );
+
   const getTitle = () => {
     switch (step) {
       case "select-approach": return "Legg til eiendel";
@@ -940,16 +1576,24 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "manual-form": return `Ny ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
       case "upload": return "Last opp fra fil";
       case "connect": return "Koble til datakilde";
+      case "connect-select-types": return "Velg eiendelstyper";
+      case "connect-auth": return "Koble til";
+      case "connect-fetching": return "Henter data";
+      case "connect-preview": return "Forhåndsvis import";
+      case "connect-importing": return "Importerer";
+      case "connect-complete": return "Fullført";
       default: return "Legg til eiendel";
     }
   };
+
+  const canGoBack = !["connect-fetching", "connect-importing", "connect-complete"].includes(step);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] p-0 gap-0 overflow-hidden">
         <DialogHeader className="p-6 pb-4">
           <div className="flex items-center gap-3">
-            {step !== "select-approach" && (
+            {step !== "select-approach" && canGoBack && (
               <Button variant="ghost" size="icon" onClick={goBack} className="h-8 w-8">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -971,41 +1615,86 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           {step === "manual-form" && renderManualForm()}
           {step === "upload" && renderUpload()}
           {step === "connect" && renderConnect()}
+          {step === "connect-select-types" && renderConnectSelectTypes()}
+          {step === "connect-auth" && renderConnectAuth()}
+          {step === "connect-fetching" && renderConnectFetching()}
+          {step === "connect-preview" && renderConnectPreview()}
+          {step === "connect-importing" && renderConnectImporting()}
+          {step === "connect-complete" && renderConnectComplete()}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between p-4 bg-muted/30 border-t border-border">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Avbryt
-          </Button>
-          
-          {step === "ai-suggestions" && suggestions.length > 0 && (
-            <Button 
-              onClick={createFromSuggestions}
-              disabled={isLoading || selectedSuggestions.size === 0}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Legger til...
-                </>
-              ) : (
-                `Legg til ${selectedSuggestions.size > 0 ? `(${selectedSuggestions.size})` : ""}`
+          {step === "connect-complete" ? (
+            <>
+              <div />
+              <Button onClick={finishImport}>
+                Se importerte eiendeler
+              </Button>
+            </>
+          ) : step === "connect-importing" || step === "connect-fetching" ? (
+            <div className="w-full text-center text-sm text-muted-foreground">
+              Vennligst vent...
+            </div>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Avbryt
+              </Button>
+              
+              {step === "ai-suggestions" && suggestions.length > 0 && (
+                <Button 
+                  onClick={createFromSuggestions}
+                  disabled={isLoading || selectedSuggestions.size === 0}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Legger til...
+                    </>
+                  ) : (
+                    `Legg til ${selectedSuggestions.size > 0 ? `(${selectedSuggestions.size})` : ""}`
+                  )}
+                </Button>
               )}
-            </Button>
-          )}
 
-          {step === "manual-form" && (
-            <Button onClick={handleSubmit} disabled={isLoading || !formData.name}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Lagrer...
-                </>
-              ) : (
-                "Legg til"
+              {step === "manual-form" && (
+                <Button onClick={handleSubmit} disabled={isLoading || !formData.name}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Lagrer...
+                    </>
+                  ) : (
+                    "Legg til"
+                  )}
+                </Button>
               )}
-            </Button>
+
+              {step === "connect-select-types" && (
+                <Button onClick={() => setStep("connect-auth")}>
+                  Neste
+                </Button>
+              )}
+
+              {step === "connect-auth" && (
+                <Button 
+                  onClick={startFetching}
+                  disabled={apiKey.length < 10}
+                >
+                  Koble til
+                </Button>
+              )}
+
+              {step === "connect-preview" && (
+                <Button 
+                  onClick={startImporting}
+                  disabled={selectedAssetIds.size === 0}
+                >
+                  Importer valgte ({selectedAssetIds.size})
+                </Button>
+              )}
+            </>
           )}
         </div>
       </DialogContent>

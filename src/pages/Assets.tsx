@@ -50,6 +50,8 @@ interface Asset {
   work_area_id: string | null;
   asset_owner: string | null;
   asset_manager: string | null;
+  created_at?: string;
+  external_source_provider?: string | null;
 }
 
 interface WorkArea {
@@ -139,7 +141,16 @@ export default function Assets() {
     },
   });
 
-  // Filter and sort assets
+  // Check if asset is new (created within last 24 hours)
+  const isNewAsset = (asset: Asset) => {
+    if (!asset.created_at) return false;
+    const createdAt = new Date(asset.created_at);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    return hoursDiff < 24;
+  };
+
+  // Filter and sort assets - new assets first
   const filteredAssets = useMemo(() => {
     let result = assets.filter((asset) => {
       const matchesName = asset.name.toLowerCase().includes(nameFilter.toLowerCase());
@@ -149,9 +160,16 @@ export default function Assets() {
       return matchesName && matchesType && matchesAssetType && matchesOwner;
     });
 
-    // Apply sorting
-    if (sortColumn) {
-      result = [...result].sort((a, b) => {
+    // Sort: new assets first, then by column or name
+    result = [...result].sort((a, b) => {
+      // New assets always come first
+      const aIsNew = isNewAsset(a);
+      const bIsNew = isNewAsset(b);
+      if (aIsNew && !bIsNew) return -1;
+      if (!aIsNew && bIsNew) return 1;
+
+      // If both are new or both are old, apply column sorting
+      if (sortColumn) {
         let aValue: string | number = "";
         let bValue: string | number = "";
 
@@ -180,9 +198,11 @@ export default function Assets() {
 
         if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
         if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
+      }
+      
+      // Default: sort by name
+      return a.name.localeCompare(b.name);
+    });
 
     return result;
   }, [assets, nameFilter, typeFilter, assetTypeFilter, ownerFilter, sortColumn, sortDirection]);
@@ -433,6 +453,11 @@ export default function Assets() {
                         <IconComponent className="h-4 w-4" />
                       </div>
                       <span className="text-foreground font-medium">{asset.name}</span>
+                      {isNewAsset(asset) && (
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5">
+                          Ny
+                        </Badge>
+                      )}
                     </div>
 
                     {/* Asset Type Badge */}
