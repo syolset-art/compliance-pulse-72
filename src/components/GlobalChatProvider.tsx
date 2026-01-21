@@ -1,6 +1,9 @@
 import { useState, createContext, useContext, ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { ChatPanel } from "./ChatPanel";
 import { LaraAgent } from "./LaraAgent";
+import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 
 interface GlobalChatContextType {
   isChatOpen: boolean;
@@ -29,6 +32,15 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
+
+  const { data: assetTypeTemplates = [] } = useQuery({
+    queryKey: ["asset_type_templates"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("asset_type_templates").select("*");
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
@@ -73,6 +85,14 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         onClose={() => setIsChatOpen(false)}
         onShowContent={handleShowContent}
         onBackToDashboard={handleBackToDashboard}
+      />
+
+      {/* Global Add Asset Dialog - triggered from Lara onboarding */}
+      <AddAssetDialog
+        open={isAddAssetOpen}
+        onOpenChange={setIsAddAssetOpen}
+        onAssetAdded={() => setIsAddAssetOpen(false)}
+        assetTypeTemplates={assetTypeTemplates}
       />
     </GlobalChatContext.Provider>
   );
