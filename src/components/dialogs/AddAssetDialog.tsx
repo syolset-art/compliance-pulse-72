@@ -98,10 +98,13 @@ interface MockAcronisAsset {
   id: string;
   name: string;
   hostname: string;
-  type: "server" | "workstation" | "storage" | "network";
+  type: "system" | "location" | "network" | "hardware" | "vendor";
   os: string;
   status: "protected" | "warning" | "critical";
   lastSeen: string;
+  complianceScore?: number;
+  frameworks?: string[];
+  vendor?: string;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -118,39 +121,61 @@ const iconMap: Record<string, LucideIcon> = {
 // Asset type options for integration import
 const INTEGRATION_ASSET_TYPES = [
   { id: "system", label: "Systemer", icon: Server, priority: "high" },
-  { id: "vendor", label: "Leverandører", icon: Building2, priority: "high" },
   { id: "location", label: "Lokasjoner", icon: MapPin, priority: "high" },
   { id: "network", label: "Nettverk", icon: Wifi, priority: "high" },
-  { id: "integration", label: "Integrasjoner", icon: Plug, priority: "high" },
   { id: "hardware", label: "Digitale enheter", icon: HardDrive, priority: "high" },
-  { id: "domain", label: "Domener", icon: Globe, priority: "medium" },
-  { id: "physical", label: "Fysiske enheter", icon: Box, priority: "medium" },
+  { id: "vendor", label: "Leverandører", icon: Building2, priority: "medium" },
+  { id: "integration", label: "Integrasjoner", icon: Plug, priority: "medium" },
 ];
 
-// Mock data for Acronis prototype
+// Mock data for Acronis prototype - realistic Norwegian data
 const MOCK_ACRONIS_ASSETS: MockAcronisAsset[] = [
-  { id: "1", name: "SRV-DC01", hostname: "srv-dc01.company.local", type: "server", os: "Windows Server 2022", status: "protected", lastSeen: "2 min siden" },
-  { id: "2", name: "SRV-SQL01", hostname: "srv-sql01.company.local", type: "server", os: "Windows Server 2019", status: "protected", lastSeen: "5 min siden" },
-  { id: "3", name: "SRV-WEB01", hostname: "srv-web01.company.local", type: "server", os: "Ubuntu 22.04 LTS", status: "protected", lastSeen: "1 min siden" },
-  { id: "4", name: "SRV-APP01", hostname: "srv-app01.company.local", type: "server", os: "Windows Server 2022", status: "warning", lastSeen: "15 min siden" },
-  { id: "5", name: "WS-ADMIN01", hostname: "ws-admin01.company.local", type: "workstation", os: "Windows 11 Pro", status: "protected", lastSeen: "3 min siden" },
-  { id: "6", name: "WS-DEV01", hostname: "ws-dev01.company.local", type: "workstation", os: "Windows 11 Pro", status: "protected", lastSeen: "8 min siden" },
-  { id: "7", name: "WS-DEV02", hostname: "ws-dev02.company.local", type: "workstation", os: "macOS Sonoma 14.2", status: "protected", lastSeen: "12 min siden" },
-  { id: "8", name: "NAS-BACKUP01", hostname: "nas-backup01.company.local", type: "storage", os: "Synology DSM 7.2", status: "protected", lastSeen: "1 min siden" },
-  { id: "9", name: "FW-MAIN01", hostname: "fw-main01.company.local", type: "network", os: "Fortinet FortiOS 7.4", status: "protected", lastSeen: "30 sek siden" },
-  { id: "10", name: "SW-CORE01", hostname: "sw-core01.company.local", type: "network", os: "Cisco IOS XE 17.9", status: "protected", lastSeen: "45 sek siden" },
+  // Systems - known enterprise systems
+  { id: "sys-1", name: "Microsoft 365", hostname: "m365.microsoft.com", type: "system", os: "SaaS", status: "protected", lastSeen: "1 min siden", complianceScore: 92, frameworks: ["ISO 27001", "GDPR"], vendor: "Microsoft" },
+  { id: "sys-2", name: "SAP S/4HANA", hostname: "sap-prod.company.no", type: "system", os: "HANA DB", status: "protected", lastSeen: "3 min siden", complianceScore: 88, frameworks: ["ISO 27001", "SOC 2"], vendor: "SAP" },
+  { id: "sys-3", name: "Salesforce CRM", hostname: "company.my.salesforce.com", type: "system", os: "SaaS", status: "protected", lastSeen: "2 min siden", complianceScore: 95, frameworks: ["ISO 27001", "GDPR", "SOC 2"], vendor: "Salesforce" },
+  { id: "sys-4", name: "ServiceNow ITSM", hostname: "company.service-now.com", type: "system", os: "SaaS", status: "warning", lastSeen: "8 min siden", complianceScore: 78, frameworks: ["ISO 27001"], vendor: "ServiceNow" },
+  { id: "sys-5", name: "Visma Business", hostname: "visma-prod.company.no", type: "system", os: "Windows Server 2022", status: "protected", lastSeen: "5 min siden", complianceScore: 85, frameworks: ["GDPR"], vendor: "Visma" },
+  { id: "sys-6", name: "HubSpot Marketing", hostname: "app.hubspot.com", type: "system", os: "SaaS", status: "critical", lastSeen: "45 min siden", complianceScore: 62, frameworks: ["GDPR"], vendor: "HubSpot" },
+  
+  // Locations - Norwegian offices
+  { id: "loc-1", name: "Hovedkontor Oslo", hostname: "oslo-hq.company.no", type: "location", os: "Akersgata 20, 0158 Oslo", status: "protected", lastSeen: "1 min siden", complianceScore: 94, frameworks: ["ISO 27001", "NS-EN 50600"] },
+  { id: "loc-2", name: "Avdeling Bergen", hostname: "bergen.company.no", type: "location", os: "Bryggen 12, 5003 Bergen", status: "protected", lastSeen: "2 min siden", complianceScore: 89, frameworks: ["ISO 27001"] },
+  { id: "loc-3", name: "Avdeling Trondheim", hostname: "trondheim.company.no", type: "location", os: "Munkegata 5, 7013 Trondheim", status: "protected", lastSeen: "3 min siden", complianceScore: 91, frameworks: ["ISO 27001"] },
+  { id: "loc-4", name: "Avdeling Stavanger", hostname: "stavanger.company.no", type: "location", os: "Haakon VIIs gt 8, 4005 Stavanger", status: "warning", lastSeen: "15 min siden", complianceScore: 76, frameworks: ["ISO 27001"] },
+  { id: "loc-5", name: "Datasenter Green Mountain", hostname: "dc1.greenmountain.no", type: "location", os: "Rennesøy, Rogaland", status: "protected", lastSeen: "30 sek siden", complianceScore: 98, frameworks: ["ISO 27001", "SOC 2", "NS-EN 50600"] },
+  
+  // Networks
+  { id: "net-1", name: "Hovedkontor LAN", hostname: "10.0.0.0/16", type: "network", os: "Cisco Catalyst 9300", status: "protected", lastSeen: "1 min siden", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "Cisco" },
+  { id: "net-2", name: "Azure Virtual Network", hostname: "vnet-prod-norway.azure", type: "network", os: "Azure VNET", status: "protected", lastSeen: "2 min siden", complianceScore: 94, frameworks: ["ISO 27001", "SOC 2"], vendor: "Microsoft" },
+  { id: "net-3", name: "SD-WAN Multi-site", hostname: "sdwan.company.no", type: "network", os: "Fortinet SD-WAN", status: "protected", lastSeen: "45 sek siden", complianceScore: 88, frameworks: ["ISO 27001"], vendor: "Fortinet" },
+  { id: "net-4", name: "Guest WiFi", hostname: "wifi-guest.company.no", type: "network", os: "Meraki MR56", status: "warning", lastSeen: "5 min siden", complianceScore: 72, frameworks: [], vendor: "Cisco Meraki" },
+  { id: "net-5", name: "DMZ Network", hostname: "172.16.0.0/24", type: "network", os: "Palo Alto PA-3260", status: "protected", lastSeen: "1 min siden", complianceScore: 96, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Palo Alto" },
+  
+  // Hardware
+  { id: "hw-1", name: "Dell PowerEdge R750", hostname: "srv-prod-01.company.no", type: "hardware", os: "Windows Server 2022", status: "protected", lastSeen: "1 min siden", complianceScore: 92, frameworks: ["ISO 27001"], vendor: "Dell" },
+  { id: "hw-2", name: "HPE ProLiant DL380", hostname: "srv-db-01.company.no", type: "hardware", os: "VMware ESXi 8.0", status: "protected", lastSeen: "2 min siden", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "HPE" },
+  { id: "hw-3", name: "Synology NAS RS3621", hostname: "nas-backup.company.no", type: "hardware", os: "DSM 7.2", status: "protected", lastSeen: "3 min siden", complianceScore: 85, frameworks: ["ISO 27001"], vendor: "Synology" },
+  { id: "hw-4", name: "Fortinet FortiGate 600E", hostname: "fw-main.company.no", type: "hardware", os: "FortiOS 7.4.1", status: "protected", lastSeen: "30 sek siden", complianceScore: 97, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Fortinet" },
+  
+  // Vendors
+  { id: "ven-1", name: "TietoEvry", hostname: "tietoevry.com", type: "vendor", os: "IT-drift og systemutvikling", status: "protected", lastSeen: "1 dag siden", complianceScore: 91, frameworks: ["ISO 27001", "SOC 2"] },
+  { id: "ven-2", name: "Atea", hostname: "atea.no", type: "vendor", os: "Hardware og infrastruktur", status: "protected", lastSeen: "2 dager siden", complianceScore: 88, frameworks: ["ISO 27001"] },
+  { id: "ven-3", name: "Knowit", hostname: "knowit.no", type: "vendor", os: "Konsulentselskap", status: "warning", lastSeen: "1 uke siden", complianceScore: 75, frameworks: ["ISO 27001"] },
 ];
 
-// AI import messages for simulation
+// AI import messages for simulation - updated for new mock data
 const AI_IMPORT_MESSAGES = [
-  { asset: "SRV-DC01", message: "Kartlegger compliance-krav for domene-kontroller..." },
-  { asset: "SRV-DC01", message: "Identifisert: ISO 27001 A.9, GDPR Artikkel 32" },
-  { asset: "SRV-SQL01", message: "Analyserer databaseserver for personopplysninger..." },
-  { asset: "SRV-SQL01", message: "Flagget som kritisk - inneholder persondata" },
-  { asset: "SRV-WEB01", message: "Vurderer eksponering mot internett..." },
-  { asset: "SRV-APP01", message: "Advarsel fra Acronis - anbefaler risikovurdering" },
-  { asset: "NAS-BACKUP01", message: "Klassifiserer som backup-infrastruktur" },
-  { asset: "FW-MAIN01", message: "Identifisert som sikkerhetsinfrastruktur - høy kritikalitet" },
+  { asset: "Microsoft 365", message: "Kartlegger compliance-krav for produktivitetsplattform..." },
+  { asset: "Microsoft 365", message: "Identifisert: ISO 27001, GDPR – 92% samsvar" },
+  { asset: "SAP S/4HANA", message: "Analyserer ERP-system for personopplysninger..." },
+  { asset: "SAP S/4HANA", message: "Flagget som kritisk – inneholder kundedata og økonomidata" },
+  { asset: "Hovedkontor Oslo", message: "Klassifiserer fysisk lokasjon – høy sikkerhet påkrevd" },
+  { asset: "Datasenter Green Mountain", message: "NS-EN 50600 sertifisert – kritisk infrastruktur" },
+  { asset: "Azure Virtual Network", message: "Verifiserer sky-nettverk segmentering..." },
+  { asset: "Fortinet FortiGate 600E", message: "Identifisert som sikkerhetsinfrastruktur – 97% samsvar" },
+  { asset: "ServiceNow ITSM", message: "Advarsel: Krever oppfølging – 78% samsvar" },
+  { asset: "TietoEvry", message: "Leverandørvurdering: ISO 27001 og SOC 2 sertifisert" },
 ];
 
 type Step = 
@@ -472,10 +497,15 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     // Simulate connection and fetch process
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Set mock data
-    setFetchedAssets(MOCK_ACRONIS_ASSETS);
+    // Filter mock data based on selected asset types
+    let filteredAssets = MOCK_ACRONIS_ASSETS;
+    if (!selectedAssetTypes.has("all")) {
+      filteredAssets = MOCK_ACRONIS_ASSETS.filter(a => selectedAssetTypes.has(a.type));
+    }
+    
+    setFetchedAssets(filteredAssets);
     // Pre-select all assets
-    setSelectedAssetIds(new Set(MOCK_ACRONIS_ASSETS.map(a => a.id)));
+    setSelectedAssetIds(new Set(filteredAssets.map(a => a.id)));
     
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -521,16 +551,17 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     const assetsToCreate = selectedAssets.map(asset => ({
       name: asset.name,
       description: `${asset.hostname} - ${asset.os}`,
-      asset_type: asset.type === "server" || asset.type === "workstation" ? "hardware" : 
-                  asset.type === "network" ? "network" : "hardware",
-      vendor: "Acronis",
+      asset_type: asset.type,
+      vendor: asset.vendor || "Acronis",
       category: asset.type.charAt(0).toUpperCase() + asset.type.slice(1),
       risk_level: asset.status === "warning" ? "medium" : asset.status === "critical" ? "high" : "low",
-      criticality: asset.type === "server" ? "high" : "medium",
+      criticality: asset.type === "system" || asset.type === "network" ? "high" : "medium",
+      compliance_score: asset.complianceScore || null,
       external_source_id: asset.id,
       external_source_provider: "acronis",
       sync_enabled: enableSync,
       lifecycle_status: "active",
+      last_synced_at: new Date().toISOString(),
     }));
 
     // Simulate import with AI messages
@@ -1363,15 +1394,18 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           <span className="text-sm text-muted-foreground">{integration?.name}</span>
         </div>
 
-        {/* Filter tabs */}
+        {/* Filter tabs - dynamic based on what's in fetched assets */}
         <div className="flex gap-2 flex-wrap">
           {[
             { id: "all", label: "Alle" },
-            { id: "server", label: "Servere" },
-            { id: "workstation", label: "Arbeidsstasjoner" },
-            { id: "storage", label: "Lagring" },
+            { id: "system", label: "Systemer" },
+            { id: "location", label: "Lokasjoner" },
             { id: "network", label: "Nettverk" },
-          ].map((filter) => (
+            { id: "hardware", label: "Maskinvare" },
+            { id: "vendor", label: "Leverandører" },
+          ].filter(filter => 
+            filter.id === "all" || fetchedAssets.some(a => a.type === filter.id)
+          ).map((filter) => (
             <button
               key={filter.id}
               onClick={() => setPreviewFilter(filter.id)}
@@ -1383,13 +1417,16 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               )}
             >
               {filter.label}
+              <span className="ml-1 text-xs opacity-70">
+                ({filter.id === "all" ? fetchedAssets.length : fetchedAssets.filter(a => a.type === filter.id).length})
+              </span>
             </button>
           ))}
         </div>
 
         {/* Select/deselect all */}
         <div className="flex items-center justify-between py-2 border-b border-border">
-          <span className="text-sm text-muted-foreground">{selectedCount} valgt</span>
+          <span className="text-sm text-muted-foreground">{selectedCount} av {filteredAssets.length} valgt</span>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={selectAllAssets}>Velg alle</Button>
             <Button variant="ghost" size="sm" onClick={deselectAllAssets}>Fjern alle</Button>
@@ -1417,19 +1454,39 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{asset.name}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground capitalize">
-                      {asset.type === "workstation" ? "PC" : asset.type}
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                      {asset.type === "location" ? "Lokasjon" : 
+                       asset.type === "system" ? "System" : 
+                       asset.type === "network" ? "Nettverk" : 
+                       asset.type === "hardware" ? "Maskinvare" :
+                       asset.type === "vendor" ? "Leverandør" : asset.type}
                     </span>
+                    {asset.vendor && (
+                      <span className="text-xs text-muted-foreground">{asset.vendor}</span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground truncate">{asset.os}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{asset.lastSeen}</span>
-                  <div className={cn(
-                    "h-2 w-2 rounded-full",
-                    asset.status === "protected" ? "bg-green-500" :
-                    asset.status === "warning" ? "bg-orange-500" : "bg-red-500"
-                  )} />
+                <div className="flex items-center gap-3">
+                  {/* Compliance score */}
+                  {asset.complianceScore !== undefined && (
+                    <div className={cn(
+                      "text-xs font-medium px-2 py-0.5 rounded",
+                      asset.complianceScore >= 90 ? "bg-green-500/20 text-green-400" :
+                      asset.complianceScore >= 75 ? "bg-orange-500/20 text-orange-400" : 
+                      "bg-red-500/20 text-red-400"
+                    )}>
+                      {asset.complianceScore}%
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">{asset.lastSeen}</span>
+                    <div className={cn(
+                      "h-2 w-2 rounded-full",
+                      asset.status === "protected" ? "bg-green-500" :
+                      asset.status === "warning" ? "bg-orange-500" : "bg-red-500"
+                    )} />
+                  </div>
                 </div>
               </button>
             ))}
