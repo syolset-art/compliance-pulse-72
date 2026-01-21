@@ -335,11 +335,15 @@ export type Database = {
       }
       company_profile: {
         Row: {
+          brreg_employees: number | null
+          brreg_industry: string | null
           created_at: string | null
           employees: string | null
           id: string
           industry: string
+          initial_maturity: string | null
           maturity: string | null
+          maturity_calculated_at: string | null
           name: string
           org_number: string | null
           team_size: string | null
@@ -347,11 +351,15 @@ export type Database = {
           use_cases: string[] | null
         }
         Insert: {
+          brreg_employees?: number | null
+          brreg_industry?: string | null
           created_at?: string | null
           employees?: string | null
           id?: string
           industry: string
+          initial_maturity?: string | null
           maturity?: string | null
+          maturity_calculated_at?: string | null
           name: string
           org_number?: string | null
           team_size?: string | null
@@ -359,11 +367,15 @@ export type Database = {
           use_cases?: string[] | null
         }
         Update: {
+          brreg_employees?: number | null
+          brreg_industry?: string | null
           created_at?: string | null
           employees?: string | null
           id?: string
           industry?: string
+          initial_maturity?: string | null
           maturity?: string | null
+          maturity_calculated_at?: string | null
           name?: string
           org_number?: string | null
           team_size?: string | null
@@ -502,6 +514,47 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      maturity_milestones: {
+        Row: {
+          achieved_at: string | null
+          company_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          milestone_key: string | null
+          milestone_type: string
+          points: number | null
+        }
+        Insert: {
+          achieved_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          milestone_key?: string | null
+          milestone_type: string
+          points?: number | null
+        }
+        Update: {
+          achieved_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          milestone_key?: string | null
+          milestone_type?: string
+          points?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maturity_milestones_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       onboarding_progress: {
         Row: {
