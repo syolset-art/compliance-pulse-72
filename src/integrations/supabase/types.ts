@@ -1470,6 +1470,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_dashboard_preferences: {
+        Row: {
+          active_view: string | null
+          created_at: string | null
+          hidden_widgets: string[] | null
+          id: string
+          pinned_widgets: string[] | null
+          updated_at: string | null
+          user_id: string
+          widget_order: Json | null
+        }
+        Insert: {
+          active_view?: string | null
+          created_at?: string | null
+          hidden_widgets?: string[] | null
+          id?: string
+          pinned_widgets?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          widget_order?: Json | null
+        }
+        Update: {
+          active_view?: string | null
+          created_at?: string | null
+          hidden_widgets?: string[] | null
+          id?: string
+          pinned_widgets?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          widget_order?: Json | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       work_area_templates: {
         Row: {
           created_at: string | null
@@ -1532,10 +1592,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_primary_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "daglig_leder"
+        | "personvernombud"
+        | "sikkerhetsansvarlig"
+        | "compliance_ansvarlig"
+        | "ai_governance"
+        | "operativ_bruker"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1662,6 +1738,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "daglig_leder",
+        "personvernombud",
+        "sikkerhetsansvarlig",
+        "compliance_ansvarlig",
+        "ai_governance",
+        "operativ_bruker",
+      ],
+    },
   },
 } as const
