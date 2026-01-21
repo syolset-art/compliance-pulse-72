@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, BarChart3, User, Check, AlertTriangle } from "lucide-react";
+import { Shield, BarChart3, User, Check, AlertTriangle, Bot, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface AIUsageInfo {
+  hasAI: boolean;
+  riskCategory?: string | null;
+  complianceStatus?: string | null;
+}
 
 interface ProcessOverviewCardProps {
   process: {
@@ -16,14 +23,68 @@ interface ProcessOverviewCardProps {
   };
   criticality?: "low" | "medium" | "high" | "critical";
   processOwner?: string;
+  aiUsage?: AIUsageInfo;
   onClick: () => void;
 }
+
+const getAIRiskConfig = (riskCategory?: string | null, complianceStatus?: string | null) => {
+  if (riskCategory === "unacceptable") {
+    return {
+      label: "Uakseptabel",
+      icon: ShieldAlert,
+      bgClass: "bg-red-500/15",
+      textClass: "text-red-600 dark:text-red-400",
+      borderClass: "border-red-500/30",
+      dotClass: "bg-red-500",
+    };
+  }
+  if (riskCategory === "high") {
+    return {
+      label: "Høy risiko",
+      icon: ShieldAlert,
+      bgClass: "bg-orange-500/15",
+      textClass: "text-orange-600 dark:text-orange-400",
+      borderClass: "border-orange-500/30",
+      dotClass: "bg-orange-500",
+    };
+  }
+  if (riskCategory === "limited") {
+    return {
+      label: "Begrenset",
+      icon: ShieldCheck,
+      bgClass: "bg-yellow-500/15",
+      textClass: "text-yellow-600 dark:text-yellow-500",
+      borderClass: "border-yellow-500/30",
+      dotClass: "bg-yellow-500",
+    };
+  }
+  if (riskCategory === "minimal") {
+    return {
+      label: "Minimal",
+      icon: ShieldCheck,
+      bgClass: "bg-green-500/15",
+      textClass: "text-green-600 dark:text-green-400",
+      borderClass: "border-green-500/30",
+      dotClass: "bg-green-500",
+    };
+  }
+  // Not assessed yet
+  return {
+    label: "Ikke vurdert",
+    icon: ShieldQuestion,
+    bgClass: "bg-muted",
+    textClass: "text-muted-foreground",
+    borderClass: "border-border",
+    dotClass: "bg-muted-foreground",
+  };
+};
 
 export const ProcessOverviewCard = ({
   process,
   stats = { dataTypes: 0, systems: 0, riskScenarios: 0, pendingMitigations: 0 },
   criticality = "medium",
   processOwner = "Ukjent bruker",
+  aiUsage,
   onClick,
 }: ProcessOverviewCardProps) => {
   const getCriticalityConfig = (level: string) => {
@@ -73,17 +134,63 @@ export const ProcessOverviewCard = ({
       onClick={onClick}
     >
       <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-        {/* Title & Description */}
-        <div>
-          <h4 className="font-semibold text-xs sm:text-sm leading-tight line-clamp-2">
-            {process.name}
-          </h4>
+        {/* Title & AI Badge */}
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="font-semibold text-xs sm:text-sm leading-tight line-clamp-2">
+              {process.name}
+            </h4>
+            {aiUsage?.hasAI && (
+              <div className={cn(
+                "flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-medium",
+                getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).bgClass,
+                getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).borderClass,
+                getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).textClass
+              )}>
+                <Bot className="h-3 w-3" />
+                <span className="hidden sm:inline">AI</span>
+              </div>
+            )}
+          </div>
           {process.description && (
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-1.5 line-clamp-2 sm:line-clamp-3">
+            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3">
               {process.description}
             </p>
           )}
         </div>
+
+        {/* AI Risk Badge - Only shown if process has AI */}
+        {aiUsage?.hasAI && (() => {
+          const riskConfig = getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus);
+          const RiskIcon = riskConfig.icon;
+          const isHighRisk = aiUsage.riskCategory === "high" || aiUsage.riskCategory === "unacceptable";
+          
+          return (
+            <div
+              className={cn(
+                "flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-md border",
+                riskConfig.bgClass,
+                riskConfig.borderClass,
+                isHighRisk && "animate-pulse"
+              )}
+            >
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <RiskIcon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", riskConfig.textClass)} />
+                <span className="text-[10px] sm:text-xs font-medium">AI-risiko</span>
+              </div>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "border-0 text-[10px] sm:text-xs",
+                  riskConfig.bgClass,
+                  riskConfig.textClass
+                )}
+              >
+                {riskConfig.label}
+              </Badge>
+            </div>
+          );
+        })()}
 
         {/* Criticality Badge - Compact on mobile */}
         <div
