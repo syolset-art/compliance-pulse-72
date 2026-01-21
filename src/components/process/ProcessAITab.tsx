@@ -290,13 +290,18 @@ export const ProcessAITab = ({
   }
 
   // AI usage is documented - show compact summary
+  // Ensure affected_persons is always an array (can be null or non-array from DB)
+  const affectedPersonsArray = Array.isArray(aiUsage.affected_persons) 
+    ? aiUsage.affected_persons 
+    : [];
+
   return (
     <div className="space-y-6">
       <AIDocumentedSummary
         hasAI={aiUsage.has_ai}
         riskLevel={aiUsage.risk_category}
         purpose={aiUsage.ai_purpose}
-        affectedPersons={aiUsage.affected_persons || []}
+        affectedPersons={affectedPersonsArray}
         lastReviewDate={aiUsage.last_review_date}
         complianceStatus={aiUsage.compliance_status}
         onEdit={() => setDialogOpen(true)}
