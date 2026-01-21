@@ -207,7 +207,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   
   // Connect flow state
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
-  const [selectedAssetTypes, setSelectedAssetTypes] = useState<Set<string>>(new Set(["all"]));
+  const [selectedAssetTypes, setSelectedAssetTypes] = useState<Set<string>>(new Set());
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [fetchedAssets, setFetchedAssets] = useState<MockAcronisAsset[]>([]);
@@ -255,7 +255,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       setSuggestions([]);
       setSelectedSuggestions(new Set());
       setSelectedIntegration("");
-      setSelectedAssetTypes(new Set(["all"]));
+      setSelectedAssetTypes(new Set());
       setApiKey("");
       setShowApiKey(false);
       setFetchedAssets([]);
@@ -1725,7 +1725,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               )}
 
               {step === "connect-select-types" && (
-                <Button onClick={startFetching}>
+                <Button 
+                  onClick={startFetching}
+                  disabled={selectedAssetTypes.size === 0}
+                >
                   Hent eiendeler
                 </Button>
               )}
