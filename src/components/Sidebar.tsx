@@ -43,6 +43,7 @@ const navigation = [
 
 const adminSubMenu = [
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
+  { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
 ];
 
 const SidebarContent = () => {
