@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Check, Zap, Shield, Users, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, CreditCard, Check, Zap, Shield, Users, Clock, Sparkles, Lock, Brain, Scale, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const plans = [
   {
@@ -13,6 +16,7 @@ const plans = [
     price: "Gratis",
     priceDetail: "for alltid",
     features: [
+      "Personvern-domenet inkludert",
       "Opptil 5 arbeidsområder",
       "Grunnleggende risikovurdering",
       "E-poststøtte",
@@ -27,6 +31,7 @@ const plans = [
     price: "2 490 kr",
     priceDetail: "per måned",
     features: [
+      "Alle tre hoveddomener inkludert",
       "Ubegrensede arbeidsområder",
       "Avansert risikovurdering",
       "Prioritert støtte",
@@ -45,6 +50,7 @@ const plans = [
     priceDetail: "skreddersydd",
     features: [
       "Alt i Professional",
+      "Øvrige regelverk inkludert",
       "Ubegrenset brukere",
       "Dedikert kundekontakt",
       "SLA-garanti",
@@ -53,6 +59,13 @@ const plans = [
     ],
     current: false,
   },
+];
+
+const domainInfo = [
+  { id: 'privacy', name: 'Personvern', icon: Shield, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
+  { id: 'security', name: 'Informasjonssikkerhet', icon: Lock, color: 'text-green-500', bgColor: 'bg-green-500/10' },
+  { id: 'ai', name: 'AI Management', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
+  { id: 'other', name: 'Øvrige regelverk', icon: Scale, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
 ];
 
 const usageData = {
@@ -64,6 +77,24 @@ const usageData = {
 
 export default function Subscriptions() {
   const navigate = useNavigate();
+  const { 
+    subscription, 
+    addons, 
+    isLoading, 
+    isDomainIncluded, 
+    getTotalMonthlyCost 
+  } = useSubscription();
+
+  const formatPrice = (priceInOre: number) => {
+    return new Intl.NumberFormat('nb-NO', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(priceInOre / 100);
+  };
+
+  const totalCost = getTotalMonthlyCost();
+  const basePlanCost = subscription?.plan?.price_monthly || 0;
+  const addonsCost = addons?.reduce((sum, addon) => sum + addon.monthly_price, 0) || 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,19 +124,27 @@ export default function Subscriptions() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <CardTitle>Professional</CardTitle>
+                    <CardTitle>
+                      {isLoading ? <Skeleton className="h-6 w-32" /> : subscription?.plan?.display_name || 'Professional'}
+                    </CardTitle>
                     <Badge variant="secondary">Aktiv</Badge>
                   </div>
                   <CardDescription>Neste fakturering: 1. februar 2026</CardDescription>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-foreground">2 490 kr</div>
-                <div className="text-sm text-muted-foreground">per måned</div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-24" />
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold text-foreground">{formatPrice(totalCost)} kr</div>
+                    <div className="text-sm text-muted-foreground">per måned</div>
+                  </>
+                )}
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex gap-4">
               <Button variant="outline">
                 <CreditCard className="h-4 w-4 mr-2" />
@@ -118,6 +157,100 @@ export default function Subscriptions() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Active Domains Section */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground">Aktive domener</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/regulations')}
+            >
+              Administrer regelverk
+              <ExternalLink className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+          
+          <Card>
+            <CardContent className="pt-6">
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map(i => (
+                    <Skeleton key={i} className="h-12" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {domainInfo.map((domain) => {
+                    const isIncluded = isDomainIncluded(domain.id);
+                    const isFromPlan = subscription?.plan?.included_domains?.includes(domain.id);
+                    const addon = addons?.find(a => a.domain_id === domain.id);
+                    const Icon = domain.icon;
+                    
+                    return (
+                      <div 
+                        key={domain.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${domain.bgColor}`}>
+                            <Icon className={`h-4 w-4 ${domain.color}`} />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{domain.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {isFromPlan ? 'Inkludert i plan' : addon ? `Tillegg: +${formatPrice(addon.monthly_price)} kr/mnd` : 'Ikke aktivert'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {isIncluded ? (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Aktiv
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              Ikke aktivert
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* Cost breakdown */}
+              {!isLoading && addonsCost > 0 && (
+                <>
+                  <Separator className="my-4" />
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Grunnpris ({subscription?.plan?.display_name})</span>
+                      <span>{formatPrice(basePlanCost)} kr</span>
+                    </div>
+                    {addons?.map(addon => {
+                      const domainName = domainInfo.find(d => d.id === addon.domain_id)?.name || addon.domain_id;
+                      return (
+                        <div key={addon.id} className="flex justify-between text-muted-foreground">
+                          <span>+ {domainName} tillegg</span>
+                          <span>{formatPrice(addon.monthly_price)} kr</span>
+                        </div>
+                      );
+                    })}
+                    <Separator />
+                    <div className="flex justify-between font-semibold text-foreground">
+                      <span>Total per måned</span>
+                      <span>{formatPrice(totalCost)} kr</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Usage Section */}
         <div>
@@ -216,7 +349,7 @@ export default function Subscriptions() {
                   <ul className="space-y-2">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-success" />
+                        <Check className="h-4 w-4 text-green-500" />
                         <span className="text-foreground">{feature}</span>
                       </li>
                     ))}

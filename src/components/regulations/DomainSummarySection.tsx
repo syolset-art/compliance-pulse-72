@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Shield, Lock, Brain, Scale } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { DomainSummaryCard } from "./DomainSummaryCard";
+import { DomainActionDialog } from "./DomainActionDialog";
+import { DomainUpgradeDialog } from "./DomainUpgradeDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
 
 interface DomainSummarySectionProps {
   onDomainClick?: (domainId: string) => void;
+  onOpenChat?: (context: string) => void;
 }
 
 interface DomainConfig {
@@ -40,17 +45,40 @@ const frameworkTaskMapping: Record<string, string[]> = {
   'ai-ethics': ['AI', 'etikk', 'AI Governance'],
 };
 
-export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProps) {
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  priority: string;
+  status: string;
+  relevant_for: string[];
+}
+
+export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummarySectionProps) {
+  const { isDomainIncluded, activateAddon, isActivatingAddon } = useSubscription();
+  
+  // Dialog states
+  const [actionDialog, setActionDialog] = useState<{
+    open: boolean;
+    domain: DomainConfig | null;
+    tasks: Task[];
+  }>({ open: false, domain: null, tasks: [] });
+  
+  const [upgradeDialog, setUpgradeDialog] = useState<{
+    open: boolean;
+    domain: DomainConfig | null;
+  }>({ open: false, domain: null });
+
   const { data, isLoading } = useQuery({
     queryKey: ['domain-summary-regulations'],
     queryFn: async () => {
       const [frameworksResult, tasksResult] = await Promise.all([
         supabase.from('selected_frameworks').select('*').eq('is_selected', true),
-        supabase.from('tasks').select('id, status, relevant_for')
+        supabase.from('tasks').select('id, title, description, status, priority, relevant_for')
       ]);
 
       const selectedFrameworks = frameworksResult.data || [];
-      const tasks = tasksResult.data || [];
+      const tasks = (tasksResult.data || []) as Task[];
 
       // Calculate progress for each domain
       const domainData = domainConfigs.map(domain => {
@@ -62,6 +90,7 @@ export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProp
         // Calculate progress based on relevant tasks
         let totalTasks = 0;
         let completedTasks = 0;
+        const domainTasks: Task[] = [];
 
         activeFrameworks.forEach(framework => {
           const keywords = frameworkTaskMapping[framework.id] || [];
@@ -70,6 +99,13 @@ export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProp
             return keywords.some(keyword => 
               relevantFor.some((rf: string) => rf.toLowerCase().includes(keyword.toLowerCase()))
             );
+          });
+
+          // Add unique tasks
+          relevantTasks.forEach(task => {
+            if (!domainTasks.some(t => t.id === task.id)) {
+              domainTasks.push(task);
+            }
           });
 
           totalTasks += relevantTasks.length;
@@ -92,7 +128,8 @@ export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProp
           activeCount: activeFrameworks.length,
           totalCount: domainFrameworks.length,
           progress,
-          status
+          status,
+          tasks: domainTasks
         };
       });
 
@@ -112,12 +149,35 @@ export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProp
         activeCount: activeOther.length,
         totalCount: otherFrameworks.length,
         progress: 0,
-        status: 'notStarted' as const
+        status: 'notStarted' as const,
+        tasks: [] as Task[]
       };
 
       return { domains: domainData, other: otherData };
     }
   });
+
+  const handleDomainClick = (domain: typeof domainConfigs[0] & { tasks: Task[]; status: 'good' | 'attention' | 'notStarted' }) => {
+    const isIncluded = isDomainIncluded(domain.id);
+    
+    if (!isIncluded) {
+      // Show upgrade dialog
+      setUpgradeDialog({ open: true, domain });
+    } else if (domain.status === 'attention') {
+      // Show action dialog with tasks
+      setActionDialog({ open: true, domain, tasks: domain.tasks });
+    } else {
+      // Just scroll to the category
+      onDomainClick?.(domain.id);
+    }
+  };
+
+  const handleActivateAddon = () => {
+    if (upgradeDialog.domain) {
+      activateAddon(upgradeDialog.domain.id);
+      setUpgradeDialog({ open: false, domain: null });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -132,40 +192,82 @@ export function DomainSummarySection({ onDomainClick }: DomainSummarySectionProp
   const { domains, other } = data || { domains: [], other: null };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      {/* Three main domains */}
-      {domains.map(domain => (
-        <DomainSummaryCard
-          key={domain.id}
-          id={domain.id}
-          name={domain.name}
-          icon={domain.icon}
-          color={domain.color}
-          bgColor={domain.bgColor}
-          activeCount={domain.activeCount}
-          totalCount={domain.totalCount}
-          progress={domain.progress}
-          status={domain.status}
-          onClick={() => onDomainClick?.(domain.id)}
-        />
-      ))}
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* Three main domains */}
+        {domains.map(domain => {
+          const isIncluded = isDomainIncluded(domain.id);
+          const addonPrice = !isIncluded ? DOMAIN_ADDON_PRICES[domain.id] : null;
+          
+          return (
+            <DomainSummaryCard
+              key={domain.id}
+              id={domain.id}
+              name={domain.name}
+              icon={domain.icon}
+              color={domain.color}
+              bgColor={domain.bgColor}
+              activeCount={domain.activeCount}
+              totalCount={domain.totalCount}
+              progress={domain.progress}
+              status={domain.status}
+              onClick={() => handleDomainClick(domain)}
+              isIncludedInPlan={isIncluded}
+              addonPrice={addonPrice}
+              onActivateAddon={() => setUpgradeDialog({ open: true, domain })}
+            />
+          );
+        })}
 
-      {/* Compact "Øvrige" card */}
-      {other && (
-        <DomainSummaryCard
-          id={other.id}
-          name={other.name}
-          icon={other.icon}
-          color={other.color}
-          bgColor={other.bgColor}
-          activeCount={other.activeCount}
-          totalCount={other.totalCount}
-          progress={other.progress}
-          status={other.status}
-          onClick={() => onDomainClick?.(other.id)}
-          compact
+        {/* Compact "Øvrige" card */}
+        {other && (
+          <DomainSummaryCard
+            id={other.id}
+            name={other.name}
+            icon={other.icon}
+            color={other.color}
+            bgColor={other.bgColor}
+            activeCount={other.activeCount}
+            totalCount={other.totalCount}
+            progress={other.progress}
+            status={other.status}
+            onClick={() => onDomainClick?.(other.id)}
+            compact
+            isIncludedInPlan={isDomainIncluded(other.id)}
+          />
+        )}
+      </div>
+
+      {/* Action Dialog */}
+      {actionDialog.domain && (
+        <DomainActionDialog
+          open={actionDialog.open}
+          onOpenChange={(open) => setActionDialog(prev => ({ ...prev, open }))}
+          domainId={actionDialog.domain.id}
+          domainName={actionDialog.domain.name}
+          domainIcon={actionDialog.domain.icon}
+          domainColor={actionDialog.domain.color}
+          domainBgColor={actionDialog.domain.bgColor}
+          tasks={actionDialog.tasks}
+          onOpenChat={onOpenChat}
         />
       )}
-    </div>
+
+      {/* Upgrade Dialog */}
+      {upgradeDialog.domain && (
+        <DomainUpgradeDialog
+          open={upgradeDialog.open}
+          onOpenChange={(open) => setUpgradeDialog(prev => ({ ...prev, open }))}
+          domainId={upgradeDialog.domain.id}
+          domainName={upgradeDialog.domain.name}
+          domainIcon={upgradeDialog.domain.icon}
+          domainColor={upgradeDialog.domain.color}
+          domainBgColor={upgradeDialog.domain.bgColor}
+          monthlyPrice={DOMAIN_ADDON_PRICES[upgradeDialog.domain.id] || 0}
+          onActivate={handleActivateAddon}
+          isActivating={isActivatingAddon}
+        />
+      )}
+    </>
   );
 }

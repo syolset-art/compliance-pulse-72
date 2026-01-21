@@ -1,5 +1,7 @@
-import { Shield, Lock, Brain, Scale, CheckCircle2, AlertTriangle, Clock, LucideIcon } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Clock, Lock, Sparkles, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface DomainSummaryCardProps {
   id: string;
@@ -13,6 +15,10 @@ interface DomainSummaryCardProps {
   status: 'good' | 'attention' | 'notStarted';
   onClick?: () => void;
   compact?: boolean;
+  // New subscription-related props
+  isIncludedInPlan?: boolean;
+  addonPrice?: number | null; // in øre, null means included
+  onActivateAddon?: () => void;
 }
 
 export function DomainSummaryCard({
@@ -26,7 +32,10 @@ export function DomainSummaryCard({
   progress,
   status,
   onClick,
-  compact = false
+  compact = false,
+  isIncludedInPlan = true,
+  addonPrice = null,
+  onActivateAddon
 }: DomainSummaryCardProps) {
   const getStatusConfig = () => {
     switch (status) {
@@ -58,6 +67,14 @@ export function DomainSummaryCard({
   const statusConfig = getStatusConfig();
   const StatusIcon = statusConfig.icon;
 
+  // Format price in NOK
+  const formatPrice = (priceInOre: number) => {
+    return new Intl.NumberFormat('nb-NO', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(priceInOre / 100);
+  };
+
   // Calculate SVG circle parameters
   const size = compact ? 48 : 64;
   const strokeWidth = compact ? 4 : 5;
@@ -72,10 +89,23 @@ export function DomainSummaryCard({
     return 'stroke-muted-foreground/30';
   };
 
+  // Handle click - only if included or compact view
+  const handleClick = () => {
+    if (isIncludedInPlan || compact) {
+      onClick?.();
+    }
+  };
+
+  // Handle activate click
+  const handleActivate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onActivateAddon?.();
+  };
+
   if (compact) {
     return (
       <div
-        onClick={onClick}
+        onClick={handleClick}
         className={cn(
           "flex items-center gap-3 p-4 rounded-xl border bg-card cursor-pointer",
           "hover:border-primary/50 hover:shadow-md transition-all duration-200"
@@ -92,9 +122,58 @@ export function DomainSummaryCard({
     );
   }
 
+  // Not included in plan - show locked state
+  if (!isIncludedInPlan && addonPrice !== null) {
+    return (
+      <div
+        className={cn(
+          "relative p-5 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-card/50 overflow-hidden",
+          "group"
+        )}
+      >
+        {/* Locked overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-transparent" />
+        
+        <div className="relative">
+          {/* Header with icon and lock */}
+          <div className="flex items-start justify-between mb-4">
+            <div className={cn("p-3 rounded-xl relative", bgColor, "opacity-60")}>
+              <Icon className={cn("h-6 w-6", color)} />
+              <Lock className="absolute -bottom-1 -right-1 h-4 w-4 text-muted-foreground bg-card rounded-full p-0.5" />
+            </div>
+            
+            {/* Price badge */}
+            <Badge variant="secondary" className="text-xs">
+              +{formatPrice(addonPrice)} kr/mnd
+            </Badge>
+          </div>
+
+          {/* Domain name */}
+          <h3 className="font-semibold text-foreground/70 mb-1">{name}</h3>
+          
+          {/* Description */}
+          <p className="text-sm text-muted-foreground mb-4">
+            {totalCount} regelverk tilgjengelig
+          </p>
+
+          {/* Activate button */}
+          <Button
+            onClick={handleActivate}
+            variant="outline"
+            size="sm"
+            className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Aktiver
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(
         "relative p-5 rounded-xl border bg-card cursor-pointer overflow-hidden",
         "hover:border-primary/50 hover:shadow-lg transition-all duration-200",
@@ -110,8 +189,16 @@ export function DomainSummaryCard({
       <div className="relative">
         {/* Header with icon and progress */}
         <div className="flex items-start justify-between mb-4">
-          <div className={cn("p-3 rounded-xl", bgColor)}>
-            <Icon className={cn("h-6 w-6", color)} />
+          <div className="flex items-center gap-2">
+            <div className={cn("p-3 rounded-xl", bgColor)}>
+              <Icon className={cn("h-6 w-6", color)} />
+            </div>
+            {isIncludedInPlan && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Inkludert
+              </Badge>
+            )}
           </div>
           
           {/* Circular progress */}

@@ -372,6 +372,98 @@ export type Database = {
         }
         Relationships: []
       }
+      company_subscriptions: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string | null
+          status: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_addons: {
+        Row: {
+          activated_at: string | null
+          company_id: string | null
+          created_at: string | null
+          domain_id: string
+          id: string
+          monthly_price: number | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          domain_id: string
+          id?: string
+          monthly_price?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          domain_id?: string
+          id?: string
+          monthly_price?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_addons_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integration_connections: {
         Row: {
           api_key_encrypted: string | null
@@ -571,11 +663,13 @@ export type Database = {
       }
       selected_frameworks: {
         Row: {
+          addon_required: boolean | null
           category: string
           created_at: string
           framework_id: string
           framework_name: string
           id: string
+          included_in_plan: boolean | null
           is_mandatory: boolean | null
           is_recommended: boolean | null
           is_selected: boolean | null
@@ -583,11 +677,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          addon_required?: boolean | null
           category: string
           created_at?: string
           framework_id: string
           framework_name: string
           id?: string
+          included_in_plan?: boolean | null
           is_mandatory?: boolean | null
           is_recommended?: boolean | null
           is_selected?: boolean | null
@@ -595,16 +691,54 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          addon_required?: boolean | null
           category?: string
           created_at?: string
           framework_id?: string
           framework_name?: string
           id?: string
+          included_in_plan?: boolean | null
           is_mandatory?: boolean | null
           is_recommended?: boolean | null
           is_selected?: boolean | null
           notes?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          features: Json | null
+          id: string
+          included_domains: string[]
+          name: string
+          price_monthly: number | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          features?: Json | null
+          id?: string
+          included_domains?: string[]
+          name: string
+          price_monthly?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          features?: Json | null
+          id?: string
+          included_domains?: string[]
+          name?: string
+          price_monthly?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }

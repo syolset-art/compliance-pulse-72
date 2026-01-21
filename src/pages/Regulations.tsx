@@ -419,7 +419,13 @@ const Regulations = () => {
           </div>
 
           {/* Domain Summary Widgets */}
-          <DomainSummarySection onDomainClick={scrollToCategory} />
+          <DomainSummarySection 
+            onDomainClick={scrollToCategory} 
+            onOpenChat={(context) => {
+              // TODO: Integrate with chat when GlobalChatProvider is available
+              console.log('Open chat with context:', context);
+            }}
+          />
 
           {/* Add more button */}
           <div className="flex justify-end mb-6">
