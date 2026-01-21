@@ -30,23 +30,26 @@ const RISK_CONFIG: Record<string, {
   bgColor: string; 
   borderColor: string;
   ringColor: string;
+  headerBg: string;
   icon: React.ReactNode;
 }> = {
   unacceptable: {
     label: "Uakseptabel risiko",
-    color: "text-red-700 dark:text-red-300",
-    bgColor: "bg-red-50 dark:bg-red-950/50",
-    borderColor: "border-red-200 dark:border-red-800",
-    ringColor: "ring-red-500/20",
-    icon: <ShieldAlert className="h-6 w-6" />,
+    color: "text-red-700 dark:text-red-200",
+    bgColor: "bg-red-100 dark:bg-red-900/60",
+    borderColor: "border-red-300 dark:border-red-700",
+    ringColor: "ring-red-500/30",
+    headerBg: "bg-red-500/10 dark:bg-red-900/40",
+    icon: <ShieldAlert className="h-7 w-7" />,
   },
   high: {
     label: "Høy risiko",
-    color: "text-orange-700 dark:text-orange-300",
-    bgColor: "bg-orange-50 dark:bg-orange-950/50",
-    borderColor: "border-orange-200 dark:border-orange-800",
-    ringColor: "ring-orange-500/20",
-    icon: <AlertTriangle className="h-6 w-6" />,
+    color: "text-red-600 dark:text-red-300",
+    bgColor: "bg-red-50 dark:bg-red-900/40",
+    borderColor: "border-red-200 dark:border-red-800",
+    ringColor: "ring-red-500/25",
+    headerBg: "bg-red-500/10 dark:bg-red-900/30",
+    icon: <AlertTriangle className="h-7 w-7" />,
   },
   limited: {
     label: "Begrenset risiko",
@@ -54,7 +57,8 @@ const RISK_CONFIG: Record<string, {
     bgColor: "bg-amber-50 dark:bg-amber-950/50",
     borderColor: "border-amber-200 dark:border-amber-800",
     ringColor: "ring-amber-500/20",
-    icon: <Eye className="h-6 w-6" />,
+    headerBg: "bg-muted/40",
+    icon: <Eye className="h-7 w-7" />,
   },
   minimal: {
     label: "Minimal risiko",
@@ -62,7 +66,8 @@ const RISK_CONFIG: Record<string, {
     bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
     borderColor: "border-emerald-200 dark:border-emerald-800",
     ringColor: "ring-emerald-500/20",
-    icon: <CheckCircle2 className="h-6 w-6" />,
+    headerBg: "bg-muted/40",
+    icon: <CheckCircle2 className="h-7 w-7" />,
   },
 };
 
@@ -80,14 +85,28 @@ export const AIHeroSummary = ({
   
   const riskConfig = riskLevel ? RISK_CONFIG[riskLevel] : RISK_CONFIG.minimal;
 
+  const isHighRisk = riskLevel === 'high' || riskLevel === 'unacceptable';
+
   return (
-    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-      {/* Header bar */}
-      <div className="px-5 py-3 bg-muted/40 border-b flex items-center justify-between">
+    <div className={cn(
+      "rounded-2xl border bg-card shadow-sm overflow-hidden",
+      isHighRisk && "border-red-200 dark:border-red-800"
+    )}>
+      {/* Header bar - use risk-appropriate color for high risk */}
+      <div className={cn(
+        "px-5 py-3 border-b flex items-center justify-between",
+        riskConfig.headerBg
+      )}>
         <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-sm font-medium text-muted-foreground">
-            AI-analyse klar
+          <div className={cn(
+            "h-2 w-2 rounded-full animate-pulse",
+            isHighRisk ? "bg-red-500" : "bg-primary"
+          )} />
+          <span className={cn(
+            "text-sm font-medium",
+            isHighRisk ? "text-red-700 dark:text-red-300" : "text-muted-foreground"
+          )}>
+            {isHighRisk ? "⚠️ Viktig vurdering kreves" : "AI-analyse klar"}
           </span>
         </div>
         <span className="text-xs text-muted-foreground">

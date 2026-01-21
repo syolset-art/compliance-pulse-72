@@ -171,32 +171,30 @@ export const ProcessAIDialog = ({
     }
   }, [existingData]);
 
-  // Get suggestions when dialog opens - combine process suggestions with system AI data
+  // Get suggestions when dialog opens - pre-fill with aiDraft values as defaults
   useEffect(() => {
     if (open && processName) {
       const processSuggestions = getProcessAISuggestion(processName, processDescription);
       setSuggestions(processSuggestions);
       
-      // If no existing data, pre-fill with suggestions
-      if (!existingData) {
-        // Combine process suggestions with system AI features
-        let combinedFeatures: string[] = [];
-        
-        // Add process-based suggestions
-        if (processSuggestions.suggestedAIFeatures.length > 0) {
-          combinedFeatures = [...processSuggestions.suggestedAIFeatures];
+      // If no existing data, pre-fill with aiDraft suggestions as defaults
+      if (!existingData && aiDraft) {
+        // Set hasAI based on draft suggestion
+        if (aiDraft.likelyHasAI || aiDraft.hasAI) {
+          setHasAI(true);
         }
         
-        // Add system AI features if available
-        if (systemAI?.suggestedFeatures && systemAI.suggestedFeatures.length > 0) {
-          combinedFeatures = [...new Set([...combinedFeatures, ...systemAI.suggestedFeatures])];
+        // Set AI purpose from draft
+        if (aiDraft.aiPurpose) {
+          setAiPurpose(aiDraft.aiPurpose);
         }
         
-        if (combinedFeatures.length > 0) {
-          setAiFeatures(combinedFeatures.map((f, i) => ({
+        // Pre-fill features from draft (all selected by default to show current state)
+        if (aiDraft.suggestedFeatures && aiDraft.suggestedFeatures.length > 0) {
+          setAiFeatures(aiDraft.suggestedFeatures.map((f, i) => ({
             id: `suggested-${i}`,
             name: f,
-            selected: false,
+            selected: true, // Selected by default so user sees the current suggestion
           })));
         }
 
@@ -209,9 +207,9 @@ export const ProcessAIDialog = ({
           })));
         }
         
-        // Use system risk if available, otherwise use process suggestion
-        if (systemAI?.suggestedRisk) {
-          setRiskCategory(systemAI.suggestedRisk);
+        // Use draft risk category as default
+        if (aiDraft.suggestedRisk) {
+          setRiskCategory(aiDraft.suggestedRisk);
         } else if (processSuggestions.suggestedRiskCategory) {
           setRiskCategory(processSuggestions.suggestedRiskCategory);
         }
@@ -220,14 +218,9 @@ export const ProcessAIDialog = ({
         if (systemAI?.suggestedAffectedPersons && systemAI.suggestedAffectedPersons.length > 0) {
           setAffectedPersons(systemAI.suggestedAffectedPersons);
         }
-
-        // If system has AI, suggest that process likely uses AI too
-        if (systemAI?.totalWithAI && systemAI.totalWithAI > 0) {
-          // Don't auto-set hasAI, but the UI will show a suggestion
-        }
       }
     }
-  }, [open, processName, processDescription, existingData, systemAI]);
+  }, [open, processName, processDescription, existingData, systemAI, aiDraft]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
