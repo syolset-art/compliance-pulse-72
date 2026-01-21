@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Building2, Users, MapPin, Factory, Hash, Pencil, Save, X } from "lucide-react";
+import { ArrowLeft, Building2, Users, Factory, Hash, Pencil, Save, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { MaturityProgressCard } from "@/components/company/MaturityProgressCard";
+import { BrregSuggestionBanner } from "@/components/company/BrregSuggestionBanner";
+import { MilestoneTimeline } from "@/components/company/MilestoneTimeline";
 
 interface CompanyProfile {
   id: string;
@@ -16,11 +19,17 @@ interface CompanyProfile {
   industry: string;
   employees: string | null;
   maturity: string | null;
+  initial_maturity?: string | null;
 }
 
 const industryOptions = [
+  { value: "energi", label: "Energi" },
+  { value: "helse", label: "Helse" },
+  { value: "finans", label: "Finans" },
+  { value: "saas", label: "Tech / SaaS" },
+  { value: "offentlig", label: "Offentlig sektor" },
   { value: "technology", label: "Teknologi" },
-  { value: "healthcare", label: "Helse" },
+  { value: "healthcare", label: "Helsevesen" },
   { value: "finance", label: "Finans" },
   { value: "retail", label: "Handel" },
   { value: "manufacturing", label: "Produksjon" },
@@ -35,11 +44,15 @@ const employeeOptions = [
   { value: "11-50", label: "11-50 ansatte" },
   { value: "51-200", label: "51-200 ansatte" },
   { value: "201-500", label: "201-500 ansatte" },
+  { value: "500-1000", label: "500-1000 ansatte" },
   { value: "501-1000", label: "501-1000 ansatte" },
   { value: "1000+", label: "Over 1000 ansatte" },
 ];
 
 const maturityOptions = [
+  { value: "beginner", label: "Nybegynner" },
+  { value: "intermediate", label: "Under utvikling" },
+  { value: "advanced", label: "Avansert" },
   { value: "starting", label: "I oppstartsfasen" },
   { value: "developing", label: "Under utvikling" },
   { value: "established", label: "Etablert" },
@@ -78,20 +91,29 @@ export default function CompanySettings() {
     if (!editedCompany) return;
     
     setSaving(true);
+    
+    // If initial_maturity is not set, set it now to track progression
+    const updateData: any = {
+      name: editedCompany.name,
+      industry: editedCompany.industry,
+      employees: editedCompany.employees,
+      maturity: editedCompany.maturity,
+    };
+    
+    // Set initial_maturity on first save if not already set
+    if (!company?.initial_maturity && editedCompany.maturity) {
+      updateData.initial_maturity = editedCompany.maturity;
+    }
+    
     const { error } = await supabase
       .from("company_profile")
-      .update({
-        name: editedCompany.name,
-        industry: editedCompany.industry,
-        employees: editedCompany.employees,
-        maturity: editedCompany.maturity,
-      })
+      .update(updateData)
       .eq("id", editedCompany.id);
 
     if (error) {
       toast.error("Kunne ikke lagre endringer");
     } else {
-      setCompany(editedCompany);
+      setCompany({ ...editedCompany, initial_maturity: updateData.initial_maturity || company?.initial_maturity });
       setIsEditing(false);
       toast.success("Endringer lagret");
     }
@@ -101,6 +123,19 @@ export default function CompanySettings() {
   const handleCancel = () => {
     setEditedCompany(company);
     setIsEditing(false);
+  };
+
+  const handleApplyBrregSuggestion = (industry: string, employees: string) => {
+    if (editedCompany) {
+      const updated = {
+        ...editedCompany,
+        industry: industry || editedCompany.industry,
+        employees: employees || editedCompany.employees,
+      };
+      setEditedCompany(updated);
+      setIsEditing(true);
+      toast.success("Forslag fra Brønnøysund lagt inn - husk å lagre!");
+    }
   };
 
   const getIndustryLabel = (value: string) => 
@@ -137,6 +172,19 @@ export default function CompanySettings() {
             <p className="text-muted-foreground">Administrer informasjon om din organisasjon</p>
           </div>
         </div>
+
+        {/* Maturity Progress Card */}
+        <MaturityProgressCard />
+
+        {/* Brønnøysund Suggestion Banner */}
+        {company?.org_number && (
+          <BrregSuggestionBanner
+            orgNumber={company.org_number}
+            currentIndustry={company.industry}
+            currentEmployees={company.employees}
+            onApplySuggestion={handleApplyBrregSuggestion}
+          />
+        )}
 
         {/* Main Card */}
         <Card>
@@ -260,48 +308,20 @@ export default function CompanySettings() {
                   </div>
                 )}
               </div>
-
-              {/* Maturity */}
-              <div className="space-y-2 md:col-span-2">
-                <Label className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  Modenhetsnivå
-                </Label>
-                {isEditing ? (
-                  <Select
-                    value={editedCompany?.maturity || ""}
-                    onValueChange={(value) => setEditedCompany(prev => prev ? {...prev, maturity: value} : null)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Velg modenhetsnivå" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {maturityOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div className="p-3 bg-muted rounded-md text-foreground">
-                    {company?.maturity ? getMaturityLabel(company.maturity) : "Ikke registrert"}
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Beskriver hvor langt organisasjonen har kommet med compliance-arbeidet
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Milestones Timeline */}
+        <MilestoneTimeline />
 
         {/* Info Section */}
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">Tips:</strong> Selskapsinformasjonen brukes til å tilpasse Mynder til din organisasjon. 
-              Jo mer nøyaktig informasjon, desto bedre kan vi hjelpe deg med compliance-arbeidet.
+              Jo mer nøyaktig informasjon, desto bedre kan vi hjelpe deg med compliance-arbeidet. Modenhetsnivået ditt øker automatisk 
+              når du aktiverer regelverk, fullfører oppgaver og dokumenterer systemer.
             </p>
           </CardContent>
         </Card>
