@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { 
   Plus, 
   Shield, 
@@ -29,7 +31,11 @@ import {
   Info,
   Grid3x3,
   Loader2,
-  Workflow
+  Workflow,
+  Building2,
+  Network,
+  Package,
+  ExternalLink
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
@@ -71,54 +77,20 @@ interface CompanyProfile {
   maturity: string | null;
 }
 
-// Mock data for systems in work area
-const mockSystems = [
-  {
-    id: "1",
-    name: "ChatGPT",
-    purpose: "Støtte produktutvikling ved å generere og evaluere tekstforslag, dokumentasjon og ideer basert på teamets input.",
-    dataType: "Ordinære personopplysninger",
-    risk: "medium",
-    hasProtocol: true,
-    icon: "chatgpt",
-  },
-  {
-    id: "2",
-    name: "Huma",
-    purpose: "Administrere HR-prosesser i produktutvikling (ansattdata, lønn, rekruttering, fravær) for å sikre effektiv drift og lovpålagt dokumentasjon.",
-    dataType: "Sensitive personopplysninger",
-    risk: "critical",
-    hasProtocol: true,
-    icon: "huma",
-  },
-  {
-    id: "3",
-    name: "Microsoft Azure",
-    purpose: "Hoste og administrere utviklings-, test- og byggemiljøer for produktutvikling (CI/CD, lagring, analyse) i Azure.",
-    dataType: "Ordinære personopplysninger",
-    risk: "medium",
-    hasProtocol: true,
-    icon: "azure",
-  },
-  {
-    id: "4",
-    name: "GitHub",
-    purpose: "Støtte produktutvikling ved å versjonskontrollere kildekode, håndtere issues og pull requests, samt automatisere bygg og tester for teamets prosjekter.",
-    dataType: "Ordinære personopplysninger",
-    risk: "low",
-    hasProtocol: false,
-    icon: "github",
-  },
-  {
-    id: "5",
-    name: "Google Ads",
-    purpose: "Måle og optimalisere annonseeffekt for produktutvikling via målretting, A/B-testing og kampanjeanalyse.",
-    dataType: "Ordinære personopplysninger",
-    risk: "low",
-    hasProtocol: false,
-    icon: "google",
-  },
-];
+interface Asset {
+  id: string;
+  name: string;
+  description: string | null;
+  asset_type: string;
+  risk_level: string | null;
+  criticality: string | null;
+  work_area_id: string | null;
+  vendor: string | null;
+}
+
+interface AssetWithOwnership extends Asset {
+  ownership: "owner" | "user";
+}
 
 const workAreaColors = [
   "bg-primary",
@@ -145,9 +117,107 @@ export default function WorkAreas() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [isCompanyProfileDialogOpen, setIsCompanyProfileDialogOpen] = useState(false);
+  const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // Fetch assets owned by this work area
+  const { data: ownedAssets = [] } = useQuery({
+    queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id) return [];
+      const { data, error } = await supabase
+        .from("assets")
+        .select("*")
+        .eq("work_area_id", selectedWorkArea.id);
+      if (error) throw error;
+      return (data || []) as Asset[];
+    },
+    enabled: !!selectedWorkArea?.id,
+  });
+
+  // Fetch assets used by this work area (via relations from owned assets)
+  const { data: usedAssets = [] } = useQuery({
+    queryKey: ["work-area-assets-used", selectedWorkArea?.id, ownedAssets],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id || ownedAssets.length === 0) return [];
+      const ownedIds = ownedAssets.map((a: Asset) => a.id);
+      
+      // Get all "uses" relations from owned assets
+      const { data: relations, error } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id")
+        .in("source_asset_id", ownedIds)
+        .eq("relationship_type", "uses");
+      
+      if (error) throw error;
+      if (!relations || relations.length === 0) return [];
+      
+      // Fetch the target assets
+      const targetIds = relations.map(r => r.target_asset_id);
+      const { data: targets, error: targetError } = await supabase
+        .from("assets")
+        .select("*")
+        .in("id", targetIds);
+      
+      if (targetError) throw targetError;
+      return (targets || []) as Asset[];
+    },
+    enabled: !!selectedWorkArea?.id && ownedAssets.length > 0,
+  });
+
+  // Combine and filter assets
+  const allAssets = useMemo(() => {
+    const owned: AssetWithOwnership[] = ownedAssets.map((a: Asset) => ({ ...a, ownership: "owner" as const }));
+    const used: AssetWithOwnership[] = usedAssets.map((a: Asset) => ({ ...a, ownership: "user" as const }));
+    
+    let combined = [...owned, ...used];
+    
+    // Remove duplicates (if an asset is both owned and used, show as owner)
+    const seen = new Set<string>();
+    combined = combined.filter(a => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
+    
+    // Filter by type
+    if (assetTypeFilter !== "all") {
+      combined = combined.filter(a => a.asset_type === assetTypeFilter);
+    }
+    
+    return combined;
+  }, [ownedAssets, usedAssets, assetTypeFilter]);
+
+  // Helper to get asset type icon
+  const getAssetTypeIcon = (assetType: string) => {
+    switch (assetType) {
+      case "system":
+        return <Server className="h-4 w-4 text-blue-500" />;
+      case "location":
+        return <Building2 className="h-4 w-4 text-green-500" />;
+      case "network":
+        return <Network className="h-4 w-4 text-orange-500" />;
+      default:
+        return <Package className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  // Helper to get asset type label
+  const getAssetTypeLabel = (assetType: string) => {
+    switch (assetType) {
+      case "system":
+        return t("myWorkAreas.assetTypes.system");
+      case "location":
+        return t("myWorkAreas.assetTypes.location");
+      case "network":
+        return t("myWorkAreas.assetTypes.network");
+      default:
+        return assetType;
+    }
+  };
 
   const fetchWorkAreas = async () => {
     try {
@@ -568,17 +638,17 @@ export default function WorkAreas() {
 
           {/* Tabs Section */}
           {selectedWorkArea && (
-            <Tabs defaultValue="systems" className="w-full">
+            <Tabs defaultValue="assets" className="w-full">
               <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
                 <TabsList className="w-max sm:w-full justify-start border-b border-border rounded-none h-auto p-0 bg-transparent">
                   <TabsTrigger 
-                    value="systems" 
+                    value="assets" 
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
                   >
-                    <Grid3x3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.systems")}</span>
-                    <span className="sm:hidden">Sys</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">10</Badge>
+                    <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.assets")}</span>
+                    <span className="sm:hidden">Eien</span>
+                    <Badge variant="secondary" className="ml-1 text-xs">{allAssets.length}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="protocols" 
@@ -626,64 +696,125 @@ export default function WorkAreas() {
                 </TabsList>
               </div>
 
-              <TabsContent value="systems" className="mt-4">
+              <TabsContent value="assets" className="mt-4">
+                {/* Asset type filter */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Button 
+                    variant={assetTypeFilter === "all" ? "default" : "outline"} 
+                    size="sm"
+                    onClick={() => setAssetTypeFilter("all")}
+                  >
+                    {t("myWorkAreas.filterAll")}
+                  </Button>
+                  <Button 
+                    variant={assetTypeFilter === "system" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAssetTypeFilter("system")}
+                  >
+                    <Server className="h-4 w-4 mr-1" />
+                    {t("myWorkAreas.assetTypes.system")}
+                  </Button>
+                  <Button 
+                    variant={assetTypeFilter === "location" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAssetTypeFilter("location")}
+                  >
+                    <Building2 className="h-4 w-4 mr-1" />
+                    {t("myWorkAreas.assetTypes.location")}
+                  </Button>
+                  <Button 
+                    variant={assetTypeFilter === "network" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAssetTypeFilter("network")}
+                  >
+                    <Network className="h-4 w-4 mr-1" />
+                    {t("myWorkAreas.assetTypes.network")}
+                  </Button>
+                </div>
+
                 <Card>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[200px]">{t("myWorkAreas.table.systemName")}</TableHead>
-                        <TableHead>{t("myWorkAreas.table.purpose")}</TableHead>
-                        <TableHead className="w-[180px]">{t("myWorkAreas.table.dataType")}</TableHead>
+                        <TableHead className="w-[250px]">{t("myWorkAreas.table.assetName")}</TableHead>
+                        <TableHead className="w-[120px]">{t("myWorkAreas.table.type")}</TableHead>
+                        <TableHead className="w-[120px]">{t("myWorkAreas.table.role")}</TableHead>
                         <TableHead className="w-[140px]">{t("myWorkAreas.table.risk")}</TableHead>
-                        <TableHead className="w-[180px]">{t("myWorkAreas.table.protocol")}</TableHead>
+                        <TableHead>{t("myWorkAreas.table.vendor")}</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockSystems.map((system) => (
-                        <TableRow key={system.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="text-muted-foreground">
-                                {getSystemIconComponent(system.icon)}
-                              </div>
-                              <span className="font-medium">{system.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {system.purpose}
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-sm">{system.dataType}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className={cn(
-                                "w-2 h-2 rounded-full",
-                                system.risk === "low" && "bg-success",
-                                system.risk === "medium" && "bg-warning",
-                                system.risk === "high" && "bg-orange-500",
-                                system.risk === "critical" && "bg-destructive"
-                              )} />
-                              <span className={getRiskColor(system.risk)}>
-                                {getRiskLabel(system.risk)}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-1">
-                              {system.hasProtocol && (
-                                <Badge variant="outline" className="text-xs w-fit bg-success/10 text-success border-success/20">
-                                  {t("myWorkAreas.hasProtocol")}
-                                </Badge>
-                              )}
-                              <Button variant="secondary" size="sm" className="text-xs">
-                                <Plus className="h-3 w-3 mr-1" />
-                                {t("myWorkAreas.newProtocol")}
-                              </Button>
-                            </div>
+                      {allAssets.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            {t("myWorkAreas.noAssets")}
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        allAssets.map((asset) => (
+                          <TableRow 
+                            key={asset.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => navigate(`/assets/${asset.id}`)}
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {getAssetTypeIcon(asset.asset_type)}
+                                <span className="font-medium">{asset.name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="text-xs">
+                                {getAssetTypeLabel(asset.asset_type)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                className={cn(
+                                  "text-xs",
+                                  asset.ownership === "owner" 
+                                    ? "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30" 
+                                    : "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                                )}
+                              >
+                                {asset.ownership === "owner" 
+                                  ? t("myWorkAreas.roleOwner") 
+                                  : t("myWorkAreas.roleUser")}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className={cn(
+                                  "w-2 h-2 rounded-full",
+                                  asset.risk_level === "low" && "bg-success",
+                                  asset.risk_level === "medium" && "bg-warning",
+                                  asset.risk_level === "high" && "bg-orange-500",
+                                  asset.risk_level === "critical" && "bg-destructive"
+                                )} />
+                                <span className={getRiskColor(asset.risk_level || "medium")}>
+                                  {getRiskLabel(asset.risk_level || "medium")}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {asset.vendor || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/assets/${asset.id}`);
+                                }}
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </Card>

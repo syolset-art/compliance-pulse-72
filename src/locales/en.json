@@ -332,7 +332,7 @@
   },
   "myWorkAreas": {
     "title": "My work areas",
-    "subtitle": "Overview of processing records, systems and users in your work areas",
+    "subtitle": "Overview of assets, processes and users in your work areas",
     "filter": "Filter",
     "addNew": "Add",
     "systemsShort": "systems",
@@ -349,7 +349,17 @@
     "processes": "Processes",
     "users": "Users",
     "systems": "Systems",
+    "filterAll": "All",
+    "roleOwner": "Owner",
+    "roleUser": "User",
+    "noAssets": "No assets found for this work area",
+    "assetTypes": {
+      "system": "System",
+      "location": "Location",
+      "network": "Network"
+    },
     "tabs": {
+      "assets": "Assets",
       "systems": "Systems",
       "protocols": "Processing records",
       "processes": "Processes",
@@ -358,11 +368,15 @@
       "settings": "Settings"
     },
     "table": {
+      "assetName": "NAME",
+      "type": "TYPE",
+      "role": "ROLE",
       "systemName": "SYSTEM NAME",
       "purpose": "PURPOSE",
       "dataType": "DATA TYPE",
       "risk": "RISK",
-      "protocol": "PROTOCOL"
+      "protocol": "PROTOCOL",
+      "vendor": "VENDOR"
     },
     "hasProtocol": "HAS PROTOCOL",
     "newProtocol": "New protocol",

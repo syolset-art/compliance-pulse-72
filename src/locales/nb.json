@@ -333,7 +333,7 @@
   },
   "myWorkAreas": {
     "title": "Mine arbeidsområder",
-    "subtitle": "Oversikt over behandlingsprotokoller, systemer og brukerere i dine arbeidsområder",
+    "subtitle": "Oversikt over eiendeler, prosesser og brukere i dine arbeidsområder",
     "filter": "Filtrer",
     "addNew": "Legg til",
     "systemsShort": "systemer",
@@ -350,7 +350,17 @@
     "processes": "Prosesser",
     "users": "Brukere",
     "systems": "Systemer",
+    "filterAll": "Alle",
+    "roleOwner": "Eier",
+    "roleUser": "Bruker",
+    "noAssets": "Ingen eiendeler funnet for dette arbeidsområdet",
+    "assetTypes": {
+      "system": "System",
+      "location": "Lokasjon",
+      "network": "Nettverk"
+    },
     "tabs": {
+      "assets": "Eiendeler",
       "systems": "Systemer",
       "protocols": "Behandlingsprotokoller",
       "processes": "Prosesser",
@@ -359,11 +369,15 @@
       "settings": "Innstillinger"
     },
     "table": {
+      "assetName": "NAVN",
+      "type": "TYPE",
+      "role": "ROLLE",
       "systemName": "SYSTEMNAVN",
       "purpose": "FORMÅL",
       "dataType": "DATATYPE",
       "risk": "RISIKO",
-      "protocol": "PROTOKOLL"
+      "protocol": "PROTOKOLL",
+      "vendor": "LEVERANDØR"
     },
     "hasProtocol": "HAR PROTOKOLL",
     "newProtocol": "Ny protokoll",
