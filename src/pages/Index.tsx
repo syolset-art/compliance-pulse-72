@@ -15,19 +15,28 @@ import { AIActComplianceWidget } from "@/components/widgets/AIActComplianceWidge
 import { ActivityReportWidget } from "@/components/widgets/ActivityReportWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { MyRegulationsWidget } from "@/components/widgets/MyRegulationsWidget";
+import { ExecutiveSummaryWidget } from "@/components/widgets/ExecutiveSummaryWidget";
+import { GDPRHealthWidget } from "@/components/widgets/GDPRHealthWidget";
+import { SecurityPostureWidget } from "@/components/widgets/SecurityPostureWidget";
+import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
+import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRole, AppRole } from "@/hooks/useUserRole";
+import { DASHBOARD_LAYOUTS } from "@/lib/dashboardLayouts";
 
 const Index = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const { primaryRole } = useUserRole();
+  const [activeView, setActiveView] = useState<AppRole | 'all'>(primaryRole);
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -233,18 +242,27 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <h1 className="text-2xl md:text-3xl font-bold text-foreground">{companyName || t("dashboard.title")}</h1>
-                      <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
+                      <RoleSwitcher onViewChange={setActiveView} />
                     </div>
                     <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
                       <Plus className="h-4 w-4" />
                       {t("dashboard.addModule")}
                     </Button>
                   </div>
-                  <p className="text-sm md:text-base text-muted-foreground">{t("dashboard.subtitle")}</p>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    {activeView !== 'all' ? DASHBOARD_LAYOUTS[activeView].description : t("dashboard.subtitle")}
+                  </p>
                 </div>
 
+                {/* Role-specific primary widget */}
+                {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
+                {activeView === 'personvernombud' && <GDPRHealthWidget />}
+                {activeView === 'sikkerhetsansvarlig' && <SecurityPostureWidget />}
+                {activeView === 'ai_governance' && <AIGovernanceWidget />}
+                {(activeView === 'compliance_ansvarlig' || activeView === 'all') && <DomainComplianceWidget />}
+
                 {/* Top Row - Critical Tasks & Status */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
                   <CriticalTasksWidget />
                   <StatusOverviewWidget />
                 </div>
