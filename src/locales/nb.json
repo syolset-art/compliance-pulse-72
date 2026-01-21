@@ -648,7 +648,22 @@
     "relationHosts": "Hoster",
     "relationConnectsTo": "Kobler til",
     "relationIntegratesWith": "Integrerer med",
-    "relationGovernedBy": "Styrt av"
+    "relationGovernedBy": "Styrt av",
+    "addRelationTitle": "Legg til relasjon",
+    "relationType": "Relasjonstype",
+    "selectRelationType": "Velg relasjonstype...",
+    "targetAsset": "Mål-eiendel",
+    "searchAsset": "Søk etter eiendel...",
+    "noAssetsFound": "Ingen eiendeler funnet",
+    "relationDescription": "Beskrivelse (valgfritt)",
+    "relationDescriptionPlaceholder": "Beskriv hvordan eiendelene henger sammen...",
+    "relationCreated": "Relasjon opprettet",
+    "relationDeleted": "Relasjon slettet",
+    "deleteRelation": "Slett relasjon",
+    "confirmDeleteRelation": "Er du sikker på at du vil slette denne relasjonen?",
+    "relationConnectsto": "Kobler til",
+    "relationIntegrateswith": "Integrerer med",
+    "relationGovernedby": "Styrt av"
   },
   "addModule": {
     "title": "Legg til tilleggsmodul",

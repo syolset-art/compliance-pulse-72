@@ -647,7 +647,22 @@
     "relationHosts": "Hosts",
     "relationConnectsTo": "Connects to",
     "relationIntegratesWith": "Integrates with",
-    "relationGovernedBy": "Governed by"
+    "relationGovernedBy": "Governed by",
+    "addRelationTitle": "Add relation",
+    "relationType": "Relation type",
+    "selectRelationType": "Select relation type...",
+    "targetAsset": "Target asset",
+    "searchAsset": "Search for asset...",
+    "noAssetsFound": "No assets found",
+    "relationDescription": "Description (optional)",
+    "relationDescriptionPlaceholder": "Describe how the assets are connected...",
+    "relationCreated": "Relation created",
+    "relationDeleted": "Relation deleted",
+    "deleteRelation": "Delete relation",
+    "confirmDeleteRelation": "Are you sure you want to delete this relation?",
+    "relationConnectsto": "Connects to",
+    "relationIntegrateswith": "Integrates with",
+    "relationGovernedby": "Governed by"
   },
   "addModule": {
     "title": "Add additional module",

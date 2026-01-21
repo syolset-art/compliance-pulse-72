@@ -1,17 +1,50 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Link2, ArrowRight } from "lucide-react";
+import { Plus, Link2, ArrowRight, Server, Network, GitMerge, Shield, Trash2 } from "lucide-react";
+import { AddRelationDialog } from "@/components/dialogs/AddRelationDialog";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface RelationsTabProps {
   assetId: string;
 }
 
+const RELATIONSHIP_ICONS: Record<string, React.ElementType> = {
+  uses: ArrowRight,
+  hosts: Server,
+  connects_to: Network,
+  integrates_with: GitMerge,
+  governed_by: Shield,
+};
+
+const RELATIONSHIP_COLORS: Record<string, string> = {
+  uses: "text-blue-500 bg-blue-500/20",
+  hosts: "text-green-500 bg-green-500/20",
+  connects_to: "text-orange-500 bg-orange-500/20",
+  integrates_with: "text-cyan-500 bg-cyan-500/20",
+  governed_by: "text-yellow-500 bg-yellow-500/20",
+};
+
 export const RelationsTab = ({ assetId }: RelationsTabProps) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch relationships where this asset is the source
   const { data: outgoingRelations } = useQuery({
@@ -53,6 +86,24 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
     },
   });
 
+  const deleteRelation = useMutation({
+    mutationFn: async (relationId: string) => {
+      const { error } = await supabase
+        .from("asset_relationships")
+        .delete()
+        .eq("id", relationId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-relations-outgoing", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["asset-relations-incoming", assetId] });
+      toast.success(t("assets.relationDeleted"));
+    },
+    onError: () => {
+      toast.error(t("common.error"));
+    },
+  });
+
   const getRelationshipLabel = (type: string) => {
     const labels: Record<string, string> = {
       uses: t("assets.relationUses"),
@@ -78,6 +129,16 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
     return colors[type] || "bg-muted text-muted-foreground";
   };
 
+  const getRelationIcon = (type: string) => {
+    const Icon = RELATIONSHIP_ICONS[type] || ArrowRight;
+    const colorClass = RELATIONSHIP_COLORS[type] || "text-muted-foreground bg-muted";
+    return (
+      <div className={cn("p-1.5 rounded", colorClass.split(" ")[1])}>
+        <Icon className={cn("h-4 w-4", colorClass.split(" ")[0])} />
+      </div>
+    );
+  };
+
   const totalRelations = (outgoingRelations?.length || 0) + (incomingRelations?.length || 0);
 
   return (
@@ -89,7 +150,7 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
             <Link2 className="h-5 w-5" />
             {t("assets.relations")}
           </CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-1" />
             {t("assets.addRelation")}
           </Button>
@@ -114,8 +175,9 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
           <CardContent>
             <div className="space-y-3">
               {outgoingRelations.map((relation: any) => (
-                <div key={relation.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div key={relation.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group">
                   <div className="flex items-center gap-3">
+                    {getRelationIcon(relation.relationship_type)}
                     <Badge variant="outline" className="text-xs">
                       {getRelationshipLabel(relation.relationship_type)}
                     </Badge>
@@ -125,9 +187,39 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
                       {relation.target?.asset_type}
                     </Badge>
                   </div>
-                  {relation.description && (
-                    <span className="text-sm text-muted-foreground">{relation.description}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {relation.description && (
+                      <span className="text-sm text-muted-foreground">{relation.description}</span>
+                    )}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t("assets.deleteRelation")}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("assets.confirmDeleteRelation")}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteRelation.mutate(relation.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            {t("common.delete")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               ))}
             </div>
@@ -151,6 +243,7 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
                       {relation.source?.asset_type}
                     </Badge>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    {getRelationIcon(relation.relationship_type)}
                     <Badge variant="outline" className="text-xs">
                       {getRelationshipLabel(relation.relationship_type)}
                     </Badge>
@@ -171,13 +264,20 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
           <CardContent className="p-8 text-center">
             <Link2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
             <p className="text-muted-foreground">{t("assets.noRelationsDescription")}</p>
-            <Button variant="outline" className="mt-4">
+            <Button variant="outline" className="mt-4" onClick={() => setIsDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-1" />
               {t("assets.addFirstRelation")}
             </Button>
           </CardContent>
         </Card>
       )}
+
+      {/* Add Relation Dialog */}
+      <AddRelationDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        sourceAssetId={assetId} 
+      />
     </div>
   );
 };
