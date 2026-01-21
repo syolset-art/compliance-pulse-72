@@ -1,13 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, 
   Scale, 
@@ -18,11 +16,7 @@ import {
   Sparkles,
   Info,
   Plus,
-  Lightbulb,
-  Building2,
-  Brain,
-  Shield,
-  Globe
+  Lightbulb
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +28,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
+import { DomainSummarySection } from "@/components/regulations/DomainSummarySection";
 
 interface SelectedFramework {
   id: string;
@@ -73,6 +68,9 @@ const Regulations = () => {
   const [initializing, setInitializing] = useState(false);
   const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
+  
+  // Refs for scrolling to category sections
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Fetch company profile and frameworks
   useEffect(() => {
@@ -370,6 +368,23 @@ const Regulations = () => {
     return frameworks.filter(f => !isFrameworkActive(f.id));
   };
 
+  const scrollToCategory = (categoryId: string) => {
+    // Expand the category first
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      next.add(categoryId);
+      return next;
+    });
+    
+    // Scroll to the category section
+    setTimeout(() => {
+      categoryRefs.current[categoryId]?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
+  };
+
   const recommendations = getRecommendations();
 
   if (loading) {
@@ -403,33 +418,20 @@ const Regulations = () => {
             </div>
           </div>
 
-          {/* Summary Card */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Scale className="h-7 w-7 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-foreground">{getTotalActiveCount()}</span>
-                    <span className="text-muted-foreground">regelverk aktive</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {getMandatoryCount()} obligatoriske · {getVoluntaryActiveCount()} frivillige
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowAvailable(!showAvailable)}
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Legg til flere
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Domain Summary Widgets */}
+          <DomainSummarySection onDomainClick={scrollToCategory} />
+
+          {/* Add more button */}
+          <div className="flex justify-end mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAvailable(!showAvailable)}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {showAvailable ? 'Skjul tilgjengelige' : 'Legg til flere regelverk'}
+            </Button>
+          </div>
 
           {/* Recommendations Section */}
           {recommendations.length > 0 && (
@@ -560,7 +562,10 @@ const Regulations = () => {
               if (activeInCategory.length === 0 && !showAvailable) return null;
 
               return (
-                <Card key={category.id}>
+                <Card 
+                  key={category.id} 
+                  ref={(el) => { categoryRefs.current[category.id] = el; }}
+                >
                   <button
                     onClick={() => toggleCategory(category.id)}
                     className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-t-lg"
