@@ -353,6 +353,13 @@
     "roleOwner": "Owner",
     "roleUser": "User",
     "noAssets": "No assets found for this work area",
+    "summary": {
+      "totalAssets": "Total assets",
+      "byType": "By type",
+      "ownership": "Ownership",
+      "highRisk": "High risk",
+      "noHighRisk": "No high-risk assets"
+    },
     "assetTypes": {
       "system": "System",
       "location": "Location",
