@@ -11,6 +11,7 @@ import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
+import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -700,6 +701,9 @@ export default function WorkAreas() {
               </div>
 
               <TabsContent value="assets" className="mt-4">
+                {/* Asset summary dashboard */}
+                <AssetSummaryDashboard assets={allAssets} />
+
                 {/* Asset type filter */}
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div className="flex flex-wrap gap-2">

@@ -354,6 +354,13 @@
     "roleOwner": "Eier",
     "roleUser": "Bruker",
     "noAssets": "Ingen eiendeler funnet for dette arbeidsområdet",
+    "summary": {
+      "totalAssets": "Totalt antall",
+      "byType": "Fordeling per type",
+      "ownership": "Eierskap",
+      "highRisk": "Høy risiko",
+      "noHighRisk": "Ingen høyrisiko-eiendeler"
+    },
     "assetTypes": {
       "system": "System",
       "location": "Lokasjon",
