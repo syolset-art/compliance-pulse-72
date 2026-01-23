@@ -102,10 +102,10 @@ export function StatusOverviewWidget() {
   );
   
   return (
-    <Card className="bg-card border-border">
-      <CardHeader className="pb-3">
+    <Card variant="luxury">
+      <CardHeader className="pb-4 pt-6 px-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
+          <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
             Hvordan ligger vi an?
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -116,18 +116,18 @@ export function StatusOverviewWidget() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4 px-6 pb-6">
         {domainData.map((domain) => (
           <div 
             key={domain.id}
-            className={`rounded-lg border transition-all ${getStatusBg(domain.status)}`}
+            className={`rounded-xl border transition-silk ${getStatusBg(domain.status)} hover:shadow-md`}
           >
             <button
               onClick={() => setExpandedDomain(expandedDomain === domain.id ? null : domain.id)}
-              className="w-full p-2.5 sm:p-3 flex items-center justify-between"
+              className="w-full p-3 sm:p-4 flex items-center justify-between"
             >
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${domain.status === "bra" ? "bg-success/20 text-success" : domain.status === "ok" ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                <div className={`p-2 sm:p-2.5 rounded-xl flex-shrink-0 transition-silk ${domain.status === "bra" ? "bg-success/20 text-success" : domain.status === "ok" ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
                   {domain.icon}
                 </div>
                 <div className="text-left min-w-0 flex-1">

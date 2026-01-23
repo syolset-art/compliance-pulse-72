@@ -130,13 +130,16 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
   return (
     <>
       {/* Floating Lara Button with Progress Ring - Hidden when chat is open */}
-      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-all duration-300 ${isChatOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'}`}>
+      <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-silk ${isChatOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'}`}>
         {!isOpen && (
           <div className="relative">
             <button
               onClick={() => setIsOpen(true)}
-              className="relative group animate-fade-in"
+              className="relative group animate-float-in"
             >
+              {/* Glow ring behind butterfly */}
+              <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-silk" />
+              
               {/* Progress ring behind butterfly */}
               <svg 
                 className="absolute -inset-1.5 sm:-inset-2 w-[76px] h-[76px] sm:w-24 sm:h-24 -rotate-90"
@@ -169,7 +172,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
               <img 
                 src={laraButterfly} 
                 alt="Lara AI Agent" 
-                className={`w-16 h-16 sm:w-20 sm:h-20 hover:scale-110 transition-transform duration-300 drop-shadow-lg ${
+                className={`relative w-16 h-16 sm:w-20 sm:h-20 drop-shadow-2xl group-hover:scale-110 transition-silk ${
                   !isFullyComplete ? 'animate-pulse' : ''
                 }`}
               />
@@ -177,7 +180,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
               {/* Remaining steps badge */}
               {!isFullyComplete && (
                 <Badge 
-                  className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 animate-bounce"
+                  className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 shadow-lg animate-bounce"
                 >
                   {remainingSteps} igjen
                 </Badge>
@@ -186,7 +189,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
               {/* Completed badge */}
               {isFullyComplete && (
                 <Badge 
-                  className="absolute -top-2 -right-2 bg-success text-success-foreground text-xs px-2"
+                  className="absolute -top-2 -right-2 bg-success text-success-foreground text-xs px-2 shadow-lg"
                 >
                   <Check className="h-3 w-3" />
                 </Badge>
@@ -195,24 +198,27 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
           </div>
         )}
 
-      {/* Lara Card - Larger when open */}
+      {/* Lara Card - Larger when open with glassmorphism */}
         {isOpen && (
-          <Card className={`shadow-2xl animate-scale-in border-primary/20 transition-all duration-300 ${
+          <Card variant="glass" className={`shadow-2xl animate-scale-bounce border-primary/20 ${
             showCompanyForm ? 'w-[calc(100vw-2rem)] sm:w-[420px]' : 'w-[calc(100vw-2rem)] sm:w-96'
           } max-w-[420px]`}>
             <CardContent className="p-5">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <img 
-                    src={laraButterfly} 
-                    alt="Lara" 
-                    className="w-10 h-10"
-                  />
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute -inset-1 rounded-full bg-gradient-mynder opacity-30 blur-sm" />
+                    <img 
+                      src={laraButterfly} 
+                      alt="Lara" 
+                      className="relative w-12 h-12 drop-shadow-lg"
+                    />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-foreground flex items-center gap-1">
+                    <h3 className="font-semibold text-foreground flex items-center gap-1.5">
                       Lara
-                      <Sparkles className="w-3 h-3 text-primary" />
+                      <Sparkles className="w-4 h-4 text-primary" />
                     </h3>
                     <p className="text-xs text-muted-foreground">Din AI-assistent</p>
                   </div>
@@ -223,7 +229,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-7 w-7"
                     onClick={() => {
                       setIsOpen(false);
                       setShowCompanyForm(false);
@@ -303,19 +309,19 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                           key={step.id}
                           onClick={() => handleStepAction(step)}
                           disabled={step.isCompleted}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left ${
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-silk text-left ${
                             step.isCompleted
                               ? 'bg-success/10 border border-success/20'
                               : isNext
-                                ? 'bg-primary/10 border-2 border-primary hover:bg-primary/20'
-                                : 'bg-muted/30 border border-border hover:bg-muted/50'
+                                ? 'bg-primary/10 border-2 border-primary hover:bg-primary/20 hover:shadow-md'
+                                : 'bg-muted/30 border border-border hover:bg-muted/50 hover:shadow-sm'
                           }`}
                         >
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 ${
+                          <div className={`flex h-9 w-9 items-center justify-center rounded-full shrink-0 transition-silk ${
                             step.isCompleted
                               ? 'bg-success text-success-foreground'
                               : isNext
-                                ? 'bg-primary text-primary-foreground'
+                                ? 'bg-primary text-primary-foreground shadow-lg'
                                 : 'bg-muted text-muted-foreground'
                           }`}>
                             {step.isCompleted ? (
@@ -339,7 +345,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                           </div>
                           
                           {!step.isCompleted && (
-                            <ChevronRight className={`h-4 w-4 shrink-0 ${
+                            <ChevronRight className={`h-4 w-4 shrink-0 transition-silk ${
                               isNext ? 'text-primary' : 'text-muted-foreground'
                             }`} />
                           )}
@@ -352,6 +358,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                   {nextStep && !isFullyComplete && (
                     <Button 
                       onClick={() => handleStepAction(nextStep)}
+                      variant="luxury"
                       className="w-full"
                     >
                       {nextStep.id === 'company-info' ? 'Start oppsett' : `Fortsett: ${nextStep.title}`}

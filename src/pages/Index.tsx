@@ -123,24 +123,26 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
               explanation={contentView.explanation}
             />
           ) : (
-            <div className="container max-w-7xl mx-auto p-4 pt-6">
-              {/* Header */}
-              <div className="mb-8">
+            <div className="container max-w-7xl mx-auto p-4 pt-8">
+              {/* Premium Header with more whitespace */}
+              <div className="mb-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <h1 className="text-2xl font-bold text-foreground">{companyName || t("dashboard.title")}</h1>
-                    <span className="px-3 py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-full">{t("dashboard.title")}</span>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase mb-2">
+                      Velkommen tilbake
+                    </p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                   </div>
-                  <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90" size="sm">
+                  <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury" size="sm">
                     <Plus className="h-4 w-4" />
                     {t("dashboard.addModule")}
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
+                <p className="text-sm text-muted-foreground max-w-xl">{t("dashboard.subtitle")}</p>
               </div>
 
               {/* Top Row - Critical Tasks & Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <CriticalTasksWidget />
                 <StatusOverviewWidget />
               </div>
@@ -236,20 +238,25 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 explanation={contentView.explanation}
               />
             ) : (
-              <div className="w-full max-w-7xl p-4 md:p-8 pt-6 md:pt-8">
-                {/* Header */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <h1 className="text-2xl md:text-3xl font-bold text-foreground">{companyName || t("dashboard.title")}</h1>
-                      <RoleSwitcher onViewChange={setActiveView} />
+              <div className="w-full max-w-7xl p-4 md:p-10 pt-8 md:pt-10">
+                {/* Premium Header with more whitespace */}
+                <div className="mb-12">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase mb-2">
+                        Velkommen tilbake
+                      </p>
+                      <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                     </div>
-                    <Button onClick={() => setIsAddModuleOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
-                      <Plus className="h-4 w-4" />
-                      {t("dashboard.addModule")}
-                    </Button>
+                    <div className="flex items-center gap-4">
+                      <RoleSwitcher onViewChange={setActiveView} />
+                      <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury">
+                        <Plus className="h-4 w-4" />
+                        {t("dashboard.addModule")}
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                  <p className="text-base text-muted-foreground max-w-2xl">
                     {activeView !== 'all' ? DASHBOARD_LAYOUTS[activeView].description : t("dashboard.subtitle")}
                   </p>
                 </div>
@@ -262,52 +269,52 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 {(activeView === 'compliance_ansvarlig' || activeView === 'all') && <DomainComplianceWidget />}
 
                 {/* Top Row - Critical Tasks & Status */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8">
                   <CriticalTasksWidget />
                   <StatusOverviewWidget />
                 </div>
 
                 {/* SLA Widget */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <SLAWidget />
                 </div>
 
                 {/* Risk & Controls Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <InherentRiskWidget />
                   <ControlsWidget />
                 </div>
 
                 {/* Tasks & Systems Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <UpcomingTasksWidget />
                   <SystemLibraryWidget />
                 </div>
 
                 {/* Progress & Third Party Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <TaskProgressWidget />
                   <ThirdPartyManagementWidget />
                 </div>
 
                 {/* AI Usage & Regulations Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <AIUsageOverviewWidget />
                   <MyRegulationsWidget />
                 </div>
 
                 {/* AI Act Compliance */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <AIActComplianceWidget />
                 </div>
 
                 {/* Activity Report - Only visible for leaders */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <ActivityReportWidget />
                 </div>
 
                 {/* Compliance Analysis Section */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <DomainComplianceWidget />
                 </div>
               </div>
