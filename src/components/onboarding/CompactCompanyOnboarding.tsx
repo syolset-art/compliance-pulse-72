@@ -200,10 +200,10 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
               <button
                 key={company.organisasjonsnummer}
                 onClick={() => selectCompany(company)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-left"
+                className="w-full flex items-center gap-3 p-4 rounded-xl border border-border bg-background hover:bg-accent/50 hover:border-primary/30 hover:shadow-lg transition-silk text-left"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted shrink-0">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted shrink-0">
+                  <Building2 className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-medium text-foreground truncate">
@@ -236,12 +236,13 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     <div className="space-y-4">
       {!companyFound ? (
         <div className="space-y-4">
-          <div className="text-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mx-auto mb-3">
-              <Building2 className="h-6 w-6 text-primary" />
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-mynder mb-4 shadow-lg">
+              <Building2 className="h-8 w-8 text-white" />
             </div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">La oss bli kjent</h3>
             <p className="text-sm text-muted-foreground">
-              Søk opp selskapet ditt fra Brønnøysundregistrene
+              Søk opp selskapet ditt for en personlig opplevelse
             </p>
           </div>
           
@@ -281,14 +282,14 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       ) : (
         <div className="space-y-4">
           {/* Company found confirmation */}
-          <div className="p-4 rounded-lg bg-success/10 border border-success/20">
+          <div className="p-4 rounded-xl bg-success/10 border border-success/20 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success text-success-foreground shrink-0">
-                <Check className="h-4 w-4" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success text-success-foreground shrink-0 shadow-md">
+                <Check className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-foreground text-sm">{formData.name}</h4>
-                <p className="text-xs text-muted-foreground">
+                <h4 className="font-semibold text-foreground">{formData.name}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Org.nr: {formData.orgNumber}
                 </p>
               </div>

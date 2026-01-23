@@ -4,11 +4,12 @@
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
+Kim K-inspired luxury aesthetic: warm tones, glassmorphism, silk-smooth transitions
 */
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    --background: 30 10% 97%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -23,7 +24,7 @@ All colors MUST be HSL.
     --secondary: 250 100% 95%;
     --secondary-foreground: 241 63% 40%;
 
-    --muted: 250 60% 96%;
+    --muted: 30 10% 94%;
     --muted-foreground: 241 20% 50%;
 
     --accent: 271 76% 73%;
@@ -38,11 +39,11 @@ All colors MUST be HSL.
     --warning: 25 95% 53%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 250 40% 90%;
-    --input: 250 40% 90%;
+    --border: 30 5% 90%;
+    --input: 30 5% 90%;
     --ring: 241 63% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --sidebar-background: 241 63% 60%;
     --sidebar-foreground: 0 0% 100%;
@@ -111,5 +112,83 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ===== LUXURY UTILITY CLASSES ===== */
+
+@layer utilities {
+  /* Glassmorphism cards */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .glass-card {
+    background: rgba(30, 27, 60, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Luxury shadows with subtle purple glow */
+  .shadow-luxury {
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.03),
+      0 2px 4px -1px rgba(0, 0, 0, 0.02),
+      0 20px 40px -8px rgba(124, 58, 237, 0.08);
+  }
+
+  .dark .shadow-luxury {
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.2),
+      0 2px 4px -1px rgba(0, 0, 0, 0.1),
+      0 20px 40px -8px rgba(124, 58, 237, 0.15);
+  }
+
+  /* Elevated shadow for hover states */
+  .shadow-elevated {
+    box-shadow: 
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 4px 6px -2px rgba(0, 0, 0, 0.03),
+      0 25px 50px -12px rgba(124, 58, 237, 0.12);
+  }
+
+  /* Silk-smooth transitions */
+  .transition-silk {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Premium glow effect */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transition-silk;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Premium text styles */
+  .text-luxury {
+    @apply tracking-tight font-semibold;
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--background)) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
   }
 }

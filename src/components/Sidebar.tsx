@@ -95,10 +95,10 @@ const SidebarContent = () => {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors relative",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
                 isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-primary/10 text-primary shadow-sm"
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -295,7 +295,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-card shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_8px_-2px_rgba(0,0,0,0.3)]">
+    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-card/95 backdrop-blur-sm shadow-2xl">
       <SidebarContent />
     </div>
   );
