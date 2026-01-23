@@ -1,250 +1,340 @@
-# Implementeringsplan: AI-Agent-drevet Asset Import
 
-## Oversikt
-Utvide Lara (AI-agenten) til a handtere hele asset-import prosessen gjennom samtale, ikke tradisjonelle wizard-dialogs. Brukeren interagerer med Lara som guider dem gjennom valg og utforer handlinger.
+
+## Plan: Kim K-Inspirert Premium Estetikk for Mynder
+
+### Visjon
+Transformere Mynder fra en standard compliance-plattform til en **luksus-opplevelse** som føles like polert og eksklusiv som SKIMS, KKW Beauty eller Kardashian-brandingens DNA: minimalistisk eleganse, premium materialer og en følelse av at alt er nøye kuratert.
 
 ---
 
-## Fase 1: Nye verktoy for Lara
+### Del 1: Design System Oppgradering
 
-### 1.1 Utvid chat edge function med nye tools
+**Fil:** `src/index.css`
 
-**Fil: `supabase/functions/chat/index.ts`**
+Oppdatere CSS-variablene for et mer sofistikert fargepalett med bedre kontraster og "luxury" undertoner:
 
-Legge til tre nye function tools:
+| Element | Før | Etter |
+|---------|-----|-------|
+| Background | `0 0% 98%` (hvit) | `30 10% 97%` (varm kremhvit) |
+| Card | `0 0% 100%` | Glassmorphism med `rgba(255,255,255,0.7)` + blur |
+| Primary | `241 63% 60%` (lilla) | Beholdes, men med glow-effekter |
+| Border | `250 40% 90%` | `30 5% 90%` (varmere, mykere) |
+| Radius | `0.75rem` | `1rem` (mer avrundet, "buttery") |
+
+**Nye utility classes:**
+```css
+/* Glassmorphism cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+/* Luxury shadows */
+.shadow-luxury {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02),
+    0 20px 40px -8px rgba(124, 58, 237, 0.08);
+}
+
+/* Silk-smooth transitions */
+.transition-silk {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+```
+
+---
+
+### Del 2: Tailwind Config Utvidelse
+
+**Fil:** `tailwind.config.ts`
+
+Legge til nye animasjoner og effekter:
 
 ```typescript
-// Tool 1: start_asset_import
-{
-  name: "start_asset_import",
-  description: "Initiate asset import workflow. Use when user wants to add assets.",
-  parameters: {
-    type: "object",
-    properties: {
-      method: {
-        type: "string",
-        enum: ["acronis", "azure_ad", "file_upload", "ai_suggestions", "manual"],
-        description: "Import method chosen by user"
+keyframes: {
+  // Floating entrance
+  "float-in": {
+    "0%": { opacity: "0", transform: "translateY(20px)" },
+    "100%": { opacity: "1", transform: "translateY(0)" }
+  },
+  // Subtle pulse for premium feel
+  "glow-pulse": {
+    "0%, 100%": { boxShadow: "0 0 20px rgba(124, 58, 237, 0.15)" },
+    "50%": { boxShadow: "0 0 30px rgba(124, 58, 237, 0.25)" }
+  },
+  // Shimmer effect for loading states
+  "shimmer": {
+    "0%": { backgroundPosition: "-200% 0" },
+    "100%": { backgroundPosition: "200% 0" }
+  },
+  // Scale with bounce
+  "scale-bounce": {
+    "0%": { transform: "scale(0.95)" },
+    "50%": { transform: "scale(1.02)" },
+    "100%": { transform: "scale(1)" }
+  }
+},
+animation: {
+  "float-in": "float-in 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+  "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+  "shimmer": "shimmer 2s linear infinite",
+  "scale-bounce": "scale-bounce 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
+}
+```
+
+---
+
+### Del 3: Oppgradert Card-komponent
+
+**Fil:** `src/components/ui/card.tsx`
+
+Legge til premium variants:
+
+```tsx
+const cardVariants = cva(
+  "rounded-xl text-card-foreground transition-silk",
+  {
+    variants: {
+      variant: {
+        default: "bg-card border shadow-sm",
+        glass: "glass-card",
+        luxury: "bg-card border shadow-luxury hover:shadow-xl",
+        elevated: "bg-card shadow-lg hover:shadow-xl hover:-translate-y-1",
+        glow: "bg-card border shadow-luxury animate-glow-pulse"
       }
+    },
+    defaultVariants: {
+      variant: "luxury"
     }
   }
-}
-
-// Tool 2: connect_integration  
-{
-  name: "connect_integration",
-  description: "Connect to external system like Acronis, Azure AD",
-  parameters: {
-    type: "object",
-    properties: {
-      provider: { type: "string", enum: ["acronis", "azure_ad", "servicenow"] },
-      api_key: { type: "string", description: "API key provided by user" },
-      action: { type: "string", enum: ["test_connection", "fetch_assets", "setup_sync"] }
-    }
-  }
-}
-
-// Tool 3: import_assets
-{
-  name: "import_assets",
-  description: "Import previewed assets to database",
-  parameters: {
-    type: "object",
-    properties: {
-      asset_ids: { type: "array", items: { type: "string" } },
-      enable_sync: { type: "boolean" },
-      sync_frequency: { type: "string", enum: ["daily", "weekly", "monthly"] }
-    }
-  }
-}
-```
-
-### 1.2 Oppdater system prompt for asset-handtering
-
-Legge til instruksjoner i systemPrompt:
-
-```
-ASSET IMPORT:
-Nar brukeren vil legge til eiendeler, bruk suggest_options for a presentere valg:
-- "Koble til Acronis" - For automatisk import fra IT-sikkerhetsplattform
-- "Last opp fil" - For Excel/CSV import
-- "AI-forslag" - Basert pa bedriftsprofil
-- "Legg til manuelt" - Ett og ett
-
-For Acronis-integrasjon:
-1. Spor om API-nokkel
-2. Kall connect_integration med action: "test_connection"
-3. Ved suksess, kall connect_integration med action: "fetch_assets"
-4. Vis forhandsvisning med show_content (content_type: "asset-import-preview")
-5. Spor om bekreftelse
-6. Kall import_assets
-
-VIKTIG: Hold hele prosessen i chatten. Ikke apne dialogs!
-```
-
----
-
-## Fase 2: Backend for integrasjoner
-
-### 2.1 Database-endringer
-
-**Ny migrasjon:**
-
-```sql
--- Tabell for integrasjonsforbindelser
-CREATE TABLE integration_connections (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  provider TEXT NOT NULL, -- 'acronis', 'azure_ad', etc.
-  display_name TEXT NOT NULL,
-  api_key_encrypted TEXT, -- Kryptert med vault
-  is_active BOOLEAN DEFAULT true,
-  last_sync_at TIMESTAMPTZ,
-  sync_frequency TEXT DEFAULT 'daily',
-  sync_status TEXT DEFAULT 'idle',
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
 );
-
--- Utvid assets-tabellen
-ALTER TABLE assets ADD COLUMN IF NOT EXISTS external_source_id TEXT;
-ALTER TABLE assets ADD COLUMN IF NOT EXISTS external_source_provider TEXT;
-ALTER TABLE assets ADD COLUMN IF NOT EXISTS last_synced_at TIMESTAMPTZ;
-ALTER TABLE assets ADD COLUMN IF NOT EXISTS sync_enabled BOOLEAN DEFAULT false;
-
--- RLS
-ALTER TABLE integration_connections ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage integrations" ON integration_connections
-  FOR ALL USING (true);
-```
-
-### 2.2 Edge function for Acronis
-
-**Ny fil: `supabase/functions/sync-acronis/index.ts`**
-
-```typescript
-// Handterer:
-// - test_connection: Verifiser API-nokkel
-// - fetch_assets: Hent enheter fra Acronis
-// - sync: Synkroniser (brukes av cron)
-
-// Acronis API endpoints:
-// GET /api/2/tenants - Liste over tenants
-// GET /api/2/agents - Liste over agenter/enheter
-// GET /api/2/resources - Ressurser
-
-// Mapper Acronis-data til assets-struktur:
-// agent.hostname -> asset.name
-// agent.type -> asset.type (server, workstation, etc.)
-// agent.os -> asset.details
 ```
 
 ---
 
-## Fase 3: Frontend-handtering av nye tools
+### Del 4: Dashboard Layout Redesign
 
-### 3.1 Oppdater ChatInterface
+**Fil:** `src/pages/Index.tsx`
 
-**Fil: `src/components/ChatInterface.tsx`**
+**Header-seksjon:** Mer spacious og elegant:
+```tsx
+{/* Premium header with more whitespace */}
+<div className="mb-12">
+  <div className="flex items-center justify-between mb-6">
+    <div>
+      <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase mb-2">
+        Velkommen tilbake
+      </p>
+      <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+        {companyName || t("dashboard.title")}
+      </h1>
+    </div>
+    <Button 
+      className="gap-2 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-silk"
+    >
+      <Plus className="h-4 w-4" />
+      {t("dashboard.addModule")}
+    </Button>
+  </div>
+  <p className="text-base text-muted-foreground max-w-2xl">
+    {activeView !== 'all' ? DASHBOARD_LAYOUTS[activeView].description : t("dashboard.subtitle")}
+  </p>
+</div>
+```
 
-Legge til handtering av nye tool calls:
+**Widget-grid:** Mer luft og elegante gaps:
+```tsx
+{/* Increased spacing for luxury feel */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+  ...
+</div>
+```
 
-```typescript
-// I handleToolCall funksjonen:
-case "start_asset_import":
-  // Sett kontekst for asset import
-  setConversationContext("asset-import");
-  break;
+---
 
-case "connect_integration":
-  // Kall edge function
-  const result = await supabase.functions.invoke('sync-acronis', {
-    body: { action: toolArgs.action, api_key: toolArgs.api_key }
+### Del 5: Premium Widget Styling
+
+**Fil:** `src/components/widgets/StatusOverviewWidget.tsx` (eksempel)
+
+Oppgradere alle widgets med:
+1. Glassmorphism bakgrunn på hover
+2. Mykere borders
+3. Subtile animasjoner på interaksjon
+4. Mer whitespace
+
+```tsx
+<Card className="bg-card border-border shadow-luxury hover:shadow-xl transition-silk">
+  <CardHeader className="pb-4 pt-6 px-6">
+    <CardTitle className="text-lg font-semibold tracking-tight">
+      ...
+    </CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-4 px-6 pb-6">
+    ...
+  </CardContent>
+</Card>
+```
+
+---
+
+### Del 6: Lara Agent Premium Makeover
+
+**Fil:** `src/components/LaraAgent.tsx`
+
+Gi Lara mer "main character energy":
+
+1. **Premium floating button:**
+```tsx
+<button className="relative group animate-float-in">
+  {/* Glow ring */}
+  <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-silk" />
+  
+  {/* Main button with shadow */}
+  <div className="relative">
+    <img 
+      src={laraButterfly} 
+      alt="Lara" 
+      className="w-20 h-20 drop-shadow-2xl group-hover:scale-110 transition-silk"
+    />
+  </div>
+</button>
+```
+
+2. **Lara card med glassmorphism:**
+```tsx
+<Card className="glass-card shadow-2xl animate-scale-bounce border-primary/20">
+  ...
+</Card>
+```
+
+---
+
+### Del 7: Premium Onboarding Experience
+
+**Fil:** `src/components/onboarding/CompactCompanyOnboarding.tsx`
+
+Oppgradere onboarding med "wow-faktor":
+
+1. **Personlig velkomst:**
+```tsx
+<div className="text-center mb-6">
+  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-mynder mb-4 shadow-lg">
+    <Building2 className="h-8 w-8 text-white" />
+  </div>
+  <h3 className="text-lg font-semibold mb-1">La oss bli kjent</h3>
+  <p className="text-sm text-muted-foreground">
+    Søk opp selskapet ditt for en personlig opplevelse
+  </p>
+</div>
+```
+
+2. **Søkeresultater med hover-effekt:**
+```tsx
+<button
+  className="w-full p-4 rounded-xl border bg-background hover:bg-accent/50 
+             hover:border-primary/30 hover:shadow-lg transition-silk text-left"
+>
+  ...
+</button>
+```
+
+---
+
+### Del 8: Button Premium Variants
+
+**Fil:** `src/components/ui/button.tsx`
+
+Legge til luxury button variant:
+
+```tsx
+variant: {
+  default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-silk",
+  luxury: "bg-gradient-mynder text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-silk",
+  glass: "glass-card text-foreground hover:bg-white/80 transition-silk",
+  ...
+}
+```
+
+---
+
+### Del 9: Sidebar Eleganse
+
+**Fil:** `src/components/Sidebar.tsx`
+
+Mykere, mer polert navigasjon:
+
+```tsx
+<div className="flex h-screen w-64 flex-col bg-card/95 backdrop-blur-sm shadow-2xl">
+  ...
+  
+  {/* Nav items with luxury hover */}
+  <Link
+    className={cn(
+      "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-silk",
+      isActive
+        ? "bg-primary/10 text-primary shadow-sm"
+        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+    )}
+  >
+    ...
+  </Link>
+</div>
+```
+
+---
+
+### Del 10: Konfetti ved Milepæler
+
+**Fil:** `src/components/LaraAgent.tsx`
+
+Reaktivere konfetti med mer raffinert utførelse:
+
+```tsx
+const triggerLuxuryConfetti = () => {
+  // Elegant gold/purple confetti
+  confetti({
+    particleCount: 80,
+    spread: 60,
+    origin: { y: 0.7 },
+    colors: ['#7c3aed', '#a78bfa', '#fbbf24', '#f59e0b'],
+    shapes: ['circle'],
+    scalar: 0.8
   });
-  // Returner resultat til AI for videre samtale
-  break;
+};
 
-case "import_assets":
-  // Utfor import
-  // Vis bekreftelse
-  break;
+// Trigger when completing major milestones
+useEffect(() => {
+  if (isFullyComplete && !hasShownConfetti.current) {
+    triggerLuxuryConfetti();
+    hasShownConfetti.current = true;
+  }
+}, [isFullyComplete]);
 ```
 
-### 3.2 Ny content type for forhandsvisning
-
-**Fil: `src/components/ContentViewer.tsx`**
-
-Legge til `asset-import-preview` som viser:
-- Liste over enheter som skal importeres
-- Checkbox for a velge/velge bort
-- Mapping-info (hva som blir asset type, navn, etc.)
-- "Importer valgte" knapp som sender melding tilbake til Lara
-
 ---
 
-## Fase 4: Brukerflyt i praksis
+### Resultat
 
-### Eksempel-samtale:
+Etter implementering vil Mynder føles som en **premium SaaS-opplevelse** med:
 
-**Bruker:** "Jeg vil legge til nye eiendeler"
+| Før | Etter |
+|-----|-------|
+| Standard hvit bakgrunn | Varm kremhvit med glassmorphism |
+| Flat cards | Elegant shadows med hover-løft |
+| Abrupt transitions | Silkemyke cubic-bezier animasjoner |
+| Kompakt layout | Mer luft og breathing room |
+| Standard Lara-knapp | Glødende, animert "main character" |
+| Ingen feiring | Konfetti ved milepæler |
 
-**Lara:** "Flott! Hvordan vil du legge til eiendeler?"
-- [Koble til Acronis] [Last opp fil] [AI-forslag] [Manuelt]
+**Visuelle endringer oppsummert:**
+- Glassmorphism cards med backdrop-blur
+- Premium shadows med subtle purple glow
+- Smooth cubic-bezier transitions (0.16, 1, 0.3, 1)
+- Mer generøs whitespace (gap-8 i stedet for gap-6)
+- Elegant typography med tracking-tight
+- Hover-effekter som løfter elementer opp
+- Glow-effekter rundt viktige CTA-er
 
-**Bruker:** *klikker "Koble til Acronis"*
-
-**Lara:** "For a koble til Acronis trenger jeg en API-nokkel. Du finner den i Acronis-portalen under Innstillinger > API-tilgang."
-- [Jeg har nokkelen] [Vis meg hvordan]
-
-**Bruker:** *klikker "Jeg har nokkelen"*
-
-**Lara:** "Lim inn API-nokkelen under:"
-*Input-felt vises i chat*
-
-**Bruker:** *limer inn nokkel*
-
-**Lara:** "Kobler til Acronis... Tilkobling vellykket! Fant 47 enheter. Vil du se dem?"
-- [Vis alle] [Vis bare servere] [Vis bare arbeidsstasjoner]
-
-**Bruker:** *klikker "Vis alle"*
-
-**Lara:** "Her er enhetene jeg fant:"
-*Viser forhandsvisning i hoyre panel med checkboxes*
-
-**Bruker:** "Importer alle"
-
-**Lara:** "Importerer 47 eiendeler... Ferdig! Skal jeg sette opp automatisk synkronisering sa nye enheter legges til automatisk?"
-- [Ja, daglig] [Ja, ukentlig] [Nei takk]
-
----
-
-## Fase 5: Filendringer oppsummert
-
-| Fil | Endring |
-|-----|---------|
-| `supabase/functions/chat/index.ts` | Nye tools + oppdatert system prompt |
-| `supabase/functions/sync-acronis/index.ts` | Ny edge function |
-| `supabase/migrations/xxx_integrations.sql` | Database-endringer |
-| `src/components/ChatInterface.tsx` | Handter nye tool calls |
-| `src/components/ContentViewer.tsx` | Ny content type for forhandsvisning |
-| `src/locales/nb.json` + `en.json` | Oversettelser |
-
----
-
-## Fordeler med denne tilnarmingen
-
-1. **Naturlig samtale** - Brukeren snakker med Lara, ikke fyller ut skjemaer
-2. **Kontekstuell hjelp** - Lara kan forklare og veilede underveis
-3. **Fleksibilitet** - Brukeren kan endre mening, stille sporsmal
-4. **Konsistent UX** - Samme mal som andre Lara-interaksjoner
-5. **Skalerbar** - Lett a legge til flere integrasjoner (Azure AD, ServiceNow, etc.)
-
----
-
-## Prioritert rekkefølge
-
-1. Database-endringer (migration)
-2. Chat edge function - nye tools + prompt
-3. Acronis edge function
-4. ChatInterface - tool handling
-5. ContentViewer - preview component
-6. Oversettelser
