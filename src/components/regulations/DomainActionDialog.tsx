@@ -94,7 +94,7 @@ export function DomainActionDialog({
 
         <div className="py-2">
           <p className="text-sm text-muted-foreground mb-4">
-            Du har <span className="font-semibold text-foreground">{incompleteTasks.length} uferdige oppgaver</span> innenfor dette fagområdet
+            Du har <span className="font-semibold text-foreground">{incompleteTasks.length} uferdige oppgaver</span> innenfor dette kontrollområdet
             {highPriorityTasks.length > 0 && (
               <>, hvorav <span className="font-semibold text-destructive">{highPriorityTasks.length} har høy prioritet</span></>
             )}.

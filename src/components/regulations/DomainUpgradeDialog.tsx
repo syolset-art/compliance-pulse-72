@@ -75,7 +75,7 @@ export function DomainUpgradeDialog({
           {/* What's included */}
           <div>
             <p className="text-sm font-medium text-foreground mb-3">
-              Dette domenet inkluderer:
+              Dette kontrollområdet inkluderer:
             </p>
             <div className="space-y-2">
               {domainFrameworks.map((framework) => (
@@ -110,7 +110,7 @@ export function DomainUpgradeDialog({
           <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <CreditCard className="h-4 w-4 flex-shrink-0 mt-0.5" />
             <p>
-              Du kan når som helst deaktivere dette domenet. Endringen trer i kraft ved neste faktureringsperiode.
+              Du kan når som helst deaktivere dette kontrollområdet. Endringen trer i kraft ved neste faktureringsperiode.
             </p>
           </div>
         </div>
