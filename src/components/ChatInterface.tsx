@@ -352,7 +352,11 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       case 'company-info':
         setShowCompanyForm(true);
         break;
-      case 'systems':
+      case 'frameworks':
+        // Framework selection - handled inline or navigate
+        break;
+      case 'assets':
+        // Open add asset dialog via the onOpenSystemDialog callback
         if (onOpenSystemDialog) {
           onOpenSystemDialog();
         }

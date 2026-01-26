@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChatPanel } from "./ChatPanel";
 import { LaraAgent } from "./LaraAgent";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
+import { autoAssignAssetsToWorkAreas } from "@/hooks/useAutoAssignAssets";
+import { toast } from "sonner";
 
 interface GlobalChatContextType {
   isChatOpen: boolean;
@@ -65,9 +67,25 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
     assetAddedCallbacksRef.current.delete(callback);
   }, []);
 
-  const handleAssetAdded = useCallback(() => {
+  const handleAssetAdded = useCallback(async () => {
     setIsAddAssetOpen(false);
-    // Notify all registered callbacks
+    
+    // Auto-assign assets to work areas and create work areas if needed
+    const result = await autoAssignAssetsToWorkAreas();
+    
+    if (result.workAreasCreated && result.suggestedWorkAreas.length > 0) {
+      toast.success(`Opprettet ${result.suggestedWorkAreas.length} arbeidsområder`, {
+        description: `Eiendelene dine er automatisk plassert i riktige arbeidsområder.`,
+        duration: 5000,
+      });
+    } else if (result.assigned > 0) {
+      toast.success(`${result.assigned} eiendeler plassert automatisk`, {
+        description: "Eiendelene er tilordnet passende arbeidsområder.",
+        duration: 4000,
+      });
+    }
+    
+    // Notify all registered callbacks (this will trigger refetchOnboarding in ChatInterface)
     assetAddedCallbacksRef.current.forEach(callback => callback());
   }, []);
 
