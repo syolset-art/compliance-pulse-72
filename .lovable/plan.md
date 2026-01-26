@@ -1,163 +1,100 @@
 
-# Plan: Ressursside med læringssenter og demoer
+# Plan: Endre terminologi fra "domene" til "fagområde"
 
 ## Oversikt
-Legger til et nytt menypunkt "Ressurser" nederst i sidemenyen som gir kunden tilgang til:
-- Veiledninger og opplæringsmateriell om Mynder-plattformen
-- Demoer og interaktive gjennomganger
-- Faglige ressurser om GDPR, NIS2, ISO 27001 etc.
-- Supportinformasjon og kontaktmuligheter
+Mynder opererer innenfor 4 fagområder:
+1. **Personvern** - GDPR, Personopplysningsloven
+2. **Informasjonssikkerhet** - ISO 27001, NIS2, SOC 2
+3. **AI Governance** - EU AI Act, ISO 42001
+4. **Øvrige regelverk** - Åpenhetsloven, HMS, Bokføringsloven
 
-## Visuelt konsept
+Innenfor hvert fagområde finnes det flere spesifikke regelverk (lover, standarder, retningslinjer).
 
-```text
-┌─────────────────────────────────────────┐
-│  📚 RESSURSER                           │
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │ 🚀 Kom i gang                       ││
-│  │    Interaktiv opplæring             ││
-│  └─────────────────────────────────────┘│
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │ 🎬 Demoer                           ││
-│  │    Se hvordan modulene fungerer     ││
-│  └─────────────────────────────────────┘│
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │ 📖 Kunnskapsbase                    ││
-│  │    Fagartikler og veiledninger      ││
-│  └─────────────────────────────────────┘│
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │ 💬 Support                          ││
-│  │    Kontakt oss / FAQ                ││
-│  └─────────────────────────────────────┘│
-└─────────────────────────────────────────┘
-```
+## Endringer som gjøres
 
-## Implementeringsplan
+### 1. useSubscription.ts
+Toast-meldinger ved aktivering av fagområde:
+- "Domene aktivert!" → "Fagområde aktivert!"
+- "Kunne ikke aktivere domenet" → "Kunne ikke aktivere fagområdet"
 
-### 1. Oppdater sidemenyen (`src/components/Sidebar.tsx`)
-- Legg til nytt menypunkt "Ressurser" med `BookOpen` eller `GraduationCap` ikon
-- Plasseres rett før selskaps-seksjonen (før `border-t`)
-- Lenker til `/resources`
+### 2. DomainActivationWizard.tsx
+Wizard-tekster gjennom hele aktiveringsprosessen:
+- "Dette domenet inkluderer:" → "Dette fagområdet inkluderer:"
+- "deaktivere dette domenet" → "deaktivere dette fagområdet"
+- "Domenet er nå en del av..." → "Fagområdet er nå en del av..."
+- "mot kravene i dette domenet" → "mot kravene i dette fagområdet"
 
-### 2. Opprett ressursside (`src/pages/Resources.tsx`)
-Ny side med følgende seksjoner:
+### 3. DomainActionDialog.tsx
+Dialog-tekster for handlinger:
+- "i dette domenet" → "innenfor dette fagområdet"
 
-**Kom i gang**
-- Introduksjonsvideo/guide til plattformen
-- Trinn-for-trinn opplæring
-- Quick-start guider
+### 4. DomainComplianceWidget.tsx
+Widget-beskrivelser og labels:
+- "hvert domene og tilhørende regelverk" → "hvert fagområde og tilhørende regelverk"
+- "Ingen regelverk aktivert i dette domenet" → "Ingen regelverk aktivert i dette fagområdet"
+- "på tvers av domener" → "på tvers av fagområder"
 
-**Demoer**
-- Interaktive demoer for ulike moduler
-- Video-gjennomganger av nøkkelfunksjoner
-- Knapp for å starte demo-modus
+### 5. Tasks.tsx
+Filter-labels:
+- "Filtrer etter domene" → "Filtrer etter fagområde"
+- "Alle domener" → "Alle fagområder"
 
-**Kunnskapsbase**
-- GDPR-veiledninger
-- NIS2-ressurser
-- ISO 27001-materiell
-- AI Act-dokumentasjon
-- Beste praksis-artikler
-
-**Support**
-- FAQ-seksjon
-- Kontaktinformasjon
-- Lenke til helpdesk
-
-### 3. Legg til rute i App.tsx
-- Importer `Resources` komponenten
-- Legg til `<Route path="/resources" element={<Resources />} />`
-
-### 4. Oppdater lokaliseringsfiler
-**`src/locales/nb.json`:**
-```json
-"nav": {
-  ...
-  "resources": "Ressurser"
-},
-"resources": {
-  "title": "Læringssenter",
-  "subtitle": "Alt du trenger for å mestre Mynder",
-  "gettingStarted": {
-    "title": "Kom i gang",
-    "subtitle": "Interaktiv opplæring for nye brukere",
-    "items": {
-      "intro": "Introduksjon til Mynder",
-      "firstSteps": "Dine første steg",
-      "quickStart": "Quick-start guide"
-    }
-  },
-  "demos": {
-    "title": "Demoer",
-    "subtitle": "Se plattformen i aksjon",
-    "startDemo": "Start demo"
-  },
-  "knowledge": {
-    "title": "Kunnskapsbase",
-    "subtitle": "Faglige ressurser og veiledninger"
-  },
-  "support": {
-    "title": "Support",
-    "subtitle": "Vi hjelper deg videre",
-    "faq": "Ofte stilte spørsmål",
-    "contact": "Kontakt oss"
-  }
-}
-```
-
-**`src/locales/en.json`:**
-```json
-"nav": {
-  ...
-  "resources": "Resources"
-},
-"resources": {
-  "title": "Learning Center",
-  "subtitle": "Everything you need to master Mynder",
-  ...
-}
-```
-
-## Filer som opprettes/endres
-
-| Fil | Handling |
-|-----|----------|
-| `src/pages/Resources.tsx` | **Opprett** - Ny ressursside |
-| `src/components/Sidebar.tsx` | **Endre** - Legg til menypunkt |
-| `src/App.tsx` | **Endre** - Legg til rute |
-| `src/locales/nb.json` | **Endre** - Legg til oversettelser |
-| `src/locales/en.json` | **Endre** - Legg til oversettelser |
+### 6. Subscriptions.tsx
+Seksjonstitler og plan-beskrivelser:
+- "Aktive domener" → "Aktive fagområder"
+- "Personvern-domenet inkludert" → "Personvern inkludert"
+- "Alle tre hoveddomener inkludert" → "Alle tre hovedfagområder inkludert"
 
 ## Tekniske detaljer
 
-### Sidebar-endring
-Legger til følgende rett før `{/* Company section at bottom */}`:
+Alle variabelnavn, komponentnavn og database-referanser (som `domain_id`, `DomainComplianceWidget`, `domain_addons`, etc.) beholdes uendret. Kun brukervendt tekst endres for å unngå komplekse refaktoreringer.
 
-```tsx
-import { BookOpen } from "lucide-react";
+### Eksempler på konkrete endringer:
 
-// I navigation-seksjonen eller som egen lenke:
-<Link
-  to="/resources"
-  className={cn(
-    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-    location.pathname === "/resources"
-      ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-  )}
->
-  <BookOpen className="h-5 w-5" />
-  {t("nav.resources")}
-</Link>
+**useSubscription.ts (linje 178, 182):**
+```typescript
+// Før
+toast.success(`Domene aktivert! Vil bli fakturert på neste periode.`);
+toast.error('Kunne ikke aktivere domenet. Prøv igjen.');
+
+// Etter
+toast.success(`Fagområde aktivert! Vil bli fakturert på neste periode.`);
+toast.error('Kunne ikke aktivere fagområdet. Prøv igjen.');
 ```
 
-### Ressurssiden
-Bruker samme layout-struktur som andre sider med:
-- `Sidebar` komponent
-- Sentrert innhold med `container max-w-7xl mx-auto`
-- Kort-basert design for hver seksjon
-- Apple-inspirert styling (hvit bakgrunn, subtile skygger, blå aksenter)
+**Tasks.tsx (linje 524, 544):**
+```typescript
+// Før
+<span className="text-sm font-medium text-foreground">Filtrer etter domene</span>
+<Button>Alle domener</Button>
+
+// Etter
+<span className="text-sm font-medium text-foreground">Filtrer etter fagområde</span>
+<Button>Alle fagområder</Button>
+```
+
+**DomainActivationWizard.tsx (linje 159, 211, 341):**
+```typescript
+// Før
+"Dette domenet inkluderer:"
+"Du kan når som helst deaktivere dette domenet."
+"Domenet er nå en del av din compliance-portefølje."
+
+// Etter
+"Dette fagområdet inkluderer:"
+"Du kan når som helst deaktivere dette fagområdet."
+"Fagområdet er nå en del av din compliance-portefølje."
+```
+
+## Filer som endres
+
+| Fil | Antall endringer |
+|-----|------------------|
+| `src/hooks/useSubscription.ts` | 2 |
+| `src/components/regulations/DomainActivationWizard.tsx` | 4 |
+| `src/components/regulations/DomainActionDialog.tsx` | 1 |
+| `src/components/widgets/DomainComplianceWidget.tsx` | 3 |
+| `src/pages/Tasks.tsx` | 2 |
+| `src/pages/Subscriptions.tsx` | 2 |
+
+**Totalt: 14 tekstendringer fordelt på 6 filer**
