@@ -27,47 +27,42 @@ interface AIHeroSummaryProps {
 const RISK_CONFIG: Record<string, { 
   label: string; 
   color: string; 
-  bgColor: string; 
-  borderColor: string;
-  ringColor: string;
-  headerBg: string;
+  iconBg: string;
+  glowClass: string;
+  isHighRisk: boolean;
   icon: React.ReactNode;
 }> = {
   unacceptable: {
-    label: "Uakseptabel risiko",
-    color: "text-red-700 dark:text-red-200",
-    bgColor: "bg-red-100 dark:bg-red-900/60",
-    borderColor: "border-red-300 dark:border-red-700",
-    ringColor: "ring-red-500/30",
-    headerBg: "bg-red-500/10 dark:bg-red-900/40",
-    icon: <ShieldAlert className="h-7 w-7" />,
+    label: "Uakseptabel",
+    color: "text-red-600 dark:text-red-400",
+    iconBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800",
+    glowClass: "",
+    isHighRisk: true,
+    icon: <ShieldAlert className="h-10 w-10" />,
   },
   high: {
     label: "Høy risiko",
-    color: "text-red-600 dark:text-red-300",
-    bgColor: "bg-red-50 dark:bg-red-900/40",
-    borderColor: "border-red-200 dark:border-red-800",
-    ringColor: "ring-red-500/25",
-    headerBg: "bg-red-500/10 dark:bg-red-900/30",
-    icon: <AlertTriangle className="h-7 w-7" />,
+    color: "text-red-600 dark:text-red-400",
+    iconBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800",
+    glowClass: "",
+    isHighRisk: true,
+    icon: <AlertTriangle className="h-10 w-10" />,
   },
   limited: {
-    label: "Begrenset risiko",
-    color: "text-amber-700 dark:text-amber-300",
-    bgColor: "bg-amber-50 dark:bg-amber-950/50",
-    borderColor: "border-amber-200 dark:border-amber-800",
-    ringColor: "ring-amber-500/20",
-    headerBg: "bg-muted/40",
-    icon: <Eye className="h-7 w-7" />,
+    label: "Begrenset",
+    color: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800",
+    glowClass: "animate-glow-pulse",
+    isHighRisk: false,
+    icon: <Eye className="h-10 w-10" />,
   },
   minimal: {
-    label: "Minimal risiko",
-    color: "text-emerald-700 dark:text-emerald-300",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
-    borderColor: "border-emerald-200 dark:border-emerald-800",
-    ringColor: "ring-emerald-500/20",
-    headerBg: "bg-muted/40",
-    icon: <CheckCircle2 className="h-7 w-7" />,
+    label: "Minimal",
+    color: "text-emerald-600 dark:text-emerald-400",
+    iconBg: "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800",
+    glowClass: "animate-glow-pulse",
+    isHighRisk: false,
+    icon: <CheckCircle2 className="h-10 w-10" />,
   },
 };
 
@@ -85,79 +80,71 @@ export const AIHeroSummary = ({
   
   const riskConfig = riskLevel ? RISK_CONFIG[riskLevel] : RISK_CONFIG.minimal;
 
-  const isHighRisk = riskLevel === 'high' || riskLevel === 'unacceptable';
-
   return (
     <div className={cn(
-      "rounded-2xl border bg-card shadow-sm overflow-hidden",
-      isHighRisk && "border-red-200 dark:border-red-800"
+      "rounded-2xl border bg-card shadow-luxury overflow-hidden animate-float-in",
+      riskConfig.isHighRisk && "border-red-200 dark:border-red-800"
     )}>
-      {/* Header bar - use risk-appropriate color for high risk */}
-      <div className={cn(
-        "px-5 py-3 border-b flex items-center justify-between",
-        riskConfig.headerBg
-      )}>
-        <div className="flex items-center gap-2">
+      {/* Main content - asymmetric layout */}
+      <div className="p-8">
+        {/* Status pill - minimalistisk */}
+        <div className="flex items-center gap-2 mb-6">
           <div className={cn(
             "h-2 w-2 rounded-full animate-pulse",
-            isHighRisk ? "bg-red-500" : "bg-primary"
+            riskConfig.isHighRisk ? "bg-red-500" : "bg-primary"
           )} />
           <span className={cn(
             "text-sm font-medium",
-            isHighRisk ? "text-red-700 dark:text-red-300" : "text-muted-foreground"
+            riskConfig.isHighRisk ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
           )}>
-            {isHighRisk ? "⚠️ Viktig vurdering kreves" : "AI-analyse klar"}
+            {riskConfig.isHighRisk ? "Viktig vurdering kreves" : "Analyse klar"}
+          </span>
+          <span className="text-xs text-muted-foreground/60 ml-auto">
+            {confidence === "high" ? "Høy" : confidence === "medium" ? "Middels" : "Lav"} sikkerhet
           </span>
         </div>
-        <span className="text-xs text-muted-foreground">
-          {confidence === "high" ? "Høy" : confidence === "medium" ? "Middels" : "Lav"} sikkerhet
-        </span>
-      </div>
 
-      {/* Main content */}
-      <div className="p-6 space-y-5">
-        {/* Risk indicator - centered and prominent */}
-        <div className="flex flex-col items-center text-center">
-          <div className={cn(
-            "inline-flex items-center gap-3 px-5 py-3 rounded-xl border ring-4 mb-3",
-            riskConfig.bgColor,
-            riskConfig.borderColor,
-            riskConfig.ringColor
-          )}>
-            <span className={riskConfig.color}>
-              {riskConfig.icon}
-            </span>
-            <span className={cn("text-lg font-semibold", riskConfig.color)}>
-              {riskConfig.label}
-            </span>
-          </div>
-          
-          {/* Purpose description */}
-          {purpose && (
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mt-2">
-              {purpose}
-            </p>
-          )}
+        {/* Risk indicator - large, left-aligned with glassmorphism */}
+        <div className={cn(
+          "inline-flex flex-col items-center gap-2 p-6 rounded-2xl border mb-6",
+          "glass-card transition-silk animate-scale-in",
+          riskConfig.iconBg,
+          riskConfig.glowClass
+        )}>
+          <span className={riskConfig.color}>
+            {riskConfig.icon}
+          </span>
+          <span className={cn("text-xl font-bold tracking-tight", riskConfig.color)}>
+            {riskConfig.label}
+          </span>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-3 pt-1">
+        {/* Purpose description */}
+        {purpose && (
+          <p className="text-muted-foreground text-base leading-relaxed max-w-lg mb-8">
+            {purpose}
+          </p>
+        )}
+
+        {/* Action buttons - asymmetric */}
+        <div className="flex flex-wrap gap-4">
           <Button 
             onClick={onAccept} 
-            className="flex-1 h-11"
+            variant="luxury"
+            className="h-12 px-8 hover-lift"
             disabled={isAccepting}
           >
             {isAccepting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
             ) : (
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-5 w-5 mr-2" />
             )}
             Bekreft og lagre
           </Button>
           <Button 
             variant="outline" 
             onClick={onAdjust}
-            className="flex-1 h-11"
+            className="h-12 px-6 hover-lift"
           >
             <Settings2 className="h-4 w-4 mr-2" />
             Juster
@@ -168,18 +155,15 @@ export const AIHeroSummary = ({
       {/* Expand toggle - subtle footer */}
       <button
         onClick={onToggleExpand}
-        className="w-full px-5 py-3 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 border-t transition-colors"
+        className="w-full px-8 py-4 flex items-center justify-between text-sm text-muted-foreground hover:text-foreground hover:bg-muted/30 border-t transition-silk"
       >
+        <span className="font-medium">
+          {isExpanded ? "Skjul detaljer" : "Vis detaljer"}
+        </span>
         {isExpanded ? (
-          <>
-            <span>Skjul detaljer</span>
-            <ChevronUp className="h-4 w-4" />
-          </>
+          <ChevronUp className="h-4 w-4" />
         ) : (
-          <>
-            <span>Vis detaljer</span>
-            <ChevronDown className="h-4 w-4" />
-          </>
+          <ChevronDown className="h-4 w-4" />
         )}
       </button>
     </div>
