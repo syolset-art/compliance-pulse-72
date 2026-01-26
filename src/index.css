@@ -4,104 +4,104 @@
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
-Kim K-inspired luxury aesthetic: warm tones, glassmorphism, silk-smooth transitions
+Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue accents
 */
 
 @layer base {
   :root {
-    --background: 30 10% 97%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 241 63% 60%;
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 250 100% 95%;
-    --secondary-foreground: 241 63% 40%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 30 10% 94%;
-    --muted-foreground: 241 20% 50%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 271 76% 73%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 211 100% 95%;
+    --accent-foreground: 211 100% 35%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 160 84% 39%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 25 95% 53%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 30 5% 90%;
-    --input: 30 5% 90%;
-    --ring: 241 63% 60%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 211 100% 50%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 241 63% 60%;
+    --sidebar-background: 220 13% 18%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 241 63% 60%;
-    --sidebar-accent: 241 63% 55%;
+    --sidebar-primary-foreground: 220 13% 18%;
+    --sidebar-accent: 220 13% 25%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 241 50% 50%;
-    --sidebar-ring: 271 76% 73%;
+    --sidebar-border: 220 13% 28%;
+    --sidebar-ring: 211 100% 50%;
     
-    --gradient-mynder: linear-gradient(135deg, hsl(241 63% 60%) 0%, hsl(271 76% 73%) 50%, hsl(291 65% 85%) 100%);
+    --gradient-mynder: linear-gradient(135deg, hsl(220 13% 18%) 0%, hsl(220 13% 28%) 100%);
   }
 
   .dark {
-    --background: 241 50% 8%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    --card: 241 45% 12%;
+    --card: 0 0% 7%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 241 45% 14%;
+    --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 241 80% 72%;
-    --primary-foreground: 241 50% 10%;
+    --primary: 211 100% 60%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 241 35% 22%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 241 35% 18%;
-    --muted-foreground: 250 25% 75%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 271 80% 78%;
-    --accent-foreground: 271 50% 15%;
+    --accent: 211 80% 20%;
+    --accent-foreground: 211 100% 70%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 160 84% 45%;
+    --success: 142 71% 50%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 35 95% 60%;
-    --warning-foreground: 35 90% 10%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 0%;
 
-    --border: 241 30% 28%;
-    --input: 241 30% 22%;
-    --ring: 241 80% 72%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 211 100% 60%;
     
-    --sidebar-background: 241 60% 55%;
+    --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 241 60% 55%;
-    --sidebar-accent: 241 65% 62%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 241 50% 45%;
-    --sidebar-ring: 271 80% 78%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 211 100% 60%;
     
-    --gradient-mynder: linear-gradient(135deg, hsl(241 80% 72%) 0%, hsl(271 80% 78%) 50%, hsl(291 70% 85%) 100%);
+    --gradient-mynder: linear-gradient(135deg, hsl(0 0% 7%) 0%, hsl(0 0% 15%) 100%);
   }
 }
 
@@ -115,45 +115,45 @@ Kim K-inspired luxury aesthetic: warm tones, glassmorphism, silk-smooth transiti
   }
 }
 
-/* ===== LUXURY UTILITY CLASSES ===== */
+/* ===== PROFESSIONAL UTILITY CLASSES ===== */
 
 @layer utilities {
   /* Glassmorphism cards */
   .glass-card {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
   }
 
   .dark .glass-card {
-    background: rgba(30, 27, 60, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(18, 18, 18, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
 
-  /* Luxury shadows with subtle purple glow */
+  /* Professional shadows with subtle blue tint */
   .shadow-luxury {
     box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.03),
-      0 2px 4px -1px rgba(0, 0, 0, 0.02),
-      0 20px 40px -8px rgba(124, 58, 237, 0.08);
+      0 1px 3px rgba(0, 0, 0, 0.04),
+      0 4px 12px rgba(0, 0, 0, 0.03),
+      0 12px 32px rgba(0, 0, 0, 0.02);
   }
 
   .dark .shadow-luxury {
     box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.2),
-      0 2px 4px -1px rgba(0, 0, 0, 0.1),
-      0 20px 40px -8px rgba(124, 58, 237, 0.15);
+      0 1px 3px rgba(0, 0, 0, 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.2),
+      0 12px 32px rgba(0, 0, 0, 0.15);
   }
 
   /* Elevated shadow for hover states */
   .shadow-elevated {
     box-shadow: 
-      0 10px 15px -3px rgba(0, 0, 0, 0.05),
-      0 4px 6px -2px rgba(0, 0, 0, 0.03),
-      0 25px 50px -12px rgba(124, 58, 237, 0.12);
+      0 4px 8px rgba(0, 0, 0, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.04),
+      0 16px 40px rgba(0, 0, 0, 0.03);
   }
 
   /* Silk-smooth transitions */
@@ -161,9 +161,9 @@ Kim K-inspired luxury aesthetic: warm tones, glassmorphism, silk-smooth transiti
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Premium glow effect */
+  /* Professional glow effect - Apple blue */
   .glow-primary {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 0 20px rgba(0, 122, 255, 0.2);
   }
 
   /* Hover lift effect */
