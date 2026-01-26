@@ -1,124 +1,163 @@
 
-# Fargepalett-transformasjon: Apple-inspirert profesjonell design
+# Plan: Ressursside med læringssenter og demoer
 
-## Analyse av nåværende problem
-Den eksisterende fargepaletten er preget av:
-- Sterke lilla toner (HSL 241° - blålilla)
-- Rosa aksentfarger (HSL 271°-291° - lilla/magenta)
-- "Søt" gradient fra lilla til rosa
-- Varm beige bakgrunn som føles lite forretningsrettet
+## Oversikt
+Legger til et nytt menypunkt "Ressurser" nederst i sidemenyen som gir kunden tilgang til:
+- Veiledninger og opplæringsmateriell om Mynder-plattformen
+- Demoer og interaktive gjennomganger
+- Faglige ressurser om GDPR, NIS2, ISO 27001 etc.
+- Supportinformasjon og kontaktmuligheter
 
-Dette passer dårlig for et GRC-verktøy (Governance, Risk, Compliance) som skal signalisere **tillit, kontroll og profesjonalitet**.
+## Visuelt konsept
 
-## Apple's designfilosofi (2024/2025)
-Apple bruker en raffinert palett kjennetegnet av:
-- **Nøytral bakgrunn**: Ren hvit/off-white eller dyp svart
-- **Minimal primærfarge**: Blå som hovedfarge (HSL ~211°), brukt sparsomt
-- **Subtile gråtoner**: Flere nivåer av grå for hierarki
-- **Ingen gradienter på primære elementer**: Flat, ren estetikk
-- **Høy kontrast**: Tydelig lesbarhet og tilgjengelighet
-
-## Ny fargepalett for Mynder
-
-### Light mode (Apple-inspirert)
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ BAKGRUNN                                                    │
-│ --background: 0 0% 100%        (Ren hvit)                   │
-│ --card: 0 0% 100%              (Hvit kort)                  │
-│ --muted: 220 14% 96%           (Ultralys grå)               │
-│                                                             │
-│ PRIMÆRFARGE (Apple Blue)                                    │
-│ --primary: 211 100% 50%        (Apple-blå #007AFF)          │
-│ --ring: 211 100% 50%                                        │
-│                                                             │
-│ TEKST                                                       │
-│ --foreground: 0 0% 10%         (Nesten svart)               │
-│ --muted-foreground: 220 9% 46% (Medium grå)                 │
-│                                                             │
-│ SIDEBAR                                                     │
-│ --sidebar-background: 220 13% 18% (Mørk grafitt)            │
-│ --sidebar-foreground: 0 0% 100%   (Hvit tekst)              │
-│                                                             │
-│ GRADIENT                                                    │
-│ --gradient-mynder: subtle blå-grå, ikke lilla-rosa         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Dark mode (Apple-inspirert)
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ BAKGRUNN                                                    │
-│ --background: 0 0% 0%          (Ren svart)                  │
-│ --card: 0 0% 7%                (Nesten svart kort)          │
-│ --muted: 0 0% 12%              (Dyp grå)                    │
-│                                                             │
-│ PRIMÆRFARGE (Apple Blue - lyser variant)                    │
-│ --primary: 211 100% 60%        (Lysere blå for mørk modus)  │
-│                                                             │
-│ TEKST                                                       │
-│ --foreground: 0 0% 100%        (Hvit)                       │
-│ --muted-foreground: 0 0% 64%   (Medium grå)                 │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  📚 RESSURSER                           │
+│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │ 🚀 Kom i gang                       ││
+│  │    Interaktiv opplæring             ││
+│  └─────────────────────────────────────┘│
+│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │ 🎬 Demoer                           ││
+│  │    Se hvordan modulene fungerer     ││
+│  └─────────────────────────────────────┘│
+│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │ 📖 Kunnskapsbase                    ││
+│  │    Fagartikler og veiledninger      ││
+│  └─────────────────────────────────────┘│
+│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │ 💬 Support                          ││
+│  │    Kontakt oss / FAQ                ││
+│  └─────────────────────────────────────┘│
+└─────────────────────────────────────────┘
 ```
 
 ## Implementeringsplan
 
-### Fil 1: `src/index.css`
-Oppdatere alle CSS-variabler med Apple-inspirerte verdier:
+### 1. Oppdater sidemenyen (`src/components/Sidebar.tsx`)
+- Legg til nytt menypunkt "Ressurser" med `BookOpen` eller `GraduationCap` ikon
+- Plasseres rett før selskaps-seksjonen (før `border-t`)
+- Lenker til `/resources`
 
-**Light mode:**
-- `--background`: `0 0% 100%` (ren hvit)
-- `--foreground`: `0 0% 10%` (nesten svart)
-- `--primary`: `211 100% 50%` (Apple-blå)
-- `--secondary`: `220 14% 96%` (ultralys grå)
-- `--muted`: `220 14% 96%`
-- `--muted-foreground`: `220 9% 46%`
-- `--accent`: `211 100% 95%` (lys blå tint)
-- `--border`: `220 13% 91%` (subtil grå)
-- `--sidebar-background`: `220 13% 18%` (mørk grafitt)
-- `--gradient-mynder`: `linear-gradient(135deg, hsl(220 13% 18%) 0%, hsl(220 13% 28%) 100%)` (subtil mørk gradient)
+### 2. Opprett ressursside (`src/pages/Resources.tsx`)
+Ny side med følgende seksjoner:
 
-**Dark mode:**
-- `--background`: `0 0% 0%` (ren svart)
-- `--card`: `0 0% 7%`
-- `--primary`: `211 100% 60%` (lysere blå)
-- `--muted`: `0 0% 12%`
-- `--muted-foreground`: `0 0% 64%`
-- `--border`: `0 0% 20%`
+**Kom i gang**
+- Introduksjonsvideo/guide til plattformen
+- Trinn-for-trinn opplæring
+- Quick-start guider
 
-**Utility-klasser:**
-- Oppdatere `.shadow-luxury` til å bruke nøytral skygge (ikke lilla glow)
-- Oppdatere `.glow-primary` til blå glow
+**Demoer**
+- Interaktive demoer for ulike moduler
+- Video-gjennomganger av nøkkelfunksjoner
+- Knapp for å starte demo-modus
 
-### Fil 2: `tailwind.config.ts`
-Oppdatere animasjoner:
-- `glow-pulse`: Endre fra lilla (`rgba(124, 58, 237, ...)`) til blå (`rgba(0, 122, 255, ...)`)
+**Kunnskapsbase**
+- GDPR-veiledninger
+- NIS2-ressurser
+- ISO 27001-materiell
+- AI Act-dokumentasjon
+- Beste praksis-artikler
 
-### Visuell sammenligning
+**Support**
+- FAQ-seksjon
+- Kontaktinformasjon
+- Lenke til helpdesk
 
-**Før (nåværende "søt" palett):**
-```text
-Sidebar: Lilla (#6366f1)
-Gradient: Lilla → Rosa → Magenta
-Bakgrunn: Varm beige
+### 3. Legg til rute i App.tsx
+- Importer `Resources` komponenten
+- Legg til `<Route path="/resources" element={<Resources />} />`
+
+### 4. Oppdater lokaliseringsfiler
+**`src/locales/nb.json`:**
+```json
+"nav": {
+  ...
+  "resources": "Ressurser"
+},
+"resources": {
+  "title": "Læringssenter",
+  "subtitle": "Alt du trenger for å mestre Mynder",
+  "gettingStarted": {
+    "title": "Kom i gang",
+    "subtitle": "Interaktiv opplæring for nye brukere",
+    "items": {
+      "intro": "Introduksjon til Mynder",
+      "firstSteps": "Dine første steg",
+      "quickStart": "Quick-start guide"
+    }
+  },
+  "demos": {
+    "title": "Demoer",
+    "subtitle": "Se plattformen i aksjon",
+    "startDemo": "Start demo"
+  },
+  "knowledge": {
+    "title": "Kunnskapsbase",
+    "subtitle": "Faglige ressurser og veiledninger"
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Vi hjelper deg videre",
+    "faq": "Ofte stilte spørsmål",
+    "contact": "Kontakt oss"
+  }
+}
 ```
 
-**Etter (Apple-profesjonell):**
-```text
-Sidebar: Mørk grafitt (#2C2C2E)
-Primærfarge: Apple-blå (#007AFF) - brukt sparsomt
-Bakgrunn: Ren hvit (#FFFFFF)
+**`src/locales/en.json`:**
+```json
+"nav": {
+  ...
+  "resources": "Resources"
+},
+"resources": {
+  "title": "Learning Center",
+  "subtitle": "Everything you need to master Mynder",
+  ...
+}
 ```
 
-## Resultat
-En fargepalett som:
-- Signaliserer **tillit og profesjonalitet** for GRC-arbeid
-- Følger Apple's moderne designspråk
-- Er behagelig å jobbe med over tid (ikke slitsom på øynene)
-- Har høy kontrast og god tilgjengelighet
-- Matcher produktets formål: datakontroll, compliance og risikohåndtering
+## Filer som opprettes/endres
 
-## Tekniske filer som endres
-1. `src/index.css` - Alle CSS-variabler
-2. `tailwind.config.ts` - Animasjonsfarger (glow-pulse)
+| Fil | Handling |
+|-----|----------|
+| `src/pages/Resources.tsx` | **Opprett** - Ny ressursside |
+| `src/components/Sidebar.tsx` | **Endre** - Legg til menypunkt |
+| `src/App.tsx` | **Endre** - Legg til rute |
+| `src/locales/nb.json` | **Endre** - Legg til oversettelser |
+| `src/locales/en.json` | **Endre** - Legg til oversettelser |
+
+## Tekniske detaljer
+
+### Sidebar-endring
+Legger til følgende rett før `{/* Company section at bottom */}`:
+
+```tsx
+import { BookOpen } from "lucide-react";
+
+// I navigation-seksjonen eller som egen lenke:
+<Link
+  to="/resources"
+  className={cn(
+    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+    location.pathname === "/resources"
+      ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+  )}
+>
+  <BookOpen className="h-5 w-5" />
+  {t("nav.resources")}
+</Link>
+```
+
+### Ressurssiden
+Bruker samme layout-struktur som andre sider med:
+- `Sidebar` komponent
+- Sentrert innhold med `container max-w-7xl mx-auto`
+- Kort-basert design for hver seksjon
+- Apple-inspirert styling (hvit bakgrunn, subtile skygger, blå aksenter)
