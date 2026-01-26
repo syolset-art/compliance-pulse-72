@@ -111,7 +111,7 @@ export function DomainActivationWizard({
     {
       icon: <Server className="h-5 w-5 text-blue-500" />,
       title: "Systemer vurderes",
-      description: "Dine registrerte systemer vil bli evaluert mot kravene i dette domenet.",
+      description: "Dine registrerte systemer vil bli evaluert mot kravene i dette fagområdet.",
     },
     {
       icon: <FileText className="h-5 w-5 text-green-500" />,
@@ -156,7 +156,7 @@ export function DomainActivationWizard({
         {/* What's included */}
         <div>
           <p className="text-sm font-medium text-foreground mb-3">
-            Dette domenet inkluderer:
+            Dette fagområdet inkluderer:
           </p>
           <div className="space-y-2">
             {domainFrameworks.map((framework) => (
@@ -208,7 +208,7 @@ export function DomainActivationWizard({
         <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
           <ShieldCheck className="h-4 w-4 flex-shrink-0 mt-0.5 text-green-500" />
           <p>
-            Du kan når som helst deaktivere dette domenet fra innstillingene. Endringen trer i kraft ved neste faktureringsperiode, og du beholder tilgang ut perioden.
+            Du kan når som helst deaktivere dette fagområdet fra innstillingene. Endringen trer i kraft ved neste faktureringsperiode, og du beholder tilgang ut perioden.
           </p>
         </div>
       </div>
@@ -338,7 +338,7 @@ export function DomainActivationWizard({
         </div>
         <DialogTitle className="text-xl">{domainName} er aktivert!</DialogTitle>
         <DialogDescription className="text-base">
-          Domenet er nå en del av din compliance-portefølje.
+          Fagområdet er nå en del av din compliance-portefølje.
         </DialogDescription>
       </DialogHeader>
 

@@ -175,11 +175,11 @@ export function useSubscription() {
     onSuccess: (_, domainId) => {
       queryClient.invalidateQueries({ queryKey: ['domain-addons'] });
       queryClient.invalidateQueries({ queryKey: ['domain-summary-regulations'] });
-      toast.success(`Domene aktivert! Vil bli fakturert på neste periode.`);
+      toast.success(`Fagområde aktivert! Vil bli fakturert på neste periode.`);
     },
     onError: (error) => {
       console.error('Failed to activate addon:', error);
-      toast.error('Kunne ikke aktivere domenet. Prøv igjen.');
+      toast.error('Kunne ikke aktivere fagområdet. Prøv igjen.');
     }
   });
 

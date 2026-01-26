@@ -16,7 +16,7 @@ const plans = [
     price: "Gratis",
     priceDetail: "for alltid",
     features: [
-      "Personvern-domenet inkludert",
+      "Personvern inkludert",
       "Opptil 5 arbeidsområder",
       "Grunnleggende risikovurdering",
       "E-poststøtte",
@@ -31,7 +31,7 @@ const plans = [
     price: "2 490 kr",
     priceDetail: "per måned",
     features: [
-      "Alle tre hoveddomener inkludert",
+      "Alle tre hovedfagområder inkludert",
       "Ubegrensede arbeidsområder",
       "Avansert risikovurdering",
       "Prioritert støtte",
@@ -161,7 +161,7 @@ export default function Subscriptions() {
         {/* Active Domains Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Aktive domener</h2>
+            <h2 className="text-lg font-semibold text-foreground">Aktive fagområder</h2>
             <Button 
               variant="outline" 
               size="sm"

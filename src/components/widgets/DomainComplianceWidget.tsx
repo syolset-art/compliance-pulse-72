@@ -249,7 +249,7 @@ export function DomainComplianceWidget() {
           </div>
         </div>
         <p className="text-xs sm:text-sm text-muted-foreground">
-          Se status og fremdrift for hvert domene og tilhørende regelverk
+          Se status og fremdrift for hvert fagområde og tilhørende regelverk
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -301,7 +301,7 @@ export function DomainComplianceWidget() {
                   {domain.frameworks.length === 0 ? (
                     <div className="py-4 text-center">
                       <p className="text-sm text-muted-foreground mb-2">
-                        Ingen regelverk aktivert i dette domenet
+                        Ingen regelverk aktivert i dette fagområdet
                       </p>
                       <Button
                         variant="outline"
@@ -371,7 +371,7 @@ export function DomainComplianceWidget() {
 
         <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Totalt <span className="text-foreground font-semibold">{totalFrameworks} aktive regelverk</span> på tvers av domener
+            Totalt <span className="text-foreground font-semibold">{totalFrameworks} aktive regelverk</span> på tvers av fagområder
           </p>
           <Button
             variant="ghost"

@@ -521,7 +521,7 @@ export default function Tasks() {
         {!activeActionFilter && (
           <Card className="p-4 mb-6">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Filtrer etter domene</span>
+              <span className="text-sm font-medium text-foreground">Filtrer etter fagområde</span>
               {domainFilter && (
                 <Button
                   variant="ghost"
@@ -541,7 +541,7 @@ export default function Tasks() {
                 onClick={() => setDomainFilter(null)}
                 className="gap-2"
               >
-                Alle domener
+                Alle fagområder
                 <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
               </Button>
               {Object.entries(domainFrameworkMapping).map(([key, domain]) => (
