@@ -97,7 +97,7 @@ export const AIHeroSummary = ({
             "text-sm font-medium",
             riskConfig.isHighRisk ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
           )}>
-            {riskConfig.isHighRisk ? "Viktig vurdering kreves" : "Analyse klar"}
+            {riskConfig.isHighRisk ? "Viktig vurdering kreves" : "Forslag fra Lara"}
           </span>
           <span className="text-xs text-muted-foreground/60 ml-auto">
             {confidence === "high" ? "Høy" : confidence === "medium" ? "Middels" : "Lav"} sikkerhet
