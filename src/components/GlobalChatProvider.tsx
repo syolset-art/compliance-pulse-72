@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, ReactNode } from "react";
+import { useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatPanel } from "./ChatPanel";
@@ -12,6 +12,9 @@ interface GlobalChatContextType {
   openChatWithMessage: (message: string) => void;
   pendingMessage: string | null;
   clearPendingMessage: () => void;
+  // Callback registration for asset added events
+  registerAssetAddedCallback: (callback: () => void) => void;
+  unregisterAssetAddedCallback: (callback: () => void) => void;
 }
 
 const GlobalChatContext = createContext<GlobalChatContextType | undefined>(undefined);
@@ -32,6 +35,9 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
+  
+  // Store callbacks for asset added events
+  const assetAddedCallbacksRef = useRef<Set<() => void>>(new Set());
 
   const { data: assetTypeTemplates = [] } = useQuery({
     queryKey: ["asset_type_templates"],
@@ -51,6 +57,20 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
 
   const clearPendingMessage = () => setPendingMessage(null);
 
+  const registerAssetAddedCallback = useCallback((callback: () => void) => {
+    assetAddedCallbacksRef.current.add(callback);
+  }, []);
+
+  const unregisterAssetAddedCallback = useCallback((callback: () => void) => {
+    assetAddedCallbacksRef.current.delete(callback);
+  }, []);
+
+  const handleAssetAdded = useCallback(() => {
+    setIsAddAssetOpen(false);
+    // Notify all registered callbacks
+    assetAddedCallbacksRef.current.forEach(callback => callback());
+  }, []);
+
   const handleShowContent = () => {
     // Content viewing is handled within ChatPanel
   };
@@ -67,7 +87,9 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
         toggleChat, 
         openChatWithMessage,
         pendingMessage,
-        clearPendingMessage
+        clearPendingMessage,
+        registerAssetAddedCallback,
+        unregisterAssetAddedCallback
       }}
     >
       {children}
@@ -91,7 +113,7 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
       <AddAssetDialog
         open={isAddAssetOpen}
         onOpenChange={setIsAddAssetOpen}
-        onAssetAdded={() => setIsAddAssetOpen(false)}
+        onAssetAdded={handleAssetAdded}
         assetTypeTemplates={assetTypeTemplates}
       />
     </GlobalChatContext.Provider>
