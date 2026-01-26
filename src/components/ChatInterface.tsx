@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress, OnboardingStep } from "@/hooks/useOnboardingProgress";
 import { PageContext } from "@/hooks/usePageContext";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 interface Message {
   role: "user" | "assistant";
@@ -317,6 +318,20 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     isFullyComplete: isOnboardingComplete,
     refetch: refetchOnboarding 
   } = useOnboardingProgress();
+
+  // Get global chat context for asset added callback
+  const { registerAssetAddedCallback, unregisterAssetAddedCallback } = useGlobalChat();
+
+  // Register callback to refetch onboarding when assets are added
+  useEffect(() => {
+    const callback = () => {
+      refetchOnboarding();
+    };
+    registerAssetAddedCallback(callback);
+    return () => {
+      unregisterAssetAddedCallback(callback);
+    };
+  }, [registerAssetAddedCallback, unregisterAssetAddedCallback, refetchOnboarding]);
 
   const suggestions = suggestionMap[currentContext];
   const isEmptyState = messages.length === 0;
