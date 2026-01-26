@@ -18,6 +18,7 @@ import {
   FileCheck,
   FileBarChart
 } from "lucide-react";
+import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -76,9 +77,9 @@ const SidebarContent = () => {
   return (
     <>
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-6 border-b border-border">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
         <Link to="/" className="cursor-pointer">
-          <img src={mynderLogo} alt="Mynder" className="h-8" />
+          <img src={mynderLogoInverted} alt="Mynder" className="h-8" />
         </Link>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
@@ -97,8 +98,8 @@ const SidebarContent = () => {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-sm"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -118,7 +119,7 @@ const SidebarContent = () => {
             onClick={() => setAdminOpen(!adminOpen)}
             className={cn(
               "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isAdminActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              isAdminActive ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-3">
@@ -140,8 +141,8 @@ const SidebarContent = () => {
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors relative",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        ? "bg-sidebar-accent text-sidebar-primary"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     )}
                   >
                     <item.icon className="h-4 w-4" />
@@ -162,7 +163,7 @@ const SidebarContent = () => {
         <div className="pt-1">
           <button 
             onClick={() => setSettingsOpen(!settingsOpen)}
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
@@ -174,7 +175,7 @@ const SidebarContent = () => {
 
         <Link
           to="/trust-profile"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
           <Shield className="h-5 w-5" />
           {t("nav.trustProfile")}
@@ -182,27 +183,27 @@ const SidebarContent = () => {
       </nav>
 
       {/* Company section at bottom */}
-      <div className="border-t border-border">
+      <div className="border-t border-sidebar-border">
         {companyName ? (
           <div className="p-3">
             <button 
               onClick={() => setCompanyOpen(!companyOpen)}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-sidebar-accent transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
+                <div className="h-10 w-10 rounded-full bg-sidebar-accent flex items-center justify-center">
+                  <span className="text-sm font-medium text-sidebar-primary">
                     {companyName.substring(0, 2).toUpperCase()}
                   </span>
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-foreground truncate max-w-[120px]">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[120px]">
                     {companyName}
                   </p>
-                  <p className="text-xs text-muted-foreground">Selskap</p>
+                  <p className="text-xs text-sidebar-foreground/60">Selskap</p>
                 </div>
               </div>
-              <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", companyOpen && "rotate-180")} />
+              <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/60 transition-transform", companyOpen && "rotate-180")} />
             </button>
 
             {/* Company submenu */}
@@ -210,35 +211,35 @@ const SidebarContent = () => {
               <div className="mt-2 ml-2 space-y-1 animate-fade-in">
                 <button
                   onClick={() => navigate('/company-settings')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <Building2 className="h-4 w-4" />
                   Selskapsinnstillinger
                 </button>
                 <button
                   onClick={() => navigate('/subscriptions')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <CreditCard className="h-4 w-4" />
                   Abonnementer
                 </button>
                 <button
                   onClick={() => navigate('/terms-and-consent')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <FileCheck className="h-4 w-4" />
                   Betingelser og samtykke
                 </button>
                 <button
                   onClick={() => navigate('/regulations')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <Scale className="h-4 w-4" />
                   Regelverk og krav
                 </button>
-                <div className="border-t border-border my-2" />
+                <div className="border-t border-sidebar-border my-2" />
                 <button
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <span className="text-xs">{t("nav.switchOrganization")}</span>
                 </button>
@@ -248,12 +249,12 @@ const SidebarContent = () => {
         ) : (
           <div className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
+              <div className="h-10 w-10 rounded-full bg-sidebar-accent flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-sidebar-foreground/60" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground">Ikke registrert</p>
-                <p className="text-xs text-muted-foreground">Klikk på Lara for å starte</p>
+                <p className="text-sm text-sidebar-foreground/70">Ikke registrert</p>
+                <p className="text-xs text-sidebar-foreground/50">Klikk på Lara for å starte</p>
               </div>
             </div>
           </div>
@@ -281,8 +282,8 @@ export function Sidebar() {
                 <Menu className="h-6 w-6 text-foreground" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
-              <div className="flex h-full flex-col bg-card">
+            <SheetContent side="left" className="p-0 w-64 bg-sidebar border-sidebar-border">
+              <div className="flex h-full flex-col">
                 <SidebarContent />
               </div>
             </SheetContent>
@@ -295,7 +296,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-card/95 backdrop-blur-sm shadow-2xl">
+    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar shadow-2xl">
       <SidebarContent />
     </div>
   );
