@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { DomainSummaryCard } from "./DomainSummaryCard";
 import { DomainActionDialog } from "./DomainActionDialog";
-import { DomainUpgradeDialog } from "./DomainUpgradeDialog";
+import { DomainActivationWizard } from "./DomainActivationWizard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
 
@@ -253,9 +253,9 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
         />
       )}
 
-      {/* Upgrade Dialog */}
+      {/* Upgrade Wizard */}
       {upgradeDialog.domain && (
-        <DomainUpgradeDialog
+        <DomainActivationWizard
           open={upgradeDialog.open}
           onOpenChange={(open) => setUpgradeDialog(prev => ({ ...prev, open }))}
           domainId={upgradeDialog.domain.id}
@@ -266,6 +266,7 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
           monthlyPrice={DOMAIN_ADDON_PRICES[upgradeDialog.domain.id] || 0}
           onActivate={handleActivateAddon}
           isActivating={isActivatingAddon}
+          onOpenChat={onOpenChat}
         />
       )}
     </>
