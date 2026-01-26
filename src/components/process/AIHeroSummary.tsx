@@ -1,6 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ChevronDown,
   ChevronUp,
   Check,
@@ -93,12 +99,26 @@ export const AIHeroSummary = ({
             "h-2 w-2 rounded-full animate-pulse",
             riskConfig.isHighRisk ? "bg-red-500" : "bg-primary"
           )} />
-          <span className={cn(
-            "text-sm font-medium",
-            riskConfig.isHighRisk ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
-          )}>
-            {riskConfig.isHighRisk ? "Viktig vurdering kreves" : "Forslag fra Lara"}
-          </span>
+          {riskConfig.isHighRisk ? (
+            <span className="text-sm font-medium text-red-600 dark:text-red-400">
+              Viktig vurdering kreves
+            </span>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-sm font-medium text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                    Forslag fra Lara
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-sm">
+                    Lara er din KI-agent som analyserer prosesser og foreslår AI-risikokategorier basert på tilgjengelig informasjon.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <span className="text-xs text-muted-foreground/60 ml-auto">
             {confidence === "high" ? "Høy" : confidence === "medium" ? "Middels" : "Lav"} sikkerhet
           </span>
