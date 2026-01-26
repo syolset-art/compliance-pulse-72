@@ -33,14 +33,14 @@ const triggerConfetti = () => {
       angle: 60,
       spread: 55,
       origin: { x: 0, y: 0.8 },
-      colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+      colors: ['#007AFF', '#5AC8FA', '#34C759', '#fbbf24', '#FF9500']
     });
     confetti({
       particleCount: 3,
       angle: 120,
       spread: 55,
       origin: { x: 1, y: 0.8 },
-      colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+      colors: ['#007AFF', '#5AC8FA', '#34C759', '#fbbf24', '#FF9500']
     });
 
     if (Date.now() < end) {
@@ -53,7 +53,7 @@ const triggerConfetti = () => {
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 },
-    colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#22c55e', '#fbbf24']
+    colors: ['#007AFF', '#5AC8FA', '#34C759', '#fbbf24', '#FF9500']
   });
 
   frame();
