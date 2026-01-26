@@ -79,7 +79,8 @@ const SidebarContent = () => {
       {/* Logo */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
         <Link to="/" className="cursor-pointer">
-          <img src={mynderLogoInverted} alt="Mynder" className="h-8" />
+          <img src={mynderLogo} alt="Mynder" className="h-8 dark:hidden" />
+          <img src={mynderLogoInverted} alt="Mynder" className="h-8 hidden dark:block" />
         </Link>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
@@ -282,7 +283,7 @@ export function Sidebar() {
                 <Menu className="h-6 w-6 text-foreground" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 bg-sidebar border-sidebar-border">
+            <SheetContent side="left" className="p-0 w-64 bg-sidebar border-sidebar-border dark:bg-sidebar">
               <div className="flex h-full flex-col">
                 <SidebarContent />
               </div>
@@ -296,7 +297,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar shadow-2xl">
+    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar shadow-luxury border-r border-sidebar-border">
       <SidebarContent />
     </div>
   );
