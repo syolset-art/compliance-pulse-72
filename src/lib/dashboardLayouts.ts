@@ -91,7 +91,7 @@ export const DASHBOARD_LAYOUTS: Record<AppRole, DashboardLayout> = {
   compliance_ansvarlig: {
     role: 'compliance_ansvarlig',
     title: 'Compliance-visning',
-    description: 'Balansert oversikt over alle domener og regelverk',
+    description: 'Oversikt over regelverk og modenhet i din virksomhet',
     primaryWidgets: ['domain-compliance', 'status-overview', 'my-regulations', 'critical-tasks'],
     secondaryWidgets: ['ropa-status', 'inherent-risk', 'ai-act-compliance', 'task-progress', 'third-party', 'activity-report'],
     hiddenWidgets: []
