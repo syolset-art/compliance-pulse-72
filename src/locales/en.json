@@ -15,7 +15,49 @@
     "reports": "Reports",
     "menu": "Menu",
     "chat": "Chat",
-    "switchOrganization": "Switch organization"
+    "switchOrganization": "Switch organization",
+    "resources": "Resources"
+  },
+  "resources": {
+    "title": "Learning Center",
+    "subtitle": "Everything you need to master Mynder",
+    "gettingStarted": {
+      "title": "Getting Started",
+      "subtitle": "Interactive training for new users",
+      "items": {
+        "intro": "Introduction to Mynder",
+        "introDesc": "Learn the platform basics",
+        "firstSteps": "Your First Steps",
+        "firstStepsDesc": "Step-by-step guidance",
+        "quickStart": "Quick-start Guide",
+        "quickStartDesc": "Get started with the essentials"
+      }
+    },
+    "demos": {
+      "title": "Demos",
+      "subtitle": "See the platform in action",
+      "startDemo": "Start Interactive Demo",
+      "watchIntro": "Watch intro video"
+    },
+    "knowledge": {
+      "title": "Knowledge Base",
+      "subtitle": "Professional resources and guides",
+      "gdprDesc": "Privacy and data protection",
+      "nis2Desc": "Network and information security",
+      "isoDesc": "Information security management",
+      "aiActDesc": "EU regulation for artificial intelligence",
+      "articles": "articles"
+    },
+    "support": {
+      "title": "Support",
+      "subtitle": "We're here to help",
+      "faq": "Frequently Asked Questions",
+      "faqDesc": "Find answers to common questions",
+      "viewFaq": "View FAQ",
+      "contact": "Contact Us",
+      "contactDesc": "Get in touch with our support team",
+      "contactUs": "Send Message"
+    }
   },
   "reports": {
     "title": "Reports",

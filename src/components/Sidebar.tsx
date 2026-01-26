@@ -16,7 +16,8 @@ import {
   Scale,
   CreditCard,
   FileCheck,
-  FileBarChart
+  FileBarChart,
+  BookOpen
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -180,6 +181,20 @@ const SidebarContent = () => {
         >
           <Shield className="h-5 w-5" />
           {t("nav.trustProfile")}
+        </Link>
+
+        {/* Resources link */}
+        <Link
+          to="/resources"
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all mt-2",
+            location.pathname === "/resources"
+              ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+          )}
+        >
+          <BookOpen className="h-5 w-5" />
+          {t("nav.resources")}
         </Link>
       </nav>
 

@@ -16,7 +16,49 @@
     "reports": "Rapporter",
     "menu": "Meny",
     "chat": "Chat",
-    "switchOrganization": "Bytt organisasjon"
+    "switchOrganization": "Bytt organisasjon",
+    "resources": "Ressurser"
+  },
+  "resources": {
+    "title": "Læringssenter",
+    "subtitle": "Alt du trenger for å mestre Mynder",
+    "gettingStarted": {
+      "title": "Kom i gang",
+      "subtitle": "Interaktiv opplæring for nye brukere",
+      "items": {
+        "intro": "Introduksjon til Mynder",
+        "introDesc": "Lær det grunnleggende om plattformen",
+        "firstSteps": "Dine første steg",
+        "firstStepsDesc": "Trinn-for-trinn veiledning",
+        "quickStart": "Quick-start guide",
+        "quickStartDesc": "Kom raskt i gang med det viktigste"
+      }
+    },
+    "demos": {
+      "title": "Demoer",
+      "subtitle": "Se plattformen i aksjon",
+      "startDemo": "Start interaktiv demo",
+      "watchIntro": "Se introduksjonsvideo"
+    },
+    "knowledge": {
+      "title": "Kunnskapsbase",
+      "subtitle": "Faglige ressurser og veiledninger",
+      "gdprDesc": "Personvern og databeskyttelse",
+      "nis2Desc": "Nettverks- og informasjonssikkerhet",
+      "isoDesc": "Informasjonssikkerhetsstyring",
+      "aiActDesc": "EU-regulering for kunstig intelligens",
+      "articles": "artikler"
+    },
+    "support": {
+      "title": "Support",
+      "subtitle": "Vi hjelper deg videre",
+      "faq": "Ofte stilte spørsmål",
+      "faqDesc": "Finn svar på vanlige spørsmål",
+      "viewFaq": "Se FAQ",
+      "contact": "Kontakt oss",
+      "contactDesc": "Ta kontakt med vårt supportteam",
+      "contactUs": "Send melding"
+    }
   },
   "reports": {
     "title": "Rapporter",
