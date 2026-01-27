@@ -1,68 +1,115 @@
 
-# Plan: Endre terminologi fra "domene" til "kontrollområde"
+# Plan: Legg til nettverksdomene i onboarding
 
 ## Oversikt
-Mynder opererer innenfor 4 kontrollområder:
-1. **Personvern** - GDPR, Personopplysningsloven
-2. **Informasjonssikkerhet** - ISO 27001, NIS2, SOC 2
-3. **AI Governance** - EU AI Act, ISO 42001
-4. **Øvrige regelverk** - Åpenhetsloven, HMS, Bokføringsloven
+Legge til et felt for nettverksdomene (f.eks. "hult-it.no") i onboardingen slik at Mynder kan hente:
+- Domeneskår (nettsidens sikkerhet/kvalitet)
+- E-postsikkerhet (SPF, DKIM, DMARC - hvem som har lov å sende e-post)
+- SSL/TLS-status
+- Andre DNS-baserte sikkerhetsanalyser
 
-Innenfor hvert kontrollområde finnes det flere spesifikke regelverk (lover, standarder, retningslinjer).
+## Database-endring
 
-## Endringer som er gjort
+Legge til ny kolonne i `company_profile`:
 
-### 1. useSubscription.ts
-Toast-meldinger ved aktivering av kontrollområde:
-- "Fagområde aktivert!" → "Kontrollområde aktivert!"
-- "Kunne ikke aktivere fagområdet" → "Kunne ikke aktivere kontrollområdet"
+```sql
+ALTER TABLE company_profile 
+ADD COLUMN domain TEXT;
+```
 
-### 2. DomainActivationWizard.tsx
-Wizard-tekster gjennom hele aktiveringsprosessen:
-- "Dette fagområdet inkluderer:" → "Dette kontrollområdet inkluderer:"
-- "deaktivere dette fagområdet" → "deaktivere dette kontrollområdet"
-- "Fagområdet er nå en del av..." → "Kontrollområdet er nå en del av..."
-- "mot kravene i dette fagområdet" → "mot kravene i dette kontrollområdet"
+## UI-endringer
 
-### 3. DomainUpgradeDialog.tsx
-Dialog-tekster for oppgradering:
-- "Dette domenet inkluderer:" → "Dette kontrollområdet inkluderer:"
-- "deaktivere dette domenet" → "deaktivere dette kontrollområdet"
+### 1. CompactCompanyOnboarding.tsx (Hovedendring)
+Etter at selskapet er bekreftet fra Brønnøysund, vise et nytt felt for domene:
 
-### 4. DomainActionDialog.tsx
-Dialog-tekster for handlinger:
-- "innenfor dette fagområdet" → "innenfor dette kontrollområdet"
+**Før "Bekreft"-knappen legges det til:**
+- Input-felt for domene med placeholder "f.eks. hult-it.no"
+- Hjelpetekst som forklarer hva dette brukes til
+- Validering at domene har riktig format
 
-### 5. DomainComplianceWidget.tsx
-Widget-beskrivelser og labels:
-- "hvert fagområde og tilhørende regelverk" → "hvert kontrollområde og tilhørende regelverk"
-- "Ingen regelverk aktivert i dette fagområdet" → "Ingen regelverk aktivert i dette kontrollområdet"
-- "på tvers av fagområder" → "på tvers av kontrollområder"
+**Ny flyt:**
+1. Søk opp selskap (eksisterende)
+2. Velg selskap fra liste (eksisterende)
+3. **NYTT: Oppgi domene** (valgfritt felt)
+4. Bekreft (eksisterende)
 
-### 6. Tasks.tsx
-Filter-labels:
-- "Filtrer etter fagområde" → "Filtrer etter kontrollområde"
-- "Alle fagområder" → "Alle kontrollområder"
+### 2. Visuell design
+Etter selskapsinformasjon vises et nytt kort/seksjon:
 
-### 7. Subscriptions.tsx
-Seksjonstitler og plan-beskrivelser:
-- "Aktive fagområder" → "Aktive kontrollområder"
-- "Alle tre hovedfagområder inkludert" → "Alle tre hovedkontrollområder inkludert"
+```text
+┌─────────────────────────────────────────┐
+│ 🌐 Nettverksdomene (valgfritt)          │
+│                                         │
+│ ┌─────────────────────────────────────┐ │
+│ │ hult-it.no                          │ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ ℹ️ Vi bruker domenet til å analysere    │
+│    e-postsikkerhet og nettsidens        │
+│    sikkerhetsstatus.                    │
+└─────────────────────────────────────────┘
+```
+
+### 3. Validering
+- Sjekk at domenet har et gyldig format (regex)
+- Fjerne eventuelle "https://" eller "www." prefiks automatisk
+- Feltet er valgfritt - brukeren kan hoppe over
 
 ## Tekniske detaljer
 
-Alle variabelnavn, komponentnavn og database-referanser (som `domain_id`, `DomainComplianceWidget`, `domain_addons`, etc.) beholdes uendret. Kun brukervendt tekst endres for å unngå komplekse refaktoreringer.
+### Domene-validering (regex)
+```typescript
+const validateDomain = (domain: string): boolean => {
+  const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
+  return pattern.test(domain);
+};
 
-## Filer som er endret
+const cleanDomain = (input: string): string => {
+  return input
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .split('/')[0]
+    .trim()
+    .toLowerCase();
+};
+```
 
-| Fil | Antall endringer |
-|-----|------------------|
-| `src/hooks/useSubscription.ts` | 2 |
-| `src/components/regulations/DomainActivationWizard.tsx` | 4 |
-| `src/components/regulations/DomainUpgradeDialog.tsx` | 2 |
-| `src/components/regulations/DomainActionDialog.tsx` | 1 |
-| `src/components/widgets/DomainComplianceWidget.tsx` | 3 |
-| `src/pages/Tasks.tsx` | 2 |
-| `src/pages/Subscriptions.tsx` | 2 |
+### Endringer i formData
+```typescript
+const [formData, setFormData] = useState({
+  name: "",
+  orgNumber: "",
+  industry: "",
+  employees: "",
+  kommune: "",
+  domain: ""  // NYTT
+});
+```
 
-**Totalt: 16 tekstendringer fordelt på 7 filer**
+### Lagring til database
+```typescript
+const { error } = await supabase
+  .from("company_profile")
+  .insert({
+    name: formData.name,
+    org_number: formData.orgNumber || null,
+    industry: formData.industry,
+    employees: formData.employees || null,
+    domain: formData.domain || null  // NYTT
+  });
+```
+
+## Filer som endres
+
+| Fil | Endring |
+|-----|---------|
+| Database migration | Legge til `domain` kolonne |
+| `src/components/onboarding/CompactCompanyOnboarding.tsx` | Legge til domene-input og validering |
+| `src/components/onboarding/CompanyOnboarding.tsx` | Legge til domene-input i steg 1 |
+
+## Fremtidig funksjonalitet (ikke del av denne implementasjonen)
+Etter at domenet er lagret, kan det brukes til:
+- Edge function som sjekker DNS-records (SPF, DKIM, DMARC)
+- SSL/TLS-analyse
+- Website score via tredjepartstjenester
+- Automatisk oppdagelse av e-postsystemer
