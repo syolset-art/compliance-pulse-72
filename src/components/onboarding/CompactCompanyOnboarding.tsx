@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
-import { Loader2, Search, Check, Building2, ChevronRight } from "lucide-react";
+import { Loader2, Search, Check, Building2, ChevronRight, Globe, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CompactCompanyOnboardingProps {
@@ -65,8 +65,30 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     orgNumber: "",
     industry: "",
     employees: "",
-    kommune: ""
+    kommune: "",
+    domain: ""
   });
+
+  // Domain validation and cleaning
+  const cleanDomain = (input: string): string => {
+    return input
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .split('/')[0]
+      .trim()
+      .toLowerCase();
+  };
+
+  const validateDomain = (domain: string): boolean => {
+    if (!domain) return true; // Optional field
+    const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
+    return pattern.test(domain);
+  };
+
+  const handleDomainChange = (value: string) => {
+    const cleaned = cleanDomain(value);
+    setFormData(prev => ({ ...prev, domain: cleaned }));
+  };
 
   const searchBrreg = async () => {
     const trimmedName = companyName.trim();
@@ -116,7 +138,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       orgNumber: company.organisasjonsnummer,
       industry: mapIndustry(company.naeringskode1?.beskrivelse),
       employees: mapEmployeeRange(company.antallAnsatte),
-      kommune: company.forretningsadresse?.kommune || ""
+      kommune: company.forretningsadresse?.kommune || "",
+      domain: ""
     });
     setCompanyFound(true);
     setSearchResults([]);
@@ -129,6 +152,11 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       return;
     }
 
+    if (formData.domain && !validateDomain(formData.domain)) {
+      toast.error("Ugyldig domeneformat. Eksempel: hult-it.no");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase
@@ -137,7 +165,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           name: formData.name,
           org_number: formData.orgNumber || null,
           industry: formData.industry,
-          employees: formData.employees || null
+          employees: formData.employees || null,
+          domain: formData.domain || null
         });
 
       if (error) throw error;
@@ -177,7 +206,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       orgNumber: "",
       industry: "",
       employees: "",
-      kommune: ""
+      kommune: "",
+      domain: ""
     });
   };
 
@@ -316,6 +346,27 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                 <p className="text-sm font-medium">{formData.kommune}</p>
               </div>
             )}
+          </div>
+
+          {/* Domain input section */}
+          <div className="p-4 rounded-xl bg-muted/50 border border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="domain" className="text-sm font-medium">
+                Nettverksdomene (valgfritt)
+              </Label>
+            </div>
+            <Input
+              id="domain"
+              value={formData.domain}
+              onChange={(e) => handleDomainChange(e.target.value)}
+              placeholder="f.eks. hult-it.no"
+              className="mb-2"
+            />
+            <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <Info className="h-3 w-3 mt-0.5 shrink-0" />
+              <p>Vi bruker domenet til å analysere e-postsikkerhet og nettsidens sikkerhetsstatus.</p>
+            </div>
           </div>
 
           {/* Action buttons */}

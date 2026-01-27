@@ -21,7 +21,9 @@ import {
   Brain,
   Leaf,
   AlertTriangle,
-  Users
+  Users,
+  Globe,
+  Info
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { suggestRolesForCompany, useCaseOptions, teamSizeOptions } from "@/lib/rolesSuggestions";
@@ -77,7 +79,29 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     maturity: "intermediate",
     use_cases: [] as string[],
     team_size: "",
+    domain: "",
   });
+
+  // Domain validation and cleaning
+  const cleanDomain = (input: string): string => {
+    return input
+      .replace(/^https?:\/\//, '')
+      .replace(/^www\./, '')
+      .split('/')[0]
+      .trim()
+      .toLowerCase();
+  };
+
+  const validateDomain = (domain: string): boolean => {
+    if (!domain) return true; // Optional field
+    const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
+    return pattern.test(domain);
+  };
+
+  const handleDomainChange = (value: string) => {
+    const cleaned = cleanDomain(value);
+    setFormData(prev => ({ ...prev, domain: cleaned }));
+  };
 
   const handleNext = () => {
     if (step === "company") {
@@ -242,6 +266,24 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
                   placeholder="F.eks. 983052968"
                   className="h-12"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="domain">Nettverksdomene (valgfritt)</Label>
+                </div>
+                <Input
+                  id="domain"
+                  value={formData.domain}
+                  onChange={(e) => handleDomainChange(e.target.value)}
+                  placeholder="f.eks. hult-it.no"
+                  className="h-12"
+                />
+                <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                  <p>Vi bruker domenet til å analysere e-postsikkerhet og nettsidens sikkerhetsstatus.</p>
+                </div>
               </div>
             </div>
 
