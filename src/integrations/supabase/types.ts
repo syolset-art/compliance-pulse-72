@@ -505,6 +505,7 @@ export type Database = {
           brreg_employees: number | null
           brreg_industry: string | null
           created_at: string | null
+          domain: string | null
           employees: string | null
           id: string
           industry: string
@@ -521,6 +522,7 @@ export type Database = {
           brreg_employees?: number | null
           brreg_industry?: string | null
           created_at?: string | null
+          domain?: string | null
           employees?: string | null
           id?: string
           industry: string
@@ -537,6 +539,7 @@ export type Database = {
           brreg_employees?: number | null
           brreg_industry?: string | null
           created_at?: string | null
+          domain?: string | null
           employees?: string | null
           id?: string
           industry?: string
