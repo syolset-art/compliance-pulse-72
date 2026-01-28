@@ -175,7 +175,7 @@ export function DomainSummaryCard({
     <div
       onClick={handleClick}
       className={cn(
-        "relative p-5 rounded-xl border bg-card cursor-pointer overflow-hidden",
+        "relative p-5 rounded-xl border bg-card cursor-pointer overflow-hidden min-w-0",
         "hover:border-primary/50 hover:shadow-lg transition-all duration-200",
         "group"
       )}
@@ -188,21 +188,13 @@ export function DomainSummaryCard({
       
       <div className="relative">
         {/* Header with icon and progress */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className={cn("p-3 rounded-xl", bgColor)}>
-              <Icon className={cn("h-6 w-6", color)} />
-            </div>
-            {isIncludedInPlan && (
-              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Inkludert
-              </Badge>
-            )}
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className={cn("p-3 rounded-xl shrink-0", bgColor)}>
+            <Icon className={cn("h-6 w-6", color)} />
           </div>
           
           {/* Circular progress */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center shrink-0">
             <svg width={size} height={size} className="-rotate-90">
               {/* Background circle */}
               <circle
@@ -232,6 +224,14 @@ export function DomainSummaryCard({
             </span>
           </div>
         </div>
+
+        {/* Included badge - moved below header */}
+        {isIncludedInPlan && (
+          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400 mb-3">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Inkludert
+          </Badge>
+        )}
 
         {/* Domain name */}
         <h3 className="font-semibold text-foreground mb-1">{name}</h3>
