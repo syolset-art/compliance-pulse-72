@@ -54,9 +54,16 @@ import {
   Wifi,
   Box,
   Clock,
-  RefreshCw
+  RefreshCw,
+  User,
+  Calculator,
+  Wrench
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PerformerSelectStep, type PerformerRole } from "@/components/integration/PerformerSelectStep";
+import { InvitePerformerForm, type InviteData } from "@/components/integration/InvitePerformerForm";
+import { IntegrationPendingStatus } from "@/components/integration/IntegrationPendingStatus";
+import { useIntegrationPerformers } from "@/hooks/useIntegrationPerformers";
 
 interface AssetTypeTemplate {
   asset_type: string;
@@ -187,6 +194,9 @@ type Step =
   | "upload" 
   | "connect"
   | "connect-select-types"
+  | "connect-performer-select"
+  | "connect-invite-performer"
+  | "connect-pending"
   | "connect-auth"
   | "connect-fetching"
   | "connect-preview"
@@ -195,6 +205,7 @@ type Step =
 
 export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemplates }: AddAssetDialogProps) {
   const { t } = useTranslation();
+  const { createPerformer, logAuditEvent } = useIntegrationPerformers();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<Step>("select-type");
   const [selectedType, setSelectedType] = useState<string>("");
@@ -219,6 +230,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const [syncFrequency, setSyncFrequency] = useState("daily");
   const [importedCount, setImportedCount] = useState(0);
   const [previewFilter, setPreviewFilter] = useState<string>("all");
+  
+  // Performer/Invite state
+  const [selectedPerformerRole, setSelectedPerformerRole] = useState<PerformerRole | null>(null);
+  const [pendingInvite, setPendingInvite] = useState<InviteData | null>(null);
   
   const [formData, setFormData] = useState({
     asset_type: "",
@@ -266,6 +281,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       setEnableSync(false);
       setImportedCount(0);
       setPreviewFilter("all");
+      setSelectedPerformerRole(null);
+      setPendingInvite(null);
       setFormData({
         asset_type: "",
         name: "",
@@ -468,6 +485,26 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     setStep("connect-select-types");
   };
 
+  const handlePerformerSelect = (role: PerformerRole) => {
+    setSelectedPerformerRole(role);
+    if (role === "owner") {
+      setStep("connect-auth");
+    } else {
+      setStep("connect-invite-performer");
+    }
+  };
+
+  const handleInviteSent = async (data: InviteData) => {
+    setPendingInvite(data);
+    await createPerformer({
+      email: data.email,
+      name: data.name,
+      role: data.role,
+      organization_name: data.organizationName,
+    });
+    setStep("connect-pending");
+  };
+
   const handleAssetTypeToggle = (typeId: string) => {
     setSelectedAssetTypes(prev => {
       const newSet = new Set(prev);
@@ -492,6 +529,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   };
 
   const startFetching = async () => {
+    // Go to performer selection before auth
+    setStep("connect-performer-select");
+  };
+
+  const startActualFetching = async () => {
     setStep("connect-fetching");
     
     // Simulate connection and fetch process
@@ -623,11 +665,15 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "ai-suggestions": return 70;
       case "manual-form": return 70;
       case "upload": return 50;
-      case "connect": return 25;
-      case "connect-select-types": return 40;
-      case "connect-fetching": return 55;
-      case "connect-preview": return 70;
-      case "connect-importing": return 90;
+      case "connect": return 20;
+      case "connect-select-types": return 35;
+      case "connect-performer-select": return 50;
+      case "connect-invite-performer": return 55;
+      case "connect-pending": return 60;
+      case "connect-auth": return 65;
+      case "connect-fetching": return 75;
+      case "connect-preview": return 85;
+      case "connect-importing": return 95;
       case "connect-complete": return 100;
       default: return 0;
     }
@@ -647,8 +693,19 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         setStep("connect");
         setSelectedIntegration("");
         break;
-      case "connect-preview":
+      case "connect-performer-select":
         setStep("connect-select-types");
+        break;
+      case "connect-invite-performer":
+        setStep("connect-performer-select");
+        setSelectedPerformerRole(null);
+        break;
+      case "connect-auth":
+        setStep("connect-performer-select");
+        setSelectedPerformerRole(null);
+        break;
+      case "connect-preview":
+        setStep("connect-performer-select");
         break;
       case "select-manual-method":
         setStep("select-type");
@@ -1643,6 +1700,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "upload": return "Last opp fra fil";
       case "connect": return "Koble til datakilde";
       case "connect-select-types": return "Velg eiendelstyper";
+      case "connect-performer-select": return "Hvem utfører integrasjonen?";
+      case "connect-invite-performer": return "Send invitasjon";
+      case "connect-pending": return "Venter på ekstern part";
       case "connect-auth": return "Koble til";
       case "connect-fetching": return "Henter data";
       case "connect-preview": return "Forhåndsvis import";
@@ -1652,7 +1712,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     }
   };
 
-  const canGoBack = !["connect-fetching", "connect-importing", "connect-complete"].includes(step);
+  const canGoBack = !["connect-fetching", "connect-importing", "connect-complete", "connect-pending"].includes(step);
+
+  const integration = integrationOptions.find(i => i.id === selectedIntegration);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1682,8 +1744,31 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           {step === "upload" && renderUpload()}
           {step === "connect" && renderConnect()}
           {step === "connect-select-types" && renderConnectSelectTypes()}
+          {step === "connect-performer-select" && (
+            <PerformerSelectStep 
+              integrationName={integration?.name || "integrasjon"} 
+              onSelect={handlePerformerSelect} 
+            />
+          )}
+          {step === "connect-invite-performer" && selectedPerformerRole && (
+            <InvitePerformerForm
+              integrationName={integration?.name || "integrasjon"}
+              performerRole={selectedPerformerRole}
+              onInviteSent={handleInviteSent}
+              onCancel={() => setStep("connect-performer-select")}
+            />
+          )}
+          {step === "connect-pending" && pendingInvite && (
+            <IntegrationPendingStatus
+              integrationName={integration?.name || "integrasjon"}
+              invite={{ ...pendingInvite, sentAt: new Date() }}
+              onSendReminder={() => toast.success("Påminnelse sendt!")}
+              onCancel={() => { setPendingInvite(null); setStep("connect-performer-select"); }}
+              onIHaveKey={() => setStep("connect-auth")}
+            />
+          )}
+          {step === "connect-auth" && renderConnectAuth()}
           {step === "connect-fetching" && renderConnectFetching()}
-          {step === "connect-preview" && renderConnectPreview()}
           {step === "connect-preview" && renderConnectPreview()}
           {step === "connect-importing" && renderConnectImporting()}
           {step === "connect-complete" && renderConnectComplete()}
@@ -1741,6 +1826,15 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                 <Button 
                   onClick={startFetching}
                   disabled={selectedAssetTypes.size === 0}
+                >
+                  Neste
+                </Button>
+              )}
+
+              {step === "connect-auth" && (
+                <Button 
+                  onClick={startActualFetching}
+                  disabled={!apiKey}
                 >
                   Hent eiendeler
                 </Button>
