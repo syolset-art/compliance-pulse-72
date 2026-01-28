@@ -724,11 +724,16 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       </div>
 
       {/* Help text */}
-      <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 mt-4">
-        <Info className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-muted-foreground">
-          Vet du ikke hvilke eiendeler du skal legge til? Kontakt din IT-leverandør eller IT-ansvarlig for en oversikt over systemer, nettverk og digitale enheter som er i bruk.
-        </p>
+      <div className="flex items-start gap-3 p-4 rounded-xl border border-primary/30 bg-primary/5 mt-6">
+        <div className="p-2 rounded-full bg-primary/20">
+          <Info className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-foreground">Usikker på hva du skal legge til?</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Kontakt din IT-leverandør eller IT-ansvarlig for en oversikt over systemer, nettverk og digitale enheter som er i bruk.
+          </p>
+        </div>
       </div>
     </div>
   );
