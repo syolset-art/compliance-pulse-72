@@ -646,6 +646,66 @@ export type Database = {
           },
         ]
       }
+      integration_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          integration_id: string | null
+          performed_by_email: string | null
+          performed_by_name: string | null
+          performed_by_organization: string | null
+          performed_by_role:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
+          performer_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          integration_id?: string | null
+          performed_by_email?: string | null
+          performed_by_name?: string | null
+          performed_by_organization?: string | null
+          performed_by_role?:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
+          performer_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          integration_id?: string | null
+          performed_by_email?: string | null
+          performed_by_name?: string | null
+          performed_by_organization?: string | null
+          performed_by_role?:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
+          performer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_audit_log_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_audit_log_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "integration_performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integration_connections: {
         Row: {
           api_key_encrypted: string | null
@@ -654,7 +714,12 @@ export type Database = {
           id: string
           is_active: boolean | null
           last_sync_at: string | null
+          performer_role:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
           provider: string
+          setup_completed_at: string | null
+          setup_performer_id: string | null
           sync_frequency: string | null
           sync_status: string | null
           updated_at: string | null
@@ -666,7 +731,12 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
+          performer_role?:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
           provider: string
+          setup_completed_at?: string | null
+          setup_performer_id?: string | null
           sync_frequency?: string | null
           sync_status?: string | null
           updated_at?: string | null
@@ -678,12 +748,78 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
+          performer_role?:
+            | Database["public"]["Enums"]["integration_performer_role"]
+            | null
           provider?: string
+          setup_completed_at?: string | null
+          setup_performer_id?: string | null
           sync_frequency?: string | null
           sync_status?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "integration_connections_setup_performer_id_fkey"
+            columns: ["setup_performer_id"]
+            isOneToOne: false
+            referencedRelation: "integration_performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_performers: {
+        Row: {
+          activated_at: string | null
+          company_id: string | null
+          created_at: string | null
+          created_by: string | null
+          email: string
+          id: string
+          invite_expires_at: string | null
+          invite_token: string | null
+          name: string | null
+          organization_name: string | null
+          role: Database["public"]["Enums"]["integration_performer_role"]
+          status: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          name?: string | null
+          organization_name?: string | null
+          role: Database["public"]["Enums"]["integration_performer_role"]
+          status?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          name?: string | null
+          organization_name?: string | null
+          role?: Database["public"]["Enums"]["integration_performer_role"]
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_performers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       maturity_milestones: {
         Row: {
@@ -1615,6 +1751,11 @@ export type Database = {
         | "compliance_ansvarlig"
         | "ai_governance"
         | "operativ_bruker"
+      integration_performer_role:
+        | "it_provider"
+        | "accountant"
+        | "internal_it"
+        | "owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1749,6 +1890,12 @@ export const Constants = {
         "compliance_ansvarlig",
         "ai_governance",
         "operativ_bruker",
+      ],
+      integration_performer_role: [
+        "it_provider",
+        "accountant",
+        "internal_it",
+        "owner",
       ],
     },
   },
