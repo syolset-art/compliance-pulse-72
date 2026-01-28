@@ -181,7 +181,7 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map(i => (
           <Skeleton key={i} className="h-48 rounded-xl" />
         ))}
@@ -193,7 +193,7 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Three main domains */}
         {domains.map(domain => {
           const isIncluded = isDomainIncluded(domain.id);

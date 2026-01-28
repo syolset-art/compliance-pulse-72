@@ -428,11 +428,11 @@ const Regulations = () => {
           />
 
           {/* Add more button */}
-          <div className="flex justify-end mb-6">
+          <div className="flex justify-center sm:justify-end mb-6">
             <Button 
               variant="outline" 
               onClick={() => setShowAvailable(!showAvailable)}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <Plus className="h-4 w-4" />
               {showAvailable ? 'Skjul tilgjengelige' : 'Legg til flere regelverk'}
@@ -460,13 +460,13 @@ const Regulations = () => {
                     return (
                       <div 
                         key={framework.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-background hover:border-primary/50 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg border bg-background hover:border-primary/50 transition-colors"
                       >
-                        <div className="flex items-start gap-3 flex-1">
-                          <div className={`p-2 rounded-lg ${category?.bgColor || 'bg-muted'}`}>
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className={`p-2 rounded-lg shrink-0 ${category?.bgColor || 'bg-muted'}`}>
                             <CategoryIcon className={`h-4 w-4 ${category?.color || 'text-muted-foreground'}`} />
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-sm">{framework.name}</span>
                               <Badge 
@@ -489,7 +489,7 @@ const Regulations = () => {
                           size="sm" 
                           onClick={() => toggleFramework(framework.id, false)}
                           disabled={updating === framework.id}
-                          className="ml-4"
+                          className="w-full sm:w-auto shrink-0"
                         >
                           {updating === framework.id ? 'Aktiverer...' : 'Aktiver'}
                         </Button>
@@ -523,14 +523,14 @@ const Regulations = () => {
                     return (
                       <div 
                         key={framework.id}
-                        className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${category?.bgColor || 'bg-muted'}`}>
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className={`p-2 rounded-lg shrink-0 ${category?.bgColor || 'bg-muted'}`}>
                             <CategoryIcon className={`h-4 w-4 ${category?.color || 'text-muted-foreground'}`} />
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-sm">{framework.name}</span>
                               {isRecommended && (
                                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary border-primary/30">
@@ -538,7 +538,7 @@ const Regulations = () => {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground">{framework.description}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{framework.description}</p>
                           </div>
                         </div>
                         <Button 
@@ -546,6 +546,7 @@ const Regulations = () => {
                           variant="outline"
                           onClick={() => toggleFramework(framework.id, false)}
                           disabled={updating === framework.id}
+                          className="w-full sm:w-auto shrink-0"
                         >
                           {updating === framework.id ? 'Aktiverer...' : 'Aktiver'}
                         </Button>
@@ -613,14 +614,14 @@ const Regulations = () => {
                             return (
                               <div 
                                 key={framework.id}
-                                className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
                                   isActive 
                                     ? 'bg-primary/5 border-primary/20' 
                                     : 'bg-muted/30 border-border'
                                 }`}
                               >
-                                <div className="flex items-start gap-3 flex-1">
-                                  <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center ${
+                                <div className="flex items-start gap-3 flex-1 min-w-0">
+                                  <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
                                     isActive ? 'bg-primary/20' : 'bg-muted'
                                   }`}>
                                     {isActive ? (
@@ -629,7 +630,7 @@ const Regulations = () => {
                                       <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
                                     )}
                                   </div>
-                                  <div className="flex-1">
+                                  <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <span className={`font-medium text-sm ${isActive ? '' : 'text-muted-foreground'}`}>
                                         {framework.name}
@@ -653,7 +654,7 @@ const Regulations = () => {
                                         </Badge>
                                       )}
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 sm:line-clamp-none">
                                       {framework.description}
                                     </p>
                                   </div>
@@ -662,7 +663,7 @@ const Regulations = () => {
                                   checked={isActive}
                                   onCheckedChange={() => toggleFramework(framework.id, isActive)}
                                   disabled={isMandatory || updating === framework.id}
-                                  className="ml-4"
+                                  className="shrink-0 self-end sm:self-auto"
                                 />
                               </div>
                             );
