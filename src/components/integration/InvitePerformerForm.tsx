@@ -22,10 +22,10 @@ export interface InviteData {
 }
 
 const roleLabels: Record<PerformerRole, string> = {
-  owner: "Eier",
-  it_provider: "IT-leverandør",
-  accountant: "Regnskapsfører",
-  internal_it: "Intern IT-ansvarlig",
+  owner: "Owner",
+  it_provider: "IT provider",
+  accountant: "Accountant",
+  internal_it: "Internal IT manager",
 };
 
 export function InvitePerformerForm({
@@ -46,7 +46,7 @@ export function InvitePerformerForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.name) {
-      toast.error("Vennligst fyll ut e-post og navn");
+      toast.error("Please fill in email and name");
       return;
     }
     onInviteSent({
@@ -56,29 +56,29 @@ export function InvitePerformerForm({
   };
 
   const generateInviteText = () => {
-    return `Hei ${formData.name || "[Navn]"},
+    return `Hi ${formData.name || "[Name]"},
 
-Vi bruker Mynder for compliance-oversikt og ønsker å koble til ${integrationName} for automatisk import av eiendeler.
+We use Mynder for compliance overview and want to connect to ${integrationName} for automatic asset import.
 
-For å sette opp koblingen trenger vi en API-nøkkel med lesetilgang.
+To set up the connection, we need an API key with read access.
 
-Instruksjoner:
-1. Logg inn på ${integrationName} Management Console
-2. Gå til Innstillinger → API-tilgang
-3. Opprett ny API-nøkkel med lesetilgang
-4. Klikk på invitasjonslenken nedenfor for å legge inn nøkkelen
+Instructions:
+1. Log in to ${integrationName} Management Console
+2. Go to Settings → API Access
+3. Create new API key with read access
+4. Click on the invitation link below to enter the key
 
-Takk for hjelpen!`;
+Thank you for your help!`;
   };
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(generateInviteText());
       setCopied(true);
-      toast.success("Tekst kopiert til utklippstavlen");
+      toast.success("Text copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Kunne ikke kopiere tekst");
+      toast.error("Could not copy text");
     }
   };
 
@@ -93,44 +93,44 @@ Takk for hjelpen!`;
           )}
         </div>
         <div>
-          <p className="font-medium">Inviter {roleLabel.toLowerCase()}</p>
+          <p className="font-medium">Invite {roleLabel.toLowerCase()}</p>
           <p className="text-xs text-muted-foreground">
-            Send invitasjon for å sette opp {integrationName}
+            Send invitation to set up {integrationName}
           </p>
         </div>
       </div>
 
       {performerRole !== "internal_it" && (
         <div className="space-y-2">
-          <Label htmlFor="organizationName">Firmanavn</Label>
+          <Label htmlFor="organizationName">Company name</Label>
           <Input
             id="organizationName"
             value={formData.organizationName}
             onChange={(e) => setFormData((prev) => ({ ...prev, organizationName: e.target.value }))}
-            placeholder={performerRole === "accountant" ? "F.eks. Regnskap AS" : "F.eks. IT-Partner AS"}
+            placeholder={performerRole === "accountant" ? "E.g. Accounting Ltd" : "E.g. IT Partner Ltd"}
           />
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">E-postadresse *</Label>
+        <Label htmlFor="email">Email address *</Label>
         <Input
           id="email"
           type="email"
           value={formData.email}
           onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-          placeholder="kontakt@firma.no"
+          placeholder="contact@company.com"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Kontaktperson (navn) *</Label>
+        <Label htmlFor="name">Contact person (name) *</Label>
         <Input
           id="name"
           value={formData.name}
           onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-          placeholder="Ola Nordmann"
+          placeholder="John Doe"
           required
         />
       </div>
@@ -139,12 +139,12 @@ Takk for hjelpen!`;
         <div className="flex items-start gap-2">
           <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-300">Hva skjer videre?</p>
+            <p className="text-sm font-medium text-blue-300">What happens next?</p>
             <ol className="text-xs text-blue-300/80 mt-2 space-y-1 list-decimal list-inside">
-              <li>Vi sender en e-post med invitasjonslenke</li>
-              <li>{roleLabel} logger inn og legger til API-nøkkel</li>
-              <li>Du får varsel når integrasjonen er klar</li>
-              <li>Alt dokumenteres for revisjon</li>
+              <li>We send an email with invitation link</li>
+              <li>{roleLabel} logs in and adds API key</li>
+              <li>You get notified when integration is ready</li>
+              <li>Everything is documented for audit</li>
             </ol>
           </div>
         </div>
@@ -153,7 +153,7 @@ Takk for hjelpen!`;
       {/* Preview / Copy section */}
       <div className="border border-border rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b border-border">
-          <span className="text-xs font-medium text-muted-foreground">Forhåndsvisning av e-post</span>
+          <span className="text-xs font-medium text-muted-foreground">Email preview</span>
           <Button
             type="button"
             variant="ghost"
@@ -164,12 +164,12 @@ Takk for hjelpen!`;
             {copied ? (
               <>
                 <Check className="h-3 w-3 mr-1" />
-                Kopiert
+                Copied
               </>
             ) : (
               <>
                 <Copy className="h-3 w-3 mr-1" />
-                Kopier
+                Copy
               </>
             )}
           </Button>
@@ -183,11 +183,11 @@ Takk for hjelpen!`;
 
       <div className="flex items-center justify-between pt-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={!formData.email || !formData.name}>
           <Send className="h-4 w-4 mr-2" />
-          Send invitasjon
+          Send invitation
         </Button>
       </div>
     </form>

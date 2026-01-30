@@ -35,13 +35,13 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
 
       <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
         <p className="text-sm text-muted-foreground">
-          Mynder henter data fra {integration.name.replace(" via 7 Security", "")} via {partnerName}. 
-          Du trenger bare å oppgi din kunde-ID – ingen API-nøkkel.
+          Mynder fetches data from {integration.name.replace(" via 7 Security", "")} via {partnerName}. 
+          You only need to provide your customer ID – no API key required.
         </p>
       </div>
 
       <div className="space-y-3">
-        <p className="text-sm font-medium">Er du allerede kunde hos {partnerName}?</p>
+        <p className="text-sm font-medium">Are you already a customer of {partnerName}?</p>
 
         {/* Existing customer */}
         <button
@@ -52,9 +52,9 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
             <Users className="h-6 w-6 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Ja, jeg har kunde-ID</p>
+            <p className="font-semibold">Yes, I have a customer ID</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Jeg er allerede kunde hos {partnerName} og har en kunde-ID
+              I am already a customer of {partnerName} and have a customer ID
             </p>
           </div>
         </button>
@@ -68,12 +68,12 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
             <UserPlus className="h-6 w-6 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Nei, dette er nytt for meg</p>
+            <p className="font-semibold">No, this is new to me</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Jeg ønsker å få tilgang via Mynder-avtalen
+              I want to get access via the Mynder agreement
             </p>
             <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 mt-2 inline-block">
-              Ingen ekstra kostnad
+              No additional cost
             </span>
           </div>
         </button>
@@ -87,9 +87,9 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
             <Sparkles className="h-6 w-6 text-amber-500" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Utforsk med demo-data</p>
+            <p className="font-semibold">Explore with demo data</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Se hvordan integrasjonen fungerer med eksempeldata
+              See how the integration works with sample data
             </p>
           </div>
         </button>

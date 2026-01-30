@@ -21,10 +21,10 @@ interface IntegrationPendingStatusProps {
 }
 
 const roleLabels: Record<PerformerRole, string> = {
-  owner: "Eier",
-  it_provider: "IT-leverandør",
-  accountant: "Regnskapsfører",
-  internal_it: "Intern IT-ansvarlig",
+  owner: "Owner",
+  it_provider: "IT provider",
+  accountant: "Accountant",
+  internal_it: "Internal IT manager",
 };
 
 export function IntegrationPendingStatus({
@@ -43,7 +43,7 @@ export function IntegrationPendingStatus({
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("nb-NO", {
+    return date.toLocaleDateString("en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -61,9 +61,9 @@ export function IntegrationPendingStatus({
           </div>
         </div>
         <div className="text-center">
-          <p className="font-semibold text-lg">Venter på {roleLabels[invite.role].toLowerCase()}</p>
+          <p className="font-semibold text-lg">Waiting for {roleLabels[invite.role].toLowerCase()}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Invitasjon sendt til {invite.email}
+            Invitation sent to {invite.email}
           </p>
         </div>
       </div>
@@ -79,31 +79,31 @@ export function IntegrationPendingStatus({
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium">{integrationName}</p>
-            <p className="text-sm text-muted-foreground">Status: Invitasjon sendt</p>
+            <p className="text-sm text-muted-foreground">Status: Invitation sent</p>
           </div>
         </div>
 
         <div className="border-t border-border pt-3 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Sendt til:</span>
+            <span className="text-muted-foreground">Sent to:</span>
             <span className="font-medium">{invite.email}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Kontaktperson:</span>
+            <span className="text-muted-foreground">Contact person:</span>
             <span className="font-medium">{invite.name}</span>
           </div>
           {invite.organizationName && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Organisasjon:</span>
+              <span className="text-muted-foreground">Organization:</span>
               <span className="font-medium">{invite.organizationName}</span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Rolle:</span>
+            <span className="text-muted-foreground">Role:</span>
             <span className="font-medium">{roleLabels[invite.role]}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Dato:</span>
+            <span className="text-muted-foreground">Date:</span>
             <span className="font-medium">{formatDate(invite.sentAt)}</span>
           </div>
         </div>
@@ -119,12 +119,12 @@ export function IntegrationPendingStatus({
           {reminderSent ? (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
-              Sendt!
+              Sent!
             </>
           ) : (
             <>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Send påminnelse
+              Send reminder
             </>
           )}
         </Button>
@@ -134,16 +134,16 @@ export function IntegrationPendingStatus({
           className="w-full text-destructive hover:text-destructive"
         >
           <X className="h-4 w-4 mr-2" />
-          Kanseller
+          Cancel
         </Button>
       </div>
 
       <div className="p-4 rounded-lg bg-muted/50 border border-border">
         <p className="text-sm text-muted-foreground">
-          Har du fått API-nøkkelen allerede?
+          Have you received the API key already?
         </p>
         <Button variant="link" className="px-0 h-auto mt-1" onClick={onIHaveKey}>
-          Legg inn API-nøkkel selv →
+          Enter API key yourself →
         </Button>
       </div>
     </div>
