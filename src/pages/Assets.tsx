@@ -265,11 +265,11 @@ export default function Assets() {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 1) return "Akkurat nå";
-    if (diffMins < 60) return `${diffMins} min siden`;
-    if (diffHours < 24) return `${diffHours}t siden`;
-    if (diffDays < 7) return `${diffDays}d siden`;
-    return date.toLocaleDateString("nb-NO", { day: "numeric", month: "short" });
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
   };
 
   return (
@@ -445,7 +445,7 @@ export default function Assets() {
               <div>{t("assets.owner")}</div>
               <div className="flex items-center gap-1">
                 <RefreshCw className="h-3.5 w-3.5" />
-                Synk
+                Sync
               </div>
               <div></div>
             </div>
@@ -479,7 +479,7 @@ export default function Assets() {
                       <span className="text-foreground font-medium">{asset.name}</span>
                       {isNewAsset(asset) && (
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5">
-                          Ny
+                          New
                         </Badge>
                       )}
                     </div>
@@ -517,13 +517,13 @@ export default function Assets() {
                         <div className="flex items-center gap-1.5">
                           <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
                           <span className="text-muted-foreground">
-                            {formatSyncTime(asset.last_synced_at) || "Venter..."}
+                            {formatSyncTime(asset.last_synced_at) || "Pending..."}
                           </span>
                         </div>
                       ) : asset.external_source_provider ? (
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <RefreshCw className="h-3.5 w-3.5 opacity-50" />
-                          <span>Manuell</span>
+                          <span>Manual</span>
                         </div>
                       ) : (
                         <span className="text-muted-foreground/50">—</span>

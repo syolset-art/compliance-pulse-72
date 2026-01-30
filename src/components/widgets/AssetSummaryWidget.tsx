@@ -98,7 +98,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                <p className="text-xs text-muted-foreground">Totalt eiendeler</p>
+                <p className="text-xs text-muted-foreground">Total Assets</p>
               </div>
             </div>
           </CardContent>
@@ -115,7 +115,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 <p className={`text-2xl font-bold ${getComplianceColor(stats.avgCompliance)}`}>
                   {stats.avgCompliance}%
                 </p>
-                <p className="text-xs text-muted-foreground">Gj.snitt compliance</p>
+                <p className="text-xs text-muted-foreground">Avg. Compliance</p>
               </div>
             </div>
           </CardContent>
@@ -130,7 +130,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold text-red-500">{stats.highRisk}</p>
-                <p className="text-xs text-muted-foreground">Høy risiko</p>
+                <p className="text-xs text-muted-foreground">High Risk</p>
               </div>
             </div>
           </CardContent>
@@ -145,7 +145,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold text-orange-500">{stats.upcomingReviews}</p>
-                <p className="text-xs text-muted-foreground">Revisjoner (30d)</p>
+                <p className="text-xs text-muted-foreground">Reviews (30d)</p>
               </div>
             </div>
           </CardContent>
@@ -157,7 +157,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
         {/* Compliance Status */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Compliance-status</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Compliance Status</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -169,14 +169,14 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
-                  <span className="text-sm text-foreground">Trenger oppfølging (50-84%)</span>
+                  <span className="text-sm text-foreground">Needs Attention (50-84%)</span>
                 </div>
                 <span className="text-sm font-medium text-foreground">{stats.needsAttention}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                  <span className="text-sm text-foreground">Ikke-compliant (&lt;50%)</span>
+                  <span className="text-sm text-foreground">Non-compliant (&lt;50%)</span>
                 </div>
                 <span className="text-sm font-medium text-foreground">{stats.nonCompliant}</span>
               </div>
@@ -206,7 +206,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
         {/* Asset Types */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Eiendeler etter type</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Assets by Type</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -214,7 +214,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.system}</p>
-                  <p className="text-xs text-muted-foreground">Systemer</p>
+                  <p className="text-xs text-muted-foreground">Systems</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.vendor}</p>
-                  <p className="text-xs text-muted-foreground">Leverandører</p>
+                  <p className="text-xs text-muted-foreground">Vendors</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.network}</p>
-                  <p className="text-xs text-muted-foreground">Nettverk</p>
+                  <p className="text-xs text-muted-foreground">Networks</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.location}</p>
-                  <p className="text-xs text-muted-foreground">Lokasjoner</p>
+                  <p className="text-xs text-muted-foreground">Locations</p>
                 </div>
               </div>
             </div>
