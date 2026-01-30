@@ -9,7 +9,7 @@
     "admin": "Administration",
     "settings": "Settings",
     "trustProfile": "Trust Profile",
-    "protocols": "Treatment Protocols",
+    "protocols": "ROPA (Record of Processing Activities)",
     "assets": "Assets",
     "deviations": "Deviation Register",
     "reports": "Reports",
@@ -188,7 +188,7 @@
     },
     "ropaGap": {
       "title": "ROPA coverage",
-      "subtitle": "Treatment protocols",
+      "subtitle": "Record of Processing Activities",
       "systemsWithRopa": "Systems with ROPA",
       "completed": "Completed",
       "missing": "missing"
@@ -619,7 +619,7 @@
     "workAreas": "Work Areas",
     "responsible": "Responsible",
     "noWorkArea": "No work area assigned",
-    "protocols": "Treatment Protocols",
+    "protocols": "ROPA (Record of Processing Activities)",
     "noProtocols": "No protocols assigned",
     "processes": "Processes",
     "noProcesses": "No processes registered",
