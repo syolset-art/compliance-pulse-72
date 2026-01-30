@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.suggest-deviations]
 verify_jwt = false
+
+[functions.fetch-7security-data]
+verify_jwt = false
