@@ -139,40 +139,40 @@ const INTEGRATION_ASSET_TYPES = [
   { id: "integration", label: "Integrations", icon: Plug, priority: "medium" },
 ];
 
-// Mock data for Acronis prototype - realistic Norwegian data
+// Mock data for Acronis prototype - realistic data
 const MOCK_ACRONIS_ASSETS: MockAcronisAsset[] = [
   // Systems - known enterprise systems
-  { id: "sys-1", name: "Microsoft 365", hostname: "m365.microsoft.com", type: "system", os: "SaaS", status: "protected", lastSeen: "1 min siden", complianceScore: 92, frameworks: ["ISO 27001", "GDPR"], vendor: "Microsoft" },
-  { id: "sys-2", name: "SAP S/4HANA", hostname: "sap-prod.company.no", type: "system", os: "HANA DB", status: "protected", lastSeen: "3 min siden", complianceScore: 88, frameworks: ["ISO 27001", "SOC 2"], vendor: "SAP" },
-  { id: "sys-3", name: "Salesforce CRM", hostname: "company.my.salesforce.com", type: "system", os: "SaaS", status: "protected", lastSeen: "2 min siden", complianceScore: 95, frameworks: ["ISO 27001", "GDPR", "SOC 2"], vendor: "Salesforce" },
-  { id: "sys-4", name: "ServiceNow ITSM", hostname: "company.service-now.com", type: "system", os: "SaaS", status: "warning", lastSeen: "8 min siden", complianceScore: 78, frameworks: ["ISO 27001"], vendor: "ServiceNow" },
-  { id: "sys-5", name: "Visma Business", hostname: "visma-prod.company.no", type: "system", os: "Windows Server 2022", status: "protected", lastSeen: "5 min siden", complianceScore: 85, frameworks: ["GDPR"], vendor: "Visma" },
-  { id: "sys-6", name: "HubSpot Marketing", hostname: "app.hubspot.com", type: "system", os: "SaaS", status: "critical", lastSeen: "45 min siden", complianceScore: 62, frameworks: ["GDPR"], vendor: "HubSpot" },
+  { id: "sys-1", name: "Microsoft 365", hostname: "m365.microsoft.com", type: "system", os: "SaaS", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001", "GDPR"], vendor: "Microsoft" },
+  { id: "sys-2", name: "SAP S/4HANA", hostname: "sap-prod.company.no", type: "system", os: "HANA DB", status: "protected", lastSeen: "3 min ago", complianceScore: 88, frameworks: ["ISO 27001", "SOC 2"], vendor: "SAP" },
+  { id: "sys-3", name: "Salesforce CRM", hostname: "company.my.salesforce.com", type: "system", os: "SaaS", status: "protected", lastSeen: "2 min ago", complianceScore: 95, frameworks: ["ISO 27001", "GDPR", "SOC 2"], vendor: "Salesforce" },
+  { id: "sys-4", name: "ServiceNow ITSM", hostname: "company.service-now.com", type: "system", os: "SaaS", status: "warning", lastSeen: "8 min ago", complianceScore: 78, frameworks: ["ISO 27001"], vendor: "ServiceNow" },
+  { id: "sys-5", name: "Visma Business", hostname: "visma-prod.company.no", type: "system", os: "Windows Server 2022", status: "protected", lastSeen: "5 min ago", complianceScore: 85, frameworks: ["GDPR"], vendor: "Visma" },
+  { id: "sys-6", name: "HubSpot Marketing", hostname: "app.hubspot.com", type: "system", os: "SaaS", status: "critical", lastSeen: "45 min ago", complianceScore: 62, frameworks: ["GDPR"], vendor: "HubSpot" },
   
-  // Locations - Norwegian offices
-  { id: "loc-1", name: "Hovedkontor Oslo", hostname: "oslo-hq.company.no", type: "location", os: "Akersgata 20, 0158 Oslo", status: "protected", lastSeen: "1 min siden", complianceScore: 94, frameworks: ["ISO 27001", "NS-EN 50600"] },
-  { id: "loc-2", name: "Avdeling Bergen", hostname: "bergen.company.no", type: "location", os: "Bryggen 12, 5003 Bergen", status: "protected", lastSeen: "2 min siden", complianceScore: 89, frameworks: ["ISO 27001"] },
-  { id: "loc-3", name: "Avdeling Trondheim", hostname: "trondheim.company.no", type: "location", os: "Munkegata 5, 7013 Trondheim", status: "protected", lastSeen: "3 min siden", complianceScore: 91, frameworks: ["ISO 27001"] },
-  { id: "loc-4", name: "Avdeling Stavanger", hostname: "stavanger.company.no", type: "location", os: "Haakon VIIs gt 8, 4005 Stavanger", status: "warning", lastSeen: "15 min siden", complianceScore: 76, frameworks: ["ISO 27001"] },
-  { id: "loc-5", name: "Datasenter Green Mountain", hostname: "dc1.greenmountain.no", type: "location", os: "Rennesøy, Rogaland", status: "protected", lastSeen: "30 sek siden", complianceScore: 98, frameworks: ["ISO 27001", "SOC 2", "NS-EN 50600"] },
+  // Locations - offices
+  { id: "loc-1", name: "Headquarters Oslo", hostname: "oslo-hq.company.no", type: "location", os: "Akersgata 20, 0158 Oslo", status: "protected", lastSeen: "1 min ago", complianceScore: 94, frameworks: ["ISO 27001", "NS-EN 50600"] },
+  { id: "loc-2", name: "Branch Bergen", hostname: "bergen.company.no", type: "location", os: "Bryggen 12, 5003 Bergen", status: "protected", lastSeen: "2 min ago", complianceScore: 89, frameworks: ["ISO 27001"] },
+  { id: "loc-3", name: "Branch Trondheim", hostname: "trondheim.company.no", type: "location", os: "Munkegata 5, 7013 Trondheim", status: "protected", lastSeen: "3 min ago", complianceScore: 91, frameworks: ["ISO 27001"] },
+  { id: "loc-4", name: "Branch Stavanger", hostname: "stavanger.company.no", type: "location", os: "Haakon VIIs gt 8, 4005 Stavanger", status: "warning", lastSeen: "15 min ago", complianceScore: 76, frameworks: ["ISO 27001"] },
+  { id: "loc-5", name: "Data Center Green Mountain", hostname: "dc1.greenmountain.no", type: "location", os: "Rennesøy, Rogaland", status: "protected", lastSeen: "30 sec ago", complianceScore: 98, frameworks: ["ISO 27001", "SOC 2", "NS-EN 50600"] },
   
   // Networks
-  { id: "net-1", name: "Hovedkontor LAN", hostname: "10.0.0.0/16", type: "network", os: "Cisco Catalyst 9300", status: "protected", lastSeen: "1 min siden", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "Cisco" },
-  { id: "net-2", name: "Azure Virtual Network", hostname: "vnet-prod-norway.azure", type: "network", os: "Azure VNET", status: "protected", lastSeen: "2 min siden", complianceScore: 94, frameworks: ["ISO 27001", "SOC 2"], vendor: "Microsoft" },
-  { id: "net-3", name: "SD-WAN Multi-site", hostname: "sdwan.company.no", type: "network", os: "Fortinet SD-WAN", status: "protected", lastSeen: "45 sek siden", complianceScore: 88, frameworks: ["ISO 27001"], vendor: "Fortinet" },
-  { id: "net-4", name: "Guest WiFi", hostname: "wifi-guest.company.no", type: "network", os: "Meraki MR56", status: "warning", lastSeen: "5 min siden", complianceScore: 72, frameworks: [], vendor: "Cisco Meraki" },
-  { id: "net-5", name: "DMZ Network", hostname: "172.16.0.0/24", type: "network", os: "Palo Alto PA-3260", status: "protected", lastSeen: "1 min siden", complianceScore: 96, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Palo Alto" },
+  { id: "net-1", name: "Headquarters LAN", hostname: "10.0.0.0/16", type: "network", os: "Cisco Catalyst 9300", status: "protected", lastSeen: "1 min ago", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "Cisco" },
+  { id: "net-2", name: "Azure Virtual Network", hostname: "vnet-prod-norway.azure", type: "network", os: "Azure VNET", status: "protected", lastSeen: "2 min ago", complianceScore: 94, frameworks: ["ISO 27001", "SOC 2"], vendor: "Microsoft" },
+  { id: "net-3", name: "SD-WAN Multi-site", hostname: "sdwan.company.no", type: "network", os: "Fortinet SD-WAN", status: "protected", lastSeen: "45 sec ago", complianceScore: 88, frameworks: ["ISO 27001"], vendor: "Fortinet" },
+  { id: "net-4", name: "Guest WiFi", hostname: "wifi-guest.company.no", type: "network", os: "Meraki MR56", status: "warning", lastSeen: "5 min ago", complianceScore: 72, frameworks: [], vendor: "Cisco Meraki" },
+  { id: "net-5", name: "DMZ Network", hostname: "172.16.0.0/24", type: "network", os: "Palo Alto PA-3260", status: "protected", lastSeen: "1 min ago", complianceScore: 96, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Palo Alto" },
   
   // Hardware
-  { id: "hw-1", name: "Dell PowerEdge R750", hostname: "srv-prod-01.company.no", type: "hardware", os: "Windows Server 2022", status: "protected", lastSeen: "1 min siden", complianceScore: 92, frameworks: ["ISO 27001"], vendor: "Dell" },
-  { id: "hw-2", name: "HPE ProLiant DL380", hostname: "srv-db-01.company.no", type: "hardware", os: "VMware ESXi 8.0", status: "protected", lastSeen: "2 min siden", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "HPE" },
-  { id: "hw-3", name: "Synology NAS RS3621", hostname: "nas-backup.company.no", type: "hardware", os: "DSM 7.2", status: "protected", lastSeen: "3 min siden", complianceScore: 85, frameworks: ["ISO 27001"], vendor: "Synology" },
-  { id: "hw-4", name: "Fortinet FortiGate 600E", hostname: "fw-main.company.no", type: "hardware", os: "FortiOS 7.4.1", status: "protected", lastSeen: "30 sek siden", complianceScore: 97, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Fortinet" },
+  { id: "hw-1", name: "Dell PowerEdge R750", hostname: "srv-prod-01.company.no", type: "hardware", os: "Windows Server 2022", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001"], vendor: "Dell" },
+  { id: "hw-2", name: "HPE ProLiant DL380", hostname: "srv-db-01.company.no", type: "hardware", os: "VMware ESXi 8.0", status: "protected", lastSeen: "2 min ago", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "HPE" },
+  { id: "hw-3", name: "Synology NAS RS3621", hostname: "nas-backup.company.no", type: "hardware", os: "DSM 7.2", status: "protected", lastSeen: "3 min ago", complianceScore: 85, frameworks: ["ISO 27001"], vendor: "Synology" },
+  { id: "hw-4", name: "Fortinet FortiGate 600E", hostname: "fw-main.company.no", type: "hardware", os: "FortiOS 7.4.1", status: "protected", lastSeen: "30 sec ago", complianceScore: 97, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Fortinet" },
   
   // Vendors
-  { id: "ven-1", name: "TietoEvry", hostname: "tietoevry.com", type: "vendor", os: "IT-drift og systemutvikling", status: "protected", lastSeen: "1 dag siden", complianceScore: 91, frameworks: ["ISO 27001", "SOC 2"] },
-  { id: "ven-2", name: "Atea", hostname: "atea.no", type: "vendor", os: "Hardware og infrastruktur", status: "protected", lastSeen: "2 dager siden", complianceScore: 88, frameworks: ["ISO 27001"] },
-  { id: "ven-3", name: "Knowit", hostname: "knowit.no", type: "vendor", os: "Konsulentselskap", status: "warning", lastSeen: "1 uke siden", complianceScore: 75, frameworks: ["ISO 27001"] },
+  { id: "ven-1", name: "TietoEvry", hostname: "tietoevry.com", type: "vendor", os: "IT operations and development", status: "protected", lastSeen: "1 day ago", complianceScore: 91, frameworks: ["ISO 27001", "SOC 2"] },
+  { id: "ven-2", name: "Atea", hostname: "atea.no", type: "vendor", os: "Hardware and infrastructure", status: "protected", lastSeen: "2 days ago", complianceScore: 88, frameworks: ["ISO 27001"] },
+  { id: "ven-3", name: "Knowit", hostname: "knowit.no", type: "vendor", os: "Consulting firm", status: "warning", lastSeen: "1 week ago", complianceScore: 75, frameworks: ["ISO 27001"] },
 ];
 
 // AI import messages for simulation - updated for new mock data
@@ -322,68 +322,68 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const getSyntheticSuggestionsByIndustry = (assetType: string, industry: string): AssetSuggestion[] => {
     // Energy-specific systems
     const energySystems: AssetSuggestion[] = [
-      { name: "SCADA", vendor: "Siemens", description: "Overvåking og styring av kraftproduksjon og distribusjon", category: "OT", risk_level: "high", criticality: "critical", reason: "Kritisk for kraftstyring", industryRelevant: true },
-      { name: "Elhub", vendor: "Statnett", description: "Nasjonal datahub for målerdata og strømmarked", category: "Bransjesystem", risk_level: "medium", criticality: "critical", reason: "Lovpålagt for energiselskaper", industryRelevant: true },
-      { name: "DMS", vendor: "ABB", description: "Distribution Management System for nettdrift", category: "Nettdrift", risk_level: "high", criticality: "critical", reason: "Styrer strømnettet", industryRelevant: true },
-      { name: "EAM/Vedlikeholdssystem", vendor: "IFS", description: "Enterprise Asset Management for vedlikehold av infrastruktur", category: "Vedlikehold", risk_level: "medium", criticality: "high", reason: "Drift av kraftanlegg", industryRelevant: true },
-      { name: "NIS (Nettinformasjonssystem)", vendor: "Powel", description: "Kartlegging og dokumentasjon av strømnett", category: "GIS", risk_level: "medium", criticality: "high", reason: "Oversikt over infrastruktur", industryRelevant: true },
-      { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post, dokumenthåndtering og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard kontorverktøy" },
-      { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi, logistikk og forretningsprosesser", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem for økonomi" },
-      { name: "HMS Portal", vendor: "Synergi", description: "Sikkerhetsrapportering og avvikshåndtering", category: "HMS", risk_level: "medium", criticality: "high", reason: "Påkrevd for kraftbransjen", industryRelevant: true },
+      { name: "SCADA", vendor: "Siemens", description: "Monitoring and control of power production and distribution", category: "OT", risk_level: "high", criticality: "critical", reason: "Critical for power management", industryRelevant: true },
+      { name: "Elhub", vendor: "Statnett", description: "National data hub for meter data and electricity market", category: "Industry system", risk_level: "medium", criticality: "critical", reason: "Mandatory for energy companies", industryRelevant: true },
+      { name: "DMS", vendor: "ABB", description: "Distribution Management System for grid operations", category: "Grid operations", risk_level: "high", criticality: "critical", reason: "Controls the power grid", industryRelevant: true },
+      { name: "EAM/Maintenance System", vendor: "IFS", description: "Enterprise Asset Management for infrastructure maintenance", category: "Maintenance", risk_level: "medium", criticality: "high", reason: "Power plant operations", industryRelevant: true },
+      { name: "NIS (Grid Information System)", vendor: "Powel", description: "Mapping and documentation of power grid", category: "GIS", risk_level: "medium", criticality: "high", reason: "Infrastructure overview", industryRelevant: true },
+      { name: "Microsoft 365", vendor: "Microsoft", description: "Productivity platform with email, documents and collaboration", category: "Productivity", risk_level: "low", criticality: "high", reason: "Standard office tools" },
+      { name: "SAP S/4HANA", vendor: "SAP", description: "ERP system for finance, logistics and business processes", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Core financial system" },
+      { name: "HSE Portal", vendor: "Synergi", description: "Safety reporting and incident management", category: "HSE", risk_level: "medium", criticality: "high", reason: "Required for energy sector", industryRelevant: true },
     ];
 
     const energyVendors: AssetSuggestion[] = [
-      { name: "ABB", vendor: "", description: "Leverandør av SCADA, DMS og kraftutstyr", category: "OT-leverandør", risk_level: "medium", criticality: "critical", reason: "Kritisk teknologipartner", industryRelevant: true },
-      { name: "Siemens Energy", vendor: "", description: "Turbiner, transformatorer og styringssystemer", category: "OT-leverandør", risk_level: "medium", criticality: "critical", reason: "Kjerneleverandør kraft", industryRelevant: true },
-      { name: "Powel/Volue", vendor: "", description: "Energihandel og nettplanlegging", category: "Software", risk_level: "medium", criticality: "high", reason: "Bransjestandard i Norge", industryRelevant: true },
-      { name: "TietoEvry", vendor: "", description: "IT-drift og systemutvikling", category: "IT-leverandør", risk_level: "medium", criticality: "high", reason: "Kritisk for IT-drift" },
-      { name: "Capgemini", vendor: "", description: "Systemintegrasjon og rådgivning", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Prosjektleveranser" },
+      { name: "ABB", vendor: "", description: "SCADA, DMS and power equipment supplier", category: "OT vendor", risk_level: "medium", criticality: "critical", reason: "Critical technology partner", industryRelevant: true },
+      { name: "Siemens Energy", vendor: "", description: "Turbines, transformers and control systems", category: "OT vendor", risk_level: "medium", criticality: "critical", reason: "Core power supplier", industryRelevant: true },
+      { name: "Powel/Volue", vendor: "", description: "Energy trading and grid planning", category: "Software", risk_level: "medium", criticality: "high", reason: "Industry standard in Norway", industryRelevant: true },
+      { name: "TietoEvry", vendor: "", description: "IT operations and development", category: "IT vendor", risk_level: "medium", criticality: "high", reason: "Critical for IT operations" },
+      { name: "Capgemini", vendor: "", description: "System integration and consulting", category: "Consultant", risk_level: "low", criticality: "medium", reason: "Project deliveries" },
     ];
 
     const energyHardware: AssetSuggestion[] = [
-      { name: "RTU (Remote Terminal Unit)", vendor: "ABB", description: "Fjernstyring av kraftstasjoner og transformatorer", category: "OT", risk_level: "high", criticality: "critical", reason: "Kritisk for nettdrift", industryRelevant: true },
-      { name: "Smart Meters", vendor: "Kamstrup", description: "Avanserte strømmålere (AMS)", category: "Måleutstyr", risk_level: "medium", criticality: "high", reason: "Lovpålagt måleutstyr", industryRelevant: true },
-      { name: "Industrial Switch", vendor: "Cisco", description: "Nettverksutstyr for driftsmiljø", category: "OT-nettverk", risk_level: "high", criticality: "high", reason: "Kommunikasjon i felt", industryRelevant: true },
-      { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører applikasjoner" },
-      { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur for IT/OT-segmentering", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Beskytter OT-nett", industryRelevant: true },
+      { name: "RTU (Remote Terminal Unit)", vendor: "ABB", description: "Remote control of substations and transformers", category: "OT", risk_level: "high", criticality: "critical", reason: "Critical for grid operations", industryRelevant: true },
+      { name: "Smart Meters", vendor: "Kamstrup", description: "Advanced Metering Systems (AMS)", category: "Metering", risk_level: "medium", criticality: "high", reason: "Mandatory metering equipment", industryRelevant: true },
+      { name: "Industrial Switch", vendor: "Cisco", description: "Network equipment for operational environment", category: "OT network", risk_level: "high", criticality: "high", reason: "Field communications", industryRelevant: true },
+      { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Runs applications" },
+      { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen firewall for IT/OT segmentation", category: "Security", risk_level: "high", criticality: "critical", reason: "Protects OT network", industryRelevant: true },
     ];
 
     const energyLocations: AssetSuggestion[] = [
-      { name: "Kontrollrom", vendor: "", description: "Sentralt driftsenter for nettovervåking", category: "Driftssenter", risk_level: "high", criticality: "critical", reason: "Kjernen i nettdrift", industryRelevant: true },
-      { name: "Transformatorstasjon", vendor: "", description: "Høyspent transformator for distribusjon", category: "Kraftanlegg", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur", industryRelevant: true },
-      { name: "Hovedkontor Bergen", vendor: "", description: "Administrasjon og ledelse", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
-      { name: "Datacenter", vendor: "Green Mountain", description: "Datasenter for IT-systemer", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk IT-infrastruktur" },
+      { name: "Control Room", vendor: "", description: "Central operations center for grid monitoring", category: "Operations center", risk_level: "high", criticality: "critical", reason: "Core of grid operations", industryRelevant: true },
+      { name: "Transformer Station", vendor: "", description: "High-voltage transformer for distribution", category: "Power facility", risk_level: "high", criticality: "critical", reason: "Critical infrastructure", industryRelevant: true },
+      { name: "Headquarters", vendor: "", description: "Administration and management", category: "Office", risk_level: "low", criticality: "high", reason: "Main location" },
+      { name: "Data Center", vendor: "Green Mountain", description: "Data center for IT systems", category: "Data center", risk_level: "high", criticality: "critical", reason: "Critical IT infrastructure" },
     ];
 
     // Default generic suggestions
     const genericSuggestions: Record<string, AssetSuggestion[]> = {
       system: [
-        { name: "Microsoft 365", vendor: "Microsoft", description: "Produktivitetsplattform med e-post og samarbeid", category: "Produktivitet", risk_level: "low", criticality: "high", reason: "Standard kontorverktøy" },
-        { name: "SAP S/4HANA", vendor: "SAP", description: "ERP-system for økonomi og logistikk", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Kjernesystem" },
-        { name: "Salesforce CRM", vendor: "Salesforce", description: "Kundeoppfølging og salgsprosesser", category: "CRM", risk_level: "low", criticality: "medium", reason: "Viktig for kundedata" },
-        { name: "ServiceNow", vendor: "ServiceNow", description: "IT Service Management", category: "ITSM", risk_level: "medium", criticality: "high", reason: "Støtter IT-drift" },
+        { name: "Microsoft 365", vendor: "Microsoft", description: "Productivity platform with email and collaboration", category: "Productivity", risk_level: "low", criticality: "high", reason: "Standard office tools" },
+        { name: "SAP S/4HANA", vendor: "SAP", description: "ERP system for finance and logistics", category: "ERP", risk_level: "medium", criticality: "critical", reason: "Core system" },
+        { name: "Salesforce CRM", vendor: "Salesforce", description: "Customer management and sales processes", category: "CRM", risk_level: "low", criticality: "medium", reason: "Important for customer data" },
+        { name: "ServiceNow", vendor: "ServiceNow", description: "IT Service Management", category: "ITSM", risk_level: "medium", criticality: "high", reason: "Supports IT operations" },
       ],
       vendor: [
-        { name: "TietoEvry", vendor: "", description: "IT-drift og systemutvikling", category: "IT-leverandør", risk_level: "medium", criticality: "high", reason: "Kritisk for IT-drift" },
-        { name: "Atea", vendor: "", description: "Hardware og infrastruktur", category: "IT-leverandør", risk_level: "low", criticality: "medium", reason: "Utstyrsleverandør" },
-        { name: "Accenture", vendor: "", description: "Konsulent for digital transformasjon", category: "Konsulent", risk_level: "low", criticality: "medium", reason: "Strategiske prosjekter" },
+        { name: "TietoEvry", vendor: "", description: "IT operations and development", category: "IT vendor", risk_level: "medium", criticality: "high", reason: "Critical for IT operations" },
+        { name: "Atea", vendor: "", description: "Hardware and infrastructure", category: "IT vendor", risk_level: "low", criticality: "medium", reason: "Equipment supplier" },
+        { name: "Accenture", vendor: "", description: "Digital transformation consultant", category: "Consultant", risk_level: "low", criticality: "medium", reason: "Strategic projects" },
       ],
       hardware: [
-        { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack-server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Kjører applikasjoner" },
-        { name: "Cisco Catalyst 9300", vendor: "Cisco", description: "Enterprise nettverkssvitsj", category: "Nettverk", risk_level: "medium", criticality: "high", reason: "Backbone" },
-        { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur", category: "Sikkerhet", risk_level: "high", criticality: "critical", reason: "Nettverkssikkerhet" },
+        { name: "Dell PowerEdge R750", vendor: "Dell", description: "Rack server for datacenter", category: "Server", risk_level: "medium", criticality: "high", reason: "Runs applications" },
+        { name: "Cisco Catalyst 9300", vendor: "Cisco", description: "Enterprise network switch", category: "Network", risk_level: "medium", criticality: "high", reason: "Backbone" },
+        { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen firewall", category: "Security", risk_level: "high", criticality: "critical", reason: "Network security" },
       ],
       network: [
-        { name: "Azure Virtual Network", vendor: "Microsoft", description: "Skybasert nettverk", category: "Sky-nettverk", risk_level: "medium", criticality: "high", reason: "Sky-infrastruktur" },
-        { name: "Cisco SD-WAN", vendor: "Cisco", description: "Software-defined WAN", category: "WAN", risk_level: "medium", criticality: "high", reason: "Forbinder lokasjoner" },
+        { name: "Azure Virtual Network", vendor: "Microsoft", description: "Cloud-based network", category: "Cloud network", risk_level: "medium", criticality: "high", reason: "Cloud infrastructure" },
+        { name: "Cisco SD-WAN", vendor: "Cisco", description: "Software-defined WAN", category: "WAN", risk_level: "medium", criticality: "high", reason: "Connects locations" },
       ],
       location: [
-        { name: "Hovedkontor", vendor: "", description: "Administrasjon og ledelse", category: "Kontor", risk_level: "low", criticality: "high", reason: "Hovedlokasjon" },
-        { name: "Datacenter", vendor: "Green Mountain", description: "Primært datasenter", category: "Datasenter", risk_level: "high", criticality: "critical", reason: "Kritisk infrastruktur" },
+        { name: "Headquarters", vendor: "", description: "Administration and management", category: "Office", risk_level: "low", criticality: "high", reason: "Main location" },
+        { name: "Data Center", vendor: "Green Mountain", description: "Primary data center", category: "Data center", risk_level: "high", criticality: "critical", reason: "Critical infrastructure" },
       ],
       integration: [
-        { name: "Azure API Management", vendor: "Microsoft", description: "API gateway", category: "API", risk_level: "medium", criticality: "high", reason: "Sentral API-styring" },
-        { name: "MuleSoft Anypoint", vendor: "Salesforce", description: "Integrasjonsplattform", category: "Integrasjon", risk_level: "medium", criticality: "high", reason: "Systemintegrasjon" },
+        { name: "Azure API Management", vendor: "Microsoft", description: "API gateway", category: "API", risk_level: "medium", criticality: "high", reason: "Central API management" },
+        { name: "MuleSoft Anypoint", vendor: "Salesforce", description: "Integration platform", category: "Integration", risk_level: "medium", criticality: "high", reason: "System integration" },
       ],
     };
 
@@ -1108,7 +1108,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             id="vendor"
             value={formData.vendor}
             onChange={(e) => setFormData(prev => ({ ...prev, vendor: e.target.value }))}
-            placeholder="F.eks. Microsoft, SAP, Oracle"
+            placeholder="E.g. Microsoft, SAP, Oracle"
           />
         </div>
       )}
@@ -1119,7 +1119,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           id="category"
           value={formData.category}
           onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-          placeholder="F.eks. ERP, CRM, SCADA"
+          placeholder="E.g. ERP, CRM, SCADA"
         />
       </div>
 

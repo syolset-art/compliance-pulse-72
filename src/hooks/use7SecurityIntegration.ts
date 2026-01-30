@@ -64,7 +64,7 @@ export function use7SecurityIntegration() {
 
       return data as VerifyCustomerResult;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Kunne ikke verifisere kunde-ID';
+      const message = err instanceof Error ? err.message : 'Could not verify customer ID';
       setError(message);
       return {
         success: false,
@@ -99,12 +99,12 @@ export function use7SecurityIntegration() {
       }
 
       if (result.success) {
-        toast.success("Tilgangsforespørsel sendt!");
+        toast.success("Access request sent!");
       }
 
       return result as RequestAccessResult;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Kunne ikke sende tilgangsforespørsel';
+      const message = err instanceof Error ? err.message : 'Could not send access request';
       setError(message);
       toast.error(message);
       return {
@@ -138,7 +138,7 @@ export function use7SecurityIntegration() {
 
       return data as FetchAssetsResult;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Kunne ikke hente eiendeler';
+      const message = err instanceof Error ? err.message : 'Could not fetch assets';
       setError(message);
       toast.error(message);
       return {
