@@ -708,16 +708,20 @@ export type Database = {
       }
       integration_connections: {
         Row: {
+          access_granted_at: string | null
+          access_requested_at: string | null
           api_key_encrypted: string | null
           created_at: string | null
           display_name: string
           id: string
           is_active: boolean | null
           last_sync_at: string | null
+          partner_customer_id: string | null
           performer_role:
             | Database["public"]["Enums"]["integration_performer_role"]
             | null
           provider: string
+          provider_id: string | null
           setup_completed_at: string | null
           setup_performer_id: string | null
           sync_frequency: string | null
@@ -725,16 +729,20 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          access_granted_at?: string | null
+          access_requested_at?: string | null
           api_key_encrypted?: string | null
           created_at?: string | null
           display_name: string
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
+          partner_customer_id?: string | null
           performer_role?:
             | Database["public"]["Enums"]["integration_performer_role"]
             | null
           provider: string
+          provider_id?: string | null
           setup_completed_at?: string | null
           setup_performer_id?: string | null
           sync_frequency?: string | null
@@ -742,16 +750,20 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          access_granted_at?: string | null
+          access_requested_at?: string | null
           api_key_encrypted?: string | null
           created_at?: string | null
           display_name?: string
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
+          partner_customer_id?: string | null
           performer_role?:
             | Database["public"]["Enums"]["integration_performer_role"]
             | null
           provider?: string
+          provider_id?: string | null
           setup_completed_at?: string | null
           setup_performer_id?: string | null
           sync_frequency?: string | null
@@ -759,6 +771,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "integration_connections_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "integration_providers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "integration_connections_setup_performer_id_fkey"
             columns: ["setup_performer_id"]
@@ -820,6 +839,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      integration_providers: {
+        Row: {
+          access_type: string
+          auth_type: string
+          created_at: string
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean
+          name: string
+          partner_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_type: string
+          auth_type: string
+          created_at?: string
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean
+          name: string
+          partner_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_type?: string
+          auth_type?: string
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          partner_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       maturity_milestones: {
         Row: {

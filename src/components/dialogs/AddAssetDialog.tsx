@@ -63,7 +63,11 @@ import { cn } from "@/lib/utils";
 import { PerformerSelectStep, type PerformerRole } from "@/components/integration/PerformerSelectStep";
 import { InvitePerformerForm, type InviteData } from "@/components/integration/InvitePerformerForm";
 import { IntegrationPendingStatus } from "@/components/integration/IntegrationPendingStatus";
+import { CustomerTypeStep } from "@/components/integration/CustomerTypeStep";
+import { CustomerIdStep } from "@/components/integration/CustomerIdStep";
+import { RequestAccessStep } from "@/components/integration/RequestAccessStep";
 import { useIntegrationPerformers } from "@/hooks/useIntegrationPerformers";
+import { use7SecurityIntegration, type FetchedAsset } from "@/hooks/use7SecurityIntegration";
 
 interface AssetTypeTemplate {
   asset_type: string;
@@ -194,6 +198,10 @@ type Step =
   | "upload" 
   | "connect"
   | "connect-select-types"
+  | "connect-customer-type"
+  | "connect-customer-id"
+  | "connect-request-access"
+  | "connect-access-pending"
   | "connect-performer-select"
   | "connect-invite-performer"
   | "connect-pending"
@@ -206,6 +214,7 @@ type Step =
 export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemplates }: AddAssetDialogProps) {
   const { t } = useTranslation();
   const { createPerformer, logAuditEvent } = useIntegrationPerformers();
+  const { fetchAcronisAssets } = use7SecurityIntegration();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<Step>("select-type");
   const [selectedType, setSelectedType] = useState<string>("");
@@ -234,6 +243,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   // Performer/Invite state
   const [selectedPerformerRole, setSelectedPerformerRole] = useState<PerformerRole | null>(null);
   const [pendingInvite, setPendingInvite] = useState<InviteData | null>(null);
+  
+  // 7 Security integration state
+  const [customerId, setCustomerId] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [accessRequestId, setAccessRequestId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     asset_type: "",
@@ -283,6 +297,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       setPreviewFilter("all");
       setSelectedPerformerRole(null);
       setPendingInvite(null);
+      setCustomerId("");
+      setCustomerName("");
+      setAccessRequestId(null);
       setFormData({
         asset_type: "",
         name: "",
@@ -529,8 +546,64 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   };
 
   const startFetching = async () => {
-    // Go to performer selection before auth
-    setStep("connect-performer-select");
+    // Check if this is a partner integration (7 Security) or direct API
+    const integration = integrationOptions.find(i => i.id === selectedIntegration);
+    if (integration?.partnerName) {
+      // Partner integration - go to customer type selection
+      setStep("connect-customer-type");
+    } else {
+      // Direct API - go to performer selection
+      setStep("connect-performer-select");
+    }
+  };
+
+  const handleCustomerTypeSelect = (type: "existing" | "new" | "demo") => {
+    if (type === "existing") {
+      setStep("connect-customer-id");
+    } else if (type === "new") {
+      setStep("connect-request-access");
+    } else {
+      // Demo mode - use demo customer ID
+      setCustomerId("7SEC-DEMO-00001");
+      setCustomerName("Demo Bedrift AS");
+      startFetchingWith7Security("7SEC-DEMO-00001");
+    }
+  };
+
+  const handleCustomerIdVerified = (id: string, name?: string) => {
+    setCustomerId(id);
+    setCustomerName(name || "");
+    startFetchingWith7Security(id);
+  };
+
+  const handleAccessRequestSent = (requestId: string) => {
+    setAccessRequestId(requestId);
+    setStep("connect-access-pending");
+  };
+
+  const startFetchingWith7Security = async (customerIdToUse: string) => {
+    setStep("connect-fetching");
+    
+    const assetTypesArray = selectedAssetTypes.has("all") 
+      ? ["all"] 
+      : Array.from(selectedAssetTypes);
+    
+    const result = await fetchAcronisAssets(customerIdToUse, assetTypesArray);
+    
+    if (result.success && result.assets) {
+      setFetchedAssets(result.assets as FetchedAsset[]);
+      setSelectedAssetIds(new Set(result.assets.map(a => a.id)));
+      setStep("connect-preview");
+    } else {
+      // Fall back to mock data for demo
+      let filteredAssets = MOCK_ACRONIS_ASSETS;
+      if (!selectedAssetTypes.has("all")) {
+        filteredAssets = MOCK_ACRONIS_ASSETS.filter(a => selectedAssetTypes.has(a.type));
+      }
+      setFetchedAssets(filteredAssets);
+      setSelectedAssetIds(new Set(filteredAssets.map(a => a.id)));
+      setStep("connect-preview");
+    }
   };
 
   const startActualFetching = async () => {
@@ -667,6 +740,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       case "upload": return 50;
       case "connect": return 20;
       case "connect-select-types": return 35;
+      case "connect-customer-type": return 45;
+      case "connect-customer-id": return 55;
+      case "connect-request-access": return 55;
+      case "connect-access-pending": return 60;
       case "connect-performer-select": return 50;
       case "connect-invite-performer": return 55;
       case "connect-pending": return 60;
@@ -693,6 +770,13 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         setStep("connect");
         setSelectedIntegration("");
         break;
+      case "connect-customer-type":
+        setStep("connect-select-types");
+        break;
+      case "connect-customer-id":
+      case "connect-request-access":
+        setStep("connect-customer-type");
+        break;
       case "connect-performer-select":
         setStep("connect-select-types");
         break;
@@ -705,7 +789,13 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         setSelectedPerformerRole(null);
         break;
       case "connect-preview":
-        setStep("connect-performer-select");
+        // Go back to customer type for partner integrations
+        const integration = integrationOptions.find(i => i.id === selectedIntegration);
+        if (integration?.partnerName) {
+          setStep("connect-customer-type");
+        } else {
+          setStep("connect-performer-select");
+        }
         break;
       case "select-manual-method":
         setStep("select-type");
@@ -1109,13 +1199,14 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const integrationOptions = [
     {
       id: "acronis",
-      name: "Acronis",
-      description: "Importer enheter fra Acronis Cyber Protect",
+      name: "Acronis via 7 Security",
+      description: "Importer enheter fra Acronis Cyber Protect via 7 Security",
       logo: "🛡️",
       bgColor: "bg-[#00D4AA]/20",
       textColor: "text-[#00D4AA]",
       available: true,
       category: "IT-sikkerhet",
+      partnerName: "7 Security",
     },
     {
       id: "azure-ad",
@@ -1126,6 +1217,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#0078D4]",
       available: true,
       category: "Identitet",
+      partnerName: undefined,
     },
     {
       id: "sharepoint",
@@ -1136,6 +1228,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#038387]",
       available: true,
       category: "Dokumenter",
+      partnerName: undefined,
     },
     {
       id: "intune",
@@ -1146,6 +1239,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#0078D4]",
       available: true,
       category: "Enhetsadministrasjon",
+      partnerName: undefined,
     },
     {
       id: "servicenow",
@@ -1156,6 +1250,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#81B5A1]",
       available: true,
       category: "ITSM",
+      partnerName: undefined,
     },
     {
       id: "qualys",
@@ -1166,6 +1261,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#ED1C24]",
       available: false,
       category: "Sikkerhet",
+      partnerName: undefined,
     },
     {
       id: "crowdstrike",
@@ -1176,6 +1272,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       textColor: "text-[#FC0039]",
       available: false,
       category: "EDR",
+      partnerName: undefined,
     },
   ];
 
@@ -1744,6 +1841,58 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           {step === "upload" && renderUpload()}
           {step === "connect" && renderConnect()}
           {step === "connect-select-types" && renderConnectSelectTypes()}
+          {step === "connect-customer-type" && integration && (
+            <CustomerTypeStep
+              integration={{
+                name: integration.name,
+                logo: integration.logo,
+                bgColor: integration.bgColor,
+                textColor: integration.textColor,
+                partnerName: integration.partnerName,
+              }}
+              onSelect={handleCustomerTypeSelect}
+            />
+          )}
+          {step === "connect-customer-id" && integration && (
+            <CustomerIdStep
+              integration={{
+                name: integration.name,
+                logo: integration.logo,
+                bgColor: integration.bgColor,
+                textColor: integration.textColor,
+                partnerName: integration.partnerName,
+              }}
+              onVerified={handleCustomerIdVerified}
+              onNeedAccess={() => setStep("connect-request-access")}
+            />
+          )}
+          {step === "connect-request-access" && integration && (
+            <RequestAccessStep
+              integration={{
+                name: integration.name,
+                logo: integration.logo,
+                bgColor: integration.bgColor,
+                textColor: integration.textColor,
+                partnerName: integration.partnerName,
+              }}
+              onRequestSent={handleAccessRequestSent}
+              onHaveCustomerId={() => setStep("connect-customer-id")}
+            />
+          )}
+          {step === "connect-access-pending" && (
+            <div className="flex flex-col items-center justify-center py-8 gap-4">
+              <Clock className="h-12 w-12 text-primary" />
+              <div className="text-center">
+                <p className="font-semibold text-lg">Venter på aktivering</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Du vil motta e-post når tilgangen er klar
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Lukk og vent
+              </Button>
+            </div>
+          )}
           {step === "connect-performer-select" && (
             <PerformerSelectStep 
               integrationName={integration?.name || "integrasjon"} 
