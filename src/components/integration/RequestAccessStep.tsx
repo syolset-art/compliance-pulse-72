@@ -56,34 +56,34 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
             <CheckCircle2 className="h-8 w-8 text-green-500" />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-lg">Forespørsel sendt!</p>
+            <p className="font-semibold text-lg">Request sent!</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Referanse: {requestId}
+              Reference: {requestId}
             </p>
           </div>
         </div>
 
         <div className="p-4 rounded-lg bg-muted/50 space-y-3">
-          <p className="text-sm font-medium">Hva skjer nå?</p>
+          <p className="text-sm font-medium">What happens next?</p>
           <div className="space-y-2">
             <div className="flex items-center gap-3 text-sm">
               <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary">1</div>
-              <span className="text-muted-foreground">{partnerName} behandler forespørselen</span>
+              <span className="text-muted-foreground">{partnerName} processes the request</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">2</div>
-              <span className="text-muted-foreground">Du mottar kunde-ID på e-post</span>
+              <span className="text-muted-foreground">You receive customer ID by email</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">3</div>
-              <span className="text-muted-foreground">Kom tilbake hit og aktiver integrasjonen</span>
+              <span className="text-muted-foreground">Come back here and activate the integration</span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 justify-center text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
-          <span>Vanligvis aktivert innen 24 timer</span>
+          <span>Usually activated within 24 hours</span>
         </div>
       </div>
     );
@@ -100,14 +100,14 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
           )}
         </div>
         <div>
-          <p className="font-medium">Be om tilgang</p>
-          <p className="text-xs text-muted-foreground">Via Mynder-avtalen med {partnerName}</p>
+          <p className="font-medium">Request access</p>
+          <p className="text-xs text-muted-foreground">Via the Mynder agreement with {partnerName}</p>
         </div>
       </div>
 
       <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
         <p className="text-sm text-green-400">
-          Som Mynder-kunde får du tilgang til {partnerName}s datahenting fra {integration.name.replace(" via 7 Security", "")} uten ekstra kostnad.
+          As a Mynder customer, you get access to {partnerName}'s data fetching from {integration.name.replace(" via 7 Security", "")} at no additional cost.
         </p>
       </div>
 
@@ -115,7 +115,7 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
         <div className="space-y-2">
           <Label htmlFor="org-number">
             <Building2 className="inline h-3.5 w-3.5 mr-1.5" />
-            Organisasjonsnummer
+            Organization number
           </Label>
           <Input
             id="org-number"
@@ -129,27 +129,27 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
         <div className="space-y-2">
           <Label htmlFor="contact-name">
             <User className="inline h-3.5 w-3.5 mr-1.5" />
-            Kontaktperson
+            Contact person
           </Label>
           <Input
             id="contact-name"
             value={formData.contactName}
             onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-            placeholder="Ola Nordmann"
+            placeholder="John Doe"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="contact-email">
             <Mail className="inline h-3.5 w-3.5 mr-1.5" />
-            E-post
+            Email
           </Label>
           <Input
             id="contact-email"
             type="email"
             value={formData.contactEmail}
             onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-            placeholder="ola@bedrift.no"
+            placeholder="john@company.com"
           />
         </div>
       </div>
@@ -162,10 +162,10 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Sender forespørsel...
+            Sending request...
           </>
         ) : (
-          "Be om tilgang"
+          "Request access"
         )}
       </Button>
 
@@ -175,13 +175,13 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
           className="text-xs text-muted-foreground"
           onClick={onHaveCustomerId}
         >
-          Har du allerede kunde-ID? Klikk her
+          Already have a customer ID? Click here
         </Button>
       </div>
 
       <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground">
         <Clock className="h-3.5 w-3.5" />
-        <span>Vanligvis aktivert innen 24 timer</span>
+        <span>Usually activated within 24 hours</span>
       </div>
     </div>
   );

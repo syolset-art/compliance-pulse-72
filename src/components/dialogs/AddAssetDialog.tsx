@@ -131,12 +131,12 @@ const iconMap: Record<string, LucideIcon> = {
 
 // Asset type options for integration import
 const INTEGRATION_ASSET_TYPES = [
-  { id: "system", label: "Systemer", icon: Server, priority: "high" },
-  { id: "location", label: "Lokasjoner", icon: MapPin, priority: "high" },
-  { id: "network", label: "Nettverk", icon: Wifi, priority: "high" },
-  { id: "hardware", label: "Digitale enheter", icon: HardDrive, priority: "high" },
-  { id: "vendor", label: "Leverandører", icon: Building2, priority: "medium" },
-  { id: "integration", label: "Integrasjoner", icon: Plug, priority: "medium" },
+  { id: "system", label: "Systems", icon: Server, priority: "high" },
+  { id: "location", label: "Locations", icon: MapPin, priority: "high" },
+  { id: "network", label: "Networks", icon: Wifi, priority: "high" },
+  { id: "hardware", label: "Digital devices", icon: HardDrive, priority: "high" },
+  { id: "vendor", label: "Vendors", icon: Building2, priority: "medium" },
+  { id: "integration", label: "Integrations", icon: Plug, priority: "medium" },
 ];
 
 // Mock data for Acronis prototype - realistic Norwegian data
@@ -177,16 +177,16 @@ const MOCK_ACRONIS_ASSETS: MockAcronisAsset[] = [
 
 // AI import messages for simulation - updated for new mock data
 const AI_IMPORT_MESSAGES = [
-  { asset: "Microsoft 365", message: "Kartlegger compliance-krav for produktivitetsplattform..." },
-  { asset: "Microsoft 365", message: "Identifisert: ISO 27001, GDPR – 92% samsvar" },
-  { asset: "SAP S/4HANA", message: "Analyserer ERP-system for personopplysninger..." },
-  { asset: "SAP S/4HANA", message: "Flagget som kritisk – inneholder kundedata og økonomidata" },
-  { asset: "Hovedkontor Oslo", message: "Klassifiserer fysisk lokasjon – høy sikkerhet påkrevd" },
-  { asset: "Datasenter Green Mountain", message: "NS-EN 50600 sertifisert – kritisk infrastruktur" },
-  { asset: "Azure Virtual Network", message: "Verifiserer sky-nettverk segmentering..." },
-  { asset: "Fortinet FortiGate 600E", message: "Identifisert som sikkerhetsinfrastruktur – 97% samsvar" },
-  { asset: "ServiceNow ITSM", message: "Advarsel: Krever oppfølging – 78% samsvar" },
-  { asset: "TietoEvry", message: "Leverandørvurdering: ISO 27001 og SOC 2 sertifisert" },
+  { asset: "Microsoft 365", message: "Mapping compliance requirements for productivity platform..." },
+  { asset: "Microsoft 365", message: "Identified: ISO 27001, GDPR – 92% compliance" },
+  { asset: "SAP S/4HANA", message: "Analyzing ERP system for personal data..." },
+  { asset: "SAP S/4HANA", message: "Flagged as critical – contains customer and financial data" },
+  { asset: "Hovedkontor Oslo", message: "Classifying physical location – high security required" },
+  { asset: "Datasenter Green Mountain", message: "NS-EN 50600 certified – critical infrastructure" },
+  { asset: "Azure Virtual Network", message: "Verifying cloud network segmentation..." },
+  { asset: "Fortinet FortiGate 600E", message: "Identified as security infrastructure – 97% compliance" },
+  { asset: "ServiceNow ITSM", message: "Warning: Requires follow-up – 78% compliance" },
+  { asset: "TietoEvry", message: "Vendor assessment: ISO 27001 and SOC 2 certified" },
 ];
 
 type Step = 
@@ -454,12 +454,12 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       const { error } = await supabase.from("assets").insert(assetsToCreate);
       if (error) throw error;
 
-      toast.success(`${selectedSuggestions.size} eiendeler lagt til`);
+      toast.success(`${selectedSuggestions.size} assets added`);
       onAssetAdded();
       onOpenChange(false);
     } catch (error) {
       console.error("Error creating assets:", error);
-      toast.error("Kunne ikke opprette eiendeler");
+      toast.error("Could not create assets");
     } finally {
       setIsLoading(false);
     }
@@ -684,8 +684,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       const asset = selectedAssets[i];
       
       // First message - importing
-      setCurrentAiMessage(`Importerer ${asset.name}...`);
-      setAiMessages(prev => [...prev, `✓ Importert: ${asset.name}`]);
+      setCurrentAiMessage(`Importing ${asset.name}...`);
+      setAiMessages(prev => [...prev, `✓ Imported: ${asset.name}`]);
       currentStep++;
       setImportProgress(Math.round((currentStep / totalSteps) * 100));
       await new Promise(resolve => setTimeout(resolve, 400));
@@ -697,7 +697,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         await new Promise(resolve => setTimeout(resolve, 600));
         setAiMessages(prev => [...prev, `  → ${aiMsg.message}`]);
       } else {
-        setCurrentAiMessage(`Kartlegger compliance-krav...`);
+        setCurrentAiMessage(`Mapping compliance requirements...`);
         await new Promise(resolve => setTimeout(resolve, 400));
       }
       currentStep++;
@@ -722,7 +722,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const finishImport = () => {
     onAssetAdded();
     onOpenChange(false);
-    toast.success(`${importedCount} nye eiendeler importert og klare for tilordning`);
+    toast.success(`${importedCount} new assets imported and ready for assignment`);
   };
 
   // ============ END CONNECT FLOW FUNCTIONS ============
@@ -814,7 +814,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const renderSelectApproach = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Hvordan vil du legge til eiendeler?
+        How would you like to add assets?
       </p>
       <div className="grid gap-3">
         {/* Automatic - Connect to data source */}
@@ -826,13 +826,13 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <Link2 className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-foreground">Automatisk import</p>
+            <p className="font-semibold text-lg text-foreground">Automatic import</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Koble til Acronis, Azure AD, ServiceNow eller andre kilder
+              Connect to Acronis, Azure AD, ServiceNow or other sources
             </p>
             <div className="flex gap-2 mt-3">
-              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Anbefalt</span>
-              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">Synkronisering</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">Recommended</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">Synchronization</span>
             </div>
           </div>
         </button>
@@ -846,9 +846,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <Sparkles className="h-7 w-7 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-foreground">Manuelt / AI-forslag</p>
+            <p className="font-semibold text-lg text-foreground">Manual / AI suggestions</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Velg type, få AI-forslag basert på din bransje, eller fyll ut manuelt
+              Select type, get AI suggestions based on your industry, or fill in manually
             </p>
           </div>
         </button>
@@ -862,9 +862,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <Upload className="h-7 w-7 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-foreground">Last opp fra fil</p>
+            <p className="font-semibold text-lg text-foreground">Upload from file</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Importer fra Excel, CSV eller annen strukturert fil
+              Import from Excel, CSV or other structured file
             </p>
           </div>
         </button>
@@ -876,9 +876,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           <Info className="h-4 w-4 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Usikker på hva du skal legge til?</p>
+          <p className="text-sm font-medium text-foreground">Not sure what to add?</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Kontakt din IT-leverandør eller IT-ansvarlig for en oversikt over systemer, nettverk og digitale enheter som er i bruk.
+            Contact your IT provider or IT manager for an overview of systems, networks and digital devices in use.
           </p>
         </div>
       </div>
@@ -889,7 +889,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const renderSelectType = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Hvilken type eiendel vil du legge til?
+        What type of asset do you want to add?
       </p>
       <div className="grid grid-cols-2 gap-3">
         {assetTypeTemplates.map((template) => {
@@ -938,11 +938,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <p className="font-semibold">AI-forslag</p>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Anbefalt</span>
+              <p className="font-semibold">AI Suggestions</p>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Recommended</span>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Få forslag basert på bransje og bedriftsprofil
+              Get suggestions based on industry and company profile
             </p>
           </div>
         </button>
@@ -956,9 +956,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <FileText className="h-6 w-6 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold">Fyll ut manuelt</p>
+            <p className="font-semibold">Fill in manually</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Legg til én {selectedTemplate?.display_name?.toLowerCase() || "eiendel"} med alle detaljer
+              Add one {selectedTemplate?.display_name?.toLowerCase() || "asset"} with all details
             </p>
           </div>
         </button>
@@ -968,8 +968,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
           <p className="text-xs text-blue-300">
-            AI-forslag er tilpasset <span className="font-medium">{companyProfile.name}</span> i 
-            {" "}<span className="font-medium">{companyProfile.industry}</span>-bransjen
+            AI suggestions are customized for <span className="font-medium">{companyProfile.name}</span> in 
+            {" "}the <span className="font-medium">{companyProfile.industry}</span> industry
           </p>
         </div>
       )}
@@ -986,24 +986,24 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <Loader2 className="h-6 w-6 text-primary animate-spin absolute -bottom-1 -right-1" />
           </div>
           <div className="text-center">
-            <p className="font-medium">Analyserer din bedriftsprofil...</p>
+            <p className="font-medium">Analyzing your company profile...</p>
             <p className="text-sm text-muted-foreground">
-              Finner relevante {selectedTemplate?.display_name_plural?.toLowerCase() || "eiendeler"} for {companyProfile?.industry || "din bransje"}
+              Finding relevant {selectedTemplate?.display_name_plural?.toLowerCase() || "assets"} for {companyProfile?.industry || "your industry"}
             </p>
           </div>
         </div>
       ) : suggestions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 gap-4">
-          <p className="text-muted-foreground">Ingen nye forslag tilgjengelig</p>
+          <p className="text-muted-foreground">No new suggestions available</p>
           <Button variant="outline" onClick={() => setStep("manual-form")}>
-            Legg til manuelt
+            Add manually
           </Button>
         </div>
       ) : (
         <>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {suggestions.length} forslag funnet
+              {suggestions.length} suggestions found
             </p>
             <Button 
               variant="ghost" 
@@ -1016,7 +1016,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                 }
               }}
             >
-              {selectedSuggestions.size === suggestions.length ? "Fjern alle" : "Velg alle"}
+              {selectedSuggestions.size === suggestions.length ? "Remove all" : "Select all"}
             </Button>
           </div>
 
@@ -1051,7 +1051,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                       )}
                       {suggestion.industryRelevant && (
                         <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
-                          Bransjerelevant
+                          Industry relevant
                         </span>
                       )}
                     </div>
@@ -1068,8 +1068,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                         suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-400" :
                         "bg-green-500/20 text-green-400"
                       )}>
-                        {suggestion.risk_level === "high" ? "Høy risiko" : 
-                         suggestion.risk_level === "medium" ? "Medium risiko" : "Lav risiko"}
+                        {suggestion.risk_level === "high" ? "High risk" : 
+                         suggestion.risk_level === "medium" ? "Medium risk" : "Low risk"}
                       </span>
                     </div>
                   </div>
@@ -1096,7 +1096,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           id="name"
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          placeholder={`F.eks. ${selectedTemplate?.display_name || "Eiendel"} navn`}
+          placeholder={`E.g. ${selectedTemplate?.display_name || "Asset"} name`}
           required
         />
       </div>
@@ -1134,9 +1134,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="low">Lav</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">Høy</SelectItem>
+              <SelectItem value="high">High</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1151,10 +1151,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="low">Lav</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">Høy</SelectItem>
-              <SelectItem value="critical">Kritisk</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1166,7 +1166,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           id="description"
           value={formData.description}
           onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          placeholder="Beskriv formål og bruksområde..."
+          placeholder="Describe purpose and use case..."
           rows={3}
         />
       </div>
@@ -1178,18 +1178,18 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     <div className="space-y-4">
       <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
         <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
-        <p className="font-medium">Dra og slipp Excel-fil her</p>
-        <p className="text-sm text-muted-foreground mt-1">eller klikk for å velge fil</p>
-        <p className="text-xs text-muted-foreground mt-4">.xlsx, .xls, .csv støttes</p>
+        <p className="font-medium">Drag and drop Excel file here</p>
+        <p className="text-sm text-muted-foreground mt-1">or click to select file</p>
+        <p className="text-xs text-muted-foreground mt-4">.xlsx, .xls, .csv supported</p>
       </div>
 
       <div className="p-4 rounded-lg bg-muted/50">
-        <p className="text-sm font-medium mb-2">Forventet format:</p>
+        <p className="text-sm font-medium mb-2">Expected format:</p>
         <p className="text-xs text-muted-foreground">
-          Kolonner: Navn, Leverandør, Kategori, Beskrivelse, Risiko
+          Columns: Name, Vendor, Category, Description, Risk
         </p>
         <Button variant="link" className="px-0 text-xs h-auto mt-2">
-          Last ned mal →
+          Download template →
         </Button>
       </div>
     </div>
@@ -1200,51 +1200,51 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     {
       id: "acronis",
       name: "Acronis via 7 Security",
-      description: "Importer enheter fra Acronis Cyber Protect via 7 Security",
+      description: "Import devices from Acronis Cyber Protect via 7 Security",
       logo: "🛡️",
       bgColor: "bg-[#00D4AA]/20",
       textColor: "text-[#00D4AA]",
       available: true,
-      category: "IT-sikkerhet",
+      category: "IT Security",
       partnerName: "7 Security",
     },
     {
       id: "azure-ad",
       name: "Microsoft Entra ID",
-      description: "Hent applikasjoner og enheter fra Azure AD",
+      description: "Fetch applications and devices from Azure AD",
       logo: "AD",
       bgColor: "bg-[#0078D4]/20",
       textColor: "text-[#0078D4]",
       available: true,
-      category: "Identitet",
+      category: "Identity",
       partnerName: undefined,
     },
     {
       id: "sharepoint",
       name: "SharePoint",
-      description: "Importer fra SharePoint-lister og dokumentbibliotek",
+      description: "Import from SharePoint lists and document libraries",
       logo: "SP",
       bgColor: "bg-[#038387]/20",
       textColor: "text-[#038387]",
       available: true,
-      category: "Dokumenter",
+      category: "Documents",
       partnerName: undefined,
     },
     {
       id: "intune",
       name: "Microsoft Intune",
-      description: "Importer administrerte enheter fra Intune",
+      description: "Import managed devices from Intune",
       logo: "📱",
       bgColor: "bg-[#0078D4]/20",
       textColor: "text-[#0078D4]",
       available: true,
-      category: "Enhetsadministrasjon",
+      category: "Device management",
       partnerName: undefined,
     },
     {
       id: "servicenow",
       name: "ServiceNow",
-      description: "Synkroniser fra ServiceNow CMDB",
+      description: "Sync from ServiceNow CMDB",
       logo: "SN",
       bgColor: "bg-[#81B5A1]/20",
       textColor: "text-[#81B5A1]",
@@ -1255,18 +1255,18 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     {
       id: "qualys",
       name: "Qualys",
-      description: "Importer eiendeler fra Qualys sårbarhetsskanning",
+      description: "Import assets from Qualys vulnerability scanning",
       logo: "Q",
       bgColor: "bg-[#ED1C24]/20",
       textColor: "text-[#ED1C24]",
       available: false,
-      category: "Sikkerhet",
+      category: "Security",
       partnerName: undefined,
     },
     {
       id: "crowdstrike",
       name: "CrowdStrike",
-      description: "Hent endepunkter fra Falcon-plattformen",
+      description: "Fetch endpoints from the Falcon platform",
       logo: "🦅",
       bgColor: "bg-[#FC0039]/20",
       textColor: "text-[#FC0039]",
@@ -1280,7 +1280,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const renderConnect = () => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Velg en datakilde å koble til for automatisk import av eiendeler
+        Select a data source to connect to for automatic asset import
       </p>
 
       <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-1">
@@ -1320,7 +1320,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                 </span>
                 {!integration.available && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600">
-                    Kommer snart
+                    Coming soon
                   </span>
                 )}
               </div>
@@ -1337,7 +1337,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
       <div className="pt-3 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          Trenger du en integrasjon vi ikke støtter? <button className="text-primary hover:underline">Kontakt oss</button>
+          Need an integration we don't support? <button className="text-primary hover:underline">Contact us</button>
         </p>
       </div>
     </div>
@@ -1359,12 +1359,12 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           </div>
           <div>
             <p className="font-medium">{integration?.name}</p>
-            <p className="text-xs text-muted-foreground">Velg hva du vil importere</p>
+            <p className="text-xs text-muted-foreground">Select what to import</p>
           </div>
         </div>
 
         <div className="space-y-3">
-          <p className="text-sm font-medium">Hvilke eiendelstyper vil du hente?</p>
+          <p className="text-sm font-medium">Which asset types do you want to fetch?</p>
           
           {/* All types option */}
           <button
@@ -1385,10 +1385,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               {selectedAssetTypes.has("all") && <Check className="h-3 w-3 text-primary-foreground" />}
             </div>
             <div className="flex-1">
-              <p className="font-medium">Alle typer</p>
-              <p className="text-xs text-muted-foreground">Importer alle tilgjengelige eiendelstyper</p>
+              <p className="font-medium">All types</p>
+              <p className="text-xs text-muted-foreground">Import all available asset types</p>
             </div>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Anbefalt</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">Recommended</span>
           </button>
 
           <div className="relative">
@@ -1396,7 +1396,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-2 text-muted-foreground">eller velg spesifikke</span>
+              <span className="bg-background px-2 text-muted-foreground">or select specific</span>
             </div>
           </div>
 
@@ -1423,7 +1423,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   <span className="text-sm">{type.label}</span>
                   {type.priority === "medium" && (
                     <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground ml-auto">
-                      Valgfri
+                      Optional
                     </span>
                   )}
                 </button>
@@ -1450,20 +1450,20 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             )}
           </div>
           <div>
-            <p className="font-medium">Koble til {integration?.name}</p>
-            <p className="text-xs text-muted-foreground">Skriv inn API-nøkkel for å fortsette</p>
+            <p className="font-medium">Connect to {integration?.name}</p>
+            <p className="text-xs text-muted-foreground">Enter API key to continue</p>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="api-key">API-nøkkel</Label>
+          <Label htmlFor="api-key">API key</Label>
           <div className="relative">
             <Input
               id="api-key"
               type={showApiKey ? "text" : "password"}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Lim inn API-nøkkel her..."
+              placeholder="Paste API key here..."
               className="pr-10"
             />
             <button
@@ -1480,12 +1480,12 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           <div className="flex items-start gap-2">
             <Key className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-blue-300">Hvor finner jeg API-nøkkelen?</p>
+              <p className="text-sm font-medium text-blue-300">Where do I find the API key?</p>
               <ol className="text-xs text-blue-300/80 mt-2 space-y-1 list-decimal list-inside">
-                <li>Logg inn på {integration?.name} Management Console</li>
-                <li>Gå til Innstillinger → API-tilgang</li>
-                <li>Klikk "Generer ny nøkkel"</li>
-                <li>Kopier nøkkelen og lim inn over</li>
+                <li>Log in to {integration?.name} Management Console</li>
+                <li>Go to Settings → API Access</li>
+                <li>Click "Generate new key"</li>
+                <li>Copy the key and paste it above</li>
               </ol>
             </div>
           </div>
@@ -1494,7 +1494,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50">
           <Shield className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-xs text-muted-foreground">
-            API-nøkkelen lagres sikkert og kryptert. Den brukes kun til å hente data fra {integration?.name}.
+            The API key is stored securely and encrypted. It is only used to fetch data from {integration?.name}.
           </p>
         </div>
       </div>
@@ -1521,24 +1521,24 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         </div>
 
         <div className="text-center space-y-2">
-          <p className="font-medium text-lg">Kobler til {integration?.name}...</p>
+          <p className="font-medium text-lg">Connecting to {integration?.name}...</p>
           <p className="text-sm text-muted-foreground">
-            Henter tilgjengelige eiendeler
+            Fetching available assets
           </p>
         </div>
 
         <div className="w-full max-w-xs space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <CheckCircle2 className="h-4 w-4 text-green-500" />
-            <span className="text-muted-foreground">Tilkobling verifisert</span>
+            <span className="text-muted-foreground">Connection verified</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 text-primary animate-spin" />
-            <span className="text-muted-foreground">Henter enhetsliste...</span>
+            <span className="text-muted-foreground">Fetching device list...</span>
           </div>
           <div className="flex items-center gap-2 text-sm opacity-50">
             <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
-            <span className="text-muted-foreground">Analyserer enheter</span>
+            <span className="text-muted-foreground">Analyzing devices</span>
           </div>
         </div>
       </div>
@@ -1556,20 +1556,20 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="font-medium">{fetchedAssets.length} eiendeler funnet</span>
+            <span className="font-medium">{fetchedAssets.length} assets found</span>
           </div>
           <span className="text-sm text-muted-foreground">{integration?.name}</span>
         </div>
 
-        {/* Filter tabs - dynamic based on what's in fetched assets */}
+        {/* Filter tabs */}
         <div className="flex gap-2 flex-wrap">
           {[
-            { id: "all", label: "Alle" },
-            { id: "system", label: "Systemer" },
-            { id: "location", label: "Lokasjoner" },
-            { id: "network", label: "Nettverk" },
-            { id: "hardware", label: "Maskinvare" },
-            { id: "vendor", label: "Leverandører" },
+            { id: "all", label: "All" },
+            { id: "system", label: "Systems" },
+            { id: "location", label: "Locations" },
+            { id: "network", label: "Networks" },
+            { id: "hardware", label: "Hardware" },
+            { id: "vendor", label: "Vendors" },
           ].filter(filter => 
             filter.id === "all" || fetchedAssets.some(a => a.type === filter.id)
           ).map((filter) => (
@@ -1593,10 +1593,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
         {/* Select/deselect all */}
         <div className="flex items-center justify-between py-2 border-b border-border">
-          <span className="text-sm text-muted-foreground">{selectedCount} av {filteredAssets.length} valgt</span>
+          <span className="text-sm text-muted-foreground">{selectedCount} of {filteredAssets.length} selected</span>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={selectAllAssets}>Velg alle</Button>
-            <Button variant="ghost" size="sm" onClick={deselectAllAssets}>Fjern alle</Button>
+            <Button variant="ghost" size="sm" onClick={selectAllAssets}>Select all</Button>
+            <Button variant="ghost" size="sm" onClick={deselectAllAssets}>Remove all</Button>
           </div>
         </div>
 
@@ -1622,11 +1622,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{asset.name}</span>
                     <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                      {asset.type === "location" ? "Lokasjon" : 
+                      {asset.type === "location" ? "Location" : 
                        asset.type === "system" ? "System" : 
-                       asset.type === "network" ? "Nettverk" : 
-                       asset.type === "hardware" ? "Maskinvare" :
-                       asset.type === "vendor" ? "Leverandør" : asset.type}
+                       asset.type === "network" ? "Network" : 
+                       asset.type === "hardware" ? "Hardware" :
+                       asset.type === "vendor" ? "Vendor" : asset.type}
                     </span>
                     {asset.vendor && (
                       <span className="text-xs text-muted-foreground">{asset.vendor}</span>
@@ -1635,7 +1635,6 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   <p className="text-xs text-muted-foreground truncate">{asset.os}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {/* Compliance score */}
                   {asset.complianceScore !== undefined && (
                     <div className={cn(
                       "text-xs font-medium px-2 py-0.5 rounded",
@@ -1669,7 +1668,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               onCheckedChange={(checked) => setEnableSync(!!checked)}
             />
             <Label htmlFor="enable-sync" className="cursor-pointer">
-              Aktiver automatisk synkronisering
+              Enable automatic synchronization
             </Label>
           </div>
           {enableSync && (
@@ -1680,9 +1679,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="daily">Daglig</SelectItem>
-                  <SelectItem value="weekly">Ukentlig</SelectItem>
-                  <SelectItem value="monthly">Månedlig</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1696,15 +1695,15 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const renderConnectImporting = () => (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <p className="font-medium text-lg">Importerer og klargjør eiendeler...</p>
+        <p className="font-medium text-lg">Importing and preparing assets...</p>
         <p className="text-sm text-muted-foreground">
-          Lara analyserer hver eiendel for compliance-krav
+          Lara analyzes each asset for compliance requirements
         </p>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Fremgang</span>
+          <span className="text-muted-foreground">Progress</span>
           <span className="font-medium">{importProgress}%</span>
         </div>
         <Progress value={importProgress} className="h-2" />
@@ -1713,7 +1712,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-3">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          <span className="font-medium text-sm">Lara jobber...</span>
+          <span className="font-medium text-sm">Lara is working...</span>
         </div>
         
         <ScrollArea className="h-[150px]">
@@ -1748,9 +1747,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       </div>
 
       <div className="text-center space-y-2">
-        <p className="font-semibold text-xl">Import fullført!</p>
+        <p className="font-semibold text-xl">Import complete!</p>
         <p className="text-muted-foreground">
-          {importedCount} eiendeler importert og klargjort
+          {importedCount} assets imported and prepared
         </p>
       </div>
 
@@ -1758,21 +1757,21 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         <div className="flex items-start gap-3">
           <Bot className="h-5 w-5 text-primary mt-0.5" />
           <div className="space-y-2">
-            <p className="font-medium text-sm">Lara sier:</p>
+            <p className="font-medium text-sm">Lara says:</p>
             <p className="text-sm text-muted-foreground">
-              "Jeg har importert {importedCount} eiendeler og klargjort dem i Mynder. 
-              Eiendelene ligger nå øverst i listen din.
+              "I have imported {importedCount} assets and prepared them in Mynder. 
+              The assets are now at the top of your list.
             </p>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>For hver eiendel har jeg:</p>
+              <p>For each asset, I have:</p>
               <ul className="list-disc list-inside pl-2 space-y-0.5">
-                <li>Kartlagt relevante regelverk (ISO 27001, GDPR)</li>
-                <li>Identifisert dokumentasjonskrav</li>
-                <li>Satt risikonivå basert på Acronis-status</li>
+                <li>Mapped relevant regulations (ISO 27001, GDPR)</li>
+                <li>Identified documentation requirements</li>
+                <li>Set risk level based on Acronis status</li>
               </ul>
             </div>
             <p className="text-sm text-muted-foreground font-medium">
-              Neste steg: Tilordne en ansvarlig for hver eiendel."
+              Next step: Assign a responsible person for each asset."
             </p>
           </div>
         </div>
@@ -1781,7 +1780,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       {enableSync && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <RefreshCw className="h-4 w-4" />
-          <span>Synkronisering aktivert ({syncFrequency === "daily" ? "daglig" : syncFrequency === "weekly" ? "ukentlig" : "månedlig"})</span>
+          <span>Synchronization enabled ({syncFrequency === "daily" ? "daily" : syncFrequency === "weekly" ? "weekly" : "monthly"})</span>
         </div>
       )}
     </div>
@@ -1789,23 +1788,23 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
   const getTitle = () => {
     switch (step) {
-      case "select-approach": return "Legg til eiendel";
-      case "select-type": return "Velg type eiendel";
-      case "select-manual-method": return `Legg til ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
-      case "ai-suggestions": return `AI-forslag: ${selectedTemplate?.display_name_plural || "Eiendeler"}`;
-      case "manual-form": return `Ny ${selectedTemplate?.display_name?.toLowerCase() || "eiendel"}`;
-      case "upload": return "Last opp fra fil";
-      case "connect": return "Koble til datakilde";
-      case "connect-select-types": return "Velg eiendelstyper";
-      case "connect-performer-select": return "Hvem utfører integrasjonen?";
-      case "connect-invite-performer": return "Send invitasjon";
-      case "connect-pending": return "Venter på ekstern part";
-      case "connect-auth": return "Koble til";
-      case "connect-fetching": return "Henter data";
-      case "connect-preview": return "Forhåndsvis import";
-      case "connect-importing": return "Importerer";
-      case "connect-complete": return "Fullført";
-      default: return "Legg til eiendel";
+      case "select-approach": return "Add Asset";
+      case "select-type": return "Select Asset Type";
+      case "select-manual-method": return `Add ${selectedTemplate?.display_name?.toLowerCase() || "asset"}`;
+      case "ai-suggestions": return `AI Suggestions: ${selectedTemplate?.display_name_plural || "Assets"}`;
+      case "manual-form": return `New ${selectedTemplate?.display_name?.toLowerCase() || "asset"}`;
+      case "upload": return "Upload from file";
+      case "connect": return "Connect to data source";
+      case "connect-select-types": return "Select asset types";
+      case "connect-performer-select": return "Who performs the integration?";
+      case "connect-invite-performer": return "Send invitation";
+      case "connect-pending": return "Waiting for external party";
+      case "connect-auth": return "Connect";
+      case "connect-fetching": return "Fetching data";
+      case "connect-preview": return "Preview import";
+      case "connect-importing": return "Importing";
+      case "connect-complete": return "Complete";
+      default: return "Add Asset";
     }
   };
 
@@ -1883,13 +1882,13 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <div className="flex flex-col items-center justify-center py-8 gap-4">
               <Clock className="h-12 w-12 text-primary" />
               <div className="text-center">
-                <p className="font-semibold text-lg">Venter på aktivering</p>
+                <p className="font-semibold text-lg">Waiting for activation</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Du vil motta e-post når tilgangen er klar
+                  You will receive an email when access is ready
                 </p>
               </div>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Lukk og vent
+                Close and wait
               </Button>
             </div>
           )}
@@ -1911,7 +1910,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <IntegrationPendingStatus
               integrationName={integration?.name || "integrasjon"}
               invite={{ ...pendingInvite, sentAt: new Date() }}
-              onSendReminder={() => toast.success("Påminnelse sendt!")}
+              onSendReminder={() => toast.success("Reminder sent!")}
               onCancel={() => { setPendingInvite(null); setStep("connect-performer-select"); }}
               onIHaveKey={() => setStep("connect-auth")}
             />
@@ -1929,17 +1928,17 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             <>
               <div />
               <Button onClick={finishImport}>
-                Se importerte eiendeler
+                View imported assets
               </Button>
             </>
           ) : step === "connect-importing" || step === "connect-fetching" ? (
             <div className="w-full text-center text-sm text-muted-foreground">
-              Vennligst vent...
+              Please wait...
             </div>
           ) : (
             <>
               <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                Avbryt
+                Cancel
               </Button>
               
               {step === "ai-suggestions" && suggestions.length > 0 && (
@@ -1950,10 +1949,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Legger til...
+                      Adding...
                     </>
                   ) : (
-                    `Legg til ${selectedSuggestions.size > 0 ? `(${selectedSuggestions.size})` : ""}`
+                    `Add ${selectedSuggestions.size > 0 ? `(${selectedSuggestions.size})` : ""}`
                   )}
                 </Button>
               )}
@@ -1963,10 +1962,10 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Lagrer...
+                      Saving...
                     </>
                   ) : (
-                    "Legg til"
+                    "Add"
                   )}
                 </Button>
               )}
@@ -1976,7 +1975,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   onClick={startFetching}
                   disabled={selectedAssetTypes.size === 0}
                 >
-                  Neste
+                  Next
                 </Button>
               )}
 
@@ -1985,7 +1984,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   onClick={startActualFetching}
                   disabled={!apiKey}
                 >
-                  Hent eiendeler
+                  Fetch assets
                 </Button>
               )}
 
@@ -1994,7 +1993,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   onClick={startImporting}
                   disabled={selectedAssetIds.size === 0}
                 >
-                  Importer valgte ({selectedAssetIds.size})
+                  Import selected ({selectedAssetIds.size})
                 </Button>
               )}
             </>

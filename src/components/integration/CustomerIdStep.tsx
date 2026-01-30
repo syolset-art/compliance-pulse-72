@@ -63,13 +63,13 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
           )}
         </div>
         <div>
-          <p className="font-medium">Koble til {integration.name}</p>
-          <p className="text-xs text-muted-foreground">Oppgi din kunde-ID hos {partnerName}</p>
+          <p className="font-medium">Connect to {integration.name}</p>
+          <p className="text-xs text-muted-foreground">Enter your customer ID for {partnerName}</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="customer-id">Kunde-ID</Label>
+        <Label htmlFor="customer-id">Customer ID</Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
@@ -81,7 +81,7 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
                   setVerificationState("idle");
                 }
               }}
-              placeholder="F.eks. 7SEC-KUNDE-12345"
+              placeholder="E.g. 7SEC-CUSTOMER-12345"
               className={cn(
                 "pr-10",
                 verificationState === "success" && "border-green-500 focus-visible:ring-green-500",
@@ -103,9 +103,9 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : verificationState === "success" ? (
-              "Verifisert"
+              "Verified"
             ) : (
-              "Verifiser"
+              "Verify"
             )}
           </Button>
         </div>
@@ -116,7 +116,7 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
         <div className="flex items-start gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
           <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-green-400">Kunde verifisert</p>
+            <p className="font-medium text-green-400">Customer verified</p>
             <p className="text-sm text-green-400/80 mt-1">{customerName}</p>
           </div>
         </div>
@@ -127,14 +127,14 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
         <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/30">
           <XCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-red-400">Kunde-ID ikke funnet</p>
+            <p className="font-medium text-red-400">Customer ID not found</p>
             <p className="text-sm text-red-400/80 mt-1">{errorMessage}</p>
             <Button 
               variant="link" 
               className="px-0 h-auto text-red-400 mt-2"
               onClick={onNeedAccess}
             >
-              Be om tilgang i stedet →
+              Request access instead →
             </Button>
           </div>
         </div>
@@ -145,11 +145,11 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
         <div className="flex items-start gap-2">
           <HelpCircle className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-300">Hvor finner jeg kunde-ID?</p>
+            <p className="text-sm font-medium text-blue-300">Where do I find my customer ID?</p>
             <ul className="text-xs text-blue-300/80 mt-2 space-y-1 list-disc list-inside">
-              <li>Sjekk e-post fra {partnerName}</li>
-              <li>Se i fakturaer eller kontrakter</li>
-              <li>Kontakt {partnerName} på support@7security.no</li>
+              <li>Check email from {partnerName}</li>
+              <li>Check invoices or contracts</li>
+              <li>Contact {partnerName} at support@7security.no</li>
             </ul>
           </div>
         </div>
@@ -158,7 +158,7 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
       {/* Demo ID hint */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Info className="h-3.5 w-3.5" />
-        <span>For testing: bruk <code className="px-1 py-0.5 bg-muted rounded">7SEC-DEMO-00001</code></span>
+        <span>For testing: use <code className="px-1 py-0.5 bg-muted rounded">7SEC-DEMO-00001</code></span>
       </div>
     </div>
   );

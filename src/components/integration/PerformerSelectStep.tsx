@@ -14,27 +14,27 @@ interface PerformerOption {
 const PERFORMER_OPTIONS: PerformerOption[] = [
   {
     id: "owner",
-    label: "Jeg gjør det selv",
-    description: "Jeg har admin-tilgang og kan legge inn API-nøkkel",
+    label: "I'll do it myself",
+    description: "I have admin access and can enter the API key",
     icon: User,
   },
   {
     id: "it_provider",
-    label: "IT-leverandør / MSP",
-    description: "Send invitasjon til din IT-partner",
+    label: "IT provider / MSP",
+    description: "Send invitation to your IT partner",
     icon: Building2,
     recommended: true,
   },
   {
     id: "accountant",
-    label: "Regnskapsfører",
-    description: "For regnskapssystemer (UniMicro, Tripletex, etc.)",
+    label: "Accountant",
+    description: "For accounting systems (UniMicro, Tripletex, etc.)",
     icon: Calculator,
   },
   {
     id: "internal_it",
-    label: "Intern IT-ansvarlig",
-    description: "Kollega med teknisk tilgang",
+    label: "Internal IT manager",
+    description: "Colleague with technical access",
     icon: Wrench,
   },
 ];
@@ -48,7 +48,7 @@ export function PerformerSelectStep({ integrationName, onSelect }: PerformerSele
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        For å koble til {integrationName} trenger vi å vite hvem som skal sette opp integrasjonen.
+        To connect to {integrationName}, we need to know who will set up the integration.
       </p>
 
       <div className="grid gap-3">
@@ -79,7 +79,7 @@ export function PerformerSelectStep({ integrationName, onSelect }: PerformerSele
                   <p className="font-medium">{option.label}</p>
                   {option.recommended && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary">
-                      Vanligst
+                      Most common
                     </span>
                   )}
                 </div>
@@ -97,9 +97,9 @@ export function PerformerSelectStep({ integrationName, onSelect }: PerformerSele
           <Info className="h-4 w-4 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Hvorfor spør vi?</p>
+          <p className="text-sm font-medium text-foreground">Why do we ask?</p>
           <p className="text-sm text-muted-foreground mt-1">
-            For revisjon og dokumentasjon er det viktig å logge hvem som har satt opp integrasjoner og håndterer API-nøkler.
+            For audit and documentation purposes, it's important to log who has set up integrations and handles API keys.
           </p>
         </div>
       </div>
