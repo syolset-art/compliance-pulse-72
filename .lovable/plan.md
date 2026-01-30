@@ -1,278 +1,204 @@
-# Plan: Guidet integrasjonsflyt med ekstern aktør-støtte
 
-## Oversikt
+# Plan: 7 Security AI Agent-integrasjon for Acronis
 
-Utvide integrasjonsflyten til å støtte:
-1. **Guidet spørsmål** før API-nøkkel (som Lovable)
-2. **Ulike aktørtyper** som kan utføre integrasjonen
-3. **Gjestekonto-invitasjon** for eksterne (IT-leverandør, regnskapsfører)
-4. **Audit log** for revisjon av hvem som utførte integrasjonen
+## Forståelse av integrasjonsmodellen
 
-## Arkitektur (basert på diagram)
-
+```text
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   Mynder        │  ←───→  │   7 Security    │  ←───→  │   Acronis       │
+│   (Lara AI)     │   AI    │   (AI Agent)    │   API   │   (Data)        │
+│                 │  Agent  │                 │         │                 │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+         ↑
+         │
+┌─────────────────┐
+│   Bruker        │
+│  (oppgir        │
+│   kunde-ID)     │
+└─────────────────┘
 ```
-┌─────────────────┐     ┌─────────────────┐
-│   IT-leverandør │     │    Kunden selv  │
-│      (MSP)      │     │ (egen Acronis)  │
-└────────┬────────┘     └────────┬────────┘
-         │                       │
-         ▼                       ▼
-┌─────────────────────────────────────────┐
-│         Mynder Integrasjonsflyt         │
-│  ┌───────────────────────────────────┐  │
-│  │  Hvem utfører integrasjonen?      │  │
-│  │  • Jeg selv (admin)               │  │
-│  │  • IT-leverandør/MSP              │  │
-│  │  • Regnskapsfører                 │  │
-│  │  • Intern IT-ansvarlig            │  │
-│  └───────────────────────────────────┘  │
-└─────────────────────────────────────────┘
+
+**Nøkkelpunkter:**
+- Mynders AI-agent (Lara) kommuniserer med 7 Securitys AI-agent
+- Ingen API-nøkkel trengs fra sluttbruker - bare kunde-ID
+- 7 Security fungerer som "mellomledd" som har tilgang til Acronis-data
+- Støtter både eksisterende 7 Security-kunder og nye som får tilgang via Mynder
+
+## Ny flyt for bruker (uten API-nøkkel)
+
+```text
+Velg "Automatisk import"
          │
          ▼
-┌─────────────────────────────────────────┐
-│    Tekniske kilder    Forretningskilder │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  │
-│  │ Acronis │  │ Entra   │  │UniMicro │  │
-│  │  (IT)   │  │  (IT)   │  │(Regnsk.)│  │
-│  └─────────┘  └─────────┘  └─────────┘  │
-└─────────────────────────────────────────┘
+Velg integrasjon: "Acronis via 7 Security"
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  🛡️ Koble til Acronis                                       │
+│                                                              │
+│  Mynder henter data fra Acronis via 7 Security.             │
+│  Du trenger bare å oppgi din kunde-ID.                      │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  Er du allerede kunde hos 7 Security?                  │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  [ Ja, jeg har kunde-ID ]     →  Oppgi kunde-ID            │
+│                                                              │
+│  [ Nei, dette er nytt ]       →  Opprett tilgang via Mynder │
+│                                                              │
+│  [ Utforsk med demo-data ]    →  Se eksempeldata            │
+└─────────────────────────────────────────────────────────────┘
+
+         │ (Eksisterende kunde)
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Oppgi din kunde-ID hos 7 Security                          │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │ 7SEC-KUNDE-12345                                     │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│  💡 Finner du ikke kunde-ID? Kontakt 7 Security             │
+│                                                              │
+│  [ Verifiser og hent data ]                                  │
+└─────────────────────────────────────────────────────────────┘
+
+         │ (Ny kunde)
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Opprett tilgang via Mynder                                  │
+│                                                              │
+│  Som Mynder-kunde får du tilgang til 7 Securitys             │
+│  datahenting fra Acronis uten ekstra kostnad.                │
+│                                                              │
+│  Vi trenger noen opplysninger:                               │
+│                                                              │
+│  Organisasjonsnummer: [             ]                        │
+│  Kontaktperson:       [             ]                        │
+│  E-post:              [             ]                        │
+│                                                              │
+│  [ Be om tilgang ]                                           │
+│                                                              │
+│  ⏱️ Vanligvis aktivert innen 24 timer                       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Database-skjema
+## Teknisk arkitektur
 
-### 1. Ny enum: `integration_performer_role`
+### Ny Edge Function: `fetch-7security-data`
 
-```sql
-CREATE TYPE integration_performer_role AS ENUM (
-  'it_provider',      -- IT-leverandør/MSP
-  'accountant',       -- Regnskapsfører
-  'internal_it',      -- Intern IT-ansvarlig
-  'owner'             -- Kunden selv
-);
+Kommuniserer med 7 Securitys AI-agent for å hente Acronis-data:
+
+| Handling | Beskrivelse |
+|----------|-------------|
+| `verify_customer` | Sjekker om kunde-ID er gyldig hos 7 Security |
+| `request_access` | Oppretter ny kundeforespørsel |
+| `fetch_acronis_assets` | Henter Acronis-enheter via 7 Security |
+| `get_sync_status` | Sjekker status på datahenting |
+
+### Database-endringer
+
+Ny tabell `integration_providers` for å skille mellom direkte API og agent-baserte integrasjoner:
+
+```text
+integration_providers
+├── id
+├── name (Acronis, Entra, osv.)
+├── access_type (direct_api | agent_partner)
+├── partner_name (7 Security, null for direkte)
+├── auth_type (api_key | customer_id | oauth)
+└── is_active
 ```
 
-### 2. Ny tabell: `integration_performers`
-Lagrer informasjon om hvem som kan utføre integrasjoner (gjester).
+Oppdatere `integration_connections`:
 
-```sql
-CREATE TABLE integration_performers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id UUID REFERENCES company_profile(id) ON DELETE CASCADE,
-  email TEXT NOT NULL,
-  name TEXT,
-  role integration_performer_role NOT NULL,
-  organization_name TEXT,        -- F.eks. "Hult IT AS"
-  invite_token TEXT UNIQUE,      -- Sikker token for invitasjon
-  invite_expires_at TIMESTAMPTZ,
-  status TEXT DEFAULT 'invited', -- invited, active, revoked
-  created_at TIMESTAMPTZ DEFAULT now(),
-  activated_at TIMESTAMPTZ,
-  created_by TEXT                -- E-post til den som inviterte
-);
+```text
+integration_connections (oppdatert)
+├── partner_customer_id (kunde-ID hos 7 Security)
+├── access_requested_at (når tilgang ble forespurt)
+├── access_granted_at (når tilgang ble gitt)
+└── partner_provider_id → integration_providers
 ```
 
-### 3. Ny tabell: `integration_audit_log`
-Revisjonssporing for alle integrasjonshandlinger.
+### Oppdatert flyt i AddAssetDialog
 
-```sql
-CREATE TABLE integration_audit_log (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  integration_id UUID REFERENCES integration_connections(id) ON DELETE CASCADE,
-  performer_id UUID REFERENCES integration_performers(id),
-  action TEXT NOT NULL,          -- 'created', 'api_key_added', 'synced', 'revoked'
-  performed_by_email TEXT,
-  performed_by_name TEXT,
-  performed_by_role integration_performer_role,
-  performed_by_organization TEXT,
-  details JSONB,                 -- Ekstra info
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+**Steg-rekkefølge:**
+
+```text
+1. select-approach → Velg "Automatisk import"
+2. connect → Velg integrasjon (Acronis vises som "Acronis via 7 Security")
+3. connect-select-types → Velg hvilke eiendelstyper
+4. connect-customer-type → "Er du 7 Security-kunde?" (NYTT)
+5a. connect-customer-id → Oppgi kunde-ID (eksisterende kunde)
+5b. connect-request-access → Be om tilgang (ny kunde)
+6. connect-fetching → Henter data fra 7 Security
+7. connect-preview → Forhåndsvis eiendeler
+8. connect-importing → Importerer
+9. connect-complete → Ferdig
 ```
 
-### 4. Oppdater: `integration_connections`
-Legg til referanse til hvem som satte opp.
+### AI Agent-kommunikasjon
 
-```sql
-ALTER TABLE integration_connections
-ADD COLUMN setup_performer_id UUID REFERENCES integration_performers(id),
-ADD COLUMN setup_completed_at TIMESTAMPTZ,
-ADD COLUMN performer_role integration_performer_role;
+Lara (Mynders AI) → 7 Security AI:
+
+```text
+Request:
+{
+  "action": "fetch_assets",
+  "customer_id": "7SEC-KUNDE-12345",
+  "mynder_workspace_id": "uuid",
+  "asset_types": ["servers", "workstations"],
+  "source": "acronis"
+}
+
+Response:
+{
+  "success": true,
+  "assets": [...],
+  "sync_token": "abc123",
+  "next_sync_available": "2026-01-30T10:00:00Z"
+}
 ```
-
-## UI-flyt
-
-### Steg 1: Velg integrasjonstype (eksisterende)
-Bruker velger Acronis, Entra, UniMicro, etc.
-
-### Steg 2: Velg hva som skal importeres (eksisterende)
-Systemer, lokasjoner, nettverk, etc.
-
-### Steg 3: NY - Hvem skal utføre integrasjonen?
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  🔗 Hvem skal sette opp koblingen?                           │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  👤 Jeg gjør det selv                                    │ │
-│  │     Jeg har admin-tilgang til Acronis                   │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  🏢 IT-leverandør / MSP                                  │ │
-│  │     Send invitasjon til din IT-partner                  │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📊 Regnskapsfører                                       │ │
-│  │     For regnskapssystemer (UniMicro, Tripletex)         │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  🔧 Intern IT-ansvarlig                                  │ │
-│  │     Kollega med teknisk tilgang                          │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Steg 4a: Hvis "Jeg gjør det selv" → API-input (eksisterende)
-
-### Steg 4b: Hvis ekstern aktør → Invitasjonsskjema
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  📧 Inviter IT-leverandør                                    │
-│                                                               │
-│  Fyll ut informasjon om din IT-partner:                      │
-│                                                               │
-│  Firmanavn                                                   │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Hult IT AS                                               │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  Kontaktperson (e-post)                                      │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ support@hult-it.no                                       │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  Kontaktperson (navn)                                        │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Ola Nordmann                                             │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  ℹ️ Hva skjer videre?                                    │ │
-│  │  1. Vi sender en e-post med invitasjonslenke            │ │
-│  │  2. IT-leverandøren logger inn og legger til API-nøkkel │ │
-│  │  3. Du får varsel når integrasjonen er klar             │ │
-│  │  4. Alt dokumenteres for revisjon                        │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  [ Avbryt ]                        [ Send invitasjon 📧 ]   │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Steg 5: Venteskjerm / Status
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  ⏳ Venter på IT-leverandør                                  │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  Acronis                                                 │ │
-│  │  Status: Invitasjon sendt                               │ │
-│  │  Sendt til: support@hult-it.no                          │ │
-│  │  Dato: 28. januar 2026                                   │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  [ Send påminnelse ]  [ Kanseller invitasjon ]              │
-└──────────────────────────────────────────────────────────────┘
-```
-
-## Gjestekonto-portal
-
-Når ekstern aktør klikker på invitasjonslenken:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  🔐 Mynder - Integrasjonsoppsett                             │
-│                                                               │
-│  Du er invitert av Bedrift AS til å sette opp                │
-│  Acronis-integrasjon.                                         │
-│                                                               │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  📧 Logg inn eller opprett konto                        │ │
-│  │                                                           │ │
-│  │  E-post: support@hult-it.no (forhåndsutfylt)            │ │
-│  │  Passord: ********                                       │ │
-│  │                                                           │ │
-│  │  [ Logg inn ]                                            │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
-
-Etter innlogging → Begrenset visning kun for integrasjonsoppsett.
-
-## Revisjonsvisning
-
-I integrasjonsdetaljer vises audit log:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  📋 Revisjonslogg for Acronis                                │
-│                                                               │
-│  28.01.2026 14:32 - Integrasjon opprettet                    │
-│  Utført av: Kari Hansen (admin@bedrift.no)                   │
-│                                                               │
-│  28.01.2026 14:35 - Invitasjon sendt                         │
-│  Til: Ola Nordmann (support@hult-it.no)                      │
-│  Organisasjon: Hult IT AS                                    │
-│  Rolle: IT-leverandør                                        │
-│                                                               │
-│  29.01.2026 09:15 - API-nøkkel lagt til                      │
-│  Utført av: Ola Nordmann (support@hult-it.no)                │
-│  Organisasjon: Hult IT AS                                    │
-│  Rolle: IT-leverandør                                        │
-│                                                               │
-│  29.01.2026 09:16 - Første synkronisering fullført           │
-│  12 enheter importert                                         │
-└──────────────────────────────────────────────────────────────┘
-```
-
-## Implementeringsrekkefølge
-
-### Fase 1: Database & Backend
-- [ ] Opprett `integration_performer_role` enum
-- [ ] Opprett `integration_performers` tabell med RLS
-- [ ] Opprett `integration_audit_log` tabell med RLS
-- [ ] Oppdater `integration_connections` med nye kolonner
-- [ ] Edge function for å sende invitasjon
-- [ ] Edge function for å validere invite token
-
-### Fase 2: UI - Integrasjonsflyt
-- [ ] Nytt steg "Hvem utfører integrasjonen?" i AddAssetDialog
-- [ ] Invitasjonsskjema for eksterne
-- [ ] Venteskjerm med status
-- [ ] Påminnelses-funksjon
-
-### Fase 3: Gjestekonto-portal
-- [ ] Landingsside for invitasjonslenke
-- [ ] Begrenset innlogging/registrering
-- [ ] Forenklet integrasjonsoppsett-visning
-
-### Fase 4: Revisjon & Oversikt
-- [ ] Audit log visning i integrasjonsdetaljer
-- [ ] Eksport av revisjonslogg
-- [ ] Varsler ved statusendringer
 
 ## Filer som endres/opprettes
 
-| Fil | Endring |
-|-----|---------|
-| `supabase/migrations/xxx_integration_performers.sql` | Nye tabeller |
-| `src/components/dialogs/AddAssetDialog.tsx` | Nytt steg for aktørvalg |
-| `src/components/integration/InvitePerformerForm.tsx` | NY: Invitasjonsskjema |
-| `src/components/integration/IntegrationAuditLog.tsx` | NY: Revisjonsvisning |
-| `src/components/integration/IntegrationStatus.tsx` | NY: Statusvisning |
-| `src/pages/IntegrationSetup.tsx` | NY: Gjestekonto-portal |
-| `supabase/functions/send-integration-invite/index.ts` | NY: Send invitasjon |
+| Fil | Status | Beskrivelse |
+|-----|--------|-------------|
+| `supabase/functions/fetch-7security-data/index.ts` | Ny | Edge function for 7 Security-kommunikasjon |
+| `supabase/migrations/...` | Ny | Database-endringer for integration_providers |
+| `src/components/dialogs/AddAssetDialog.tsx` | Oppdateres | Ny flyt med kunde-ID i stedet for API-nøkkel |
+| `src/components/integration/CustomerIdStep.tsx` | Ny | Komponent for å oppgi kunde-ID |
+| `src/components/integration/RequestAccessStep.tsx` | Ny | Komponent for å be om tilgang |
+| `src/hooks/use7SecurityIntegration.ts` | Ny | Hook for 7 Security-operasjoner |
+| `supabase/functions/chat/index.ts` | Oppdateres | Legge til `connect_7security` verktøy for Lara |
+
+## Implementeringsfaser
+
+### Fase 1: Database og Backend
+- Opprette `integration_providers` tabell
+- Opprette `fetch-7security-data` edge function (med mock-data først)
+- Oppdatere `integration_connections` med nye kolonner
+
+### Fase 2: UI-flyt
+- Opprette `CustomerIdStep` og `RequestAccessStep` komponenter
+- Oppdatere `AddAssetDialog` med ny flyt
+- Erstatte API-nøkkel-input med kunde-ID-input for 7 Security-integrasjoner
+
+### Fase 3: AI Agent-kommunikasjon
+- Implementere reell kommunikasjon med 7 Security (når API er tilgjengelig)
+- Oppdatere Laras verktøy for å støtte 7 Security-flyten
+- Legge til statussjekk og feilhåndtering
+
+### Fase 4: Ny kunde-flyt
+- Implementere "be om tilgang"-flyten
+- E-postvarsling når tilgang er gitt
+- Admin-grensesnitt for å se ventende forespørsler
+
+## Fordeler med denne tilnærmingen
+
+1. **Enklere for brukeren** - Ingen API-nøkkel å finne, bare kunde-ID
+2. **Skalerbart** - 7 Security kan legge til flere kilder (konkurrenter til Acronis)
+3. **Sikkerhet** - API-tilgang håndteres av 7 Security, ikke av hver enkelt kunde
+4. **Fremtidsrettet** - AI Agent-til-Agent kommunikasjon er moderne og fleksibel
+5. **Onboarding av nye kunder** - Automatisk provisjonering via Mynder
