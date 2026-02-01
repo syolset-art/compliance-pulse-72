@@ -26,6 +26,7 @@ import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
 import Resources from "./pages/Resources";
+import ComplianceChecklist from "./pages/ComplianceChecklist";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
                 <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                 <Route path="/deviations" element={<Deviations />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
                 {/* Legacy routes for backwards compatibility */}
                 <Route path="/systems" element={<Assets />} />
                 <Route path="/systems/:id" element={<AssetTrustProfile />} />

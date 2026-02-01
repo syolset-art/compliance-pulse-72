@@ -38,9 +38,10 @@ const navigation = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.sustainability", href: "/sustainability", icon: Leaf, highlight: true },
-  { name: "nav.transparency", href: "/transparency", icon: FileText, highlight: true },
+  { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
+  { name: "nav.transparency", href: "/transparency", icon: FileText },
 ];
 
 const adminSubMenu = [

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Lock, Brain, ChevronDown, ChevronRight, ExternalLink, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Shield, Lock, Brain, ChevronDown, ChevronRight, ExternalLink, CheckCircle2, AlertCircle, Info, Bot, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { ComplianceChecklistPreview } from "@/components/compliance/ComplianceChecklistPreview";
+import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 
 interface Framework {
   id: string;
@@ -226,6 +228,106 @@ export function DomainComplianceWidget() {
     ? Math.round(domains.reduce((acc, d) => acc + d.overallProgress, 0) / domains.filter(d => d.frameworks.length > 0).length) || 0
     : 0;
 
+  // Helper component for displaying checklist preview inline
+  const DomainChecklistPreview = ({ 
+    frameworkId, 
+    onViewFullChecklist 
+  }: { 
+    frameworkId: string; 
+    onViewFullChecklist: () => void;
+  }) => {
+    const { requirements, stats, isLoading } = useComplianceRequirements({ frameworkId });
+    
+    const manualRequired = requirements
+      .filter(r => r.status !== 'completed' && r.agent_capability === 'manual')
+      .slice(0, 3);
+    
+    const aiWorking = requirements
+      .filter(r => r.status === 'in_progress' && r.is_ai_handling)
+      .slice(0, 2);
+    
+    const completedCount = requirements.filter(r => r.status === 'completed').length;
+
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3 p-3 bg-muted/20 rounded-lg border">
+        {/* Progress */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">
+            {stats.completed} av {stats.total} krav fullført
+          </span>
+          <span className="text-sm font-semibold text-primary">{stats.progressPercent}%</span>
+        </div>
+        <Progress value={stats.progressPercent} className="h-2" />
+
+        {/* Manual required */}
+        {manualRequired.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" />
+              Krever din handling ({stats.byCapability.manual} totalt)
+            </p>
+            {manualRequired.map(req => (
+              <div key={req.requirement_id} className="flex items-center justify-between text-xs p-1.5 bg-orange-50 dark:bg-orange-950/30 rounded">
+                <span className="font-medium text-foreground truncate flex-1">
+                  {req.requirement_id}: {req.name}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 text-xs px-2"
+                  onClick={() => navigate(`/tasks?requirement=${req.requirement_id}`)}
+                >
+                  Start →
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* AI working */}
+        {aiWorking.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <Bot className="h-3 w-3" />
+              AI jobber med ({aiWorking.length})
+            </p>
+            {aiWorking.map(req => (
+              <div key={req.requirement_id} className="flex items-center gap-2 text-xs p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded">
+                <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+                <span className="text-foreground truncate">{req.requirement_id}: {req.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Completed summary */}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3 text-success" />
+            {completedCount} fullført
+          </span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-7 text-xs gap-1"
+            onClick={onViewFullChecklist}
+          >
+            Se full sjekkliste
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
@@ -315,6 +417,31 @@ export function DomainComplianceWidget() {
                     </div>
                   ) : (
                     <div className="space-y-3 pt-3">
+                      {/* Show compliance checklist preview for primary framework */}
+                      {domain.id === "security" && (
+                        <DomainChecklistPreview 
+                          frameworkId="iso27001"
+                          onViewFullChecklist={() => navigate("/compliance-checklist?framework=iso27001")}
+                        />
+                      )}
+                      {domain.id === "privacy" && (
+                        <DomainChecklistPreview 
+                          frameworkId="gdpr"
+                          onViewFullChecklist={() => navigate("/compliance-checklist?framework=gdpr")}
+                        />
+                      )}
+                      {domain.id === "ai" && (
+                        <DomainChecklistPreview 
+                          frameworkId="ai-act"
+                          onViewFullChecklist={() => navigate("/compliance-checklist?framework=ai-act")}
+                        />
+                      )}
+
+                      {/* Framework list */}
+                      <div className="space-y-2 mt-4">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Aktiverte regelverk
+                        </p>
                         {domain.frameworks.map((framework) => (
                           <div
                             key={framework.id}
@@ -351,6 +478,7 @@ export function DomainComplianceWidget() {
                             </div>
                           </div>
                         ))}
+                      </div>
                       
                       <Button
                         variant="ghost"

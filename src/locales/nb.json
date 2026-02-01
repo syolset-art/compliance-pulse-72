@@ -17,7 +17,8 @@
     "menu": "Meny",
     "chat": "Chat",
     "switchOrganization": "Bytt organisasjon",
-    "resources": "Læringssenter"
+    "resources": "Læringssenter",
+    "complianceChecklist": "Samsvarsjekkliste"
   },
   "resources": {
     "title": "Læringssenter",
