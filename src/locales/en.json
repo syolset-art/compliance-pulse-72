@@ -16,7 +16,8 @@
     "menu": "Menu",
     "chat": "Chat",
     "switchOrganization": "Switch organization",
-    "resources": "Learning Center"
+    "resources": "Learning Center",
+    "complianceChecklist": "Compliance Checklist"
   },
   "resources": {
     "title": "Learning Center",
