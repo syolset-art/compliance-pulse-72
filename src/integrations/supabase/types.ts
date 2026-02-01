@@ -605,6 +605,63 @@ export type Database = {
           },
         ]
       }
+      compliance_requirements: {
+        Row: {
+          agent_capability: string
+          category: string
+          created_at: string
+          description: string | null
+          description_no: string | null
+          domain: string
+          framework_id: string
+          id: string
+          is_active: boolean
+          name: string
+          name_no: string | null
+          priority: string
+          requirement_id: string
+          sla_category: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          agent_capability?: string
+          category: string
+          created_at?: string
+          description?: string | null
+          description_no?: string | null
+          domain: string
+          framework_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          name_no?: string | null
+          priority?: string
+          requirement_id: string
+          sla_category?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          agent_capability?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          description_no?: string | null
+          domain?: string
+          framework_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_no?: string | null
+          priority?: string
+          requirement_id?: string
+          sla_category?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       domain_addons: {
         Row: {
           activated_at: string | null
@@ -1058,6 +1115,62 @@ export type Database = {
             columns: ["work_area_id"]
             isOneToOne: false
             referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      requirement_status: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          evidence_notes: string | null
+          id: string
+          is_ai_handling: boolean | null
+          linked_assets: string[] | null
+          linked_processes: string[] | null
+          linked_tasks: string[] | null
+          progress_percent: number | null
+          requirement_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          evidence_notes?: string | null
+          id?: string
+          is_ai_handling?: boolean | null
+          linked_assets?: string[] | null
+          linked_processes?: string[] | null
+          linked_tasks?: string[] | null
+          progress_percent?: number | null
+          requirement_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          evidence_notes?: string | null
+          id?: string
+          is_ai_handling?: boolean | null
+          linked_assets?: string[] | null
+          linked_processes?: string[] | null
+          linked_tasks?: string[] | null
+          progress_percent?: number | null
+          requirement_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_status_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: true
+            referencedRelation: "compliance_requirements"
             referencedColumns: ["id"]
           },
         ]
