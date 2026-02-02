@@ -1,157 +1,188 @@
 
+# Plan: AI-Native Compliance Checklist med Demo-Data og Forklarende Innhold
 
-# Plan: Integrere Compliance-sjekkliste i brukergrensesnittet
+## Nåværende Problem
 
-## Nåværende situasjon
+Sjekklisten viser 93 ISO-kontroller, 12 GDPR-krav og 8 AI Act-krav - men **alt står som "ikke startet"** fordi:
+1. Tabellen `compliance_requirements` er tom (ingen seed data)
+2. Tabellen `requirement_status` er tom (ingen fremdriftsdata)
+3. Brukeren ser ingen demonstrasjon av hvordan AI-agentene jobber
 
-Det vi har bygget:
-- ✅ Database: `compliance_requirements` med 93 ISO-kontroller, 12 GDPR-krav, 8 AI Act-krav
-- ✅ Database: `requirement_status` for å spore fremgang
-- ✅ Komponenter: `ComplianceChecklistPreview`, `RequirementCard`, `AgentCapabilityBadge`
-- ✅ Hook: `useComplianceRequirements` for datahåndtering
+## AI-Native Narrativ
 
-Det som mangler:
-- ❌ Integrasjon i `DomainComplianceWidget` på dashboard
-- ❌ Full sjekkliste-side (f.eks. `/compliance-checklist`)
-- ❌ Filtrering på Oppgave-siden basert på krav
-
-## Løsning: Tre integrasjonspunkter
-
-### 1. Dashboard-widget viser sjekkliste-preview
-
-Når du klikker på "Personvern" eller "Informasjonssikkerhet" i `DomainComplianceWidget`, skal den vise `ComplianceChecklistPreview` i stedet for bare prosent.
+I stedet for bare en sjekkliste, skal dette være **"Din AI-partner for sertifisering"** som viser:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│  🔒 Informasjonssikkerhet                           [Ekspander]│
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ISO 27001 Readiness                                         │
-│  ▓▓▓▓▓▓▓▓░░░░░░░░░░  42% (39/93 controls)                   │
-│                                                              │
-│  🤖 AI: 35   ✨ Hybrid: 42   👤 Manual: 16                   │
-│                                                              │
-│  ─────────────────────────────────────────────────────────── │
-│  🔴 Requires Your Attention (5)                              │
-│  ─────────────────────────────────────────────────────────── │
-│                                                              │
-│  ⬜ A.5.24 Incident Management          👤 Manual  [Start →] │
-│  ⬜ A.6.3 Security Awareness            👤 Manual  [Start →] │
-│  ⬜ A.7.1 Physical Security             👤 Manual  [Start →] │
-│  + 2 more...                                                 │
-│                                                              │
-│  ✅ Completed (39)                                           │
-│  ✅ A.5.1 Information Security Policy                        │
-│  ✅ A.5.2 Information Security Roles                         │
-│  + 37 more...                                                │
-│                                                              │
-│  [📋 View Full ISO 27001 Checklist]   [💬 Ask Lara]         │
-└──────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  🤖 Lara jobber for deg                                                     │
+│                                                                             │
+│  "Jeg har analysert dine systemer og prosesser. Av 93 ISO 27001-kontroller  │
+│   kan jeg håndtere 35 autonomt, 42 med din godkjenning, og 16 krever        │
+│   din direkte innsats. La oss ta det stegvis."                              │
+│                                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                         │
+│  │   🤖 35    │  │   ✨ 42     │  │   👤 16    │                         │
+│  │  AI Ready   │  │   Hybrid   │  │   Manual   │                         │
+│  │ 28 fullført │  │ 12 pågår   │  │ 3 starter  │                         │
+│  └─────────────┘  └─────────────┘  └─────────────┘                         │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Ny dedikert sjekkliste-side
+## Løsning: Tre Deler
 
-Opprett `/compliance-checklist` (eller `/iso-checklist`) med full visning av alle krav:
+### Del 1: Demo-data for Realistisk Visning
+
+Seede `compliance_requirements` og `requirement_status` med:
+
+**ISO 27001 (93 kontroller)**:
+- 28 fullført av AI-agent
+- 12 pågår (8 av AI, 4 hybrid)
+- 53 ikke startet (men 35 er "AI Ready")
+
+**GDPR (12 krav)**:
+- 5 fullført (3 av agent, 2 hybrid)
+- 3 pågår
+- 4 ikke startet
+
+**AI Act (8 krav)**:
+- 4 fullført
+- 2 pågår
+- 2 ikke startet (manuelle)
+
+### Del 2: AI-Native Introduksjonsheader
+
+Legg til en "Lara's Insights"-seksjon øverst på siden:
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│  🔒 ISO 27001 Compliance Checklist                                       │
-│                                                                          │
-│  39 of 93 Controls Completed                           39% Ready         │
-│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░                                    │
-│                                                                          │
-│  [Filter: All ▼] [Category: All ▼] [Agent: All ▼] [Priority: All ▼]     │
-│                                                                          │
-│  ─────────────────────────────────────────────────────────────────────── │
-│  📁 Organizational Controls (A.5.1 - A.5.37)           22/37 ✓          │
-│  ─────────────────────────────────────────────────────────────────────── │
-│                                                                          │
-│  ✅ A.5.1 Information Security Policies        🤖 AI Ready    Completed  │
-│  ✅ A.5.2 Information Security Roles           ✨ Hybrid      Completed  │
-│  ⏳ A.5.3 Segregation of Duties                🤖 AI Ready    72% ▓▓▓░░ │
-│  ⬜ A.5.4 Management Responsibilities          👤 Manual      Not Started│
-│  ...                                                                     │
-│                                                                          │
-│  ─────────────────────────────────────────────────────────────────────── │
-│  📁 People Controls (A.6.1 - A.6.8)                    5/8 ✓            │
-│  ─────────────────────────────────────────────────────────────────────── │
-│                                                                          │
-│  ✅ A.6.1 Screening                            ✨ Hybrid      Completed  │
-│  ⬜ A.6.3 Information Security Awareness       👤 Manual      Not Started│
-│  ...                                                                     │
-│                                                                          │
-│  [📊 Export Progress Report]  [📄 Generate Evidence Pack]               │
-└──────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ✨ Intelligent Samsvarsstyring                                             │
+│                                                                             │
+│  Mynder bruker AI-agenter til å automatisere compliance-arbeid. Hver       │
+│  kontroll er klassifisert etter hvem som kan gjøre jobben:                 │
+│                                                                             │
+│  🤖 AI Ready       Lara fullfører dette automatisk basert på               │
+│                    dine systemer og prosesser                               │
+│                                                                             │
+│  ✨ Hybrid         Lara forbereder dokumentasjon og forslag -               │
+│                    du godkjenner eller justerer                            │
+│                                                                             │
+│  👤 Manuell        Krever din direkte handling - Lara gir                   │
+│                    veiledning og maler                                     │
+│                                                                             │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│  💡 Tips: Filtrer på "Manuell" for å se hva som krever din handling først  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 3. Oppgave-siden støtter requirement-filtrering
+### Del 3: "AI i Arbeid"-Widget
 
-Fra sjekklisten kan brukere klikke på et krav for å gå til `/tasks?requirement=A.5.24` og se relaterte oppgaver.
+Vise pågående AI-arbeid:
 
-## Filer som endres/opprettes
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  🤖 Lara jobber nå                                          Live           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ⏳ A.5.7 Trusseletterretning                 ▓▓▓▓▓▓▓░░░  72%              │
+│     Henter data fra Snyk og 7Security...                                    │
+│                                                                             │
+│  ⏳ A.8.9 Konfigurasjonsstyring               ▓▓▓▓░░░░░░  45%              │
+│     Analyserer GitHub-repositorier...                                       │
+│                                                                             │
+│  ⏳ A.5.23 Skytjeneste-sikkerhet              ▓▓▓░░░░░░░  32%              │
+│     Kartlegger Azure og AWS-konfigurasjoner...                              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Filer som Endres/Opprettes
 
 | Fil | Handling | Beskrivelse |
 |-----|----------|-------------|
-| `src/components/widgets/DomainComplianceWidget.tsx` | **Oppdater** | Integrer `ComplianceChecklistPreview` |
-| `src/pages/ComplianceChecklist.tsx` | **Ny** | Full sjekkliste-side for ISO/GDPR/AI Act |
-| `src/App.tsx` | **Oppdater** | Legg til route `/compliance-checklist` |
-| `src/components/Sidebar.tsx` | **Oppdater** | Legg til menylenke til sjekklisten |
-| `src/pages/Tasks.tsx` | **Oppdater** | Støtt `?requirement=` filter-parameter |
+| `supabase/migrations/xxx_seed_compliance_demo.sql` | **Ny** | Seede compliance_requirements + demo requirement_status |
+| `src/pages/ComplianceChecklist.tsx` | **Oppdater** | Legg til AI-native intro-header og "AI i arbeid"-widget |
+| `src/components/compliance/AIWorkingWidget.tsx` | **Ny** | Vise pågående AI-arbeid med live-indikatorer |
+| `src/components/compliance/ComplianceIntroHeader.tsx` | **Ny** | Forklarende intro om AI-native tilnærmingen |
+
+## Demo-Data Oversikt
+
+### Requirement Status Eksempler
+
+| Kontroll | Status | AI Handling | Fullført av |
+|----------|--------|-------------|-------------|
+| A.5.1 Policies | ✅ completed | ✅ | agent |
+| A.5.7 Threat Intelligence | ⏳ in_progress (72%) | ✅ | - |
+| A.5.9 Asset Inventory | ✅ completed | ✅ | agent |
+| A.5.24 Incident Management | ⬜ not_started | ❌ | - (manual) |
+| A.6.3 Security Awareness | ⬜ not_started | ❌ | - (manual) |
+| GDPR-Art30 ROPA | ✅ completed | ✅ | agent |
+| AIACT-Art6 Risk Classification | ✅ completed | ✅ | agent |
+
+### Forventet Visuell Effekt
+
+Etter implementering vil brukeren se:
+
+```text
+ISO 27001:2022                                         42% Ready
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░
+
+🤖 AI: 35   ✨ Hybrid: 42   👤 Manual: 16
+
+┌────────────────────────────────────────────────────────────────┐
+│ 🤖 Lara jobber nå                                    ● Live   │
+├────────────────────────────────────────────────────────────────┤
+│ ⏳ A.5.7 Trusseletterretning              ▓▓▓▓▓▓▓░░░  72%    │
+│ ⏳ A.8.9 Konfigurasjonsstyring            ▓▓▓▓░░░░░░  45%    │
+│ ⏳ A.5.23 Skytjeneste-sikkerhet           ▓▓▓░░░░░░░  32%    │
+└────────────────────────────────────────────────────────────────┘
+
+🔴 Krever din handling (3)
+─────────────────────────
+⬜ A.5.24 Incident Management Planning        👤 Manual  [Start →]
+⬜ A.6.3 Security Awareness                   👤 Manual  [Start →]
+⬜ A.7.1 Physical Security                    👤 Manual  [Start →]
+
+✅ Fullført (39)
+─────────────────
+✅ A.5.1 Information Security Policies        🤖 Agent   ✓ Completed
+✅ A.5.7 Asset Inventory                      🤖 Agent   ✓ Completed
+✅ A.5.15 Access Control                      🤖 Agent   ✓ Completed
++ 36 more...
+```
 
 ## Implementeringssteg
 
-### Steg 1: Integrer sjekkliste i Dashboard-widget
-Oppdater `DomainComplianceWidget` til å bruke `ComplianceChecklistPreview` når et domene utvides.
+### Steg 1: Database Migration for Demo-data
+Opprett SQL-migrasjon som:
+1. Setter inn alle 93+12+8 krav i `compliance_requirements`
+2. Setter inn realistisk demo-status i `requirement_status`
 
-### Steg 2: Opprett full sjekkliste-side
-Bygg `ComplianceChecklist.tsx` med:
-- Velg rammeverk (ISO 27001, GDPR, AI Act)
-- Filtrer etter kategori, status, agent-kapasitet
-- Vis alle krav gruppert etter kategori
-- Eksportmulighet
+### Steg 2: AI-Native Intro-komponent
+Bygg `ComplianceIntroHeader` som forklarer agent-klassifiseringene
 
-### Steg 3: Legg til navigasjon
-- Route i `App.tsx`
-- Menylenke i `Sidebar.tsx`
-- "View Full Checklist"-knapp fra widget
+### Steg 3: AI i Arbeid-widget
+Bygg `AIWorkingWidget` som viser pågående AI-arbeid med progresjonslinjer
 
-### Steg 4: Oppgave-filtrering
-Utvid `Tasks.tsx` til å støtte `?requirement=A.5.24` og vise bare oppgaver knyttet til det kravet.
+### Steg 4: Integrer i ComplianceChecklist
+Oppdater siden til å inkludere intro og AI-widget
 
-## Brukerflyt
+## AI-Native Differensiering
 
-```text
-Dashboard
-    │
-    └──► DomainComplianceWidget
-              │
-              ├──► Klikk "Informasjonssikkerhet"
-              │         │
-              │         ▼
-              │    Sjekkliste-preview vises
-              │         │
-              │         ├──► ✅ Se hva som er fullført (grønt)
-              │         ├──► ⬜ Se hva som mangler (må gjøres)
-              │         │
-              │         └──► [View Full Checklist] 
-              │                   │
-              │                   ▼
-              │              /compliance-checklist?framework=iso27001
-              │                   │
-              │                   ├──► Alle 93 kontroller
-              │                   ├──► Filtrer og sorter
-              │                   └──► Klikk på krav → /tasks?requirement=A.5.1
-              │
-              └──► Oppgavesiden
-                        │
-                        └──► Viser oppgaver knyttet til valgt krav
-```
+Dette skiller Mynder fra tradisjonelle GRC-verktøy:
+
+| Tradisjonell GRC | Mynder AI-Native |
+|------------------|------------------|
+| Statisk sjekkliste | Dynamisk med live AI-fremdrift |
+| Manuelt arbeid | AI gjør 38% automatisk |
+| Ingen veiledning | Agent forklarer hva den gjør |
+| Generisk | Tilpasset basert på dine systemer |
+| Reaktiv | Proaktiv - AI starter selv |
 
 ## Fordeler
 
-1. **Klar synlighet** - Du ser umiddelbart hva som er gjort vs. hva som gjenstår
-2. **ISO-ready** - Full 93-kontroll sjekkliste for sertifisering
-3. **Agent-transparent** - Tydelig hva AI gjør vs. hva du må gjøre selv
-4. **Prioritert** - Kritiske manuelle oppgaver vises først
-5. **Navigerbar** - Ett klikk fra sjekkliste til relaterte oppgaver
-
+1. **Umiddelbar forståelse** - Brukeren ser at dette er annerledes enn tradisjonelle verktøy
+2. **Synlig AI-verdi** - Tydelig at 35+ kontroller håndteres automatisk
+3. **Prioritert fokus** - Manuelle oppgaver vises først
+4. **Live fremdrift** - Se at agenten faktisk jobber
+5. **Transparent** - Forstå hvem (AI vs deg) som gjør hva
