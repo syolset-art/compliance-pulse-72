@@ -33,6 +33,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { RequirementCard } from "@/components/compliance/RequirementCard";
 import { AgentCapabilitySummary } from "@/components/compliance/AgentCapabilityBadge";
 import { FrameworkProgressHeader } from "@/components/compliance/FrameworkProgressHeader";
+import { ComplianceIntroHeader } from "@/components/compliance/ComplianceIntroHeader";
+import { AIWorkingWidget } from "@/components/compliance/AIWorkingWidget";
 import { useComplianceRequirements, type RequirementWithStatus } from "@/hooks/useComplianceRequirements";
 import { 
   getRequirementsByFramework, 
@@ -235,61 +237,73 @@ export default function ComplianceChecklist() {
             </div>
           </div>
 
-          {/* Framework selector and stats */}
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <Select value={selectedFramework} onValueChange={handleFrameworkChange}>
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="Velg rammeverk" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="iso27001">
-                        <div className="flex items-center gap-2">
-                          <Lock className="h-4 w-4 text-green-500" />
-                          ISO 27001:2022
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="gdpr">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-blue-500" />
-                          GDPR
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="ai-act">
-                        <div className="flex items-center gap-2">
-                          <Brain className="h-4 w-4 text-purple-500" />
-                          EU AI Act
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* AI-Native Intro Header */}
+          <ComplianceIntroHeader 
+            stats={stats}
+            frameworkName={framework.name}
+          />
 
-                  <div className="hidden sm:block">
-                    <AgentCapabilitySummary 
-                      counts={stats.byCapability}
-                      size="sm"
-                    />
+          {/* AI Working Widget + Framework Selector Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Framework selector and stats - takes 2 columns */}
+            <Card className="lg:col-span-2">
+              <CardContent className="pt-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <Select value={selectedFramework} onValueChange={handleFrameworkChange}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Velg rammeverk" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="iso27001">
+                          <div className="flex items-center gap-2">
+                            <Lock className="h-4 w-4 text-green-500" />
+                            ISO 27001:2022
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="gdpr">
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-4 w-4 text-blue-500" />
+                            GDPR
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="ai-act">
+                          <div className="flex items-center gap-2">
+                            <Brain className="h-4 w-4 text-purple-500" />
+                            EU AI Act
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div className="hidden sm:block">
+                      <AgentCapabilitySummary 
+                        counts={stats.byCapability}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 lg:w-64">
+                      <Progress value={stats.progressPercent} className="h-2" />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {stats.completed} av {stats.total} krav fullført ({stats.progressPercent}%)
+                      </p>
+                    </div>
+
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <FileDown className="h-4 w-4" />
+                      Eksporter
+                    </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 lg:w-64">
-                    <Progress value={stats.progressPercent} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {stats.completed} av {stats.total} krav fullført ({stats.progressPercent}%)
-                    </p>
-                  </div>
-
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <FileDown className="h-4 w-4" />
-                    Eksporter
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            {/* AI Working Widget - takes 1 column */}
+            <AIWorkingWidget frameworkId={selectedFramework} />
+          </div>
 
           {/* Filters */}
           <Card className="mb-6">
