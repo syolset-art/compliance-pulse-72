@@ -114,6 +114,44 @@ export const frameworks: Framework[] = [
     triggerQuestion: 'Bruker virksomheten AI-systemer?'
   },
   
+  // Quality Management
+  {
+    id: 'iso9001',
+    name: 'ISO 9001',
+    description: 'Internasjonal standard for kvalitetsstyring',
+    category: 'other',
+    isRecommended: true,
+    triggerQuestion: 'Ønsker dere å sertifisere kvalitetsstyringssystemet?'
+  },
+  {
+    id: 'iso14001',
+    name: 'ISO 14001',
+    description: 'Internasjonal standard for miljøledelse',
+    category: 'other',
+    triggerQuestion: 'Ønsker dere å implementere et miljøledelsessystem?'
+  },
+  {
+    id: 'iso45001',
+    name: 'ISO 45001',
+    description: 'Internasjonal standard for arbeidsmiljøledelse (HMS)',
+    category: 'other',
+    triggerQuestion: 'Ønsker dere å sertifisere HMS-systemet?'
+  },
+  {
+    id: 'internkontroll',
+    name: 'Internkontrollforskriften',
+    description: 'Forskrift om systematisk helse-, miljø- og sikkerhetsarbeid',
+    category: 'other',
+    isMandatory: true
+  },
+  {
+    id: 'arbeidsmiljoloven',
+    name: 'Arbeidsmiljøloven',
+    description: 'Lov om arbeidsmiljø, arbeidstid og stillingsvern',
+    category: 'other',
+    isMandatory: true
+  },
+  
   // Other
   {
     id: 'apenhetsloven',

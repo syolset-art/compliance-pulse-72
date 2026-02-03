@@ -797,7 +797,15 @@
     "success": {
       "fileUploaded": "File uploaded: {{name}}",
       "moduleCreated": "Module \"{{name}}\" has been created!"
+    },
+    "types": {
+      "qualitySystem": "Quality System",
+      "qualitySystemDesc": "HSE, internal control and quality management"
     }
+  },
+  "quality": {
+    "title": "Quality System",
+    "subtitle": "HSE, quality and continuous improvement"
   },
   "processingRecords": {
     "title": "Processing Records",

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Upload, Key, FileText, Database } from "lucide-react";
+import { Upload, Key, FileText, Database, Shield } from "lucide-react";
 
 interface AddModuleDialogProps {
   open: boolean;
@@ -14,7 +14,7 @@ interface AddModuleDialogProps {
   onModuleCreated: (moduleData: any) => void;
 }
 
-type ModuleType = "file-upload" | "api-integration" | "data-source" | "custom";
+type ModuleType = "file-upload" | "api-integration" | "data-source" | "custom" | "quality-system";
 
 export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModuleDialogProps) => {
   const { t } = useTranslation();
@@ -88,7 +88,17 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
       case "api-integration": return t("addModule.types.apiIntegration");
       case "data-source": return t("addModule.types.dataSource");
       case "custom": return t("addModule.types.custom");
+      case "quality-system": return t("addModule.types.qualitySystem");
       default: return type;
+    }
+  };
+
+  // If quality-system is selected, skip straight to submit (wizard will open)
+  const handleTypeSelect = (type: ModuleType) => {
+    setModuleType(type);
+    if (type === 'quality-system') {
+      // Immediately trigger module creation to open wizard
+      onModuleCreated({ type: 'quality-system', name: 'Kvalitetssystem' });
     }
   };
 
@@ -112,7 +122,18 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
               <Label>{t("addModule.selectTypeLabel")}</Label>
               <div className="grid grid-cols-2 gap-4">
                 <button
-                  onClick={() => setModuleType("file-upload")}
+                  onClick={() => handleTypeSelect("quality-system")}
+                  className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                    moduleType === "quality-system" ? "border-primary bg-primary/5" : "border-border"
+                  }`}
+                >
+                  <Shield className="h-8 w-8 mb-2 text-green-500" />
+                  <div className="font-medium">{t("addModule.types.qualitySystem")}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.qualitySystemDesc")}</div>
+                </button>
+
+                <button
+                  onClick={() => handleTypeSelect("file-upload")}
                   className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
                     moduleType === "file-upload" ? "border-primary bg-primary/5" : "border-border"
                   }`}
@@ -123,7 +144,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                 </button>
 
                 <button
-                  onClick={() => setModuleType("api-integration")}
+                  onClick={() => handleTypeSelect("api-integration")}
                   className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
                     moduleType === "api-integration" ? "border-primary bg-primary/5" : "border-border"
                   }`}
@@ -134,7 +155,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                 </button>
 
                 <button
-                  onClick={() => setModuleType("data-source")}
+                  onClick={() => handleTypeSelect("data-source")}
                   className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
                     moduleType === "data-source" ? "border-primary bg-primary/5" : "border-border"
                   }`}
@@ -145,7 +166,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                 </button>
 
                 <button
-                  onClick={() => setModuleType("custom")}
+                  onClick={() => handleTypeSelect("custom")}
                   className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
                     moduleType === "custom" ? "border-primary bg-primary/5" : "border-border"
                   }`}
