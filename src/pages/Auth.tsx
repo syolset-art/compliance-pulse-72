@@ -34,23 +34,11 @@ export default function Auth() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast.error("Vennligst fyll ut alle felt");
-      return;
-    }
-
     setLoading(true);
     const { error } = await signIn(email, password);
     
     if (error) {
-      if (error.message.includes("Invalid login credentials")) {
-        toast.error("Feil e-post eller passord");
-      } else if (error.message.includes("Email not confirmed")) {
-        toast.error("Vennligst bekreft e-posten din før du logger inn");
-      } else {
-        toast.error(error.message);
-      }
+      toast.error("Kunne ikke logge inn");
     } else {
       toast.success("Velkommen tilbake!");
       navigate("/");
@@ -61,26 +49,11 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast.error("Vennligst fyll ut alle felt");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Passordet må være minst 6 tegn");
-      return;
-    }
-
     setLoading(true);
     const { error } = await signUp(email, password);
     
     if (error) {
-      if (error.message.includes("User already registered")) {
-        toast.error("Denne e-postadressen er allerede registrert");
-      } else {
-        toast.error(error.message);
-      }
+      toast.error("Kunne ikke opprette konto");
     } else {
       toast.success("Registrering vellykket! Sjekk e-posten din for å bekrefte kontoen.");
       setActiveTab("login");
