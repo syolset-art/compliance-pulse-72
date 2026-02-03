@@ -17,7 +17,8 @@ import {
   CreditCard,
   FileCheck,
   FileBarChart,
-  BookOpen
+  BookOpen,
+  LogOut
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -30,6 +31,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const navigation = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
@@ -53,10 +56,25 @@ const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { signOut, user } = useAuth();
   const [adminOpen, setAdminOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+      toast.success("Du er nå logget ut");
+      navigate("/auth");
+    } catch (error) {
+      toast.error("Kunne ikke logge ut");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -259,6 +277,14 @@ const SidebarContent = () => {
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <span className="text-xs">{t("nav.switchOrganization")}</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {loggingOut ? "Logger ut..." : "Logg ut"}
                 </button>
               </div>
             )}
