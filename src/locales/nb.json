@@ -869,5 +869,12 @@
     "dpiaRequired": "DPIA påkrevd",
     "viewDpia": "Se DPIA",
     "lastUpdated": "Sist oppdatert"
+  },
+  "qualityRecommendation": {
+    "basedOn": "Basert på din bransje",
+    "andSize": "og størrelse",
+    "weRecommend": "anbefaler vi",
+    "recommendedForYou": "Anbefalt for deg",
+    "learnMore": "Les mer om anbefalingen"
   }
 }
