@@ -798,7 +798,15 @@
     "success": {
       "fileUploaded": "Fil lastet opp: {{name}}",
       "moduleCreated": "Modul \"{{name}}\" er opprettet!"
+    },
+    "types": {
+      "qualitySystem": "Kvalitetssystem",
+      "qualitySystemDesc": "HMS, internkontroll og kvalitetsstyring"
     }
+  },
+  "quality": {
+    "title": "Kvalitetssystem",
+    "subtitle": "HMS, kvalitet og kontinuerlig forbedring"
   },
   "processingRecords": {
     "title": "Behandlingsprotokoll",

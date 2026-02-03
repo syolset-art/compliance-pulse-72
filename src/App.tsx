@@ -30,6 +30,7 @@ import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
 import Resources from "./pages/Resources";
 import ComplianceChecklist from "./pages/ComplianceChecklist";
+import QualityDashboard from "./pages/QualityDashboard";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
                   <Route path="/deviations" element={<AuthGuard><Deviations /></AuthGuard>} />
                   <Route path="/resources" element={<AuthGuard><Resources /></AuthGuard>} />
                   <Route path="/compliance-checklist" element={<AuthGuard><ComplianceChecklist /></AuthGuard>} />
+                  <Route path="/quality" element={<AuthGuard><QualityDashboard /></AuthGuard>} />
                   
                   {/* Legacy routes for backwards compatibility */}
                   <Route path="/systems" element={<AuthGuard><Assets /></AuthGuard>} />

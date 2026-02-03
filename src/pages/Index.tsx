@@ -23,6 +23,7 @@ import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
+import { QualityModuleActivationWizard } from "@/components/quality/QualityModuleActivationWizard";
 import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ const Index = () => {
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [isQualityWizardOpen, setIsQualityWizardOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
     asset_type: string;
@@ -94,6 +96,13 @@ const Index = () => {
   };
 
   const handleModuleCreated = (moduleData: any) => {
+    // Check if user selected quality-system type
+    if (moduleData.type === 'quality-system') {
+      setIsAddModuleOpen(false);
+      setIsQualityWizardOpen(true);
+      return;
+    }
+    
     const explanation = `# Modul opprettet: ${moduleData.name}
 
 **Type:** ${moduleData.type?.replace("-", " ")}
@@ -215,6 +224,10 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           open={isAddRoleOpen}
           onOpenChange={setIsAddRoleOpen}
           onRoleAdded={() => {}}
+        />
+        <QualityModuleActivationWizard
+          open={isQualityWizardOpen}
+          onOpenChange={setIsQualityWizardOpen}
         />
       </div>
     );
@@ -345,6 +358,10 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         open={isAddRoleOpen}
         onOpenChange={setIsAddRoleOpen}
         onRoleAdded={() => {}}
+      />
+      <QualityModuleActivationWizard
+        open={isQualityWizardOpen}
+        onOpenChange={setIsQualityWizardOpen}
       />
     </div>
   );
