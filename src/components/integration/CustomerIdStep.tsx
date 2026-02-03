@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle, Info, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { use7SecurityIntegration } from "@/hooks/use7SecurityIntegration";
 
 interface IntegrationInfo {
   name: string;
@@ -25,26 +23,45 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
   const [verificationState, setVerificationState] = useState<"idle" | "verifying" | "success" | "error">("idle");
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { verifyCustomer, isLoading } = use7SecurityIntegration();
   const partnerName = integration.partnerName || "7 Security";
 
-  const handleVerify = async () => {
-    if (!customerId.trim()) return;
-    
-    setVerificationState("verifying");
-    setErrorMessage(null);
-    
-    const result = await verifyCustomer(customerId.trim());
-    
-    if (result.success && result.verified) {
-      setVerificationState("success");
-      setCustomerName(result.customer_name || null);
-    } else {
-      setVerificationState("error");
-      setErrorMessage(result.message);
+  // Auto-verify when user types (demo mode)
+  useEffect(() => {
+    if (!customerId.trim()) {
+      setVerificationState("idle");
+      setCustomerName(null);
+      return;
     }
-  };
+
+    // Clear previous timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    setVerificationState("verifying");
+
+    // Auto-verify after short delay (simulating API call)
+    debounceRef.current = setTimeout(() => {
+      // For demo: accept any ID that starts with "7SEC-" or matches known patterns
+      const isValid = customerId.startsWith("7SEC-") || customerId.length >= 5;
+      
+      if (isValid) {
+        setVerificationState("success");
+        setCustomerName("Demo Company AS");
+      } else {
+        setVerificationState("error");
+        setErrorMessage("Customer ID not found. Try starting with '7SEC-'");
+      }
+    }, 600);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [customerId]);
 
   const handleContinue = () => {
     if (verificationState === "success") {
@@ -70,44 +87,27 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
 
       <div className="space-y-2">
         <Label htmlFor="customer-id">Customer ID</Label>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Input
-              id="customer-id"
-              value={customerId}
-              onChange={(e) => {
-                setCustomerId(e.target.value);
-                if (verificationState !== "idle") {
-                  setVerificationState("idle");
-                }
-              }}
-              placeholder="E.g. 7SEC-CUSTOMER-12345"
-              className={cn(
-                "pr-10",
-                verificationState === "success" && "border-green-500 focus-visible:ring-green-500",
-                verificationState === "error" && "border-red-500 focus-visible:ring-red-500"
-              )}
-            />
-            {verificationState === "success" && (
-              <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+        <div className="relative">
+          <Input
+            id="customer-id"
+            value={customerId}
+            onChange={(e) => setCustomerId(e.target.value)}
+            placeholder="E.g. 7SEC-CUSTOMER-12345"
+            className={cn(
+              "pr-10",
+              verificationState === "success" && "border-green-500 focus-visible:ring-green-500",
+              verificationState === "error" && "border-red-500 focus-visible:ring-red-500"
             )}
-            {verificationState === "error" && (
-              <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
-            )}
-          </div>
-          <Button 
-            onClick={handleVerify}
-            disabled={!customerId.trim() || isLoading}
-            variant={verificationState === "success" ? "outline" : "default"}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : verificationState === "success" ? (
-              "Verified"
-            ) : (
-              "Verify"
-            )}
-          </Button>
+          />
+          {verificationState === "verifying" && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground animate-spin" />
+          )}
+          {verificationState === "success" && (
+            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+          )}
+          {verificationState === "error" && (
+            <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
+          )}
         </div>
       </div>
 
@@ -129,13 +129,12 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
           <div>
             <p className="font-medium text-red-400">Customer ID not found</p>
             <p className="text-sm text-red-400/80 mt-1">{errorMessage}</p>
-            <Button 
-              variant="link" 
-              className="px-0 h-auto text-red-400 mt-2"
+            <button 
+              className="px-0 h-auto text-red-400 mt-2 underline hover:no-underline text-sm"
               onClick={onNeedAccess}
             >
               Request access instead →
-            </Button>
+            </button>
           </div>
         </div>
       )}
