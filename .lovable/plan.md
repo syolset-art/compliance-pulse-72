@@ -1,188 +1,218 @@
 
-# Plan: AI-Native Compliance Checklist med Demo-Data og Forklarende Innhold
+# Kvalitetssystem som tilleggsmodul i Mynder
 
-## Nåværende Problem
+## Overordnet konsept
 
-Sjekklisten viser 93 ISO-kontroller, 12 GDPR-krav og 8 AI Act-krav - men **alt står som "ikke startet"** fordi:
-1. Tabellen `compliance_requirements` er tom (ingen seed data)
-2. Tabellen `requirement_status` er tom (ingen fremdriftsdata)
-3. Brukeren ser ingen demonstrasjon av hvordan AI-agentene jobber
+Kvalitetssystemet tilbys som en konfigurerbar modul som kunden aktiverer via en guidet aktiveringsflyt. Basert på kundens bransje, regelverk og virksomhetsprofil settes modulen opp med relevant innhold og struktur. Dette sikrer at kunden får et skreddersydd kvalitetssystem som føles integrert i Mynder-pakken.
 
-## AI-Native Narrativ
-
-I stedet for bare en sjekkliste, skal dette være **"Din AI-partner for sertifisering"** som viser:
+## Arkitektur og modularitet
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  🤖 Lara jobber for deg                                                     │
-│                                                                             │
-│  "Jeg har analysert dine systemer og prosesser. Av 93 ISO 27001-kontroller  │
-│   kan jeg håndtere 35 autonomt, 42 med din godkjenning, og 16 krever        │
-│   din direkte innsats. La oss ta det stegvis."                              │
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                         │
-│  │   🤖 35    │  │   ✨ 42     │  │   👤 16    │                         │
-│  │  AI Ready   │  │   Hybrid   │  │   Manual   │                         │
-│  │ 28 fullført │  │ 12 pågår   │  │ 3 starter  │                         │
-│  └─────────────┘  └─────────────┘  └─────────────┘                         │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    KVALITETSSYSTEM-MODUL                    │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐│
+│  │  HMS-KJERNE     │  │  BRANSJE-       │  │  STYRINGS-   ││
+│  │  (Obligatorisk) │  │  TILPASNING     │  │  SYSTEM      ││
+│  ├─────────────────┤  ├─────────────────┤  ├──────────────┤│
+│  │ - Avviksreg.    │  │ - Helse:        │  │ - ISO 9001   ││
+│  │ - Risiko (SJA)  │  │   Pasient-      │  │ - ISO 14001  ││
+│  │ - Kompetanse    │  │   sikkerhet,    │  │ - ISO 45001  ││
+│  │ - Dokumenter    │  │   Legemidler    │  │ - OHSAS      ││
+│  │ - Varsling      │  │ - Bygg/Anlegg:  │  │ - Internkon- ││
+│  │                 │  │   SHA, SJA      │  │   troll      ││
+│  └─────────────────┘  │ - Industri:     │  └──────────────┘│
+│                       │   Stoffkartotek,│                   │
+│                       │   Utstyr        │                   │
+│                       └─────────────────┘                   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Løsning: Tre Deler
+## Guidet aktiveringsflyt
 
-### Del 1: Demo-data for Realistisk Visning
+### Steg 1: Velg kvalitetssystem-type
 
-Seede `compliance_requirements` og `requirement_status` med:
+Kunden velger hovedtype basert på behov:
 
-**ISO 27001 (93 kontroller)**:
-- 28 fullført av AI-agent
-- 12 pågår (8 av AI, 4 hybrid)
-- 53 ikke startet (men 35 er "AI Ready")
+| Type | Beskrivelse | Målgruppe |
+|------|-------------|-----------|
+| **HMS-basis** | Grunnleggende internkontroll etter forskrift | Alle virksomheter |
+| **HMS-utvidet** | HMS + bransjesspesifikke krav | Bygg, industri, energi |
+| **Kvalitetsledelse** | ISO 9001-basert kvalitetsstyring | Sertifiserte bedrifter |
+| **Integrert ledelsessystem** | HMS + Kvalitet + Miljø | Store virksomheter |
 
-**GDPR (12 krav)**:
-- 5 fullført (3 av agent, 2 hybrid)
-- 3 pågår
-- 4 ikke startet
+### Steg 2: Bransjetilpasning
 
-**AI Act (8 krav)**:
-- 4 fullført
-- 2 pågår
-- 2 ikke startet (manuelle)
+Basert på `company_profile.industry` vises relevante moduler:
 
-### Del 2: AI-Native Introduksjonsheader
+**Helse:**
+- Pasientsikkerhet og meldeplikt
+- Legemiddelhåndtering
+- Smittevern og hygiene
+- Medisinsk utstyr
 
-Legg til en "Lara's Insights"-seksjon øverst på siden:
+**Bygg og anlegg:**
+- SHA-plan (Sikkerhet, Helse, Arbeidsmiljø)
+- SJA-register (Sikker Jobb Analyse)
+- Utstyrsregister med sertifikater
+- Stoffkartotek
+
+**Industri:**
+- Stoffkartotek med HMS-datablad
+- Utstyrsregister og vedlikeholdslogg
+- Produksjonskontroll
+- Miljøovervåking
+
+**Tech/SaaS:**
+- Informasjonssikkerhet (ISO 27001)
+- Kontinuerlig forbedring
+- Hendelseshåndtering
+- Endringsledelse
+
+### Steg 3: Regelverkstilknytning
+
+Systemet kobler automatisk til aktive regelverk fra `selected_frameworks`:
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  ✨ Intelligent Samsvarsstyring                                             │
-│                                                                             │
-│  Mynder bruker AI-agenter til å automatisere compliance-arbeid. Hver       │
-│  kontroll er klassifisert etter hvem som kan gjøre jobben:                 │
-│                                                                             │
-│  🤖 AI Ready       Lara fullfører dette automatisk basert på               │
-│                    dine systemer og prosesser                               │
-│                                                                             │
-│  ✨ Hybrid         Lara forbereder dokumentasjon og forslag -               │
-│                    du godkjenner eller justerer                            │
-│                                                                             │
-│  👤 Manuell        Krever din direkte handling - Lara gir                   │
-│                    veiledning og maler                                     │
-│                                                                             │
-│  ─────────────────────────────────────────────────────────────────────────  │
-│                                                                             │
-│  💡 Tips: Filtrer på "Manuell" for å se hva som krever din handling først  │
-└─────────────────────────────────────────────────────────────────────────────┘
+Dine aktive regelverk:
+☑ HMS-lovgivningen (obligatorisk)
+☑ Arbeidsmiljøloven
+☑ Internkontrollforskriften
+☐ ISO 9001 (anbefalt for din bransje)
+☐ ISO 14001 (miljøledelse)
 ```
 
-### Del 3: "AI i Arbeid"-Widget
+### Steg 4: Oppsummering og aktivering
 
-Vise pågående AI-arbeid:
+Viser hva som aktiveres:
+- Nye menyvalg i sidepanelet
+- Automatiske arbeidsområder
+- Genererte sjekklister og oppgaver
+- Månedlig tilleggspris
+
+## Nye komponenter/sider
+
+### 1. Kvalitetsoversikt (Dashboard-widget)
+- KPI-er for kvalitet og HMS
+- Avvik-trender
+- Kommende revisjoner
+- Forbedringsprosjekter
+
+### 2. SJA-register (Sikker Jobb Analyse)
+- Mal-bibliotek basert på bransje
+- Digital signering
+- Historikk per arbeidsområde
+
+### 3. Stoffkartotek
+- HMS-datablad med utløpsdato
+- Faremerking og risikovurdering
+- Kobling til arbeidsområder og lokasjoner
+
+### 4. Utstyrsregister
+- Sertifikater og godkjenninger
+- Vedlikeholdsintervaller
+- Kalibreringslpgg
+- Varsler ved utløp
+
+### 5. Kompetanseoversikt
+- Kurs og sertifiseringer per ansatt
+- Utløpsvarsler
+- Kompetansekrav per rolle
+
+### 6. Varslingsplaner
+- Beredskapsrutiner
+- Varslingslister
+- Øvelseslogg
+
+## Database-utvidelser
+
+Nye tabeller som opprettes ved aktivering:
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  🤖 Lara jobber nå                                          Live           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ⏳ A.5.7 Trusseletterretning                 ▓▓▓▓▓▓▓░░░  72%              │
-│     Henter data fra Snyk og 7Security...                                    │
-│                                                                             │
-│  ⏳ A.8.9 Konfigurasjonsstyring               ▓▓▓▓░░░░░░  45%              │
-│     Analyserer GitHub-repositorier...                                       │
-│                                                                             │
-│  ⏳ A.5.23 Skytjeneste-sikkerhet              ▓▓▓░░░░░░░  32%              │
-│     Kartlegger Azure og AWS-konfigurasjoner...                              │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+quality_modules (id, company_id, module_type, activated_at, config)
+sja_templates (id, industry, name, steps, hazards)
+sja_records (id, work_area_id, template_id, performed_by, signed_at)
+chemical_registry (id, company_id, name, cas_number, hazard_class, sds_url)
+equipment_registry (id, company_id, name, type, certification_expiry, last_service)
+competency_records (id, user_id, certification_type, issued_date, expiry_date)
+emergency_plans (id, company_id, plan_type, content, last_reviewed)
 ```
 
-## Filer som Endres/Opprettes
+## Prismodell
 
-| Fil | Handling | Beskrivelse |
-|-----|----------|-------------|
-| `supabase/migrations/xxx_seed_compliance_demo.sql` | **Ny** | Seede compliance_requirements + demo requirement_status |
-| `src/pages/ComplianceChecklist.tsx` | **Oppdater** | Legg til AI-native intro-header og "AI i arbeid"-widget |
-| `src/components/compliance/AIWorkingWidget.tsx` | **Ny** | Vise pågående AI-arbeid med live-indikatorer |
-| `src/components/compliance/ComplianceIntroHeader.tsx` | **Ny** | Forklarende intro om AI-native tilnærmingen |
+| Modul | Pris |
+|-------|------|
+| HMS-basis | Inkludert i alle planer |
+| HMS-utvidet | +490 kr/mnd |
+| Kvalitetsledelse (ISO 9001) | +790 kr/mnd |
+| Integrert ledelsessystem | +1290 kr/mnd |
 
-## Demo-Data Oversikt
+## Integrasjon med eksisterende funksjonalitet
 
-### Requirement Status Eksempler
+### Gjenbruk av eksisterende:
+- **Avviksregistrering** - Utvides med HMS-kategorier
+- **Risikovurdering** - Kobles til SJA og stoffkartotek
+- **Dokumentanalyse** - Brukes for HMS-datablad
+- **Arbeidsområder** - Kobles til kompetanse og utstyr
+- **Oppgaver** - Genererer vedlikeholdsoppgaver
 
-| Kontroll | Status | AI Handling | Fullført av |
-|----------|--------|-------------|-------------|
-| A.5.1 Policies | ✅ completed | ✅ | agent |
-| A.5.7 Threat Intelligence | ⏳ in_progress (72%) | ✅ | - |
-| A.5.9 Asset Inventory | ✅ completed | ✅ | agent |
-| A.5.24 Incident Management | ⬜ not_started | ❌ | - (manual) |
-| A.6.3 Security Awareness | ⬜ not_started | ❌ | - (manual) |
-| GDPR-Art30 ROPA | ✅ completed | ✅ | agent |
-| AIACT-Art6 Risk Classification | ✅ completed | ✅ | agent |
+### Lara AI-assistanse:
+- Foreslår SJA-maler basert på arbeidstype
+- Analyserer HMS-datablad og foreslår tiltak
+- Varsler om utløpende sertifikater
+- Genererer revisjonsrapporter
 
-### Forventet Visuell Effekt
+## Implementeringsrekkefølge
 
-Etter implementering vil brukeren se:
+### Fase 1: Grunnstruktur
+1. Opprette `QualityModuleActivationWizard` komponent
+2. Utvide `AddModuleDialog` med kvalitetssystem-valg
+3. Database-migrasjoner for nye tabeller
+4. Sidebar-integrasjon med dynamiske menyvalg
 
-```text
-ISO 27001:2022                                         42% Ready
-▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░
+### Fase 2: HMS-kjerne
+5. SJA-register med mal-bibliotek
+6. Stoffkartotek-modul
+7. Utstyrsregister med vedlikeholdslogg
+8. Kompetanseoversikt
 
-🤖 AI: 35   ✨ Hybrid: 42   👤 Manual: 16
+### Fase 3: Bransjetilpasning
+9. Bransjespesifikke SJA-maler
+10. Industri-spesifikke sjekklister
+11. Helse-spesifikke moduler
 
-┌────────────────────────────────────────────────────────────────┐
-│ 🤖 Lara jobber nå                                    ● Live   │
-├────────────────────────────────────────────────────────────────┤
-│ ⏳ A.5.7 Trusseletterretning              ▓▓▓▓▓▓▓░░░  72%    │
-│ ⏳ A.8.9 Konfigurasjonsstyring            ▓▓▓▓░░░░░░  45%    │
-│ ⏳ A.5.23 Skytjeneste-sikkerhet           ▓▓▓░░░░░░░  32%    │
-└────────────────────────────────────────────────────────────────┘
+### Fase 4: Integrasjon
+12. Kobling til eksisterende avvikssystem
+13. Dashboard-widgets for kvalitet
+14. Rapporter og statistikk
+15. Lara-integrasjon for AI-assistanse
 
-🔴 Krever din handling (3)
-─────────────────────────
-⬜ A.5.24 Incident Management Planning        👤 Manual  [Start →]
-⬜ A.6.3 Security Awareness                   👤 Manual  [Start →]
-⬜ A.7.1 Physical Security                    👤 Manual  [Start →]
+## Tekniske detaljer
 
-✅ Fullført (39)
-─────────────────
-✅ A.5.1 Information Security Policies        🤖 Agent   ✓ Completed
-✅ A.5.7 Asset Inventory                      🤖 Agent   ✓ Completed
-✅ A.5.15 Access Control                      🤖 Agent   ✓ Completed
-+ 36 more...
-```
+### Ny fil: `src/lib/qualityModuleDefinitions.ts`
+Definerer alle kvalitetsmodul-typer, bransjetilpasninger og krav.
 
-## Implementeringssteg
+### Ny fil: `src/components/quality/QualityModuleActivationWizard.tsx`
+Multi-steg wizard som følger samme mønster som `DomainActivationWizard`.
 
-### Steg 1: Database Migration for Demo-data
-Opprett SQL-migrasjon som:
-1. Setter inn alle 93+12+8 krav i `compliance_requirements`
-2. Setter inn realistisk demo-status i `requirement_status`
+### Ny fil: `src/pages/QualityDashboard.tsx`
+Hovedside for kvalitetssystemet med oversikt og navigasjon.
 
-### Steg 2: AI-Native Intro-komponent
-Bygg `ComplianceIntroHeader` som forklarer agent-klassifiseringene
+### Oppdatert: `src/components/Sidebar.tsx`
+Dynamiske menyvalg basert på aktiverte kvalitetsmoduler.
 
-### Steg 3: AI i Arbeid-widget
-Bygg `AIWorkingWidget` som viser pågående AI-arbeid med progresjonslinjer
+### Oppdatert: `src/lib/frameworkDefinitions.ts`
+Legge til kvalitetsrelaterte rammeverk (ISO 9001, ISO 14001, ISO 45001).
 
-### Steg 4: Integrer i ComplianceChecklist
-Oppdater siden til å inkludere intro og AI-widget
+## Brukeropplevelse
 
-## AI-Native Differensiering
+Når kunden klikker "Legg til tilleggsmodul" og velger Kvalitetssystem:
 
-Dette skiller Mynder fra tradisjonelle GRC-verktøy:
+1. **Velkomstskjerm** - Forklarer verdien av et strukturert kvalitetssystem
+2. **Bransje bekreftes** - Viser kundens bransje og foreslår relevant oppsett
+3. **Modul-valg** - Kunden velger hvilke deler de trenger
+4. **Regelverk-kobling** - Automatisk tilknytning til relevante standarder
+5. **Pris og bekreftelse** - Transparent kostnadsoversikt
+6. **Aktivering** - Modulen aktiveres og Lara guider videre oppsett
 
-| Tradisjonell GRC | Mynder AI-Native |
-|------------------|------------------|
-| Statisk sjekkliste | Dynamisk med live AI-fremdrift |
-| Manuelt arbeid | AI gjør 38% automatisk |
-| Ingen veiledning | Agent forklarer hva den gjør |
-| Generisk | Tilpasset basert på dine systemer |
-| Reaktiv | Proaktiv - AI starter selv |
-
-## Fordeler
-
-1. **Umiddelbar forståelse** - Brukeren ser at dette er annerledes enn tradisjonelle verktøy
-2. **Synlig AI-verdi** - Tydelig at 35+ kontroller håndteres automatisk
-3. **Prioritert fokus** - Manuelle oppgaver vises først
-4. **Live fremdrift** - Se at agenten faktisk jobber
-5. **Transparent** - Forstå hvem (AI vs deg) som gjør hva
+Resultatet er at kunden opplever et sømløst integrert kvalitetssystem som en naturlig del av Mynder-pakken, tilpasset deres spesifikke bransje og behov.
