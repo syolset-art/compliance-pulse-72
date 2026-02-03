@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { NavigationModeProvider } from "@/hooks/useNavigationMode";
 import { GlobalChatProvider } from "@/components/GlobalChatProvider";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/AuthGuard";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
 import Tasks from "./pages/Tasks";
@@ -33,44 +36,52 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <NavigationModeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <GlobalChatProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-              <Route path="/ai-setup" element={<AIAgentSetup />} />
-              <Route path="/ai-registry" element={<AISystemRegistry />} />
-              <Route path="/tasks" element={<Tasks />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/sustainability" element={<Sustainability />} />
-                <Route path="/transparency" element={<Transparency />} />
-                <Route path="/services" element={<WorkAreas />} />
-                <Route path="/work-areas" element={<WorkAreas />} />
-                <Route path="/assets" element={<Assets />} />
-                <Route path="/assets/:id" element={<AssetTrustProfile />} />
-                <Route path="/protocols" element={<ProcessingRecords />} />
-                <Route path="/processes/:id" element={<ProcessProfile />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/company-settings" element={<CompanySettings />} />
-                <Route path="/regulations" element={<Regulations />} />
-                <Route path="/subscriptions" element={<Subscriptions />} />
-                <Route path="/terms-and-consent" element={<TermsAndConsent />} />
-                <Route path="/deviations" element={<Deviations />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
-                {/* Legacy routes for backwards compatibility */}
-                <Route path="/systems" element={<Assets />} />
-                <Route path="/systems/:id" element={<AssetTrustProfile />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </GlobalChatProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </NavigationModeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <NavigationModeProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <GlobalChatProvider>
+                <Routes>
+                  {/* Public route */}
+                  <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Protected routes */}
+                  <Route path="/" element={<AuthGuard><Index /></AuthGuard>} />
+                  <Route path="/ai-setup" element={<AuthGuard><AIAgentSetup /></AuthGuard>} />
+                  <Route path="/ai-registry" element={<AuthGuard><AISystemRegistry /></AuthGuard>} />
+                  <Route path="/tasks" element={<AuthGuard><Tasks /></AuthGuard>} />
+                  <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+                  <Route path="/sustainability" element={<AuthGuard><Sustainability /></AuthGuard>} />
+                  <Route path="/transparency" element={<AuthGuard><Transparency /></AuthGuard>} />
+                  <Route path="/services" element={<AuthGuard><WorkAreas /></AuthGuard>} />
+                  <Route path="/work-areas" element={<AuthGuard><WorkAreas /></AuthGuard>} />
+                  <Route path="/assets" element={<AuthGuard><Assets /></AuthGuard>} />
+                  <Route path="/assets/:id" element={<AuthGuard><AssetTrustProfile /></AuthGuard>} />
+                  <Route path="/protocols" element={<AuthGuard><ProcessingRecords /></AuthGuard>} />
+                  <Route path="/processes/:id" element={<AuthGuard><ProcessProfile /></AuthGuard>} />
+                  <Route path="/reports" element={<AuthGuard><Reports /></AuthGuard>} />
+                  <Route path="/company-settings" element={<AuthGuard><CompanySettings /></AuthGuard>} />
+                  <Route path="/regulations" element={<AuthGuard><Regulations /></AuthGuard>} />
+                  <Route path="/subscriptions" element={<AuthGuard><Subscriptions /></AuthGuard>} />
+                  <Route path="/terms-and-consent" element={<AuthGuard><TermsAndConsent /></AuthGuard>} />
+                  <Route path="/deviations" element={<AuthGuard><Deviations /></AuthGuard>} />
+                  <Route path="/resources" element={<AuthGuard><Resources /></AuthGuard>} />
+                  <Route path="/compliance-checklist" element={<AuthGuard><ComplianceChecklist /></AuthGuard>} />
+                  
+                  {/* Legacy routes for backwards compatibility */}
+                  <Route path="/systems" element={<AuthGuard><Assets /></AuthGuard>} />
+                  <Route path="/systems/:id" element={<AuthGuard><AssetTrustProfile /></AuthGuard>} />
+                  
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </GlobalChatProvider>
+            </TooltipProvider>
+          </NavigationModeProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   </QueryClientProvider>
 );
