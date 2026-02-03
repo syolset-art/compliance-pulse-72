@@ -868,5 +868,12 @@
     "dpiaRequired": "DPIA required",
     "viewDpia": "View DPIA",
     "lastUpdated": "Last updated"
+  },
+  "qualityRecommendation": {
+    "basedOn": "Based on your industry",
+    "andSize": "and size",
+    "weRecommend": "we recommend",
+    "recommendedForYou": "Recommended for you",
+    "learnMore": "Learn more about this recommendation"
   }
 }

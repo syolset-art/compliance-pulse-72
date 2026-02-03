@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Check, ChevronRight, ChevronLeft, Sparkles, Building2, Shield, AlertTriangle } from "lucide-react";
+import { Check, ChevronRight, ChevronLeft, Sparkles, Building2, Shield, AlertTriangle, Lightbulb, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -14,8 +14,10 @@ import {
   getModuleById, 
   getIndustryById,
   mapCompanyIndustryToType,
+  getRecommendedQualityModule,
   type QualityModuleType,
-  type IndustryType 
+  type IndustryType,
+  type RecommendationResult
 } from "@/lib/qualityModuleDefinitions";
 
 interface QualityModuleActivationWizardProps {
@@ -36,6 +38,8 @@ export const QualityModuleActivationWizard = ({
   const [selectedModuleType, setSelectedModuleType] = useState<QualityModuleType | null>(null);
   const [detectedIndustry, setDetectedIndustry] = useState<IndustryType>('general');
   const [companyIndustry, setCompanyIndustry] = useState<string>('');
+  const [employeeRange, setEmployeeRange] = useState<string>('');
+  const [recommendation, setRecommendation] = useState<RecommendationResult | null>(null);
   const [selectedIndustryModules, setSelectedIndustryModules] = useState<string[]>([]);
   const [linkedFrameworks, setLinkedFrameworks] = useState<string[]>([]);
   const [acceptedPrice, setAcceptedPrice] = useState(false);
@@ -45,7 +49,7 @@ export const QualityModuleActivationWizard = ({
     const fetchCompanyProfile = async () => {
       const { data } = await supabase
         .from('company_profile')
-        .select('industry')
+        .select('industry, employees, brreg_employees')
         .limit(1)
         .maybeSingle();
       
@@ -53,6 +57,22 @@ export const QualityModuleActivationWizard = ({
         setCompanyIndustry(data.industry);
         const mappedIndustry = mapCompanyIndustryToType(data.industry);
         setDetectedIndustry(mappedIndustry);
+        
+        // Set employee range for display
+        if (data.brreg_employees) {
+          setEmployeeRange(`${data.brreg_employees} ansatte`);
+        } else if (data.employees) {
+          setEmployeeRange(data.employees);
+        }
+        
+        // Calculate recommendation
+        const rec = getRecommendedQualityModule(
+          mappedIndustry,
+          data.employees,
+          data.brreg_employees
+        );
+        setRecommendation(rec);
+        setSelectedModuleType(rec.recommendedModule);
         
         // Pre-select required modules
         const industry = getIndustryById(mappedIndustry);
@@ -163,50 +183,95 @@ export const QualityModuleActivationWizard = ({
         </p>
       </div>
       
+      {/* Recommendation Banner */}
+      {recommendation && (
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 mb-4">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-primary">
+                {isNorwegian 
+                  ? `Basert på din bransje${companyIndustry ? ` (${companyIndustry})` : ''}${employeeRange ? ` og størrelse (${employeeRange})` : ''} anbefaler vi:`
+                  : `Based on your industry${companyIndustry ? ` (${companyIndustry})` : ''}${employeeRange ? ` and size (${employeeRange})` : ''} we recommend:`}
+              </p>
+              <p className="text-sm font-semibold mt-1">
+                {getModuleById(recommendation.recommendedModule)?.[isNorwegian ? 'name' : 'nameEn']}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isNorwegian ? recommendation.reason : recommendation.reasonEn}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="grid gap-3">
-        {qualityModules.map((module) => (
-          <button
-            key={module.id}
-            onClick={() => setSelectedModuleType(module.id)}
-            className={cn(
-              "p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50",
-              selectedModuleType === module.id 
-                ? "border-primary bg-primary/5" 
-                : "border-border"
-            )}
-          >
-            <div className="flex items-start gap-4">
-              <div className={cn("p-2 rounded-lg", module.bgColor)}>
-                <module.icon className={cn("h-6 w-6", module.color)} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">
-                    {isNorwegian ? module.name : module.nameEn}
-                  </h4>
-                  {module.price === null ? (
-                    <Badge variant="secondary">
-                      {isNorwegian ? "Inkludert" : "Included"}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline">
-                      +{module.price} kr/{isNorwegian ? "mnd" : "mo"}
-                    </Badge>
+        {qualityModules.map((module) => {
+          const isRecommended = recommendation?.recommendedModule === module.id;
+          
+          return (
+            <button
+              key={module.id}
+              onClick={() => setSelectedModuleType(module.id)}
+              className={cn(
+                "p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50 relative",
+                selectedModuleType === module.id 
+                  ? "border-primary bg-primary/5" 
+                  : isRecommended 
+                    ? "border-primary/30 bg-primary/5"
+                    : "border-border"
+              )}
+            >
+              {isRecommended && (
+                <div className="absolute -top-2 right-4">
+                  <Badge className="bg-primary text-primary-foreground text-xs gap-1">
+                    <Star className="h-3 w-3" />
+                    {isNorwegian ? "Anbefalt for deg" : "Recommended for you"}
+                  </Badge>
+                </div>
+              )}
+              <div className="flex items-start gap-4">
+                <div className={cn("p-2 rounded-lg", module.bgColor)}>
+                  <module.icon className={cn("h-6 w-6", module.color)} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">
+                      {isNorwegian ? module.name : module.nameEn}
+                    </h4>
+                    {module.price === null ? (
+                      <Badge variant="secondary">
+                        {isNorwegian ? "Inkludert" : "Included"}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">
+                        +{module.price} kr/{isNorwegian ? "mnd" : "mo"}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {isNorwegian ? module.description : module.descriptionEn}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {isNorwegian ? module.targetAudience : module.targetAudienceEn}
+                  </p>
+                  {isRecommended && selectedModuleType !== module.id && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {module.features.slice(0, 3).map((feature, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {isNorwegian ? feature : module.featuresEn[idx]}
+                        </Badge>
+                      ))}
+                    </div>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isNorwegian ? module.description : module.descriptionEn}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {isNorwegian ? module.targetAudience : module.targetAudienceEn}
-                </p>
+                {selectedModuleType === module.id && (
+                  <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                )}
               </div>
-              {selectedModuleType === module.id && (
-                <Check className="h-5 w-5 text-primary flex-shrink-0" />
-              )}
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

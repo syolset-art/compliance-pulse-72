@@ -417,6 +417,97 @@ export const getRecommendedModules = (industryId: IndustryType) => {
   return industry.modules.filter(m => m.required || m.recommended);
 };
 
+// Helper to parse employee range string to number
+const parseEmployeeRange = (range: string | null): number => {
+  if (!range) return 0;
+  // Extract the first number from ranges like "11-50" or "51-200"
+  const match = range.match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+};
+
+export interface RecommendationResult {
+  recommendedModule: QualityModuleType;
+  reason: string;
+  reasonEn: string;
+}
+
+// Industry-based recommendation matrix
+const industryRecommendations: Record<IndustryType, {
+  small: QualityModuleType;  // < 50 employees
+  large: QualityModuleType;  // >= 50 employees
+  smallReason: string;
+  smallReasonEn: string;
+  largeReason: string;
+  largeReasonEn: string;
+}> = {
+  'construction': {
+    small: 'hms-extended',
+    large: 'hms-extended',
+    smallReason: 'Din bransje har krav til SJA, stoffkartotek og utstyrsregister',
+    smallReasonEn: 'Your industry requires SJA, chemical registry and equipment register',
+    largeReason: 'Din bransje har krav til SJA, stoffkartotek og utstyrsregister',
+    largeReasonEn: 'Your industry requires SJA, chemical registry and equipment register'
+  },
+  'industry': {
+    small: 'hms-extended',
+    large: 'integrated-management',
+    smallReason: 'Industribedrifter trenger stoffkartotek og vedlikeholdslogg',
+    smallReasonEn: 'Industrial companies need chemical registry and maintenance logs',
+    largeReason: 'Store industribedrifter har ofte behov for integrert HMS, kvalitet og miljø',
+    largeReasonEn: 'Large industrial companies often need integrated HSE, quality and environment'
+  },
+  'health': {
+    small: 'hms-extended',
+    large: 'quality-management',
+    smallReason: 'Helsesektoren krever pasientsikkerhet og smittevern',
+    smallReasonEn: 'Healthcare sector requires patient safety and infection control',
+    largeReason: 'Større helsevirksomheter har ofte ISO-sertifiseringskrav',
+    largeReasonEn: 'Larger healthcare organizations often have ISO certification requirements'
+  },
+  'tech': {
+    small: 'hms-basis',
+    large: 'quality-management',
+    smallReason: 'Tech-selskaper har lavere fysisk risiko, grunnleggende HMS er tilstrekkelig',
+    smallReasonEn: 'Tech companies have lower physical risk, basic HSE is sufficient',
+    largeReason: 'Større tech-selskaper har ofte behov for ISO 9001/27001-sertifisering',
+    largeReasonEn: 'Larger tech companies often need ISO 9001/27001 certification'
+  },
+  'general': {
+    small: 'hms-basis',
+    large: 'hms-extended',
+    smallReason: 'Grunnleggende internkontroll dekker minimumskravene',
+    smallReasonEn: 'Basic internal control covers minimum requirements',
+    largeReason: 'Større virksomheter har økt kompleksitet og flere krav',
+    largeReasonEn: 'Larger businesses have increased complexity and more requirements'
+  }
+};
+
+export const getRecommendedQualityModule = (
+  industryType: IndustryType,
+  employeeCount: string | null,
+  brregEmployees: number | null
+): RecommendationResult => {
+  // Calculate employee count - prefer brreg data if available
+  const empCount = brregEmployees || parseEmployeeRange(employeeCount);
+  const isLarge = empCount >= 50;
+  
+  const config = industryRecommendations[industryType] || industryRecommendations['general'];
+  
+  if (isLarge) {
+    return {
+      recommendedModule: config.large,
+      reason: config.largeReason,
+      reasonEn: config.largeReasonEn
+    };
+  }
+  
+  return {
+    recommendedModule: config.small,
+    reason: config.smallReason,
+    reasonEn: config.smallReasonEn
+  };
+};
+
 export const mapCompanyIndustryToType = (industry: string): IndustryType => {
   const lowerIndustry = industry.toLowerCase();
   
