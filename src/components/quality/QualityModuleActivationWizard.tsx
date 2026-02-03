@@ -35,7 +35,7 @@ export const QualityModuleActivationWizard = ({
   const isNorwegian = i18n.language === 'nb' || i18n.language === 'no';
   
   const [step, setStep] = useState(1);
-  const [selectedModuleType, setSelectedModuleType] = useState<QualityModuleType | null>(null);
+  const [selectedModuleTypes, setSelectedModuleTypes] = useState<QualityModuleType[]>([]);
   const [detectedIndustry, setDetectedIndustry] = useState<IndustryType>('general');
   const [companyIndustry, setCompanyIndustry] = useState<string>('');
   const [employeeRange, setEmployeeRange] = useState<string>('');
@@ -72,7 +72,7 @@ export const QualityModuleActivationWizard = ({
           data.brreg_employees
         );
         setRecommendation(rec);
-        setSelectedModuleType(rec.recommendedModule);
+        setSelectedModuleTypes([rec.recommendedModule]);
         
         // Pre-select required modules
         const industry = getIndustryById(mappedIndustry);
@@ -110,9 +110,25 @@ export const QualityModuleActivationWizard = ({
 
   const handleReset = () => {
     setStep(1);
-    setSelectedModuleType(null);
+    setSelectedModuleTypes([]);
     setSelectedIndustryModules([]);
     setAcceptedPrice(false);
+  };
+
+  const toggleModuleType = (moduleId: QualityModuleType) => {
+    setSelectedModuleTypes(prev => 
+      prev.includes(moduleId)
+        ? prev.filter(id => id !== moduleId)
+        : [...prev, moduleId]
+    );
+  };
+
+  const selectAllModules = () => {
+    setSelectedModuleTypes(qualityModules.map(m => m.id));
+  };
+
+  const clearAllModules = () => {
+    setSelectedModuleTypes([]);
   };
 
   const handleClose = () => {
@@ -121,7 +137,7 @@ export const QualityModuleActivationWizard = ({
   };
 
   const handleActivate = async () => {
-    if (!selectedModuleType) return;
+    if (selectedModuleTypes.length === 0) return;
     
     setIsActivating(true);
     
@@ -164,23 +180,37 @@ export const QualityModuleActivationWizard = ({
     );
   };
 
-  const selectedModule = selectedModuleType ? getModuleById(selectedModuleType) : null;
+  const selectedModules = selectedModuleTypes.map(id => getModuleById(id)).filter(Boolean);
   const industryConfig = getIndustryById(detectedIndustry);
   
-  const totalPrice = selectedModule?.price || 0;
+  // Calculate total price - use highest tier module price (not cumulative)
+  // In a real scenario this would be more complex pricing logic
+  const totalPrice = selectedModules.reduce((max, mod) => 
+    Math.max(max, mod?.price || 0), 0
+  );
 
   const renderStep1 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
         <Sparkles className="h-12 w-12 mx-auto text-primary mb-3" />
         <h3 className="text-lg font-semibold">
-          {isNorwegian ? "Velg type kvalitetssystem" : "Select quality system type"}
+          {isNorwegian ? "Velg kvalitetsmoduler" : "Select quality modules"}
         </h3>
         <p className="text-sm text-muted-foreground">
           {isNorwegian 
-            ? "Basert på dine behov og virksomhetens størrelse" 
-            : "Based on your needs and business size"}
+            ? "Du kan velge én eller flere moduler" 
+            : "You can select one or more modules"}
         </p>
+      </div>
+      
+      {/* Quick actions */}
+      <div className="flex justify-end gap-2 mb-2">
+        <Button variant="ghost" size="sm" onClick={selectAllModules}>
+          {isNorwegian ? "Velg alle" : "Select all"}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={clearAllModules}>
+          {isNorwegian ? "Fjern alle" : "Clear all"}
+        </Button>
       </div>
       
       {/* Recommendation Banner */}
@@ -208,14 +238,15 @@ export const QualityModuleActivationWizard = ({
       <div className="grid gap-3">
         {qualityModules.map((module) => {
           const isRecommended = recommendation?.recommendedModule === module.id;
+          const isSelected = selectedModuleTypes.includes(module.id);
           
           return (
-            <button
+            <div
               key={module.id}
-              onClick={() => setSelectedModuleType(module.id)}
+              onClick={() => toggleModuleType(module.id)}
               className={cn(
-                "p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50 relative",
-                selectedModuleType === module.id 
+                "p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50 relative cursor-pointer",
+                isSelected 
                   ? "border-primary bg-primary/5" 
                   : isRecommended 
                     ? "border-primary/30 bg-primary/5"
@@ -226,11 +257,16 @@ export const QualityModuleActivationWizard = ({
                 <div className="absolute -top-2 right-4">
                   <Badge className="bg-primary text-primary-foreground text-xs gap-1">
                     <Star className="h-3 w-3" />
-                    {isNorwegian ? "Anbefalt for deg" : "Recommended for you"}
+                    {isNorwegian ? "Anbefalt" : "Recommended"}
                   </Badge>
                 </div>
               )}
               <div className="flex items-start gap-4">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleModuleType(module.id)}
+                  className="mt-1"
+                />
                 <div className={cn("p-2 rounded-lg", module.bgColor)}>
                   <module.icon className={cn("h-6 w-6", module.color)} />
                 </div>
@@ -255,7 +291,7 @@ export const QualityModuleActivationWizard = ({
                   <p className="text-xs text-muted-foreground mt-2">
                     {isNorwegian ? module.targetAudience : module.targetAudienceEn}
                   </p>
-                  {isRecommended && selectedModuleType !== module.id && (
+                  {isSelected && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {module.features.slice(0, 3).map((feature, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
@@ -265,11 +301,8 @@ export const QualityModuleActivationWizard = ({
                     </div>
                   )}
                 </div>
-                {selectedModuleType === module.id && (
-                  <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                )}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -385,15 +418,15 @@ export const QualityModuleActivationWizard = ({
         )}
       </div>
 
-      {selectedModule?.frameworks && (
+      {selectedModules.length > 0 && (
         <div className="mt-4 p-3 rounded-lg border border-dashed">
           <p className="text-xs text-muted-foreground mb-2">
             {isNorwegian 
-              ? "Relevante rammeverk for valgt modul:" 
-              : "Relevant frameworks for selected module:"}
+              ? "Relevante rammeverk for valgte moduler:" 
+              : "Relevant frameworks for selected modules:"}
           </p>
           <div className="flex flex-wrap gap-2">
-            {selectedModule.frameworks.map((fw) => (
+            {[...new Set(selectedModules.flatMap(m => m?.frameworks || []))].map((fw) => (
               <Badge key={fw} variant="outline" className="text-xs capitalize">
                 {fw.replace(/-/g, ' ')}
               </Badge>
@@ -414,17 +447,24 @@ export const QualityModuleActivationWizard = ({
       </div>
 
       <div className="space-y-4 bg-muted p-4 rounded-xl">
-        {selectedModule && (
-          <div className="flex items-center gap-3">
-            <selectedModule.icon className={cn("h-6 w-6", selectedModule.color)} />
-            <div>
-              <p className="font-medium">
-                {isNorwegian ? selectedModule.name : selectedModule.nameEn}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isNorwegian ? selectedModule.description : selectedModule.descriptionEn}
-              </p>
-            </div>
+        {selectedModules.length > 0 && (
+          <div className="space-y-3">
+            <p className="text-sm font-medium">
+              {isNorwegian ? "Valgte kvalitetsmoduler:" : "Selected quality modules:"}
+            </p>
+            {selectedModules.map((mod) => mod && (
+              <div key={mod.id} className="flex items-center gap-3">
+                <mod.icon className={cn("h-5 w-5", mod.color)} />
+                <div>
+                  <p className="font-medium text-sm">
+                    {isNorwegian ? mod.name : mod.nameEn}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isNorwegian ? mod.description : mod.descriptionEn}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -531,7 +571,7 @@ export const QualityModuleActivationWizard = ({
           {step < 4 ? (
             <Button 
               onClick={() => setStep(step + 1)}
-              disabled={step === 1 && !selectedModuleType}
+              disabled={step === 1 && selectedModuleTypes.length === 0}
             >
               {isNorwegian ? "Neste" : "Next"}
               <ChevronRight className="h-4 w-4 ml-1" />
