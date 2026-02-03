@@ -1,4 +1,5 @@
 import { useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatPanel } from "./ChatPanel";
@@ -97,6 +98,9 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
     // Navigation is handled within pages
   };
 
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/auth';
+
   return (
     <GlobalChatContext.Provider 
       value={{ 
@@ -112,28 +116,33 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
     >
       {children}
       
-      {/* Global Lara Agent Button */}
-      <LaraAgent 
-        onOpenAssetDialog={() => setIsAddAssetOpen(true)}
-        onToggleChat={toggleChat}
-        isChatOpen={isChatOpen}
-      />
+      {/* Hide Lara and Chat on Auth page */}
+      {!isAuthPage && (
+        <>
+          {/* Global Lara Agent Button */}
+          <LaraAgent 
+            onOpenAssetDialog={() => setIsAddAssetOpen(true)}
+            onToggleChat={toggleChat}
+            isChatOpen={isChatOpen}
+          />
 
-      {/* Global Chat Panel */}
-      <ChatPanel
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        onShowContent={handleShowContent}
-        onBackToDashboard={handleBackToDashboard}
-      />
+          {/* Global Chat Panel */}
+          <ChatPanel
+            isOpen={isChatOpen}
+            onClose={() => setIsChatOpen(false)}
+            onShowContent={handleShowContent}
+            onBackToDashboard={handleBackToDashboard}
+          />
 
-      {/* Global Add Asset Dialog - triggered from Lara onboarding */}
-      <AddAssetDialog
-        open={isAddAssetOpen}
-        onOpenChange={setIsAddAssetOpen}
-        onAssetAdded={handleAssetAdded}
-        assetTypeTemplates={assetTypeTemplates}
-      />
+          {/* Global Add Asset Dialog - triggered from Lara onboarding */}
+          <AddAssetDialog
+            open={isAddAssetOpen}
+            onOpenChange={setIsAddAssetOpen}
+            onAssetAdded={handleAssetAdded}
+            assetTypeTemplates={assetTypeTemplates}
+          />
+        </>
+      )}
     </GlobalChatContext.Provider>
   );
 }
