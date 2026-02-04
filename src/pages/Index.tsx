@@ -251,7 +251,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 explanation={contentView.explanation}
               />
             ) : (
-              <div className="w-full max-w-7xl p-4 md:p-10 pt-8 md:pt-10">
+              <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-8 md:pt-10">
                 {/* Premium Header with more whitespace */}
                 <div className="mb-12">
                   <div className="flex items-center justify-between mb-6">
