@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -125,7 +125,9 @@ function EmptyStateWelcome({
   isOnboardingComplete,
   completedCount,
   totalCount,
-  percentComplete
+  percentComplete,
+  isOnboardingDismissed,
+  onDismissOnboarding
 }: { 
   onSuggestionClick: (text: string) => void;
   suggestions: Suggestion[];
@@ -135,6 +137,8 @@ function EmptyStateWelcome({
   completedCount: number;
   totalCount: number;
   percentComplete: number;
+  isOnboardingDismissed: boolean;
+  onDismissOnboarding: () => void;
 }) {
   const getStepIcon = (iconName: string) => {
     const Icon = stepIcons[iconName] || Building2;
@@ -143,6 +147,9 @@ function EmptyStateWelcome({
 
   const nextStep = onboardingSteps.find(s => !s.isCompleted);
   const remainingSteps = totalCount - completedCount;
+  
+  // Show onboarding only if not complete and not dismissed
+  const showOnboarding = !isOnboardingComplete && !isOnboardingDismissed;
 
   return (
     <div className="flex flex-col h-full px-4">
@@ -162,17 +169,26 @@ function EmptyStateWelcome({
         </p>
       </div>
 
-      {/* Onboarding section - show if not complete */}
-      {!isOnboardingComplete && (
+      {/* Onboarding section - show if not complete and not dismissed */}
+      {showOnboarding && (
         <div className="mb-4 bg-accent/50 rounded-xl p-4 border border-primary/20">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" aria-hidden="true" />
               <span className="text-base font-medium text-foreground">ISO-klargjøring</span>
             </div>
-            <Badge variant="outline" className="text-sm">
-              {remainingSteps} gjenstår
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-sm">
+                {remainingSteps} gjenstår
+              </Badge>
+              <button
+                onClick={onDismissOnboarding}
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Skjul onboarding"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           
           {/* Progress bar */}
@@ -301,6 +317,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
+  const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(false);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
   const [companyName, setCompanyName] = useState<string>("Eviny AS");
@@ -836,6 +853,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             completedCount={completedCount}
             totalCount={totalCount}
             percentComplete={percentComplete}
+            isOnboardingDismissed={isOnboardingDismissed}
+            onDismissOnboarding={() => setIsOnboardingDismissed(true)}
           />
         </div>
       ) : (
