@@ -20,6 +20,7 @@ import { GDPRHealthWidget } from "@/components/widgets/GDPRHealthWidget";
 import { SecurityPostureWidget } from "@/components/widgets/SecurityPostureWidget";
 import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
+import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
@@ -273,6 +274,9 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                     {activeView !== 'all' ? DASHBOARD_LAYOUTS[activeView].description : t("dashboard.subtitle")}
                   </p>
                 </div>
+
+                {/* Onboarding Progress Widget */}
+                <OnboardingProgressWidget />
 
                 {/* Role-specific primary widget */}
                 {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
