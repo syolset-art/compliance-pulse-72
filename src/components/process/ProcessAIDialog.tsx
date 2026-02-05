@@ -168,8 +168,11 @@ export const ProcessAIDialog = ({
       setAutomatedDecisions(existingData.automated_decisions || false);
       setDecisionImpact(existingData.decision_impact || "");
       
-      // Parse features
-      const features = (existingData.ai_features as string[]) || [];
+      // Parse features - ensure it's an array
+      const rawFeatures = existingData.ai_features;
+      const features: string[] = Array.isArray(rawFeatures) 
+        ? rawFeatures.filter((f): f is string => typeof f === 'string')
+        : [];
       setAiFeatures(features.map((f, i) => ({ id: `feature-${i}`, name: f, selected: true })));
       
       // Parse checklist
