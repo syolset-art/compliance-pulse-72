@@ -1119,6 +1119,68 @@ export type Database = {
           },
         ]
       }
+      process_risk_scenarios: {
+        Row: {
+          consequence: string | null
+          created_at: string | null
+          description: string | null
+          frameworks: string[] | null
+          id: string
+          likelihood: string | null
+          mitigation: string | null
+          mitigation_owner: string | null
+          mitigation_status: string | null
+          previous_risk_level: string | null
+          process_id: string
+          risk_level: string | null
+          risk_reduced_at: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          consequence?: string | null
+          created_at?: string | null
+          description?: string | null
+          frameworks?: string[] | null
+          id?: string
+          likelihood?: string | null
+          mitigation?: string | null
+          mitigation_owner?: string | null
+          mitigation_status?: string | null
+          previous_risk_level?: string | null
+          process_id: string
+          risk_level?: string | null
+          risk_reduced_at?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          consequence?: string | null
+          created_at?: string | null
+          description?: string | null
+          frameworks?: string[] | null
+          id?: string
+          likelihood?: string | null
+          mitigation?: string | null
+          mitigation_owner?: string | null
+          mitigation_status?: string | null
+          previous_risk_level?: string | null
+          process_id?: string
+          risk_level?: string | null
+          risk_reduced_at?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_risk_scenarios_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "system_processes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requirement_status: {
         Row: {
           completed_at: string | null
