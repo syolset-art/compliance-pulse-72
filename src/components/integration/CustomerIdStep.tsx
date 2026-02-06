@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, XCircle, Info, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle2, XCircle, Info, HelpCircle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IntegrationInfo {
@@ -113,12 +114,23 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
 
       {/* Success state */}
       {verificationState === "success" && customerName && (
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-          <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-medium text-green-400">Customer verified</p>
-            <p className="text-sm text-green-400/80 mt-1">{customerName}</p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-green-400">Customer verified</p>
+              <p className="text-sm text-green-400/80 mt-1">{customerName}</p>
+            </div>
           </div>
+          
+          {/* Continue button */}
+          <Button 
+            className="w-full group" 
+            onClick={handleContinue}
+          >
+            Fortsett
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
         </div>
       )}
 
