@@ -1,185 +1,198 @@
 
 
-# Implementasjon: Redigering av risikoscenario med visuell matrise og suksess-tilbakemelding
+# Plan: Forbedret arbeidsområde-opprettelse med system/eiendel-valg og AI-forslag
 
 ## Oppsummering
 
-Denne planen implementerer en komplett brukerflyt for redigering av risikoscenarioer med:
-1. **Visuell risikomatrise** som erstatter de tekstbaserte badge-indikatorene
-2. **Redigerbar dialog** for å endre scenariodetaljer og tiltaksstatus
-3. **Suksess-dialog med konfetti** som bekrefter risikoreduksjon
+Når et nytt arbeidsområde opprettes, skal brukeren umiddelbart bli guidet til å legge til systemer/eiendeler. Dette er kritisk for:
+1. Å generere relevante prosessforslag via AI
+2. Sikre at prosesser har koblet kontekst fra start
+3. Forbedre onboarding-opplevelsen
 
 ---
 
-## Del 1: Ny database-tabell for prosess-risikoscenarioer
+## Nåværende flyt vs. ny flyt
 
-Oppretter en dedikert tabell for å lagre risikoscenarioer knyttet til prosesser:
-
-```sql
-CREATE TABLE process_risk_scenarios (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  process_id UUID NOT NULL REFERENCES system_processes(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT,
-  frameworks TEXT[] DEFAULT '{}',
-  likelihood TEXT DEFAULT 'medium',
-  consequence TEXT DEFAULT 'medium',
-  risk_level TEXT DEFAULT 'medium',
-  mitigation TEXT,
-  mitigation_owner TEXT,
-  mitigation_status TEXT DEFAULT 'not_started',
-  previous_risk_level TEXT,
-  risk_reduced_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
+| Nåværende | Ny |
+|-----------|-----|
+| Arbeidsområde opprettes → Ferdig | Arbeidsområde opprettes → Steg 5 viser AI-foreslåtte systemer → Bruker velger → (Valgfritt) Prosessforslag → Ferdig |
+| Steg 5 sier "systemer kan kobles senere" | Steg 5 viser interaktiv liste med AI-foreslåtte og mal-baserte systemer |
+| Ingen kobling mellom opprettelse og innhold | Komplett flyt fra arbeidsområde → systemer → prosesser |
 
 ---
 
-## Del 2: Visuell risikomatrise-komponent
+## Del 1: Ny edge-funksjon for å foreslå systemer til arbeidsområde
 
-Ny komponent `RiskMatrixVisual.tsx` som viser en interaktiv 5x5 matrise:
+Lager en ny `suggest-work-area-assets` edge-funksjon som:
+- Tar inn `work_area_name` og `work_area_description`
+- Henter company profile for bransje-kontekst
+- Kombinerer `system_templates` med AI-genererte forslag
+- Returnerer relevante systemer/eiendeler
 
 ```text
-                       KONSEKVENS
-                  Lav   Mod   Høy   Kritisk
-         Kritisk  [M]   [H]   [K]   [K]
-SANNSYNLIGHET  
-         Høy     [M]   [H]   [K]   [K]
-         Moderat [L]   [M]   [H]   [K]   <-- Nåværende posisjon markert
-         Lav     [L]   [L]   [M]   [H]
+Input: { work_area_name: "HR og personal", description: "..." }
+
+Output: {
+  template_assets: [  // Fra system_templates
+    { name: "HR-system", vendor: null, has_ai: true, ... },
+    { name: "Rekrutteringsportal", vendor: null, has_ai: true, ... }
+  ],
+  ai_suggestions: [   // AI-generert basert på kontekst
+    { name: "BambooHR", vendor: "BambooHR", reason: "...", ... }
+  ]
+}
 ```
 
-**Funksjoner:**
-- Interaktiv klikking for å velge sannsynlighet/konsekvens
-- Markert celle viser nåværende risiko
-- Fargekodet etter risikonivå (grønn, gul, oransje, rød)
-- Animert overgang når risiko endres
-
 ---
 
-## Del 3: EditRiskScenarioDialog
+## Del 2: Oppdatert AddWorkAreaDialog - Steg 5
 
-Dialog med tre seksjoner:
+Erstatter nåværende placeholder i steg 5 med:
 
-**Seksjon A - Scenario-detaljer:**
-- Tittel (input)
-- Beskrivelse (textarea)
-- Rammeverk (multi-select badges)
-
-**Seksjon B - Risikoanalyse (visuell matrise):**
-- Interaktiv risikomatrise
-- Beregnet risikonivå vises automatisk
-- Før/etter-visning når status endres
-
-**Seksjon C - Tiltak:**
-- Tiltak-beskrivelse (textarea)
-- Tiltaksansvarlig (input)
-- Status (dropdown: Ikke håndtert, Under arbeid, Håndtert)
-
----
-
-## Del 4: RiskReductionSuccessDialog
-
-Suksess-dialog som vises når risiko reduseres:
+**Ny komponent: `WorkAreaSystemsStep`**
 
 ```text
 +--------------------------------------------------+
-|           [Checkmark i grønn sirkel]             |
+| Velg systemer for [Arbeidsområdenavn]            |
 |                                                  |
-|              Godt jobbet!                        |
+| [Loader / Sparkles] Lara foreslår...             |
 |                                                  |
-|    Risikoen er redusert fra HØY til AKSEPTABEL   |
+| ─── Foreslåtte systemer (fra maler) ───          |
+| [✓] HR-system                     [AI] [Mal]     |
+| [✓] Rekrutteringsportal           [AI] [Mal]     |
+| [ ] Kompetansesystem              [AI] [Mal]     |
 |                                                  |
-|    [Rød badge] ───────> [Grønn badge]           |
+| ─── AI-forslag basert på din bransje ───         |
+| [ ] BambooHR                      [AI] [Foreslått]|
+| [ ] Workday                            [Foreslått]|
 |                                                  |
-|    Tiltak implementert:                          |
-|    "Logghygiene: dataminimering..."              |
-|                                                  |
-|    Påvirker samsvar med:                         |
-|    [GDPR] [ISO27001] [NIS2]                      |
-|                                                  |
-|                [Lukk]                            |
+| [Hopp over] [Neste: Legg til valgte (3)]        |
 +--------------------------------------------------+
 ```
 
-**Funksjoner:**
-- Konfetti-effekt ved åpning
-- Visuell overgang fra gammel til ny risiko
-- Viser implementert tiltak
-- Liste over påvirkede rammeverk
+**Funksjonalitet:**
+- Automatisk pre-select systemer fra `system_templates` som matcher arbeidsområde-navnet
+- Vis AI-forslag fra ny edge-funksjon
+- Vis AI-badge for systemer med `has_ai: true`
+- Mulighet for å hoppe over (systemer kan fortsatt legges til senere)
 
 ---
 
-## Del 5: Oppdatert ProcessRiskTab
+## Del 3: Automatisk opprettelse av systemer/assets
 
-Endringer i eksisterende komponent:
+Når brukeren klikker "Neste" eller "Opprett":
 
-1. **Erstatter mock-data** med database-spørring via `useQuery`
-2. **Kobler Edit-knappen** til `EditRiskScenarioDialog`
-3. **Legger til visuell matrise** i analyse-seksjonen i stedet for bare badges
-4. **Legger til "Vis detaljer"-lenke** som ekspanderer scenariokortet
-5. **Kobler "Endre"-knappen** nederst til dialogen
+1. **Opprett arbeidsområdet** i `work_areas` tabellen
+2. **Opprett valgte systemer** i `systems` tabellen med `work_area_id`
+3. **Eller opprett som assets** i `assets` tabellen (for lokasjoner, nettverk etc.)
+4. **Oppdater onboarding-progress** med `systems_added: true`
 
 ---
 
-## Fil-oversikt
+## Del 4: Valgfritt neste steg - Prosessforslag
+
+Etter at systemer er lagt til, kan vi tilby:
+
+```text
++--------------------------------------------------+
+| [Sparkles] Lara kan foreslå prosesser            |
+|                                                  |
+| Basert på de valgte systemene kan Lara foreslå   |
+| prosesser som:                                   |
+| • Ansettelsesprosess (HR-system)                 |
+| • Onboarding av nyansatte (HR, Kompetanse)       |
+| • Rekruttering (Rekrutteringsportal)             |
+|                                                  |
+| [Hopp over] [Få prosessforslag fra Lara]        |
++--------------------------------------------------+
+```
+
+Dette trinnet er valgfritt og kan hoppe rett til bekreftelse.
+
+---
+
+## Del 5: Fil-endringer
 
 | Fil | Handling |
 |-----|----------|
-| `src/components/process/RiskMatrixVisual.tsx` | Ny - Visuell 5x5 risikomatrise |
-| `src/components/dialogs/EditRiskScenarioDialog.tsx` | Ny - Redigeringsdialog |
-| `src/components/dialogs/RiskReductionSuccessDialog.tsx` | Ny - Suksess-tilbakemelding |
-| `src/components/process/tabs/ProcessRiskTab.tsx` | Oppdatert - Integrerer nye komponenter og matrise |
-| Database-migrering | Ny tabell `process_risk_scenarios` |
+| `supabase/functions/suggest-work-area-assets/index.ts` | Ny - Edge-funksjon for AI-forslag |
+| `src/components/dialogs/AddWorkAreaDialog.tsx` | Oppdatert - Steg 5 med asset-velger |
+| `src/components/dialogs/WorkAreaSystemsStep.tsx` | Ny - Komponent for system-valg |
+| `src/components/dialogs/WorkAreaProcessSuggestionStep.tsx` | Ny - Valgfritt prosessforslag-steg |
 
 ---
 
-## Teknisk detaljer
+## Tekniske detaljer
 
-### Risikoberegning
+### Edge-funksjon: suggest-work-area-assets
 
 ```typescript
-const calculateRiskLevel = (likelihood: string, consequence: string): string => {
-  const matrix: Record<string, Record<string, string>> = {
-    low: { low: 'acceptable', medium: 'low', high: 'medium', critical: 'high' },
-    medium: { low: 'low', medium: 'medium', high: 'high', critical: 'critical' },
-    high: { low: 'medium', medium: 'high', high: 'critical', critical: 'critical' },
-    critical: { low: 'high', medium: 'critical', high: 'critical', critical: 'critical' }
-  };
-  return matrix[likelihood]?.[consequence] || 'medium';
-};
+// Input
+{ 
+  work_area_name: string,
+  work_area_description?: string 
+}
+
+// Output
+{
+  template_assets: SystemTemplate[],  // Fra system_templates
+  ai_suggestions: AssetSuggestion[], // AI-generert
+  work_area_type: string             // Matchet mal-type
+}
 ```
 
-### Automatisk risikoreduksjon
+**Logikk:**
+1. Hent `system_templates` hvor `work_area_type` matcher (fuzzy match på navn)
+2. Hent `company_profile` for bransje
+3. Kall AI for å foreslå flere relevante systemer
+4. Filtrer ut duplikater og returner kombinert liste
 
-Når `mitigation_status` settes til `completed`:
-- Systemet foreslår å redusere sannsynlighet med ett nivå
-- Beregner ny risiko
-- Lagrer `previous_risk_level` for historikk
-- Setter `risk_reduced_at` til nåværende tidspunkt
-- Viser suksess-dialog med konfetti
+### WorkAreaSystemsStep-komponent
 
-### RLS-policy
+```typescript
+interface WorkAreaSystemsStepProps {
+  workAreaName: string;
+  workAreaDescription: string;
+  onSystemsSelected: (systems: SelectedSystem[]) => void;
+  onSkip: () => void;
+}
 
-```sql
-ALTER TABLE process_risk_scenarios ENABLE ROW LEVEL SECURITY;
+interface SelectedSystem {
+  name: string;
+  description: string | null;
+  vendor: string | null;
+  has_ai: boolean;
+  source: "template" | "ai_suggestion" | "manual";
+}
+```
 
-CREATE POLICY "Allow all access to process_risk_scenarios"
-ON process_risk_scenarios FOR ALL
-USING (true)
-WITH CHECK (true);
+### Endring i AddWorkAreaDialog flyt
+
+```text
+Steg 1: Navn + Kontaktperson
+Steg 2: Beskrivelse
+Steg 3: Ansvarlig person
+Steg 4: Innstillinger
+Steg 5: Velg systemer/eiendeler [NY FUNKSJONALITET]
+Steg 6: Bekreftelse (oppsummering inkl. valgte systemer)
 ```
 
 ---
 
 ## Brukeropplevelse
 
-1. **Klikk "Endre"** på risikokort
-2. **Dialog åpnes** med visuell matrise og skjema
-3. **Endre status** til "Håndtert"
-4. **Klikk "Lagre"**
-5. **Suksess-dialog** vises med konfetti og positiv melding
-6. **Risikokort oppdateres** med ny farge og status
+1. **Automatisk kontekst**: Systemer foreslås basert på arbeidsområde-navn
+2. **Ingen tvang**: Brukeren kan alltid hoppe over systemvalg
+3. **AI-markering**: Systemer med AI vises tydelig for compliance-tracking
+4. **Sømløs overgang**: Valgte systemer opprettes automatisk
+5. **Prosessforslag klar**: Med systemer på plass kan prosessforslag genereres umiddelbart
+
+---
+
+## Oppsummering av leveranser
+
+1. **Ny edge-funksjon**: `suggest-work-area-assets` for intelligent forslag
+2. **Ny komponent**: `WorkAreaSystemsStep` for interaktiv systemvelger
+3. **Oppdatert dialog**: `AddWorkAreaDialog` med funksjonelt steg 5
+4. **Forbedret flyt**: Fra tomme arbeidsområder til komplett struktur
 
