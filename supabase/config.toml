@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.fetch-7security-data]
 verify_jwt = false
+
+[functions.suggest-work-area-assets]
+verify_jwt = false
