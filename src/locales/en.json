@@ -875,5 +875,185 @@
     "weRecommend": "we recommend",
     "recommendedForYou": "Recommended for you",
     "learnMore": "Learn more about this recommendation"
+  },
+  "chat": {
+    "welcome": {
+      "greeting": "Hi! I'm Lara 👋",
+      "description": "I help you with Privacy, Information Security and AI Governance"
+    },
+    "onboarding": {
+      "title": "ISO Preparation",
+      "remaining": "remaining",
+      "stepsCompleted": "{{completed}} of {{total}} steps completed",
+      "hideOnboarding": "Hide onboarding"
+    },
+    "complete": {
+      "title": "Setup complete! 🎉",
+      "description": "You're ready to explore"
+    },
+    "suggestions": {
+      "title": "Suggestions",
+      "default": {
+        "addAssets": "Add assets from external sources",
+        "checkCompliance": "Check compliance status for our systems",
+        "showRisks": "Show risk assessments that need follow-up",
+        "missingDocs": "Which assets are missing documentation?"
+      },
+      "protocols": {
+        "tableView": "Show in table format",
+        "titlesOnly": "Show titles only",
+        "highRisk": "Filter by high risk",
+        "missingDpa": "Show protocols missing DPA"
+      },
+      "systems": {
+        "tableView": "Show in table format",
+        "namesOnly": "Show names only",
+        "highRisk": "Filter by high risk",
+        "showVendors": "Show third parties for systems"
+      },
+      "thirdParties": {
+        "missingTia": "Missing Transfer Impact Assessment?",
+        "generateTia": "Generate TIA for third parties",
+        "tableView": "Show in table format",
+        "noDpa": "Show only those without DPA"
+      },
+      "tasks": {
+        "listView": "Show in list",
+        "groupPriority": "Group by priority",
+        "titlesOnly": "Show titles only",
+        "aiHandled": "Filter by AI-handled"
+      },
+      "deviations": {
+        "openDeviations": "Show open deviations",
+        "criticalFilter": "Filter by critical deviations",
+        "lastMonth": "Show deviations from last month",
+        "missingPlan": "Which deviations are missing action plan?"
+      },
+      "compliance": {
+        "showStatus": "Show compliance status",
+        "missingDocs": "Which requirements are missing documentation?",
+        "gdprStatus": "Show GDPR status",
+        "generateReport": "Generate compliance report"
+      }
+    },
+    "thinking": "Thinking",
+    "thinkingWithTime": "Thought for {{time}}s",
+    "input": {
+      "placeholder": "Ask, search or request help...",
+      "uploadDocument": "Upload document"
+    },
+    "menu": {
+      "goToDashboard": "Go to dashboard",
+      "newConversation": "New conversation",
+      "additionalModules": "Additional modules",
+      "undoLastMessage": "Undo last message",
+      "shareConversation": "Share conversation",
+      "gapAnalysis": "Gap Analysis",
+      "riskAssessment": "Risk Assessment",
+      "complianceReport": "Compliance Report (ISO 27001)",
+      "integrations": "Integrations"
+    },
+    "feedback": {
+      "helpful": "Thanks for your feedback! 👍",
+      "helpfulDesc": "Great that the answer was useful!",
+      "notHelpful": "We're working to improve the answer 👎",
+      "notHelpfulDesc": "Thanks for the feedback, we'll use it to improve Lara."
+    },
+    "undo": {
+      "title": "Undone",
+      "description": "Last message has been removed"
+    },
+    "newChat": {
+      "title": "New conversation",
+      "description": "Conversation has been reset"
+    },
+    "share": {
+      "title": "Share conversation",
+      "description": "Share this conversation with other users or external persons via email.",
+      "shareType": "Share type",
+      "internal": "Internal user (within the organization)",
+      "external": "External person",
+      "email": "Email address",
+      "emailPlaceholder": "name@example.com",
+      "sharing": "Sharing...",
+      "shared": "Conversation shared",
+      "sharedDesc": "Conversation has been shared with {{email}}",
+      "errors": {
+        "enterEmail": "Please enter an email address",
+        "invalidEmail": "Please enter a valid email address",
+        "failed": "Could not share conversation. Try again later."
+      }
+    },
+    "upload": {
+      "title": "Upload document",
+      "description": "Upload documents for automatic compliance analysis",
+      "uploading": "Uploading...",
+      "clickToSelect": "Click to select file",
+      "orDragDrop": "or drag and drop",
+      "fileTypes": "PDF, Word, Excel or text files",
+      "wait": "Wait...",
+      "success": "Document uploaded",
+      "successDesc": "{{name}} has been uploaded and is ready for analysis",
+      "failed": "Upload failed",
+      "loginRequired": "You must be logged in to upload files"
+    },
+    "shop": {
+      "title": "Additional modules for compliance and reporting",
+      "description": "Extend the system with AI-powered reporting modules in accordance with ISO 27001/27002/27004",
+      "sustainability": {
+        "title": "Sustainability Reporting",
+        "standard": "ISO 14001 / CSRD",
+        "feature1": "AI-generated environmental and climate reporting",
+        "feature2": "Automatic tracking data for CO2, energy, waste",
+        "feature3": "CSRD and GRI compliance"
+      },
+      "transparency": {
+        "title": "Transparency Act",
+        "standard": "Human Rights",
+        "feature1": "AI analysis of supply chains",
+        "feature2": "Due diligence assessments",
+        "feature3": "Transparency Act §4 and §5 reports"
+      },
+      "hse": {
+        "title": "HSE Reporting",
+        "standard": "ISO 45001",
+        "feature1": "Health, environment and safety reports",
+        "feature2": "Workplace risk assessments",
+        "feature3": "Deviation reporting and action plans"
+      },
+      "monitoring": {
+        "title": "Measurement and Monitoring",
+        "standard": "ISO 27004",
+        "feature1": "KPI dashboards for security controls",
+        "feature2": "Effectiveness measurement of measures",
+        "feature3": "Trend analysis and improvement indicators"
+      },
+      "antiCorruption": {
+        "title": "Anti-corruption",
+        "standard": "ISO 37001",
+        "feature1": "Corruption risk assessment",
+        "feature2": "Due diligence on business partners",
+        "feature3": "Compliance controls and whistleblowing system"
+      },
+      "continuity": {
+        "title": "Continuity Planning",
+        "standard": "ISO 22301",
+        "feature1": "Business continuity plans",
+        "feature2": "BIA - Business Impact Analysis",
+        "feature3": "Recovery strategies and exercises"
+      },
+      "buyModule": "Buy module",
+      "footer": "All modules include AI agents that automate reporting and compliance."
+    },
+    "prompts": {
+      "gapAnalysis": "What type of gap analysis do you want? Present alternatives I can choose from.",
+      "riskAssessment": "Perform risk assessment for our systems and processes",
+      "complianceReport": "Create a detailed ISO 27001 compliance report. Include executive summary, gap analysis per control area with status indicators, risk assessment and prioritized action plan.",
+      "analyzeDocument": "Analyze the document {{name}} for compliance and privacy content"
+    },
+    "integrationsToast": {
+      "title": "System Integrations",
+      "description": "Connect to external systems"
+    }
   }
 }

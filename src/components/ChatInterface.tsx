@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -60,53 +61,53 @@ type SuggestionContext = "default" | "protocols" | "systems" | "third-parties" |
 type SuggestionType = "view" | "action" | "warning";
 
 interface Suggestion {
-  text: string;
+  textKey: string;
   type: SuggestionType;
   icon?: React.ComponentType<{ className?: string }>;
 }
 
 const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
-    { text: "Legg til eiendeler fra eksterne kilder", type: "action", icon: Database },
-    { text: "Sjekk compliance-status for våre systemer", type: "view", icon: Shield },
-    { text: "Vis risikovurderinger som trenger oppfølging", type: "warning", icon: AlertTriangle },
-    { text: "Hvilke assets mangler dokumentasjon?", type: "action", icon: Search }
+    { textKey: "chat.suggestions.default.addAssets", type: "action", icon: Database },
+    { textKey: "chat.suggestions.default.checkCompliance", type: "view", icon: Shield },
+    { textKey: "chat.suggestions.default.showRisks", type: "warning", icon: AlertTriangle },
+    { textKey: "chat.suggestions.default.missingDocs", type: "action", icon: Search }
   ],
   protocols: [
-    { text: "Vis i tabellformat", type: "view", icon: FileText },
-    { text: "Vis bare titler", type: "view", icon: ListTodo },
-    { text: "Filtrer på høy risiko", type: "view", icon: AlertTriangle },
-    { text: "Vis protokoller som mangler DPA", type: "warning", icon: AlertTriangle }
+    { textKey: "chat.suggestions.protocols.tableView", type: "view", icon: FileText },
+    { textKey: "chat.suggestions.protocols.titlesOnly", type: "view", icon: ListTodo },
+    { textKey: "chat.suggestions.protocols.highRisk", type: "view", icon: AlertTriangle },
+    { textKey: "chat.suggestions.protocols.missingDpa", type: "warning", icon: AlertTriangle }
   ],
   systems: [
-    { text: "Vis i tabellformat", type: "view", icon: FileText },
-    { text: "Vis bare navnene", type: "view", icon: ListTodo },
-    { text: "Filtrer på høy risiko", type: "view", icon: AlertTriangle },
-    { text: "Vis tredjeparter for systemene", type: "view", icon: Database }
+    { textKey: "chat.suggestions.systems.tableView", type: "view", icon: FileText },
+    { textKey: "chat.suggestions.systems.namesOnly", type: "view", icon: ListTodo },
+    { textKey: "chat.suggestions.systems.highRisk", type: "view", icon: AlertTriangle },
+    { textKey: "chat.suggestions.systems.showVendors", type: "view", icon: Database }
   ],
   "third-parties": [
-    { text: "Mangler det Transfer Impact Assessment?", type: "warning", icon: AlertTriangle },
-    { text: "Generer TIA for tredjeparter", type: "action", icon: FileCheck },
-    { text: "Vis i tabellformat", type: "view", icon: FileText },
-    { text: "Vis kun de uten DPA", type: "view", icon: Search }
+    { textKey: "chat.suggestions.thirdParties.missingTia", type: "warning", icon: AlertTriangle },
+    { textKey: "chat.suggestions.thirdParties.generateTia", type: "action", icon: FileCheck },
+    { textKey: "chat.suggestions.thirdParties.tableView", type: "view", icon: FileText },
+    { textKey: "chat.suggestions.thirdParties.noDpa", type: "view", icon: Search }
   ],
   tasks: [
-    { text: "Vis i liste", type: "view", icon: ListTodo },
-    { text: "Grupér etter prioritet", type: "view", icon: FileText },
-    { text: "Vis bare titler", type: "view", icon: ListTodo },
-    { text: "Filtrer på AI-håndterte", type: "view", icon: Zap }
+    { textKey: "chat.suggestions.tasks.listView", type: "view", icon: ListTodo },
+    { textKey: "chat.suggestions.tasks.groupPriority", type: "view", icon: FileText },
+    { textKey: "chat.suggestions.tasks.titlesOnly", type: "view", icon: ListTodo },
+    { textKey: "chat.suggestions.tasks.aiHandled", type: "view", icon: Zap }
   ],
   deviations: [
-    { text: "Vis åpne avvik", type: "view", icon: AlertTriangle },
-    { text: "Filtrer på kritiske avvik", type: "view", icon: AlertTriangle },
-    { text: "Vis avvik siste måned", type: "view", icon: Search },
-    { text: "Hvilke avvik mangler tiltaksplan?", type: "warning", icon: AlertTriangle }
+    { textKey: "chat.suggestions.deviations.openDeviations", type: "view", icon: AlertTriangle },
+    { textKey: "chat.suggestions.deviations.criticalFilter", type: "view", icon: AlertTriangle },
+    { textKey: "chat.suggestions.deviations.lastMonth", type: "view", icon: Search },
+    { textKey: "chat.suggestions.deviations.missingPlan", type: "warning", icon: AlertTriangle }
   ],
   compliance: [
-    { text: "Vis compliance-status", type: "view", icon: FileCheck },
-    { text: "Hvilke krav mangler dokumentasjon?", type: "warning", icon: AlertTriangle },
-    { text: "Vis GDPR-status", type: "view", icon: Shield },
-    { text: "Generer compliance-rapport", type: "action", icon: FileText }
+    { textKey: "chat.suggestions.compliance.showStatus", type: "view", icon: FileCheck },
+    { textKey: "chat.suggestions.compliance.missingDocs", type: "warning", icon: AlertTriangle },
+    { textKey: "chat.suggestions.compliance.gdprStatus", type: "view", icon: Shield },
+    { textKey: "chat.suggestions.compliance.generateReport", type: "action", icon: FileText }
   ]
 };
 
@@ -127,7 +128,8 @@ function EmptyStateWelcome({
   totalCount,
   percentComplete,
   isOnboardingDismissed,
-  onDismissOnboarding
+  onDismissOnboarding,
+  t
 }: { 
   onSuggestionClick: (text: string) => void;
   suggestions: Suggestion[];
@@ -139,6 +141,7 @@ function EmptyStateWelcome({
   percentComplete: number;
   isOnboardingDismissed: boolean;
   onDismissOnboarding: () => void;
+  t: (key: string, options?: any) => string;
 }) {
   const getStepIcon = (iconName: string) => {
     const Icon = stepIcons[iconName] || Building2;
@@ -162,10 +165,10 @@ function EmptyStateWelcome({
           aria-hidden="true"
         />
         <h2 className="text-lg font-medium text-foreground mb-1 text-center">
-          Hei! Jeg er Lara 👋
+          {t("chat.welcome.greeting")}
         </h2>
         <p className="text-base text-muted-foreground text-center max-w-xs">
-          Jeg hjelper deg med Personvern, informasjonssikkerhet og AI Governance
+          {t("chat.welcome.description")}
         </p>
       </div>
 
@@ -175,16 +178,16 @@ function EmptyStateWelcome({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" aria-hidden="true" />
-              <span className="text-base font-medium text-foreground">ISO-klargjøring</span>
+              <span className="text-base font-medium text-foreground">{t("chat.onboarding.title")}</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-sm">
-                {remainingSteps} gjenstår
+                {remainingSteps} {t("chat.onboarding.remaining")}
               </Badge>
               <button
                 onClick={onDismissOnboarding}
                 className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                aria-label="Skjul onboarding"
+                aria-label={t("chat.onboarding.hideOnboarding")}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -200,7 +203,7 @@ function EmptyStateWelcome({
               />
             </div>
             <p className="text-sm text-muted-foreground mt-1.5">
-              {completedCount} av {totalCount} steg fullført
+              {t("chat.onboarding.stepsCompleted", { completed: completedCount, total: totalCount })}
             </p>
           </div>
 
@@ -265,29 +268,30 @@ function EmptyStateWelcome({
             <Check className="h-5 w-5 text-success-foreground" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-base font-medium text-foreground">Oppsett fullført! 🎉</p>
-            <p className="text-sm text-muted-foreground">Du er klar til å utforske</p>
+            <p className="text-base font-medium text-foreground">{t("chat.complete.title")}</p>
+            <p className="text-sm text-muted-foreground">{t("chat.complete.description")}</p>
           </div>
         </div>
       )}
       
       {/* Suggestions */}
       <div className="flex-1" />
-      <nav className="w-full space-y-2 pb-3 px-2" aria-label="Forslag">
-        <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">Forslag</p>
+      <nav className="w-full space-y-2 pb-3 px-2" aria-label={t("chat.suggestions.title")}>
+        <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">{t("chat.suggestions.title")}</p>
         {suggestions.slice(0, 3).map((suggestion, i) => {
           const Icon = suggestion.icon;
+          const text = t(suggestion.textKey);
           return (
             <button
               key={i}
-              onClick={() => onSuggestionClick(suggestion.text)}
+              onClick={() => onSuggestionClick(text)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-all text-left group"
             >
               {Icon && (
                 <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
               )}
               <span className="text-sm text-foreground group-hover:text-primary transition-colors">
-                {suggestion.text}
+                {text}
               </span>
             </button>
           );
@@ -305,6 +309,7 @@ interface ChatInterfacePropsExtended extends ChatInterfaceProps {
 }
 
 export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo, pendingMessage, onPendingMessageSent }: ChatInterfacePropsExtended) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -414,10 +419,10 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     }));
     
     toast({
-      title: feedbackType === "up" ? "Takk for tilbakemeldingen! 👍" : "Vi jobber med å forbedre svaret 👎",
+      title: feedbackType === "up" ? t("chat.feedback.helpful") : t("chat.feedback.notHelpful"),
       description: feedbackType === "up" 
-        ? "Flott at svaret var nyttig!" 
-        : "Takk for tilbakemeldingen, vi bruker den til å forbedre Lara.",
+        ? t("chat.feedback.helpfulDesc") 
+        : t("chat.feedback.notHelpfulDesc"),
     });
   };
 
@@ -426,8 +431,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       setMessages(prev => prev.slice(0, -2));
       setCurrentContext("default");
       toast({
-        title: "Angret",
-        description: "Siste melding er fjernet",
+        title: t("chat.undo.title"),
+        description: t("chat.undo.description"),
       });
     }
   };
@@ -439,8 +444,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       onBackToDashboard();
     }
     toast({
-      title: "Ny samtale",
-      description: "Samtalen er tilbakestilt",
+      title: t("chat.newChat.title"),
+      description: t("chat.newChat.description"),
     });
   };
 
@@ -451,8 +456,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const handleShareSubmit = async () => {
     if (!shareEmail.trim()) {
       toast({
-        title: "Feil",
-        description: "Vennligst oppgi en e-postadresse",
+        title: t("common.error"),
+        description: t("chat.share.errors.enterEmail"),
         variant: "destructive",
       });
       return;
@@ -461,8 +466,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(shareEmail)) {
       toast({
-        title: "Feil",
-        description: "Vennligst oppgi en gyldig e-postadresse",
+        title: t("common.error"),
+        description: t("chat.share.errors.invalidEmail"),
         variant: "destructive",
       });
       return;
@@ -474,8 +479,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
-        title: "Samtale delt",
-        description: `Samtalen er delt med ${shareEmail}`,
+        title: t("chat.share.shared"),
+        description: t("chat.share.sharedDesc", { email: shareEmail }),
       });
 
       setShareDialogOpen(false);
@@ -483,8 +488,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       setShareType("internal");
     } catch (error) {
       toast({
-        title: "Feil",
-        description: "Kunne ikke dele samtalen. Prøv igjen senere.",
+        title: t("common.error"),
+        description: t("chat.share.errors.failed"),
         variant: "destructive",
       });
     } finally {
@@ -503,8 +508,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: "Feil",
-          description: "Du må være logget inn for å laste opp filer",
+          title: t("common.error"),
+          description: t("chat.upload.loginRequired"),
           variant: "destructive",
         });
         return;
@@ -539,21 +544,21 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       setUploadProgress(100);
 
       toast({
-        title: "Dokument lastet opp",
-        description: `${file.name} er lastet opp og klar for analyse`,
+        title: t("chat.upload.success"),
+        description: t("chat.upload.successDesc", { name: file.name }),
       });
 
       setUploadDialogOpen(false);
       
       setTimeout(() => {
-        handleSend(`Analyser dokumentet ${file.name} for compliance og personverninnhold`);
+        handleSend(t("chat.prompts.analyzeDocument", { name: file.name }));
       }, 500);
 
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "Opplasting feilet",
-        description: error instanceof Error ? error.message : "Kunne ikke laste opp filen",
+        title: t("chat.upload.failed"),
+        description: error instanceof Error ? error.message : t("chat.upload.failed"),
         variant: "destructive",
       });
     } finally {
@@ -855,6 +860,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             percentComplete={percentComplete}
             isOnboardingDismissed={isOnboardingDismissed}
             onDismissOnboarding={() => setIsOnboardingDismissed(true)}
+            t={t}
           />
         </div>
       ) : (
@@ -959,7 +965,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Brain className="h-4 w-4 animate-pulse" aria-hidden="true" />
                   <span className="text-sm">
-                    Tenker{currentThinkingTime > 0 ? ` (${currentThinkingTime}s)` : "..."}
+                    {t("chat.thinking")}{currentThinkingTime > 0 ? ` (${currentThinkingTime}s)` : "..."}
                   </span>
                 </div>
               </div>
@@ -972,17 +978,18 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       <div className="border-t border-border p-3">
         {/* Context-aware suggestions when not in empty state */}
         {!isEmptyState && (
-          <div className="space-y-2 mb-3" role="group" aria-label="Forslag">
+          <div className="space-y-2 mb-3" role="group" aria-label={t("chat.suggestions.title")}>
             {suggestions?.slice(0, 3).map((suggestion, i) => {
               const Icon = suggestion.icon;
+              const text = t(suggestion.textKey);
               return (
                 <button
                   key={i}
-                  onClick={() => handleSend(suggestion.text)}
+                  onClick={() => handleSend(text)}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm border border-border bg-background hover:bg-accent hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground text-left"
                 >
                   {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
-                  <span className="truncate">{suggestion.text}</span>
+                  <span className="truncate">{text}</span>
                 </button>
               );
             })}
@@ -1029,7 +1036,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                   handleSend();
                 }
               }}
-              placeholder="Spør, søk eller be om hjelp..."
+              placeholder={t("chat.input.placeholder")}
               disabled={isLoading}
               rows={1}
               className="flex-1 min-h-[40px] max-h-[120px] py-2 text-base border-0 bg-transparent focus:outline-none focus:ring-0 resize-none placeholder:text-muted-foreground/60"
