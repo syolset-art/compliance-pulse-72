@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
-import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +15,26 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Import context directly to avoid throwing when not available
+import { createContext } from "react";
+
+// We need to access the context without throwing - create a safe hook
+const GlobalChatContext = createContext<{
+  openChatWithMessage: (message: string) => void;
+} | undefined>(undefined);
+
+// Re-export the context check
+const useGlobalChatSafe = () => {
+  // Try to use the real context from GlobalChatProvider
+  try {
+    // Dynamic import to avoid circular dependency issues
+    const { useGlobalChat } = require("@/components/GlobalChatProvider");
+    return useGlobalChat();
+  } catch {
+    return null;
+  }
+};
 
 const stepIcons: Record<string, React.ElementType> = {
   'Building2': Building2,
@@ -37,7 +56,8 @@ export function OnboardingProgressWidget() {
     isLoading 
   } = useOnboardingProgress();
   
-  const { openChatWithMessage } = useGlobalChat();
+  // Use safe context access - may be null if provider not ready
+  const globalChat = useGlobalChatSafe();
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Don't show if dismissed or fully complete
@@ -55,7 +75,10 @@ export function OnboardingProgressWidget() {
     );
   }
 
+  const openChatWithMessage = globalChat?.openChatWithMessage;
+
   const handleOpenChat = () => {
+    if (!openChatWithMessage) return;
     if (nextStep) {
       const messages: Record<string, string> = {
         'company-info': 'Jeg vil legge til selskapsinformasjon',
@@ -70,6 +93,7 @@ export function OnboardingProgressWidget() {
   };
 
   const handleStepClick = (stepId: string) => {
+    if (!openChatWithMessage) return;
     const messages: Record<string, string> = {
       'company-info': 'Jeg vil oppdatere selskapsinformasjonen',
       'frameworks': 'Hjelp meg med regelverk og krav',
