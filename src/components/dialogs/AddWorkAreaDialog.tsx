@@ -19,11 +19,13 @@ import {
   UserCheck, 
   Sun,
   Sparkles,
-  Check
+  Check,
+  Server
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { WorkAreaSystemsStep } from "./WorkAreaSystemsStep";
 
 interface WorkArea {
   id: string;
@@ -37,6 +39,15 @@ interface WorkAreaTemplate {
   name: string;
   description: string | null;
   icon: string | null;
+}
+
+interface SelectedSystem {
+  name: string;
+  description: string | null;
+  vendor: string | null;
+  has_ai: boolean;
+  reason: string;
+  source: "template" | "ai_suggestion" | "manual";
 }
 
 interface AddWorkAreaDialogProps {
@@ -76,6 +87,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
   const [selectedTemplates, setSelectedTemplates] = useState<Set<string>>(new Set());
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
+  const [selectedSystems, setSelectedSystems] = useState<SelectedSystem[]>([]);
   const { toast } = useToast();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
@@ -119,6 +131,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
       setCurrentStep(0);
       setShowManualForm(false);
       setSelectedTemplates(new Set());
+      setSelectedSystems([]);
     }
   }, [open, workArea]);
 
@@ -236,6 +249,28 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
     setCurrentStep(1);
   };
 
+  const createSystemsForWorkArea = async (workAreaId: string) => {
+    if (selectedSystems.length === 0) return;
+
+    try {
+      const systemsToCreate = selectedSystems.map(system => ({
+        name: system.name,
+        description: system.description,
+        vendor: system.vendor,
+        work_area_id: workAreaId,
+        status: "active",
+        category: "system",
+      }));
+
+      const { error } = await supabase.from("systems").insert(systemsToCreate);
+      if (error) {
+        console.error("Error creating systems:", error);
+      }
+    } catch (error) {
+      console.error("Error creating systems for work area:", error);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
 
@@ -253,8 +288,18 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
           description: `${formData.name} ${t("common.success").toLowerCase()}.`,
         });
       } else {
-        const { error } = await supabase.from("work_areas").insert([formData]);
+        const { data: newWorkArea, error } = await supabase
+          .from("work_areas")
+          .insert([formData])
+          .select()
+          .single();
+          
         if (error) throw error;
+
+        // Create selected systems for the new work area
+        if (newWorkArea && selectedSystems.length > 0) {
+          await createSystemsForWorkArea(newWorkArea.id);
+        }
 
         const { data: progressData } = await supabase
           .from("onboarding_progress")
@@ -270,7 +315,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
 
         toast({
           title: t("common.success"),
-          description: `${formData.name} ${t("common.success").toLowerCase()}.`,
+          description: `${formData.name} opprettet${selectedSystems.length > 0 ? ` med ${selectedSystems.length} system${selectedSystems.length > 1 ? "er" : ""}` : ""}.`,
         });
       }
 
@@ -279,6 +324,7 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
         description: "",
         responsible_person: ""
       });
+      setSelectedSystems([]);
       setCurrentStep(1);
 
       onWorkAreaAdded();
@@ -526,17 +572,12 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
 
       case 5:
         return (
-          <div className="space-y-4">
-            <p className="text-muted-foreground">
-              Du kan legge til systemer etter at arbeidsområdet er opprettet.
-            </p>
-            <div className="p-6 rounded-lg border border-dashed border-border text-center">
-              <Users className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-sm text-muted-foreground">
-                Systemer kan kobles til arbeidsområdet fra systemoversikten.
-              </p>
-            </div>
-          </div>
+          <WorkAreaSystemsStep
+            workAreaName={formData.name}
+            workAreaDescription={formData.description}
+            selectedSystems={selectedSystems}
+            onSystemsChange={setSelectedSystems}
+          />
         );
 
       case 6:
@@ -561,6 +602,22 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
                 <span className="text-muted-foreground">Status:</span>
                 <span className="font-medium text-foreground">{isActive ? "Aktiv" : "Inaktiv"}</span>
               </div>
+              {selectedSystems.length > 0 && (
+                <div className="pt-2 border-t border-border">
+                  <div className="flex justify-between items-start">
+                    <span className="text-muted-foreground">Systemer:</span>
+                    <div className="text-right">
+                      <span className="font-medium text-foreground">
+                        {selectedSystems.length} valgt
+                      </span>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {selectedSystems.slice(0, 3).map(s => s.name).join(", ")}
+                        {selectedSystems.length > 3 && ` +${selectedSystems.length - 3} flere`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -638,22 +695,35 @@ export function AddWorkAreaDialog({ open, onOpenChange, onWorkAreaAdded, workAre
               >
                 Tilbake
               </Button>
-              <Button 
-                onClick={handleNext}
-                disabled={isLoading}
-                className="min-w-[100px]"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Lagrer...
-                  </>
-                ) : currentStep === TOTAL_STEPS ? (
-                  workArea ? "Oppdater" : "Opprett"
-                ) : (
-                  "Neste"
+              <div className="flex gap-2">
+                {currentStep === 5 && (
+                  <Button
+                    variant="outline"
+                    onClick={handleNext}
+                    disabled={isLoading}
+                  >
+                    Hopp over
+                  </Button>
                 )}
-              </Button>
+                <Button 
+                  onClick={handleNext}
+                  disabled={isLoading}
+                  className="min-w-[100px]"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Lagrer...
+                    </>
+                  ) : currentStep === TOTAL_STEPS ? (
+                    workArea ? "Oppdater" : "Opprett"
+                  ) : currentStep === 5 && selectedSystems.length > 0 ? (
+                    `Neste (${selectedSystems.length})`
+                  ) : (
+                    "Neste"
+                  )}
+                </Button>
+              </div>
             </>
           )}
         </div>
