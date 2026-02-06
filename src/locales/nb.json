@@ -876,5 +876,185 @@
     "weRecommend": "anbefaler vi",
     "recommendedForYou": "Anbefalt for deg",
     "learnMore": "Les mer om anbefalingen"
+  },
+  "chat": {
+    "welcome": {
+      "greeting": "Hei! Jeg er Lara 👋",
+      "description": "Jeg hjelper deg med Personvern, informasjonssikkerhet og AI Governance"
+    },
+    "onboarding": {
+      "title": "ISO-klargjøring",
+      "remaining": "gjenstår",
+      "stepsCompleted": "{{completed}} av {{total}} steg fullført",
+      "hideOnboarding": "Skjul onboarding"
+    },
+    "complete": {
+      "title": "Oppsett fullført! 🎉",
+      "description": "Du er klar til å utforske"
+    },
+    "suggestions": {
+      "title": "Forslag",
+      "default": {
+        "addAssets": "Legg til eiendeler fra eksterne kilder",
+        "checkCompliance": "Sjekk compliance-status for våre systemer",
+        "showRisks": "Vis risikovurderinger som trenger oppfølging",
+        "missingDocs": "Hvilke assets mangler dokumentasjon?"
+      },
+      "protocols": {
+        "tableView": "Vis i tabellformat",
+        "titlesOnly": "Vis bare titler",
+        "highRisk": "Filtrer på høy risiko",
+        "missingDpa": "Vis protokoller som mangler DPA"
+      },
+      "systems": {
+        "tableView": "Vis i tabellformat",
+        "namesOnly": "Vis bare navnene",
+        "highRisk": "Filtrer på høy risiko",
+        "showVendors": "Vis tredjeparter for systemene"
+      },
+      "thirdParties": {
+        "missingTia": "Mangler det Transfer Impact Assessment?",
+        "generateTia": "Generer TIA for tredjeparter",
+        "tableView": "Vis i tabellformat",
+        "noDpa": "Vis kun de uten DPA"
+      },
+      "tasks": {
+        "listView": "Vis i liste",
+        "groupPriority": "Grupér etter prioritet",
+        "titlesOnly": "Vis bare titler",
+        "aiHandled": "Filtrer på AI-håndterte"
+      },
+      "deviations": {
+        "openDeviations": "Vis åpne avvik",
+        "criticalFilter": "Filtrer på kritiske avvik",
+        "lastMonth": "Vis avvik siste måned",
+        "missingPlan": "Hvilke avvik mangler tiltaksplan?"
+      },
+      "compliance": {
+        "showStatus": "Vis compliance-status",
+        "missingDocs": "Hvilke krav mangler dokumentasjon?",
+        "gdprStatus": "Vis GDPR-status",
+        "generateReport": "Generer compliance-rapport"
+      }
+    },
+    "thinking": "Tenker",
+    "thinkingWithTime": "Tenkte {{time}}s",
+    "input": {
+      "placeholder": "Spør, søk eller be om hjelp...",
+      "uploadDocument": "Last opp dokument"
+    },
+    "menu": {
+      "goToDashboard": "Gå til dashboard",
+      "newConversation": "Ny samtale",
+      "additionalModules": "Tilleggsmoduler",
+      "undoLastMessage": "Angre siste melding",
+      "shareConversation": "Del samtale",
+      "gapAnalysis": "Gap Analyse",
+      "riskAssessment": "Risikovurdering",
+      "complianceReport": "Compliance-rapport (ISO 27001)",
+      "integrations": "Integrasjoner"
+    },
+    "feedback": {
+      "helpful": "Takk for tilbakemeldingen! 👍",
+      "helpfulDesc": "Flott at svaret var nyttig!",
+      "notHelpful": "Vi jobber med å forbedre svaret 👎",
+      "notHelpfulDesc": "Takk for tilbakemeldingen, vi bruker den til å forbedre Lara."
+    },
+    "undo": {
+      "title": "Angret",
+      "description": "Siste melding er fjernet"
+    },
+    "newChat": {
+      "title": "Ny samtale",
+      "description": "Samtalen er tilbakestilt"
+    },
+    "share": {
+      "title": "Del samtale",
+      "description": "Del denne samtalen med andre brukere eller eksterne personer via e-post.",
+      "shareType": "Delingstype",
+      "internal": "Intern bruker (innad i organisasjonen)",
+      "external": "Ekstern person",
+      "email": "E-postadresse",
+      "emailPlaceholder": "navn@eksempel.no",
+      "sharing": "Deler...",
+      "shared": "Samtale delt",
+      "sharedDesc": "Samtalen er delt med {{email}}",
+      "errors": {
+        "enterEmail": "Vennligst oppgi en e-postadresse",
+        "invalidEmail": "Vennligst oppgi en gyldig e-postadresse",
+        "failed": "Kunne ikke dele samtalen. Prøv igjen senere."
+      }
+    },
+    "upload": {
+      "title": "Last opp dokument",
+      "description": "Last opp dokumenter for automatisk compliance-analyse",
+      "uploading": "Laster opp...",
+      "clickToSelect": "Klikk for å velge fil",
+      "orDragDrop": "eller dra og slipp",
+      "fileTypes": "PDF, Word, Excel eller tekstfiler",
+      "wait": "Vent...",
+      "success": "Dokument lastet opp",
+      "successDesc": "{{name}} er lastet opp og klar for analyse",
+      "failed": "Opplasting feilet",
+      "loginRequired": "Du må være logget inn for å laste opp filer"
+    },
+    "shop": {
+      "title": "Tilleggsmoduler for compliance og rapportering",
+      "description": "Utvid systemet med AI-drevne rapporteringsmoduler i tråd med ISO 27001/27002/27004",
+      "sustainability": {
+        "title": "Bærekraftsrapportering",
+        "standard": "ISO 14001 / CSRD",
+        "feature1": "AI-generert miljø- og klimarapportering",
+        "feature2": "Automatisk sporingsdata for CO2, energi, avfall",
+        "feature3": "CSRD og GRI compliance"
+      },
+      "transparency": {
+        "title": "Åpenhetsloven",
+        "standard": "Menneskerettigheter",
+        "feature1": "AI-analyse av leverandørkjeder",
+        "feature2": "Aktsomhetsvurderinger",
+        "feature3": "Åpenhetsloven §4 og §5 rapporter"
+      },
+      "hse": {
+        "title": "HMS-rapportering",
+        "standard": "ISO 45001",
+        "feature1": "Helse, miljø og sikkerhetsrapporter",
+        "feature2": "Risikovurdering av arbeidsplasser",
+        "feature3": "Avviksrapportering og tiltaksplaner"
+      },
+      "monitoring": {
+        "title": "Måling og Monitoring",
+        "standard": "ISO 27004",
+        "feature1": "KPI-dashboards for sikkerhetskontroller",
+        "feature2": "Måling av effektivitet av tiltak",
+        "feature3": "Trendanalyse og forbedringsindikatorer"
+      },
+      "antiCorruption": {
+        "title": "Anti-korrupsjon",
+        "standard": "ISO 37001",
+        "feature1": "Korrupsjonsrisikovurdering",
+        "feature2": "Due diligence på forretningspartnere",
+        "feature3": "Compliance-kontroller og varslingssystem"
+      },
+      "continuity": {
+        "title": "Kontinuitetsplanlegging",
+        "standard": "ISO 22301",
+        "feature1": "Forretningskontinuitetsplaner",
+        "feature2": "BIA - Business Impact Analysis",
+        "feature3": "Gjenopprettingsstrategier og øvelser"
+      },
+      "buyModule": "Kjøp modul",
+      "footer": "Alle moduler inkluderer AI-agenter som automatiserer rapportering og overholdelse."
+    },
+    "prompts": {
+      "gapAnalysis": "Hvilken type gap-analyse ønsker du? Presenter alternativer jeg kan velge.",
+      "riskAssessment": "Utfør risikovurdering for våre systemer og behandlinger",
+      "complianceReport": "Lag en detaljert ISO 27001 compliance-rapport. Inkluder executive summary, gap-analyse per kontrollområde med status-indikatorer, risikovurdering og prioritert handlingsplan.",
+      "analyzeDocument": "Analyser dokumentet {{name}} for compliance og personverninnhold"
+    },
+    "integrationsToast": {
+      "title": "Systemintegrasjoner",
+      "description": "Koble til eksterne systemer"
+    }
   }
 }
