@@ -262,7 +262,20 @@
         "privacy": "Privacy",
         "security": "Information Security",
         "ai": "AI Governance"
-      }
+      },
+      "standards": {
+        "privacy": "GDPR (EU) 2016/679",
+        "security": "ISO/IEC 27001:2022",
+        "ai": "EU AI Act (2024/1689)"
+      },
+      "addComment": "Add comment",
+      "saveComment": "Save",
+      "markComplete": "Mark as complete",
+      "category": "Category",
+      "priority": "Priority",
+      "commentPlaceholder": "Add documentation or notes...",
+      "savedSuccess": "Changes saved",
+      "savedSuccessDesc": "Status updated"
     }
   },
   "aiSetup": {

@@ -263,7 +263,20 @@
         "privacy": "Personvern",
         "security": "Informasjonssikkerhet",
         "ai": "AI Governance"
-      }
+      },
+      "standards": {
+        "privacy": "GDPR (EU) 2016/679",
+        "security": "ISO/IEC 27001:2022",
+        "ai": "EU AI Act (2024/1689)"
+      },
+      "addComment": "Legg til kommentar",
+      "saveComment": "Lagre",
+      "markComplete": "Merk som fullført",
+      "category": "Kategori",
+      "priority": "Prioritet",
+      "commentPlaceholder": "Legg til dokumentasjon eller notater...",
+      "savedSuccess": "Endringer lagret",
+      "savedSuccessDesc": "Status oppdatert"
     }
   },
   "aiSetup": {
