@@ -1,57 +1,33 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, Lock, Bot, TrendingUp, TrendingDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
+import { DOMAIN_STANDARDS, getMaturityLevel, MATURITY_LEVELS } from "@/lib/certificationPhases";
+import type { RequirementDomain } from "@/lib/complianceRequirementsData";
 
-interface DomainStatus {
+interface DomainConfig {
   id: string;
-  name: string;
+  domain: RequirementDomain;
   icon: React.ReactNode;
-  status: "bra" | "ok" | "lav";
-  score: number;
-  slaPercentage: number;
-  slaCurrent: number;
-  slaTotal: number;
-  trend: number;
 }
 
-const domainData: DomainStatus[] = [
-  { 
-    id: "privacy",
-    name: "Personvern", 
-    icon: <Shield className="h-4 w-4" />,
-    status: "bra", 
-    score: 82,
-    slaPercentage: 85,
-    slaCurrent: 17,
-    slaTotal: 20,
-    trend: 12
-  },
-  { 
-    id: "infosec",
-    name: "Informasjonssikkerhet", 
-    icon: <Lock className="h-4 w-4" />,
-    status: "ok", 
-    score: 68,
-    slaPercentage: 72,
-    slaCurrent: 36,
-    slaTotal: 50,
-    trend: -5
-  },
-  { 
-    id: "ai-governance",
-    name: "AI Governance", 
-    icon: <Bot className="h-4 w-4" />,
-    status: "bra", 
-    score: 78,
-    slaPercentage: 90,
-    slaCurrent: 9,
-    slaTotal: 10,
-    trend: 8
-  },
+const DOMAINS: DomainConfig[] = [
+  { id: "privacy", domain: "privacy", icon: <Shield className="h-4 w-4" /> },
+  { id: "infosec", domain: "security", icon: <Lock className="h-4 w-4" /> },
+  { id: "ai-governance", domain: "ai", icon: <Bot className="h-4 w-4" /> },
 ];
+
+const getStatusFromScore = (score: number) => {
+  if (score >= 70) return "bra";
+  if (score >= 40) return "ok";
+  return "lav";
+};
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -91,16 +67,41 @@ const getProgressColor = (status: string) => {
 
 export function StatusOverviewWidget() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isNorwegian = i18n.language === "nb";
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
-  
+  const { requirements } = useComplianceRequirements({});
+
+  const domainData = useMemo(() => {
+    return DOMAINS.map(d => {
+      const reqs = requirements.filter(r => r.domain === d.domain);
+      const total = reqs.length;
+      const completed = reqs.filter(r => r.status === 'completed').length;
+      const score = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const status = getStatusFromScore(score);
+      const maturity = getMaturityLevel(score);
+      const maturityInfo = MATURITY_LEVELS.find(m => m.level === maturity);
+      const standards = DOMAIN_STANDARDS[d.domain];
+      const domainName = d.id === "privacy" ? "Personvern" : d.id === "infosec" ? "Informasjonssikkerhet" : "AI Governance";
+
+      return {
+        ...d,
+        name: domainName,
+        status,
+        score,
+        slaTotal: total,
+        slaCurrent: completed,
+        slaPercentage: score,
+        maturityLabel: maturityInfo ? (isNorwegian ? maturityInfo.name_no : maturityInfo.name_en) : '',
+        standardLabel: standards ? `${standards.primary}` : '',
+      };
+    });
+  }, [requirements, isNorwegian]);
+
   const totalScore = Math.round(
     domainData.reduce((acc, d) => acc + d.score, 0) / domainData.length
   );
-  
-  const overallSlaPercentage = Math.round(
-    domainData.reduce((acc, d) => acc + d.slaPercentage, 0) / domainData.length
-  );
-  
+
   return (
     <Card variant="luxury">
       <CardHeader className="pb-4 pt-6 px-6">
@@ -109,9 +110,9 @@ export function StatusOverviewWidget() {
             Hvordan ligger vi an?
           </CardTitle>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">SLA-snitt:</span>
-            <span className={`text-sm font-semibold ${overallSlaPercentage >= 80 ? "text-success" : overallSlaPercentage >= 60 ? "text-warning" : "text-destructive"}`}>
-              {overallSlaPercentage}%
+            <span className="text-xs text-muted-foreground">Snitt:</span>
+            <span className={`text-sm font-semibold ${totalScore >= 70 ? "text-success" : totalScore >= 40 ? "text-warning" : "text-destructive"}`}>
+              {totalScore}%
             </span>
           </div>
         </div>
@@ -131,7 +132,12 @@ export function StatusOverviewWidget() {
                   {domain.icon}
                 </div>
                 <div className="text-left min-w-0 flex-1">
-                  <span className="text-xs sm:text-sm font-medium text-foreground">{domain.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-medium text-foreground">{domain.name}</span>
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 hidden sm:inline-flex">
+                      {domain.maturityLabel}
+                    </Badge>
+                  </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Progress 
                       value={domain.score} 
@@ -153,16 +159,15 @@ export function StatusOverviewWidget() {
               <div className="px-3 pb-3 pt-0 border-t border-border/50">
                 <div className="bg-background/50 rounded-lg p-3 mt-2">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-muted-foreground font-medium">SLA-oppnåelse</span>
-                    <div className={`flex items-center gap-1 text-xs ${domain.trend > 0 ? "text-success" : "text-destructive"}`}>
-                      {domain.trend > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      <span>{domain.trend > 0 ? "+" : ""}{domain.trend}%</span>
-                    </div>
+                    <span className="text-xs text-muted-foreground font-medium">{domain.standardLabel}</span>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {domain.maturityLabel}
+                    </Badge>
                   </div>
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-xl font-bold text-foreground">{domain.slaPercentage}%</span>
                     <span className="text-xs text-muted-foreground">
-                      {domain.slaCurrent} av {domain.slaTotal} oppgaver i tide
+                      {domain.slaCurrent} av {domain.slaTotal} krav oppfylt
                     </span>
                   </div>
                   <Progress 
@@ -175,11 +180,11 @@ export function StatusOverviewWidget() {
                     className="w-full mt-3 gap-2 text-primary hover:text-primary hover:bg-primary/10"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/tasks?domain=${domain.id}`);
+                      navigate(`/tasks?view=readiness&domain=${domain.id}`);
                     }}
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Se alle oppgaver for {domain.name}
+                    Se ISO Readiness for {domain.name}
                   </Button>
                 </div>
               </div>
@@ -192,7 +197,7 @@ export function StatusOverviewWidget() {
             Totalt: <span className="text-foreground font-semibold">{totalScore}% på plass</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            Basert på {domainData.reduce((acc, d) => acc + d.slaTotal, 0)} oppgaver
+            Basert på {domainData.reduce((acc, d) => acc + d.slaTotal, 0)} krav
           </p>
         </div>
       </CardContent>
