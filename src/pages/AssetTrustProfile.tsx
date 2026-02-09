@@ -16,6 +16,9 @@ import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagemen
 import { IncidentManagementTab } from "@/components/asset-profile/tabs/IncidentManagementTab";
 import { RelationsTab } from "@/components/asset-profile/tabs/RelationsTab";
 import { AIUsageTab } from "@/components/asset-profile/tabs/AIUsageTab";
+import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
+import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
+import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +79,7 @@ const AssetTrustProfile = () => {
     enabled: !!id,
   });
 
-  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'aiUsage', 'dataHandling', 'riskManagement', 'incidents', 'relations'];
+  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'aiUsage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'documents', 'analysis', 'benchmark'];
 
   if (isLoading) {
     return (
@@ -170,6 +173,21 @@ const AssetTrustProfile = () => {
                     {t("trustProfile.tabs.relations")}
                   </TabsTrigger>
                 )}
+                {enabledTabs.includes('documents') && (
+                  <TabsTrigger value="documents" className="data-[state=active]:bg-background">
+                    {t("trustProfile.tabs.documents")}
+                  </TabsTrigger>
+                )}
+                {enabledTabs.includes('analysis') && (
+                  <TabsTrigger value="analysis" className="data-[state=active]:bg-background">
+                    {t("trustProfile.tabs.analysis")}
+                  </TabsTrigger>
+                )}
+                {enabledTabs.includes('benchmark') && (
+                  <TabsTrigger value="benchmark" className="data-[state=active]:bg-background">
+                    {t("trustProfile.tabs.benchmark")}
+                  </TabsTrigger>
+                )}
                 <Button variant="ghost" size="sm" className="ml-auto">
                   <Plus className="h-4 w-4 mr-1" />
                   {t("trustProfile.tabs.components")}
@@ -207,6 +225,18 @@ const AssetTrustProfile = () => {
 
               <TabsContent value="relations" className="mt-6">
                 <RelationsTab assetId={asset.id} />
+              </TabsContent>
+
+              <TabsContent value="documents" className="mt-6">
+                <DocumentsTab assetId={asset.id} />
+              </TabsContent>
+
+              <TabsContent value="analysis" className="mt-6">
+                <AnalysisTab assetId={asset.id} assetName={asset.name} />
+              </TabsContent>
+
+              <TabsContent value="benchmark" className="mt-6">
+                <BenchmarkTab assetId={asset.id} assetCategory={asset.category || undefined} />
               </TabsContent>
             </Tabs>
           </div>

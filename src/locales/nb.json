@@ -11,7 +11,7 @@
     "settings": "Innstillinger",
     "trustProfile": "Tillitsprofil",
     "protocols": "ROPA",
-    "assets": "Leverandører",
+    "assets": "Tredjepartsstyring",
     "deviations": "Avviksregister",
     "reports": "Rapporter",
     "menu": "Meny",
@@ -653,7 +653,10 @@
       "riskManagement": "Revisjon og risikostyring",
       "incidents": "Hendelseshåndtering",
       "relations": "Relasjoner",
-      "components": "Komponenter"
+      "components": "Komponenter",
+      "documents": "Dokumenter",
+      "analysis": "Analyse",
+      "benchmark": "Benchmarking"
     },
     "systemTasks": "Systemoppgaver",
     "noTasks": "Ingen oppgaver funnet",
