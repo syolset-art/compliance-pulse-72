@@ -243,7 +243,27 @@
     "viewDetails": "View details",
     "requestAI": "Request AI help",
     "autonomyLevel": "Autonomy level required:",
-    "autonomyLevelDesc": "AI can handle this task"
+    "autonomyLevelDesc": "AI can handle this task",
+    "viewModes": {
+      "tasks": "Tasks",
+      "readiness": "ISO Readiness"
+    },
+    "readiness": {
+      "title": "ISO Readiness Status",
+      "subtitle": "Compliance status overview by control area",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "remaining": "Remaining",
+      "requirements": "requirements",
+      "viewDetails": "View details",
+      "hideDetails": "Hide details",
+      "more": "more",
+      "domains": {
+        "privacy": "Privacy",
+        "security": "Information Security",
+        "ai": "AI Governance"
+      }
+    }
   },
   "aiSetup": {
     "title": "AI agent configuration",

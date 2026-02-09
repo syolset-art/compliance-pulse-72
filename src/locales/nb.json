@@ -244,7 +244,27 @@
     "viewDetails": "Se detaljer",
     "requestAI": "Be AI om hjelp",
     "autonomyLevel": "Autonominivå påkrevd:",
-    "autonomyLevelDesc": "AI kan håndtere denne oppgaven"
+    "autonomyLevelDesc": "AI kan håndtere denne oppgaven",
+    "viewModes": {
+      "tasks": "Oppgaver",
+      "readiness": "ISO Readiness"
+    },
+    "readiness": {
+      "title": "ISO Readiness Status",
+      "subtitle": "Oversikt over samsvarsstatus per kontrollområde",
+      "completed": "Fullført",
+      "inProgress": "Pågår",
+      "remaining": "Gjenstår",
+      "requirements": "krav",
+      "viewDetails": "Vis detaljer",
+      "hideDetails": "Skjul detaljer",
+      "more": "flere",
+      "domains": {
+        "privacy": "Personvern",
+        "security": "Informasjonssikkerhet",
+        "ai": "AI Governance"
+      }
+    }
   },
   "aiSetup": {
     "title": "AI-agent konfigurasjon",
