@@ -1,49 +1,95 @@
 
 
-# Plan: Oppdater dashbordet for PECB-modellen
+# Plan: ISO Readiness som kjopbar tjeneste
 
-## Funn
+## Problemstilling
 
-Etter gjennomgang av dashbordet har jeg identifisert flere steder hvor den gamle modellen (flat, ustrukturert) brukes i stedet for den nye PECB-aligned modellen:
+ISO Readiness-visningen viser i dag alle tre domener (Personvern, Informasjonssikkerhet, AI Governance) som om de er inkludert for alle kunder. Men abonnementsmodellen krever at kunden aktiverer og betaler for hvert kontrollomrade. Det er ingen kobling mellom `useSubscription().isDomainIncluded()` og ISO Readiness.
 
-### 1. SLAWidget bruker hardkodet data (ikke koblet til PECB)
-`SLAWidget.tsx` har de riktige tre SLA-kategoriene (Systemer og prosesser, Organisasjon og styring, Roller og tilgang), men bruker **hardkodede tall** i stedet for data fra `useComplianceRequirements` og `certificationPhases.ts`.
+## Forretningslogikk
 
-### 2. StatusOverviewWidget har duplikat domene-data
-`StatusOverviewWidget.tsx` viser de tre domenene (Personvern, Informasjonssikkerhet, AI Governance) med egne hardkodede scores og SLA-tall. Disse bor na i ISO Readiness-modellen og tallene her er ikke synkronisert.
+### Hva bor vaere standard (gratis)?
 
-### 3. DomainComplianceWidget vises to ganger
-I desktop-layouten rendres `DomainComplianceWidget` **to ganger**: en gang som rolle-spesifikk widget (linje 286) og en gang nederst (linje 335). Den bor bare vises en gang.
+| Domene | Begrunnelse | Tilgang |
+|--------|-------------|---------|
+| **Personvern** (GDPR) | Lovpalagt for alle norske virksomheter | Alltid inkludert i Starter |
+| **Informasjonssikkerhet** (ISO 27001) | Viktigst for de fleste virksomheter, men frivillig | Inkludert i Professional, tillegg for Starter (+990 kr/mnd) |
+| **AI Governance** (ISO 42001) | Relevant kun for virksomheter som bruker/utvikler AI | Inkludert i Professional, tillegg for Starter (+790 kr/mnd) |
 
-### 4. MaturityProgressCard bruker gammel modenhetsmodell
-`MaturityProgressCard.tsx` bruker `useMaturityScore` med fire nivaaer (beginner, developing, established, mature). Den nye PECB-modellen har fem niv: Initial, Definert, Implementert, Malt, Optimalisert. Disse bor samkjores.
+### Anbefalingslogikk basert pa bransje
 
-### 5. ComplianceCard bruker gammel statisk data
-`ComplianceCard.tsx` har hardkodede samsvarskrav i stedet for a bruke den nye strukturerte dataen fra `complianceRequirementsData.ts`.
+- **SaaS / IT / Tech**: ISO 27001 anbefales sterkt, AI Governance anbefales hvis AI brukes
+- **Finans / Bank**: ISO 27001 obligatorisk i praksis, AI Governance anbefales
+- **Helse**: ISO 27001 + Personvern kritisk, AI Governance kun hvis AI-systemer
+- **Offentlig sektor**: NSM-grunnprinsipper + Personvern, ISO 27001 anbefalt
+- **Generelt/Sma bedrifter**: Personvern er nok til a starte. ISO 27001 nar kundene krever det
+
+### Sertifiseringsmal - la kunden velge
+
+Kunden bor kunne oppgi sitt **sertifiseringsmal**:
+1. "Jeg onsker a sertifiseres i ISO 27001" - aktiver Informasjonssikkerhet
+2. "Jeg onsker a sertifiseres i ISO 27701" - aktiver Personvern + Informasjonssikkerhet (27701 er utvidelse av 27001)
+3. "Jeg onsker a sertifiseres i ISO 42001" - aktiver AI Governance
+4. "Jeg vet ikke enna" - vis anbefalinger basert pa bransje
+5. "Bare GDPR-samsvar" - Personvern (gratis)
 
 ---
 
-## Endringer
+## Tekniske endringer
 
-### A. Koble SLAWidget til reelle data
+### 1. Oppdater ISOReadinessView med abonnementsstyring
 
-Oppdater `SLAWidget.tsx` til a bruke `SLACategoryBreakdown`-logikken fra ISO Readiness for a hente faktiske tall fra compliance-kravene, gruppert etter SLA-kategori.
+Hent domenestatus fra `useSubscription` og vis:
+- **Aktive domener**: Viser full readiness-visning som i dag
+- **Ikke-aktiverte domener**: Viser et "last"-kort med pris og aktiveringsknapp
+- Bruker eksisterende `DomainActivationWizard` for kjopsflyten
 
-### B. Oppdater StatusOverviewWidget med PECB-terminologi
+### 2. Legg til sertifiseringsmal-velger
 
-Legg til modenhetsniva (fra `getMaturityLevel`) og ISO-standardreferanser (fra `DOMAIN_STANDARDS`) pa hvert domenekort. Lenke "Se alle oppgaver" til ISO Readiness-visningen (`/tasks?view=readiness&domain=...`).
+Ny komponent `CertificationGoalSelector` som vises forste gang bruker apner ISO Readiness:
+- "Hva er malet ditt?" med forhands-valg
+- Anbefaler riktig domene-kombinasjon basert pa svar
+- Lagrer valg i `company_profile.certification_goals` (ny kolonne)
 
-### C. Fjern duplikat DomainComplianceWidget
+### 3. Oppdater DomainSummaryCard med lase-tilstand
 
-Fjern den andre `DomainComplianceWidget` nederst pa dashboard (linje 333-336 i desktop, linje 199-202 i mobil).
+For domener som ikke er aktivert:
+- Vis et grayed-out kort med lasikon
+- Vis pris ("Fra 790 kr/mnd")
+- "Aktiver"-knapp som apner `DomainActivationWizard`
 
-### D. Legg til CertificationJourney pa dashbordet
+### 4. Smart anbefaling i header
 
-Legg til en kompakt versjon av `CertificationJourney`-stepperen pa dashbordet, rett etter OnboardingProgress, slik at brukeren alltid ser hvor de er i sertifiseringsreisen.
+Basert pa virksomhetsprofil, vis en anbefaling:
+- "Anbefalt for IT-konsulenter: Start med Personvern, legg til Informasjonssikkerhet nar kundene krever det"
 
-### E. Oppdater lenker til ISO Readiness
+---
 
-Alle "Se oppgaver"-knapper i StatusOverviewWidget og DomainComplianceWidget bor na lenke til `/tasks?view=readiness&domain=X` i stedet for bare `/tasks?domain=X`.
+## Visuell endring
+
+```text
+ Domenekort for IKKE-aktivert domene:
+
+ +----------------------------------+
+ | [laaas] AI Governance            |
+ | ISO 42001 + EU AI Act            |
+ |                                  |
+ | Ikke aktivert                    |
+ | Fra 790 kr/mnd                   |
+ |                                  |
+ | [Aktiver]  [Les mer]             |
+ +----------------------------------+
+
+ Anbefaling-banner:
+
+ +--------------------------------------------------+
+ | [lyspeare] Anbefalt for HULT IT AS               |
+ | Som IT-konsulentselskap anbefaler vi:             |
+ | 1. Personvern (GDPR) - inkludert                 |
+ | 2. Informasjonssikkerhet (ISO 27001) - inkludert |
+ | 3. AI Governance - aktiver naar dere bruker AI    |
+ +--------------------------------------------------+
+```
 
 ---
 
@@ -51,48 +97,16 @@ Alle "Se oppgaver"-knapper i StatusOverviewWidget og DomainComplianceWidget bor 
 
 | Fil | Endring |
 |-----|---------|
-| `src/components/widgets/SLAWidget.tsx` | Koble til compliance-data i stedet for hardkodede tall |
-| `src/components/widgets/StatusOverviewWidget.tsx` | Legge til PECB-modenhetsniva og ISO-referanser |
-| `src/pages/Index.tsx` | Fjerne duplikat DomainComplianceWidget, legge til CertificationJourney |
-| `src/pages/Tasks.tsx` | Stotte `view=readiness` URL-parameter for direkte navigasjon |
+| `src/components/tasks/ISOReadinessView.tsx` | Legge til subscription-sjekk per domene, vise last/aktiverings-UI for ikke-kjopte domener |
+| `src/components/iso-readiness/LockedDomainCard.tsx` | **Ny** - Kort for ikke-aktiverte domener med pris og CTA |
+| `src/components/iso-readiness/CertificationGoalBanner.tsx` | **Ny** - Anbefalingsbanner basert pa bransje |
+| `src/locales/nb.json` | Nye oversettelser for last-tilstand og anbefalinger |
+| `src/locales/en.json` | Tilsvarende engelske oversettelser |
 
----
+### Ingen databaseendringer nodvendig
 
-## Tekniske detaljer
+Eksisterende tabeller dekker behovet:
+- `company_subscriptions` + `domain_addons` for abonnementsstatus
+- `company_profile.industry` for bransjeanbefalinger
+- `useSubscription().isDomainIncluded()` for tilgangssjekk
 
-### SLAWidget - ny dataflyt
-
-```typescript
-// Erstatt hardkodet slaData med beregning fra compliance-krav
-const { requirements } = useComplianceRequirements({});
-const slaData = useMemo(() => {
-  const byCat = { systems_processes: [], organization_governance: [], roles_access: [] };
-  requirements.forEach(r => {
-    const cat = r.sla_category || 'organization_governance';
-    byCat[cat]?.push(r);
-  });
-  return Object.entries(byCat).map(([key, reqs]) => ({
-    title: t(`isoReadiness.slaCategories.${key}`),
-    percentage: Math.round(reqs.filter(r => r.status === 'completed').length / reqs.length * 100),
-    current: reqs.filter(r => r.status === 'completed').length,
-    total: reqs.length,
-    trend: 0 // Beregnes fra historikk senere
-  }));
-}, [requirements]);
-```
-
-### StatusOverviewWidget - PECB-tillegg
-
-Legger til under hvert domenekort:
-- ISO-standardreferanse (f.eks. "ISO 27701 + GDPR")
-- Modenhetsniva-badge (f.eks. "Implementert")
-
-### Index.tsx - CertificationJourney
-
-```tsx
-{/* Etter OnboardingProgressWidget */}
-<OnboardingProgressWidget />
-<Card className="p-4 mb-8">
-  <CertificationJourney completedPercent={overallPercent} />
-</Card>
-```
