@@ -17,7 +17,16 @@
     "chat": "Chat",
     "switchOrganization": "Switch organization",
     "resources": "Learning Center",
-    "complianceChecklist": "Compliance Checklist"
+    "complianceChecklist": "Compliance Checklist",
+    "companySettings": "Company settings",
+    "subscriptions": "Subscriptions",
+    "termsAndConsent": "Terms and consent",
+    "regulations": "Regulations and requirements",
+    "company": "Company",
+    "logout": "Log out",
+    "loggingOut": "Logging out...",
+    "notRegistered": "Not registered",
+    "clickLaraToStart": "Click Lara to get started"
   },
   "resources": {
     "title": "Learning Center",
