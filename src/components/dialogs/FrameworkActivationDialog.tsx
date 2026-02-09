@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -46,6 +47,7 @@ export function FrameworkActivationDialog({
   onOpenChat,
 }: FrameworkActivationDialogProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   if (!framework) return null;
 
@@ -104,7 +106,7 @@ export function FrameworkActivationDialog({
 
   const handleAskLara = () => {
     onOpenChange(false);
-    const message = `Hjelp meg med å komme i gang med ${framework.name}. Hva bør jeg gjøre først?`;
+    const message = t("chatPanel.helpWithDomain", { domain: framework.name });
     if (onOpenChat) {
       onOpenChat(message);
     }

@@ -12,6 +12,7 @@ import { DemoAgentPanel, DemoModeType } from "@/components/DemoAgentPanel";
 import { DemoSyncProvider } from "@/contexts/DemoSyncContext";
 import { DemoModeIndicator } from "@/components/DemoModeIndicator";
 import { useDemoController } from "@/hooks/useDemoController";
+import { useTranslation } from "react-i18next";
 
 interface ContentViewOptions {
   viewMode?: "cards" | "table" | "list" | "names-only";
@@ -27,6 +28,7 @@ interface ChatPanelProps {
 }
 
 function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }: ChatPanelProps) {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [hasMessages, setHasMessages] = useState(false);
   const [showDemoPanel, setShowDemoPanel] = useState(false);
@@ -41,18 +43,16 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
     setActiveDemoMode(mode);
     
     if (mode === "auto-demo") {
-      // Start the visual auto-demo
       demoController.startDemo(scenarioId);
     } else {
-      // Conversational mode - send a message to Lara
       const scenarioMessages: Record<string, string> = {
-        "add-asset": "Hjelp meg legge til en eiendel",
-        "gdpr-gap": "Vis meg GDPR gap-analysen",
-        "compliance-report": "Generer en compliance-rapport",
-        "work-areas": "Hjelp meg organisere arbeidsområder",
-        "getting-started": "Vis meg hvordan jeg kommer i gang med Mynder"
+        "add-asset": t("chatPanel.scenarios.addAsset"),
+        "gdpr-gap": t("chatPanel.scenarios.gdprGap"),
+        "compliance-report": t("chatPanel.scenarios.complianceReport"),
+        "work-areas": t("chatPanel.scenarios.workAreas"),
+        "getting-started": t("chatPanel.scenarios.gettingStarted"),
       };
-      setPendingMessage(scenarioMessages[scenarioId] || `Hjelp meg med ${scenarioId}`);
+      setPendingMessage(scenarioMessages[scenarioId] || t("chatPanel.scenarios.fallback", { id: scenarioId }));
     }
   };
 
@@ -70,7 +70,6 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
   if (isMobile) {
     return (
       <>
-        {/* Demo mode indicator */}
         <DemoModeIndicator
           isRunning={demoController.isDemoRunning}
           currentStep={demoController.currentStep}
@@ -83,7 +82,7 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
           <SheetContent side="right" className="w-full sm:w-[400px] p-0">
             <div className="flex h-full flex-col relative">
-{hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
+              {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
               {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
               <div className="flex-1 overflow-hidden">
                 <ChatInterface 
@@ -119,10 +118,9 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
     );
   }
 
-  // Desktop: floating panel (compact height, anchored to bottom-right)
+  // Desktop: floating panel
   return (
     <>
-      {/* Demo mode indicator */}
       <DemoModeIndicator
         isRunning={demoController.isDemoRunning}
         currentStep={demoController.currentStep}
@@ -140,7 +138,7 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
         )}
       >
         <div className="relative flex-1 flex flex-col overflow-hidden">
-{hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
+          {hasMessages && <ChatPanelHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} showDemoButton pageName={pageContext.pageName} />}
           {!hasMessages && <MinimalHeader onClose={onClose} onShowDemo={() => setShowDemoPanel(true)} pageName={pageContext.pageName} />}
           <div className="flex-1 overflow-hidden">
             <ChatInterface 
@@ -185,10 +183,11 @@ export function ChatPanel(props: ChatPanelProps) {
 }
 
 function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void; onShowDemo: () => void; pageName?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-primary">Snakk med Lara</span>
+        <span className="text-sm font-medium text-primary">{t("chatPanel.talkToLara")}</span>
         {pageName && (
           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             📍 {pageName}
@@ -201,7 +200,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void;
           size="icon"
           className="h-7 w-7 text-muted-foreground hover:text-primary"
           onClick={onShowDemo}
-          title="Vis demo-hjelp"
+          title={t("chatPanel.showDemoHelp")}
         >
           <HelpCircle className="h-4 w-4" />
         </Button>
@@ -219,6 +218,7 @@ function MinimalHeader({ onClose, onShowDemo, pageName }: { onClose: () => void;
 }
 
 function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { onClose: () => void; onShowDemo: () => void; showDemoButton?: boolean; pageName?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
       <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { on
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">AI-assistent</p>
+          <p className="text-xs text-muted-foreground">{t("chatPanel.aiAssistant")}</p>
         </div>
       </div>
       <div className="flex items-center gap-1">
@@ -266,4 +266,3 @@ function ChatPanelHeader({ onClose, onShowDemo, showDemoButton, pageName }: { on
     </div>
   );
 }
-

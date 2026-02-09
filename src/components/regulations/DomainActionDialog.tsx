@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, ArrowRight, MessageSquare, ExternalLink, LucideIcon } from "lucide-react";
 import {
   Dialog,
@@ -45,6 +46,7 @@ export function DomainActionDialog({
   onOpenChat
 }: DomainActionDialogProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const incompleteTasks = tasks.filter(t => t.status !== 'completed');
   const highPriorityTasks = incompleteTasks.filter(t => t.priority === 'høy' || t.priority === 'high');
@@ -156,7 +158,7 @@ export function DomainActionDialog({
             className="flex-1 sm:flex-none"
           >
             <MessageSquare className="h-4 w-4 mr-2" />
-            Snakk med Lara
+            {t("chatPanel.talkToLaraButton")}
           </Button>
           <Button
             onClick={handleViewAllTasks}
