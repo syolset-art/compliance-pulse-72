@@ -745,7 +745,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           if (toolCall.name === "show_content") {
             setCurrentContext(args.content_type as SuggestionContext);
             
-            updateAssistantMessage(assistantContent || "Viser innhold til høyre...");
+            updateAssistantMessage(assistantContent || t("chat.showingContent"));
             
             if (onShowContent) {
               const options: ContentViewOptions = {
@@ -757,28 +757,28 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             }
           } else if (toolCall.name === "navigate_to" && args.path) {
             const navMessage = args.reason 
-              ? `${assistantContent}\n\n✨ Jeg tar deg til den relevante siden: ${args.reason}`
-              : `${assistantContent}\n\n✨ Navigerer til riktig side...`;
+              ? `${assistantContent}\n\n✨ ${args.reason}`
+              : `${assistantContent}\n\n✨ ${t("chat.navigating")}`;
             
             updateAssistantMessage(navMessage);
             
             setTimeout(() => {
               navigate(args.path);
               toast({
-                title: "Navigert",
-                description: args.reason || "Tatt deg til riktig side",
+                title: t("chat.navigatedTo"),
+                description: args.reason || t("chat.navigatedDesc"),
               });
             }, 500);
           } else if (toolCall.name === "generate_tia") {
             const tiaMessage = args.status_message 
               ? `${assistantContent}\n\n⚠️ ${args.status_message}`
-              : `${assistantContent}\n\n⚠️ Genererer TIA...`;
+              : `${assistantContent}\n\n⚠️ ${t("chat.generatingTiaShort")}`;
             
             updateAssistantMessage(tiaMessage);
             
             toast({
               title: "Transfer Impact Assessment",
-              description: args.status_message || "Genererer TIA i bakgrunnen. Du kan fortsette å bruke systemet.",
+              description: args.status_message || t("chat.generatingTia"),
               duration: 5000,
             });
           } else if (toolCall.name === "suggest_options") {
@@ -794,7 +794,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               return [...prev, { role: "assistant", content: optionsMessage, options: args.options }];
             });
           } else if (toolCall.name === "start_demo") {
-            const demoMessage = args.intro_message || `Starter demo: ${args.scenario_id}`;
+            const demoMessage = args.intro_message || t("chat.startingDemo", { id: args.scenario_id });
             updateAssistantMessage(demoMessage);
             
             if (onStartDemo && args.scenario_id) {
@@ -829,8 +829,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     } catch (error) {
       console.error("Chat error:", error);
       toast({
-        title: "Feil",
-        description: "Kunne ikke få svar fra AI. Prøv igjen.",
+        title: t("chat.error.title"),
+        description: t("chat.error.aiResponse"),
         variant: "destructive",
       });
       setIsLoading(false);
@@ -907,7 +907,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                             variant="ghost"
                             className={`h-7 w-7 p-0 ${message.feedback === "up" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                             onClick={() => handleFeedback(i, "up")}
-                            aria-label="Nyttig svar"
+                            aria-label={t("chat.aria.helpful")}
                           >
                             <ThumbsUp className="h-4 w-4" />
                           </Button>
@@ -916,7 +916,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                             variant="ghost"
                             className={`h-7 w-7 p-0 ${message.feedback === "down" ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
                             onClick={() => handleFeedback(i, "down")}
-                            aria-label="Ikke nyttig svar"
+                            aria-label={t("chat.aria.notHelpful")}
                           >
                             <ThumbsDown className="h-4 w-4" />
                           </Button>
@@ -1070,16 +1070,16 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={onBackToDashboard}>
                   <Home className="mr-2 h-4 w-4" />
-                  Gå til dashboard
+                  {t("chat.menu.goToDashboard")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleNewConversation}>
                   <MessageSquarePlus className="mr-2 h-4 w-4" />
-                  Ny samtale
+                  {t("chat.menu.newConversation")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setShopDialogOpen(true)}>
                   <ShoppingBag className="mr-2 h-4 w-4" />
-                  Tilleggsmoduler
+                  {t("chat.menu.additionalModules")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
@@ -1087,50 +1087,50 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                   disabled={messages.length < 2}
                 >
                   <Undo2 className="mr-2 h-4 w-4" />
-                  Angre siste melding
+                  {t("chat.menu.undoLastMessage")}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={handleShareConversation}
                   disabled={messages.length === 0}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  Del samtale
+                  {t("chat.menu.shareConversation")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    handleSend("Hvilken type gap-analyse ønsker du? Presenter alternativer jeg kan velge.");
+                    handleSend(t("chat.prompts.gapAnalysis"));
                   }}
                 >
                   <FileText className="mr-2 h-4 w-4" />
-                  Gap Analyse
+                  {t("chat.menu.gapAnalysis")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    handleSend("Utfør risikovurdering for våre systemer og behandlinger");
+                    handleSend(t("chat.prompts.riskAssessment"));
                   }}
                 >
                   <AlertTriangle className="mr-2 h-4 w-4" />
-                  Risikovurdering
+                  {t("chat.menu.riskAssessment")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    handleSend("Lag en detaljert ISO 27001 compliance-rapport. Inkluder executive summary, gap-analyse per kontrollområde med status-indikatorer, risikovurdering og prioritert handlingsplan.");
+                    handleSend(t("chat.prompts.complianceReport"));
                   }}
                 >
                   <Shield className="mr-2 h-4 w-4" />
-                  Compliance-rapport (ISO 27001)
+                  {t("chat.menu.complianceReport")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
                     toast({
-                      title: "Systemintegrasjoner",
-                      description: "Koble til eksterne systemer",
+                      title: t("chat.integrationsToast.title"),
+                      description: t("chat.integrationsToast.description"),
                     });
                   }}
                 >
                   <Link className="mr-2 h-4 w-4" />
-                  Integrasjoner
+                  {t("chat.menu.integrations")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1234,7 +1234,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Laster opp...</span>
+                  <span>{t("chat.upload.uploading")}</span>
                   <span>{uploadProgress}%</span>
                 </div>
                 <Progress value={uploadProgress} />
@@ -1244,12 +1244,12 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             <div className="space-y-4">
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                 <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <Label htmlFor="file-upload" className="cursor-pointer">
-                  <span className="text-primary font-medium hover:underline">
-                    Klikk for å velge fil
-                  </span>
-                  <span className="text-muted-foreground"> eller dra og slipp</span>
-                </Label>
+                 <Label htmlFor="file-upload" className="cursor-pointer">
+                    <span className="text-primary font-medium hover:underline">
+                      {t("chat.upload.clickToSelect")}
+                    </span>
+                    <span className="text-muted-foreground"> {t("chat.upload.orDragDrop")}</span>
+                  </Label>
                 <Input
                   id="file-upload"
                   type="file"
@@ -1258,7 +1258,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  PDF, Word, Excel eller tekstfiler
+                  {t("chat.upload.fileTypes")}
                 </p>
               </div>
             </div>
@@ -1271,7 +1271,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             onClick={() => setUploadDialogOpen(false)}
             disabled={uploadingFile}
           >
-            {uploadingFile ? "Vent..." : "Avbryt"}
+            {uploadingFile ? t("chat.upload.wait") : t("chat.close")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1283,10 +1283,10 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
-            Tilleggsmoduler for compliance og rapportering
+            {t("chat.shop.title")}
           </DialogTitle>
           <DialogDescription>
-            Utvid systemet med AI-drevne rapporteringsmoduler i tråd med ISO 27001/27002/27004
+            {t("chat.shop.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -1295,27 +1295,27 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">Bærekraftsrapportering</h3>
-                <p className="text-sm text-muted-foreground">ISO 14001 / CSRD</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.sustainability.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.sustainability.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">499,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>AI-generert miljø- og klimarapportering</span>
+                <span>{t("chat.shop.sustainability.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Automatisk sporingsdata for CO2, energi, avfall</span>
+                <span>{t("chat.shop.sustainability.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>CSRD og GRI compliance</span>
+                <span>{t("chat.shop.sustainability.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
 
@@ -1323,27 +1323,27 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">Åpenhetsloven</h3>
-                <p className="text-sm text-muted-foreground">Menneskerettigheter</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.transparency.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.transparency.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">399,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>AI-analyse av leverandørkjeder</span>
+                <span>{t("chat.shop.transparency.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Aktsomhetsvurderinger</span>
+                <span>{t("chat.shop.transparency.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Åpenhetsloven §4 og §5 rapporter</span>
+                <span>{t("chat.shop.transparency.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
 
@@ -1351,27 +1351,27 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">HMS-rapportering</h3>
-                <p className="text-sm text-muted-foreground">ISO 45001</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.hse.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.hse.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">349,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Helse, miljø og sikkerhetsrapporter</span>
+                <span>{t("chat.shop.hse.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Risikovurdering av arbeidsplasser</span>
+                <span>{t("chat.shop.hse.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Avviksrapportering og tiltaksplaner</span>
+                <span>{t("chat.shop.hse.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
 
@@ -1379,27 +1379,27 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">Måling og Monitoring</h3>
-                <p className="text-sm text-muted-foreground">ISO 27004</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.monitoring.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.monitoring.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">449,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>KPI-dashboards for sikkerhetskontroller</span>
+                <span>{t("chat.shop.monitoring.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Måling av effektivitet av tiltak</span>
+                <span>{t("chat.shop.monitoring.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Trendanalyse og forbedringsindikatorer</span>
+                <span>{t("chat.shop.monitoring.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
 
@@ -1407,27 +1407,27 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">Anti-korrupsjon</h3>
-                <p className="text-sm text-muted-foreground">ISO 37001</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.antiCorruption.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.antiCorruption.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">399,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Korrupsjonsrisikovurdering</span>
+                <span>{t("chat.shop.antiCorruption.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Due diligence på forretningspartnere</span>
+                <span>{t("chat.shop.antiCorruption.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Compliance-kontroller og varslingssystem</span>
+                <span>{t("chat.shop.antiCorruption.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
 
@@ -1435,37 +1435,37 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           <div className="border border-border rounded-lg p-4 hover:border-primary transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-lg">Kontinuitetsplanlegging</h3>
-                <p className="text-sm text-muted-foreground">ISO 22301</p>
+                <h3 className="font-semibold text-lg">{t("chat.shop.continuity.title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("chat.shop.continuity.standard")}</p>
               </div>
               <span className="text-2xl font-bold text-primary">499,-</span>
             </div>
             <ul className="space-y-2 mb-4 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Forretningskontinuitetsplaner</span>
+                <span>{t("chat.shop.continuity.feature1")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>BIA - Business Impact Analysis</span>
+                <span>{t("chat.shop.continuity.feature2")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Gjenopprettingsstrategier og øvelser</span>
+                <span>{t("chat.shop.continuity.feature3")}</span>
               </li>
             </ul>
             <Button className="w-full" variant="default">
-              Kjøp modul
+              {t("chat.shop.buyModule")}
             </Button>
           </div>
         </div>
 
         <DialogFooter className="border-t pt-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            <p>Alle moduler inkluderer AI-agenter som automatiserer rapportering og overholdelse.</p>
+            <p>{t("chat.shop.footer")}</p>
           </div>
           <Button variant="outline" onClick={() => setShopDialogOpen(false)}>
-            Lukk
+            {t("chat.close")}
           </Button>
         </DialogFooter>
       </DialogContent>

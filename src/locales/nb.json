@@ -1089,7 +1089,23 @@
     "integrationsToast": {
       "title": "Systemintegrasjoner",
       "description": "Koble til eksterne systemer"
-    }
+    },
+    "showingContent": "Viser innhold til høyre...",
+    "navigating": "Navigerer til riktig side...",
+    "navigatedTo": "Navigert",
+    "navigatedDesc": "Tatt deg til riktig side",
+    "generatingTia": "Genererer TIA i bakgrunnen. Du kan fortsette å bruke systemet.",
+    "generatingTiaShort": "Genererer TIA...",
+    "startingDemo": "Starter demo: {{id}}",
+    "error": {
+      "title": "Feil",
+      "aiResponse": "Kunne ikke få svar fra AI. Prøv igjen."
+    },
+    "aria": {
+      "helpful": "Nyttig svar",
+      "notHelpful": "Ikke nyttig svar"
+    },
+    "close": "Lukk"
   },
   "isoReadiness": {
     "journey": {
