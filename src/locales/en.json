@@ -418,7 +418,7 @@
   },
   "myWorkAreas": {
     "title": "My work areas",
-    "subtitle": "Overview of assets, processes and users in your work areas",
+    "subtitle": "Overview of vendors, processes and users in your work areas",
     "filter": "Filter",
     "addNew": "Add",
     "systemsShort": "systems",
@@ -793,7 +793,25 @@
     "confirmDeleteRelation": "Are you sure you want to delete this relation?",
     "relationConnectsto": "Connects to",
     "relationIntegrateswith": "Integrates with",
-    "relationGovernedby": "Governed by"
+    "relationGovernedby": "Governed by",
+    "dialog": {
+      "addTitle": "Add Vendor",
+      "selectType": "Select Vendor Type",
+      "addMethod": "Add {{type}}",
+      "aiSuggestions": "AI Suggestions: {{type}}",
+      "newItem": "New {{type}}",
+      "uploadTitle": "Upload from file",
+      "connectTitle": "Connect to data source",
+      "connectSelectTypes": "Select vendor types",
+      "connectPerformerSelect": "Who performs the integration?",
+      "connectInvitePerformer": "Send invitation",
+      "connectPending": "Waiting for external party",
+      "connectAuth": "Connect",
+      "connectFetching": "Fetching data",
+      "connectPreview": "Preview import",
+      "connectImporting": "Importing",
+      "connectComplete": "Complete"
+    }
   },
   "addModule": {
     "title": "Add additional module",
@@ -937,8 +955,8 @@
         "companyInfoDesc": "Add basic information about the company",
         "frameworks": "Regulations and Requirements",
         "frameworksDesc": "Map which regulations the organization must follow",
-        "assets": "Add Assets",
-        "assetsDesc": "Register systems, vendors and other infrastructure",
+        "assets": "Add Vendors",
+        "assetsDesc": "Register vendors, systems and services",
         "workAreas": "Define Work Areas",
         "workAreasDesc": "Create work areas in the organization"
       }
@@ -950,10 +968,10 @@
     "suggestions": {
       "title": "Suggestions",
       "default": {
-        "addAssets": "Add assets from external sources",
+        "addAssets": "Add vendors from external sources",
         "checkCompliance": "Check compliance status for our systems",
         "showRisks": "Show risk assessments that need follow-up",
-        "missingDocs": "Which assets are missing documentation?"
+        "missingDocs": "Which vendors are missing documentation?"
       },
       "protocols": {
         "tableView": "Show in table format",
@@ -1214,7 +1232,7 @@
     "messages": {
       "company-info": "I want to add company information",
       "frameworks": "Help me choose the right regulations",
-      "assets": "I want to register systems and assets",
+      "assets": "I want to register vendors",
       "work-areas": "Help me define work areas",
       "default": "Help me with onboarding",
       "getStarted": "Help me get started"

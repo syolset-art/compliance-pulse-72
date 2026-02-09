@@ -419,7 +419,7 @@
   },
   "myWorkAreas": {
     "title": "Mine arbeidsområder",
-    "subtitle": "Oversikt over eiendeler, prosesser og brukere i dine arbeidsområder",
+    "subtitle": "Oversikt over leverandører, prosesser og brukere i dine arbeidsområder",
     "filter": "Filtrer",
     "addNew": "Legg til",
     "systemsShort": "systemer",
@@ -794,7 +794,25 @@
     "confirmDeleteRelation": "Er du sikker på at du vil slette denne relasjonen?",
     "relationConnectsto": "Kobler til",
     "relationIntegrateswith": "Integrerer med",
-    "relationGovernedby": "Styrt av"
+    "relationGovernedby": "Styrt av",
+    "dialog": {
+      "addTitle": "Legg til leverandør",
+      "selectType": "Velg leverandørtype",
+      "addMethod": "Legg til {{type}}",
+      "aiSuggestions": "AI-forslag: {{type}}",
+      "newItem": "Ny {{type}}",
+      "uploadTitle": "Last opp fra fil",
+      "connectTitle": "Koble til datakilde",
+      "connectSelectTypes": "Velg leverandørtyper",
+      "connectPerformerSelect": "Hvem utfører integrasjonen?",
+      "connectInvitePerformer": "Send invitasjon",
+      "connectPending": "Venter på ekstern part",
+      "connectAuth": "Koble til",
+      "connectFetching": "Henter data",
+      "connectPreview": "Forhåndsvis import",
+      "connectImporting": "Importerer",
+      "connectComplete": "Fullført"
+    }
   },
   "addModule": {
     "title": "Legg til tilleggsmodul",
@@ -938,8 +956,8 @@
         "companyInfoDesc": "Legg til grunnleggende informasjon om selskapet",
         "frameworks": "Regelverk og krav",
         "frameworksDesc": "Kartlegg hvilke regelverk virksomheten må følge",
-        "assets": "Legg til eiendeler",
-        "assetsDesc": "Registrer systemer, leverandører og annen infrastruktur",
+         "assets": "Legg til leverandører",
+        "assetsDesc": "Registrer leverandører, systemer og tjenester",
         "workAreas": "Definer arbeidsområder",
         "workAreasDesc": "Opprett arbeidsområder i organisasjonen"
       }
@@ -951,10 +969,10 @@
     "suggestions": {
       "title": "Forslag",
       "default": {
-        "addAssets": "Legg til eiendeler fra eksterne kilder",
+        "addAssets": "Legg til leverandører fra eksterne kilder",
         "checkCompliance": "Sjekk compliance-status for våre systemer",
         "showRisks": "Vis risikovurderinger som trenger oppfølging",
-        "missingDocs": "Hvilke assets mangler dokumentasjon?"
+        "missingDocs": "Hvilke leverandører mangler dokumentasjon?"
       },
       "protocols": {
         "tableView": "Vis i tabellformat",
@@ -1215,7 +1233,7 @@
     "messages": {
       "company-info": "Jeg vil legge til selskapsinformasjon",
       "frameworks": "Hjelp meg med å velge riktige regelverk",
-      "assets": "Jeg vil registrere systemer og eiendeler",
+      "assets": "Jeg vil registrere leverandører",
       "work-areas": "Hjelp meg med å definere arbeidsområder",
       "default": "Hjelp meg med onboarding",
       "getStarted": "Hjelp meg med å komme i gang"
