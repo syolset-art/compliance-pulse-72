@@ -1088,7 +1088,23 @@
     "integrationsToast": {
       "title": "System Integrations",
       "description": "Connect to external systems"
-    }
+    },
+    "showingContent": "Showing content on the right...",
+    "navigating": "Navigating to the right page...",
+    "navigatedTo": "Navigated",
+    "navigatedDesc": "Taken you to the right page",
+    "generatingTia": "Generating TIA in the background. You can continue using the system.",
+    "generatingTiaShort": "Generating TIA...",
+    "startingDemo": "Starting demo: {{id}}",
+    "error": {
+      "title": "Error",
+      "aiResponse": "Could not get a response from AI. Please try again."
+    },
+    "aria": {
+      "helpful": "Helpful answer",
+      "notHelpful": "Not helpful answer"
+    },
+    "close": "Close"
   },
   "isoReadiness": {
     "journey": {
