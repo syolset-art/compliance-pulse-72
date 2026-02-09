@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ const triggerConfetti = () => {
 };
 
 export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false }: LaraAgentProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const [showFrameworkForm, setShowFrameworkForm] = useState(false);
@@ -220,7 +222,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       Lara
                       <Sparkles className="w-4 h-4 text-primary" />
                     </h3>
-                    <p className="text-xs text-muted-foreground">Din AI-assistent</p>
+                    <p className="text-xs text-muted-foreground">{t("chatPanel.aiAssistant")}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

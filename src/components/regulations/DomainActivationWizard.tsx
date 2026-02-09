@@ -96,7 +96,7 @@ export function DomainActivationWizard({
 
   const handleAskLara = () => {
     handleClose();
-    const message = `Hjelp meg med å komme i gang med ${domainName}. Hva bør jeg gjøre først?`;
+    const message = t("chatPanel.helpWithDomain", { domain: domainName });
     if (onOpenChat) {
       onOpenChat(message);
     }

@@ -1246,5 +1246,20 @@
       "whenCustomersRequire": "aktiver når kundene krever det",
       "whenUsingAI": "aktiver når dere bruker AI"
     }
+  },
+  "chatPanel": {
+    "talkToLara": "Snakk med Lara",
+    "aiAssistant": "AI-assistent",
+    "showDemoHelp": "Vis demo-hjelp",
+    "scenarios": {
+      "addAsset": "Hjelp meg legge til en eiendel",
+      "gdprGap": "Vis meg GDPR gap-analysen",
+      "complianceReport": "Generer en compliance-rapport",
+      "workAreas": "Hjelp meg organisere arbeidsområder",
+      "gettingStarted": "Vis meg hvordan jeg kommer i gang med Mynder",
+      "fallback": "Hjelp meg med {{id}}"
+    },
+    "talkToLaraButton": "Snakk med Lara",
+    "helpWithDomain": "Hjelp meg med å komme i gang med {{domain}}. Hva bør jeg gjøre først?"
   }
 }

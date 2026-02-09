@@ -1245,5 +1245,20 @@
       "whenCustomersRequire": "activate when customers require it",
       "whenUsingAI": "activate when you use AI"
     }
+  },
+  "chatPanel": {
+    "talkToLara": "Talk to Lara",
+    "aiAssistant": "AI assistant",
+    "showDemoHelp": "Show demo help",
+    "scenarios": {
+      "addAsset": "Help me add an asset",
+      "gdprGap": "Show me the GDPR gap analysis",
+      "complianceReport": "Generate a compliance report",
+      "workAreas": "Help me organize work areas",
+      "gettingStarted": "Show me how to get started with Mynder",
+      "fallback": "Help me with {{id}}"
+    },
+    "talkToLaraButton": "Talk to Lara",
+    "helpWithDomain": "Help me get started with {{domain}}. What should I do first?"
   }
 }
