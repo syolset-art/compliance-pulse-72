@@ -595,15 +595,15 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     setCurrentThinkingTime(0);
 
     const lowerText = textToSend.toLowerCase();
-    if (lowerText.includes("behandlingsprotokoll") || lowerText.includes("protokoll")) {
+    if (lowerText.includes("behandlingsprotokoll") || lowerText.includes("protokoll") || lowerText.includes("protocol") || lowerText.includes("processing record")) {
       setCurrentContext("protocols");
-    } else if (lowerText.includes("system") || lowerText.includes("it-system")) {
+    } else if (lowerText.includes("system") || lowerText.includes("it-system") || lowerText.includes("asset")) {
       setCurrentContext("systems");
-    } else if (lowerText.includes("tredjeparti") || lowerText.includes("leverandør")) {
+    } else if (lowerText.includes("tredjeparti") || lowerText.includes("leverandør") || lowerText.includes("third-part") || lowerText.includes("vendor") || lowerText.includes("supplier")) {
       setCurrentContext("third-parties");
-    } else if (lowerText.includes("oppgav")) {
+    } else if (lowerText.includes("oppgav") || lowerText.includes("task")) {
       setCurrentContext("tasks");
-    } else if (lowerText.includes("avvik")) {
+    } else if (lowerText.includes("avvik") || lowerText.includes("deviation") || lowerText.includes("incident")) {
       setCurrentContext("deviations");
     } else if (lowerText.includes("compliance") || lowerText.includes("etterlevelse")) {
       setCurrentContext("compliance");
