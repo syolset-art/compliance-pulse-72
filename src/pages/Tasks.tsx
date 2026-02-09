@@ -302,67 +302,7 @@ export default function Tasks() {
     setSearchParams(newParams);
   };
 
-  // Simulate AI working on tasks automatically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Find tasks that AI can handle and aren't completed
-      const autoHandleTasks = mockTasks.filter(task => 
-        canAIHandle(task) && !completedTasks.has(task.id) && !aiWorkingTasks.has(task.id)
-      );
-
-      if (autoHandleTasks.length > 0) {
-        const randomTask = autoHandleTasks[Math.floor(Math.random() * autoHandleTasks.length)];
-        setAiWorkingTasks(prev => new Set([...prev, randomTask.id]));
-        setTaskProgress(prev => ({ ...prev, [randomTask.id]: 0 }));
-        
-        toast({
-          title: "AI-agent startet",
-          description: `Jobber med: "${randomTask.title}"`,
-        });
-      }
-    }, 8000); // Start new task every 8 seconds
-
-    return () => clearInterval(interval);
-  }, [completedTasks, aiWorkingTasks]);
-
-  // Simulate progress on working tasks
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTaskProgress(prev => {
-        const updated = { ...prev };
-        let hasChanges = false;
-
-        aiWorkingTasks.forEach(taskId => {
-          const currentProgress = updated[taskId] || 0;
-          if (currentProgress < 100) {
-            updated[taskId] = Math.min(100, currentProgress + Math.random() * 15 + 5);
-            hasChanges = true;
-          } else if (currentProgress >= 100) {
-            // Task completed
-            setTimeout(() => {
-              setCompletedTasks(prev => new Set([...prev, taskId]));
-              setAiWorkingTasks(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(taskId);
-                return newSet;
-              });
-              setOverallCompliance(prev => Math.min(100, prev + 2));
-              
-              const task = mockTasks.find(t => t.id === taskId);
-              toast({
-                title: "Oppgave fullført!",
-                description: `"${task?.title}" er nå håndtert av AI-agenten`,
-              });
-            }, 500);
-          }
-        });
-
-        return hasChanges ? updated : prev;
-      });
-    }, 1500); // Update progress every 1.5 seconds
-
-    return () => clearInterval(interval);
-  }, [aiWorkingTasks]);
+  // AI simulation disabled – was too noisy for users
 
   const toggleFilter = (filter: string) => {
     setSelectedFilters(prev =>
