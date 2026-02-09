@@ -1292,7 +1292,7 @@
     "aiAssistant": "AI-assistent",
     "showDemoHelp": "Vis demo-hjelp",
     "scenarios": {
-      "addAsset": "Hjelp meg legge til en eiendel",
+      "addAsset": "Hjelp meg legge til en leverandør",
       "gdprGap": "Vis meg GDPR gap-analysen",
       "complianceReport": "Generer en compliance-rapport",
       "workAreas": "Hjelp meg organisere arbeidsområder",
@@ -1313,5 +1313,46 @@
     "doLater": "Gjør dette senere",
     "resetting": "Tilbakestiller...",
     "reset": "Tilbakestill"
+  },
+  "frameworkAssessment": {
+    "title": "Hvilke regelverk gjelder?",
+    "subtitle": "La oss kartlegge relevante krav",
+    "introText": "Jeg stiller noen spørsmål for å finne ut hvilke regelverk din virksomhet må eller bør følge innen:",
+    "aiNote": "Noen regelverk er obligatoriske for alle norske virksomheter. Andre avhenger av bransje, størrelse og aktiviteter.",
+    "startMapping": "Start kartlegging",
+    "skipAndChoose": "Hopp over og velg manuelt",
+    "questionOf": "Spørsmål {{current}} av {{total}}",
+    "yes": "Ja",
+    "no": "Nei",
+    "skipRemaining": "Hopp over resten",
+    "confirmTitle": "Bekreft regelverk",
+    "frameworksSelected": "{{count}} regelverk valgt",
+    "mandatory": "Obligatorisk",
+    "recommended": "Anbefalt",
+    "saving": "Lagrer...",
+    "confirmAndContinue": "Bekreft og fortsett",
+    "savedTitle": "Regelverk lagret",
+    "savedDesc": "{{count}} regelverk er nå registrert for din virksomhet.",
+    "saveErrorTitle": "Feil ved lagring",
+    "saveErrorDesc": "Kunne ikke lagre regelverk. Prøv igjen.",
+    "categories": {
+      "privacy": "Personvern",
+      "security": "Informasjonssikkerhet",
+      "ai": "AI Governance",
+      "other": "Øvrig regelverk"
+    },
+    "frameworks": {
+      "gdpr": { "name": "GDPR / Personvernforordningen", "description": "EUs personvernlovgivning - gjelder alle som behandler personopplysninger" },
+      "personopplysningsloven": { "name": "Personopplysningsloven", "description": "Norsk lov som utfyller GDPR" },
+      "iso27001": { "name": "ISO 27001", "description": "Internasjonal standard for informasjonssikkerhetsstyring", "trigger": "Har dere kunder som krever ISO-sertifisering?" },
+      "nis2": { "name": "NIS2-direktivet", "description": "EUs direktiv om sikkerhet i nettverks- og informasjonssystemer", "trigger": "Er virksomheten innen kritisk infrastruktur eller digital tjenesteleveranse?" },
+      "nsm": { "name": "NSMs grunnprinsipper", "description": "Nasjonal sikkerhetsmyndighets anbefalinger for IKT-sikkerhet" },
+      "ai-act": { "name": "EU AI Act", "description": "EUs forordning om kunstig intelligens", "trigger": "Bruker virksomheten AI-systemer eller utvikler AI-løsninger?" },
+      "ai-ethics": { "name": "Etiske retningslinjer for AI", "description": "Interne retningslinjer for ansvarlig bruk av AI", "trigger": "Bruker virksomheten AI-systemer?" },
+      "apenhetsloven": { "name": "Åpenhetsloven", "description": "Krav til aktsomhetsvurderinger og transparens i leverandørkjeder", "trigger": "Har virksomheten over 50 ansatte eller over 70 MNOK i omsetning?" },
+      "hms": { "name": "HMS-lovgivningen", "description": "Helse, miljø og sikkerhet på arbeidsplassen" },
+      "bokforingsloven": { "name": "Bokføringsloven", "description": "Krav til oppbevaring og dokumentasjon av regnskapsmateriale" },
+      "hvitvasking": { "name": "Hvitvaskingsloven", "description": "Tiltak mot hvitvasking og terrorfinansiering", "trigger": "Er virksomheten rapporteringspliktig etter hvitvaskingsloven?" }
+    }
   }
 }
