@@ -1312,5 +1312,46 @@
     "doLater": "Do this later",
     "resetting": "Resetting...",
     "reset": "Reset"
+  },
+  "frameworkAssessment": {
+    "title": "Which regulations apply?",
+    "subtitle": "Let's map the relevant requirements",
+    "introText": "I'll ask a few questions to determine which regulations your organization must or should comply with in:",
+    "aiNote": "Some regulations are mandatory for all Norwegian businesses. Others depend on industry, size and activities.",
+    "startMapping": "Start mapping",
+    "skipAndChoose": "Skip and choose manually",
+    "questionOf": "Question {{current}} of {{total}}",
+    "yes": "Yes",
+    "no": "No",
+    "skipRemaining": "Skip remaining",
+    "confirmTitle": "Confirm regulations",
+    "frameworksSelected": "{{count}} regulations selected",
+    "mandatory": "Mandatory",
+    "recommended": "Recommended",
+    "saving": "Saving...",
+    "confirmAndContinue": "Confirm and continue",
+    "savedTitle": "Regulations saved",
+    "savedDesc": "{{count}} regulations are now registered for your organization.",
+    "saveErrorTitle": "Error saving",
+    "saveErrorDesc": "Could not save regulations. Please try again.",
+    "categories": {
+      "privacy": "Privacy",
+      "security": "Information Security",
+      "ai": "AI Governance",
+      "other": "Other regulations"
+    },
+    "frameworks": {
+      "gdpr": { "name": "GDPR / General Data Protection Regulation", "description": "EU privacy legislation – applies to all who process personal data" },
+      "personopplysningsloven": { "name": "Personal Data Act", "description": "Norwegian law supplementing GDPR" },
+      "iso27001": { "name": "ISO 27001", "description": "International standard for information security management", "trigger": "Do your customers require ISO certification?" },
+      "nis2": { "name": "NIS2 Directive", "description": "EU directive on network and information systems security", "trigger": "Is your organization in critical infrastructure or digital service delivery?" },
+      "nsm": { "name": "NSM Basic Principles", "description": "National Security Authority recommendations for ICT security" },
+      "ai-act": { "name": "EU AI Act", "description": "EU regulation on artificial intelligence", "trigger": "Does your organization use AI systems or develop AI solutions?" },
+      "ai-ethics": { "name": "AI Ethics Guidelines", "description": "Internal guidelines for responsible use of AI", "trigger": "Does your organization use AI systems?" },
+      "apenhetsloven": { "name": "Transparency Act", "description": "Requirements for due diligence assessments and transparency in supply chains", "trigger": "Does your organization have over 50 employees or over 70 MNOK in revenue?" },
+      "hms": { "name": "HSE Legislation", "description": "Health, safety and environment in the workplace" },
+      "bokforingsloven": { "name": "Bookkeeping Act", "description": "Requirements for storage and documentation of accounting material" },
+      "hvitvasking": { "name": "Anti-Money Laundering Act", "description": "Measures against money laundering and terrorist financing", "trigger": "Is your organization subject to reporting obligations under the Anti-Money Laundering Act?" }
+    }
   }
 }
