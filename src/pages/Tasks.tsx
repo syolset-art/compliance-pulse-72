@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ClipboardCheck, ListTodo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
+import { ISOReadinessView } from "@/components/tasks/ISOReadinessView";
 
 interface Task {
   id: string;
@@ -284,6 +285,7 @@ export default function Tasks() {
   const [taskProgress, setTaskProgress] = useState<Record<string, number>>({});
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
+  const [viewMode, setViewMode] = useState<"tasks" | "readiness">("tasks");
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
@@ -481,11 +483,37 @@ export default function Tasks() {
       
       <main className="flex-1 overflow-y-auto">
         <div className="container mx-auto p-6 max-w-7xl">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
           <p className="text-muted-foreground">{t("tasks.subtitle")}</p>
         </div>
 
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-2 mb-6">
+          <Button
+            variant={viewMode === "tasks" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("tasks")}
+            className="gap-2"
+          >
+            <ListTodo className="w-4 h-4" />
+            {t("tasks.viewModes.tasks")}
+          </Button>
+          <Button
+            variant={viewMode === "readiness" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("readiness")}
+            className="gap-2"
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            {t("tasks.viewModes.readiness")}
+          </Button>
+        </div>
+
+        {viewMode === "readiness" ? (
+          <ISOReadinessView />
+        ) : (
+          <>
         {/* Action Filter Banner - Shows when navigating from dashboard widget */}
         {activeActionFilter && (
           <Card className="p-4 mb-6 border-warning/50 bg-warning/5">
@@ -889,6 +917,8 @@ export default function Tasks() {
           );
           })}
         </div>
+          </>
+        )}
         </div>
       </main>
     </div>
