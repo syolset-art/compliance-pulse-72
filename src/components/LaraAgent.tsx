@@ -253,7 +253,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       className="h-6 px-2 text-xs"
                       onClick={() => setShowCompanyForm(false)}
                     >
-                      ← Tilbake
+                      {t("laraAgent.back")}
                     </Button>
                   </div>
                   <CompactCompanyOnboarding onComplete={handleCompanyFormComplete} />
@@ -267,7 +267,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       className="h-6 px-2 text-xs"
                       onClick={() => setShowFrameworkForm(false)}
                     >
-                      ← Tilbake
+                      {t("laraAgent.back")}
                     </Button>
                   </div>
                   <FrameworkAssessment onComplete={handleFrameworkFormComplete} />
@@ -278,11 +278,11 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                   <div className="mb-4">
                     {isFullyComplete ? (
                       <p className="text-sm text-foreground">
-                        🎉 Gratulerer! Du har fullført oppsettet. Utforsk dashbordet for å komme i gang.
+                        {t("laraAgent.congratsComplete")}
                       </p>
                     ) : (
                       <p className="text-sm text-foreground">
-                        👋 Hei! La oss fullføre oppsettet sammen. {remainingSteps} steg gjenstår.
+                        {t("laraAgent.welcomeRemaining", { count: remainingSteps })}
                       </p>
                     )}
                   </div>
@@ -296,7 +296,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {completedCount} av {totalCount} steg fullført
+                      {t("laraAgent.stepsCompleted", { completed: completedCount, total: totalCount })}
                     </p>
                   </div>
 
@@ -363,7 +363,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       variant="luxury"
                       className="w-full"
                     >
-                      {nextStep.id === 'company-info' ? 'Start oppsett' : `Fortsett: ${nextStep.title}`}
+                      {nextStep.id === 'company-info' ? t("laraAgent.startSetup") : t("laraAgent.continueStep", { step: nextStep.title })}
                     </Button>
                   )}
 
@@ -377,7 +377,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       className="w-full"
                     >
                       <Sparkles className="h-4 w-4 mr-2" />
-                      Åpne chat med Lara
+                      {t("laraAgent.openChat")}
                     </Button>
                   )}
 
@@ -387,7 +387,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       onClick={() => setIsOpen(false)}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      Gjør dette senere
+                      {t("laraAgent.doLater")}
                     </button>
                     <span className="text-muted-foreground">•</span>
                     <button
@@ -400,7 +400,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                       className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
                     >
                       <RotateCcw className={`h-3 w-3 ${isResetting ? 'animate-spin' : ''}`} />
-                      {isResetting ? 'Tilbakestiller...' : 'Tilbakestill'}
+                      {isResetting ? t("laraAgent.resetting") : t("laraAgent.reset")}
                     </button>
                   </div>
                 </>

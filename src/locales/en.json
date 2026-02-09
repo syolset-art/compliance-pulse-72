@@ -919,7 +919,17 @@
       "title": "ISO Preparation",
       "remaining": "remaining",
       "stepsCompleted": "{{completed}} of {{total}} steps completed",
-      "hideOnboarding": "Hide onboarding"
+      "hideOnboarding": "Hide onboarding",
+      "steps": {
+        "companyInfo": "Company Information",
+        "companyInfoDesc": "Add basic information about the company",
+        "frameworks": "Regulations and Requirements",
+        "frameworksDesc": "Map which regulations the organization must follow",
+        "assets": "Add Assets",
+        "assetsDesc": "Register systems, vendors and other infrastructure",
+        "workAreas": "Define Work Areas",
+        "workAreasDesc": "Create work areas in the organization"
+      }
     },
     "complete": {
       "title": "Setup complete! 🎉",
@@ -1260,5 +1270,17 @@
     },
     "talkToLaraButton": "Talk to Lara",
     "helpWithDomain": "Help me get started with {{domain}}. What should I do first?"
+  },
+  "laraAgent": {
+    "back": "← Back",
+    "congratsComplete": "🎉 Congratulations! You have completed the setup. Explore the dashboard to get started.",
+    "welcomeRemaining": "👋 Hi! Let's complete the setup together. {{count}} steps remaining.",
+    "stepsCompleted": "{{completed}} of {{total}} steps completed",
+    "startSetup": "Start setup",
+    "continueStep": "Continue: {{step}}",
+    "openChat": "Open chat with Lara",
+    "doLater": "Do this later",
+    "resetting": "Resetting...",
+    "reset": "Reset"
   }
 }

@@ -920,7 +920,17 @@
       "title": "ISO-klargjøring",
       "remaining": "gjenstår",
       "stepsCompleted": "{{completed}} av {{total}} steg fullført",
-      "hideOnboarding": "Skjul onboarding"
+      "hideOnboarding": "Skjul onboarding",
+      "steps": {
+        "companyInfo": "Selskapsinformasjon",
+        "companyInfoDesc": "Legg til grunnleggende informasjon om selskapet",
+        "frameworks": "Regelverk og krav",
+        "frameworksDesc": "Kartlegg hvilke regelverk virksomheten må følge",
+        "assets": "Legg til eiendeler",
+        "assetsDesc": "Registrer systemer, leverandører og annen infrastruktur",
+        "workAreas": "Definer arbeidsområder",
+        "workAreasDesc": "Opprett arbeidsområder i organisasjonen"
+      }
     },
     "complete": {
       "title": "Oppsett fullført! 🎉",
@@ -1261,5 +1271,17 @@
     },
     "talkToLaraButton": "Snakk med Lara",
     "helpWithDomain": "Hjelp meg med å komme i gang med {{domain}}. Hva bør jeg gjøre først?"
+  },
+  "laraAgent": {
+    "back": "← Tilbake",
+    "congratsComplete": "🎉 Gratulerer! Du har fullført oppsettet. Utforsk dashbordet for å komme i gang.",
+    "welcomeRemaining": "👋 Hei! La oss fullføre oppsettet sammen. {{count}} steg gjenstår.",
+    "stepsCompleted": "{{completed}} av {{total}} steg fullført",
+    "startSetup": "Start oppsett",
+    "continueStep": "Fortsett: {{step}}",
+    "openChat": "Åpne chat med Lara",
+    "doLater": "Gjør dette senere",
+    "resetting": "Tilbakestiller...",
+    "reset": "Tilbakestill"
   }
 }
