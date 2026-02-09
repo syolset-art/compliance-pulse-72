@@ -66,6 +66,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "welcomeBack": "Welcome back",
     "subtitle": "AI-powered compliance and security solution",
     "addModule": "Add module",
     "onboarding": {
