@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Shield, Lock, Brain, ChevronDown, ChevronRight, ExternalLink, CheckCircle2, AlertCircle, Info, Bot, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -86,6 +87,7 @@ const frameworkTaskMapping: Record<string, string[]> = {
 
 export function DomainComplianceWidget() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
 
   // Fetch selected frameworks
@@ -162,7 +164,7 @@ export function DomainComplianceWidget() {
     return [
       {
         id: "privacy",
-        name: "Personvern",
+        name: t("statusOverview.privacy"),
         icon: <Shield className="h-5 w-5" />,
         color: "text-blue-500",
         bgColor: "bg-blue-500/10",
@@ -171,7 +173,7 @@ export function DomainComplianceWidget() {
       },
       {
         id: "security",
-        name: "Informasjonssikkerhet",
+        name: t("statusOverview.infoSec"),
         icon: <Lock className="h-5 w-5" />,
         color: "text-green-500",
         bgColor: "bg-green-500/10",
@@ -180,7 +182,7 @@ export function DomainComplianceWidget() {
       },
       {
         id: "ai",
-        name: "AI Governance",
+        name: t("statusOverview.aiGovernance"),
         icon: <Brain className="h-5 w-5" />,
         color: "text-purple-500",
         bgColor: "bg-purple-500/10",
@@ -203,7 +205,7 @@ export function DomainComplianceWidget() {
       return (
         <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs">
           <CheckCircle2 className="h-3 w-3 mr-1" />
-          På god vei
+          {t("domainCompliance.onTrack")}
         </Badge>
       );
     }
@@ -211,14 +213,14 @@ export function DomainComplianceWidget() {
       return (
         <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs">
           <AlertCircle className="h-3 w-3 mr-1" />
-          Trenger oppmerksomhet
+          {t("domainCompliance.needsAttention")}
         </Badge>
       );
     }
     return (
       <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 text-xs">
         <AlertCircle className="h-3 w-3 mr-1" />
-        Kritisk
+        {t("domainCompliance.critical")}
       </Badge>
     );
   };
@@ -261,7 +263,7 @@ export function DomainComplianceWidget() {
         {/* Progress */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">
-            {stats.completed} av {stats.total} krav fullført
+            {stats.completed} / {stats.total} — {stats.progressPercent}%
           </span>
           <span className="text-sm font-semibold text-primary">{stats.progressPercent}%</span>
         </div>
@@ -272,7 +274,7 @@ export function DomainComplianceWidget() {
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
-              Krever din handling ({stats.byCapability.manual} totalt)
+              {t("domainCompliance.requiresAction", { count: stats.byCapability.manual })}
             </p>
             {manualRequired.map(req => (
               <div key={req.requirement_id} className="flex items-center justify-between text-xs p-1.5 bg-orange-50 dark:bg-orange-950/30 rounded">
@@ -285,7 +287,7 @@ export function DomainComplianceWidget() {
                   className="h-6 text-xs px-2"
                   onClick={() => navigate(`/tasks?requirement=${req.requirement_id}`)}
                 >
-                  Start →
+                  {t("domainCompliance.start")}
                 </Button>
               </div>
             ))}
@@ -297,7 +299,7 @@ export function DomainComplianceWidget() {
           <div className="space-y-1.5">
             <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
               <Bot className="h-3 w-3" />
-              AI jobber med ({aiWorking.length})
+              {t("domainCompliance.aiWorkingWith", { count: aiWorking.length })}
             </p>
             {aiWorking.map(req => (
               <div key={req.requirement_id} className="flex items-center gap-2 text-xs p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded">
@@ -312,7 +314,7 @@ export function DomainComplianceWidget() {
         <div className="flex items-center justify-between pt-2 border-t">
           <span className="text-xs text-muted-foreground flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3 text-success" />
-            {completedCount} fullført
+            {completedCount} {t("domainCompliance.completed")}
           </span>
           <Button 
             variant="outline" 
@@ -320,7 +322,7 @@ export function DomainComplianceWidget() {
             className="h-7 text-xs gap-1"
             onClick={onViewFullChecklist}
           >
-            Se full sjekkliste
+            {t("domainCompliance.viewFullChecklist")}
             <ExternalLink className="h-3 w-3" />
           </Button>
         </div>
@@ -334,14 +336,14 @@ export function DomainComplianceWidget() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
-              Detaljert samsvarsanalyse
+              {t("domainCompliance.title")}
             </CardTitle>
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
               <Info className="h-3 w-3 text-muted-foreground" />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Totalt:</span>
+            <span className="text-xs text-muted-foreground">{t("domainCompliance.total")}</span>
             <span className={cn(
               "text-sm font-semibold",
               overallProgress >= 80 ? "text-success" : overallProgress >= 50 ? "text-warning" : "text-destructive"
@@ -351,7 +353,7 @@ export function DomainComplianceWidget() {
           </div>
         </div>
         <p className="text-xs sm:text-sm text-muted-foreground">
-          Se status og fremdrift for hvert kontrollområde og tilhørende regelverk
+          {t("domainCompliance.subtitle")}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -384,7 +386,7 @@ export function DomainComplianceWidget() {
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     <span className="text-xs text-muted-foreground hidden sm:inline">
-                      {domain.frameworks.length} regelverk
+                      {domain.frameworks.length} {t("domainCompliance.frameworks")}
                     </span>
                     <span className="text-xs text-muted-foreground sm:hidden">
                       {domain.frameworks.length}
@@ -403,7 +405,7 @@ export function DomainComplianceWidget() {
                   {domain.frameworks.length === 0 ? (
                     <div className="py-4 text-center">
                       <p className="text-sm text-muted-foreground mb-2">
-                        Ingen regelverk aktivert i dette kontrollområdet
+                        {t("domainCompliance.noFrameworks")}
                       </p>
                       <Button
                         variant="outline"
@@ -412,7 +414,7 @@ export function DomainComplianceWidget() {
                         className="gap-2"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Legg til regelverk
+                        {t("domainCompliance.addFramework")}
                       </Button>
                     </div>
                   ) : (
@@ -440,7 +442,7 @@ export function DomainComplianceWidget() {
                       {/* Framework list */}
                       <div className="space-y-2 mt-4">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Aktiverte regelverk
+                          {t("domainCompliance.activeFrameworks")}
                         </p>
                         {domain.frameworks.map((framework) => (
                           <div
@@ -454,7 +456,7 @@ export function DomainComplianceWidget() {
                                 </span>
                                 {framework.isMandatory && (
                                   <Badge variant="secondary" className="text-xs">
-                                    Obligatorisk
+                                    {t("domainCompliance.mandatory")}
                                   </Badge>
                                 )}
                               </div>
@@ -487,7 +489,7 @@ export function DomainComplianceWidget() {
                         onClick={() => navigate(`/tasks?domain=${domain.id}`)}
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        Se alle oppgaver for {domain.name}
+                        {t("domainCompliance.viewAllTasks", { domain: domain.name })}
                       </Button>
                     </div>
                   )}
@@ -499,7 +501,7 @@ export function DomainComplianceWidget() {
 
         <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Totalt <span className="text-foreground font-semibold">{totalFrameworks} aktive regelverk</span> på tvers av kontrollområder
+            {t("domainCompliance.totalActiveFrameworks", { count: totalFrameworks })}
           </p>
           <Button
             variant="ghost"
@@ -507,7 +509,7 @@ export function DomainComplianceWidget() {
             onClick={() => navigate("/regulations")}
             className="gap-1 text-xs self-start sm:self-auto"
           >
-            Administrer regelverk
+            {t("domainCompliance.manageFrameworks")}
             <ExternalLink className="h-3 w-3" />
           </Button>
         </div>

@@ -1107,6 +1107,98 @@
     },
     "close": "Lukk"
   },
+  "roles": {
+    "daglig_leder": "Daglig leder",
+    "personvernombud": "Personvernombud (DPO)",
+    "sikkerhetsansvarlig": "Sikkerhetsansvarlig (CISO)",
+    "compliance_ansvarlig": "Compliance-ansvarlig",
+    "ai_governance": "AI Governance-ansvarlig",
+    "operativ_bruker": "Operativ bruker",
+    "all": "Full oversikt",
+    "yourRole": "Din rolle",
+    "selectView": "Velg visning",
+    "switchViewHelp": "Bytt visning for å se widgets tilpasset ulike roller. Dine tilordnede roller er markert."
+  },
+  "dashboardViews": {
+    "daglig_leder": {
+      "title": "Ledervisning",
+      "description": "Overordnet status, KPI-er og beslutningspunkter"
+    },
+    "personvernombud": {
+      "title": "Personvernvisning",
+      "description": "GDPR-status, behandlingsoversikt og personvernrisikoer"
+    },
+    "sikkerhetsansvarlig": {
+      "title": "Sikkerhetsvisning",
+      "description": "Sikkerhetshendelser, risikoer og kontrollstatus"
+    },
+    "compliance_ansvarlig": {
+      "title": "Compliance-visning",
+      "description": "Oversikt over regelverk og modenhet i din virksomhet"
+    },
+    "ai_governance": {
+      "title": "AI Governance-visning",
+      "description": "AI-systemer, risikovurdering og AI Act-etterlevelse"
+    },
+    "operativ_bruker": {
+      "title": "Min arbeidsflate",
+      "description": "Dine oppgaver og relevante systemer"
+    }
+  },
+  "statusOverview": {
+    "title": "Hvordan ligger vi an?",
+    "average": "Snitt:",
+    "good": "Bra",
+    "ok": "OK",
+    "low": "Lav",
+    "privacy": "Personvern",
+    "infoSec": "Informasjonssikkerhet",
+    "aiGovernance": "AI Governance",
+    "requirementsFulfilled": "{{current}} av {{total}} krav oppfylt",
+    "viewReadiness": "Se ISO Readiness for {{domain}}",
+    "totalOnTrack": "Totalt: {{score}}% på plass",
+    "basedOnRequirements": "Basert på {{count}} krav"
+  },
+  "domainCompliance": {
+    "title": "Detaljert samsvarsanalyse",
+    "subtitle": "Se status og fremdrift for hvert kontrollområde og tilhørende regelverk",
+    "total": "Totalt:",
+    "frameworks": "regelverk",
+    "onTrack": "På god vei",
+    "needsAttention": "Trenger oppmerksomhet",
+    "critical": "Kritisk",
+    "noFrameworks": "Ingen regelverk aktivert i dette kontrollområdet",
+    "addFramework": "Legg til regelverk",
+    "requirementsCompleted": "{{completed}} av {{total}} krav fullført",
+    "requiresAction": "Krever din handling ({{count}} totalt)",
+    "start": "Start →",
+    "aiWorkingWith": "AI jobber med ({{count}})",
+    "completed": "fullført",
+    "viewFullChecklist": "Se full sjekkliste",
+    "activeFrameworks": "Aktiverte regelverk",
+    "mandatory": "Obligatorisk",
+    "tasks": "({{completed}}/{{total}} oppgaver)",
+    "viewAllTasks": "Se alle oppgaver for {{domain}}",
+    "totalActiveFrameworks": "Totalt {{count}} aktive regelverk på tvers av kontrollområder",
+    "manageFrameworks": "Administrer regelverk"
+  },
+  "onboardingWidget": {
+    "title": "Kom i gang med Mynder",
+    "subtitle": "Fullfør disse stegene for å få mest mulig ut av plattformen",
+    "yourProgress": "Din fremgang",
+    "completed": "{{completed}} av {{total}} gjennomført",
+    "nextStep": "Neste steg",
+    "openInChat": "Åpne i chat",
+    "steps": "Steg:",
+    "messages": {
+      "company-info": "Jeg vil legge til selskapsinformasjon",
+      "frameworks": "Hjelp meg med å velge riktige regelverk",
+      "assets": "Jeg vil registrere systemer og eiendeler",
+      "work-areas": "Hjelp meg med å definere arbeidsområder",
+      "default": "Hjelp meg med onboarding",
+      "getStarted": "Hjelp meg med å komme i gang"
+    }
+  },
   "isoReadiness": {
     "journey": {
       "title": "Sertifiseringsreisen",

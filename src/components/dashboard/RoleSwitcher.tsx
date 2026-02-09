@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { useUserRole, AppRole, ROLE_LABELS } from "@/hooks/useUserRole";
+import { useUserRole, AppRole } from "@/hooks/useUserRole";
 import { DASHBOARD_LAYOUTS } from "@/lib/dashboardLayouts";
 
 const ROLE_ICONS: Record<AppRole | 'all', React.ReactNode> = {
@@ -42,10 +42,6 @@ export function RoleSwitcher({ onViewChange, showAllOption = true, className }: 
     onViewChange?.(view);
   };
 
-  const currentLayout = activeView === 'all' 
-    ? { title: 'Full oversikt', description: 'Vis alle widgets' }
-    : DASHBOARD_LAYOUTS[activeView];
-
   // All available roles for switching
   const availableRoles: (AppRole | 'all')[] = showAllOption 
     ? [...Object.keys(DASHBOARD_LAYOUTS) as AppRole[], 'all']
@@ -57,7 +53,7 @@ export function RoleSwitcher({ onViewChange, showAllOption = true, className }: 
         <Button variant="outline" className={className}>
           {ROLE_ICONS[activeView]}
           <span className="ml-2 hidden sm:inline">
-            {activeView === 'all' ? 'Full oversikt' : ROLE_LABELS[activeView]}
+            {activeView === 'all' ? t("roles.all") : t(`roles.${activeView}`)}
           </span>
           <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
           {isDemo && (
@@ -67,15 +63,15 @@ export function RoleSwitcher({ onViewChange, showAllOption = true, className }: 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px]">
         <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-          Velg visning
+          {t("roles.selectView")}
         </div>
         <DropdownMenuSeparator />
         
         {availableRoles.map((role) => {
           const isActive = activeView === role;
-          const layout = role === 'all' 
-            ? { title: 'Full oversikt', description: 'Vis alle widgets fra alle roller' }
-            : DASHBOARD_LAYOUTS[role];
+          const description = role === 'all' 
+            ? t("roles.all")
+            : t(`dashboardViews.${role}.description`);
           const isUserRole = role !== 'all' && allRoles.includes(role);
           
           return (
@@ -90,14 +86,14 @@ export function RoleSwitcher({ onViewChange, showAllOption = true, className }: 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className={`font-medium ${isActive ? 'text-primary' : ''}`}>
-                    {role === 'all' ? 'Full oversikt' : ROLE_LABELS[role]}
+                    {role === 'all' ? t("roles.all") : t(`roles.${role}`)}
                   </span>
                   {isUserRole && (
-                    <Badge variant="outline" className="text-xs">Din rolle</Badge>
+                    <Badge variant="outline" className="text-xs">{t("roles.yourRole")}</Badge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">
-                  {layout.description}
+                  {description}
                 </p>
               </div>
               {isActive && (
@@ -110,8 +106,7 @@ export function RoleSwitcher({ onViewChange, showAllOption = true, className }: 
         <DropdownMenuSeparator />
         <div className="px-3 py-2">
           <p className="text-xs text-muted-foreground">
-            Bytt visning for å se widgets tilpasset ulike roller. 
-            Dine tilordnede roller er markert.
+            {t("roles.switchViewHelp")}
           </p>
         </div>
       </DropdownMenuContent>

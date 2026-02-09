@@ -272,7 +272,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                     </div>
                   </div>
                   <p className="text-base text-muted-foreground max-w-2xl">
-                    {activeView !== 'all' ? DASHBOARD_LAYOUTS[activeView].description : t("dashboard.subtitle")}
+                    {activeView !== 'all' ? t(`dashboardViews.${activeView}.description`) : t("dashboard.subtitle")}
                   </p>
                 </div>
 

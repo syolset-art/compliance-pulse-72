@@ -1106,6 +1106,98 @@
     },
     "close": "Close"
   },
+  "roles": {
+    "daglig_leder": "CEO / Managing Director",
+    "personvernombud": "Data Protection Officer (DPO)",
+    "sikkerhetsansvarlig": "Chief Information Security Officer (CISO)",
+    "compliance_ansvarlig": "Compliance Officer",
+    "ai_governance": "AI Governance Officer",
+    "operativ_bruker": "Operational User",
+    "all": "Full Overview",
+    "yourRole": "Your role",
+    "selectView": "Select view",
+    "switchViewHelp": "Switch view to see widgets tailored to different roles. Your assigned roles are marked."
+  },
+  "dashboardViews": {
+    "daglig_leder": {
+      "title": "Executive View",
+      "description": "Overall status, KPIs and decision points"
+    },
+    "personvernombud": {
+      "title": "Privacy View",
+      "description": "GDPR status, processing overview and privacy risks"
+    },
+    "sikkerhetsansvarlig": {
+      "title": "Security View",
+      "description": "Security incidents, risks and control status"
+    },
+    "compliance_ansvarlig": {
+      "title": "Compliance View",
+      "description": "Overview of regulations and maturity in your organization"
+    },
+    "ai_governance": {
+      "title": "AI Governance View",
+      "description": "AI systems, risk assessment and AI Act compliance"
+    },
+    "operativ_bruker": {
+      "title": "My Workspace",
+      "description": "Your tasks and relevant systems"
+    }
+  },
+  "statusOverview": {
+    "title": "How are we doing?",
+    "average": "Avg:",
+    "good": "Good",
+    "ok": "OK",
+    "low": "Low",
+    "privacy": "Privacy",
+    "infoSec": "Information Security",
+    "aiGovernance": "AI Governance",
+    "requirementsFulfilled": "{{current}} of {{total}} requirements fulfilled",
+    "viewReadiness": "View ISO Readiness for {{domain}}",
+    "totalOnTrack": "Total: {{score}}% in place",
+    "basedOnRequirements": "Based on {{count}} requirements"
+  },
+  "domainCompliance": {
+    "title": "Detailed Compliance Analysis",
+    "subtitle": "See status and progress for each control area and associated regulations",
+    "total": "Total:",
+    "frameworks": "frameworks",
+    "onTrack": "On track",
+    "needsAttention": "Needs attention",
+    "critical": "Critical",
+    "noFrameworks": "No regulations activated in this control area",
+    "addFramework": "Add regulations",
+    "requirementsCompleted": "{{completed}} of {{total}} requirements completed",
+    "requiresAction": "Requires your action ({{count}} total)",
+    "start": "Start →",
+    "aiWorkingWith": "AI working on ({{count}})",
+    "completed": "completed",
+    "viewFullChecklist": "View full checklist",
+    "activeFrameworks": "Active frameworks",
+    "mandatory": "Mandatory",
+    "tasks": "({{completed}}/{{total}} tasks)",
+    "viewAllTasks": "View all tasks for {{domain}}",
+    "totalActiveFrameworks": "Total {{count}} active frameworks across control areas",
+    "manageFrameworks": "Manage frameworks"
+  },
+  "onboardingWidget": {
+    "title": "Get started with Mynder",
+    "subtitle": "Complete these steps to get the most out of the platform",
+    "yourProgress": "Your progress",
+    "completed": "{{completed}} of {{total}} completed",
+    "nextStep": "Next step",
+    "openInChat": "Open in chat",
+    "steps": "Steps:",
+    "messages": {
+      "company-info": "I want to add company information",
+      "frameworks": "Help me choose the right regulations",
+      "assets": "I want to register systems and assets",
+      "work-areas": "Help me define work areas",
+      "default": "Help me with onboarding",
+      "getStarted": "Help me get started"
+    }
+  },
   "isoReadiness": {
     "journey": {
       "title": "Certification Journey",
