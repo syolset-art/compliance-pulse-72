@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -46,6 +47,7 @@ const stepIcons: Record<string, React.ElementType> = {
 };
 
 export function OnboardingProgressWidget() {
+  const { t } = useTranslation();
   const { 
     steps, 
     completedCount, 
@@ -80,27 +82,19 @@ export function OnboardingProgressWidget() {
   const handleOpenChat = () => {
     if (!openChatWithMessage) return;
     if (nextStep) {
-      const messages: Record<string, string> = {
-        'company-info': 'Jeg vil legge til selskapsinformasjon',
-        'frameworks': 'Hjelp meg med å velge riktige regelverk',
-        'assets': 'Jeg vil registrere systemer og eiendeler',
-        'work-areas': 'Hjelp meg med å definere arbeidsområder'
-      };
-      openChatWithMessage(messages[nextStep.id] || 'Hjelp meg med onboarding');
+      const msgKey = `onboardingWidget.messages.${nextStep.id}`;
+      const msg = t(msgKey);
+      openChatWithMessage(msg !== msgKey ? msg : t("onboardingWidget.messages.default"));
     } else {
-      openChatWithMessage('Hjelp meg med å komme i gang');
+      openChatWithMessage(t("onboardingWidget.messages.getStarted"));
     }
   };
 
   const handleStepClick = (stepId: string) => {
     if (!openChatWithMessage) return;
-    const messages: Record<string, string> = {
-      'company-info': 'Jeg vil oppdatere selskapsinformasjonen',
-      'frameworks': 'Hjelp meg med regelverk og krav',
-      'assets': 'Jeg vil legge til flere eiendeler',
-      'work-areas': 'Jeg vil administrere arbeidsområdene mine'
-    };
-    openChatWithMessage(messages[stepId] || 'Hjelp meg med onboarding');
+    const msgKey = `onboardingWidget.messages.${stepId}`;
+    const msg = t(msgKey);
+    openChatWithMessage(msg !== msgKey ? msg : t("onboardingWidget.messages.default"));
   };
 
   const NextStepIcon = nextStep ? stepIcons[nextStep.icon] || Building2 : Building2;
@@ -117,10 +111,10 @@ export function OnboardingProgressWidget() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground">
-                  Kom i gang med Mynder
+                  {t("onboardingWidget.title")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Fullfør disse stegene for å få mest mulig ut av plattformen
+                  {t("onboardingWidget.subtitle")}
                 </p>
               </div>
             </div>
@@ -137,14 +131,14 @@ export function OnboardingProgressWidget() {
           {/* Progress bar */}
           <div className="mt-4 flex items-center justify-between gap-4">
             <div className="flex-1">
-              <p className="text-xs text-muted-foreground mb-2">Din fremgang</p>
+              <p className="text-xs text-muted-foreground mb-2">{t("onboardingWidget.yourProgress")}</p>
               <Progress 
                 value={percentComplete} 
                 className="h-2 bg-muted/50"
               />
             </div>
             <span className="text-sm font-medium text-primary whitespace-nowrap">
-              {completedCount} av {totalCount} gjennomført
+              {t("onboardingWidget.completed", { completed: completedCount, total: totalCount })}
             </span>
           </div>
         </div>
@@ -155,7 +149,7 @@ export function OnboardingProgressWidget() {
             <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-medium uppercase tracking-wider text-primary">
-                  Neste steg
+                  {t("onboardingWidget.nextStep")}
                 </span>
                 <Button
                   variant="link"
@@ -163,7 +157,7 @@ export function OnboardingProgressWidget() {
                   className="text-primary hover:text-primary/80 p-0 h-auto"
                   onClick={handleOpenChat}
                 >
-                  Åpne i chat
+                  {t("onboardingWidget.openInChat")}
                 </Button>
               </div>
               
@@ -191,7 +185,7 @@ export function OnboardingProgressWidget() {
         {/* Step indicators */}
         <div className="px-6 pb-6">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground mr-1">Steg:</span>
+            <span className="text-xs text-muted-foreground mr-1">{t("onboardingWidget.steps")}</span>
             {steps.map((step, index) => {
               const StepIcon = stepIcons[step.icon] || Building2;
               return (
