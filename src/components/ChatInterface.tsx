@@ -309,7 +309,7 @@ interface ChatInterfacePropsExtended extends ChatInterfaceProps {
 }
 
 export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChange, onOpenSystemDialog, pageContext, onStartDemo, pendingMessage, onPendingMessageSent }: ChatInterfacePropsExtended) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -633,7 +633,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
         if (response.status === 429 || response.status === 402) {
           const error = await response.json();
           toast({
-            title: "Feil",
+            title: t("common.error"),
             description: error.error,
             variant: "destructive",
           });
@@ -840,7 +840,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   // Format timestamp
   const formatTime = (date?: Date) => {
     if (!date) return "";
-    return date.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" });
+    const locale = i18n.language === 'nb' ? 'nb-NO' : 'en-US';
+    return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
@@ -881,7 +882,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                     {message.role === "assistant" && message.thinkingSummary && (
                       <div className="flex items-center gap-1.5 mb-2 text-sm text-muted-foreground">
                         <Brain className="h-3.5 w-3.5" />
-                        <span>Tenkte {message.thinkingTime}s</span>
+                        <span>{t("chat.thinkingWithTime", { time: message.thinkingTime })}</span>
                       </div>
                     )}
                     
@@ -1021,7 +1022,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               onClick={() => setUploadDialogOpen(true)}
               disabled={isLoading}
               className="h-10 w-10 text-muted-foreground hover:text-foreground flex-shrink-0"
-              aria-label="Last opp dokument"
+              aria-label={t("chat.upload.title")}
             >
               <Paperclip className="h-5 w-5" />
             </Button>
@@ -1153,37 +1154,37 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Del samtale</DialogTitle>
+          <DialogTitle>{t("chat.share.title")}</DialogTitle>
           <DialogDescription>
-            Del denne samtalen med andre brukere eller eksterne personer via e-post.
+            {t("chat.share.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Delingstype</Label>
+            <Label>{t("chat.share.shareType")}</Label>
             <RadioGroup value={shareType} onValueChange={(value) => setShareType(value as "internal" | "external")}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="internal" id="internal" />
                 <Label htmlFor="internal" className="font-normal cursor-pointer">
-                  Intern bruker (innad i organisasjonen)
+                  {t("chat.share.internal")}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="external" id="external" />
                 <Label htmlFor="external" className="font-normal cursor-pointer">
-                  Ekstern person
+                  {t("chat.share.external")}
                 </Label>
               </div>
             </RadioGroup>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-postadresse</Label>
+            <Label htmlFor="email">{t("chat.share.email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="navn@eksempel.no"
+              placeholder={t("chat.share.emailPlaceholder")}
               value={shareEmail}
               onChange={(e) => setShareEmail(e.target.value)}
               disabled={isSending}
@@ -1197,18 +1198,18 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             onClick={() => setShareDialogOpen(false)}
             disabled={isSending}
           >
-            Avbryt
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleShareSubmit} disabled={isSending}>
             {isSending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deler...
+                {t("chat.share.sharing")}
               </>
             ) : (
               <>
                 <Share2 className="mr-2 h-4 w-4" />
-                Del samtale
+                {t("chat.share.title")}
               </>
             )}
           </Button>
@@ -1220,9 +1221,9 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Last opp dokument</DialogTitle>
+          <DialogTitle>{t("chat.upload.title")}</DialogTitle>
           <DialogDescription>
-            Last opp dokumenter for automatisk compliance-analyse
+            {t("chat.upload.description")}
           </DialogDescription>
         </DialogHeader>
 
