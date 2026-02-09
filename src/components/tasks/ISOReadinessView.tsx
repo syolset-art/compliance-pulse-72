@@ -9,11 +9,16 @@ import { DOMAIN_STANDARDS, getMaturityLevel, MATURITY_LEVELS } from "@/lib/certi
 import { CertificationJourney } from "@/components/iso-readiness/CertificationJourney";
 import { SLACategoryBreakdown } from "@/components/iso-readiness/SLACategoryBreakdown";
 import { PhaseChecklist } from "@/components/iso-readiness/PhaseChecklist";
+import { LockedDomainCard } from "@/components/iso-readiness/LockedDomainCard";
+import { CertificationGoalBanner } from "@/components/iso-readiness/CertificationGoalBanner";
+import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
+import { DomainActivationWizard } from "@/components/regulations/DomainActivationWizard";
 import { cn } from "@/lib/utils";
 
 interface DomainConfig {
   id: RequirementDomain;
   icon: React.ReactNode;
+  iconComponent: typeof Shield;
   colorClass: string;
   bgClass: string;
   borderClass: string;
@@ -24,6 +29,7 @@ const domainConfigs: DomainConfig[] = [
   {
     id: "privacy",
     icon: <Shield className="w-5 h-5" />,
+    iconComponent: Shield,
     colorClass: "text-blue-600 dark:text-blue-400",
     bgClass: "bg-blue-50 dark:bg-blue-950/30",
     borderClass: "border-blue-200 dark:border-blue-800",
@@ -32,6 +38,7 @@ const domainConfigs: DomainConfig[] = [
   {
     id: "security",
     icon: <Lock className="w-5 h-5" />,
+    iconComponent: Lock,
     colorClass: "text-emerald-600 dark:text-emerald-400",
     bgClass: "bg-emerald-50 dark:bg-emerald-950/30",
     borderClass: "border-emerald-200 dark:border-emerald-800",
@@ -40,12 +47,19 @@ const domainConfigs: DomainConfig[] = [
   {
     id: "ai",
     icon: <Brain className="w-5 h-5" />,
+    iconComponent: Brain,
     colorClass: "text-purple-600 dark:text-purple-400",
     bgClass: "bg-purple-50 dark:bg-purple-950/30",
     borderClass: "border-purple-200 dark:border-purple-800",
     selectedBorderClass: "border-purple-500 dark:border-purple-400 ring-2 ring-purple-500/20"
   }
 ];
+
+const DOMAIN_NAMES: Record<RequirementDomain, string> = {
+  privacy: "Personvern",
+  security: "Informasjonssikkerhet",
+  ai: "AI Governance",
+};
 
 function DomainSummaryCard({ 
   config, requirements, isSelected, onClick 
@@ -107,7 +121,9 @@ function DomainSummaryCard({
 
 export function ISOReadinessView() {
   const { t } = useTranslation();
+  const { isDomainIncluded, activateAddon, isActivatingAddon } = useSubscription();
   const [selectedDomain, setSelectedDomain] = useState<RequirementDomain>("privacy");
+  const [wizardDomain, setWizardDomain] = useState<RequirementDomain | null>(null);
 
   const { requirements: privacyReqs, isLoading: privacyLoading, updateStatus: updatePrivacy, isUpdating: updatingPrivacy } = useComplianceRequirements({ domain: "privacy" });
   const { requirements: securityReqs, isLoading: securityLoading, updateStatus: updateSecurity, isUpdating: updatingSecurity } = useComplianceRequirements({ domain: "security" });
@@ -127,22 +143,32 @@ export function ISOReadinessView() {
     privacy: updatingPrivacy, security: updatingSecurity, ai: updatingAI
   };
 
+  // Only count active domains for overall stats
+  const activeDomains = domainConfigs.filter(c => isDomainIncluded(c.id));
+
   const overallStats = useMemo(() => {
-    const allReqs = [...privacyReqs, ...securityReqs, ...aiReqs];
-    const total = allReqs.length;
-    const completed = allReqs.filter(r => r.status === "completed").length;
+    const activeReqs = activeDomains.flatMap(c => requirementsByDomain[c.id]);
+    const total = activeReqs.length;
+    const completed = activeReqs.filter(r => r.status === "completed").length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { total, completed, percent };
-  }, [privacyReqs, securityReqs, aiReqs]);
+  }, [activeDomains, requirementsByDomain]);
 
+  const selectedIsActive = isDomainIncluded(selectedDomain);
   const selectedConfig = domainConfigs.find(c => c.id === selectedDomain)!;
   const selectedReqs = requirementsByDomain[selectedDomain];
 
-  const domainStats = useMemo(() => {
-    const completed = selectedReqs.filter(r => r.status === 'completed').length;
-    const total = selectedReqs.length;
-    return { percent: total > 0 ? Math.round((completed / total) * 100) : 0 };
-  }, [selectedReqs]);
+  const handleOpenWizard = (domainId: RequirementDomain) => {
+    setWizardDomain(domainId);
+  };
+
+  const handleActivate = () => {
+    if (wizardDomain) {
+      activateAddon(wizardDomain);
+    }
+  };
+
+  const wizardConfig = wizardDomain ? domainConfigs.find(c => c.id === wizardDomain) : null;
 
   if (isLoading) {
     return (
@@ -157,6 +183,9 @@ export function ISOReadinessView() {
 
   return (
     <div className="space-y-6">
+      {/* Recommendation Banner */}
+      <CertificationGoalBanner onActivateDomain={handleOpenWizard} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -179,48 +208,82 @@ export function ISOReadinessView() {
 
       {/* Domain Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        {domainConfigs.map(config => (
-          <DomainSummaryCard
-            key={config.id}
-            config={config}
-            requirements={requirementsByDomain[config.id]}
-            isSelected={selectedDomain === config.id}
-            onClick={() => setSelectedDomain(config.id)}
-          />
-        ))}
+        {domainConfigs.map(config => {
+          const isActive = isDomainIncluded(config.id);
+
+          if (!isActive) {
+            return (
+              <LockedDomainCard
+                key={config.id}
+                domainId={config.id}
+                icon={config.icon}
+                colorClass={config.colorClass}
+                bgClass={config.bgClass}
+                borderClass={config.borderClass}
+                priceInOre={DOMAIN_ADDON_PRICES[config.id] || 0}
+                onActivate={() => handleOpenWizard(config.id)}
+              />
+            );
+          }
+
+          return (
+            <DomainSummaryCard
+              key={config.id}
+              config={config}
+              requirements={requirementsByDomain[config.id]}
+              isSelected={selectedDomain === config.id}
+              onClick={() => setSelectedDomain(config.id)}
+            />
+          );
+        })}
       </div>
 
-      {/* Selected Domain Detail */}
-      <Card className={cn("", selectedConfig.borderClass)}>
-        <CardHeader className={selectedConfig.bgClass}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-lg", selectedConfig.colorClass)}>
-                {selectedConfig.icon}
-              </div>
-              <div>
-                <CardTitle className="text-lg">
-                  {t(`tasks.readiness.domains.${selectedDomain}`)} – {DOMAIN_STANDARDS[selectedDomain].primary}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  + {DOMAIN_STANDARDS[selectedDomain].supporting.join(', ')}
-                </p>
+      {/* Selected Domain Detail - only show for active domains */}
+      {selectedIsActive && (
+        <Card className={cn("", selectedConfig.borderClass)}>
+          <CardHeader className={selectedConfig.bgClass}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={cn("p-2 rounded-lg", selectedConfig.colorClass)}>
+                  {selectedConfig.icon}
+                </div>
+                <div>
+                  <CardTitle className="text-lg">
+                    {t(`tasks.readiness.domains.${selectedDomain}`)} – {DOMAIN_STANDARDS[selectedDomain].primary}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    + {DOMAIN_STANDARDS[selectedDomain].supporting.join(', ')}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6 space-y-6">
-          {/* SLA Category Breakdown */}
-          <SLACategoryBreakdown requirements={selectedReqs} />
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
+            <SLACategoryBreakdown requirements={selectedReqs} />
+            <PhaseChecklist 
+              requirements={selectedReqs}
+              updateStatus={updateStatusByDomain[selectedDomain]}
+              isUpdating={isUpdatingByDomain[selectedDomain]}
+            />
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Phase Checklist */}
-          <PhaseChecklist 
-            requirements={selectedReqs}
-            updateStatus={updateStatusByDomain[selectedDomain]}
-            isUpdating={isUpdatingByDomain[selectedDomain]}
-          />
-        </CardContent>
-      </Card>
+      {/* Domain Activation Wizard */}
+      {wizardConfig && (
+        <DomainActivationWizard
+          open={!!wizardDomain}
+          onOpenChange={(open) => !open && setWizardDomain(null)}
+          domainId={wizardDomain!}
+          domainName={DOMAIN_NAMES[wizardDomain!]}
+          domainIcon={wizardConfig.iconComponent}
+          domainColor={wizardConfig.colorClass}
+          domainBgColor={wizardConfig.bgClass}
+          monthlyPrice={DOMAIN_ADDON_PRICES[wizardDomain!] || 0}
+          onActivate={handleActivate}
+          isActivating={isActivatingAddon}
+        />
+      )}
     </div>
   );
 }

@@ -1123,6 +1123,18 @@
     "saveComment": "Save",
     "commentPlaceholder": "Add documentation or notes...",
     "savedSuccess": "Changes saved",
-    "savedSuccessDesc": "Status updated"
+    "savedSuccessDesc": "Status updated",
+    "locked": {
+      "notActivated": "Not activated",
+      "fromPrice": "From {{price}}/mo",
+      "activate": "Activate"
+    },
+    "recommendation": {
+      "title": "Recommended for {{company}}",
+      "subtitle": "Based on the «{{industry}}» industry, we recommend the following control areas:",
+      "included": "Included",
+      "whenCustomersRequire": "activate when customers require it",
+      "whenUsingAI": "activate when you use AI"
+    }
   }
 }

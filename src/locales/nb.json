@@ -1124,6 +1124,18 @@
     "saveComment": "Lagre",
     "commentPlaceholder": "Legg til dokumentasjon eller notater...",
     "savedSuccess": "Endringer lagret",
-    "savedSuccessDesc": "Status oppdatert"
+    "savedSuccessDesc": "Status oppdatert",
+    "locked": {
+      "notActivated": "Ikke aktivert",
+      "fromPrice": "Fra {{price}}/mnd",
+      "activate": "Aktiver"
+    },
+    "recommendation": {
+      "title": "Anbefalt for {{company}}",
+      "subtitle": "Basert på bransjen «{{industry}}» anbefaler vi følgende kontrollområder:",
+      "included": "Inkludert",
+      "whenCustomersRequire": "aktiver når kundene krever det",
+      "whenUsingAI": "aktiver når dere bruker AI"
+    }
   }
 }
