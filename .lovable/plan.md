@@ -1,104 +1,60 @@
 
 
-## Vendor Management as a Visible Feature with Tiered Capabilities
+## Fix "Asset" to "Vendor/Leverandor" Terminology
 
-Rather than creating a completely separate paid module, the recommendation is to make Vendor/Third-Party Management a **prominently visible feature area** with capabilities gated by subscription tier. This keeps the core vendor registry accessible to all users while making advanced features (AI analysis, benchmarking) a reason to upgrade.
+The terminology has been updated in most places, but several spots still use the old "asset/eiendeler" wording instead of "vendor/leverandor". Here is every place that needs fixing:
 
-### Why Not a Separate Module?
+### 1. Onboarding Step Labels (locales)
 
-- Vendor management is a **regulatory requirement** (GDPR Art. 28, ISO 27001 A.15, NIS2) -- all customers need it
-- Splitting it out would leave a gap in the core compliance offering
-- The premium value lies in **AI analysis and benchmarking**, not in basic vendor tracking
+**nb.json** -- the onboarding step still says "Legg til eiendeler":
+- `chat.onboarding.steps.assets`: "Legg til eiendeler" -> "Legg til leverandorer"
+- `chat.onboarding.steps.assetsDesc`: "Registrer systemer, leverandorer og annen infrastruktur" -> "Registrer leverandorer, systemer og tjenester"
 
-### Architecture: Feature Tiers
+**en.json**:
+- `chat.onboarding.steps.assets`: "Add Assets" -> "Add Vendors"
+- `chat.onboarding.steps.assetsDesc`: "Register systems, vendors and other infrastructure" -> "Register vendors, systems and services"
 
-```text
-+---------------------------------------------------+
-|  STARTER (included)                                |
-|  - Vendor registry (list, add, categorize)         |
-|  - Basic vendor profile with existing tabs         |
-|  - Document upload (up to 5 per vendor)            |
-+---------------------------------------------------+
-|  PROFESSIONAL (included)                           |
-|  - Unlimited document uploads                      |
-|  - AI-powered vendor compliance analysis           |
-|  - Compliance scoring per vendor                   |
-+---------------------------------------------------+
-|  ENTERPRISE (included)                             |
-|  - Everything in Professional                      |
-|  - Vendor benchmarking (compare against peers)     |
-|  - Portfolio-level risk dashboard                  |
-|  - Export vendor compliance reports                 |
-+---------------------------------------------------+
-```
+### 2. Chat Suggestion Text (locales)
 
-### Changes
+**nb.json**:
+- `chat.onboarding.suggestions.default.addAssets`: "Legg til eiendeler fra eksterne kilder" -> "Legg til leverandorer fra eksterne kilder"
+- `chat.onboarding.suggestions.default.missingDocs`: "Hvilke eiendeler mangler dokumentasjon?" -> "Hvilke leverandorer mangler dokumentasjon?"
 
-**1. Sidebar: Rename and add sub-navigation**
+**en.json**:
+- `chat.onboarding.suggestions.default.addAssets`: "Add assets from external sources" -> "Add vendors from external sources"
+- `chat.onboarding.suggestions.default.missingDocs`: "Which assets are missing documentation?" -> "Which vendors are missing documentation?"
 
-Rename "Leverandorer" to "Tredjepartsstyring" (Third-Party Management) in the sidebar to communicate the full scope. Add it as a slightly more prominent item, possibly with a sub-menu:
+### 3. Onboarding Widget Chat Messages (locales)
 
-- Vendor Overview (current /assets page)
-- Vendor Comparison (new, gated to Enterprise)
+**en.json**:
+- `onboardingWidget.messages.assets`: "I want to register systems and assets" -> "I want to register vendors"
 
-**2. Vendor Profile: Add Documents tab and Analysis tab**
+**nb.json** (equivalent key if present):
+- Same update to use "leverandorer"
 
-On the `AssetTrustProfile` page, add two new tabs:
+### 4. AddAssetDialog -- Hardcoded English Titles
 
-- **Documents** -- upload and tag reports (penetration tests, DPIAs, SOC2, ISO certs). All tiers can upload; Starter is limited to 5 docs per vendor.
-- **Analysis** -- AI-driven compliance assessment. Shows overall score + category breakdown. Gated to Professional+. Starter users see a teaser/upgrade prompt.
-- **Benchmark** -- compare vendor scores against category averages using radar charts (Recharts). Gated to Enterprise. Professional users see a teaser.
+The `getTitle()` function in `AddAssetDialog.tsx` (line 1789) has hardcoded English strings like "Add Asset", "Select Asset Type", etc. These need to:
+- Use `t()` translation keys instead of hardcoded strings
+- Use "vendor/leverandor" terminology in the translation values
 
-**3. Database: New tables**
+New translation keys to add and wire up:
+- `assets.dialog.addTitle`: "Add Vendor" / "Legg til leverandor"
+- `assets.dialog.selectType`: "Select Vendor Type" / "Velg leverandortype"
+- `assets.dialog.aiSuggestions`: "AI Suggestions" (keep generic)
+- `assets.dialog.uploadTitle`: "Upload from file" / "Last opp fra fil"
+- `assets.dialog.connectTitle`: "Connect to data source" / "Koble til datakilde"
+- etc. for each case in the switch
 
-- `vendor_documents` -- stores file metadata (path in storage, type, notes, asset_id)
-- `vendor_analyses` -- stores AI analysis results (jsonb scores, findings, linked documents)
-- Both with RLS policies for authenticated users
+### 5. Work Areas Subtitle (nb.json)
 
-**4. Backend: New edge function**
+- `myWorkAreas.subtitle`: "Oversikt over eiendeler, prosesser og brukere..." -> "Oversikt over leverandorer, prosesser og brukere..."
 
-- `analyze-vendor` -- reads uploaded documents from storage, sends to AI (Gemini), returns structured compliance assessment with scores across categories (data handling, security, privacy, availability)
-
-**5. Upgrade prompts and feature gating**
-
-- Use the existing `useSubscription` hook and `isDomainIncluded` pattern
-- When a Starter user clicks "Analyze Vendor", show a card explaining the feature with an upgrade button
-- When a Professional user views the Benchmark tab, show a preview with upgrade prompt
-
-**6. Dashboard visibility**
-
-- The existing `ThirdPartyWidget` and `ThirdPartyManagementWidget` already appear on relevant role dashboards -- these will pull real data from the new tables instead of hardcoded values
-
-### Technical Details
+### Files Modified
 
 | File | Change |
 |------|--------|
-| `src/locales/en.json`, `nb.json` | Rename "Vendors" to "Third-Party Management" / "Tredjepartsstyring" in sidebar nav. Add keys for Documents, Analysis, Benchmark tabs and gating messages |
-| `src/components/Sidebar.tsx` | Update the nav item label from `nav.assets` to use the new key |
-| **New:** `src/components/asset-profile/tabs/DocumentsTab.tsx` | Upload UI with document type selector, file list, delete. Uses Lovable Cloud storage |
-| **New:** `src/components/asset-profile/tabs/AnalysisTab.tsx` | AI analysis results display, trigger button, score breakdown. Subscription-gated |
-| **New:** `src/components/asset-profile/tabs/BenchmarkTab.tsx` | Radar/bar chart comparing vendor vs category average. Subscription-gated |
-| `src/pages/AssetTrustProfile.tsx` | Add Documents, Analysis, and Benchmark tabs |
-| **New:** `supabase/functions/analyze-vendor/index.ts` | Edge function: reads docs from storage, calls Gemini, returns structured JSON |
-| **Migration** | Create `vendor_documents` and `vendor_analyses` tables, create storage bucket `vendor-documents`, add RLS policies |
-| `src/hooks/useSubscription.ts` | No changes needed -- existing tier logic handles gating |
-
-### User Flow
-
-1. User navigates to "Tredjepartsstyring" in the sidebar (goes to /assets)
-2. Clicks a vendor to open the Trust Profile
-3. Uploads a penetration test PDF and a DPIA under the "Documents" tab
-4. Clicks "Analyze Vendor" -- AI processes documents and produces compliance scores
-5. Views breakdown: overall score + per-category (data handling, security, privacy, availability)
-6. (Enterprise) Switches to "Benchmark" tab to compare this vendor against others in the same category
-7. (Starter) Sees upgrade prompt when trying to trigger analysis
-
-### Gating Logic
-
-The existing `useSubscription().subscription?.plan?.name` value is used:
-- `starter` -- basic features + document upload (capped at 5)
-- `professional` -- AI analysis unlocked
-- `enterprise` -- benchmarking unlocked
-
-No new subscription tables or addon logic needed -- this fits within the existing tier structure.
+| `src/locales/nb.json` | Update ~6 strings from eiendeler to leverandorer |
+| `src/locales/en.json` | Update ~6 strings from assets to vendors |
+| `src/components/dialogs/AddAssetDialog.tsx` | Replace hardcoded getTitle() strings with t() calls using new translation keys |
 
