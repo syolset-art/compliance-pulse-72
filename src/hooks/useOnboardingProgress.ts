@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface OnboardingStep {
@@ -22,6 +23,7 @@ export interface OnboardingProgress {
 }
 
 export const useOnboardingProgress = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [companyInfoCompleted, setCompanyInfoCompleted] = useState(false);
   const [frameworksCompleted, setFrameworksCompleted] = useState(false);
@@ -70,24 +72,24 @@ export const useOnboardingProgress = () => {
   const steps: OnboardingStep[] = [
     {
       id: 'company-info',
-      title: 'Selskapsinformasjon',
-      description: 'Legg til grunnleggende informasjon om selskapet',
+      title: t("chat.onboarding.steps.companyInfo"),
+      description: t("chat.onboarding.steps.companyInfoDesc"),
       isCompleted: companyInfoCompleted,
       action: 'inline-form',
       icon: 'Building2'
     },
     {
       id: 'frameworks',
-      title: 'Regelverk og krav',
-      description: 'Kartlegg hvilke regelverk virksomheten må følge',
+      title: t("chat.onboarding.steps.frameworks"),
+      description: t("chat.onboarding.steps.frameworksDesc"),
       isCompleted: frameworksCompleted,
       action: 'inline-form',
       icon: 'Scale'
     },
     {
       id: 'assets',
-      title: 'Legg til eiendeler',
-      description: 'Registrer systemer, leverandører og annen infrastruktur',
+      title: t("chat.onboarding.steps.assets"),
+      description: t("chat.onboarding.steps.assetsDesc"),
       isCompleted: assetsAdded,
       action: 'dialog',
       actionTarget: 'AddAssetDialog',
@@ -95,8 +97,8 @@ export const useOnboardingProgress = () => {
     },
     {
       id: 'work-areas',
-      title: 'Definer arbeidsområder',
-      description: 'Opprett arbeidsområder i organisasjonen',
+      title: t("chat.onboarding.steps.workAreas"),
+      description: t("chat.onboarding.steps.workAreasDesc"),
       isCompleted: workAreasDefined,
       action: 'navigate',
       actionTarget: '/work-areas',
