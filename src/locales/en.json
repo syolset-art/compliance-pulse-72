@@ -10,7 +10,7 @@
     "settings": "Settings",
     "trustProfile": "Trust Profile",
     "protocols": "ROPA",
-    "assets": "Vendors",
+    "assets": "Third-Party Management",
     "deviations": "Deviation Register",
     "reports": "Reports",
     "menu": "Menu",
@@ -652,7 +652,10 @@
       "riskManagement": "Audit & Risk Management",
       "incidents": "Incident Management",
       "relations": "Relations",
-      "components": "Components"
+      "components": "Components",
+      "documents": "Documents",
+      "analysis": "Analysis",
+      "benchmark": "Benchmarking"
     },
     "systemTasks": "System Tasks",
     "noTasks": "No tasks found",

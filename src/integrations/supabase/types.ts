@@ -1902,6 +1902,88 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_analyses: {
+        Row: {
+          analysis_result: Json
+          asset_id: string
+          category_scores: Json | null
+          created_at: string
+          id: string
+          overall_score: number | null
+          source_documents: string[] | null
+          triggered_by: string | null
+        }
+        Insert: {
+          analysis_result?: Json
+          asset_id: string
+          category_scores?: Json | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          source_documents?: string[] | null
+          triggered_by?: string | null
+        }
+        Update: {
+          analysis_result?: Json
+          asset_id?: string
+          category_scores?: Json | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          source_documents?: string[] | null
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_analyses_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_documents: {
+        Row: {
+          asset_id: string
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          notes: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          document_type?: string
+          file_name: string
+          file_path: string
+          id?: string
+          notes?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          notes?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_documents_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_area_templates: {
         Row: {
           created_at: string | null
