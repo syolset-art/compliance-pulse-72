@@ -1788,23 +1788,23 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
   const getTitle = () => {
     switch (step) {
-      case "select-approach": return "Add Asset";
-      case "select-type": return "Select Asset Type";
-      case "select-manual-method": return `Add ${selectedTemplate?.display_name?.toLowerCase() || "asset"}`;
-      case "ai-suggestions": return `AI Suggestions: ${selectedTemplate?.display_name_plural || "Assets"}`;
-      case "manual-form": return `New ${selectedTemplate?.display_name?.toLowerCase() || "asset"}`;
-      case "upload": return "Upload from file";
-      case "connect": return "Connect to data source";
-      case "connect-select-types": return "Select asset types";
-      case "connect-performer-select": return "Who performs the integration?";
-      case "connect-invite-performer": return "Send invitation";
-      case "connect-pending": return "Waiting for external party";
-      case "connect-auth": return "Connect";
-      case "connect-fetching": return "Fetching data";
-      case "connect-preview": return "Preview import";
-      case "connect-importing": return "Importing";
-      case "connect-complete": return "Complete";
-      default: return "Add Asset";
+      case "select-approach": return t('assets.dialog.addTitle');
+      case "select-type": return t('assets.dialog.selectType');
+      case "select-manual-method": return t('assets.dialog.addMethod', { type: selectedTemplate?.display_name?.toLowerCase() || t('assets.dialog.addTitle').toLowerCase() });
+      case "ai-suggestions": return t('assets.dialog.aiSuggestions', { type: selectedTemplate?.display_name_plural || '' });
+      case "manual-form": return t('assets.dialog.newItem', { type: selectedTemplate?.display_name?.toLowerCase() || '' });
+      case "upload": return t('assets.dialog.uploadTitle');
+      case "connect": return t('assets.dialog.connectTitle');
+      case "connect-select-types": return t('assets.dialog.connectSelectTypes');
+      case "connect-performer-select": return t('assets.dialog.connectPerformerSelect');
+      case "connect-invite-performer": return t('assets.dialog.connectInvitePerformer');
+      case "connect-pending": return t('assets.dialog.connectPending');
+      case "connect-auth": return t('assets.dialog.connectAuth');
+      case "connect-fetching": return t('assets.dialog.connectFetching');
+      case "connect-preview": return t('assets.dialog.connectPreview');
+      case "connect-importing": return t('assets.dialog.connectImporting');
+      case "connect-complete": return t('assets.dialog.connectComplete');
+      default: return t('assets.dialog.addTitle');
     }
   };
 
