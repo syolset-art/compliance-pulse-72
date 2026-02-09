@@ -21,6 +21,7 @@ import { SecurityPostureWidget } from "@/components/widgets/SecurityPostureWidge
 import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
+import { CertificationJourney } from "@/components/iso-readiness/CertificationJourney";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
@@ -28,16 +29,19 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole, AppRole } from "@/hooks/useUserRole";
 import { DASHBOARD_LAYOUTS } from "@/lib/dashboardLayouts";
+import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 
 const Index = () => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { primaryRole } = useUserRole();
+  const { stats } = useComplianceRequirements({});
   const [activeView, setActiveView] = useState<AppRole | 'all'>(primaryRole);
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
@@ -196,10 +200,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <ActivityReportWidget />
               </div>
 
-              {/* Compliance Analysis Section */}
-              <div className="mb-6 pb-6">
-                <DomainComplianceWidget />
-              </div>
+              {/* Removed duplicate DomainComplianceWidget */}
             </div>
           )}
         </main>
@@ -278,6 +279,11 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 {/* Onboarding Progress Widget */}
                 <OnboardingProgressWidget />
 
+                {/* PECB Certification Journey */}
+                <Card className="p-4 mb-8">
+                  <CertificationJourney completedPercent={stats.progressPercent} />
+                </Card>
+
                 {/* Role-specific primary widget */}
                 {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
                 {activeView === 'personvernombud' && <GDPRHealthWidget />}
@@ -330,10 +336,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   <ActivityReportWidget />
                 </div>
 
-                {/* Compliance Analysis Section */}
-                <div className="mb-8">
-                  <DomainComplianceWidget />
-                </div>
+                {/* CertificationJourney removed duplicate DomainComplianceWidget */}
               </div>
             )}
           </main>

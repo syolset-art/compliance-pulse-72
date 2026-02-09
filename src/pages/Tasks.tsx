@@ -276,6 +276,7 @@ export default function Tasks() {
   const navigate = useNavigate();
   const domainFilter = searchParams.get("domain");
   const actionFilter = searchParams.get("filter");
+  const viewParam = searchParams.get("view");
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
@@ -285,7 +286,7 @@ export default function Tasks() {
   const [taskProgress, setTaskProgress] = useState<Record<string, number>>({});
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
-  const [viewMode, setViewMode] = useState<"tasks" | "readiness">("tasks");
+  const [viewMode, setViewMode] = useState<"tasks" | "readiness">(viewParam === "readiness" ? "readiness" : "tasks");
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
