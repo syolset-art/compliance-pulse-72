@@ -34,18 +34,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-const navigation = [
+const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
   { name: "nav.assets", href: "/assets", icon: Package },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
-  { name: "quality.title", href: "/quality", icon: Shield, highlight: true },
+  // Hidden for now – not deleted
+  // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
+  // { name: "quality.title", href: "/quality", icon: Shield, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
-  { name: "nav.transparency", href: "/transparency", icon: FileText },
+  // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
+  // { name: "nav.transparency", href: "/transparency", icon: FileText },
 ];
 
 const adminSubMenu = [
