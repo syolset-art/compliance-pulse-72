@@ -1,175 +1,158 @@
 
-# Plan: ISO Readiness-visning for Oppgaver
+# Plan: Forbedret ISO Readiness-visning
 
 ## Oversikt
 
-Legger til en ny visningsmodus på oppgavesiden som viser "ISO Readiness" - en strukturert oversikt over samsvarsstatus per kontrollområde (Personvern, Informasjonssikkerhet, AI Governance). Brukeren kan bytte mellom vanlig oppgavevisning og ISO Readiness-visning.
+Forbedrer ISO Readiness-visningen med tre nøkkelforbedringer:
 
----
-
-## Brukeropplevelse
-
-Når brukeren er på /tasks-siden vil de se en ny knapp øverst ved siden av filtreringskontrollene: **"ISO Readiness"**. Ved å klikke på denne skifter visningen fra oppgavelisten til en strukturert sjekkliste som viser:
-
-- Tre hovedkort (ett per domene: Personvern, Informasjonssikkerhet, AI Governance)
-- Hver viser totalt antall krav og fremgangsprosent
-- Utvidbar liste med fullførte og gjenstående krav
-- Klare visuelle indikatorer (grønn hake for fullført, oransje klokke for pågående, grå for ikke startet)
+1. **Vise hvilke ISO-standarder som gjelder** for hvert kontrollområde (Privacy = GDPR, Security = ISO 27001, AI = EU AI Act)
+2. **Default til Privacy** når ISO Readiness åpnes (fra URL-parameter)
+3. **Interaktiv sjekkliste** med mulighet for å huke av krav og legge til kommentarer
 
 ---
 
 ## Endringer
 
-### 1. Ny komponent: `ISOReadinessView.tsx`
+### 1. Oppdater DomainCard med ISO-referanser
 
-Oppretter en ny komponent som viser ISO Readiness-status:
+Hvert domenekort får en undertekst som viser relevante standarder:
 
-```
-src/components/tasks/ISOReadinessView.tsx
-```
+| Domene | ISO/Standard-referanse |
+|--------|------------------------|
+| Personvern | GDPR (EU) 2016/679 |
+| Informasjonssikkerhet | ISO/IEC 27001:2022 |
+| AI Governance | EU AI Act (2024/1689) |
 
-**Innhold:**
-- Tre domenekort med Progress-indikatorer
-- Collapsible seksjoner for hver standard (ISO 27001, GDPR, EU AI Act)
-- Liste over krav gruppert etter status: Fullført / Pågår / Ikke startet
-- Bruker eksisterende `useComplianceRequirements`-hook for data
+### 2. Utvid ISOReadinessView med domain-tabs
 
-### 2. Oppdater Tasks.tsx
+Endrer fra grid med tre kort til:
+- **Tre domenekort** øverst (oppsummering)
+- **Detaljvisning** under som viser utvidet liste for valgt domene
+- Default: Privacy-domenet er valgt når siden åpnes
 
-Legger til view-modus toggle:
+### 3. Interaktiv kravliste
 
-| Element | Endring |
-|---------|---------|
-| Ny state | `viewMode: "tasks" \| "readiness"` |
-| Toggle-knapp | "Oppgaver" / "ISO Readiness" ved siden av filterkortene |
-| Betinget rendering | Viser `ISOReadinessView` når `viewMode === "readiness"` |
+For hvert krav i listen:
+- **Checkbox** for å markere som fullført
+- **Kommentarfelt** (ekspanderbart) for å legge til notater
+- Lagring til databasen via `updateStatus`-mutasjon
+- Visuell feedback når endringer lagres
 
-### 3. Lokaliseringsnøkler
+### 4. URL-parameter støtte
 
-**src/locales/nb.json:**
-```json
-"tasks": {
-  "viewModes": {
-    "tasks": "Oppgaver",
-    "readiness": "ISO Readiness"
-  },
-  "readiness": {
-    "title": "ISO Readiness Status",
-    "subtitle": "Oversikt over samsvarsstatus per kontrollområde",
-    "completed": "Fullført",
-    "inProgress": "Pågår", 
-    "remaining": "Gjenstår",
-    "requirements": "krav",
-    "viewDetails": "Vis detaljer",
-    "hideDetails": "Skjul detaljer",
-    "domains": {
-      "privacy": "Personvern",
-      "security": "Informasjonssikkerhet",
-      "ai": "AI Governance"
-    }
-  }
-}
-```
-
-**src/locales/en.json:**
-```json
-"tasks": {
-  "viewModes": {
-    "tasks": "Tasks",
-    "readiness": "ISO Readiness"
-  },
-  "readiness": {
-    "title": "ISO Readiness Status",
-    "subtitle": "Compliance status overview by control area",
-    "completed": "Completed",
-    "inProgress": "In Progress",
-    "remaining": "Remaining",
-    "requirements": "requirements",
-    "viewDetails": "View details",
-    "hideDetails": "Hide details",
-    "domains": {
-      "privacy": "Privacy",
-      "security": "Information Security",
-      "ai": "AI Governance"
-    }
-  }
-}
-```
+- Leser `domain` fra URL (f.eks. `/tasks?domain=privacy`)
+- Setter viewMode til "readiness" automatisk når domain-parameter er satt
+- Default til "privacy" ved første åpning av readiness-visning
 
 ---
 
-## Visuelt design
+## Visuell mockup
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Oppgaver                                                       │
-│  Følg med på og administrer oppgaver                            │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ [Oppgaver]  [ISO Readiness]                             │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐ │
-│  │ 🛡️ Personvern    │ │ 🔒 Info.sikkerhet│ │ 🤖 AI Governance │ │
-│  │                  │ │                  │ │                  │ │
-│  │ ████████░░ 72%   │ │ ██████░░░░ 45%   │ │ ███░░░░░░░ 28%   │ │
-│  │ 18/25 krav       │ │ 42/93 krav       │ │ 2/8 krav         │ │
-│  │                  │ │                  │ │                  │ │
-│  │ [▼ Vis detaljer] │ │ [▼ Vis detaljer] │ │ [▼ Vis detaljer] │ │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘ │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ 🛡️ Personvern - GDPR                                       ││
-│  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ││
-│  │                                                             ││
-│  │ ✅ Fullført (18)                                            ││
-│  │   ○ GDPR-Art5 - Personvernprinsipper                        ││
-│  │   ○ GDPR-Art6 - Lovlig behandlingsgrunnlag                  ││
-│  │   ○ GDPR-Art7 - Samtykkevilkår                              ││
-│  │                                                             ││
-│  │ 🔄 Pågår (3)                                                ││
-│  │   ○ GDPR-Art30 - Behandlingsprotokoll (65%)                 ││
-│  │   ○ GDPR-Art32 - Sikkerhetstiltak (40%)                     ││
-│  │                                                             ││
-│  │ ⏳ Gjenstår (4)                                              ││
-│  │   ○ GDPR-Art35 - DPIA                                       ││
-│  │   ○ GDPR-Art37 - DPO utnevnelse                             ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│  ISO Readiness Status                                                   │
+│  Oversikt over samsvarsstatus per kontrollområde                        │
+│                                                                         │
+│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐         │
+│  │ 🛡️ Personvern    │ │ 🔒 Info.sikkerhet│ │ 🤖 AI Governance │         │
+│  │ GDPR 2016/679    │ │ ISO 27001:2022   │ │ EU AI Act 2024   │         │
+│  │                  │ │                  │ │                  │         │
+│  │ ████████░░ 72%   │ │ ██████░░░░ 45%   │ │ ███░░░░░░░ 28%   │         │
+│  │ 9/12 krav        │ │ 42/93 krav       │ │ 2/8 krav         │         │
+│  └──────────────────┘ └──────────────────┘ └──────────────────┘         │
+│  [VALGT]                                                                │
+│                                                                         │
+│  ╔═════════════════════════════════════════════════════════════════════╗│
+│  ║  Personvern – GDPR                                     9/12 krav   ║│
+│  ╠═════════════════════════════════════════════════════════════════════╣│
+│  ║                                                                     ║│
+│  ║  ✅ Fullført (9)                                                    ║│
+│  ║  ┌─────────────────────────────────────────────────────────────┐   ║│
+│  ║  │ [✓] GDPR-Art30 • Protokoll over behandlingsaktiviteter      │   ║│
+│  ║  │     "Fullført ved hjelp av Lara AI – Mai 2024"               │   ║│
+│  ║  ├─────────────────────────────────────────────────────────────┤   ║│
+│  ║  │ [✓] GDPR-Art6 • Dokumentasjon av behandlingsgrunnlag        │   ║│
+│  ║  │     [+ Legg til kommentar]                                   │   ║│
+│  ║  └─────────────────────────────────────────────────────────────┘   ║│
+│  ║                                                                     ║│
+│  ║  ⏳ Gjenstår (3)                                                    ║│
+│  ║  ┌─────────────────────────────────────────────────────────────┐   ║│
+│  ║  │ [ ] GDPR-Art35 • Personvernkonsekvensvurdering (DPIA)       │   ║│
+│  ║  │     Kategori: Governance | Prioritet: Høy                    │   ║│
+│  ║  │     [+ Legg til kommentar]                                   │   ║│
+│  ║  ├─────────────────────────────────────────────────────────────┤   ║│
+│  ║  │ [ ] GDPR-Art37 • Personvernombud                            │   ║│
+│  ║  │     Kategori: Organisatorisk | Prioritet: Høy                │   ║│
+│  ║  └─────────────────────────────────────────────────────────────┘   ║│
+│  ╚═════════════════════════════════════════════════════════════════════╝│
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Tekniske detaljer
 
-### Dataflyt
+### Nye oversettelsesnøkler
 
-1. `ISOReadinessView` bruker `useComplianceRequirements` for hvert domene
-2. Grupperer krav etter `domain` (privacy, security, ai)
-3. Henter status fra `requirement_status`-tabellen via hook
-4. Beregner prosent basert på `completed / total * 100`
+**nb.json:**
+```json
+"readiness": {
+  "standards": {
+    "privacy": "GDPR (EU) 2016/679",
+    "security": "ISO/IEC 27001:2022",
+    "ai": "EU AI Act (2024/1689)"
+  },
+  "addComment": "Legg til kommentar",
+  "saveComment": "Lagre",
+  "markComplete": "Merk som fullført",
+  "category": "Kategori",
+  "priority": "Prioritet",
+  "commentPlaceholder": "Legg til dokumentasjon eller notater...",
+  "savedSuccess": "Endringer lagret",
+  "savedSuccessDesc": "Status oppdatert"
+}
+```
 
-### Domenemapping
+**en.json:**
+```json
+"readiness": {
+  "standards": {
+    "privacy": "GDPR (EU) 2016/679",
+    "security": "ISO/IEC 27001:2022",
+    "ai": "EU AI Act (2024/1689)"
+  },
+  "addComment": "Add comment",
+  "saveComment": "Save",
+  "markComplete": "Mark as complete",
+  "category": "Category",
+  "priority": "Priority",
+  "commentPlaceholder": "Add documentation or notes...",
+  "savedSuccess": "Changes saved",
+  "savedSuccessDesc": "Status updated"
+}
+```
 
-| Domene | Rammeverk | Ikon |
-|--------|-----------|------|
-| privacy | GDPR | Shield (blå) |
-| security | ISO 27001, NIS2 | Lock (grønn) |
-| ai | EU AI Act, ISO 42001 | Brain (lilla) |
+### Dataflyten
 
-### Filer som opprettes/endres
+1. `ISOReadinessView` mottar valgt domene fra prop/URL
+2. Henter krav via `useComplianceRequirements({ domain })`
+3. Bruker `updateStatus`-mutasjon for å lagre endringer
+4. Toast-melding bekrefter lagring
+
+### Filer som endres
 
 | Fil | Handling |
 |-----|----------|
-| `src/components/tasks/ISOReadinessView.tsx` | **NY** - Hovedkomponent for readiness-visning |
-| `src/pages/Tasks.tsx` | Endres - Legger til view-toggle |
-| `src/locales/nb.json` | Endres - Legger til oversettelser |
-| `src/locales/en.json` | Endres - Legger til oversettelser |
+| `src/components/tasks/ISOReadinessView.tsx` | Større refaktorering - legger til standard-referanser, domenevalg, interaktiv sjekkliste |
+| `src/pages/Tasks.tsx` | Oppdaterer for å sette readiness som default når domain-param er satt |
+| `src/locales/nb.json` | Legger til nye oversettelser |
+| `src/locales/en.json` | Legger til nye oversettelser |
 
----
+### Demo-data
 
-## Avhengigheter
+For å illustrere funksjonaliteten vil Privacy-domenet vise:
+- **9 fullførte** GDPR-krav med eksempelkommentarer
+- **3 gjenstående** GDPR-krav som kan hukes av
 
-- Bruker eksisterende `useComplianceRequirements` hook
-- Bruker eksisterende `complianceRequirementsData.ts` for kravdata
-- Bruker eksisterende UI-komponenter (Card, Progress, Badge, Collapsible)
+Dette bruker eksisterende seed-data og `requirement_status`-tabellen.
+
