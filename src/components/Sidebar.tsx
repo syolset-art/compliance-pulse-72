@@ -27,6 +27,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -69,10 +70,10 @@ const SidebarContent = () => {
     setLoggingOut(true);
     try {
       await signOut();
-      toast.success("Du er nå logget ut");
+      toast.success(t("nav.logoutSuccess", "Du er nå logget ut"));
       navigate("/auth");
     } catch (error) {
-      toast.error("Kunne ikke logge ut");
+      toast.error(t("nav.logoutError", "Kunne ikke logge ut"));
     } finally {
       setLoggingOut(false);
     }
@@ -237,11 +238,16 @@ const SidebarContent = () => {
                   <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[120px]">
                     {companyName}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60">Selskap</p>
+                  <p className="text-xs text-sidebar-foreground/60">{t("nav.company")}</p>
                 </div>
               </div>
               <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/60 transition-transform", companyOpen && "rotate-180")} />
             </button>
+
+      {/* RoleSwitcher - always visible */}
+            <div className="mt-2 px-2">
+              <RoleSwitcher showAllOption={true} className="w-full justify-between" />
+            </div>
 
             {/* Company submenu */}
             {companyOpen && (
@@ -251,28 +257,28 @@ const SidebarContent = () => {
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <Building2 className="h-4 w-4" />
-                  Selskapsinnstillinger
+                  {t("nav.companySettings")}
                 </button>
                 <button
                   onClick={() => navigate('/subscriptions')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <CreditCard className="h-4 w-4" />
-                  Abonnementer
+                  {t("nav.subscriptions")}
                 </button>
                 <button
                   onClick={() => navigate('/terms-and-consent')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <FileCheck className="h-4 w-4" />
-                  Betingelser og samtykke
+                  {t("nav.termsAndConsent")}
                 </button>
                 <button
                   onClick={() => navigate('/regulations')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <Scale className="h-4 w-4" />
-                  Regelverk og krav
+                  {t("nav.regulations")}
                 </button>
                 <div className="border-t border-sidebar-border my-2" />
                 <button
@@ -286,7 +292,7 @@ const SidebarContent = () => {
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
-                  {loggingOut ? "Logger ut..." : "Logg ut"}
+                  {loggingOut ? t("nav.loggingOut") : t("nav.logout")}
                 </button>
               </div>
             )}
@@ -298,8 +304,8 @@ const SidebarContent = () => {
                 <Building2 className="h-5 w-5 text-sidebar-foreground/60" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-sidebar-foreground/70">Ikke registrert</p>
-                <p className="text-xs text-sidebar-foreground/50">Klikk på Lara for å starte</p>
+                <p className="text-sm text-sidebar-foreground/70">{t("nav.notRegistered")}</p>
+                <p className="text-xs text-sidebar-foreground/50">{t("nav.clickLaraToStart")}</p>
               </div>
             </div>
           </div>

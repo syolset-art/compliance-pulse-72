@@ -18,7 +18,16 @@
     "chat": "Chat",
     "switchOrganization": "Bytt organisasjon",
     "resources": "Læringssenter",
-    "complianceChecklist": "Samsvarsjekkliste"
+    "complianceChecklist": "Samsvarsjekkliste",
+    "companySettings": "Selskapsinnstillinger",
+    "subscriptions": "Abonnementer",
+    "termsAndConsent": "Betingelser og samtykke",
+    "regulations": "Regelverk og krav",
+    "company": "Selskap",
+    "logout": "Logg ut",
+    "loggingOut": "Logger ut...",
+    "notRegistered": "Ikke registrert",
+    "clickLaraToStart": "Klikk på Lara for å starte"
   },
   "resources": {
     "title": "Læringssenter",

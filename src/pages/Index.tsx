@@ -26,7 +26,6 @@ import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { QualityModuleActivationWizard } from "@/components/quality/QualityModuleActivationWizard";
-import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -42,7 +41,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const { primaryRole } = useUserRole();
   const { stats } = useComplianceRequirements({});
-  const [activeView, setActiveView] = useState<AppRole | 'all'>(primaryRole);
+  const activeView = primaryRole as AppRole | 'all';
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -263,13 +262,10 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                       </p>
                       <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <RoleSwitcher onViewChange={setActiveView} />
-                      <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury">
-                        <Plus className="h-4 w-4" />
-                        {t("dashboard.addModule")}
-                      </Button>
-                    </div>
+                    <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury">
+                      <Plus className="h-4 w-4" />
+                      {t("dashboard.addModule")}
+                    </Button>
                   </div>
                   <p className="text-base text-muted-foreground max-w-2xl">
                     {activeView !== 'all' ? t(`dashboardViews.${activeView}.description`) : t("dashboard.subtitle")}
