@@ -1089,5 +1089,41 @@
       "title": "Systemintegrasjoner",
       "description": "Koble til eksterne systemer"
     }
+  },
+  "isoReadiness": {
+    "journey": {
+      "title": "Sertifiseringsreisen",
+      "subtitle": "Din vei mot ISO-sertifisering",
+      "overall": "samlet"
+    },
+    "phases": {
+      "foundation": "Fundament",
+      "implementation": "Implementering",
+      "operation": "Drift",
+      "audit": "Intern Audit",
+      "certification": "Sertifisering"
+    },
+    "slaCategories": {
+      "systems_processes": "Systemer og prosesser",
+      "organization_governance": "Organisasjon og styring",
+      "roles_access": "Roller og tilgang"
+    },
+    "maturityLevel": "Nivå",
+    "maturity": {
+      "initial": "Initial",
+      "defined": "Definert",
+      "implemented": "Implementert",
+      "measured": "Målt",
+      "optimized": "Optimalisert"
+    },
+    "fulfilled": "oppfylt",
+    "requirementsPerPhase": "Krav per fase",
+    "phaseLabel": "Fase {{number}}",
+    "phaseComplete": "Fullført",
+    "addComment": "Legg til kommentar",
+    "saveComment": "Lagre",
+    "commentPlaceholder": "Legg til dokumentasjon eller notater...",
+    "savedSuccess": "Endringer lagret",
+    "savedSuccessDesc": "Status oppdatert"
   }
 }
