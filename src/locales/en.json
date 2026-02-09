@@ -917,7 +917,7 @@
     },
     "onboarding": {
       "title": "ISO Preparation",
-      "remaining": "remaining",
+      "remaining": "left",
       "stepsCompleted": "{{completed}} of {{total}} steps completed",
       "hideOnboarding": "Hide onboarding",
       "steps": {
