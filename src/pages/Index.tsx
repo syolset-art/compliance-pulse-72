@@ -143,7 +143,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase mb-2">
-                      Velkommen tilbake
+                      {t("dashboard.welcomeBack")}
                     </p>
                     <h1 className="text-2xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                   </div>
@@ -259,7 +259,7 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase mb-2">
-                        Velkommen tilbake
+                        {t("dashboard.welcomeBack")}
                       </p>
                       <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                     </div>

@@ -67,6 +67,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "welcomeBack": "Velkommen tilbake",
     "subtitle": "AI-drevet compliance og sikkerhetsløsning",
     "addModule": "Legg til modul",
     "onboarding": {
