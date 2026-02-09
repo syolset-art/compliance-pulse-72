@@ -1088,5 +1088,41 @@
       "title": "System Integrations",
       "description": "Connect to external systems"
     }
+  },
+  "isoReadiness": {
+    "journey": {
+      "title": "Certification Journey",
+      "subtitle": "Your path to ISO certification",
+      "overall": "overall"
+    },
+    "phases": {
+      "foundation": "Foundation",
+      "implementation": "Implementation",
+      "operation": "Operation",
+      "audit": "Internal Audit",
+      "certification": "Certification"
+    },
+    "slaCategories": {
+      "systems_processes": "Systems & processes",
+      "organization_governance": "Organization & governance",
+      "roles_access": "Roles & access"
+    },
+    "maturityLevel": "Level",
+    "maturity": {
+      "initial": "Initial",
+      "defined": "Defined",
+      "implemented": "Implemented",
+      "measured": "Measured",
+      "optimized": "Optimized"
+    },
+    "fulfilled": "fulfilled",
+    "requirementsPerPhase": "Requirements per phase",
+    "phaseLabel": "Phase {{number}}",
+    "phaseComplete": "Complete",
+    "addComment": "Add comment",
+    "saveComment": "Save",
+    "commentPlaceholder": "Add documentation or notes...",
+    "savedSuccess": "Changes saved",
+    "savedSuccessDesc": "Status updated"
   }
 }
