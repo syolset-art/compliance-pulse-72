@@ -119,7 +119,7 @@ const AssetTrustProfile = () => {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
             {/* Back button */}
             <Button variant="ghost" onClick={() => navigate("/assets")} className="mb-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -137,7 +137,7 @@ const AssetTrustProfile = () => {
 
             {/* Tabs section */}
             <Tabs defaultValue="validation" className="w-full">
-              <TabsList className="w-full justify-start bg-muted/50 p-1 h-auto flex-wrap gap-1">
+              <TabsList className="w-full justify-start bg-muted/50 p-1 h-auto flex-wrap gap-1 overflow-x-auto">
                 {enabledTabs.includes('validation') && (
                   <TabsTrigger value="validation" className="data-[state=active]:bg-background">
                     {t("trustProfile.tabs.validation")}

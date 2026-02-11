@@ -132,23 +132,23 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
   };
 
   return (
-    <div className="flex items-start gap-6">
+    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
       {/* Icon */}
-      <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center">
-        <IconComponent className="h-8 w-8 text-primary" />
+      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
       </div>
 
       {/* Info */}
-      <div className="flex-1 space-y-3">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-foreground">{asset.name}</h1>
-          <Badge variant="outline" className="text-xs">
+      <div className="flex-1 space-y-3 min-w-0">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">{asset.name}</h1>
+          <Badge variant="outline" className="text-xs shrink-0">
             {template?.display_name || asset.asset_type}
           </Badge>
           {asset.vendor && (
-            <span className="text-muted-foreground">• {asset.vendor}</span>
+            <span className="text-muted-foreground text-sm">• {asset.vendor}</span>
           )}
-          <Badge className={`${getStatusColor(asset.lifecycle_status)}`}>
+          <Badge className={`${getStatusColor(asset.lifecycle_status)} shrink-0`}>
             {getStatusLabel(asset.lifecycle_status)}
           </Badge>
         </div>
@@ -172,7 +172,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
         )}
 
         {/* Owner and Manager */}
-        <div className="flex items-center gap-6 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pt-2">
           {/* Owner (Work Area) */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{t("trustProfile.owner")}:</span>
