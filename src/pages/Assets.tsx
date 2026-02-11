@@ -12,9 +12,11 @@ import { VendorOverviewTab } from "@/components/vendor-dashboard/VendorOverviewT
 import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 export default function Assets() {
   const { t } = useTranslation();
+  const { openChatWithMessage } = useGlobalChat();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -67,9 +69,7 @@ export default function Assets() {
   const vendors = useMemo(() => assets.filter(a => a.asset_type === "vendor"), [assets]);
 
   const handleDiscoverAI = () => {
-    // Open chat panel with vendor discovery prompt
-    const event = new CustomEvent("open-chat", { detail: { message: t("vendorDashboard.discoverAI") } });
-    window.dispatchEvent(event);
+    openChatWithMessage(t("vendorDashboard.discoverAI", "Discover with AI"));
   };
 
   return (
