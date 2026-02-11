@@ -173,7 +173,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
 
         {/* Owner and Manager */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pt-2">
-          {/* Owner (Work Area) */}
+          {/* Owner */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{t("trustProfile.owner")}:</span>
             <Select
