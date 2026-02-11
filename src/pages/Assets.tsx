@@ -81,10 +81,6 @@ export default function Assets() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="text-xl md:text-2xl font-bold text-primary">{t("assets.title")}</h1>
-            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 w-full sm:w-auto">
-              <Plus className="h-4 w-4" />
-              {t("assets.addAsset")}
-            </Button>
           </div>
 
           {/* Tabbed Layout */}
