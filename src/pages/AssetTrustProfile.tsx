@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
@@ -17,6 +18,7 @@ import { IncidentManagementTab } from "@/components/asset-profile/tabs/IncidentM
 import { RelationsTab } from "@/components/asset-profile/tabs/RelationsTab";
 import { AIUsageTab } from "@/components/asset-profile/tabs/AIUsageTab";
 import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
+import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
 import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
 
@@ -75,6 +77,21 @@ const AssetTrustProfile = () => {
       
       if (error) throw error;
       return data || [];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch inbox count for badge
+  const { data: inboxCount = 0 } = useQuery({
+    queryKey: ["lara-inbox-count", id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("lara_inbox")
+        .select("*", { count: "exact", head: true })
+        .eq("matched_asset_id", id)
+        .in("status", ["new", "auto_matched"]);
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!id,
   });
@@ -178,6 +195,12 @@ const AssetTrustProfile = () => {
                     {t("trustProfile.tabs.documents")}
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="inbox" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg relative">
+                  Innboks
+                  {inboxCount > 0 && (
+                    <Badge className="ml-1.5 h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">{inboxCount}</Badge>
+                  )}
+                </TabsTrigger>
                 {enabledTabs.includes('analysis') && (
                   <TabsTrigger value="analysis" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.analysis")}
@@ -225,6 +248,10 @@ const AssetTrustProfile = () => {
 
               <TabsContent value="documents" className="mt-6">
                 <DocumentsTab assetId={asset.id} />
+              </TabsContent>
+
+              <TabsContent value="inbox" className="mt-6">
+                <LaraInboxTab assetId={asset.id} assetName={asset.name} />
               </TabsContent>
 
               <TabsContent value="analysis" className="mt-6">
