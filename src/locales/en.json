@@ -10,7 +10,7 @@
     "settings": "Settings",
     "trustProfile": "Trust Profile",
     "protocols": "ROPA",
-    "assets": "Third-Party Management",
+    "assets": "Vendors",
     "deviations": "Deviation Register",
     "reports": "Reports",
     "menu": "Menu",
@@ -1352,6 +1352,56 @@
       "hms": { "name": "HSE Legislation", "description": "Health, safety and environment in the workplace" },
       "bokforingsloven": { "name": "Bookkeeping Act", "description": "Requirements for storage and documentation of accounting material" },
       "hvitvasking": { "name": "Anti-Money Laundering Act", "description": "Measures against money laundering and terrorist financing", "trigger": "Is your organization subject to reporting obligations under the Anti-Money Laundering Act?" }
+    }
+  },
+  "vendorDashboard": {
+    "tabs": {
+      "overview": "Overview",
+      "all": "All Vendors",
+      "map": "Map",
+      "supplyChain": "Supply Chain"
+    },
+    "addVendor": "Add Vendor",
+    "discoverAI": "Discover with AI",
+    "reviewPending": "Review Pending",
+    "missingDPA": "Missing DPA",
+    "systems": "systems",
+    "more": "more",
+    "noVendors": "No vendors yet",
+    "noVendorsDesc": "Add your first vendor to get started",
+    "uncategorized": "Uncategorized",
+    "showAllAssets": "Show all asset types",
+    "allRisks": "All risk levels",
+    "showing": "Showing {{count}} vendors",
+    "needsAttention": "Needs Attention",
+    "mapDescription": "Vendors grouped by geographic location",
+    "gdprTransfer": "GDPR Transfer",
+    "noVendorsInRegion": "No vendors in this region",
+    "supplyChainDesc": "Visualize how your vendors connect to systems and sub-processors",
+    "noRelationships": "No vendor relationships found",
+    "noRelationshipsDesc": "Add relationships between vendors and systems to see the supply chain",
+    "connections": "connections",
+    "metrics": {
+      "total": "Total Vendors",
+      "compliant": "Compliant",
+      "missingDPA": "Missing DPA",
+      "highRisk": "High Risk"
+    },
+    "risk": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "attention": {
+      "missing_dpa": "Missing DPA",
+      "overdue_review": "Overdue Review",
+      "high_risk_unaudited": "High Risk Unaudited"
+    },
+    "regions": {
+      "norway": "Norway",
+      "euEea": "EU/EEA",
+      "usa": "USA",
+      "other": "Other"
     }
   }
 }
