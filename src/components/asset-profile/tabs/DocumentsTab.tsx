@@ -10,10 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, FileText, Trash2, FileCheck, Lock, Calendar, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Upload, FileText, Trash2, FileCheck, Lock, Calendar, CheckCircle2, AlertTriangle, Clock, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
+import { RequestUpdateDialog } from "../RequestUpdateDialog";
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
@@ -33,6 +34,8 @@ const SOURCE_LABELS: Record<string, { nb: string; en: string }> = {
 
 interface DocumentsTabProps {
   assetId: string;
+  assetName?: string;
+  vendorName?: string;
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, t: any) {
@@ -48,11 +51,14 @@ function getStatusBadge(status: string | null, validTo: string | null, t: any) {
   return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">{t("vendorDocs.current", "Gyldig")}</Badge>;
 }
 
-export function DocumentsTab({ assetId }: DocumentsTabProps) {
+export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabProps) {
   const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const { subscription } = useSubscription();
   const [uploading, setUploading] = useState(false);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [preselectedDocType, setPreselectedDocType] = useState<string | undefined>();
   const [docType, setDocType] = useState("other");
   const [notes, setNotes] = useState("");
   const [version, setVersion] = useState("v1.0");
@@ -215,9 +221,25 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
                         {new Date(doc.created_at).toLocaleDateString(locale)}
                       </TableCell>
                       <TableCell className="py-2.5">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="flex items-center gap-0.5">
+                          {doc.valid_to && new Date(doc.valid_to) < new Date() && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              title={isNb ? "Be om ny versjon" : "Request new version"}
+                              onClick={() => {
+                                setPreselectedDocType(doc.document_type);
+                                setRequestDialogOpen(true);
+                              }}
+                            >
+                              <Send className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -282,6 +304,18 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
 
       {/* Document requests & reminders section */}
       <DocumentRequestsSection assetId={assetId} />
+
+      <RequestUpdateDialog
+        open={requestDialogOpen}
+        onOpenChange={(val) => {
+          setRequestDialogOpen(val);
+          if (!val) setPreselectedDocType(undefined);
+        }}
+        assetId={assetId}
+        assetName={assetName || ""}
+        vendorName={vendorName}
+        preselectedType={preselectedDocType}
+      />
     </div>
   );
 }
