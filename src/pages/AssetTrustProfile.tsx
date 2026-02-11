@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
 import { ValidationTab } from "@/components/asset-profile/tabs/ValidationTab";
@@ -137,61 +137,57 @@ const AssetTrustProfile = () => {
 
             {/* Tabs section */}
             <Tabs defaultValue="validation" className="w-full">
-              <TabsList className="w-full justify-start bg-muted/50 p-1 h-auto flex-wrap gap-1 overflow-x-auto">
+              <TabsList className="w-full justify-start bg-muted/30 border border-border rounded-xl p-1 h-auto flex-wrap gap-0.5">
                 {enabledTabs.includes('validation') && (
-                  <TabsTrigger value="validation" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="validation" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.validation")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('usage') && (
-                  <TabsTrigger value="usage" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="usage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.usage")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('aiUsage') && (
-                  <TabsTrigger value="aiUsage" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="aiUsage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.aiUsage")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('dataHandling') && (
-                  <TabsTrigger value="dataHandling" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="dataHandling" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.dataHandling")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('riskManagement') && (
-                  <TabsTrigger value="riskManagement" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="riskManagement" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.riskManagement")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('incidents') && (
-                  <TabsTrigger value="incidents" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="incidents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.incidents")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('relations') && (
-                  <TabsTrigger value="relations" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="relations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.relations")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('documents') && (
-                  <TabsTrigger value="documents" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="documents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.documents")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('analysis') && (
-                  <TabsTrigger value="analysis" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="analysis" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.analysis")}
                   </TabsTrigger>
                 )}
                 {enabledTabs.includes('benchmark') && (
-                  <TabsTrigger value="benchmark" className="data-[state=active]:bg-background">
+                  <TabsTrigger value="benchmark" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.benchmark")}
                   </TabsTrigger>
                 )}
-                <Button variant="ghost" size="sm" className="ml-auto">
-                  <Plus className="h-4 w-4 mr-1" />
-                  {t("trustProfile.tabs.components")}
-                </Button>
               </TabsList>
 
               <TabsContent value="validation" className="mt-6">

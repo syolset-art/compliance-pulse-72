@@ -628,7 +628,7 @@
   },
   "trustProfile": {
     "notFound": "System not found",
-    "owner": "Owner (Service Area)",
+    "owner": "Owner",
     "selectOwner": "Select owner",
     "noOwner": "No owner",
     "systemManager": "System Manager",

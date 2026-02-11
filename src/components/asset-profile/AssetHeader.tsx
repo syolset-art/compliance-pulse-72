@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -25,7 +26,9 @@ import {
   HardDrive,
   Database,
   FileText,
-  LucideIcon
+  LucideIcon,
+  User,
+  Users
 } from "lucide-react";
 
 interface AssetHeaderProps {
@@ -71,7 +74,6 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
   const [isEditingManager, setIsEditingManager] = useState(false);
   const [managerName, setManagerName] = useState(asset.asset_manager || "");
 
-  // Fetch work areas for dropdown
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work_areas"],
     queryFn: async () => {
@@ -81,7 +83,6 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
     },
   });
 
-  // Update asset mutation
   const updateAsset = useMutation({
     mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null }>) => {
       const { error } = await supabase
@@ -103,18 +104,12 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
     const workAreaId = value === "none" ? null : value;
     const selectedArea = workAreas.find((a: any) => a.id === value);
     const responsiblePerson = selectedArea?.responsible_person || null;
-    
-    // Update both work_area_id and default the manager to the area's responsible person
     updateAsset.mutate({ 
       work_area_id: workAreaId, 
       asset_manager: responsiblePerson 
     });
     setManagerName(responsiblePerson || "");
   };
-
-  // Derive displayed manager: use asset_manager, or fall back to selected work area's responsible_person
-  const selectedWorkArea = workAreas.find((a: any) => a.id === asset.work_area_id);
-  const displayedManager = asset.asset_manager || selectedWorkArea?.responsible_person || null;
 
   const handleSaveManager = () => {
     updateAsset.mutate({ asset_manager: managerName || null });
@@ -126,15 +121,18 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
     setIsEditingManager(false);
   };
 
+  const selectedWorkArea = workAreas.find((a: any) => a.id === asset.work_area_id);
+  const displayedManager = asset.asset_manager || selectedWorkArea?.responsible_person || null;
+
   const IconComponent = template?.icon ? iconMap[template.icon] || Server : Server;
 
   const getStatusColor = (status: string | null) => {
     switch (status) {
-      case "active": return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "planned": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "deprecated": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "archived": return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-      default: return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+      case "active": return "bg-success/15 text-success border-success/30";
+      case "planned": return "bg-primary/15 text-primary border-primary/30";
+      case "deprecated": return "bg-warning/15 text-warning border-warning/30";
+      case "archived": return "bg-muted text-muted-foreground border-border";
+      default: return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -149,55 +147,67 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-      {/* Icon */}
-      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-        <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 space-y-3 min-w-0">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">{asset.name}</h1>
-          <Badge variant="outline" className="text-xs shrink-0">
-            {template?.display_name || asset.asset_type}
-          </Badge>
-          {asset.vendor && (
-            <span className="text-muted-foreground text-sm">• {asset.vendor}</span>
-          )}
-          <Badge className={`${getStatusColor(asset.lifecycle_status)} shrink-0`}>
-            {getStatusLabel(asset.lifecycle_status)}
-          </Badge>
+    <Card className="p-5 md:p-6">
+      {/* Top row: icon + name + badges */}
+      <div className="flex items-start gap-4">
+        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <IconComponent className="h-6 w-6 text-primary" />
         </div>
 
-        {asset.url && (
-          <a 
-            href={asset.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-          >
-            {asset.url}
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
+            <Badge variant="outline" className="text-[10px] shrink-0">
+              {template?.display_name || asset.asset_type}
+            </Badge>
+            <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
+              {getStatusLabel(asset.lifecycle_status)}
+            </Badge>
+          </div>
 
-        {asset.description && (
-          <p className="text-muted-foreground text-sm max-w-2xl">
-            {asset.description}
-          </p>
-        )}
+          {asset.vendor && (
+            <p className="text-sm text-muted-foreground">{asset.vendor}</p>
+          )}
 
-        {/* Owner and Manager */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 pt-2">
-          {/* Owner */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t("trustProfile.owner")}:</span>
+          {asset.description && (
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+              {asset.description}
+            </p>
+          )}
+
+          {asset.url && (
+            <a 
+              href={asset.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+            >
+              {asset.url}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-border my-4" />
+
+      {/* Owner and Manager row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Owner */}
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+              {t("trustProfile.owner")}
+            </p>
             <Select
               value={asset.work_area_id || "none"}
               onValueChange={handleOwnerChange}
             >
-              <SelectTrigger className="h-8 w-[180px] bg-muted/30">
+              <SelectTrigger className="h-7 w-[160px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                 <SelectValue placeholder={t("trustProfile.selectOwner")} />
               </SelectTrigger>
               <SelectContent>
@@ -210,37 +220,43 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {/* Asset Manager */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t("trustProfile.systemManager")}:</span>
+        {/* Asset Manager */}
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <User className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+              {t("trustProfile.systemManager")}
+            </p>
             {isEditingManager ? (
               <div className="flex items-center gap-1">
                 <Input
                   value={managerName}
                   onChange={(e) => setManagerName(e.target.value)}
-                  className="h-8 w-[180px]"
+                  className="h-7 w-[140px] text-xs"
                   placeholder={t("trustProfile.enterManager")}
                 />
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSaveManager}>
-                  <Check className="h-4 w-4 text-green-500" />
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleSaveManager}>
+                  <Check className="h-3 w-3 text-success" />
                 </Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCancelManager}>
-                  <X className="h-4 w-4 text-red-500" />
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleCancelManager}>
+                  <X className="h-3 w-3 text-destructive" />
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="ghost"
-                className="h-8 px-2 text-foreground hover:bg-muted/50"
+              <button
+                className="text-xs text-foreground hover:text-primary transition-colors text-left"
                 onClick={() => setIsEditingManager(true)}
               >
                 {displayedManager || t("trustProfile.assignManager")}
-              </Button>
+              </button>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
