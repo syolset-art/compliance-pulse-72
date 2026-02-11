@@ -99,6 +99,23 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
     },
   });
 
+  const handleOwnerChange = (value: string) => {
+    const workAreaId = value === "none" ? null : value;
+    const selectedArea = workAreas.find((a: any) => a.id === value);
+    const responsiblePerson = selectedArea?.responsible_person || null;
+    
+    // Update both work_area_id and default the manager to the area's responsible person
+    updateAsset.mutate({ 
+      work_area_id: workAreaId, 
+      asset_manager: responsiblePerson 
+    });
+    setManagerName(responsiblePerson || "");
+  };
+
+  // Derive displayed manager: use asset_manager, or fall back to selected work area's responsible_person
+  const selectedWorkArea = workAreas.find((a: any) => a.id === asset.work_area_id);
+  const displayedManager = asset.asset_manager || selectedWorkArea?.responsible_person || null;
+
   const handleSaveManager = () => {
     updateAsset.mutate({ asset_manager: managerName || null });
     setIsEditingManager(false);
@@ -178,7 +195,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             <span className="text-sm text-muted-foreground">{t("trustProfile.owner")}:</span>
             <Select
               value={asset.work_area_id || "none"}
-              onValueChange={(value) => updateAsset.mutate({ work_area_id: value === "none" ? null : value })}
+              onValueChange={handleOwnerChange}
             >
               <SelectTrigger className="h-8 w-[180px] bg-muted/30">
                 <SelectValue placeholder={t("trustProfile.selectOwner")} />
@@ -218,7 +235,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
                 className="h-8 px-2 text-foreground hover:bg-muted/50"
                 onClick={() => setIsEditingManager(true)}
               >
-                {asset.asset_manager || t("trustProfile.assignManager")}
+                {displayedManager || t("trustProfile.assignManager")}
               </Button>
             )}
           </div>
