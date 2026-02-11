@@ -129,6 +129,7 @@ function EmptyStateWelcome({
   percentComplete,
   isOnboardingDismissed,
   onDismissOnboarding,
+  onExpandOnboarding,
   t
 }: { 
   onSuggestionClick: (text: string) => void;
@@ -141,6 +142,7 @@ function EmptyStateWelcome({
   percentComplete: number;
   isOnboardingDismissed: boolean;
   onDismissOnboarding: () => void;
+  onExpandOnboarding: () => void;
   t: (key: string, options?: any) => string;
 }) {
   const getStepIcon = (iconName: string) => {
@@ -151,8 +153,10 @@ function EmptyStateWelcome({
   const nextStep = onboardingSteps.find(s => !s.isCompleted);
   const remainingSteps = totalCount - completedCount;
   
-  // Show onboarding only if not complete and not dismissed
-  const showOnboarding = !isOnboardingComplete && !isOnboardingDismissed;
+  // Show expanded onboarding only if not complete and user expanded it
+  const showOnboardingExpanded = !isOnboardingComplete && !isOnboardingDismissed;
+  // Show collapsed onboarding hint if not complete and dismissed
+  const showOnboardingHint = !isOnboardingComplete && isOnboardingDismissed;
 
   return (
     <div className="flex flex-col h-full px-4">
@@ -172,8 +176,30 @@ function EmptyStateWelcome({
         </p>
       </div>
 
-      {/* Onboarding section - show if not complete and not dismissed */}
-      {showOnboarding && (
+      {/* Completed badge - subtle inline */}
+      {isOnboardingComplete && (
+        <div className="mb-4 flex items-center justify-center gap-2" role="status">
+          <Badge variant="outline" className="text-xs gap-1.5 py-1 px-3 border-success/40 text-success">
+            <Check className="h-3 w-3" aria-hidden="true" />
+            {t("chat.complete.title")}
+          </Badge>
+        </div>
+      )}
+
+      {/* Collapsed onboarding hint - subtle expandable */}
+      {showOnboardingHint && (
+        <button
+          onClick={onExpandOnboarding}
+          className="mb-4 mx-auto flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors text-sm text-primary"
+        >
+          <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>{t("chat.onboarding.stepsCompleted", { completed: completedCount, total: totalCount })}</span>
+          <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+        </button>
+      )}
+
+      {/* Onboarding section - expanded */}
+      {showOnboardingExpanded && (
         <div className="mb-4 bg-accent/50 rounded-xl p-4 border border-primary/20">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -260,19 +286,6 @@ function EmptyStateWelcome({
           </div>
         </div>
       )}
-
-      {/* Completed badge when fully done */}
-      {isOnboardingComplete && (
-        <div className="mb-4 bg-success/10 rounded-xl p-4 border border-success/20 flex items-center gap-3" role="status">
-          <div className="h-9 w-9 rounded-full bg-success flex items-center justify-center">
-            <Check className="h-5 w-5 text-success-foreground" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-base font-medium text-foreground">{t("chat.complete.title")}</p>
-            <p className="text-sm text-muted-foreground">{t("chat.complete.description")}</p>
-          </div>
-        </div>
-      )}
       
       {/* Suggestions */}
       <div className="flex-1" />
@@ -322,7 +335,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
-  const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(false);
+  const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(true);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
   const [companyName, setCompanyName] = useState<string>("Eviny AS");
@@ -861,6 +874,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             percentComplete={percentComplete}
             isOnboardingDismissed={isOnboardingDismissed}
             onDismissOnboarding={() => setIsOnboardingDismissed(true)}
+            onExpandOnboarding={() => setIsOnboardingDismissed(false)}
             t={t}
           />
         </div>
