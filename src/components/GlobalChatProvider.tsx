@@ -25,7 +25,17 @@ const GlobalChatContext = createContext<GlobalChatContextType | undefined>(undef
 export function useGlobalChat() {
   const context = useContext(GlobalChatContext);
   if (!context) {
-    throw new Error("useGlobalChat must be used within GlobalChatProvider");
+    // Return a safe fallback instead of throwing - prevents crashes during HMR or edge cases
+    return {
+      isChatOpen: false,
+      setIsChatOpen: () => {},
+      toggleChat: () => {},
+      openChatWithMessage: () => {},
+      pendingMessage: null,
+      clearPendingMessage: () => {},
+      registerAssetAddedCallback: () => {},
+      unregisterAssetAddedCallback: () => {},
+    } as GlobalChatContextType;
   }
   return context;
 }
