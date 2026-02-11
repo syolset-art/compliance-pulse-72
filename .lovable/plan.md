@@ -1,130 +1,74 @@
 
-
-# Leverandor Trust Profile - Dokumentstyring og Lara Innboks
+# Be om oppdatering - Trust Profile Feature
 
 ## Oversikt
-Utvide Trust Profile med strukturert dokumenthandtering, gyldighet/versjon-sporing, en Lara-innboks for mottatt dokumentasjon, og grunnlag for kravmatching -- klart til demo i morgen.
+Legge til en "Be om oppdatering"-funksjon direkte i Trust Profile som lar compliance-ansvarlig sende foresporsler til leverandorer om manglende eller utgatt informasjon. Funksjonen skal vare enkel, intuitiv og demo-klar.
+
+## Brukeropplevelse
+
+Brukeren ser en tydelig knapp i Trust Profile-headeren: **"Be om oppdatering"**. Nar den klikkes, apnes en dialog der brukeren kan:
+
+1. Velge hva som mangler/er utgatt (dokumenter, informasjon, sertifikater)
+2. Sette en frist
+3. Legge til en kort melding
+4. "Sende" foresporselen (simulert i demo)
+
+I tillegg: Dokumenter og metrics som er utgatt eller mangler far automatisk et visuelt varsel med en hurtigknapp for a be om oppdatering direkte derfra.
 
 ## Endringer
 
-### 1. Utvid vendor_documents-tabellen
-Legg til kolonner for versjon, gyldighet, status og sporbarhet:
-- `version` (text) - f.eks. "v1.0", "v2.1"
-- `valid_from` (date) - gyldig fra
-- `valid_to` (date) - gyldig til (utlopsdato)
-- `status` (text) - "current", "expired", "pending_review", "superseded"
-- `requested_at` (timestamptz) - nar dokumentet ble forespurt
-- `received_at` (timestamptz) - nar det ble mottatt
-- `reminder_sent_at` (timestamptz) - siste purring sendt
-- `source` (text) - "manual_upload", "email_inbox", "vendor_portal"
+### 1. Ny dialog: RequestUpdateDialog
+En modal dialog som apnes fra headeren eller fra individuelle varsler:
+- **Foresporselstyper** (flervalg): Penetrasjonstest, DPA, ISO 27001-sertifikat, SOC 2, DPIA, Generell oppdatering
+- **Frist** (datofelt med standard 30 dager frem)
+- **Melding** (valgfritt tekstfelt, forhåndsutfylt basert pa kontekst)
+- **Mottaker** (e-post, forhåndsutfylt fra leverandorens kontaktinfo)
+- Knapp: "Send forespørsel via Lara"
 
-### 2. Ny tabell: vendor_document_requests
-For automatisert oppfolging (foresporsler, frister, purringer):
-- `id`, `asset_id`, `document_type`, `requested_by`, `due_date`
-- `status` ("pending", "received", "overdue", "cancelled")
-- `reminder_count`, `last_reminder_at`, `notes`
-- `created_at`
+Nar brukeren klikker send, opprettes en rad i `vendor_document_requests` og en toast bekrefter at "Lara sender foresporselen".
 
-### 3. Ny tabell: lara_inbox
-Laras innboks der innkommende dokumenter lander:
-- `id`, `sender_email`, `sender_name`, `subject`, `received_at`
-- `file_name`, `file_path` (storage ref)
-- `matched_asset_id` (nullable - AI-foreslatt match)
-- `matched_document_type` (nullable)
-- `confidence_score` (float - AI-matchens sikkerhet)
-- `status` ("new", "auto_matched", "manually_assigned", "rejected")
-- `processed_at`, `processed_by`
+### 2. Oppdater AssetHeader
+Legg til en "Be om oppdatering"-knapp (med Send-ikon) ved siden av leverandornavnet. Knappen apner RequestUpdateDialog.
 
-### 4. Oppgradert DocumentsTab
-Redesign med tre seksjoner:
-- **Dokumentoversikt**: Tabell med kolonner for type, versjon, gyldig til, status (fargekodede badges), kilde
-- **Foresporsler og purringer**: Aktive foresporsler med frist, status, og "Send purring"-knapp (demo-modus)
-- **Last opp**: Behold eksisterende opplastingsfunksjonalitet med nye felter (versjon, gyldig fra/til)
+### 3. Smarte varsler i DocumentsTab
+Dokumenter som er utlopt eller utloper snart far en liten "Be om ny versjon"-knapp direkte pa raden i tabellen. Klikk apner RequestUpdateDialog forhåndsutfylt med riktig dokumenttype.
 
-### 5. Ny komponent: LaraInboxPanel
-En innboks-visning tilgjengelig fra Trust Profile (og globalt):
-- Liste over innkommende dokumenter med avsender, emne, tidspunkt
-- AI-matchforslag: "Lara foreslaar: Koble til [Leverandornavn] som [Dokumenttype]"
-- Godkjenn/Avvis-knapper for hver match
-- Ved godkjenning: dokument flyttes til riktig Trust Profile automatisk
-- Demo-data forhåndsutfylt med realistiske eksempler
+### 4. Varselbanner i metrics
+Nar det finnes utgatte dokumenter eller manglende obligatoriske dokumenter, vis et lite varselbanner mellom metrics og tabs med tekst som "2 dokumenter er utlopt" og en hurtigknapp.
 
-### 6. Ny tab i Trust Profile: "Innboks"
-Legg til en "Innboks"-tab som viser Lara-innboksen filtrert for den aktuelle leverandoren, med antall ventende dokumenter som badge.
-
-### 7. Demo-data
-Sett inn realistisk demodata:
-- 3-5 dokumenter per leverandor (DPA, penetrasjonstest, ISO-sertifikat) med versjon og gyldighet
-- 2 aktive foresporsler (en overdue, en pending)
-- 3 innboks-elementer der Lara har foreslatt match med hoy confidence
+### 5. Demo-data
+Oppdater eksisterende demodata slik at noen dokumenter er utlopt, slik at varslene vises automatisk.
 
 ## Tekniske detaljer
 
-**Database-migrasjoner:**
-```sql
--- Utvid vendor_documents
-ALTER TABLE vendor_documents
-  ADD COLUMN version text DEFAULT 'v1.0',
-  ADD COLUMN valid_from date,
-  ADD COLUMN valid_to date,
-  ADD COLUMN status text DEFAULT 'current',
-  ADD COLUMN requested_at timestamptz,
-  ADD COLUMN received_at timestamptz,
-  ADD COLUMN reminder_sent_at timestamptz,
-  ADD COLUMN source text DEFAULT 'manual_upload';
+**Nye filer:**
+- `src/components/asset-profile/RequestUpdateDialog.tsx` - Dialog-komponent
 
--- Ny tabell for foresporsler
-CREATE TABLE vendor_document_requests (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  asset_id uuid REFERENCES assets(id) ON DELETE CASCADE,
-  document_type text NOT NULL,
-  requested_by text,
-  due_date date NOT NULL,
-  status text DEFAULT 'pending',
-  reminder_count integer DEFAULT 0,
-  last_reminder_at timestamptz,
-  notes text,
-  created_at timestamptz DEFAULT now()
-);
+**Endrede filer:**
+- `src/components/asset-profile/AssetHeader.tsx` - Legg til "Be om oppdatering"-knapp
+- `src/components/asset-profile/tabs/DocumentsTab.tsx` - Legg til inline "Be om ny versjon"-knapper pa utgatte rader
+- `src/components/asset-profile/AssetMetrics.tsx` - Legg til varselbanner for utgatte dokumenter
+- `src/pages/AssetTrustProfile.tsx` - Evt. state-koordinering
 
--- Ny tabell for Lara innboks
-CREATE TABLE lara_inbox (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_email text,
-  sender_name text,
-  subject text,
-  received_at timestamptz DEFAULT now(),
-  file_name text,
-  file_path text,
-  matched_asset_id uuid REFERENCES assets(id),
-  matched_document_type text,
-  confidence_score float,
-  status text DEFAULT 'new',
-  processed_at timestamptz,
-  processed_by text,
-  created_at timestamptz DEFAULT now()
-);
+**RequestUpdateDialog props:**
+```typescript
+interface RequestUpdateDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  assetId: string;
+  assetName: string;
+  vendorName?: string;
+  preselectedType?: string; // forhåndsvalgt dokumenttype
+}
 ```
 
-**Nye/endrede filer:**
-- `src/components/asset-profile/tabs/DocumentsTab.tsx` - Fullstendig redesign med versjon/gyldighet/status
-- `src/components/asset-profile/tabs/LaraInboxTab.tsx` - Ny komponent for innboks
-- `src/components/asset-profile/tabs/DocumentRequestsSection.tsx` - Foresporsler og purringer
-- `src/pages/AssetTrustProfile.tsx` - Legg til Innboks-tab med badge
-- `src/locales/nb.json` og `en.json` - Nye oversettelser
+**Dialog logikk:**
+- Oppretter rad i `vendor_document_requests` med valgt type, frist og status "pending"
+- Invaliderer queries for a oppdatere DocumentRequestsSection automatisk
+- Toast-melding: "Lara sender foresporselen til [leverandor]"
 
-**DocumentsTab redesign:**
-- Tabellvisning med sorterbare kolonner: Navn, Type, Versjon, Gyldig til, Status, Kilde, Dato
-- Status-badges: Gront (current), Gult (expiring soon), Rodt (expired), Blatt (pending_review)
-- Expiry-varsel: Dokumenter som utloper innen 30 dager far gul varsel-badge
+**Varselbanner-komponent (inline i AssetMetrics eller egen):**
+- Query mot `vendor_documents` for a finne dokumenter der `valid_to < now()`
+- Viser antall utgatte dokumenter med en "Be om oppdatering"-knapp
 
-**LaraInboxTab:**
-- Viser innkommende dokumenter med Lara-sommerfugl-ikon
-- "Lara foreslaar"-kort med confidence-prosent og handlingsknapper
-- Animert overgang nar dokument godkjennes og flyttes til profilen
-
-**Foresporsler-seksjon:**
-- Aktive foresporsler med countdown til frist
-- "Send purring"-knapp (simulert i demo)
-- Overdue-foresporsler markert med rodt
-
+**Ingen nye tabeller trengs** - bruker eksisterende `vendor_document_requests`.
