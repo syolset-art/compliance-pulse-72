@@ -629,7 +629,7 @@
   },
   "trustProfile": {
     "notFound": "System ikke funnet",
-    "owner": "Eier (Tjenesteområde)",
+    "owner": "Eier",
     "selectOwner": "Velg eier",
     "noOwner": "Ingen eier",
     "systemManager": "Systemansvarlig",
