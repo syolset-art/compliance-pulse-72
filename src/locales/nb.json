@@ -11,7 +11,7 @@
     "settings": "Innstillinger",
     "trustProfile": "Tillitsprofil",
     "protocols": "ROPA",
-    "assets": "Tredjepartsstyring",
+    "assets": "Leverandører",
     "deviations": "Avviksregister",
     "reports": "Rapporter",
     "menu": "Meny",
@@ -1353,6 +1353,56 @@
       "hms": { "name": "HMS-lovgivningen", "description": "Helse, miljø og sikkerhet på arbeidsplassen" },
       "bokforingsloven": { "name": "Bokføringsloven", "description": "Krav til oppbevaring og dokumentasjon av regnskapsmateriale" },
       "hvitvasking": { "name": "Hvitvaskingsloven", "description": "Tiltak mot hvitvasking og terrorfinansiering", "trigger": "Er virksomheten rapporteringspliktig etter hvitvaskingsloven?" }
+    }
+  },
+  "vendorDashboard": {
+    "tabs": {
+      "overview": "Oversikt",
+      "all": "Alle leverandører",
+      "map": "Kart",
+      "supplyChain": "Leverandørkjede"
+    },
+    "addVendor": "Legg til leverandør",
+    "discoverAI": "Oppdag med AI",
+    "reviewPending": "Gjennomgang ventende",
+    "missingDPA": "Mangler DPA",
+    "systems": "systemer",
+    "more": "flere",
+    "noVendors": "Ingen leverandører ennå",
+    "noVendorsDesc": "Legg til din første leverandør for å komme i gang",
+    "uncategorized": "Ukategorisert",
+    "showAllAssets": "Vis alle eiendelstyper",
+    "allRisks": "Alle risikonivåer",
+    "showing": "Viser {{count}} leverandører",
+    "needsAttention": "Krever oppmerksomhet",
+    "mapDescription": "Leverandører gruppert etter geografisk plassering",
+    "gdprTransfer": "GDPR-overføring",
+    "noVendorsInRegion": "Ingen leverandører i denne regionen",
+    "supplyChainDesc": "Visualiser hvordan dine leverandører kobles til systemer og underleverandører",
+    "noRelationships": "Ingen leverandørrelasjoner funnet",
+    "noRelationshipsDesc": "Legg til relasjoner mellom leverandører og systemer for å se leverandørkjeden",
+    "connections": "koblinger",
+    "metrics": {
+      "total": "Totalt leverandører",
+      "compliant": "Samsvar",
+      "missingDPA": "Mangler DPA",
+      "highRisk": "Høy risiko"
+    },
+    "risk": {
+      "high": "Høy",
+      "medium": "Medium",
+      "low": "Lav"
+    },
+    "attention": {
+      "missing_dpa": "Mangler DPA",
+      "overdue_review": "Forfalt gjennomgang",
+      "high_risk_unaudited": "Høy risiko uten revisjon"
+    },
+    "regions": {
+      "norway": "Norge",
+      "euEea": "EU/EØS",
+      "usa": "USA",
+      "other": "Annet"
     }
   }
 }
