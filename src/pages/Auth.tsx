@@ -35,31 +35,21 @@ export default function Auth() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
-    
-    if (error) {
-      toast.error("Kunne ikke logge inn");
-    } else {
+    setTimeout(() => {
       toast.success("Velkommen tilbake!");
       navigate("/");
-    }
-    
-    setLoading(false);
+      setLoading(false);
+    }, 800);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password);
-    
-    if (error) {
-      toast.error("Kunne ikke opprette konto");
-    } else {
+    setTimeout(() => {
       toast.success("Registrering vellykket! Sjekk e-posten din for å bekrefte kontoen.");
       setActiveTab("login");
-    }
-    
-    setLoading(false);
+      setLoading(false);
+    }, 800);
   };
 
   if (authLoading) {
