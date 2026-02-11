@@ -51,7 +51,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     : t("trustProfile.notSet");
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
       {/* Risk Level */}
       <Card>
         <CardContent className="p-4">
