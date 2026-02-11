@@ -1188,32 +1188,63 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </form>
   );
 
-  // Step 3c: Upload - parse Excel/CSV file
+  // Step 3c: Upload - parse Excel/CSV/PDF file
   const parseUploadFile = useCallback(async (file: File) => {
-    const allowedExtensions = [".xlsx", ".xls", ".csv"];
+    const allowedExtensions = [".xlsx", ".xls", ".csv", ".pdf"];
     const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
     if (!allowedExtensions.includes(ext)) {
-      toast.error("Ugyldig filtype. Last opp .xlsx, .xls eller .csv");
+      toast.error("Ugyldig filtype. Last opp Excel, CSV eller PDF.");
       return;
     }
 
     try {
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonRows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { defval: "" });
+      if (ext === ".pdf") {
+        // Read PDF as text and send to AI for extraction
+        toast.info("Analyserer PDF med AI...");
+        const text = await file.text();
+        const { data, error } = await supabase.functions.invoke("analyze-document", {
+          body: { documentText: text, fileName: file.name },
+        });
+        if (error) throw error;
 
-      if (jsonRows.length === 0) {
-        toast.error("Filen inneholder ingen data");
-        return;
+        const suppliers = data?.analysis?.suppliers || [];
+        if (suppliers.length === 0) {
+          toast.error("Ingen leverandører funnet i PDF-en");
+          return;
+        }
+
+        // Convert AI-extracted suppliers to row format
+        const jsonRows = suppliers.map((s: any) => ({
+          Name: s.name || "",
+          Type: s.type || "",
+          Vendor: s.name || "",
+          Description: s.dataProcessing ? "Behandler persondata" : "",
+          DPA: s.hasDPA ? "Ja" : "Nei",
+          Certifications: (s.certifications || []).join(", "),
+        }));
+
+        setUploadFileName(file.name);
+        setUploadParsedRows(jsonRows);
+        setUploadSelectedRows(new Set(jsonRows.map((_: any, i: number) => i)));
+        toast.success(`${jsonRows.length} leverandører funnet via AI-analyse`);
+      } else {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { defval: "" });
+
+        if (jsonRows.length === 0) {
+          toast.error("Filen inneholder ingen data");
+          return;
+        }
+
+        setUploadFileName(file.name);
+        setUploadParsedRows(jsonRows);
+        setUploadSelectedRows(new Set(jsonRows.map((_, i) => i)));
+        toast.success(`${jsonRows.length} rader funnet i ${file.name}`);
       }
-
-      setUploadFileName(file.name);
-      setUploadParsedRows(jsonRows);
-      setUploadSelectedRows(new Set(jsonRows.map((_, i) => i)));
-      toast.success(`${jsonRows.length} rader funnet i ${file.name}`);
     } catch {
-      toast.error("Kunne ikke lese filen. Sjekk formatet.");
+      toast.error("Kunne ikke lese filen. Prøv igjen.");
     }
   }, []);
 
@@ -1314,17 +1345,17 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
               ref={uploadInputRef}
               type="file"
               className="hidden"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.xls,.csv,.pdf"
               onChange={handleUploadFileInput}
             />
             <div className={cn("p-3 rounded-full mx-auto w-fit mb-4", uploadDragOver ? "bg-primary/10" : "bg-muted")}>
               <Upload className={cn("h-8 w-8", uploadDragOver ? "text-primary" : "text-muted-foreground")} />
             </div>
             <p className="font-medium">
-              {uploadDragOver ? "Slipp filen her" : "Dra og slipp Excel-fil her"}
+              {uploadDragOver ? "Slipp filen her" : "Dra og slipp fil her"}
             </p>
             <p className="text-sm text-muted-foreground mt-1">eller klikk for å velge fil</p>
-            <p className="text-xs text-muted-foreground mt-4">.xlsx, .xls, .csv</p>
+            <p className="text-xs text-muted-foreground mt-4">Excel, CSV eller PDF</p>
           </div>
 
           <div className="p-4 rounded-lg bg-muted/50">
