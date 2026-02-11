@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Sparkles, Check, Server, Building, Building2, ChevronRight, RotateCcw, Scale } from "lucide-react";
+import { X, Sparkles, Check, Server, Building, Building2, ChevronRight, RotateCcw, Scale, Inbox } from "lucide-react";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { CompactCompanyOnboarding } from "@/components/onboarding/CompactCompanyOnboarding";
@@ -80,6 +82,19 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
     resetOnboarding
   } = useOnboardingProgress();
 
+  // Global inbox count
+  const { data: globalInboxCount = 0 } = useQuery({
+    queryKey: ["lara-inbox-global-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("lara_inbox")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["new", "auto_matched"]);
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   const remainingSteps = totalCount - completedCount;
 
   // Confetti disabled - was triggering on every page load
@@ -134,7 +149,21 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
       {/* Floating Lara Button with Progress Ring - Hidden when chat is open */}
       <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-silk ${isChatOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'}`}>
         {!isOpen && (
-          <div className="relative">
+          <div className="relative flex items-end gap-2">
+            {/* Inbox button */}
+            <button
+              onClick={() => navigate("/lara-inbox")}
+              className="relative group flex items-center justify-center h-12 w-12 rounded-full bg-card border border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              title="Lara Innboks"
+            >
+              <Inbox className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
+              {globalInboxCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[10px] bg-primary text-primary-foreground shadow-md">
+                  {globalInboxCount}
+                </Badge>
+              )}
+            </button>
+
             <button
               onClick={() => setIsOpen(true)}
               className="relative group animate-float-in"
