@@ -28,8 +28,10 @@ import {
   FileText,
   LucideIcon,
   User,
-  Users
+  Users,
+  Send
 } from "lucide-react";
+import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
 interface AssetHeaderProps {
   asset: {
@@ -69,10 +71,12 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export function AssetHeader({ asset, template }: AssetHeaderProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [isEditingManager, setIsEditingManager] = useState(false);
   const [managerName, setManagerName] = useState(asset.asset_manager || "");
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
 
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work_areas"],
@@ -165,9 +169,20 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             </Badge>
           </div>
 
-          {asset.vendor && (
-            <p className="text-sm text-muted-foreground">{asset.vendor}</p>
-          )}
+          <div className="flex items-center gap-2 mt-1">
+            {asset.vendor && (
+              <p className="text-sm text-muted-foreground">{asset.vendor}</p>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs gap-1.5"
+              onClick={() => setRequestDialogOpen(true)}
+            >
+              <Send className="h-3 w-3" />
+              {isNb ? "Be om oppdatering" : "Request update"}
+            </Button>
+          </div>
 
           {asset.description && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
@@ -257,6 +272,13 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
           </div>
         </div>
       </div>
+      <RequestUpdateDialog
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        assetId={asset.id}
+        assetName={asset.name}
+        vendorName={asset.vendor || undefined}
+      />
     </Card>
   );
 }

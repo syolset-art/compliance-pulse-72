@@ -247,7 +247,7 @@ const AssetTrustProfile = () => {
               </TabsContent>
 
               <TabsContent value="documents" className="mt-6">
-                <DocumentsTab assetId={asset.id} />
+                <DocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
               </TabsContent>
 
               <TabsContent value="inbox" className="mt-6">
