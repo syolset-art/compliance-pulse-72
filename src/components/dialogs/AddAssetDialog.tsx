@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -249,6 +250,15 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const [customerName, setCustomerName] = useState("");
   const [accessRequestId, setAccessRequestId] = useState<string | null>(null);
   
+  // Upload step state
+  const [uploadDragOver, setUploadDragOver] = useState(false);
+  const [uploadParsedRows, setUploadParsedRows] = useState<Record<string, string>[]>([]);
+  const [uploadSelectedRows, setUploadSelectedRows] = useState<Set<number>>(new Set());
+  const [uploadFileName, setUploadFileName] = useState("");
+  const [isImportingUpload, setIsImportingUpload] = useState(false);
+  const uploadDragCounter = useRef(0);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState({
     asset_type: "",
     name: "",
@@ -300,6 +310,11 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       setCustomerId("");
       setCustomerName("");
       setAccessRequestId(null);
+      setUploadParsedRows([]);
+      setUploadSelectedRows(new Set());
+      setUploadFileName("");
+      setUploadDragOver(false);
+      uploadDragCounter.current = 0;
       setFormData({
         asset_type: "",
         name: "",
@@ -1173,25 +1188,206 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
     </form>
   );
 
-  // Step 3c: Upload
+  // Step 3c: Upload - parse Excel/CSV file
+  const parseUploadFile = useCallback(async (file: File) => {
+    const allowedExtensions = [".xlsx", ".xls", ".csv"];
+    const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (!allowedExtensions.includes(ext)) {
+      toast.error("Ugyldig filtype. Last opp .xlsx, .xls eller .csv");
+      return;
+    }
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonRows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { defval: "" });
+
+      if (jsonRows.length === 0) {
+        toast.error("Filen inneholder ingen data");
+        return;
+      }
+
+      setUploadFileName(file.name);
+      setUploadParsedRows(jsonRows);
+      setUploadSelectedRows(new Set(jsonRows.map((_, i) => i)));
+      toast.success(`${jsonRows.length} rader funnet i ${file.name}`);
+    } catch {
+      toast.error("Kunne ikke lese filen. Sjekk formatet.");
+    }
+  }, []);
+
+  const handleUploadDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    uploadDragCounter.current++;
+    setUploadDragOver(true);
+  }, []);
+
+  const handleUploadDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    uploadDragCounter.current--;
+    if (uploadDragCounter.current === 0) setUploadDragOver(false);
+  }, []);
+
+  const handleUploadDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setUploadDragOver(false);
+    uploadDragCounter.current = 0;
+    const file = e.dataTransfer.files?.[0];
+    if (file) parseUploadFile(file);
+  }, [parseUploadFile]);
+
+  const handleUploadFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) parseUploadFile(file);
+    e.target.value = "";
+  }, [parseUploadFile]);
+
+  const handleImportUploadedRows = async () => {
+    if (uploadSelectedRows.size === 0) return;
+    setIsImportingUpload(true);
+
+    const rowsToImport = uploadParsedRows.filter((_, i) => uploadSelectedRows.has(i));
+    
+    // Map columns flexibly (case-insensitive, common aliases)
+    const findCol = (row: Record<string, string>, keys: string[]) => {
+      for (const k of keys) {
+        const match = Object.keys(row).find(c => c.toLowerCase().trim() === k.toLowerCase());
+        if (match && row[match]) return row[match];
+      }
+      return "";
+    };
+
+    const assetsToCreate = rowsToImport.map(row => ({
+      name: findCol(row, ["name", "navn", "system", "leverandør", "vendor name"]) || Object.values(row)[0] || "Unnamed",
+      vendor: findCol(row, ["vendor", "leverandør", "supplier"]) || null,
+      category: findCol(row, ["category", "kategori", "type"]) || null,
+      description: findCol(row, ["description", "beskrivelse", "notes", "notat"]) || null,
+      risk_level: findCol(row, ["risk", "risk_level", "risiko"]) || "medium",
+      criticality: findCol(row, ["criticality", "kritikalitet"]) || "medium",
+      asset_type: "vendor",
+    }));
+
+    try {
+      const { error } = await supabase.from("assets").insert(assetsToCreate);
+      if (error) throw error;
+      toast.success(`${assetsToCreate.length} leverandører importert`);
+      onAssetAdded();
+      onOpenChange(false);
+    } catch {
+      toast.error("Kunne ikke importere. Prøv igjen.");
+    } finally {
+      setIsImportingUpload(false);
+    }
+  };
+
+  const toggleUploadRow = (index: number) => {
+    setUploadSelectedRows(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index); else next.add(index);
+      return next;
+    });
+  };
+
   const renderUpload = () => (
     <div className="space-y-4">
-      <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-        <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
-        <p className="font-medium">Drag and drop Excel file here</p>
-        <p className="text-sm text-muted-foreground mt-1">or click to select file</p>
-        <p className="text-xs text-muted-foreground mt-4">.xlsx, .xls, .csv supported</p>
-      </div>
+      {uploadParsedRows.length === 0 ? (
+        <>
+          {/* Drop zone */}
+          <div
+            onDragEnter={handleUploadDragEnter}
+            onDragLeave={handleUploadDragLeave}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={handleUploadDrop}
+            onClick={() => uploadInputRef.current?.click()}
+            className={cn(
+              "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
+              uploadDragOver
+                ? "border-primary bg-primary/5 scale-[1.01]"
+                : "border-border hover:border-primary/50"
+            )}
+          >
+            <input
+              ref={uploadInputRef}
+              type="file"
+              className="hidden"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleUploadFileInput}
+            />
+            <div className={cn("p-3 rounded-full mx-auto w-fit mb-4", uploadDragOver ? "bg-primary/10" : "bg-muted")}>
+              <Upload className={cn("h-8 w-8", uploadDragOver ? "text-primary" : "text-muted-foreground")} />
+            </div>
+            <p className="font-medium">
+              {uploadDragOver ? "Slipp filen her" : "Dra og slipp Excel-fil her"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">eller klikk for å velge fil</p>
+            <p className="text-xs text-muted-foreground mt-4">.xlsx, .xls, .csv</p>
+          </div>
 
-      <div className="p-4 rounded-lg bg-muted/50">
-        <p className="text-sm font-medium mb-2">Expected format:</p>
-        <p className="text-xs text-muted-foreground">
-          Columns: Name, Vendor, Category, Description, Risk
-        </p>
-        <Button variant="link" className="px-0 text-xs h-auto mt-2">
-          Download template →
-        </Button>
-      </div>
+          <div className="p-4 rounded-lg bg-muted/50">
+            <p className="text-sm font-medium mb-2">Forventet format:</p>
+            <p className="text-xs text-muted-foreground">
+              Kolonner: Name, Vendor, Category, Description, Risk
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Parsed results */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{uploadFileName}</span>
+              <span className="text-xs text-muted-foreground">({uploadParsedRows.length} rader)</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => { setUploadParsedRows([]); setUploadFileName(""); }}>
+              Velg ny fil
+            </Button>
+          </div>
+
+          <ScrollArea className="h-[300px] border rounded-lg">
+            <div className="p-2 space-y-1">
+              {uploadParsedRows.map((row, i) => {
+                const name = Object.values(row)[0] || "—";
+                const cols = Object.values(row).slice(1, 4).filter(Boolean).join(" · ");
+                return (
+                  <label
+                    key={i}
+                    className={cn(
+                      "flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors",
+                      uploadSelectedRows.has(i) ? "bg-primary/5 border border-primary/20" : "hover:bg-muted/50"
+                    )}
+                  >
+                    <Checkbox
+                      checked={uploadSelectedRows.has(i)}
+                      onCheckedChange={() => toggleUploadRow(i)}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{name}</p>
+                      {cols && <p className="text-xs text-muted-foreground truncate">{cols}</p>}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </ScrollArea>
+
+          <Button
+            className="w-full gap-2"
+            onClick={handleImportUploadedRows}
+            disabled={uploadSelectedRows.size === 0 || isImportingUpload}
+          >
+            {isImportingUpload ? (
+              <><Loader2 className="h-4 w-4 animate-spin" />Importerer...</>
+            ) : (
+              <><Check className="h-4 w-4" />Importer {uploadSelectedRows.size} leverandører</>
+            )}
+          </Button>
+        </>
+      )}
     </div>
   );
 
