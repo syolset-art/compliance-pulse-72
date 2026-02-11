@@ -942,6 +942,65 @@ export type Database = {
         }
         Relationships: []
       }
+      lara_inbox: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          matched_asset_id: string | null
+          matched_document_type: string | null
+          processed_at: string | null
+          processed_by: string | null
+          received_at: string | null
+          sender_email: string | null
+          sender_name: string | null
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          matched_asset_id?: string | null
+          matched_document_type?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          received_at?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          matched_asset_id?: string | null
+          matched_document_type?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          received_at?: string | null
+          sender_email?: string | null
+          sender_name?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lara_inbox_matched_asset_id_fkey"
+            columns: ["matched_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maturity_milestones: {
         Row: {
           achieved_at: string | null
@@ -1949,6 +2008,53 @@ export type Database = {
           },
         ]
       }
+      vendor_document_requests: {
+        Row: {
+          asset_id: string | null
+          created_at: string | null
+          document_type: string
+          due_date: string
+          id: string
+          last_reminder_at: string | null
+          notes: string | null
+          reminder_count: number | null
+          requested_by: string | null
+          status: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          created_at?: string | null
+          document_type: string
+          due_date: string
+          id?: string
+          last_reminder_at?: string | null
+          notes?: string | null
+          reminder_count?: number | null
+          requested_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          created_at?: string | null
+          document_type?: string
+          due_date?: string
+          id?: string
+          last_reminder_at?: string | null
+          notes?: string | null
+          reminder_count?: number | null
+          requested_by?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_document_requests_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_documents: {
         Row: {
           asset_id: string
@@ -1958,7 +2064,15 @@ export type Database = {
           file_path: string
           id: string
           notes: string | null
+          received_at: string | null
+          reminder_sent_at: string | null
+          requested_at: string | null
+          source: string | null
+          status: string | null
           uploaded_by: string | null
+          valid_from: string | null
+          valid_to: string | null
+          version: string | null
         }
         Insert: {
           asset_id: string
@@ -1968,7 +2082,15 @@ export type Database = {
           file_path: string
           id?: string
           notes?: string | null
+          received_at?: string | null
+          reminder_sent_at?: string | null
+          requested_at?: string | null
+          source?: string | null
+          status?: string | null
           uploaded_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          version?: string | null
         }
         Update: {
           asset_id?: string
@@ -1978,7 +2100,15 @@ export type Database = {
           file_path?: string
           id?: string
           notes?: string | null
+          received_at?: string | null
+          reminder_sent_at?: string | null
+          requested_at?: string | null
+          source?: string | null
+          status?: string | null
           uploaded_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          version?: string | null
         }
         Relationships: [
           {
