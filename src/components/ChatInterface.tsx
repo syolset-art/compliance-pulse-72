@@ -176,8 +176,8 @@ function EmptyStateWelcome({
         </p>
       </div>
 
-      {/* Completed badge - subtle inline */}
-      {isOnboardingComplete && (
+      {/* Completed badge - only show if user expanded onboarding */}
+      {isOnboardingComplete && !isOnboardingDismissed && (
         <div className="mb-4 flex items-center justify-center gap-2" role="status">
           <Badge variant="outline" className="text-xs gap-1.5 py-1 px-3 border-success/40 text-success">
             <Check className="h-3 w-3" aria-hidden="true" />
