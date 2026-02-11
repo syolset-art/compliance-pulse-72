@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Upload, FileText, Trash2, FileCheck, AlertTriangle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
-
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
   { value: "dpia", label: "DPIA", labelEn: "DPIA" },
@@ -34,6 +33,8 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
   const [uploading, setUploading] = useState(false);
   const [docType, setDocType] = useState("other");
   const [notes, setNotes] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
+  const dragCounterRef = useRef(0);
 
   const planName = subscription?.plan?.name || "starter";
   const maxDocs = planName === "starter" ? 5 : Infinity;
@@ -102,18 +103,69 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
     },
   });
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = useCallback(async (file: File) => {
     if (atLimit) {
       toast.error(t("vendorDocs.limitReached", "Maks 5 dokumenter på Starter-planen. Oppgrader for ubegrenset."));
+      return;
+    }
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(t("vendorDocs.invalidType", "Ugyldig filtype. Last opp PDF, Word, Excel eller PowerPoint."));
       return;
     }
     setUploading(true);
     await uploadMutation.mutateAsync(file);
     setUploading(false);
+  }, [atLimit, uploadMutation, t]);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
     e.target.value = "";
   };
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current++;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragOver(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) {
+      setIsDragOver(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    dragCounterRef.current = 0;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  }, [processFile]);
 
   const getTypeLabel = (type: string) => {
     const dt = DOCUMENT_TYPES.find((d) => d.value === type);
@@ -122,7 +174,7 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Upload section */}
+      {/* Upload section with drag-and-drop */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
@@ -157,24 +209,49 @@ export function DocumentsTab({ assetId }: DocumentsTabProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <label className={`cursor-pointer ${atLimit ? "opacity-50 pointer-events-none" : ""}`}>
-              <Input
-                type="file"
-                className="hidden"
-                accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx"
-                onChange={handleFileSelect}
-                disabled={uploading || atLimit}
-              />
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border hover:border-primary hover:bg-accent transition-colors">
-                <Upload className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {uploading
-                    ? t("vendorDocs.uploading", "Laster opp...")
-                    : t("vendorDocs.selectFile", "Velg fil")}
-                </span>
-              </div>
-            </label>
+          {/* Drop zone */}
+          <div
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className={`
+              relative flex flex-col items-center justify-center gap-3 p-8 rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer
+              ${atLimit ? "opacity-50 pointer-events-none" : ""}
+              ${isDragOver
+                ? "border-primary bg-primary/5 scale-[1.01]"
+                : "border-border hover:border-primary/50 hover:bg-accent/30"
+              }
+            `}
+            onClick={() => {
+              if (!atLimit && !uploading) {
+                document.getElementById(`file-input-${assetId}`)?.click();
+              }
+            }}
+          >
+            <Input
+              id={`file-input-${assetId}`}
+              type="file"
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx"
+              onChange={handleFileSelect}
+              disabled={uploading || atLimit}
+            />
+            <div className={`p-3 rounded-full transition-colors ${isDragOver ? "bg-primary/10" : "bg-muted"}`}>
+              <Upload className={`h-6 w-6 transition-colors ${isDragOver ? "text-primary" : "text-muted-foreground"}`} />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium">
+                {uploading
+                  ? t("vendorDocs.uploading", "Laster opp...")
+                  : isDragOver
+                    ? t("vendorDocs.dropHere", "Slipp filen her")
+                    : t("vendorDocs.dragOrClick", "Dra og slipp fil her, eller klikk for å velge")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("vendorDocs.acceptedFormats", "PDF, Word, Excel, PowerPoint")}
+              </p>
+            </div>
             {planName === "starter" && (
               <span className="text-xs text-muted-foreground">
                 {documents.length}/{maxDocs} {t("vendorDocs.documentsUsed", "dokumenter brukt")}
