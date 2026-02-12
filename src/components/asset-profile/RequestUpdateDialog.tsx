@@ -83,11 +83,18 @@ export function RequestUpdateDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-document-requests", assetId] });
+      const recipient = recipientEmail || vendorName || assetName;
       toast.success(
         isNb
-          ? `Lara sender forespørselen til ${vendorName || assetName}`
-          : `Lara is sending the request to ${vendorName || assetName}`,
-        { icon: "🦋" }
+          ? `Forespørselen er sendt til ${recipient}`
+          : `Request sent to ${recipient}`,
+        {
+          icon: "🦋",
+          description: isNb
+            ? `Lara følger opp og gir deg beskjed når svaret kommer i innboksen.`
+            : `Lara will follow up and notify you when a response arrives in your inbox.`,
+          duration: 6000,
+        }
       );
       onOpenChange(false);
       setSelectedTypes([]);
