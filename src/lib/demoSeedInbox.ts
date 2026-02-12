@@ -9,6 +9,10 @@ const DOCUMENT_TEMPLATES = [
   { type: "nda", subject: "Taushetserklæring (NDA)", filePrefix: "NDA" },
   { type: "sub-processor", subject: "Underdatabehandlerliste", filePrefix: "SubProcessor_List" },
   { type: "incident-response", subject: "Hendelseshåndteringsplan", filePrefix: "Incident_Response_Plan" },
+  { type: "risk-assessment", subject: "Risikovurdering", filePrefix: "Risk_Assessment" },
+  { type: "security-policy", subject: "Sikkerhetspolicy", filePrefix: "Security_Policy" },
+  { type: "business-continuity", subject: "Beredskapsplan", filePrefix: "BCP_Plan" },
+  { type: "gdpr-record", subject: "GDPR behandlingsprotokoll", filePrefix: "GDPR_Record" },
 ];
 
 function randomDaysAgo(min: number, max: number): string {
@@ -37,23 +41,30 @@ export async function seedDemoInbox() {
 
   if (!vendors || vendors.length === 0) return;
 
-  // Pick up to 8 vendors, assign documents
-  const selected = vendors.sort(() => Math.random() - 0.5).slice(0, 8);
+  const shuffledTemplates = [...DOCUMENT_TEMPLATES].sort(() => Math.random() - 0.5);
+  const items: any[] = [];
 
-  const items = selected.map((vendor, i) => {
-    const template = DOCUMENT_TEMPLATES[i % DOCUMENT_TEMPLATES.length];
-    const { sender_name, sender_email } = senderForVendor(vendor.name);
-    return {
-      matched_asset_id: vendor.id,
-      matched_document_type: template.type,
-      subject: `${template.subject} – ${vendor.name}`,
-      file_name: `${template.filePrefix}_${vendor.name.replace(/\s/g, "_")}.pdf`,
-      sender_name,
-      sender_email,
-      confidence_score: +(0.85 + Math.random() * 0.13).toFixed(2),
-      status: "new",
-      received_at: randomDaysAgo(0, 7),
-    };
+  // Each vendor gets 1-3 random document types
+  vendors.forEach((vendor) => {
+    const docCount = 1 + Math.floor(Math.random() * 3); // 1-3 docs per vendor
+    const vendorDocs = shuffledTemplates
+      .sort(() => Math.random() - 0.5)
+      .slice(0, docCount);
+
+    vendorDocs.forEach((template) => {
+      const { sender_name, sender_email } = senderForVendor(vendor.name);
+      items.push({
+        matched_asset_id: vendor.id,
+        matched_document_type: template.type,
+        subject: `${template.subject} – ${vendor.name}`,
+        file_name: `${template.filePrefix}_${vendor.name.replace(/\s/g, "_")}.pdf`,
+        sender_name,
+        sender_email,
+        confidence_score: +(0.85 + Math.random() * 0.13).toFixed(2),
+        status: "new",
+        received_at: randomDaysAgo(0, 14),
+      });
+    });
   });
 
   const { error } = await supabase.from("lara_inbox").insert(items);
