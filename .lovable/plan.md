@@ -1,85 +1,76 @@
 
-# Utdatert dokumentasjon-varsel pa vendorkort
+
+# Klikkbar DPIA-detaljer med begrunnelse for utdatering
 
 ## Oversikt
-Seede `vendor_documents`-tabellen med realistiske dokumenter der noen har utlopt `valid_to`-dato, slik at det utloste dokumentbanneret i AssetMetrics vises. I tillegg legge til en visuell "utdatert"-badge pa VendorCard og utvide demo-seeding-logikken slik at det fungerer ved demo-reset.
+Nar en DPIA (eller annet dokument) er markert som utlopt i dokumenttabellen, skal brukeren kunne klikke pa det for a se en detaljert forklaring: **hvorfor** dokumentet anses som utdatert, basert pa vanlig praksis og regulatoriske krav.
+
+## Bakgrunn: Nar er en DPIA utdatert?
+
+Ifolgene GDPR Art. 35(11) og veiledning fra europeiske tilsynsmyndigheter, ma en DPIA gjennomgas og oppdateres nar:
+
+1. **Tid har gatt** - Vanlig praksis er revisjon hvert 1-3 ar (avhengig av risiko)
+2. **Behandlingen har endret seg** - Nye formaal, nye datakategorier, nye mottakere
+3. **Teknologien har endret seg** - Nye systemer, nye integrasjoner, nye AI-modeller
+4. **Risikobildet har endret seg** - Nye trusler, sikkerhetsbrudd, regulatoriske endringer
+5. **Organisatoriske endringer** - Ny leverandor, nye behandlingsansvarlige, nye underdatabehandlere
 
 ## Endringer
 
-### 1. Seed vendor_documents med utlopte dokumenter (database)
-Sette inn dokumenter for 4-5 vendorer med `valid_to` i fortiden (f.eks. DPA utlopt 3 maneder siden, SOC 2 utlopt 1 maned siden). Noen vendorer far ogsa gyldige dokumenter for kontrast. Dette sikrer at AssetMetrics-banneret ("X dokumenter er utlopt" + "Be om oppdatering"-knapp) vises umiddelbart.
+### 1. Ny komponent: DocumentDetailDialog
+En dialog som apnes nar brukeren klikker pa et utlopt dokument i tabellen. Viser:
 
-Eksempel-data:
-- **Salesforce**: DPA utlopt 2024-11-15, ISO 27001 utlopt 2024-12-01
-- **HubSpot**: SOC 2 utlopt 2025-01-10
-- **Slack**: NDA utlopt 2024-10-20, Pentest-rapport utlopt 2025-01-05
-- **Dropbox Business**: DPA utlopt 2024-09-30
-- **Tripletex**: Oppdater eksisterende dokumenter med `valid_to` i fortiden
-- **Microsoft 365**, **Visma**: Gyldige dokumenter (valid_to i fremtiden) for kontrast
+- Dokumentnavn, type og utlopsdato
+- **Begrunnelse for utdatering** - automatisk generert basert pa dokumenttype og hvor lenge det har vart utlopt
+- **Regulatorisk referanse** (f.eks. GDPR Art. 35(11) for DPIA)
+- **Anbefalt handling** - konkret forslag til hva som bor gjores
+- Knapp for a ga direkte til "Be om oppdatering"-dialogen
 
-### 2. VendorCard - ny expired-badge
-Legge til en `expiredDocsCount`-prop pa VendorCard. Nar verdien er storre enn 0, vises en badge med `AlertTriangle`-ikon i destructive-farge som indikerer utdatert dokumentasjon.
+### 2. Oppdatere DocumentsTab
+Gjore dokumentrader klikkbare nar de har status "Utlopt". Klikk apner DocumentDetailDialog.
 
-### 3. VendorOverviewTab og VendorListTab - hente expired-data
-Legge til en `useQuery` som henter antall utlopte dokumenter per vendor fra `vendor_documents`-tabellen (der `valid_to` er satt og er i fortiden), gruppert pa `asset_id`. Sende disse tallene til VendorCard.
+### 3. Begrunnelseslogikk per dokumenttype
+Definere standardbegrunnelser for hver dokumenttype:
 
-### 4. Demo-seeding - utvide demoSeedInbox.ts
-Legge til en `seedDemoDocuments()`-funksjon i `demoSeedInbox.ts` som setter inn vendor_documents med utlopte og gyldige datoer. Kalle denne funksjonen fra demo-reset-flyten.
+| Dokumenttype | Begrunnelse | Referanse |
+|---|---|---|
+| DPIA | GDPR Art. 35(11) krever revisjon nar risikoen endres, og beste praksis er minst hvert 1-3 ar | GDPR Art. 35(11) |
+| DPA | Databehandleravtaler bor revideres arlig for a sikre oppdatert underdatabehandlerliste og sikkerhetstiltak | GDPR Art. 28 |
+| SOC 2 | SOC 2-rapporter dekker en definert periode og ma fornyes arlig for a bekrefte kontrollmiljoet | AICPA |
+| ISO 27001 | Sertifikater er gyldige i 3 ar med arlige tilsyn. Utlopt sertifikat betyr usikker sikkerhetsstatus | ISO/IEC 27001 |
+| Penetrasjonstest | Bor utfores minst arlig, og alltid etter vesentlige endringer i infrastruktur | Best practice / OWASP |
+| NDA | Utlopte taushetserklaeringer gir ingen rettslig beskyttelse av konfidensiell informasjon | Kontraktsrett |
 
 ## Tekniske detaljer
 
-**Database-insert (vendor_documents):**
-```sql
-INSERT INTO vendor_documents (asset_id, file_name, file_path, document_type, valid_from, valid_to, status, source)
-VALUES
-  -- Salesforce: utlopt DPA
-  ('e7610af0-...', 'DPA_Salesforce.pdf', 'demo/DPA_Salesforce.pdf', 'dpa', '2023-11-15', '2024-11-15', 'current', 'manual_upload'),
-  -- HubSpot: utlopt SOC 2
-  ('d57935e5-...', 'SOC2_HubSpot.pdf', 'demo/SOC2_HubSpot.pdf', 'soc2', '2024-01-10', '2025-01-10', 'current', 'manual_upload'),
-  ...
-```
+**Ny fil: `src/components/asset-profile/DocumentDetailDialog.tsx`**
 
-**VendorCard ny prop og badge:**
+Komponenten tar inn et dokument-objekt og viser:
 ```typescript
-// Ny prop
-expiredDocsCount?: number;
-
-// Badge-visning
-{expiredDocsCount > 0 && (
-  <Badge variant="outline" className="text-[10px] gap-1 bg-destructive/10 text-destructive border-destructive/20">
-    <AlertTriangle className="h-2.5 w-2.5" />
-    {expiredDocsCount} utdatert
-  </Badge>
-)}
+interface DocumentDetailDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  document: {
+    id: string;
+    file_name: string;
+    document_type: string;
+    valid_from: string | null;
+    valid_to: string | null;
+    version: string | null;
+    notes: string | null;
+  } | null;
+  onRequestUpdate: (docType: string) => void;
+}
 ```
 
-**Expired docs query i OverviewTab/ListTab:**
-```typescript
-const { data: expiredCounts = {} } = useQuery({
-  queryKey: ["expired-docs-counts"],
-  queryFn: async () => {
-    const { data } = await supabase
-      .from("vendor_documents")
-      .select("asset_id, valid_to")
-      .not("valid_to", "is", null);
-    const now = new Date();
-    const counts: Record<string, number> = {};
-    data?.forEach(doc => {
-      if (new Date(doc.valid_to) < now) {
-        counts[doc.asset_id] = (counts[doc.asset_id] || 0) + 1;
-      }
-    });
-    return counts;
-  },
-});
-```
+Begrunnelsesdata lagres som en konstant mapping (`EXPIRY_REASONS`) med felter for `title`, `reason`, `reference`, `recommendation` og `reviewFrequency` per dokumenttype.
 
-**seedDemoDocuments() i demoSeedInbox.ts:**
-Ny funksjon som forst sletter gamle demo-dokumenter, deretter setter inn nye med realistiske utlopsdatoer. Kalles sammen med seedDemoInbox().
+**Endring i DocumentsTab.tsx:**
+- Legge til state for valgt dokument og dialog-synlighet
+- Gjore dokumentnavnet klikkbart (spesielt for utlopte dokumenter) med visuell indikasjon (understrek/hover)
+- Apne DocumentDetailDialog ved klikk
 
 ## Filer som endres
-- `src/components/vendor-dashboard/VendorCard.tsx` - ny expiredDocsCount-prop og badge
-- `src/components/vendor-dashboard/VendorOverviewTab.tsx` - hente expired-data, sende til VendorCard
-- `src/components/vendor-dashboard/VendorListTab.tsx` - samme expired-data
-- `src/lib/demoSeedInbox.ts` - ny seedDemoDocuments()-funksjon
-- Database: Sette inn demo-dokumenter med utlopte datoer
+- **Ny**: `src/components/asset-profile/DocumentDetailDialog.tsx` - Dialog med begrunnelse og detaljer
+- **Endret**: `src/components/asset-profile/tabs/DocumentsTab.tsx` - Klikkbare dokumentrader + integrere ny dialog
+
