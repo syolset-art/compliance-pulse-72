@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -16,8 +15,6 @@ import {
 } from "@/components/ui/select";
 import { 
   ExternalLink, 
-  Check, 
-  X,
   Server,
   Building2,
   MapPin,
@@ -70,12 +67,21 @@ const iconMap: Record<string, LucideIcon> = {
   FileText,
 };
 
+// Demo people per work area for prototype
+const DEMO_PEOPLE: Record<string, string[]> = {
+  "HR og personell": ["Jan Olsen", "Kari Nordmann", "Erik Hansen", "Marte Johansen"],
+  "IT og sikkerhet": ["Tore Berg", "Lise Andersen", "Anders Svendsen", "Nina Larsen"],
+  "Økonomi": ["Hanne Pedersen", "Pål Eriksen", "Silje Dahl"],
+  "Salg og marked": ["Kristian Haugen", "Maria Nilsen", "Ola Solberg"],
+  "Ledelse": ["Trond Bakke", "Ingrid Moe", "Bjørn Sæther"],
+};
+
+const DEFAULT_PEOPLE = ["Jan Olsen", "Kari Nordmann", "Erik Hansen", "Tore Berg", "Lise Andersen"];
+
 export function AssetHeader({ asset, template }: AssetHeaderProps) {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
-  const [isEditingManager, setIsEditingManager] = useState(false);
-  const [managerName, setManagerName] = useState(asset.asset_manager || "");
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
 
   const { data: workAreas = [] } = useQuery({
@@ -86,6 +92,10 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
       return data || [];
     },
   });
+
+  // Get people list based on the asset's work area
+  const selectedWorkAreaName = workAreas.find((a: any) => a.id === asset.work_area_id)?.name || "";
+  const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
 
   const updateAsset = useMutation({
     mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null }>) => {
@@ -112,17 +122,10 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
       work_area_id: workAreaId, 
       asset_manager: responsiblePerson 
     });
-    setManagerName(responsiblePerson || "");
   };
 
-  const handleSaveManager = () => {
-    updateAsset.mutate({ asset_manager: managerName || null });
-    setIsEditingManager(false);
-  };
-
-  const handleCancelManager = () => {
-    setManagerName(asset.asset_manager || "");
-    setIsEditingManager(false);
+  const handleManagerChange = (value: string) => {
+    updateAsset.mutate({ asset_manager: value });
   };
 
   const selectedWorkArea = workAreas.find((a: any) => a.id === asset.work_area_id);
@@ -246,29 +249,21 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t("trustProfile.systemManager")}
             </p>
-            {isEditingManager ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  value={managerName}
-                  onChange={(e) => setManagerName(e.target.value)}
-                  className="h-7 w-[140px] text-xs"
-                  placeholder={t("trustProfile.enterManager")}
-                />
-                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleSaveManager}>
-                  <Check className="h-3 w-3 text-success" />
-                </Button>
-                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleCancelManager}>
-                  <X className="h-3 w-3 text-destructive" />
-                </Button>
-              </div>
-            ) : (
-              <button
-                className="text-xs text-foreground hover:text-primary transition-colors text-left"
-                onClick={() => setIsEditingManager(true)}
-              >
-                {displayedManager || t("trustProfile.assignManager")}
-              </button>
-            )}
+            <Select
+              value={asset.asset_manager || ""}
+              onValueChange={handleManagerChange}
+            >
+              <SelectTrigger className="h-7 w-[180px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                <SelectValue placeholder={t("trustProfile.assignManager")} />
+              </SelectTrigger>
+              <SelectContent>
+                {peopleList.map((person) => (
+                  <SelectItem key={person} value={person}>
+                    {person}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
