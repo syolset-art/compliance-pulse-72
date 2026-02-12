@@ -172,14 +172,14 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
             {asset.vendor && (
               <p className="text-sm text-muted-foreground">{asset.vendor}</p>
             )}
             <Button
               size="sm"
               variant="outline"
-              className="h-7 text-xs gap-1.5"
+              className="h-7 text-xs gap-1.5 w-fit"
               onClick={() => setRequestDialogOpen(true)}
             >
               <Send className="h-3 w-3" />
@@ -225,7 +225,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
               value={asset.work_area_id || "none"}
               onValueChange={handleOwnerChange}
             >
-              <SelectTrigger className="h-7 w-[160px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+              <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                 <SelectValue placeholder={t("trustProfile.selectOwner")} />
               </SelectTrigger>
               <SelectContent>
@@ -253,7 +253,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
               value={asset.asset_manager || ""}
               onValueChange={handleManagerChange}
             >
-              <SelectTrigger className="h-7 w-[180px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+              <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                 <SelectValue placeholder={t("trustProfile.assignManager")} />
               </SelectTrigger>
               <SelectContent>
