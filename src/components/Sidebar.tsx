@@ -238,7 +238,9 @@ const SidebarContent = () => {
                   <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[120px]">
                     {companyName}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60">{t("nav.company")}</p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate max-w-[120px]">
+                    {user?.email || t("nav.company")}
+                  </p>
                 </div>
               </div>
               <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/60 transition-transform", companyOpen && "rotate-180")} />
