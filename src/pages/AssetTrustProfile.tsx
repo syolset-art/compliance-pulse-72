@@ -154,7 +154,7 @@ const AssetTrustProfile = () => {
 
             {/* Tabs section */}
             <Tabs defaultValue="validation" className="w-full">
-              <TabsList className="w-full justify-start bg-muted/30 border border-border rounded-xl p-1 h-auto flex-wrap gap-0.5">
+              <TabsList className="w-full flex justify-start bg-muted/30 border border-border rounded-xl p-1 h-auto flex-nowrap gap-0.5 overflow-x-auto scrollbar-none">
                 {enabledTabs.includes('validation') && (
                   <TabsTrigger value="validation" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg">
                     {t("trustProfile.tabs.validation")}

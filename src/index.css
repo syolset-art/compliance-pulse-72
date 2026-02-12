@@ -192,3 +192,13 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     animation: shimmer 2s linear infinite;
   }
 }
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
