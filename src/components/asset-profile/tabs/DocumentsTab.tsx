@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
+import { DocumentDetailDialog } from "../DocumentDetailDialog";
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
@@ -66,6 +67,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
   const [validTo, setValidTo] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [detailDoc, setDetailDoc] = useState<any>(null);
   const dragCounterRef = useRef(0);
 
   const planName = subscription?.plan?.name || "starter";
@@ -203,10 +205,18 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                   {documents.map((doc: any) => (
                     <TableRow key={doc.id} className="hover:bg-accent/30">
                       <TableCell className="py-2.5">
-                        <div className="flex items-center gap-2">
-                          <FileCheck className="h-4 w-4 text-primary flex-shrink-0" />
-                          <span className="text-sm font-medium truncate max-w-[180px]">{doc.file_name}</span>
-                        </div>
+                        {(() => {
+                          const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                          return (
+                            <div
+                              className={`flex items-center gap-2 ${isExpired ? "cursor-pointer group" : ""}`}
+                              onClick={() => isExpired && setDetailDoc(doc)}
+                            >
+                              <FileCheck className="h-4 w-4 text-primary flex-shrink-0" />
+                              <span className={`text-sm font-medium truncate max-w-[180px] ${isExpired ? "underline decoration-destructive/40 group-hover:decoration-destructive" : ""}`}>{doc.file_name}</span>
+                            </div>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="py-2.5">
                         <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
@@ -304,6 +314,16 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
       {/* Document requests & reminders section */}
       <DocumentRequestsSection assetId={assetId} />
+
+      <DocumentDetailDialog
+        open={!!detailDoc}
+        onOpenChange={(val) => { if (!val) setDetailDoc(null); }}
+        document={detailDoc}
+        onRequestUpdate={(docType) => {
+          setPreselectedDocType(docType);
+          setRequestDialogOpen(true);
+        }}
+      />
 
       <RequestUpdateDialog
         open={requestDialogOpen}
