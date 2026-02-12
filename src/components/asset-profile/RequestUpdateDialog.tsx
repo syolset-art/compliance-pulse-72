@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format, addDays } from "date-fns";
@@ -21,7 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Send, Sparkles } from "lucide-react";
+import { CalendarIcon, Send, Sparkles, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const REQUEST_TYPES = [
   { value: "penetration_test", nb: "Penetrasjonstest", en: "Penetration Test" },
@@ -53,12 +54,35 @@ export function RequestUpdateDialog({
   const queryClient = useQueryClient();
   const isNb = i18n.language === "nb";
 
+  const { data: expiredDocs = [] } = useQuery({
+    queryKey: ["expired-docs-detail", assetId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("vendor_documents")
+        .select("id, file_name, document_type, valid_to")
+        .eq("asset_id", assetId)
+        .not("valid_to", "is", null);
+      const now = new Date();
+      return (data || []).filter((d: any) => new Date(d.valid_to) < now);
+    },
+    enabled: open,
+  });
+
+  const expiredTypes = expiredDocs.map((d: any) => d.document_type);
+
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
     preselectedType ? [preselectedType] : []
   );
   const [deadline, setDeadline] = useState<Date>(addDays(new Date(), 30));
   const [message, setMessage] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
+
+  // Auto-select expired doc types when dialog opens
+  useEffect(() => {
+    if (open && expiredTypes.length > 0 && selectedTypes.length === 0 && !preselectedType) {
+      setSelectedTypes([...new Set(expiredTypes)]);
+    }
+  }, [open, expiredTypes.length]);
 
   const toggleType = (value: string) => {
     setSelectedTypes((prev) =>
@@ -130,6 +154,36 @@ export function RequestUpdateDialog({
         </DialogHeader>
 
         <div className="space-y-5 py-2">
+          {/* Expired documents alert */}
+          {expiredDocs.length > 0 && (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+                <AlertTriangle className="h-4 w-4" />
+                {isNb
+                  ? `${expiredDocs.length} utgått${expiredDocs.length > 1 ? "e" : ""} dokument${expiredDocs.length > 1 ? "er" : ""}`
+                  : `${expiredDocs.length} expired document${expiredDocs.length > 1 ? "s" : ""}`}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {expiredDocs.map((doc: any) => {
+                  const rt = REQUEST_TYPES.find((r) => r.value === doc.document_type);
+                  const daysExpired = Math.ceil((new Date().getTime() - new Date(doc.valid_to).getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <Badge
+                      key={doc.id}
+                      variant="outline"
+                      className="text-[10px] gap-1 bg-destructive/10 text-destructive border-destructive/20"
+                    >
+                      {rt ? (isNb ? rt.nb : rt.en) : doc.document_type}
+                      <span className="opacity-70">
+                        ({isNb ? `${daysExpired}d siden` : `${daysExpired}d ago`})
+                      </span>
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Document types */}
           <div className="space-y-2.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
