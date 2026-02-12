@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { QuickActionsBar } from "./QuickActionsBar";
 import { VendorMetricsRow } from "./VendorMetricsRow";
 import { NeedsAttentionSection } from "./NeedsAttentionSection";
@@ -29,6 +31,23 @@ interface VendorOverviewTabProps {
 export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDiscoverAI }: VendorOverviewTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const { data: inboxCounts = {} } = useQuery({
+    queryKey: ["lara-inbox-counts"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("lara_inbox")
+        .select("matched_asset_id, id")
+        .in("status", ["new", "auto_matched"]);
+      const counts: Record<string, number> = {};
+      data?.forEach(item => {
+        if (item.matched_asset_id) {
+          counts[item.matched_asset_id] = (counts[item.matched_asset_id] || 0) + 1;
+        }
+      });
+      return counts;
+    },
+  });
 
   const metrics = useMemo(() => {
     const total = vendors.length;
@@ -94,6 +113,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 vendor={v}
                 connectedSystemsCount={getConnectedCount(v.id)}
                 hasDPA={(v.compliance_score || 0) >= 30}
+                inboxCount={inboxCounts[v.id] || 0}
                 onClick={() => navigate(`/assets/${v.id}`)}
               />
             ))}

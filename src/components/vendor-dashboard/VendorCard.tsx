@@ -1,4 +1,4 @@
-import { Building2, MapPin, Shield, Link2 } from "lucide-react";
+import { Building2, MapPin, Shield, Link2, Mail } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
@@ -17,11 +17,12 @@ interface VendorCardProps {
   };
   connectedSystemsCount?: number;
   hasDPA?: boolean;
+  inboxCount?: number;
   onClick?: () => void;
   compact?: boolean;
 }
 
-export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, onClick, compact }: VendorCardProps) {
+export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, onClick, compact }: VendorCardProps) {
   const { t } = useTranslation();
   const score = vendor.compliance_score || 0;
 
@@ -82,6 +83,12 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
           <Badge variant="outline" className="text-[10px] gap-1">
             <Link2 className="h-2.5 w-2.5" />
             {connectedSystemsCount} {t("vendorDashboard.systems", "systems")}
+          </Badge>
+        )}
+        {inboxCount > 0 && (
+          <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/20">
+            <Mail className="h-2.5 w-2.5" />
+            {inboxCount} {t("vendorDashboard.pending", "pending")}
           </Badge>
         )}
       </div>

@@ -1,10 +1,11 @@
-import { useState, useMemo, useContext, createContext } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -18,7 +19,20 @@ export default function Assets() {
   const { t } = useTranslation();
   const { openChatWithMessage } = useGlobalChat();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  // Fetch total inbox count
+  const { data: totalInboxCount = 0 } = useQuery({
+    queryKey: ["lara-inbox-total"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("lara_inbox")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["new", "auto_matched"]);
+      return count || 0;
+    },
+  });
 
   // Fetch assets
   const { data: assets = [] } = useQuery({
@@ -80,7 +94,21 @@ export default function Assets() {
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">{t("assets.title")}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl md:text-2xl font-bold text-primary">{t("assets.title")}</h1>
+              <button
+                onClick={() => navigate("/lara-inbox")}
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+                title={t("vendorDashboard.laraInbox", "Lara Inbox")}
+              >
+                <Inbox className="h-5 w-5 text-muted-foreground" />
+                {totalInboxCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    {totalInboxCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Tabbed Layout */}
