@@ -108,9 +108,9 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   return (
     <div className="space-y-3">
       {expiredCount > 0 && (
-        <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
             <span className="text-sm font-medium text-destructive">
               {isNb
                 ? `${expiredCount} dokument${expiredCount > 1 ? "er" : ""} er utløpt`
@@ -120,7 +120,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
           <Button
             size="sm"
             variant="outline"
-            className="h-7 text-xs gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10"
+            className="h-7 text-xs gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
             onClick={() => setRequestDialogOpen(true)}
           >
             <Send className="h-3 w-3" />
@@ -129,9 +129,9 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {metrics.map((m) => (
-          <Card key={m.label} className="p-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        {metrics.map((m, idx) => (
+          <Card key={m.label} className={`p-3.5 ${idx === metrics.length - 1 ? 'col-span-2 md:col-span-1' : ''}`}>
             <div className="flex items-center gap-1.5 mb-2">
               <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{m.label}</span>
