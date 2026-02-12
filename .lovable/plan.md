@@ -1,74 +1,61 @@
 
-# Be om oppdatering - Trust Profile Feature
+# Demo Reset-knapp
 
-## Oversikt
-Legge til en "Be om oppdatering"-funksjon direkte i Trust Profile som lar compliance-ansvarlig sende foresporsler til leverandorer om manglende eller utgatt informasjon. Funksjonen skal vare enkel, intuitiv og demo-klar.
+## Hva skal bygges
+En "Start demo på nytt"-knapp som tilbakestiller all demodata og simulerer nye innboks-oppdateringer fra leverandorer, slik at du kan demonstrere hele flyten fra onboarding til godkjenning av dokumenter.
 
-## Brukeropplevelse
+## Funksjonalitet
 
-Brukeren ser en tydelig knapp i Trust Profile-headeren: **"Be om oppdatering"**. Nar den klikkes, apnes en dialog der brukeren kan:
+### 1. Reset Demo-knapp i sidemenyen
+En tydelig knapp nederst i sidemenyen (eller i header) med ikon og tekst "Start demo på nytt". Knappen vil:
 
-1. Velge hva som mangler/er utgatt (dokumenter, informasjon, sertifikater)
-2. Sette en frist
-3. Legge til en kort melding
-4. "Sende" foresporselen (simulert i demo)
+- Slette alle eksisterende vendor-assets fra databasen
+- Slette alle eksisterende lara_inbox-elementer
+- Slette company_profile (tvinger onboarding-flyten)
+- Slette vendor_documents
+- Navigere til forsiden (som viser onboarding)
 
-I tillegg: Dokumenter og metrics som er utgatt eller mangler far automatisk et visuelt varsel med en hurtigknapp for a be om oppdatering direkte derfra.
+### 2. Etter onboarding: Seed nye innboks-elementer
+Nar bedriftsprofilen er opprettet og vendor-listen er populert (etter onboarding/filopplasting), seedet det automatisk 6-8 nye lara_inbox-elementer knyttet til de faktiske vendorene i databasen. Disse simulerer:
 
-## Endringer
+- DPA-avtaler mottatt fra leverandorer
+- SOC 2-rapporter
+- ISO 27001-sertifikater
+- Penetrasjonstester
+- DPIA-vurderinger
 
-### 1. Ny dialog: RequestUpdateDialog
-En modal dialog som apnes fra headeren eller fra individuelle varsler:
-- **Foresporselstyper** (flervalg): Penetrasjonstest, DPA, ISO 27001-sertifikat, SOC 2, DPIA, Generell oppdatering
-- **Frist** (datofelt med standard 30 dager frem)
-- **Melding** (valgfritt tekstfelt, forhåndsutfylt basert pa kontekst)
-- **Mottaker** (e-post, forhåndsutfylt fra leverandorens kontaktinfo)
-- Knapp: "Send forespørsel via Lara"
+Hvert element far realistiske avsendere, datoer og confidence scores slik at demo-flyten med godkjenning/avvisning fungerer godt.
 
-Nar brukeren klikker send, opprettes en rad i `vendor_document_requests` og en toast bekrefter at "Lara sender foresporselen".
+### 3. Bekreftelsesdialog
+For a unnga utilsiktet reset vises en bekreftelsesdialog ("Er du sikker? All data blir slettet") for knappen utforer handlingen.
 
-### 2. Oppdater AssetHeader
-Legg til en "Be om oppdatering"-knapp (med Send-ikon) ved siden av leverandornavnet. Knappen apner RequestUpdateDialog.
+## Teknisk plan
 
-### 3. Smarte varsler i DocumentsTab
-Dokumenter som er utlopt eller utloper snart far en liten "Be om ny versjon"-knapp direkte pa raden i tabellen. Klikk apner RequestUpdateDialog forhåndsutfylt med riktig dokumenttype.
+### Filer som endres:
+1. **`src/components/Sidebar.tsx`** - Legge til "Start demo pa nytt"-knapp med RotateCcw-ikon, bekreftelsesdialog, og reset-logikk (DELETE fra assets, lara_inbox, vendor_documents, company_profile, deretter navigate til /)
 
-### 4. Varselbanner i metrics
-Nar det finnes utgatte dokumenter eller manglende obligatoriske dokumenter, vis et lite varselbanner mellom metrics og tabs med tekst som "2 dokumenter er utlopt" og en hurtigknapp.
+2. **`src/pages/Index.tsx`** eller **`src/components/onboarding/CompactCompanyOnboarding.tsx`** - Etter fullfort onboarding: kall en funksjon som seeder lara_inbox med demo-dokumenter basert pa de vendorene som finnes i assets-tabellen
 
-### 5. Demo-data
-Oppdater eksisterende demodata slik at noen dokumenter er utlopt, slik at varslene vises automatisk.
-
-## Tekniske detaljer
-
-**Nye filer:**
-- `src/components/asset-profile/RequestUpdateDialog.tsx` - Dialog-komponent
-
-**Endrede filer:**
-- `src/components/asset-profile/AssetHeader.tsx` - Legg til "Be om oppdatering"-knapp
-- `src/components/asset-profile/tabs/DocumentsTab.tsx` - Legg til inline "Be om ny versjon"-knapper pa utgatte rader
-- `src/components/asset-profile/AssetMetrics.tsx` - Legg til varselbanner for utgatte dokumenter
-- `src/pages/AssetTrustProfile.tsx` - Evt. state-koordinering
-
-**RequestUpdateDialog props:**
-```typescript
-interface RequestUpdateDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  assetId: string;
-  assetName: string;
-  vendorName?: string;
-  preselectedType?: string; // forhåndsvalgt dokumenttype
-}
+### Seeding-logikk (pseudokode):
+```text
+1. Hent alle vendors fra assets-tabellen
+2. For et utvalg (6-8 stykker), generer inbox-elementer:
+   - matched_asset_id = vendor.id
+   - matched_document_type = tilfeldig (dpa, soc2, iso27001, etc.)
+   - sender_email/name = realistisk per vendor
+   - confidence_score = 0.85-0.98
+   - status = "new"
+   - received_at = siste 7 dager
+3. Insert i lara_inbox
 ```
 
-**Dialog logikk:**
-- Oppretter rad i `vendor_document_requests` med valgt type, frist og status "pending"
-- Invaliderer queries for a oppdatere DocumentRequestsSection automatisk
-- Toast-melding: "Lara sender foresporselen til [leverandor]"
-
-**Varselbanner-komponent (inline i AssetMetrics eller egen):**
-- Query mot `vendor_documents` for a finne dokumenter der `valid_to < now()`
-- Viser antall utgatte dokumenter med en "Be om oppdatering"-knapp
-
-**Ingen nye tabeller trengs** - bruker eksisterende `vendor_document_requests`.
+### Reset-logikk:
+```text
+1. Vis bekreftelsesdialog
+2. DELETE FROM vendor_documents
+3. DELETE FROM lara_inbox  
+4. DELETE FROM assets
+5. DELETE FROM company_profile
+6. Invalidate alle react-query cacher
+7. Navigate til "/"
+```
