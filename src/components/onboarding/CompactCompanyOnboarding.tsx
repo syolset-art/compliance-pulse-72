@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
-import { seedDemoInbox } from "@/lib/demoSeedInbox";
+import { seedDemoInbox, seedDemoDocuments } from "@/lib/demoSeedInbox";
 import { Loader2, Search, Check, Building2, ChevronRight, Globe, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -185,6 +185,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       // Seed demo inbox items after a short delay (vendors may be added via file upload after onComplete)
       setTimeout(async () => {
         await seedDemoInbox();
+        await seedDemoDocuments();
       }, 3000);
       
       onComplete();
