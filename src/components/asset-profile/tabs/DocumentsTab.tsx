@@ -168,12 +168,12 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     <div className="space-y-6">
       {/* Document overview table */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 gap-2">
           <CardTitle className="text-base flex items-center gap-2">
             <FileCheck className="h-4 w-4 text-primary" />
             {t("vendorDocs.documentsTitle", "Dokumenter")} ({documents.length})
           </CardTitle>
-          <Button size="sm" onClick={() => setShowUpload(!showUpload)} disabled={atLimit}>
+          <Button size="sm" onClick={() => setShowUpload(!showUpload)} disabled={atLimit} className="w-full sm:w-auto">
             <Upload className="h-3.5 w-3.5 mr-1.5" />
             {t("vendorDocs.uploadTitle", "Last opp")}
           </Button>
@@ -187,19 +187,19 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
               <p className="text-sm">{t("vendorDocs.noDocuments", "Ingen dokumenter lastet opp ennå")}</p>
             </div>
           ) : (
-            <div className="rounded-lg border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30">
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.name", "Navn")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.documentType", "Type")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.version", "Versjon")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.validTo", "Gyldig til")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.statusLabel", "Status")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.source", "Kilde")}</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.date", "Dato")}</TableHead>
-                    <TableHead className="w-10" />
-                  </TableRow>
+            <div className="rounded-lg border overflow-x-auto">
+               <Table className="min-w-[600px]">
+                 <TableHeader>
+                   <TableRow className="bg-muted/30">
+                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.name", "Navn")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.documentType", "Type")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{t("vendorDocs.version", "Versjon")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.validTo", "Gyldig til")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.statusLabel", "Status")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.source", "Kilde")}</TableHead>
+                     <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.date", "Dato")}</TableHead>
+                     <TableHead className="w-10" />
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {documents.map((doc: any) => (
@@ -221,15 +221,15 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                       <TableCell className="py-2.5">
                         <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
                       </TableCell>
-                      <TableCell className="py-2.5 text-sm text-muted-foreground">{doc.version || "v1.0"}</TableCell>
+                      <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">{doc.version || "v1.0"}</TableCell>
                       <TableCell className="py-2.5 text-sm text-muted-foreground">
-                        {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
-                      </TableCell>
-                      <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, t)}</TableCell>
-                      <TableCell className="py-2.5 text-xs text-muted-foreground">{getSourceLabel(doc.source)}</TableCell>
-                      <TableCell className="py-2.5 text-xs text-muted-foreground">
-                        {new Date(doc.created_at).toLocaleDateString(locale)}
-                      </TableCell>
+                         {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
+                       </TableCell>
+                       <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, t)}</TableCell>
+                       <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">{getSourceLabel(doc.source)}</TableCell>
+                       <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">
+                         {new Date(doc.created_at).toLocaleDateString(locale)}
+                       </TableCell>
                       <TableCell className="py-2.5">
                         <div className="flex items-center gap-0.5">
                           {doc.valid_to && new Date(doc.valid_to) < new Date() && (
@@ -272,7 +272,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <Card>
           <CardHeader><CardTitle className="text-base">{t("vendorDocs.uploadTitle", "Last opp dokumentasjon")}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">{t("vendorDocs.documentType", "Dokumenttype")}</Label>
                 <Select value={docType} onValueChange={setDocType}>
