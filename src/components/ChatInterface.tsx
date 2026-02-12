@@ -337,7 +337,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(true);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
-  const [companyName, setCompanyName] = useState<string>("Eviny AS");
+  const [companyName, setCompanyName] = useState<string>("");
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
