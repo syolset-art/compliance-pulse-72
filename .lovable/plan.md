@@ -1,61 +1,52 @@
 
-# Demo Reset-knapp
+# Innboks-indikator pa vendorkort og global innboks-ikon
 
-## Hva skal bygges
-En "Start demo på nytt"-knapp som tilbakestiller all demodata og simulerer nye innboks-oppdateringer fra leverandorer, slik at du kan demonstrere hele flyten fra onboarding til godkjenning av dokumenter.
+## Oversikt
+Legge til en visuell innboks-indikator pa hvert vendorkort som viser antall ventende dokumenter, og et globalt innboks-ikon i sidebaren eller toppseksjonen pa /assets-siden.
 
-## Funksjonalitet
+## Endringer
 
-### 1. Reset Demo-knapp i sidemenyen
-En tydelig knapp nederst i sidemenyen (eller i header) med ikon og tekst "Start demo på nytt". Knappen vil:
+### 1. VendorCard - innboks-badge
+Legge til en ny prop `inboxCount` pa `VendorCard`-komponenten. Nar verdien er storre enn 0, vises et lite merke med et konvolutt-ikon og antall ventende elementer, plassert ved siden av de eksisterende badge-elementene (DPA, risiko, land).
 
-- Slette alle eksisterende vendor-assets fra databasen
-- Slette alle eksisterende lara_inbox-elementer
-- Slette company_profile (tvinger onboarding-flyten)
-- Slette vendor_documents
-- Navigere til forsiden (som viser onboarding)
+### 2. VendorOverviewTab - hente innboks-data
+Legge til en `useQuery` som henter antall ventende innboks-elementer per leverandor fra `lara_inbox`-tabellen (status = 'new' eller 'auto_matched'), gruppert pa `matched_asset_id`. Disse tallene sendes videre til hvert `VendorCard`.
 
-### 2. Etter onboarding: Seed nye innboks-elementer
-Nar bedriftsprofilen er opprettet og vendor-listen er populert (etter onboarding/filopplasting), seedet det automatisk 6-8 nye lara_inbox-elementer knyttet til de faktiske vendorene i databasen. Disse simulerer:
+### 3. VendorListTab - samme innboks-data
+Samme logikk legges til i `VendorListTab` slik at det vises konsistent pa tvers av faner.
 
-- DPA-avtaler mottatt fra leverandorer
-- SOC 2-rapporter
-- ISO 27001-sertifikater
-- Penetrasjonstester
-- DPIA-vurderinger
+### 4. Global innboks-ikon pa Assets-siden
+Legge til et innboks-ikon med badge i header-seksjon pa `/assets`-siden (ved siden av tittelen). Ikonet lenker til `/lara-inbox` og viser totalt antall ventende dokumenter pa tvers av alle leverandorer.
 
-Hvert element far realistiske avsendere, datoer og confidence scores slik at demo-flyten med godkjenning/avvisning fungerer godt.
+## Tekniske detaljer
 
-### 3. Bekreftelsesdialog
-For a unnga utilsiktet reset vises en bekreftelsesdialog ("Er du sikker? All data blir slettet") for knappen utforer handlingen.
-
-## Teknisk plan
-
-### Filer som endres:
-1. **`src/components/Sidebar.tsx`** - Legge til "Start demo pa nytt"-knapp med RotateCcw-ikon, bekreftelsesdialog, og reset-logikk (DELETE fra assets, lara_inbox, vendor_documents, company_profile, deretter navigate til /)
-
-2. **`src/pages/Index.tsx`** eller **`src/components/onboarding/CompactCompanyOnboarding.tsx`** - Etter fullfort onboarding: kall en funksjon som seeder lara_inbox med demo-dokumenter basert pa de vendorene som finnes i assets-tabellen
-
-### Seeding-logikk (pseudokode):
-```text
-1. Hent alle vendors fra assets-tabellen
-2. For et utvalg (6-8 stykker), generer inbox-elementer:
-   - matched_asset_id = vendor.id
-   - matched_document_type = tilfeldig (dpa, soc2, iso27001, etc.)
-   - sender_email/name = realistisk per vendor
-   - confidence_score = 0.85-0.98
-   - status = "new"
-   - received_at = siste 7 dager
-3. Insert i lara_inbox
+**Ny query for innboks-telling:**
+```typescript
+const { data: inboxCounts = {} } = useQuery({
+  queryKey: ["lara-inbox-counts"],
+  queryFn: async () => {
+    const { data } = await supabase
+      .from("lara_inbox")
+      .select("matched_asset_id, id")
+      .in("status", ["new", "auto_matched"]);
+    const counts: Record<string, number> = {};
+    data?.forEach(item => {
+      counts[item.matched_asset_id] = (counts[item.matched_asset_id] || 0) + 1;
+    });
+    return counts;
+  },
+});
 ```
 
-### Reset-logikk:
-```text
-1. Vis bekreftelsesdialog
-2. DELETE FROM vendor_documents
-3. DELETE FROM lara_inbox  
-4. DELETE FROM assets
-5. DELETE FROM company_profile
-6. Invalidate alle react-query cacher
-7. Navigate til "/"
-```
+**VendorCard endring:**
+- Ny prop: `inboxCount?: number`
+- Visuelt: En liten badge med `Mail`-ikon og tall i primary-farge, vist blant de andre badge-elementene nederst pa kortet
+
+**Assets-side header:**
+- Innboks-ikon (Mail eller Inbox fra lucide) med notification-badge plassert til hoyre for tittelen, som linker til `/lara-inbox`
+
+## Filer som endres
+- `src/components/vendor-dashboard/VendorCard.tsx` - ny inboxCount-prop og badge
+- `src/components/vendor-dashboard/VendorOverviewTab.tsx` - hente innboks-data og sende til VendorCard
+- `src/components/vendor-dashboard/VendorListTab.tsx` - samme innboks-data
+- `src/pages/Assets.tsx` - global innboks-ikon i header
