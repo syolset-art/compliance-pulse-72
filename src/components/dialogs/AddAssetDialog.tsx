@@ -1291,15 +1291,28 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       return "";
     };
 
-    const assetsToCreate = rowsToImport.map(row => ({
-      name: findCol(row, ["name", "navn", "system", "leverandør", "vendor name"]) || Object.values(row)[0] || "Unnamed",
-      vendor: findCol(row, ["vendor", "leverandør", "supplier"]) || null,
-      category: findCol(row, ["category", "kategori", "type"]) || null,
-      description: findCol(row, ["description", "beskrivelse", "notes", "notat"]) || null,
-      risk_level: findCol(row, ["risk", "risk_level", "risiko"]) || "medium",
-      criticality: findCol(row, ["criticality", "kritikalitet"]) || "medium",
-      asset_type: "vendor",
-    }));
+    // Try to match rows against DEMO_VENDORS for enriched data
+    const { DEMO_VENDORS } = await import("@/lib/demoVendors");
+    const assetsToCreate = rowsToImport.map(row => {
+      const rowName = findCol(row, ["name", "navn", "system", "leverandør", "vendor name"]) || Object.values(row)[0] || "Unnamed";
+      const demoMatch = DEMO_VENDORS.find(d => d.name.toLowerCase() === rowName.toLowerCase());
+      return {
+        name: rowName,
+        vendor: demoMatch?.vendor || findCol(row, ["vendor", "leverandør", "supplier"]) || null,
+        category: demoMatch?.type || findCol(row, ["category", "kategori", "type"]) || null,
+        description: demoMatch
+          ? `Behandler persondata. ${demoMatch.certifications.join(", ")}`
+          : findCol(row, ["description", "beskrivelse", "notes", "notat"]) || null,
+        risk_level: demoMatch?.risk_level || findCol(row, ["risk", "risk_level", "risiko"]) || "medium",
+        risk_score: demoMatch?.risk_score ?? 40,
+        compliance_score: demoMatch?.compliance_score ?? 50,
+        criticality: demoMatch?.criticality || findCol(row, ["criticality", "kritikalitet"]) || "medium",
+        country: demoMatch?.country || "USA",
+        region: demoMatch?.region || "Nord-Amerika",
+        url: demoMatch?.url || null,
+        asset_type: "vendor",
+      };
+    });
 
     try {
       const { error } = await supabase.from("assets").insert(assetsToCreate);

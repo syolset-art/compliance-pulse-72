@@ -568,7 +568,14 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
           description: supplier.dataProcessing
             ? `Behandler persondata. ${supplier.certifications?.join(", ") || ""}`
             : supplier.certifications?.join(", ") || "",
-          risk_level: supplier.hasDPA ? "low" : "medium",
+          risk_level: supplier.risk_level || (supplier.hasDPA ? "low" : "medium"),
+          risk_score: supplier.risk_score ?? (supplier.hasDPA ? 20 : 50),
+          compliance_score: supplier.compliance_score ?? (supplier.hasDPA ? 85 : 55),
+          vendor: supplier.vendor || supplier.name,
+          country: supplier.country || "USA",
+          region: supplier.region || "Nord-Amerika",
+          criticality: supplier.criticality || "medium",
+          url: supplier.url || null,
         });
         if (!error) addedCount++;
       }
