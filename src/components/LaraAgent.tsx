@@ -413,7 +413,10 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
                   {/* Reset onboarding button */}
                   <div className="flex items-center justify-center gap-2 mt-3">
                     <button
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        onToggleChat?.();
+                      }}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {t("laraAgent.doLater")}
