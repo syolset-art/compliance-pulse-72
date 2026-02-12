@@ -153,63 +153,63 @@ const AssetTrustProfile = () => {
             />
 
             {/* Tabs section */}
-            <Tabs defaultValue="validation" className="w-full">
-              <div className="relative -mx-4 md:mx-0">
-                <div className="overflow-x-auto scrollbar-none px-4 md:px-0">
-                  <TabsList className="inline-flex justify-start bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 w-max min-w-full">
+            <Tabs defaultValue="validation" className="w-full min-w-0">
+              <div className="relative">
+                <div className="-mx-4 md:mx-0 px-4 md:px-0 pb-1 scrollbar-none" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5" style={{ width: 'max-content', minWidth: '100%' }}>
                     {enabledTabs.includes('validation') && (
-                      <TabsTrigger value="validation" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="validation" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.validation")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('usage') && (
-                      <TabsTrigger value="usage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="usage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.usage")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('aiUsage') && (
-                      <TabsTrigger value="aiUsage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="aiUsage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.aiUsage")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('dataHandling') && (
-                      <TabsTrigger value="dataHandling" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="dataHandling" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.dataHandling")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('riskManagement') && (
-                      <TabsTrigger value="riskManagement" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="riskManagement" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.riskManagement")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('incidents') && (
-                      <TabsTrigger value="incidents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="incidents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.incidents")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('relations') && (
-                      <TabsTrigger value="relations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="relations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.relations")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('documents') && (
-                      <TabsTrigger value="documents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="documents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.documents")}
                       </TabsTrigger>
                     )}
-                    <TabsTrigger value="inbox" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg relative whitespace-nowrap">
+                    <TabsTrigger value="inbox" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg relative whitespace-nowrap flex-none">
                       Innboks
                       {inboxCount > 0 && (
                         <Badge className="ml-1.5 h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">{inboxCount}</Badge>
                       )}
                     </TabsTrigger>
                     {enabledTabs.includes('analysis') && (
-                      <TabsTrigger value="analysis" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="analysis" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.analysis")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('benchmark') && (
-                      <TabsTrigger value="benchmark" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap">
+                      <TabsTrigger value="benchmark" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.benchmark")}
                       </TabsTrigger>
                     )}
