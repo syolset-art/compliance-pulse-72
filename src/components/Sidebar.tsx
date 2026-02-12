@@ -18,7 +18,8 @@ import {
   FileCheck,
   FileBarChart,
   BookOpen,
-  LogOut
+  LogOut,
+  RotateCcw
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -34,6 +35,18 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
@@ -60,11 +73,37 @@ const SidebarContent = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { signOut, user } = useAuth();
+  const queryClient = useQueryClient();
   const [adminOpen, setAdminOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetDemo = async () => {
+    setResetting(true);
+    try {
+      // Delete in correct order (foreign key dependencies)
+      await supabase.from("vendor_documents" as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("lara_inbox").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("asset_ai_usage").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("asset_relationships").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("assets").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("onboarding_progress").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await supabase.from("company_profile").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      queryClient.clear();
+      toast.success("Demo tilbakestilt! Starter onboarding på nytt...");
+      navigate("/");
+      window.location.reload();
+    } catch (error) {
+      console.error("Reset error:", error);
+      toast.error("Kunne ikke tilbakestille demo");
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -218,6 +257,36 @@ const SidebarContent = () => {
           <BookOpen className="h-5 w-5" />
           {t("nav.resources")}
         </Link>
+
+        {/* Demo Reset Button */}
+        <div className="mt-4 px-1">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-silk"
+                disabled={resetting}
+              >
+                <RotateCcw className={cn("h-5 w-5", resetting && "animate-spin")} />
+                {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
+                  Du starter onboarding fra begynnelsen.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Ja, tilbakestill
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </nav>
 
       {/* Company section at bottom */}
