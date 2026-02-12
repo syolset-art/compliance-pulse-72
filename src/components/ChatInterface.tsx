@@ -515,67 +515,109 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
     setUploadingFile(true);
     setUploadProgress(0);
+    setUploadDialogOpen(false);
+
+    // Add user message about the upload
+    const uploadMsg: Message = { role: "user", content: `📎 Last opp og analyser: ${file.name}`, timestamp: new Date() };
+    setMessages(prev => [...prev, uploadMsg]);
+
+    // Show thinking state
+    const thinkingMsg: Message = { role: "assistant", content: "", timestamp: new Date() };
+    setMessages(prev => [...prev, thinkingMsg]);
+    setIsLoading(true);
+    setThinkingStartTime(Date.now());
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: t("common.error"),
-          description: t("chat.upload.loginRequired"),
-          variant: "destructive",
-        });
-        return;
-      }
+      // Read file content as text
+      setUploadProgress(20);
+      const fileText = await file.text();
+      setUploadProgress(40);
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
+      // Call analyze-document edge function
+      const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-document`;
+      const analyzeResponse = await fetch(ANALYZE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          documentText: fileText,
+          fileName: file.name,
+        }),
+      });
 
       setUploadProgress(70);
 
-      const { error: dbError } = await supabase
-        .from('uploaded_documents')
-        .insert({
-          file_name: file.name,
-          file_path: uploadData.path,
-          file_size: file.size,
-          mime_type: file.type,
-          analysis_status: 'pending'
-        });
+      if (!analyzeResponse.ok) {
+        throw new Error("Analyse feilet");
+      }
 
-      if (dbError) throw dbError;
+      const { analysis } = await analyzeResponse.json();
+      setUploadProgress(85);
+
+      // Insert discovered suppliers as vendor assets
+      let addedCount = 0;
+      if (analysis?.suppliers?.length > 0) {
+        for (const supplier of analysis.suppliers) {
+          const { error } = await supabase.from("assets").insert({
+            name: supplier.name,
+            asset_type: "vendor",
+            category: supplier.type || "SaaS",
+            description: supplier.dataProcessing
+              ? `Behandler persondata. ${supplier.certifications?.join(", ") || ""}`
+              : supplier.certifications?.join(", ") || "",
+            risk_level: supplier.hasDPA ? "low" : "medium",
+          });
+          if (!error) addedCount++;
+        }
+      }
 
       setUploadProgress(100);
 
-      toast({
-        title: t("chat.upload.success"),
-        description: t("chat.upload.successDesc", { name: file.name }),
-      });
+      // Build analysis summary for chat
+      const suppliersText = analysis?.suppliers?.length
+        ? analysis.suppliers.map((s: any) => `• **${s.name}** (${s.type})${s.hasDPA ? " – DPA ✓" : " – ⚠️ Mangler DPA"}`).join("\n")
+        : "Ingen leverandører funnet.";
 
-      setUploadDialogOpen(false);
-      
-      setTimeout(() => {
-        handleSend(t("chat.prompts.analyzeDocument", { name: file.name }));
-      }, 500);
+      const gapsText = analysis?.complianceGaps?.length
+        ? analysis.complianceGaps.map((g: any) => `• **${g.area}** (${g.severity}): ${g.description}`).join("\n")
+        : "";
+
+      const thinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
+
+      let resultContent = `🦋 **Analyse fullført: ${file.name}**\n\n`;
+      resultContent += `${analysis?.summary || ""}\n\n`;
+      resultContent += `### Leverandører funnet (${analysis?.suppliers?.length || 0})\n${suppliersText}\n\n`;
+      if (addedCount > 0) {
+        resultContent += `✅ **${addedCount} leverandør${addedCount > 1 ? "er" : ""} lagt til i leverandørlisten.**\n\n`;
+      }
+      if (gapsText) {
+        resultContent += `### Compliance-gap\n${gapsText}\n\n`;
+      }
+      resultContent += `Du kan se leverandørene under **Leverandører** i menyen.`;
+
+      setMessages(prev =>
+        prev.map((m, i) =>
+          i === prev.length - 1
+            ? { ...m, content: resultContent, isComplete: true, thinkingTime, thinkingSummary: "Dokumentanalyse" }
+            : m
+        )
+      );
 
     } catch (error) {
-      console.error('Upload error:', error);
-      toast({
-        title: t("chat.upload.failed"),
-        description: error instanceof Error ? error.message : t("chat.upload.failed"),
-        variant: "destructive",
-      });
+      console.error("Upload/analyze error:", error);
+      const errorContent = `❌ Beklager, analysen av **${file.name}** feilet. ${error instanceof Error ? error.message : "Prøv igjen."}`;
+      setMessages(prev =>
+        prev.map((m, i) =>
+          i === prev.length - 1 ? { ...m, content: errorContent, isComplete: true } : m
+        )
+      );
     } finally {
       setUploadingFile(false);
       setUploadProgress(0);
+      setIsLoading(false);
+      setThinkingStartTime(null);
     }
   };
 
