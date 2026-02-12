@@ -72,3 +72,77 @@ export async function seedDemoInbox() {
     console.error("Failed to seed demo inbox:", error);
   }
 }
+
+function daysAgo(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString().split("T")[0];
+}
+
+function daysFromNow(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0];
+}
+
+export async function seedDemoDocuments() {
+  // Fetch all vendors
+  const { data: vendors } = await supabase
+    .from("assets")
+    .select("id, name")
+    .eq("asset_type", "vendor");
+
+  if (!vendors || vendors.length === 0) return;
+
+  // Delete old demo documents
+  await supabase.from("vendor_documents").delete().like("file_path", "demo/%");
+
+  const docs: any[] = [];
+
+  // Give ~half the vendors expired docs, rest get valid docs
+  vendors.forEach((vendor, i) => {
+    const slug = vendor.name.replace(/\s/g, "_");
+    if (i % 2 === 0) {
+      // Expired documents
+      docs.push({
+        asset_id: vendor.id,
+        file_name: `DPA_${slug}.pdf`,
+        file_path: `demo/DPA_${slug}.pdf`,
+        document_type: "dpa",
+        valid_from: daysAgo(365),
+        valid_to: daysAgo(30 + Math.floor(Math.random() * 60)),
+        status: "current",
+        source: "manual_upload",
+      });
+      if (Math.random() > 0.5) {
+        docs.push({
+          asset_id: vendor.id,
+          file_name: `SOC2_${slug}.pdf`,
+          file_path: `demo/SOC2_${slug}.pdf`,
+          document_type: "soc2",
+          valid_from: daysAgo(400),
+          valid_to: daysAgo(10 + Math.floor(Math.random() * 30)),
+          status: "current",
+          source: "manual_upload",
+        });
+      }
+    } else {
+      // Valid documents
+      docs.push({
+        asset_id: vendor.id,
+        file_name: `DPA_${slug}.pdf`,
+        file_path: `demo/DPA_${slug}.pdf`,
+        document_type: "dpa",
+        valid_from: daysAgo(180),
+        valid_to: daysFromNow(180),
+        status: "current",
+        source: "manual_upload",
+      });
+    }
+  });
+
+  const { error } = await supabase.from("vendor_documents").insert(docs);
+  if (error) {
+    console.error("Failed to seed demo documents:", error);
+  }
+}

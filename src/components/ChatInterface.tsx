@@ -606,8 +606,9 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
       // Seed demo inbox after vendors are added
       if (addedCount > 0) {
-        const { seedDemoInbox } = await import("@/lib/demoSeedInbox");
+        const { seedDemoInbox, seedDemoDocuments } = await import("@/lib/demoSeedInbox");
         await seedDemoInbox();
+        await seedDemoDocuments();
       }
 
       setMessages(prev =>

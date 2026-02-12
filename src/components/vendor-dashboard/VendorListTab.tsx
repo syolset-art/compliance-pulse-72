@@ -66,6 +66,24 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
     },
   });
 
+  const { data: expiredCounts = {} } = useQuery({
+    queryKey: ["expired-docs-counts"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("vendor_documents")
+        .select("asset_id, valid_to")
+        .not("valid_to", "is", null);
+      const now = new Date();
+      const counts: Record<string, number> = {};
+      data?.forEach(doc => {
+        if (new Date(doc.valid_to!) < now) {
+          counts[doc.asset_id] = (counts[doc.asset_id] || 0) + 1;
+        }
+      });
+      return counts;
+    },
+  });
+
   const [viewMode, setViewMode] = useState<"list" | "card">("card");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -175,6 +193,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               connectedSystemsCount={getConnectedCount(v.id)}
               hasDPA={(v.compliance_score || 0) >= 30}
               inboxCount={inboxCounts[v.id] || 0}
+              expiredDocsCount={expiredCounts[v.id] || 0}
               onClick={() => navigate(`/assets/${v.id}`)}
             />
           ))}
