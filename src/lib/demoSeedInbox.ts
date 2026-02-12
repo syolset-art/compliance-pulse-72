@@ -85,8 +85,16 @@ function daysFromNow(days: number): string {
   return d.toISOString().split("T")[0];
 }
 
+const EXPIRED_DOC_TEMPLATES = [
+  { type: "dpa", name: "Databehandleravtale", prefix: "DPA" },
+  { type: "soc2", name: "SOC 2 Type II", prefix: "SOC2" },
+  { type: "iso27001", name: "ISO 27001-sertifikat", prefix: "ISO27001" },
+  { type: "nda", name: "Taushetserklæring", prefix: "NDA" },
+  { type: "pentest", name: "Penetrasjonstest", prefix: "Pentest" },
+  { type: "risk-assessment", name: "Risikovurdering", prefix: "Risk_Assessment" },
+];
+
 export async function seedDemoDocuments() {
-  // Fetch all vendors
   const { data: vendors } = await supabase
     .from("assets")
     .select("id, name")
@@ -98,36 +106,40 @@ export async function seedDemoDocuments() {
   await supabase.from("vendor_documents").delete().like("file_path", "demo/%");
 
   const docs: any[] = [];
+  const shuffled = [...EXPIRED_DOC_TEMPLATES];
 
-  // Give ~half the vendors expired docs, rest get valid docs
   vendors.forEach((vendor, i) => {
     const slug = vendor.name.replace(/\s/g, "_");
-    if (i % 2 === 0) {
-      // Expired documents
+
+    if (i % 3 !== 2) {
+      // ~2/3 of vendors get expired documents
+      const template = shuffled[i % shuffled.length];
       docs.push({
         asset_id: vendor.id,
-        file_name: `DPA_${slug}.pdf`,
-        file_path: `demo/DPA_${slug}.pdf`,
-        document_type: "dpa",
+        file_name: `${template.prefix}_${slug}.pdf`,
+        file_path: `demo/${template.prefix}_${slug}.pdf`,
+        document_type: template.type,
         valid_from: daysAgo(365),
-        valid_to: daysAgo(30 + Math.floor(Math.random() * 60)),
+        valid_to: daysAgo(10 + Math.floor(Math.random() * 90)),
         status: "current",
         source: "manual_upload",
       });
-      if (Math.random() > 0.5) {
+      // Some vendors get a second expired doc
+      if (i % 4 === 0) {
+        const t2 = shuffled[(i + 1) % shuffled.length];
         docs.push({
           asset_id: vendor.id,
-          file_name: `SOC2_${slug}.pdf`,
-          file_path: `demo/SOC2_${slug}.pdf`,
-          document_type: "soc2",
+          file_name: `${t2.prefix}_${slug}.pdf`,
+          file_path: `demo/${t2.prefix}_${slug}.pdf`,
+          document_type: t2.type,
           valid_from: daysAgo(400),
-          valid_to: daysAgo(10 + Math.floor(Math.random() * 30)),
+          valid_to: daysAgo(5 + Math.floor(Math.random() * 30)),
           status: "current",
           source: "manual_upload",
         });
       }
     } else {
-      // Valid documents
+      // ~1/3 get valid documents (for contrast)
       docs.push({
         asset_id: vendor.id,
         file_name: `DPA_${slug}.pdf`,
