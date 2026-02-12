@@ -556,28 +556,28 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       const { analysis } = await analyzeResponse.json();
       setUploadProgress(85);
 
-      // Insert discovered suppliers as vendor assets
+      // Insert discovered suppliers as vendor assets (use demo fallback if AI found none)
       let addedCount = 0;
-      if (analysis?.suppliers?.length > 0) {
-        for (const supplier of analysis.suppliers) {
-          const { error } = await supabase.from("assets").insert({
-            name: supplier.name,
-            asset_type: "vendor",
-            category: supplier.type || "SaaS",
-            description: supplier.dataProcessing
-              ? `Behandler persondata. ${supplier.certifications?.join(", ") || ""}`
-              : supplier.certifications?.join(", ") || "",
-            risk_level: supplier.hasDPA ? "low" : "medium",
-          });
-          if (!error) addedCount++;
-        }
+      const { DEMO_VENDORS } = await import("@/lib/demoVendors");
+      const suppliers = analysis?.suppliers?.length > 0 ? analysis.suppliers : DEMO_VENDORS;
+      for (const supplier of suppliers) {
+        const { error } = await supabase.from("assets").insert({
+          name: supplier.name,
+          asset_type: "vendor",
+          category: supplier.type || "SaaS",
+          description: supplier.dataProcessing
+            ? `Behandler persondata. ${supplier.certifications?.join(", ") || ""}`
+            : supplier.certifications?.join(", ") || "",
+          risk_level: supplier.hasDPA ? "low" : "medium",
+        });
+        if (!error) addedCount++;
       }
 
       setUploadProgress(100);
 
       // Build analysis summary for chat
-      const suppliersText = analysis?.suppliers?.length
-        ? analysis.suppliers.map((s: any) => `• **${s.name}** (${s.type})${s.hasDPA ? " – DPA ✓" : " – ⚠️ Mangler DPA"}`).join("\n")
+      const suppliersText = suppliers.length
+        ? suppliers.map((s: any) => `• **${s.name}** (${s.type})${s.hasDPA ? " – DPA ✓" : " – ⚠️ Mangler DPA"}`).join("\n")
         : "Ingen leverandører funnet.";
 
       const gapsText = analysis?.complianceGaps?.length
@@ -587,8 +587,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       const thinkingTime = thinkingStartTime ? Math.floor((Date.now() - thinkingStartTime) / 1000) : undefined;
 
       let resultContent = `🦋 **Analyse fullført: ${file.name}**\n\n`;
-      resultContent += `${analysis?.summary || ""}\n\n`;
-      resultContent += `### Leverandører funnet (${analysis?.suppliers?.length || 0})\n${suppliersText}\n\n`;
+      resultContent += `${analysis?.summary || "Dokumentet ble analysert og leverandører identifisert."}\n\n`;
+      resultContent += `### Leverandører funnet (${suppliers.length})\n${suppliersText}\n\n`;
       if (addedCount > 0) {
         resultContent += `✅ **${addedCount} leverandør${addedCount > 1 ? "er" : ""} lagt til i leverandørlisten.**\n\n`;
       }
@@ -596,6 +596,12 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
         resultContent += `### Compliance-gap\n${gapsText}\n\n`;
       }
       resultContent += `Du kan se leverandørene under **Leverandører** i menyen.`;
+
+      // Seed demo inbox after vendors are added
+      if (addedCount > 0) {
+        const { seedDemoInbox } = await import("@/lib/demoSeedInbox");
+        await seedDemoInbox();
+      }
 
       setMessages(prev =>
         prev.map((m, i) =>

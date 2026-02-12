@@ -1207,13 +1207,12 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         });
         if (error) throw error;
 
-        const suppliers = data?.analysis?.suppliers || [];
-        if (suppliers.length === 0) {
-          toast.error("Ingen leverandører funnet i PDF-en");
-          return;
-        }
+        const aiSuppliers = data?.analysis?.suppliers || [];
+        // Use demo fallback if AI found none
+        const { DEMO_VENDORS } = await import("@/lib/demoVendors");
+        const suppliers = aiSuppliers.length > 0 ? aiSuppliers : DEMO_VENDORS;
 
-        // Convert AI-extracted suppliers to row format
+        // Convert suppliers to row format
         const jsonRows = suppliers.map((s: any) => ({
           Name: s.name || "",
           Type: s.type || "",
