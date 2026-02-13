@@ -2109,11 +2109,14 @@ export type Database = {
       vendor_documents: {
         Row: {
           asset_id: string
+          category: string | null
           created_at: string
+          display_name: string | null
           document_type: string
           file_name: string
           file_path: string
           id: string
+          linked_regulations: string[] | null
           notes: string | null
           received_at: string | null
           reminder_sent_at: string | null
@@ -2127,11 +2130,14 @@ export type Database = {
         }
         Insert: {
           asset_id: string
+          category?: string | null
           created_at?: string
+          display_name?: string | null
           document_type?: string
           file_name: string
           file_path: string
           id?: string
+          linked_regulations?: string[] | null
           notes?: string | null
           received_at?: string | null
           reminder_sent_at?: string | null
@@ -2145,11 +2151,14 @@ export type Database = {
         }
         Update: {
           asset_id?: string
+          category?: string | null
           created_at?: string
+          display_name?: string | null
           document_type?: string
           file_name?: string
           file_path?: string
           id?: string
+          linked_regulations?: string[] | null
           notes?: string | null
           received_at?: string | null
           reminder_sent_at?: string | null

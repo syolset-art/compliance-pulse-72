@@ -21,11 +21,13 @@ import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
 import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
 import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
+import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
 
   // Fetch asset
   const { data: asset, isLoading } = useQuery({
@@ -96,6 +98,7 @@ const AssetTrustProfile = () => {
     enabled: !!id,
   });
 
+  const isSelf = asset?.asset_type === 'self';
   const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'aiUsage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'documents', 'analysis', 'benchmark'];
 
   if (isLoading) {
@@ -213,6 +216,11 @@ const AssetTrustProfile = () => {
                         {t("trustProfile.tabs.benchmark")}
                       </TabsTrigger>
                     )}
+                    {isSelf && (
+                      <TabsTrigger value="requests" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
+                        {isNb ? "Forespørsler" : "Requests"}
+                      </TabsTrigger>
+                    )}
                   </TabsList>
                 </div>
                 <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none lg:hidden" />
@@ -266,6 +274,12 @@ const AssetTrustProfile = () => {
               <TabsContent value="benchmark" className="mt-6">
                 <BenchmarkTab assetId={asset.id} assetCategory={asset.category || undefined} />
               </TabsContent>
+
+              {isSelf && (
+                <TabsContent value="requests" className="mt-6">
+                  <CustomerRequestsTab />
+                </TabsContent>
+              )}
             </Tabs>
           </div>
         </main>

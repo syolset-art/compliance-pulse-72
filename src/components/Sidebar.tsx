@@ -70,6 +70,45 @@ const adminSubMenu = [
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
 ];
 
+const SelfTrustProfileLink = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const [selfAssetId, setSelfAssetId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSelf = async () => {
+      const { data } = await supabase
+        .from("assets")
+        .select("id")
+        .eq("asset_type", "self")
+        .limit(1)
+        .maybeSingle();
+      if (data) setSelfAssetId(data.id);
+    };
+    fetchSelf();
+  }, []);
+
+  if (!selfAssetId) return null;
+
+  const href = `/assets/${selfAssetId}`;
+  const isActive = location.pathname === href;
+
+  return (
+    <Link
+      to={href}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+        isActive
+          ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+      )}
+    >
+      <Shield className="h-5 w-5" />
+      {t("nav.trustProfile")}
+    </Link>
+  );
+};
+
 const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -238,13 +277,7 @@ const SidebarContent = () => {
           </button>
         </div>
 
-        <Link
-          to="/trust-profile"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-        >
-          <Shield className="h-5 w-5" />
-          {t("nav.trustProfile")}
-        </Link>
+        <SelfTrustProfileLink />
 
         {/* Resources link */}
         <Link
