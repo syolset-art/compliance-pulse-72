@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
+import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
 import { ValidationTab } from "@/components/asset-profile/tabs/ValidationTab";
 import { UsageTab } from "@/components/asset-profile/tabs/UsageTab";
 import { DataHandlingTab } from "@/components/asset-profile/tabs/DataHandlingTab";
@@ -154,6 +155,15 @@ const AssetTrustProfile = () => {
               asset={asset} 
               tasksCount={tasks?.length || 0} 
             />
+
+            {/* Publishing section for self-type */}
+            {isSelf && (
+              <TrustProfilePublishing
+                assetId={asset.id}
+                publishMode={(asset as any).publish_mode || 'private'}
+                publishToCustomers={(asset as any).publish_to_customers || []}
+              />
+            )}
 
             {/* Tabs section */}
             <Tabs defaultValue="validation" className="w-full min-w-0">

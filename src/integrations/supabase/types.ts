@@ -431,6 +431,8 @@ export type Database = {
           metadata: Json | null
           name: string
           next_review_date: string | null
+          publish_mode: string | null
+          publish_to_customers: string[] | null
           region: string | null
           risk_level: string | null
           risk_score: number | null
@@ -459,6 +461,8 @@ export type Database = {
           metadata?: Json | null
           name: string
           next_review_date?: string | null
+          publish_mode?: string | null
+          publish_to_customers?: string[] | null
           region?: string | null
           risk_level?: string | null
           risk_score?: number | null
@@ -487,6 +491,8 @@ export type Database = {
           metadata?: Json | null
           name?: string
           next_review_date?: string | null
+          publish_mode?: string | null
+          publish_to_customers?: string[] | null
           region?: string | null
           risk_level?: string | null
           risk_score?: number | null
