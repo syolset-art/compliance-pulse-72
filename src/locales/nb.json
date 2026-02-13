@@ -27,7 +27,36 @@
     "logout": "Logg ut",
     "loggingOut": "Logger ut...",
     "notRegistered": "Ikke registrert",
-    "clickLaraToStart": "Klikk på Lara for å starte"
+    "clickLaraToStart": "Klikk på Lara for å starte",
+    "customerRequests": "Kundeforespørsler"
+  },
+  "customerRequests": {
+    "title": "Kundeforespørsler",
+    "subtitle": "Svar på compliance-forespørsler fra dine kunder",
+    "search": "Søk i forespørsler...",
+    "due": "Frist",
+    "progress": "Fremdrift",
+    "share": "Del ferdig",
+    "sharedSuccess": "Compliance-pakke delt med kunden!",
+    "empty": "Ingen forespørsler her",
+    "metrics": {
+      "total": "Totale forespørsler",
+      "pending": "Ventende",
+      "inProgress": "Under arbeid",
+      "overdue": "Forfalt"
+    },
+    "tabs": {
+      "pending": "Avventer",
+      "completed": "Fullført",
+      "all": "Alle",
+      "archived": "Arkivert"
+    },
+    "status": {
+      "pending": "Avventer",
+      "inProgress": "Under arbeid",
+      "completed": "Fullført",
+      "archived": "Arkivert"
+    }
   },
   "resources": {
     "title": "Læringssenter",

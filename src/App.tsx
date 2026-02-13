@@ -31,6 +31,7 @@ import Resources from "./pages/Resources";
 import ComplianceChecklist from "./pages/ComplianceChecklist";
 import QualityDashboard from "./pages/QualityDashboard";
 import LaraInbox from "./pages/LaraInbox";
+import CustomerRequests from "./pages/CustomerRequests";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
                   <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
                   <Route path="/quality" element={<QualityDashboard />} />
                   <Route path="/lara-inbox" element={<LaraInbox />} />
+                  <Route path="/customer-requests" element={<CustomerRequests />} />
                   <Route path="/systems" element={<Assets />} />
                   <Route path="/systems/:id" element={<AssetTrustProfile />} />
                   <Route path="*" element={<NotFound />} />
