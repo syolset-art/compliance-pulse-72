@@ -1,83 +1,115 @@
 
-# Responsiv Trust Profile - Forbedret for nettbrett og mobil
+# Kundeforesporsler - Side for compliance-foresportsler fra kunder
 
-## Problemer identifisert
+## Hva vi bygger
+En ny side der brukeren kan se og haandtere foresportsler fra kunder som ber om innsikt i compliance-informasjon (leverandorvurderinger, sertifikater, DPA-er osv.). Inspirert av referansebildet med metrikk-kort, soek/filter, fane-navigasjon og foresportsel-kort med fremdrift.
 
-1. **Metrikk-kortene** - 5-kolonne grid passer ikke pa nettbrett (3+2 rader med ujevn fordeling) eller mobil (2+2+1 med ett kort alene)
-2. **Fane-navigasjon** - Fanene kuttes av pa hoyresiden uten visuell indikasjon pa at man kan scrolle
-3. **Header-kortet** - "Request update"-knappen og badges klumper seg pa mobil
-4. **Mangler max-width** - Innholdet strekker seg 100% i bredden uten container-begrensning
-5. **Tab-innhold** - ValidationTab og andre bruker grid som ikke tilpasser seg nettbrett
-6. **Dokumenttabellen** - Trange celler og mye skjult innhold pa sma skjermer
+## Sidestruktur
 
-## Endringer
+### 1. Header
+- Tittel: "Kundeforesportsler"
+- Undertittel: "Svar pa complianceforesportsler fra dine kunder"
+- Handlingsknapper oppe til hoyre (fremtidig: "Svar flere samtidig", "Automatiser svar")
 
-### 1. AssetTrustProfile.tsx - Hovedlayout
-- Legge til `container max-w-7xl mx-auto` rundt innholdet (folger plattformstandard)
-- Bedre padding og spacing for mobil/nettbrett
+### 2. Metrikk-kort (4 stk)
+- Totale foresportsler (ikon: Inbox)
+- Ventende (ikon: Clock, farge: amber)
+- Under arbeid (ikon: Send)
+- Forfalt (ikon: AlertCircle, farge: red)
 
-### 2. AssetHeader.tsx - Responsivt header-kort
-- Mobil: Ikon og tittel pa en linje, badges og knapp stables under
-- Nettbrett: Kompakt men lesbart med god plass
-- Owner/Manager-raden: Full bredde selects pa mobil i stedet for faste pixelbredder
+### 3. Sok og filter-rad
+- Sokefelt: "Sok i foresportsler..."
+- Dropdown-filtre: Alle kunder, Alle typer, Alle statuser
 
-### 3. AssetMetrics.tsx - Responsivt metrikk-grid
-- Mobil: 2 kolonner (siste kort full bredde med `col-span-2`)
-- Nettbrett: 3 kolonner (jevn fordeling over 2 rader)
-- Desktop: 5 kolonner (som i dag)
-- Expired-banner: Stables vertikalt pa mobil
+### 4. Fane-navigasjon
+- Avventer (med teller)
+- Fullfort (med teller)
+- Alle (med teller)
+- Arkivert
 
-### 4. Fane-navigasjon - Visuell scroll-indikator
-- Legge til gradient-fade pa hoyresiden av fane-listen for a signalisere scrollbart innhold
-- Kortere fane-tekst pa mobil (f.eks. "Validering" i stedet for full tekst)
+### 5. Foresportsel-kort
+Hvert kort viser:
+- Ikon + tittel (type foresportsel, f.eks. "Norsk leverandorvurdering")
+- Kundenavn + status-badge (Forberedelse / Klar / Sendt)
+- Fremdriftslinje med prosent
+- "Del ferdig"-knapp (grenn, primary action)
+- "Oppdater oppgave"-lenke
 
-### 5. ValidationTab.tsx - Responsivt innhold
-- Mobil: Stablet layout (enkelt kolonne)
-- Nettbrett: 2 kolonner i stedet for 3
-- Compliance-ring og AI-innsikt side om side pa nettbrett
+## Teknisk implementasjon
 
-### 6. DocumentDetailDialog.tsx - Mobiltilpasning
-- Full bredde pa mobil (fjerne mx-4)
-- Bedre spacing i innholdet
-- Storre klikkflate pa knappene
+### Database: Ny tabell `customer_compliance_requests`
+```sql
+CREATE TABLE customer_compliance_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_name TEXT NOT NULL,
+  customer_email TEXT,
+  request_type TEXT NOT NULL DEFAULT 'vendor_assessment',
+  title TEXT NOT NULL,
+  description TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  progress_percent INTEGER DEFAULT 0,
+  due_date TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  completed_at TIMESTAMPTZ,
+  archived_at TIMESTAMPTZ,
+  user_id UUID NOT NULL
+);
 
-## Tekniske detaljer
+ALTER TABLE customer_compliance_requests ENABLE ROW LEVEL SECURITY;
 
-### AssetTrustProfile.tsx
+CREATE POLICY "Users can view own requests"
+  ON customer_compliance_requests FOR SELECT
+  TO authenticated
+  USING (user_id = auth.uid());
+
+CREATE POLICY "Users can insert own requests"
+  ON customer_compliance_requests FOR INSERT
+  TO authenticated
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update own requests"
+  ON customer_compliance_requests FOR UPDATE
+  TO authenticated
+  USING (user_id = auth.uid());
 ```
-// Legge til container wrapper
-<div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-```
 
-Fane-listen far en wrapper med gradient-fade:
-```
-<div className="relative">
-  <TabsList className="...overflow-x-auto scrollbar-none">
-    ...
-  </TabsList>
-  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
-</div>
-```
+### Ny side: `src/pages/CustomerRequests.tsx`
+- Folger eksisterende layout-moenster med `Sidebar` + `container max-w-7xl mx-auto`
+- Bruker `useTranslation` for norsk/engelsk
+- Bruker `useQuery` for a hente data fra databasen
+- Demo seed-data settes inn nar siden er tom (som i LaraInbox)
 
-### AssetHeader.tsx
-- SelectTrigger bredde endres fra fast `w-[160px]`/`w-[180px]` til `w-full max-w-[200px]`
-- Mobil-layout: flex-col for vendor-rad + knapp
+### Ny komponent: `src/components/customer-requests/CustomerRequestCard.tsx`
+- Gjenbrukbart kort for hver foresportsel
+- Viser fremdriftslinje, kundenavn, status-badge, handlingsknapper
 
-### AssetMetrics.tsx
-- Grid endres til: `grid-cols-2 md:grid-cols-3 lg:grid-cols-5`
-- Siste kort (Tasks) far `col-span-2 md:col-span-1` for a unnga ensomt kort pa mobil
-- Expired-banner: `flex-col sm:flex-row` for stabling pa mobil
+### Routing: Oppdater `App.tsx`
+- Ny rute: `/customer-requests`
 
-### ValidationTab.tsx
-- Grid endres fra `grid-cols-1 lg:grid-cols-3` til `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
-- Total Compliance og AI Insights vises side om side pa nettbrett (md:grid-cols-2 inne i hoyre kolonne)
+### Sidebar: Legg til navigasjonslenke
+- Legge til "Kundeforesportsler" i sidebar under hovednavigasjonen
+- Ikon: `Inbox` eller `FileQuestion`
 
-### DocumentDetailDialog.tsx
-- DialogContent: `sm:max-w-lg w-[calc(100vw-2rem)]` for bedre mobilvisning
+### Lokalisering: Oppdater `nb.json` og `en.json`
+- Legg til oversettelses-noekler for alle tekster pa siden
 
-## Filer som endres
-- `src/pages/AssetTrustProfile.tsx` - Container wrapper, fane-scroll-indikator
-- `src/components/asset-profile/AssetHeader.tsx` - Responsive selects og layout
-- `src/components/asset-profile/AssetMetrics.tsx` - Grid-tilpasning
-- `src/components/asset-profile/tabs/ValidationTab.tsx` - Responsivt grid
-- `src/components/asset-profile/DocumentDetailDialog.tsx` - Mobilbredde
+### Responsivt design
+- Metrikk-kort: `grid-cols-2 md:grid-cols-4`
+- Filter-rad: stables vertikalt pa mobil
+- Foresportsel-kort: full bredde, knapper stables pa mobil
+
+## Demo-data
+Siden inkluderer demo seed-data som vises nar tabellen er tom:
+- "Norsk leverandorvurdering" fra "Allier AS" (100%, Forberedelse)
+- "ISO 27001 dokumentasjon" fra "TechCorp AS" (60%, Under arbeid)
+- "DPA foresponse" fra "Nordic Solutions" (30%, Ventende)
+
+## Filer som opprettes/endres
+- **Ny**: `src/pages/CustomerRequests.tsx` - Hovedsiden
+- **Ny**: `src/components/customer-requests/CustomerRequestCard.tsx` - Kort-komponent
+- **Endret**: `src/App.tsx` - Ny rute
+- **Endret**: `src/components/Sidebar.tsx` - Navigasjonslenke
+- **Endret**: `src/locales/nb.json` - Norske oversettelser
+- **Endret**: `src/locales/en.json` - Engelske oversettelser
+- **Database**: Ny migrasjon for `customer_compliance_requests`-tabellen
