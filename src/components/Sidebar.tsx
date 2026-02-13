@@ -19,7 +19,8 @@ import {
   FileBarChart,
   BookOpen,
   LogOut,
-  RotateCcw
+  RotateCcw,
+  FileQuestion
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -59,6 +60,7 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
   // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
   // { name: "quality.title", href: "/quality", icon: Shield, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
+  { name: "nav.customerRequests", href: "/customer-requests", icon: FileQuestion },
   // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
   // { name: "nav.transparency", href: "/transparency", icon: FileText },
 ];

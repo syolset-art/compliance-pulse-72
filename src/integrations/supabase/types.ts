@@ -668,6 +668,57 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_compliance_requests: {
+        Row: {
+          archived_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          description: string | null
+          due_date: string | null
+          id: string
+          progress_percent: number | null
+          request_type: string
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          progress_percent?: number | null
+          request_type?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          progress_percent?: number | null
+          request_type?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       domain_addons: {
         Row: {
           activated_at: string | null
