@@ -1,94 +1,140 @@
 
-# Trust Profil - Omdoping + Publiseringsstyring
 
-## Hva som endres
+# Legg til leverandor - Smart sokeflyt med BrReg, CVR, Bolagsverket
 
-### 1. Omdoping: "Tillitsprofil" blir "Trust Profil"
-Alle forekomster av "Tillitsprofil" i norsk og "Trust Profile" i engelsk endres til **"Trust Profil"** i begge sprak. Dette gjelder:
-- `src/locales/nb.json`: `nav.trustProfile` fra "Tillitsprofil" til "Trust Profil"
-- `src/locales/en.json`: `nav.trustProfile` fra "Trust Profile" til "Trust Profil"
-- Sidebar-lenken og alle andre steder som bruker denne oversettelsennokkelen
+## Oversikt
+En ny flyt for a legge til leverandorer fra Trust Profil-siden eller Assets-siden. Brukeren velger forst om de vil legge til en eller flere leverandorer, og deretter soker vi automatisk i offentlige registre basert pa land.
 
-### 2. Ny publiseringsseksjon pa Trust Profil (self-type)
-Nar brukeren apner HULT IT sin Trust Profil (selverklaering), vises en ny seksjon over fanene med publiseringsstyring. Inspirert av referansebildet, men mer minimalistisk og profesjonelt.
+## Brukerflyt
 
-#### Publiseringskort (ny komponent: `TrustProfilePublishing.tsx`)
-Et kort vist kun for `asset_type === 'self'` med:
+### Steg 1: Velg antall
+To knapper:
+- **En leverandor** - Legg til en enkelt leverandor med detaljert informasjon
+- **Flere leverandorer** - Legg til flere raskt etter hverandre (forenklet skjema per leverandor)
 
-**Statusindikator:**
-- Privat/Offentlig toggle med tydelig visuell tilstand
-- Nar privat: "Profilen er ikke publisert enna. Velg hvem som kan se den."
-- Nar publisert: "Profilen er synlig for valgte kunder."
+### Steg 2: Sok etter leverandor
+Et sokefelt der brukeren skriver inn leverandornavn. Under feltet velger brukeren land med flagg-knapper:
 
-**Publiseringsmalgruppe:**
-- Radiogruppe med to valg:
-  1. **Alle kunder** - "Profilen er tilgjengelig for alle som ber om den"
-  2. **Utvalgte kunder** - Viser en liste med kundenavn (fra `customer_compliance_requests`) med avkrysningsbokser
-- Tydelige labels og beskrivelser for universell utforming
+- Norge (soker i BrReg API)
+- Danmark (soker i CVR API - virk.dk)
+- Sverige (soker i demo-data, Bolagsverket har ikke offentlig API)
 
-**Handlingsknapper:**
-- "Vis Trust Profil" (outline) - forhåndsvisning
-- "Lagre endringer" (primary) - lagrer publiseringsinnstillinger
+Nar brukeren skriver og trykker sok:
 
-### 3. WCAG-hensyn
-- Alle interaktive elementer far `aria-label` og `role` der nodvendig
-- Fargekontrast folger WCAG AA-krav (minimum 4.5:1)
-- Fokusindikatorer er synlige pa alle interaktive elementer
-- Skjermleser-vennlige statusmeldinger via `aria-live`
-- Logisk tab-rekkefolge og tastaturnavigasjon
+**Prioritert sokerekkefolge:**
+1. Offentlig register (BrReg/CVR) - soker pa navn via `https://data.brreg.no/enhetsregisteret/api/enheter?navn={query}`
+2. Eksisterende vendor-database (assets-tabellen) - matcher mot allerede registrerte leverandorer
+3. Nettsoek (fallback) - ber brukeren oppgi nettside-URL for manuell registrering
 
-### 4. Database-endringer
-Ny kolonne pa `assets`-tabellen for publiseringsstatus:
-```sql
-ALTER TABLE assets ADD COLUMN publish_mode text DEFAULT 'private';
-ALTER TABLE assets ADD COLUMN publish_to_customers text[] DEFAULT '{}';
-```
-- `publish_mode`: 'private' | 'all' | 'selected'
-- `publish_to_customers`: Array med kundenavn (for 'selected'-modus)
+### Steg 3: Resultatvisning
+Viser treff fra registeret som klikkbare kort:
+- Selskapsnavn + org.nummer
+- Bransje (naeringskode)
+- Adresse
+- Antall ansatte
+
+Brukeren velger riktig treff, og felter fylles ut automatisk.
+
+Dersom ingen treff:
+- Viser "Fant ikke i registeret" med mulighet til a soke pa nytt
+- Alternativ: "Legg inn manuelt" med felt for navn, land, nettside-URL
+- Alternativ: "Sok i var database" som soker blant eksisterende vendors
+
+### Steg 4: Kontaktperson (valgfritt)
+Etter at leverandoren er valgt/opprettet:
+- Kontaktperson (navn)
+- E-post
+- Rolle/tittel
+Alle felt er valgfrie med "Hopp over"-knapp.
+
+### Steg 5: Bekreftelse
+Sammendrag av leverandoren som legges til, med "Legg til"-knapp.
+
+For "Flere leverandorer"-flyten: Etter bekreftelse vises "Legg til ny" som starter fra steg 2 igjen, pluss en liste over allerede lagte leverandorer.
 
 ## Teknisk implementasjon
 
-### Nye filer
-- `src/components/asset-profile/TrustProfilePublishing.tsx` - Publiseringskort med toggle, malgruppe, kundeliste
+### Ny hook: `src/hooks/useVendorLookup.ts`
+Utvidelse av BrReg-logikken til a stotte:
+- **BrReg navnesok**: `GET https://data.brreg.no/enhetsregisteret/api/enheter?navn={query}&size=5`
+- **CVR navnesok**: Demo-modus med simulert API-respons (CVR krever autentisering i produksjon)
+- **Sverige**: Demo-modus med noen hardkodede svenske selskaper
+- **Internt sok**: Query mot `assets`-tabellen der `asset_type = 'vendor'`
+- Returnerer standardisert resultatformat uavhengig av kilde
 
-### Endrede filer
-- `src/pages/AssetTrustProfile.tsx` - Legger til `TrustProfilePublishing` mellom metrics og tabs for self-type
-- `src/components/asset-profile/AssetHeader.tsx` - Oppdaterer "Selverklaering"-badge-tekst om nodvendig
-- `src/locales/nb.json` - Endrer "Tillitsprofil" til "Trust Profil", legger til publiseringsnokler
-- `src/locales/en.json` - Endrer "Trust Profile" til "Trust Profil", legger til publiseringsnokler
-- Database-migrasjon for nye kolonner
-
-### Komponentstruktur for `TrustProfilePublishing`
-```text
-+--------------------------------------------------+
-| Trust Profil                                      |
-| Administrer din Trust Profil og velg              |
-| hvem som kan se den.                              |
-|                                                   |
-| +----------------------------------------------+ |
-| | Profilen er privat                            | |
-| | Ingen kunder kan se profilen din enna.        | |
-| +----------------------------------------------+ |
-|                                                   |
-| Publiseringsinnstillinger                         |
-|                                                   |
-| ( ) Alle kunder                                  |
-|     Profilen deles med alle som ber om innsyn     |
-|                                                   |
-| ( ) Utvalgte kunder                              |
-|     Velg hvilke kunder som far tilgang            |
-|                                                   |
-|     [ ] Allier AS                                |
-|     [ ] TechCorp AS                              |
-|     [ ] Nordic Solutions                          |
-|                                                   |
-|              [Vis Trust Profil] [Lagre endringer] |
-+--------------------------------------------------+
+### Database-endringer
+Ny kolonne pa `assets` for kontaktinfo:
+```sql
+ALTER TABLE assets ADD COLUMN contact_person text;
+ALTER TABLE assets ADD COLUMN contact_email text;
+ALTER TABLE assets ADD COLUMN org_number text;
 ```
 
-### UI-designprinsipper
-- Minimalistisk og rent: Ingen unodvendig visuell stoy
-- Klarsprak: Korte, presise beskrivelser uten fagsjargong
-- Apple-inspirert estetikk med subtle borders og muted bakgrunner
-- Responsivt: Stacker vertikalt pa mobil, knapper full bredde
-- Fokusstatus synlig pa alle interaktive elementer (ring-2 ring-primary)
+### Ny komponent: `src/components/dialogs/AddVendorDialog.tsx`
+Egen dialog for leverandor-flyten, separert fra den generelle AddAssetDialog:
+- Steg-basert wizard med fremdriftsindikator
+- Bruker `useVendorLookup` for soket
+- Minimalistisk, tilgjengelig design med WCAG-hensyn
+- Responsivt - stacker vertikalt pa mobil
+
+### Endrede filer
+- `src/pages/Assets.tsx` - Koble "Legg til leverandor"-knappen til ny dialog
+- `src/pages/AssetTrustProfile.tsx` - Legg til "Legg til leverandor"-knapp i header for self-type
+- `src/locales/nb.json` og `src/locales/en.json` - Nye oversettelsesnokler
+
+### Sokeresultat-format (standardisert)
+```text
+{
+  source: 'brreg' | 'cvr' | 'bolagsverket' | 'internal' | 'manual',
+  name: string,
+  orgNumber: string | null,
+  country: string,
+  industry: string | null,
+  address: string | null,
+  employees: number | null,
+  url: string | null
+}
+```
+
+### UI-struktur for dialogen
+```text
++------------------------------------------+
+| Legg til leverandor                    X |
+| Steg 1 av 4                             |
+| [====--------] fremdrift                 |
+|                                          |
+| Hvor mange vil du legge til?             |
+|                                          |
+| [  En leverandor  ] [Flere leverandorer] |
++------------------------------------------+
+
++------------------------------------------+
+| Legg til leverandor                    X |
+| Steg 2 av 4                             |
+|                                          |
+| Sok etter leverandor                     |
+| [Leverandornavn...              ] [Sok]  |
+|                                          |
+| Land:                                    |
+| [Norge] [Danmark] [Sverige] [Annet]     |
+|                                          |
+| Resultater fra Bronnoysundregistrene:    |
+|                                          |
+| +--------------------------------------+ |
+| | Visma AS               919 477 822   | |
+| | IT-tjenester · Oslo · 200+ ansatte   | |
+| +--------------------------------------+ |
+| | Visma Software AS      936 854 572   | |
+| | Programvare · Oslo                    | |
+| +--------------------------------------+ |
+|                                          |
+| Fant ikke det du lette etter?            |
+| [Sok i var database] [Legg inn manuelt]  |
++------------------------------------------+
+```
+
+### Demo-data for Sverige og Danmark
+Noen hardkodede selskaper for prototypen:
+- **Sverige**: Spotify AB, Klarna AB, Ericsson AB, IKEA
+- **Danmark**: Novo Nordisk, Maersk, Lego, Vestas
+
