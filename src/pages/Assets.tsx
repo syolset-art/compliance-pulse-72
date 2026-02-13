@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Inbox } from "lucide-react";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
+import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { VendorOverviewTab } from "@/components/vendor-dashboard/VendorOverviewTab";
@@ -21,6 +22,7 @@ export default function Assets() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
 
   // Fetch total inbox count
   const { data: totalInboxCount = 0 } = useQuery({
@@ -124,7 +126,7 @@ export default function Assets() {
               <VendorOverviewTab
                 vendors={vendors}
                 relationships={relationships}
-                onAddVendor={() => setIsAddDialogOpen(true)}
+                onAddVendor={() => setIsVendorDialogOpen(true)}
                 onDiscoverAI={handleDiscoverAI}
               />
             </TabsContent>
@@ -158,6 +160,12 @@ export default function Assets() {
         onOpenChange={setIsAddDialogOpen}
         onAssetAdded={() => queryClient.invalidateQueries({ queryKey: ["assets"] })}
         assetTypeTemplates={assetTypeTemplates}
+      />
+
+      <AddVendorDialog
+        open={isVendorDialogOpen}
+        onOpenChange={setIsVendorDialogOpen}
+        onVendorAdded={() => queryClient.invalidateQueries({ queryKey: ["assets"] })}
       />
     </div>
   );
