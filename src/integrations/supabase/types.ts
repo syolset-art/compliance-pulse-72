@@ -418,6 +418,8 @@ export type Database = {
           asset_type: string
           category: string | null
           compliance_score: number | null
+          contact_email: string | null
+          contact_person: string | null
           country: string | null
           created_at: string | null
           criticality: string | null
@@ -431,6 +433,7 @@ export type Database = {
           metadata: Json | null
           name: string
           next_review_date: string | null
+          org_number: string | null
           publish_mode: string | null
           publish_to_customers: string[] | null
           region: string | null
@@ -448,6 +451,8 @@ export type Database = {
           asset_type: string
           category?: string | null
           compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
           country?: string | null
           created_at?: string | null
           criticality?: string | null
@@ -461,6 +466,7 @@ export type Database = {
           metadata?: Json | null
           name: string
           next_review_date?: string | null
+          org_number?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -478,6 +484,8 @@ export type Database = {
           asset_type?: string
           category?: string | null
           compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
           country?: string | null
           created_at?: string | null
           criticality?: string | null
@@ -491,6 +499,7 @@ export type Database = {
           metadata?: Json | null
           name?: string
           next_review_date?: string | null
+          org_number?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
