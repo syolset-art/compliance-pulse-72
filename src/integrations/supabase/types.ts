@@ -695,6 +695,8 @@ export type Database = {
           id: string
           progress_percent: number | null
           request_type: string
+          shared_mode: string | null
+          shared_with_customers: string[] | null
           status: string
           title: string
           updated_at: string | null
@@ -711,6 +713,8 @@ export type Database = {
           id?: string
           progress_percent?: number | null
           request_type?: string
+          shared_mode?: string | null
+          shared_with_customers?: string[] | null
           status?: string
           title: string
           updated_at?: string | null
@@ -727,6 +731,8 @@ export type Database = {
           id?: string
           progress_percent?: number | null
           request_type?: string
+          shared_mode?: string | null
+          shared_with_customers?: string[] | null
           status?: string
           title?: string
           updated_at?: string | null

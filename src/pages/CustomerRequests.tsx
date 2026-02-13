@@ -100,16 +100,28 @@ const CustomerRequests = () => {
     archived,
   };
 
-  const handleShare = async (id: string) => {
+  const handleShare = async (id: string, mode: string, customers: string[]) => {
     if (id.startsWith("demo-")) {
-      toast.success(t("customerRequests.sharedSuccess", "Compliance-pakke delt med kunden!"));
+      // Update demo data in-memory
+      const req = requests.find((r: any) => r.id === id);
+      if (req) {
+        (req as any).status = "completed";
+        (req as any).shared_mode = mode;
+        (req as any).shared_with_customers = customers;
+        (req as any).progress_percent = 100;
+      }
       return;
     }
     const { error } = await supabase
       .from("customer_compliance_requests" as any)
-      .update({ status: "completed", progress_percent: 100, completed_at: new Date().toISOString() } as any)
+      .update({
+        status: "completed",
+        progress_percent: 100,
+        completed_at: new Date().toISOString(),
+        shared_mode: mode,
+        shared_with_customers: customers,
+      } as any)
       .eq("id", id);
-    if (!error) toast.success(t("customerRequests.sharedSuccess", "Compliance-pakke delt med kunden!"));
   };
 
   return (
