@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Shield, FileCheck, Send, Clock } from "lucide-react";
+import { FileText, Shield, FileCheck, Send, Clock, Settings2 } from "lucide-react";
+import { ManageSharingDialog } from "./ManageSharingDialog";
 
 const REQUEST_TYPE_ICONS: Record<string, typeof FileText> = {
   vendor_assessment: FileText,
@@ -40,17 +42,20 @@ interface CustomerRequest {
   progress_percent: number;
   due_date: string | null;
   created_at: string;
+  shared_mode?: string | null;
+  shared_with_customers?: string[];
 }
 
 interface CustomerRequestCardProps {
   request: CustomerRequest;
-  onShare?: (id: string) => void;
+  onShare?: (id: string, mode: string, customers: string[]) => void;
 }
 
 export function CustomerRequestCard({ request, onShare }: CustomerRequestCardProps) {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const locale = isNb ? "nb-NO" : "en-US";
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const Icon = REQUEST_TYPE_ICONS[request.request_type] || FileText;
   const typeLabel = isNb
@@ -66,49 +71,79 @@ export function CustomerRequestCard({ request, onShare }: CustomerRequestCardPro
 
   const statusInfo = statusConfig[request.status] || statusConfig.pending;
   const isOverdue = request.due_date && new Date(request.due_date) < new Date() && request.status !== "completed";
+  const sharedCount = request.shared_with_customers?.length || 0;
+
+  const handleConfirmSharing = (mode: string, customers: string[]) => {
+    onShare?.(request.id, mode, customers);
+  };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-3">
-        <div className="p-2.5 rounded-lg bg-primary/10 flex-shrink-0">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {request.customer_name}
-                {request.due_date && (
-                  <span className={isOverdue ? "text-destructive ml-2 font-medium" : "ml-2"}>
-                    · {isOverdue ? "⚠ " : ""}{t("customerRequests.due", "Frist")}: {new Date(request.due_date).toLocaleDateString(locale)}
-                  </span>
+    <>
+      <Card className="p-4 hover:shadow-md transition-shadow">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 rounded-lg bg-primary/10 flex-shrink-0">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {request.customer_name}
+                  {request.due_date && (
+                    <span className={isOverdue ? "text-destructive ml-2 font-medium" : "ml-2"}>
+                      · {isOverdue ? "⚠ " : ""}{t("customerRequests.due", "Frist")}: {new Date(request.due_date).toLocaleDateString(locale)}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {request.status === "completed" && sharedCount > 0 && (
+                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">
+                    {isNb ? `Delt med ${sharedCount}` : `Shared with ${sharedCount}`}
+                  </Badge>
                 )}
-              </p>
+                <Badge variant={statusInfo.variant} className="text-xs">
+                  {statusInfo.label}
+                </Badge>
+              </div>
             </div>
-            <Badge variant={statusInfo.variant} className="flex-shrink-0 text-xs">
-              {statusInfo.label}
-            </Badge>
-          </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{t("customerRequests.progress", "Fremdrift")}</span>
-              <span className="font-medium">{request.progress_percent}%</span>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{t("customerRequests.progress", "Fremdrift")}</span>
+                <span className="font-medium">{request.progress_percent}%</span>
+              </div>
+              <Progress value={request.progress_percent} className="h-2" />
             </div>
-            <Progress value={request.progress_percent} className="h-2" />
-          </div>
 
-          <div className="flex items-center gap-2 pt-1">
-            {request.status !== "completed" && request.status !== "archived" && (
-              <Button size="sm" className="h-7 text-xs" onClick={() => onShare?.(request.id)}>
-                <Send className="h-3 w-3 mr-1" />
-                {t("customerRequests.share", "Del ferdig")}
-              </Button>
-            )}
+            <div className="flex items-center gap-2 pt-1">
+              {request.status !== "completed" && request.status !== "archived" && (
+                <Button size="sm" className="h-7 text-xs" onClick={() => setDialogOpen(true)}>
+                  <Send className="h-3 w-3 mr-1" />
+                  {t("customerRequests.share", "Del ferdig")}
+                </Button>
+              )}
+              {request.status === "completed" && (
+                <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setDialogOpen(true)}>
+                  <Settings2 className="h-3 w-3" />
+                  {isNb ? "Administrer deling" : "Manage sharing"}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      <ManageSharingDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        requestTitle={typeLabel}
+        requestId={request.id}
+        currentSharedMode={request.shared_mode}
+        currentSharedWith={request.shared_with_customers}
+        onConfirm={handleConfirmSharing}
+      />
+    </>
   );
 }
