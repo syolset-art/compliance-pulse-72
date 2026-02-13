@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { DocumentDetailDialog } from "../DocumentDetailDialog";
+import { UploadDocumentDialog } from "../UploadDocumentDialog";
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
@@ -67,6 +68,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
   const [validTo, setValidTo] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
   const dragCounterRef = useRef(0);
 
@@ -173,7 +175,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
             <FileCheck className="h-4 w-4 text-primary" />
             {t("vendorDocs.documentsTitle", "Dokumenter")} ({documents.length})
           </CardTitle>
-          <Button size="sm" onClick={() => setShowUpload(!showUpload)} disabled={atLimit} className="w-full sm:w-auto">
+          <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="w-full sm:w-auto">
             <Upload className="h-3.5 w-3.5 mr-1.5" />
             {t("vendorDocs.uploadTitle", "Last opp")}
           </Button>
@@ -335,6 +337,12 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         assetName={assetName || ""}
         vendorName={vendorName}
         preselectedType={preselectedDocType}
+      />
+
+      <UploadDocumentDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        assetId={assetId}
       />
     </div>
   );
