@@ -1,120 +1,94 @@
 
-# Forbedret dokumentopplasting + HULT IT Trust Profile (Selverklaering)
+# Trust Profil - Omdoping + Publiseringsstyring
 
-## Oversikt
-Vi bygger to ting:
+## Hva som endres
 
-1. **Ny dokumentopplastingsdialog** - Inspirert av referansebildet med smart klassifisering, type/kategori-velgere, visningsnavn, og kobling til regelverk
-2. **HULT IT sin egen Trust Profile** - En "selverklaerings"-visning der HULT IT kan laste opp egne compliance-dokumenter og se innkommende foresportsler fra kunder
+### 1. Omdoping: "Tillitsprofil" blir "Trust Profil"
+Alle forekomster av "Tillitsprofil" i norsk og "Trust Profile" i engelsk endres til **"Trust Profil"** i begge sprak. Dette gjelder:
+- `src/locales/nb.json`: `nav.trustProfile` fra "Tillitsprofil" til "Trust Profil"
+- `src/locales/en.json`: `nav.trustProfile` fra "Trust Profile" til "Trust Profil"
+- Sidebar-lenken og alle andre steder som bruker denne oversettelsennokkelen
 
-## Del 1: Ny dokumentopplastingsdialog
+### 2. Ny publiseringsseksjon pa Trust Profil (self-type)
+Nar brukeren apner HULT IT sin Trust Profil (selverklaering), vises en ny seksjon over fanene med publiseringsstyring. Inspirert av referansebildet, men mer minimalistisk og profesjonelt.
 
-### Hva bygges
-En ny dialog (`UploadDocumentDialog`) som erstatter det naavarende inline opplastingsskjemaet i DocumentsTab. Inspirert av referansebildet:
+#### Publiseringskort (ny komponent: `TrustProfilePublishing.tsx`)
+Et kort vist kun for `asset_type === 'self'` med:
 
-- **Header**: "Last opp dokumenter" med "Smart Classification"-badge
-- **AI Auto-Fill banner**: Viser antall gjenvarende AI-skanninger (demo: "2 of 3 scans remaining this year")
-- **Fil-kort per opplastet fil** viser:
-  - Filnavn, storrelse, type-tag
-  - Fjern-knapp (X)
-  - **Type**-dropdown (Policy, Certificate, Report, Agreement, etc.)
-  - **Kategori**-dropdown (Compliance, Security, Privacy, Legal, etc.)
-  - **Visningsnavn** (Display Name) - tekstfelt
-  - **Kobling til regelverk** - Multi-select med GDPR, ISO 27001, SOC 2, NIS2, AI Act etc.
-  - **Confirm**-knapp per fil
-- **"+ Add more files"** - dashed border-knapp for a legge til flere
-- **Footer**: "X documents ready to upload" teller, Avbryt + "Upload All" knapp
+**Statusindikator:**
+- Privat/Offentlig toggle med tydelig visuell tilstand
+- Nar privat: "Profilen er ikke publisert enna. Velg hvem som kan se den."
+- Nar publisert: "Profilen er synlig for valgte kunder."
 
-### Regelverk-kobling
-Ny funksjonalitet der hvert dokument kan kobles til relevante regelverk:
-- GDPR
-- ISO 27001
-- ISO 27701
-- SOC 2
-- NIS2
-- AI Act
-- DORA
-Vises som multi-select badges i opplastingsdialogen og som tags pa dokumentet i tabellen.
+**Publiseringsmalgruppe:**
+- Radiogruppe med to valg:
+  1. **Alle kunder** - "Profilen er tilgjengelig for alle som ber om den"
+  2. **Utvalgte kunder** - Viser en liste med kundenavn (fra `customer_compliance_requests`) med avkrysningsbokser
+- Tydelige labels og beskrivelser for universell utforming
 
-## Del 2: HULT IT Trust Profile (Selverklaering)
+**Handlingsknapper:**
+- "Vis Trust Profil" (outline) - forhåndsvisning
+- "Lagre endringer" (primary) - lagrer publiseringsinnstillinger
 
-### Konsept
-HULT IT er brukerens eget selskap. De trenger en Trust Profile for seg selv der de kan:
-- Laste opp egne compliance-dokumenter (sertifikater, policies, rapporter)
-- Se foresportsler fra kunder (koblet til `customer_compliance_requests`)
-- Dele dokumentasjon med kunder som ber om det
+### 3. WCAG-hensyn
+- Alle interaktive elementer far `aria-label` og `role` der nodvendig
+- Fargekontrast folger WCAG AA-krav (minimum 4.5:1)
+- Fokusindikatorer er synlige pa alle interaktive elementer
+- Skjermleser-vennlige statusmeldinger via `aria-live`
+- Logisk tab-rekkefolge og tastaturnavigasjon
 
-### Hva bygges
-1. **Opprett HULT IT som asset** i databasen med `asset_type: 'self'` (ny type for egen profil)
-2. **Tilpass AssetHeader** til a vise "Selverklaering"-badge nar asset_type er 'self'
-3. **Ny fane: "Foresportsler"** - viser innkommende kundeforesportsler (fra `customer_compliance_requests`) direkte i Trust Profile
-4. **Navigasjon**: Legg til en snarvei i sidebar eller dashboard som tar brukeren rett til egen Trust Profile
-
-### Foresportsler-fane i Trust Profile
-Viser en liste over kundeforesportsler med:
-- Kundenavn
-- Type foresportsel
-- Status og fremdrift
-- "Del"-knapp som markerer foresportselen som fullfort
+### 4. Database-endringer
+Ny kolonne pa `assets`-tabellen for publiseringsstatus:
+```sql
+ALTER TABLE assets ADD COLUMN publish_mode text DEFAULT 'private';
+ALTER TABLE assets ADD COLUMN publish_to_customers text[] DEFAULT '{}';
+```
+- `publish_mode`: 'private' | 'all' | 'selected'
+- `publish_to_customers`: Array med kundenavn (for 'selected'-modus)
 
 ## Teknisk implementasjon
 
-### Database-endringer
-1. Insert HULT IT som asset med `asset_type: 'self'`
-2. Legg til `linked_regulations` (text array) kolonne pa `vendor_documents` for regelverkskobling
-3. Legg til `display_name` og `category` kolonner pa `vendor_documents`
-
 ### Nye filer
-- `src/components/asset-profile/UploadDocumentDialog.tsx` - Ny opplastingsdialog
-- `src/components/asset-profile/tabs/CustomerRequestsTab.tsx` - Fane for kundeforesportsler i Trust Profile
+- `src/components/asset-profile/TrustProfilePublishing.tsx` - Publiseringskort med toggle, malgruppe, kundeliste
 
 ### Endrede filer
-- `src/components/asset-profile/tabs/DocumentsTab.tsx` - Bruk ny dialog i stedet for inline-skjema
-- `src/pages/AssetTrustProfile.tsx` - Legg til "Foresportsler"-fane, vis selverklaerings-modus
-- `src/components/asset-profile/AssetHeader.tsx` - Vis "Selverklaering"-badge for self-type
-- `src/components/Sidebar.tsx` - Legg til snarvei til egen Trust Profile
+- `src/pages/AssetTrustProfile.tsx` - Legger til `TrustProfilePublishing` mellom metrics og tabs for self-type
+- `src/components/asset-profile/AssetHeader.tsx` - Oppdaterer "Selverklaering"-badge-tekst om nodvendig
+- `src/locales/nb.json` - Endrer "Tillitsprofil" til "Trust Profil", legger til publiseringsnokler
+- `src/locales/en.json` - Endrer "Trust Profile" til "Trust Profil", legger til publiseringsnokler
+- Database-migrasjon for nye kolonner
 
-### UploadDocumentDialog - Struktur
+### Komponentstruktur for `TrustProfilePublishing`
 ```text
-+------------------------------------------+
-| Last opp dokumenter                    X |
-|                                          |
-| [Smart Classification] AI detekterer...  |
-|                                          |
-| +--------------------------------------+ |
-| | AI Auto-Fill Available               | |
-| | 2 of 3 scans remaining this year     | |
-| | [====----] progress bar              | |
-| +--------------------------------------+ |
-|                                          |
-| 1 file ready          Premium Features   |
-|                                          |
-| +--------------------------------------+ |
-| | vendors.pdf  0.0 MB  policy       X  | |
-| |                                      | |
-| | Type         | Category             | |
-| | [Policy   v] | [Compliance       v] | |
-| |                                      | |
-| | Display Name                         | |
-| | [Vendors                          ]  | |
-| |                                      | |
-| | Regelverk                            | |
-| | [GDPR] [ISO 27001] [+]              | |
-| |                                      | |
-| |                      [Confirm]       | |
-| +--------------------------------------+ |
-|                                          |
-| + - - - - - - - - - - - - - - - - - - + |
-| |        + Add more files              | |
-| + - - - - - - - - - - - - - - - - - - + |
-|                                          |
-| 1 document ready      [Avbryt] [Upload]  |
-+------------------------------------------+
++--------------------------------------------------+
+| Trust Profil                                      |
+| Administrer din Trust Profil og velg              |
+| hvem som kan se den.                              |
+|                                                   |
+| +----------------------------------------------+ |
+| | Profilen er privat                            | |
+| | Ingen kunder kan se profilen din enna.        | |
+| +----------------------------------------------+ |
+|                                                   |
+| Publiseringsinnstillinger                         |
+|                                                   |
+| ( ) Alle kunder                                  |
+|     Profilen deles med alle som ber om innsyn     |
+|                                                   |
+| ( ) Utvalgte kunder                              |
+|     Velg hvilke kunder som far tilgang            |
+|                                                   |
+|     [ ] Allier AS                                |
+|     [ ] TechCorp AS                              |
+|     [ ] Nordic Solutions                          |
+|                                                   |
+|              [Vis Trust Profil] [Lagre endringer] |
++--------------------------------------------------+
 ```
 
-### Demo-data for HULT IT
-Ved opprettelse av HULT IT-profilen, seed noen eksempel-dokumenter:
-- Informasjonssikkerhetspolicy (gyldig)
-- Personvernerklering (gyldig)
-
-Og koble noen customer_compliance_requests til HULT IT sin profil.
+### UI-designprinsipper
+- Minimalistisk og rent: Ingen unodvendig visuell stoy
+- Klarsprak: Korte, presise beskrivelser uten fagsjargong
+- Apple-inspirert estetikk med subtle borders og muted bakgrunner
+- Responsivt: Stacker vertikalt pa mobil, knapper full bredde
+- Fokusstatus synlig pa alle interaktive elementer (ring-2 ring-primary)
