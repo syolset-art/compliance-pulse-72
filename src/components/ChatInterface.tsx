@@ -356,6 +356,9 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   // Get global chat context for asset added callback
   const { registerAssetAddedCallback, unregisterAssetAddedCallback } = useGlobalChat();
 
+  // Track previous next step to detect completion transitions
+  const prevNextStepRef = useRef<string | null>(null);
+
   // Register callback to refetch onboarding when assets are added
   useEffect(() => {
     const callback = () => {
@@ -366,6 +369,23 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       unregisterAssetAddedCallback(callback);
     };
   }, [registerAssetAddedCallback, unregisterAssetAddedCallback, refetchOnboarding]);
+
+  // Auto-advance to next onboarding step when current step completes
+  useEffect(() => {
+    const prevId = prevNextStepRef.current;
+    const currentNextStep = onboardingSteps.find(s => !s.isCompleted) || null;
+    const currentId = currentNextStep?.id || null;
+
+    // If the previous next step was 'assets' and now it's 'work-areas', auto-navigate
+    if (prevId === 'assets' && currentId === 'work-areas') {
+      // Small delay to let the user see the completion checkmark
+      setTimeout(() => {
+        navigate('/work-areas');
+      }, 800);
+    }
+
+    prevNextStepRef.current = currentId;
+  }, [onboardingSteps, navigate]);
 
   const suggestions = suggestionMap[currentContext];
   const isEmptyState = messages.length === 0;
