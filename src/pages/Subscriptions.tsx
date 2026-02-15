@@ -10,6 +10,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
+import { Sidebar } from "@/components/Sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const usageMeters = [
   {
@@ -86,9 +88,18 @@ export default function Subscriptions() {
     }, 2000);
   };
 
+  const isMobile = useIsMobile();
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-4xl mx-auto p-6 space-y-8">
+    <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
+      {!isMobile && (
+        <div className="w-64 flex-shrink-0">
+          <Sidebar />
+        </div>
+      )}
+      {isMobile && <Sidebar />}
+      <main className="flex-1 overflow-y-auto">
+        <div className="container max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Fakturering og planer</h1>
@@ -325,7 +336,8 @@ export default function Subscriptions() {
             )}
           </DialogContent>
         </Dialog>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
