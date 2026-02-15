@@ -36,6 +36,8 @@ interface Asset {
   vendor?: string | null;
   asset_owner?: string | null;
   created_at?: string;
+  vendor_category?: string | null;
+  gdpr_role?: string | null;
 }
 
 interface VendorListTabProps {
@@ -88,6 +90,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [riskFilter, setRiskFilter] = useState("");
+  const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
+  const [gdprRoleFilter, setGdprRoleFilter] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -104,7 +108,9 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
       const matchesName = a.name.toLowerCase().includes(nameFilter.toLowerCase());
       const matchesCat = !categoryFilter || categoryFilter === "all" || a.category === categoryFilter;
       const matchesRisk = !riskFilter || riskFilter === "all" || a.risk_level === riskFilter;
-      return matchesName && matchesCat && matchesRisk;
+      const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
+      const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr;
     });
 
     if (sortColumn) {
@@ -116,7 +122,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
       });
     }
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, sortColumn, sortDirection]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, sortColumn, sortDirection]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -160,6 +166,31 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               <SelectItem value="high">{t("vendorDashboard.risk.high", "High")}</SelectItem>
               <SelectItem value="medium">{t("vendorDashboard.risk.medium", "Medium")}</SelectItem>
               <SelectItem value="low">{t("vendorDashboard.risk.low", "Low")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={vendorCategoryFilter} onValueChange={setVendorCategoryFilter}>
+            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-40">
+              <SelectValue placeholder={t("vendorDashboard.vendorType", "Type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("vendorDashboard.allTypes", "Alle typer")}</SelectItem>
+              <SelectItem value="saas">SaaS</SelectItem>
+              <SelectItem value="infrastructure">{t("vendorDashboard.infrastructure", "Infrastruktur")}</SelectItem>
+              <SelectItem value="consulting">{t("vendorDashboard.consulting", "Rådgivning")}</SelectItem>
+              <SelectItem value="it_operations">{t("vendorDashboard.itOperations", "IT-drift")}</SelectItem>
+              <SelectItem value="facilities">{t("vendorDashboard.facilities", "Kontor")}</SelectItem>
+              <SelectItem value="other">{t("vendorDashboard.other", "Annet")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={gdprRoleFilter} onValueChange={setGdprRoleFilter}>
+            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-44">
+              <SelectValue placeholder={t("vendorDashboard.gdprRole", "GDPR-rolle")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("vendorDashboard.allRoles", "Alle roller")}</SelectItem>
+              <SelectItem value="databehandler">{t("vendorDashboard.dataProcessor", "Databehandler")}</SelectItem>
+              <SelectItem value="underdatabehandler">{t("vendorDashboard.subProcessor", "Underdatabehandler")}</SelectItem>
+              <SelectItem value="ingen">{t("vendorDashboard.noPersonalData", "Ingen persondata")}</SelectItem>
             </SelectContent>
           </Select>
         </div>

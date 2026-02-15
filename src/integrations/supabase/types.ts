@@ -427,6 +427,7 @@ export type Database = {
           external_id: string | null
           external_source_id: string | null
           external_source_provider: string | null
+          gdpr_role: string | null
           id: string
           last_synced_at: string | null
           lifecycle_status: string | null
@@ -443,6 +444,7 @@ export type Database = {
           updated_at: string | null
           url: string | null
           vendor: string | null
+          vendor_category: string | null
           work_area_id: string | null
         }
         Insert: {
@@ -460,6 +462,7 @@ export type Database = {
           external_id?: string | null
           external_source_id?: string | null
           external_source_provider?: string | null
+          gdpr_role?: string | null
           id?: string
           last_synced_at?: string | null
           lifecycle_status?: string | null
@@ -476,6 +479,7 @@ export type Database = {
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
+          vendor_category?: string | null
           work_area_id?: string | null
         }
         Update: {
@@ -493,6 +497,7 @@ export type Database = {
           external_id?: string | null
           external_source_id?: string | null
           external_source_provider?: string | null
+          gdpr_role?: string | null
           id?: string
           last_synced_at?: string | null
           lifecycle_status?: string | null
@@ -509,6 +514,7 @@ export type Database = {
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
+          vendor_category?: string | null
           work_area_id?: string | null
         }
         Relationships: [

@@ -1,8 +1,32 @@
-import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle } from "lucide-react";
+import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  saas: <Cloud className="h-2.5 w-2.5" />,
+  infrastructure: <Server className="h-2.5 w-2.5" />,
+  consulting: <Lightbulb className="h-2.5 w-2.5" />,
+  it_operations: <Monitor className="h-2.5 w-2.5" />,
+  facilities: <Home className="h-2.5 w-2.5" />,
+  other: <MoreHorizontal className="h-2.5 w-2.5" />,
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  saas: "SaaS",
+  infrastructure: "Infrastruktur",
+  consulting: "Rådgivning",
+  it_operations: "IT-drift",
+  facilities: "Kontor",
+  other: "Annet",
+};
+
+const GDPR_LABELS: Record<string, string> = {
+  databehandler: "Databehandler",
+  underdatabehandler: "Underdatabehandler",
+  ingen: "Ingen persondata",
+};
 
 interface VendorCardProps {
   vendor: {
@@ -14,6 +38,8 @@ interface VendorCardProps {
     country?: string | null;
     region?: string | null;
     vendor?: string | null;
+    vendor_category?: string | null;
+    gdpr_role?: string | null;
   };
   connectedSystemsCount?: number;
   hasDPA?: boolean;
@@ -58,6 +84,17 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
       </div>
 
       <div className="flex items-center gap-2 mt-3 flex-wrap">
+        {vendor.vendor_category && (
+          <Badge variant="outline" className="text-[10px] gap-1 bg-accent/50">
+            {CATEGORY_ICONS[vendor.vendor_category]}
+            {CATEGORY_LABELS[vendor.vendor_category] || vendor.vendor_category}
+          </Badge>
+        )}
+        {vendor.gdpr_role && (
+          <Badge variant="outline" className={cn("text-[10px]", vendor.gdpr_role === "ingen" ? "bg-muted" : "bg-primary/10 text-primary border-primary/20")}>
+            {GDPR_LABELS[vendor.gdpr_role] || vendor.gdpr_role}
+          </Badge>
+        )}
         {vendor.risk_level && (
           <Badge variant="outline" className={cn("text-[10px]", riskColor)}>
             {t(`vendorDashboard.risk.${vendor.risk_level}`, vendor.risk_level)}
