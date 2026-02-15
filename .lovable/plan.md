@@ -1,80 +1,128 @@
 
-# "Del ferdig" - Administrer deling dialog + Fullforing av oppgave
+
+# Redesign av Abonnementssiden - Inspirert av referansebilde
 
 ## Oversikt
-Nar brukeren klikker "Del ferdig" pa en kundeforespørsel, apnes en ny **to-stegs dialog** ("Administrer deling") i stedet for a umiddelbart fullfare. Brukeren velger delingsmodus og kunder, bekrefter, og kan deretter markere oppgaven som fullfort.
+Abonnementssiden (`/subscriptions`) redesignes for a matche referansebildets layout: forbrukskort pa toppen, anbefalt plan med features og "Kommer snart"-seksjon, og betalingsmetodevalg nederst.
 
-## Ny komponent: ManageSharingDialog
+## Hva som endres
 
-### Steg 1: Velg deling
-- **Header**: "Administrer deling" + foresporseltittel (f.eks. "Norsk leverandorvurdering")
-- **Steg-indikator**: Visuell tab-bar med "1. Velg deling" og "2. Velg kunder"
-- **Info-banner**: "Steg 1 av 2: Velg hvem som skal fa tilgang. Ingenting sendes enna."
-- **Tre radioknapper**:
-  1. **Del med alle kunder** - "Nye kunder far automatisk tilgang."
-  2. **Del med utvalgte kunder** - "Velg noyaktig hvem som far tilgang."
-  3. **Ikke del enna** - "Ingen kunder ser dette forelopig."
-- **Eksisterende status-badge**: "Delt med X kunder" (nar allerede delt)
-- **Footer**: "Del senere" (lukk) + "Neste: Steg 2" (primary)
+### 1. Ny header
+- Tittel: **"Fakturering og planer"**
+- Undertittel: "Administrer ditt abonnement og fakturering"
+- Ren layout uten tilbake-knapp (sidemenyen dekker navigasjon)
 
-### Steg 2: Velg kunder (vises kun ved "utvalgte kunder")
-- **Info-banner**: "Steg 2 av 2: Velg noyaktig hvilke kunder som skal fa malen, og bekreft."
-- **"Tilbakestill til navarende deling"** knapp
-- **Teller**: "X av Y valgt" + "Velg alle" / "Fjern alle"
-- **Sokefelt** + **Prioritet-filter** (toggle)
-- **Kundeliste** med:
-  - Avkrysningsboks per kunde
-  - Kundenavn
-  - Status-badges: "Delt" (gronn) / "Ikke delt" (gra)
-  - "Prioritet"-badge (oransje) der relevant
-  - Kategori-badge (f.eks. "ALL SUPPLIERS", "PRIORITY SUPPLIERS")
-  - Valgt-tilstand med bla venstre-border
-- **Footer**: "Del senere" + "Tilbake" + "Bekreft deling" (primary)
+### 2. Forbrukskort (Usage Meters) - topp
+Fire kompakte kort i en rad, inspirert av referansebildet:
 
-### Etter bekreftelse: Fullforingsstatus
-Nar deling er bekreftet:
-- Foresporselen oppdateres til status "completed"
-- En suksess-toast vises: "Delt med X kunder"
-- Kortet viser oppdatert status med "Delt med X kunder"-badge
-- **"Administrer deling"**-knapp forblir tilgjengelig for a endre innstillinger
+| Kort | Ikon | Eksempel |
+|------|------|----------|
+| AI dokument-autofyll tilgjengelig | Sparkles | 2 av 3 skanninger gjenstar i ar |
+| AI-chat tilgjengelig | MessageCircle | 10 av 10 meldinger gjenstar i ar |
+| Leverandorer | Users | 24 av 25 leverandorer gjenstar |
+| Dokumentsignering tilgjengelig | FileSignature | 5 av 5 gratis signeringer gjenstar i ar |
 
-## Endringer i CustomerRequestCard
-- "Del ferdig"-knappen apner ManageSharingDialog i stedet for direkte fullforing
-- Fullforte foresporsler far to knapper: "Administrer deling" (outline) + "Delt"-badge
-- Viser antall kunder foresporselen er delt med
+Hvert kort viser:
+- Ikon + tittel
+- "X av Y gjenstar"-tekst
+- Tynn Progress-bar (fargekodet: bla/gronn)
+- "X brukt" venstre, "Tilbakestilles DD.MM.YYYY" hoyre
 
-## Endringer i CustomerRequestsTab (Trust Profile)
-- Samme logikk: "Del ferdig" apner ManageSharingDialog
-- Fullforte rad viser "Administrer deling"-knapp i stedet for bare check-ikon
+### 3. Anbefalt plan-kort (erstatter navarende plan-summary + plans grid)
+Et stort kort som viser navarende/anbefalt plan:
 
-## Database
-Nye kolonner pa `customer_compliance_requests`:
-- `shared_mode` (text, default null) - 'all' | 'selected' | null
-- `shared_with_customers` (text[], default '{}') - array med kundenavn
-- `completed_at` (timestamptz, default null)
+- **"ANBEFALT"**-badge med Sparkles-ikon
+- Plannavn (f.eks. "Premium-plan")
+- Beskrivelse: "Perfekt for leverandorer i alle storrelser"
+- Pris: **"2 490 kr"** per maned + "Faktureres arlig - 29 880 kr/ar"
+- Info-rad: "Premium gjelder for alle i organisasjonen..."
+- **Feature-liste** med gronn checkmark:
+  - Ubegrensede AI-skanninger av dokumenter (info-ikon)
+  - Del dokumenter offentlig med kunder (info-ikon)
+  - Offentlig Compliance-side (info-ikon)
+  - Dokumentsignering (info-ikon)
+  - Prioritert kundestotte (info-ikon)
+- **"KOMMER SNART"**-seksjon med gra checkmarks + "Kommer snart"-badge:
+  - Avanserte analyser og ESG-innsikt
+  - Rapporter om konkurranseanalyse
+  - Varsler om konkurrentoppdateringer
+
+### 4. Betalingsmetode-seksjon
+Nederst, to radioknapper:
+- **Kort / Stripe Link** - "Betal med bedriftskort eller Link-lommebok. Stripe lagrer kortene sikkert og stotter 3-D Secure." + "UMIDDELBAR"-badge
+- **Faktura / Bankoverfoering** - "Motta en Stripe-faktura med bankdetaljer (SEPA/ACH). Betaling forfaller innen 30 dager." + "B2B"-badge
+
+### 5. CTA-knapp
+Full bredde: **"Oppgrader na"** med pil-ikon
+
+## Hva som fjernes
+- Tilbake-knappen (unodvendig med sidebar)
+- Tre-kolonne plansammenligning (erstattes med ett anbefalt plan-kort)
+- Kontrollomrade-seksjonen (bevares i Regulations-siden)
+- Gammel forbruksseksjon (erstattes med nye kompakte forbrukskort)
+- Hjelp-seksjonen nederst
 
 ## Teknisk implementasjon
 
-### Nye filer
-- `src/components/customer-requests/ManageSharingDialog.tsx` - To-stegs dialog
-
 ### Endrede filer
-- `src/components/customer-requests/CustomerRequestCard.tsx` - Koble "Del ferdig" til dialog
-- `src/components/asset-profile/tabs/CustomerRequestsTab.tsx` - Koble "Del ferdig" til dialog
-- `src/pages/CustomerRequests.tsx` - Oppdater handleShare-logikk
+- `src/pages/Subscriptions.tsx` - Fullstendig redesign av layout og innhold
 
-### Demo-kunder for dialogen
-Hardkodede kunder med metadata for demo:
-- Allier AS (Prioritet, ALL SUPPLIERS, Delt)
-- Allier AS FEIL (Prioritet, Ikke delt)
-- Anders O Grevstad AS (Prioritet, PRIORITY SUPPLIERS, Delt)
-- TechCorp AS (Ikke delt)
-- Nordic Solutions (Ikke delt)
-- Bergen Finans AS (Delt)
+### Ingen nye filer eller databaseendringer
+All data bruker eksisterende `useSubscription`-hook. Forbruksdata forblir hardkodet som demo.
 
-### UI-designprinsipper
-- Minimalistisk dialog med tydelig steg-navigasjon
-- WCAG: aria-labels, fokusring, tastaturnavigasjon
-- Responsivt: Full bredde pa mobil
-- Klarsprak: Korte beskrivelser uten fagsjargong
-- Visuell tilbakemelding: Valgte kunder far bla venstre-border
+### UI-struktur
+```text
++--------------------------------------------------+
+| Fakturering og planer                            |
+| Administrer ditt abonnement og fakturering       |
++--------------------------------------------------+
+
++----------+ +----------+ +----------+ +----------+
+| AI doc   | | AI-chat  | | Leverand.| | Dok.sign |
+| 2/3 igjen| | 10/10    | | 24/25    | | 5/5      |
+| [====  ] | | [======] | | [=     ] | | [======] |
+| 1 brukt  | | 0 brukt  | | Lagt 1   | | 0 brukt  |
++----------+ +----------+ +----------+ +----------+
+
++--------------------------------------------------+
+| * ANBEFALT                                       |
+| Premium-plan                                     |
+| Perfekt for leverandorer i alle storrelser       |
+|                                                  |
+| 2 490 kr per maned                               |
+| Faktureres arlig - 29 880 kr/ar                  |
+|                                                  |
+| [i] Premium gjelder for alle i organisasjonen... |
+|                                                  |
+| v Ubegrensede AI-skanninger av dokumenter (i)    |
+| v Del dokumenter offentlig med kunder (i)        |
+| v Offentlig Compliance-side (i)                  |
+| v Dokumentsignering (i)                          |
+| v Prioritert kundestotte (i)                     |
+|                                                  |
+| KOMMER SNART                                     |
+| ~ Avanserte analyser og ESG-innsikt [Kommer snart]|
+| ~ Rapporter om konkurranseanalyse   [Kommer snart]|
+| ~ Varsler om konkurrentoppdateringer[Kommer snart]|
++--------------------------------------------------+
+
+| Velg hvordan du vil betale                       |
+|                                                  |
+| (*) Kort / Stripe Link            UMIDDELBAR     |
+|     Betal med bedriftskort eller...              |
+|                                                  |
+| ( ) Faktura / Bankoverfoering           B2B      |
+|     Motta en Stripe-faktura med...               |
+|                                                  |
+| [========== Oppgrader na  ->  ==================]|
++--------------------------------------------------+
+```
+
+### Designprinsipper
+- Minimalistisk, Apple-inspirert estetikk
+- Muted bakgrunner pa forbrukskort (bg-muted/30)
+- Tynne progress-barer (h-1.5) med farger per kategori
+- Subtile borders og avrundede hjorner
+- "Kommer snart"-badges i outline-stil
+- Betalingsmetode som radiogruppe med border-primary pa valgt
+- Full WCAG AA-kontrast og tastaturnavigasjon
