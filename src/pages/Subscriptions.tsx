@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, MessageCircle, Users, FileSignature, Check, Info, ArrowRight, CreditCard, FileText } from "lucide-react";
+import { Sparkles, MessageCircle, Users, FileSignature, Check, Info, ArrowRight, CreditCard, FileText, CheckCircle2, Building2, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 
@@ -69,7 +70,21 @@ const comingSoon = [
 
 export default function Subscriptions() {
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [step, setStep] = useState<"confirm" | "processing" | "success">("confirm");
   const { isLoading } = useSubscription();
+
+  const handleUpgrade = () => {
+    setStep("confirm");
+    setShowConfirm(true);
+  };
+
+  const handleConfirmPayment = () => {
+    setStep("processing");
+    setTimeout(() => {
+      setStep("success");
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -229,11 +244,87 @@ export default function Subscriptions() {
         {/* CTA */}
         <Button
           className="w-full h-12 text-base"
-          onClick={() => toast.info("Oppgradering er ikke tilgjengelig i demo-modus.")}
+          onClick={handleUpgrade}
         >
           Oppgrader nå
           <ArrowRight className="h-5 w-5 ml-2" />
         </Button>
+
+        {/* Confirmation / Success Dialog */}
+        <Dialog open={showConfirm} onOpenChange={(open) => { if (!open && step !== "processing") setShowConfirm(false); }}>
+          <DialogContent className="sm:max-w-md">
+            {step === "confirm" && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Bekreft oppgradering</DialogTitle>
+                  <DialogDescription>Gjennomgå bestillingen din før du fortsetter.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Plan</span>
+                    <span className="font-medium text-foreground">Premium</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Pris</span>
+                    <span className="font-medium text-foreground">2 490 kr/mnd</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Fakturering</span>
+                    <span className="font-medium text-foreground">Årlig – 29 880 kr</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Betalingsmetode</span>
+                    <span className="font-medium text-foreground flex items-center gap-1.5">
+                      {paymentMethod === "card" ? <><CreditCard className="h-3.5 w-3.5" /> Kort / Stripe Link</> : <><FileText className="h-3.5 w-3.5" /> Faktura</>}
+                    </span>
+                  </div>
+                  {paymentMethod === "invoice" && (
+                    <div className="space-y-3 pt-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Fakturainformasjon</p>
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/40">
+                        <Building2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div className="text-sm text-muted-foreground">
+                          <p>Faktura sendes til e-postadressen knyttet til kontoen din. Betaling forfaller innen 30 dager.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1" onClick={() => setShowConfirm(false)}>Avbryt</Button>
+                  <Button className="flex-1" onClick={handleConfirmPayment}>
+                    {paymentMethod === "card" ? "Betal nå" : "Send faktura"}
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {step === "processing" && (
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <p className="text-sm text-muted-foreground">Behandler betaling…</p>
+              </div>
+            )}
+
+            {step === "success" && (
+              <div className="flex flex-col items-center justify-center py-8 gap-4 text-center">
+                <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Oppgradering vellykket!</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {paymentMethod === "card"
+                      ? "Betalingen er gjennomført. Premium-planen er nå aktiv."
+                      : "Fakturaen er sendt til din e-postadresse. Planen aktiveres når betalingen er mottatt."}
+                  </p>
+                </div>
+                <Button className="mt-2" onClick={() => setShowConfirm(false)}>Lukk</Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
