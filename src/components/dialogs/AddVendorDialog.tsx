@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
+import { cn } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Building2,
   Search,
@@ -28,6 +30,12 @@ import {
   Database,
   PenLine,
   Loader2,
+  Cloud,
+  Server,
+  Lightbulb,
+  Monitor,
+  Home,
+  MoreHorizontal,
 } from "lucide-react";
 
 interface AddVendorDialogProps {
@@ -36,11 +44,28 @@ interface AddVendorDialogProps {
   onVendorAdded?: () => void;
 }
 
-type Step = "quantity" | "search" | "contact" | "confirm";
+type Step = "quantity" | "search" | "categorize" | "contact" | "confirm";
 type Mode = "single" | "multiple";
 type Country = "NO" | "SE" | "DK" | "other";
+type VendorCategory = "saas" | "infrastructure" | "consulting" | "it_operations" | "facilities" | "other";
+type GdprRole = "databehandler" | "underdatabehandler" | "ingen";
 
-const STEPS_SINGLE: Step[] = ["quantity", "search", "contact", "confirm"];
+const STEPS_SINGLE: Step[] = ["quantity", "search", "categorize", "contact", "confirm"];
+
+const VENDOR_CATEGORIES: { value: VendorCategory; label: string; icon: React.ReactNode }[] = [
+  { value: "saas", label: "SaaS / Skytjeneste", icon: <Cloud className="h-5 w-5" /> },
+  { value: "infrastructure", label: "Infrastruktur / IaaS", icon: <Server className="h-5 w-5" /> },
+  { value: "consulting", label: "Rådgivning", icon: <Lightbulb className="h-5 w-5" /> },
+  { value: "it_operations", label: "IT-drift", icon: <Monitor className="h-5 w-5" /> },
+  { value: "facilities", label: "Kontor og fasiliteter", icon: <Home className="h-5 w-5" /> },
+  { value: "other", label: "Annet", icon: <MoreHorizontal className="h-5 w-5" /> },
+];
+
+const GDPR_ROLES: { value: GdprRole; label: string; description: string }[] = [
+  { value: "databehandler", label: "Databehandler", description: "Behandler personopplysninger på vegne av dere (krever DPA)" },
+  { value: "underdatabehandler", label: "Underdatabehandler", description: "Brukes av en av deres databehandlere" },
+  { value: "ingen", label: "Ingen persondata", description: "Ingen tilgang til personopplysninger" },
+];
 
 const countryFlags: Record<Country, string> = {
   NO: "🇳🇴",
@@ -73,6 +98,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const [contactEmail, setContactEmail] = useState("");
   const [contactRole, setContactRole] = useState("");
   const [addedVendors, setAddedVendors] = useState<string[]>([]);
+  const [vendorCategory, setVendorCategory] = useState<VendorCategory | "">("");
+  const [gdprRole, setGdprRole] = useState<GdprRole | "">("");
 
   const resetForm = useCallback(() => {
     setStep("quantity");
@@ -86,6 +113,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setContactName("");
     setContactEmail("");
     setContactRole("");
+    setVendorCategory("");
+    setGdprRole("");
     clearResults();
   }, [clearResults]);
 
@@ -99,6 +128,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setContactName("");
     setContactEmail("");
     setContactRole("");
+    setVendorCategory("");
+    setGdprRole("");
     clearResults();
   }, [clearResults]);
 
@@ -120,6 +151,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         org_number: vendor.orgNumber,
         contact_person: contactName || null,
         contact_email: contactEmail || null,
+        vendor_category: vendorCategory || null,
+        gdpr_role: gdprRole || null,
         metadata: {
           industry: (vendor as VendorSearchResult).industry,
           contact_role: contactRole || null,
@@ -159,7 +192,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       return;
     }
     setSelected(result);
-    setStep("contact");
+    setStep("categorize");
   };
 
   const handleManualConfirm = () => {
@@ -174,7 +207,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       employees: null,
       url: manualUrl || null,
     });
-    setStep("contact");
+    setStep("categorize");
   };
 
   const stepIndex = STEPS_SINGLE.indexOf(step);
@@ -392,6 +425,69 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           </div>
         )}
 
+        {/* Step: Categorize */}
+        {step === "categorize" && (
+          <div className="space-y-5 pt-2">
+            <div>
+              <Label className="text-sm font-medium">{t("addVendor.vendorType", "Leverandørtype")}</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {VENDOR_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    onClick={() => setVendorCategory(cat.value)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      vendorCategory === cat.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-muted-foreground"
+                    )}
+                  >
+                    <span className="text-primary">{cat.icon}</span>
+                    <span className="text-xs font-medium leading-tight">{cat.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium">{t("addVendor.gdprRole", "GDPR-rolle")}</Label>
+              <RadioGroup value={gdprRole} onValueChange={(v) => setGdprRole(v as GdprRole)} className="mt-2 space-y-2">
+                {GDPR_ROLES.map((role) => (
+                  <label
+                    key={role.value}
+                    className={cn(
+                      "flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors",
+                      gdprRole === role.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-muted-foreground"
+                    )}
+                  >
+                    <RadioGroupItem value={role.value} className="mt-0.5" />
+                    <div>
+                      <span className="text-sm font-medium">{role.label}</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">{role.description}</p>
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setStep("search")}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> {t("addVendor.back", "Tilbake")}
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setStep("contact")}>
+                  {t("addVendor.skip", "Hopp over")}
+                </Button>
+                <Button size="sm" onClick={() => setStep("contact")}>
+                  {t("addVendor.next", "Neste")} <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Step: Contact */}
         {step === "contact" && (
           <div className="space-y-4 pt-2">
@@ -411,7 +507,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               <Input id="contact-role" value={contactRole} onChange={(e) => setContactRole(e.target.value)} className="mt-1.5" />
             </div>
             <div className="flex justify-between pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setStep("search")}>
+              <Button variant="ghost" size="sm" onClick={() => setStep("categorize")}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> {t("addVendor.back", "Tilbake")}
               </Button>
               <div className="flex gap-2">
@@ -454,6 +550,18 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                   <>
                     <span>{t("addVendor.website", "Nettside")}</span>
                     <span className="truncate">{selected.url}</span>
+                  </>
+                )}
+                {vendorCategory && (
+                  <>
+                    <span>{t("addVendor.vendorType", "Leverandørtype")}</span>
+                    <span>{VENDOR_CATEGORIES.find(c => c.value === vendorCategory)?.label}</span>
+                  </>
+                )}
+                {gdprRole && (
+                  <>
+                    <span>{t("addVendor.gdprRole", "GDPR-rolle")}</span>
+                    <span>{GDPR_ROLES.find(r => r.value === gdprRole)?.label}</span>
                   </>
                 )}
                 {contactName && (

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,8 @@ interface Asset {
   region?: string | null;
   vendor?: string | null;
   next_review_date?: string | null;
+  vendor_category?: string | null;
+  gdpr_role?: string | null;
 }
 
 interface VendorOverviewTabProps {
@@ -109,6 +112,21 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
     return groups;
   }, [vendors, t]);
 
+  const categoryDistribution = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const labels: Record<string, string> = {
+      saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning",
+      it_operations: "IT-drift", facilities: "Kontor", other: "Annet",
+    };
+    vendors.forEach(v => {
+      const cat = v.vendor_category || "uncategorized";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return Object.entries(counts).map(([key, count]) => ({
+      key, label: labels[key] || t("vendorDashboard.uncategorized", "Ukategorisert"), count,
+    }));
+  }, [vendors, t]);
+
   const getConnectedCount = (vendorId: string) =>
     relationships.filter(r => r.source_asset_id === vendorId || r.target_asset_id === vendorId).length;
 
@@ -119,6 +137,18 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       <QuickActionsBar onAddVendor={onAddVendor} onDiscoverAI={onDiscoverAI} pendingReviewCount={pendingReview} />
       <VendorMetricsRow {...metrics} />
       <NeedsAttentionSection items={attentionItems} />
+
+      {/* Category Distribution */}
+      {categoryDistribution.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-medium text-muted-foreground mr-1">{t("vendorDashboard.byType", "Fordeling")}:</span>
+          {categoryDistribution.map(({ key, label, count }) => (
+            <Badge key={key} variant="outline" className="text-xs gap-1">
+              {label} <span className="font-bold">{count}</span>
+            </Badge>
+          ))}
+        </div>
+      )}
 
       {/* Vendors by Category */}
       {Object.entries(vendorsByCategory).map(([category, categoryVendors]) => (
