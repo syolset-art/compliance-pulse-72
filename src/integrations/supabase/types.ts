@@ -1584,6 +1584,7 @@ export type Database = {
       system_incidents: {
         Row: {
           ai_system_id: string | null
+          auto_created: boolean | null
           category: string | null
           created_at: string | null
           criticality: string | null
@@ -1598,6 +1599,9 @@ export type Database = {
           relevant_frameworks: string[] | null
           responsible: string | null
           risk_level: string | null
+          source: string | null
+          source_incident_id: string | null
+          source_severity: string | null
           status: string | null
           system_id: string
           systems_count: number | null
@@ -1606,6 +1610,7 @@ export type Database = {
         }
         Insert: {
           ai_system_id?: string | null
+          auto_created?: boolean | null
           category?: string | null
           created_at?: string | null
           criticality?: string | null
@@ -1620,6 +1625,9 @@ export type Database = {
           relevant_frameworks?: string[] | null
           responsible?: string | null
           risk_level?: string | null
+          source?: string | null
+          source_incident_id?: string | null
+          source_severity?: string | null
           status?: string | null
           system_id: string
           systems_count?: number | null
@@ -1628,6 +1636,7 @@ export type Database = {
         }
         Update: {
           ai_system_id?: string | null
+          auto_created?: boolean | null
           category?: string | null
           created_at?: string | null
           criticality?: string | null
@@ -1642,6 +1651,9 @@ export type Database = {
           relevant_frameworks?: string[] | null
           responsible?: string | null
           risk_level?: string | null
+          source?: string | null
+          source_incident_id?: string | null
+          source_severity?: string | null
           status?: string | null
           system_id?: string
           systems_count?: number | null

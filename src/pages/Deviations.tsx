@@ -49,6 +49,8 @@ interface Deviation {
   relevant_frameworks: string[];
   created_at: string;
   system_id: string;
+  source?: string;
+  auto_created?: boolean;
 }
 
 const categoryLabels: Record<string, string> = Object.fromEntries(
@@ -75,6 +77,7 @@ export default function Deviations() {
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
 
   // Fetch deviations
   const { data: deviations = [], isLoading } = useQuery({
@@ -109,6 +112,11 @@ export default function Deviations() {
     if (statusFilter !== "all" && d.status !== statusFilter) {
       return false;
     }
+    if (sourceFilter !== "all") {
+      if (sourceFilter === "external" && !d.source) return false;
+      if (sourceFilter === "external" && d.source === "manual") return false;
+      if (sourceFilter === "manual" && d.source && d.source !== "manual") return false;
+    }
     return true;
   });
 
@@ -133,13 +141,21 @@ export default function Deviations() {
       <Card className="bg-card border-border hover:border-primary/30 transition-colors">
         <CardContent className="p-4">
           {/* Badges */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Badge className={cn("text-xs font-semibold", criticality.bgColor, criticality.color)}>
               {criticality.label}
             </Badge>
             <Badge className={cn("text-xs font-semibold", status.bgColor, status.color)}>
               {status.label}
             </Badge>
+            {deviation.source === "7security" && (
+              <Badge className="text-[10px] bg-orange-500/15 text-orange-700 border-orange-500/30">
+                7 Security
+              </Badge>
+            )}
+            {deviation.auto_created && (
+              <Badge variant="outline" className="text-[10px]">Auto</Badge>
+            )}
           </div>
 
           {/* Title */}
@@ -294,7 +310,7 @@ export default function Deviations() {
         {/* Filters */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Input
                 placeholder="Filtrer etter tittel"
                 value={titleFilter}
@@ -322,6 +338,16 @@ export default function Deviations() {
                   <SelectItem value="open">Ny</SelectItem>
                   <SelectItem value="in_progress">Under behandling</SelectItem>
                   <SelectItem value="resolved">Løst</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Filtrer etter kilde" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle kilder</SelectItem>
+                  <SelectItem value="external">Ekstern (7 Security)</SelectItem>
+                  <SelectItem value="manual">Manuell</SelectItem>
                 </SelectContent>
               </Select>
             </div>
