@@ -1,116 +1,79 @@
 
 
-# Kvalitetssystem som fullverdig modul i Mynder
+# Vendor Onboarding Demo -- "Motta forespørsel og svar"
 
-## Visjon
-Kvalitetssystemet (QMS) blir en integrert del av Mynder-plattformen som kobler sammen HMS/kvalitet med eksisterende leverandorstyring, avvik, dokumentasjon og foresporsler. Dette gir Mynder en unik posisjon som leverandor av baade trust management OG kvalitetssystem -- i ett grensesnitt.
+## Hva dette er
+Et nytt menypunkt og en dedikert side som simulerer hele reisen fra en leverandørs perspektiv: De mottar en e-post fra HULT IT som ber om oppdatert databehandleravtale, og vi guider dem gjennom prosessen -- fra e-posten til de lander på sin egen Trust Profil og laster opp dokumentet.
 
-## Arkitektur: Hvordan QMS kobles til plattformen
+## Brukerreisen (steg-for-steg)
 
 ```text
-                        Kvalitetssystem (QMS)
-                              |
-        +---------------------+---------------------+
-        |                     |                     |
-   Avviksregister        Dokumenter            Leverandorer
-   (system_incidents)    (uploaded_documents)   (assets)
-        |                     |                     |
-        +-- Kategorier:       +-- HMS-datablad      +-- Leverandor-avvik
-        |   HMS, Kvalitet,    +-- SJA-rapporter     |   (7 Security feed)
-        |   Miljoe, Sikkerhet +-- Internrevisjoner  +-- Leverandor-dokumenter
-        |                     +-- Prosedyrer        |   (DPA, ISO-sert.)
-        |                                           |
-        +-------- Foresporsler (customer_requests) -+
-                  Kunder kan be om:
-                  - HMS-dokumentasjon
-                  - Kvalitetssertifikater
-                  - Internrevisjonsrapporter
+Steg 1: E-postvisning
+  "Du har mottatt en forespørsel fra HULT IT AS"
+  Simulert e-post med Mynder-branding, frist, og CTA-knapp
+            |
+            v
+Steg 2: Landingsside -- Valg
+  "HULT IT ber om oppdatert databehandleravtale"
+  Tre alternativer:
+    A) Last opp dokument direkte (raskest)
+    B) Opprett gratis Trust Profil og selverklaer
+    C) Allerede Mynder-bruker? Logg inn
+            |
+            v
+Steg 3A: Direkte opplasting
+  Enkel opplastingsflyt med drag-and-drop
+  Bekreftelse: "Dokumentet er sendt til HULT IT"
+            |
+Steg 3B: Trust Profil-verifisering
+  Org.nr-oppslag via Brreg
+  Bekreft at du representerer selskapet
+  E-postverifisering (simulert)
+            |
+            v
+Steg 4: Trust Profil opprettet
+  Lander paa sin egen Trust Profil
+  Kan laste opp DPA og andre dokumenter
+  Ser innkommende foresporsler fra HULT IT
 ```
 
-## Hva skal bygges
+## Hva som bygges
 
-### 1. Ny databasetabell: `quality_modules`
-Sporer hvilke QMS-moduler kunden har aktivert, kobler til bransje og valgte undermoduler.
+### 1. Ny side: `VendorResponseDemo.tsx`
+En fullskjerm-side (uten sidebar) som simulerer leverandorens opplevelse med foelgende steg:
 
-Kolonner:
-- `id` (uuid, PK)
-- `module_type` (text) -- hms-basis, hms-extended, quality-management, integrated-management
-- `industry_type` (text) -- health, construction, industry, tech, general
-- `selected_industry_modules` (text[]) -- pasientsikkerhet, sja-register, etc.
-- `is_active` (boolean)
-- `activated_at` (timestamptz)
-- `created_at` (timestamptz)
+**Steg 1 -- E-posten**: Realistisk e-postvisning med Mynder-header, avsender "HULT IT AS via Mynder", innhold som forklarer foresporselen, frist, og en primaer CTA-knapp "Se foresporselen".
 
-### 2. Utvid avviksregisteret med QMS-kategorier
-Legge til QMS-spesifikke avvikskategorier i `deviationCategories.ts`:
-- HMS-avvik (personskade, nestenulykke, farlige forhold)
-- Kvalitetsavvik (kundereklamasjon, prosessavvik, produktfeil)
-- Miljeavvik (utslipp, avfall, forurensning)
-- Sikkerhetsavvik (allerede dekket av 7 Security-integrasjonen)
+**Steg 2 -- Landingssiden**: Mynder-brandet side med foresporselsdetaljer og tre valgmuligheter i kort-layout.
 
-Utvide avvikskortet med QMS-kontekst: kobling til SJA, utstyr, prosedyre.
+**Steg 3A -- Rask opplasting**: Drag-and-drop-sone for aa laste opp DPA direkte uten konto. Bekreftelsesvisning med suksess-melding.
 
-### 3. Dokumentstyring for QMS
-Utvide `uploaded_documents` og dokumentflyten:
-- Nye dokumenttyper: `sja-report`, `hms-datasheet`, `audit-report`, `procedure`, `emergency-plan`
-- QMS-dokumenter vises baade i Trust Profilen og i QMS-dashboardet
-- Versjonering og godkjenningsstatus
+**Steg 3B -- Trust Profil-opprettelse**: Tre-trinns verifisering:
+1. Org.nr + selskapsnavn (Brreg-oppslag gjenbrukes)
+2. Kontaktperson og e-post
+3. Bekreftelse og "profil opprettet"-animasjon
 
-### 4. Kobling til leverandorer
-- Leverandorer med HMS-relevans (f.eks. vikarbyra, byggeleverandorer) faar QMS-fane i Trust Profilen
-- Foresporsler om HMS-dokumentasjon fra leverandorer via utgaaende foresporsler
-- Leverandor-avvik (fra 7 Security etc.) kategoriseres automatisk som HMS/sikkerhet
+**Steg 4 -- Trust Profilen**: Simulert visning av den nyopprettede Trust Profilen med innkommende foresporsler og mulighet til aa laste opp dokumenter.
 
-### 5. Foresporselsmodulen: QMS-utvidelse
-- Nye foresporselstyper: "HMS-dokumentasjon", "Kvalitetssertifisering", "Internrevisjonsrapport"
-- Kunder kan be om HMS-sertifikater via innkommende foresporsler
-- Trust Profilen publiserer QMS-status som del av selvdeklaeringen
+### 2. Nytt menypunkt i Sidebar
+Legge til "Leverandordemo" i sidebaren med et eget ikon (Play/ExternalLink) -- posisjonert nede ved "Ressurser" som en demo/guide-lenke.
 
-### 6. QMS Dashboard: Koble til live data
-Oppgradere `QualityDashboard.tsx` fra hardkodet demo til live data:
-- KPI-er hentes fra `system_incidents` (filtrert paa HMS-kategorier)
-- Dokumentoversikt fra `uploaded_documents`
-- Kommende oppgaver fra `tasks`
-- Leverandor-hendelser fra Lara Innboks
+### 3. Ny rute i App.tsx
+`/vendor-response-demo` som peker til den nye siden.
 
-### 7. Sidebar og navigasjon
-Aktivere Quality-menypunktet i sidebaren (naa kommentert ut), betinget paa at `quality_modules` har aktive moduler.
+## Tekniske detaljer
 
-## Posisjonering som QMS-leverandor
+### Komponenter som gjenbrukes
+- E-postvisningen er ren JSX (ingen ny avhengighet)
+- Opplastingsflyten gjenbruker moenstre fra `UploadDocumentDialog`
+- Brreg-oppslaget gjenbruker `useBrregLookup`-hooken
+- Trust Profil-visningen henter moenstre fra `AssetTrustProfile`
 
-Modellen gir Mynder tre unike fordeler:
-1. **Integrert**: HMS/kvalitet deler avvik, dokumenter og leverandorer med trust management -- ingen duplisering
-2. **AI-drevet**: Lara klassifiserer avvik, foreslaar tiltak og overvaker leverandor-hendelser automatisk
-3. **Leverandorkjede-synlig**: QMS-status publiseres i Trust Profilen, saa kunder og leverandorer ser det
+### Ingen databaseendringer
+Hele flyten er en klientside-demo med simulerte data. Ingen nye tabeller eller migrasjoner.
 
-## Teknisk gjennomforing
-
-### Steg 1: Database
-- Opprett `quality_modules`-tabell
-- Utvid `deviationCategories.ts` med HMS/kvalitetskategorier
-- Legg til nye dokumenttyper i systemet
-
-### Steg 2: Aktiveringswizard
-- Oppdater `QualityModuleActivationWizard.tsx` til aa faktisk lagre valg i `quality_modules`
-- Koble til sidebar-visning (vis Quality-meny kun naar aktivert)
-
-### Steg 3: QMS Dashboard med live data
-- Refaktor `QualityDashboard.tsx` til aa hente fra database
-- Koble avvik-widget til `system_incidents` med HMS-filter
-- Koble dokumenter til `uploaded_documents`
-- Vise leverandor-hendelser fra `lara_inbox`
-
-### Steg 4: Trust Profil-integrasjon
-- Ny fane/seksjon i Trust Profilen: "HMS og kvalitet"
-- Vise QMS-status, siste revisjon, aktive moduler
-- Publiserbar som del av selvdeklaeringen
-
-### Steg 5: Foresporsler-utvidelse
-- Legge til QMS-spesifikke foresporselstyper
-- Kunder kan be om HMS-dokumentasjon direkte
-
-### Steg 6: Syntetiske data
-- Sette inn demo-avvik med HMS-kategorier
-- Sette inn QMS-dokumenter
-- Aktivere demo-moduler for HULT IT
+### Filendringer
+- **Ny**: `src/pages/VendorResponseDemo.tsx` -- hovedsiden med alle stegene
+- **Endret**: `src/App.tsx` -- ny rute
+- **Endret**: `src/components/Sidebar.tsx` -- nytt menypunkt
 
