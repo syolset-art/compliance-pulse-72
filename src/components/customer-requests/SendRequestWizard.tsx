@@ -24,6 +24,9 @@ const REQUEST_TYPES = [
   { value: "iso_documentation", labelNb: "ISO 27001 dokumentasjon", labelEn: "ISO 27001 Documentation", icon: Shield },
   { value: "soc2", labelNb: "SOC 2-rapport", labelEn: "SOC 2 Report", icon: FileText },
   { value: "gdpr_report", labelNb: "GDPR-rapport", labelEn: "GDPR Report", icon: FileText },
+  { value: "hms_documentation", labelNb: "HMS-dokumentasjon", labelEn: "HSE Documentation", icon: Shield },
+  { value: "quality_certification", labelNb: "Kvalitetssertifisering", labelEn: "Quality Certification", icon: FileCheck },
+  { value: "audit_report", labelNb: "Internrevisjonsrapport", labelEn: "Internal Audit Report", icon: FileText },
 ];
 
 interface SendRequestWizardProps {
