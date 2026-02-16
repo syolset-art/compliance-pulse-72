@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { CustomerRequestCard } from "@/components/customer-requests/CustomerRequestCard";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Inbox, Clock, Send, AlertCircle, Search } from "lucide-react";
 
-const DEMO_REQUESTS = [
+const INITIAL_DEMO_REQUESTS = [
   {
     id: "demo-1",
     customer_name: "Allier AS",
@@ -21,6 +21,8 @@ const DEMO_REQUESTS = [
     progress_percent: 100,
     due_date: new Date(Date.now() + 7 * 86400000).toISOString(),
     created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    shared_mode: null as string | null,
+    shared_with_customers: [] as string[],
   },
   {
     id: "demo-2",
@@ -33,6 +35,8 @@ const DEMO_REQUESTS = [
     progress_percent: 60,
     due_date: new Date(Date.now() + 14 * 86400000).toISOString(),
     created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    shared_mode: null as string | null,
+    shared_with_customers: [] as string[],
   },
   {
     id: "demo-3",
@@ -45,6 +49,8 @@ const DEMO_REQUESTS = [
     progress_percent: 30,
     due_date: new Date(Date.now() - 2 * 86400000).toISOString(),
     created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
+    shared_mode: null as string | null,
+    shared_with_customers: [] as string[],
   },
   {
     id: "demo-4",
@@ -57,13 +63,17 @@ const DEMO_REQUESTS = [
     progress_percent: 100,
     due_date: new Date(Date.now() - 20 * 86400000).toISOString(),
     created_at: new Date(Date.now() - 30 * 86400000).toISOString(),
+    shared_mode: "selected",
+    shared_with_customers: ["Allier AS", "Bergen Finans AS"],
   },
 ];
 
 export function InboundRequestsContent() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("pending");
+  const [demoRequests, setDemoRequests] = useState(INITIAL_DEMO_REQUESTS);
 
   const { data: dbRequests = [] } = useQuery({
     queryKey: ["customer-compliance-requests"],
@@ -77,7 +87,7 @@ export function InboundRequestsContent() {
     },
   });
 
-  const requests = dbRequests.length > 0 ? dbRequests : DEMO_REQUESTS;
+  const requests = dbRequests.length > 0 ? dbRequests : demoRequests;
 
   const filtered = requests.filter((r: any) =>
     !search || r.customer_name.toLowerCase().includes(search.toLowerCase()) || r.title.toLowerCase().includes(search.toLowerCase())
@@ -92,13 +102,19 @@ export function InboundRequestsContent() {
 
   const handleShare = async (id: string, mode: string, customers: string[]) => {
     if (id.startsWith("demo-")) {
-      const req = requests.find((r: any) => r.id === id);
-      if (req) {
-        (req as any).status = "completed";
-        (req as any).shared_mode = mode;
-        (req as any).shared_with_customers = customers;
-        (req as any).progress_percent = 100;
-      }
+      setDemoRequests((prev) =>
+        prev.map((req) =>
+          req.id === id
+            ? {
+                ...req,
+                status: "completed",
+                progress_percent: 100,
+                shared_mode: mode,
+                shared_with_customers: customers,
+              }
+            : req
+        )
+      );
       return;
     }
     await supabase
@@ -111,6 +127,7 @@ export function InboundRequestsContent() {
         shared_with_customers: customers,
       } as any)
       .eq("id", id);
+    queryClient.invalidateQueries({ queryKey: ["customer-compliance-requests"] });
   };
 
   return (
