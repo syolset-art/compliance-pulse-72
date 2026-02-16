@@ -406,10 +406,28 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   };
 
   // File handling
+  const ACCEPTED_EXTENSIONS = [".csv", ".xlsx", ".xls", ".pdf", ".doc", ".docx", ".txt", ".json"];
+  const ACCEPTED_MIME_TYPES = [
+    "text/csv", "text/plain", "application/json",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+  const READABLE_EXTENSIONS = [".csv", ".txt", ".json"]; // can read as text directly
+  const READABLE_FORMATS_LABEL = "CSV, Excel, PDF, Word, TXT, JSON";
+
   const handleFileSelect = (file: File) => {
     const maxSize = 20 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("Filen er for stor. Maks 20 MB.");
+      return;
+    }
+    const ext = "." + file.name.split(".").pop()?.toLowerCase();
+    const isAccepted = ACCEPTED_EXTENSIONS.includes(ext) || ACCEPTED_MIME_TYPES.includes(file.type);
+    if (!isAccepted) {
+      toast.error(`Filformatet støttes ikke. Godkjente formater: ${READABLE_FORMATS_LABEL}`);
       return;
     }
     setUploadedFile(file);
@@ -434,12 +452,29 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setStep("file-analyzing");
     setAnalysisPhase(0);
 
+    // Check if the file is readable as text
+    const ext = "." + uploadedFile.name.split(".").pop()?.toLowerCase();
+    const binaryFormats = [".pdf", ".xlsx", ".xls", ".doc", ".docx"];
+    if (binaryFormats.includes(ext)) {
+      toast.error(
+        `AI kan ikke lese innholdet i ${ext.toUpperCase()}-filer direkte. Last opp filen i et tekstbasert format som CSV, TXT eller JSON for best resultat.`
+      );
+      setStep("file-upload");
+      return;
+    }
+
     // Read file text
     let documentText = "";
     try {
       documentText = await uploadedFile.text();
     } catch {
-      toast.error("Kunne ikke lese filen");
+      toast.error("Kunne ikke lese filen. Prøv med et annet format (CSV, TXT, JSON).");
+      setStep("file-upload");
+      return;
+    }
+
+    if (!documentText.trim()) {
+      toast.error("Filen er tom. Last opp en fil som inneholder data.");
       setStep("file-upload");
       return;
     }
@@ -641,14 +676,15 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     <p className="text-sm font-medium">Dra og slipp fil her</p>
                     <p className="text-xs text-muted-foreground">eller klikk for å velge</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">CSV, Excel, PDF, Word, TXT</p>
+                  <p className="text-xs text-muted-foreground">Støttede formater: CSV, TXT, JSON</p>
+                  <p className="text-[10px] text-yellow-600 mt-1">⚠ PDF, Excel og Word kan ikke leses av AI direkte</p>
                 </>
               )}
               <input
                 ref={fileInputRef}
                 type="file"
                 className="hidden"
-                accept=".csv,.xlsx,.xls,.pdf,.doc,.docx,.txt,.json"
+                accept=".csv,.txt,.json"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) handleFileSelect(file);
