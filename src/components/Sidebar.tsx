@@ -60,7 +60,7 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
   // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
   // { name: "quality.title", href: "/quality", icon: Shield, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.customerRequests", href: "/customer-requests", icon: FileQuestion },
+  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
   // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
   // { name: "nav.transparency", href: "/transparency", icon: FileText },
 ];
