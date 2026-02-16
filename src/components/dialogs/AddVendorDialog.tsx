@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -39,6 +47,12 @@ import {
   Home,
   MoreHorizontal,
   Sparkles,
+  Upload,
+  FileText,
+  Link2,
+  AlertTriangle,
+  Crown,
+  CheckCircle2,
 } from "lucide-react";
 
 interface AddVendorDialogProps {
@@ -47,11 +61,26 @@ interface AddVendorDialogProps {
   onVendorAdded?: () => void;
 }
 
-type Step = "quantity" | "search" | "categorize" | "contact" | "confirm";
+type Step = "quantity" | "method" | "search" | "categorize" | "contact" | "confirm" | "file-upload" | "file-analyzing" | "file-results" | "scan-limit";
 type Mode = "single" | "multiple";
 type Country = "NO" | "SE" | "DK" | "other";
 type VendorCategory = "saas" | "infrastructure" | "consulting" | "it_operations" | "facilities" | "other";
 type GdprRole = "databehandler" | "underdatabehandler" | "ingen";
+type DocumentType = "vendor_list" | "policy" | "dpa" | "dpia" | "certificate" | "report" | "other";
+
+const SCAN_LIMIT = 5;
+const SCAN_COUNTER_KEY = "mynder_scan_count";
+
+function getScanCount(): number {
+  try {
+    return parseInt(localStorage.getItem(SCAN_COUNTER_KEY) || "0", 10);
+  } catch { return 0; }
+}
+function incrementScanCount(): number {
+  const next = getScanCount() + 1;
+  localStorage.setItem(SCAN_COUNTER_KEY, String(next));
+  return next;
+}
 
 const STEPS_SINGLE: Step[] = ["quantity", "search", "categorize", "contact", "confirm"];
 
@@ -70,24 +99,105 @@ const GDPR_ROLES: { value: GdprRole; label: string; description: string }[] = [
   { value: "ingen", label: "Ingen persondata", description: "Ingen tilgang til personopplysninger" },
 ];
 
-const countryFlags: Record<Country, string> = {
-  NO: "🇳🇴",
-  SE: "🇸🇪",
-  DK: "🇩🇰",
-  other: "🌍",
-};
+const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
+  { value: "vendor_list", label: "Leverandørliste" },
+  { value: "policy", label: "Personvernpolicy" },
+  { value: "dpa", label: "Databehandleravtale (DPA)" },
+  { value: "dpia", label: "DPIA" },
+  { value: "certificate", label: "Sertifikat" },
+  { value: "report", label: "Rapport" },
+  { value: "other", label: "Annet" },
+];
 
-const countryLabels: Record<Country, string> = {
-  NO: "Norge",
-  SE: "Sverige",
-  DK: "Danmark",
-  other: "Annet",
-};
+const countryFlags: Record<Country, string> = { NO: "🇳🇴", SE: "🇸🇪", DK: "🇩🇰", other: "🌍" };
+const countryLabels: Record<Country, string> = { NO: "Norge", SE: "Sverige", DK: "Danmark", other: "Annet" };
+
+interface ClassificationResult {
+  documentType: DocumentType;
+  documentTypeLabel: string;
+  confidence: number;
+  summary: string;
+  extractedVendors: { name: string; description?: string }[];
+}
+
+// --- Animated analysis steps component ---
+function AnalysisAnimation({ currentPhase }: { currentPhase: number }) {
+  const phases = [
+    "Leser dokumentinnhold",
+    "Identifiserer dokumenttype",
+    "Henter ut data",
+    "Sjekker compliance-informasjon",
+  ];
+  return (
+    <div className="flex flex-col items-center gap-6 py-8">
+      <div className="relative flex h-16 w-16 items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" />
+        <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
+          <Sparkles className="h-7 w-7 text-primary animate-pulse" />
+        </div>
+      </div>
+      <h3 className="text-base font-semibold text-foreground">Identifiserer dokumenttype...</h3>
+      <div className="w-full max-w-xs space-y-2">
+        {phases.map((label, i) => (
+          <div key={i} className="flex items-center gap-3">
+            {i < currentPhase ? (
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+            ) : i === currentPhase ? (
+              <Loader2 className="h-4 w-4 text-primary animate-spin shrink-0" />
+            ) : (
+              <div className="h-4 w-4 rounded-full border border-muted-foreground/30 shrink-0" />
+            )}
+            <span className={cn(
+              "text-sm transition-all",
+              i < currentPhase && "text-muted-foreground",
+              i === currentPhase && "font-semibold text-foreground",
+              i > currentPhase && "text-muted-foreground/50"
+            )}>
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-1 pt-2">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-2 w-2 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: `${i * 0.15}s` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// --- Scan limit banner ---
+function ScanLimitBanner({ used, limit }: { used: number; limit: number }) {
+  const remaining = Math.max(0, limit - used);
+  const pct = (used / limit) * 100;
+  return (
+    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium text-muted-foreground">AI-skanninger</span>
+        <span className="font-semibold">{remaining} av {limit} igjen</span>
+      </div>
+      <div className="relative h-2 w-full rounded-full overflow-hidden bg-muted">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{
+            width: `${pct}%`,
+            background: pct < 60 ? 'hsl(var(--primary))' : pct < 80 ? 'hsl(45, 93%, 47%)' : 'hsl(0, 84%, 60%)',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendorDialogProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { search, searchInternalOnly, clearResults, results, isLoading, error } = useVendorLookup();
+  const { search: vendorSearch, searchInternalOnly, clearResults, results, isLoading, error } = useVendorLookup();
 
   const [step, setStep] = useState<Step>("quantity");
   const [mode, setMode] = useState<Mode>("single");
@@ -113,6 +223,16 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   } | null>(null);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
+  // File upload state
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [analysisPhase, setAnalysisPhase] = useState(0);
+  const [classification, setClassification] = useState<ClassificationResult | null>(null);
+  const [selectedDocType, setSelectedDocType] = useState<DocumentType | "">("");
+  const [selectedVendorsToImport, setSelectedVendorsToImport] = useState<Set<number>>(new Set());
+  const [scanCount, setScanCount] = useState(getScanCount);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const resetForm = useCallback(() => {
     setStep("quantity");
     setMode("single");
@@ -130,6 +250,10 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setVendorDescription("");
     setAiSuggestion(null);
     setIsSuggesting(false);
+    setUploadedFile(null);
+    setClassification(null);
+    setSelectedDocType("");
+    setSelectedVendorsToImport(new Set());
     clearResults();
   }, [clearResults]);
 
@@ -199,6 +323,30 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     },
   });
 
+  // Bulk import vendors from classification
+  const importVendors = useMutation({
+    mutationFn: async (vendors: { name: string; description?: string }[]) => {
+      const inserts = vendors.map((v) => ({
+        name: v.name,
+        asset_type: "vendor" as const,
+        description: v.description || null,
+      }));
+      const { error: insertError } = await supabase.from("assets").insert(inserts as any);
+      if (insertError) throw insertError;
+      return vendors.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success(`${count} leverandører ble importert`);
+      onVendorAdded?.();
+      onOpenChange(false);
+      resetForm();
+    },
+    onError: () => {
+      toast.error("Kunne ikke importere leverandører");
+    },
+  });
+
   const handleAiSuggest = async () => {
     const vendorName = selected?.name || manualName;
     if (!vendorName) return;
@@ -229,7 +377,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      search(searchQuery, country);
+      vendorSearch(searchQuery, country);
     }
   };
 
@@ -257,8 +405,99 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setStep("categorize");
   };
 
+  // File handling
+  const handleFileSelect = (file: File) => {
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("Filen er for stor. Maks 20 MB.");
+      return;
+    }
+    setUploadedFile(file);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const startAnalysis = async () => {
+    if (!uploadedFile) return;
+
+    // Check scan limit
+    if (getScanCount() >= SCAN_LIMIT) {
+      setStep("scan-limit");
+      return;
+    }
+
+    setStep("file-analyzing");
+    setAnalysisPhase(0);
+
+    // Read file text
+    let documentText = "";
+    try {
+      documentText = await uploadedFile.text();
+    } catch {
+      toast.error("Kunne ikke lese filen");
+      setStep("file-upload");
+      return;
+    }
+
+    // Animate phases
+    const phaseTimer = setInterval(() => {
+      setAnalysisPhase((p) => Math.min(p + 1, 3));
+    }, 1200);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("classify-document", {
+        body: { documentText, fileName: uploadedFile.name },
+      });
+
+      clearInterval(phaseTimer);
+
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
+
+      const result = data.classification as ClassificationResult;
+      setClassification(result);
+      setSelectedDocType(result.documentType);
+      // Pre-select all vendors
+      if (result.extractedVendors?.length) {
+        setSelectedVendorsToImport(new Set(result.extractedVendors.map((_, i) => i)));
+      }
+
+      // Increment scan counter
+      const newCount = incrementScanCount();
+      setScanCount(newCount);
+
+      setAnalysisPhase(4);
+      setTimeout(() => setStep("file-results"), 600);
+    } catch (e) {
+      clearInterval(phaseTimer);
+      console.error("Classification error:", e);
+      toast.error("Kunne ikke analysere dokumentet");
+      setStep("file-upload");
+    }
+  };
+
+  const handleImportSelected = () => {
+    if (!classification?.extractedVendors) return;
+    const toImport = classification.extractedVendors.filter((_, i) => selectedVendorsToImport.has(i));
+    if (toImport.length === 0) {
+      toast.error("Velg minst én leverandør");
+      return;
+    }
+    importVendors.mutate(toImport);
+  };
+
   const stepIndex = STEPS_SINGLE.indexOf(step);
-  const progressPercent = ((stepIndex + 1) / STEPS_SINGLE.length) * 100;
+  const isFileFlow = ["method", "file-upload", "file-analyzing", "file-results", "scan-limit"].includes(step);
+  const fileFlowSteps = ["quantity", "method", "file-upload", "file-analyzing", "file-results"];
+  const fileStepIndex = fileFlowSteps.indexOf(step);
+  const progressPercent = isFileFlow
+    ? ((Math.max(fileStepIndex, 0) + 1) / fileFlowSteps.length) * 100
+    : ((stepIndex + 1) / STEPS_SINGLE.length) * 100;
 
   const sourceLabel = (source: string) => {
     switch (source) {
@@ -269,6 +508,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       default: return "";
     }
   };
+
+  const currentStepNum = isFileFlow ? Math.max(fileStepIndex, 0) + 1 : stepIndex + 1;
+  const totalSteps = isFileFlow ? fileFlowSteps.length : STEPS_SINGLE.length;
 
   return (
     <Dialog
@@ -282,10 +524,12 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         <DialogHeader>
           <DialogTitle>{t("addVendor.title", "Legg til leverandør")}</DialogTitle>
           <DialogDescription>
-            {t("addVendor.step", "Steg {{current}} av {{total}}", {
-              current: stepIndex + 1,
-              total: STEPS_SINGLE.length,
-            })}
+            {step === "file-analyzing"
+              ? "Analyserer dokument..."
+              : t("addVendor.step", "Steg {{current}} av {{total}}", {
+                  current: currentStepNum,
+                  total: totalSteps,
+                })}
           </DialogDescription>
         </DialogHeader>
 
@@ -301,19 +545,286 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               <button
                 onClick={() => { setMode("single"); setStep("search"); }}
                 className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-border hover:border-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={t("addVendor.singleVendor", "Én leverandør")}
               >
                 <Building2 className="h-8 w-8 text-primary" />
                 <span className="text-sm font-medium">{t("addVendor.singleVendor", "Én leverandør")}</span>
               </button>
               <button
-                onClick={() => { setMode("multiple"); setStep("search"); }}
+                onClick={() => { setMode("multiple"); setStep("method"); }}
                 className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-border hover:border-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={t("addVendor.multipleVendors", "Flere leverandører")}
               >
                 <Users className="h-8 w-8 text-primary" />
                 <span className="text-sm font-medium">{t("addVendor.multipleVendors", "Flere leverandører")}</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step: Method (new - only for multiple) */}
+        {step === "method" && (
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Hvordan vil du legge til leverandører?
+            </p>
+            <div className="space-y-2">
+              <button
+                onClick={() => setStep("search")}
+                className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-border hover:border-primary transition-colors text-left"
+              >
+                <Search className="h-6 w-6 text-primary shrink-0" />
+                <div>
+                  <span className="text-sm font-medium">Søk manuelt</span>
+                  <p className="text-xs text-muted-foreground">Søk og legg til leverandører én om gangen</p>
+                </div>
+              </button>
+              <button
+                disabled
+                className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-border opacity-50 cursor-not-allowed text-left"
+              >
+                <Link2 className="h-6 w-6 text-muted-foreground shrink-0" />
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">Koble til API</span>
+                  <p className="text-xs text-muted-foreground">Automatisk synkronisering</p>
+                  <Badge variant="secondary" className="mt-1 text-[10px]">Kommer snart</Badge>
+                </div>
+              </button>
+              <button
+                onClick={() => setStep("file-upload")}
+                className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-border hover:border-primary transition-colors text-left"
+              >
+                <Upload className="h-6 w-6 text-primary shrink-0" />
+                <div>
+                  <span className="text-sm font-medium">Last opp fil</span>
+                  <p className="text-xs text-muted-foreground">Last opp en leverandørliste, policy eller annet dokument</p>
+                </div>
+              </button>
+            </div>
+            <div className="flex justify-start pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setStep("quantity")}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Tilbake
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step: File Upload */}
+        {step === "file-upload" && (
+          <div className="space-y-4 pt-2">
+            <ScanLimitBanner used={scanCount} limit={SCAN_LIMIT} />
+
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 cursor-pointer transition-colors",
+                isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
+                uploadedFile && "border-primary bg-primary/5"
+              )}
+            >
+              {uploadedFile ? (
+                <>
+                  <FileText className="h-10 w-10 text-primary" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">{uploadedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(0)} KB</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setUploadedFile(null); }}>
+                    Velg en annen fil
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Upload className="h-10 w-10 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Dra og slipp fil her</p>
+                    <p className="text-xs text-muted-foreground">eller klikk for å velge</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">CSV, Excel, PDF, Word, TXT</p>
+                </>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".csv,.xlsx,.xls,.pdf,.doc,.docx,.txt,.json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelect(file);
+                }}
+              />
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setStep("method")}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Tilbake
+              </Button>
+              <Button size="sm" onClick={startAnalysis} disabled={!uploadedFile}>
+                Analyser med AI <Sparkles className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step: File Analyzing (animated) */}
+        {step === "file-analyzing" && (
+          <AnalysisAnimation currentPhase={analysisPhase} />
+        )}
+
+        {/* Step: File Results */}
+        {step === "file-results" && classification && (
+          <div className="space-y-4 pt-2">
+            <ScanLimitBanner used={scanCount} limit={SCAN_LIMIT} />
+
+            {/* Document type suggestion */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    Vi tror dette er: <strong>{classification.documentTypeLabel}</strong>
+                  </p>
+                  <Badge variant="secondary" className="mt-1 text-[10px]">
+                    {Math.round(classification.confidence * 100)}% sikkerhet
+                  </Badge>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">{classification.summary}</p>
+              <div>
+                <Label className="text-xs">Stemmer ikke? Velg riktig type:</Label>
+                <Select value={selectedDocType} onValueChange={(v) => setSelectedDocType(v as DocumentType)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DOCUMENT_TYPES.map((dt) => (
+                      <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Extracted vendors (if vendor_list) */}
+            {(selectedDocType === "vendor_list" || classification.documentType === "vendor_list") && classification.extractedVendors.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Funne leverandører ({classification.extractedVendors.length})</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7"
+                    onClick={() => {
+                      if (selectedVendorsToImport.size === classification.extractedVendors.length) {
+                        setSelectedVendorsToImport(new Set());
+                      } else {
+                        setSelectedVendorsToImport(new Set(classification.extractedVendors.map((_, i) => i)));
+                      }
+                    }}
+                  >
+                    {selectedVendorsToImport.size === classification.extractedVendors.length ? "Fjern alle" : "Velg alle"}
+                  </Button>
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1 rounded-md border p-2">
+                  {classification.extractedVendors.map((v, i) => (
+                    <label
+                      key={i}
+                      className={cn(
+                        "flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors",
+                        selectedVendorsToImport.has(i) ? "bg-primary/5" : "hover:bg-muted/50"
+                      )}
+                    >
+                      <Checkbox
+                        checked={selectedVendorsToImport.has(i)}
+                        onCheckedChange={(checked) => {
+                          const next = new Set(selectedVendorsToImport);
+                          if (checked) next.add(i); else next.delete(i);
+                          setSelectedVendorsToImport(next);
+                        }}
+                      />
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium">{v.name}</span>
+                        {v.description && (
+                          <p className="text-xs text-muted-foreground truncate">{v.description}</p>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Non-vendor-list info */}
+            {selectedDocType !== "vendor_list" && classification.documentType !== "vendor_list" && (
+              <div className="rounded-lg bg-muted/50 p-4">
+                <p className="text-sm text-muted-foreground">
+                  Dette dokumentet inneholder informasjon som kan brukes i compliance-arbeidet. Du kan laste det opp til en leverandørprofil for videre analyse.
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" size="sm" onClick={() => { setStep("file-upload"); setClassification(null); }}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Last opp ny fil
+              </Button>
+              {(selectedDocType === "vendor_list" || classification.documentType === "vendor_list") && classification.extractedVendors.length > 0 ? (
+                <Button size="sm" onClick={handleImportSelected} disabled={importVendors.isPending || selectedVendorsToImport.size === 0}>
+                  {importVendors.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                  ) : (
+                    <Check className="h-4 w-4 mr-1" />
+                  )}
+                  Importer {selectedVendorsToImport.size} leverandører
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => { onOpenChange(false); resetForm(); }}>
+                  Lukk
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step: Scan Limit Reached */}
+        {step === "scan-limit" && (
+          <div className="space-y-4 pt-2">
+            <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-6 w-6 text-yellow-600 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-foreground">Du har brukt alle AI-skanninger</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Etter dette må du fylle inn manuelt (5–10 min per dokument).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <ScanLimitBanner used={scanCount} limit={SCAN_LIMIT} />
+
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                <span className="font-semibold text-sm">Premium</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Ubegrenset AI-skanning for <strong>$1.37/dag</strong>
+              </p>
+              <Button size="sm" variant="luxury" className="w-full mt-2" onClick={() => {
+                toast.info("Oppgradering kommer snart!");
+              }}>
+                Oppgrader nå
+              </Button>
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setStep("file-upload")}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Tilbake
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setStep("search")}>
+                Legg inn manuelt
+              </Button>
             </div>
           </div>
         )}
@@ -345,9 +856,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  aria-label={t("addVendor.searchLabel", "Søk etter leverandør")}
                 />
-                <Button onClick={handleSearch} disabled={isLoading || !searchQuery.trim()} size="icon" aria-label={t("addVendor.searchBtn", "Søk")}>
+                <Button onClick={handleSearch} disabled={isLoading || !searchQuery.trim()} size="icon">
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
@@ -363,8 +873,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       country === c ? "border-primary bg-primary/5 font-medium" : "border-border hover:border-muted-foreground"
                     }`}
-                    aria-pressed={country === c}
-                    aria-label={countryLabels[c]}
                   >
                     <span>{countryFlags[c]}</span>
                     <span className="hidden sm:inline">{countryLabels[c]}</span>
@@ -373,13 +881,12 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             </div>
 
-            {/* Results */}
             {results.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground font-medium">
                   {t("addVendor.resultsFrom", "Resultater fra {{source}}", { source: sourceLabel(results[0].source) })}
                 </p>
-                <div className="space-y-1.5" role="listbox" aria-label={t("addVendor.searchResults", "Søkeresultater")}>
+                <div className="space-y-1.5" role="listbox">
                   {results.map((r, i) => (
                     <button
                       key={i}
@@ -389,7 +896,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                       }`}
                       role="option"
                       aria-selected={false}
-                      aria-label={`${r.name} ${r.orgNumber || ""}`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -400,15 +906,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                             </span>
                           )}
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
-                            {r.industry && (
-                              <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{r.industry}</span>
-                            )}
-                            {r.address && (
-                              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{r.address}</span>
-                            )}
-                            {r.employees != null && (
-                              <span className="flex items-center gap-1"><Users className="h-3 w-3" />{r.employees}+</span>
-                            )}
+                            {r.industry && <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{r.industry}</span>}
+                            {r.address && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{r.address}</span>}
+                            {r.employees != null && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{r.employees}+</span>}
                           </div>
                         </div>
                         {r.orgNumber && (
@@ -440,7 +940,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
             )}
 
             <div className="flex justify-between pt-2">
-              <Button variant="ghost" size="sm" onClick={() => { setStep("quantity"); clearResults(); }}>
+              <Button variant="ghost" size="sm" onClick={() => { setStep(mode === "multiple" ? "method" : "quantity"); clearResults(); }}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> {t("addVendor.back", "Tilbake")}
               </Button>
             </div>
@@ -475,7 +975,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         {/* Step: Categorize */}
         {step === "categorize" && (
           <div className="space-y-5 pt-2">
-            {/* AI Suggestion Banner */}
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
               <div className="flex items-start gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -496,19 +995,12 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                   disabled={isSuggesting}
                   className="shrink-0 gap-1.5"
                 >
-                  {isSuggesting ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3.5 w-3.5" />
-                  )}
-                  {isSuggesting
-                    ? t("addVendor.suggesting", "Analyserer...")
-                    : t("addVendor.askLara", "Spør Lara")}
+                  {isSuggesting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  {isSuggesting ? t("addVendor.suggesting", "Analyserer...") : t("addVendor.askLara", "Spør Lara")}
                 </Button>
               </div>
             </div>
 
-            {/* AI Suggestion Reasons */}
             {aiSuggestion && (
               <div className="space-y-1.5">
                 {aiSuggestion.vendor_category_reason && (
@@ -526,7 +1018,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             )}
 
-            {/* Description */}
             <div>
               <Label className="text-sm font-medium">{t("addVendor.description", "Beskrivelse")}</Label>
               <Textarea
@@ -538,14 +1029,11 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               />
             </div>
 
-            {/* Vendor Type */}
             <div>
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">{t("addVendor.vendorType", "Leverandørtype")}</Label>
                 {aiSuggestion?.vendor_category && vendorCategory === aiSuggestion.vendor_category && (
-                  <Badge variant="secondary" className="text-[10px] gap-1">
-                    <Sparkles className="h-2.5 w-2.5" /> Lara
-                  </Badge>
+                  <Badge variant="secondary" className="text-[10px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
                 )}
               </div>
               <div className="grid grid-cols-3 gap-2 mt-2">
@@ -555,9 +1043,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     onClick={() => setVendorCategory(cat.value)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      vendorCategory === cat.value
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-muted-foreground"
+                      vendorCategory === cat.value ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground"
                     )}
                   >
                     <span className="text-primary">{cat.icon}</span>
@@ -567,14 +1053,11 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             </div>
 
-            {/* GDPR Role */}
             <div>
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">{t("addVendor.gdprRole", "GDPR-rolle")}</Label>
                 {aiSuggestion?.gdpr_role && gdprRole === aiSuggestion.gdpr_role && (
-                  <Badge variant="secondary" className="text-[10px] gap-1">
-                    <Sparkles className="h-2.5 w-2.5" /> Lara
-                  </Badge>
+                  <Badge variant="secondary" className="text-[10px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
                 )}
               </div>
               <RadioGroup value={gdprRole} onValueChange={(v) => setGdprRole(v as GdprRole)} className="mt-2 space-y-2">
@@ -583,9 +1066,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     key={role.value}
                     className={cn(
                       "flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors",
-                      gdprRole === role.value
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-muted-foreground"
+                      gdprRole === role.value ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground"
                     )}
                   >
                     <RadioGroupItem value={role.value} className="mt-0.5" />
@@ -653,57 +1134,31 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           <div className="space-y-4 pt-2">
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
               <h4 className="font-medium text-sm">{selected.name}</h4>
-              {vendorDescription && (
-                <p className="text-xs text-muted-foreground">{vendorDescription}</p>
-              )}
+              {vendorDescription && <p className="text-xs text-muted-foreground">{vendorDescription}</p>}
               <div className="grid grid-cols-2 gap-y-1.5 text-xs text-muted-foreground">
                 {selected.orgNumber && (
-                  <>
-                    <span>{t("addVendor.orgNumber", "Org.nr")}</span>
-                    <span className="font-mono">{selected.orgNumber}</span>
-                  </>
+                  <><span>{t("addVendor.orgNumber", "Org.nr")}</span><span className="font-mono">{selected.orgNumber}</span></>
                 )}
                 {selected.country && (
-                  <>
-                    <span>{t("addVendor.country", "Land")}</span>
-                    <span>{countryFlags[selected.country as Country] || "🌍"} {countryLabels[selected.country as Country] || selected.country}</span>
-                  </>
+                  <><span>{t("addVendor.country", "Land")}</span><span>{countryFlags[selected.country as Country] || "🌍"} {countryLabels[selected.country as Country] || selected.country}</span></>
                 )}
                 {selected.industry && (
-                  <>
-                    <span>{t("addVendor.industry", "Bransje")}</span>
-                    <span>{selected.industry}</span>
-                  </>
+                  <><span>{t("addVendor.industry", "Bransje")}</span><span>{selected.industry}</span></>
                 )}
                 {selected.url && (
-                  <>
-                    <span>{t("addVendor.website", "Nettside")}</span>
-                    <span className="truncate">{selected.url}</span>
-                  </>
+                  <><span>{t("addVendor.website", "Nettside")}</span><span className="truncate">{selected.url}</span></>
                 )}
                 {vendorCategory && (
-                  <>
-                    <span>{t("addVendor.vendorType", "Leverandørtype")}</span>
-                    <span>{VENDOR_CATEGORIES.find(c => c.value === vendorCategory)?.label}</span>
-                  </>
+                  <><span>{t("addVendor.vendorType", "Leverandørtype")}</span><span>{VENDOR_CATEGORIES.find(c => c.value === vendorCategory)?.label}</span></>
                 )}
                 {gdprRole && (
-                  <>
-                    <span>{t("addVendor.gdprRole", "GDPR-rolle")}</span>
-                    <span>{GDPR_ROLES.find(r => r.value === gdprRole)?.label}</span>
-                  </>
+                  <><span>{t("addVendor.gdprRole", "GDPR-rolle")}</span><span>{GDPR_ROLES.find(r => r.value === gdprRole)?.label}</span></>
                 )}
                 {contactName && (
-                  <>
-                    <span>{t("addVendor.contactName", "Kontaktperson")}</span>
-                    <span>{contactName}</span>
-                  </>
+                  <><span>{t("addVendor.contactName", "Kontaktperson")}</span><span>{contactName}</span></>
                 )}
                 {contactEmail && (
-                  <>
-                    <span>{t("addVendor.contactEmail", "E-post")}</span>
-                    <span>{contactEmail}</span>
-                  </>
+                  <><span>{t("addVendor.contactEmail", "E-post")}</span><span>{contactEmail}</span></>
                 )}
               </div>
             </div>
@@ -713,11 +1168,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                 <ArrowLeft className="h-4 w-4 mr-1" /> {t("addVendor.back", "Tilbake")}
               </Button>
               <Button onClick={() => createVendor.mutate()} disabled={createVendor.isPending}>
-                {createVendor.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                ) : (
-                  <Check className="h-4 w-4 mr-1" />
-                )}
+                {createVendor.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Check className="h-4 w-4 mr-1" />}
                 {t("addVendor.addVendor", "Legg til leverandør")}
               </Button>
             </div>
