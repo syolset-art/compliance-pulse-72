@@ -1,68 +1,104 @@
 
-# Utgaende leverandorforesporsler - Samlet oversikt
+
+# Live hendelsesdata fra 7 Security til Mynder
 
 ## Konsept
-I dag har "Kundeforesporsler"-siden kun innkommende foresporsler (kunder som spor dere). Det som mangler er den andre siden: at dere kan sende foresporsler til deres egne leverandorer og folge opp status samlet.
+Bygge en integrasjon der 7 Security som underleverandor kan pushe sikkerhetshendelser (incidents) direkte inn i Mynder. Hendelsene lander i Lara Innboks for godkjenning, og kobles automatisk til riktig system/vendor Trust Profil. Godkjente hendelser blir avvik i avviksregisteret.
 
-Losningen: Utvide Kundeforesporsler-siden med to faner pa toppniva:
+## Dataflyt
 
-- **Innkommende** (eksisterende funksjonalitet - kunder som spor dere)
-- **Utgaende** (nytt - foresporsler dere har sendt til leverandorer)
+```text
+7 Security (live feed)
+        |
+        v
+  Edge Function: "push-vendor-incidents"
+  (mottar hendelser, validerer, lagrer)
+        |
+        +---> lara_inbox (ny type: "incident")
+        |       Lara foreslaar matching til vendor/system
+        |
+        +---> system_incidents (etter godkjenning)
+                Kobles til vendor asset + avviksregister
+```
 
-## Brukerflyt for utgaende foresporsler
+## Hva skal bygges
 
-1. Brukeren gar til "Kundeforesporsler" i menyen
-2. Velger fanen "Utgaende"
-3. Ser en samlet oversikt med:
-   - Metrikk-kort: Totalt sendt, Avventer svar, Mottatt, Forfalt
-   - Filterbar: Sok, type foresporsler, leverandorkategori, status
-   - Liste med alle sendte foresporsler, gruppert per leverandor
-4. Kan sende ny foresporsler via "Send foresporsler"-knapp som apner en veiviser
+### 1. Database: Utvid system_incidents med kilde-sporbarhet
+Legge til kolonner paa `system_incidents`:
+- `source` (text) -- "manual", "7security", "acronis" etc.
+- `source_incident_id` (text) -- ekstern ID fra leverandor
+- `source_severity` (text) -- leverandorens egen alvorlighetsgrad
+- `auto_created` (boolean) -- om den ble opprettet automatisk
 
-## Veiviser for a sende foresporsler
+Legge til ny `matched_document_type`-verdi "incident" i innboksen (ingen skjemaendring noedvendig, tekstfelt).
 
-Tre steg:
+### 2. Edge Function: `push-vendor-incidents`
+Ny backend-funksjon som simulerer mottak av live hendelsesdata fra 7 Security:
+- Aksjon `push_incidents`: Mottar en liste med hendelser (tittel, alvorlighetsgrad, beskrivelse, paavirkede systemer)
+- Aksjon `fetch_recent_incidents`: Henter siste hendelser fra 7 Security (mock) -- kan kalles fra UI
+- For hver hendelse:
+  - Oppretter innboks-element i `lara_inbox` med type "incident" og `matched_asset_id` satt til 7 Security-vendor
+  - Setter confidence_score basert paa system-matching
+  - Status = "new" (venter paa godkjenning)
 
-**Steg 1 - Velg type**
-Radioknapper: Leverandorvurdering, DPA, ISO-dokumentasjon, SOC 2-rapport, GDPR-rapport
+Mock-data inkluderer realistiske hendelser:
+- "Ransomware-forsok blokkert paa SRV-SQL01"
+- "Uautorisert tilgangsforsok fra ekstern IP"
+- "SSL-sertifikat utlopt paa webserver"
+- "Mislykket backup paa NAS-BACKUP01"
+- "Phishing-epost oppdaget og blokkert"
 
-**Steg 2 - Velg leverandorer**
-- Hent leverandorer fra assets-tabellen (asset_type = "vendor")
-- Filtrer pa vendor_category og gdpr_role (de nye feltene)
-- Multi-select med checkboxer
-- "Velg alle databehandlere" som hurtigvalg
+### 3. Lara Innboks: Stootte for hendelser
+Utvide `LaraInbox.tsx`:
+- Ny visuell type for hendelser (roed/oransje ikon istedenfor dokument-ikon)
+- Godkjenning av hendelse oppretter automatisk et avvik i `system_incidents` med `source: "7security"`
+- Vise alvorlighetsgrad-badge direkte i innboksen
+- "Godkjenn"-knappen for hendelser oppretter avviket og kobler det til vendorens Trust Profil
 
-**Steg 3 - Bekreft og send**
-- Oppsummering med frist-dato
-- Bekreft-knapp
+### 4. Vendor Trust Profil: Hendelsefeed
+Utvide `IncidentManagementTab` (asset-profile-versjonen):
+- Ny seksjon "Live hendelser fra leverandor" med 7 Security-branding
+- Knapp "Hent siste hendelser" som kaller edge-funksjonen
+- Vise hendelser som ikke er behandlet ennaa med godkjenn/avvis-knapper
+- Badge som viser antall ubehandlede hendelser
+- Automatisk kobling mellom godkjente hendelser og avviksregisteret
 
-## Demo-data
+### 5. Avviksregister: Kilde-indikator
+Utvide `Deviations.tsx` og `DeviationCard`:
+- Vise kilde-badge ("7 Security", "Manuell") paa avvikskort
+- Filtreringsmulighet paa kilde
+- Visuell indikator paa at avviket er automatisk opprettet
 
-For prototypen legges det til demo-data som viser typiske foresporsler en stor kunde som Helse Vest IKT ville sende:
+## Teknisk plan
 
-| Leverandor | Type | Status | Frist |
-|------------|------|--------|-------|
-| Microsoft Norge | Leverandorvurdering | Mottatt | 2026-01-15 |
-| Atea AS | DPA-fornyelse | Avventer | 2026-03-01 |
-| AWS (Amazon) | SOC 2-rapport | Forfalt | 2026-02-01 |
-| Visma | ISO 27001 dokumentasjon | Mottatt | 2026-02-10 |
-| Basefarm | Leverandorvurdering | Under arbeid | 2026-04-01 |
+### Steg 1: Database-migrasjon
+```sql
+ALTER TABLE system_incidents 
+  ADD COLUMN source text DEFAULT 'manual',
+  ADD COLUMN source_incident_id text,
+  ADD COLUMN source_severity text,
+  ADD COLUMN auto_created boolean DEFAULT false;
+```
 
-## Menyendring
+### Steg 2: Edge Function `push-vendor-incidents`
+- Ny fil: `supabase/functions/push-vendor-incidents/index.ts`
+- Oppdater `supabase/config.toml` med ny funksjon
+- Mock-data med 5-6 realistiske sikkerhetshendelser
+- To aksjoner: `fetch_recent_incidents` og `approve_incident`
 
-Oppdatere sidebar-menyelementet fra "Kundeforesporsler" til "Foresporsler" for a dekke begge retninger. Beholde eksisterende ikon (FileQuestion).
+### Steg 3: Frontend-endringer
+- **LaraInbox.tsx**: Utvide med hendelsestype-stootte, alvorlighetsgrad-badges, og spesial-godkjenning som oppretter avvik
+- **IncidentManagementTab.tsx** (asset-profile): Legge til "Live feed"-seksjon med hent-knapp og inline godkjenning
+- **Deviations.tsx**: Legge til kilde-badge og filter
+- **AddDeviationDialog.tsx**: Ingen endringer noedvendig (manuell flyt forblir uendret)
 
-## Teknisk implementasjon
+### Steg 4: Syntetiske data
+Sette inn demo-hendelser i `lara_inbox` med type "incident" og kobling til 7 Security-asset for aa demonstrere flyten.
 
-### Nye filer
-- `src/components/customer-requests/OutboundRequestsTab.tsx` - Oversikt over utgaende foresporsler med metrikk, filtre og liste
-- `src/components/customer-requests/OutboundRequestCard.tsx` - Kort for hver utgaende foresporsler
-- `src/components/customer-requests/SendRequestWizard.tsx` - 3-stegs dialog for a sende nye foresporsler
+## Forventet resultat
+- Kunden ser live hendelser fra 7 Security i Lara Innboks
+- Hendelser kan godkjennes med ett klikk og blir automatisk avvik
+- Trust Profilen til vendoren viser hendelseshistorikk
+- Avviksregisteret viser tydelig hvilke avvik som kommer fra ekstern kilde
+- Modellen er generaliserbar til andre leverandorer (Acronis, TietoEvry, osv.)
 
-### Endrede filer
-- `src/pages/CustomerRequests.tsx` - Legge til toppniva-faner (Innkommende / Utgaende), flytte eksisterende innhold under "Innkommende"
-- `src/components/Sidebar.tsx` - Endre menynavn fra "nav.customerRequests" til "nav.requests"
-- `src/locales/nb.json` og `src/locales/en.json` - Nye oversettelser
-
-### Datamodell
-Alle utgaende foresporsler lagres som demo-data i koden (DEMO_OUTBOUND_REQUESTS array) uten databaseendringer, i trad med prototypetilnaermingen.
