@@ -19,14 +19,30 @@ import { FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check, Building
 import { toast } from "sonner";
 
 const REQUEST_TYPES = [
-  { value: "vendor_assessment", labelNb: "Leverandørvurdering", labelEn: "Vendor Assessment", icon: FileText },
-  { value: "dpa", labelNb: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement", icon: FileCheck },
-  { value: "iso_documentation", labelNb: "ISO 27001 dokumentasjon", labelEn: "ISO 27001 Documentation", icon: Shield },
-  { value: "soc2", labelNb: "SOC 2-rapport", labelEn: "SOC 2 Report", icon: FileText },
-  { value: "gdpr_report", labelNb: "GDPR-rapport", labelEn: "GDPR Report", icon: FileText },
-  { value: "hms_documentation", labelNb: "HMS-dokumentasjon", labelEn: "HSE Documentation", icon: Shield },
-  { value: "quality_certification", labelNb: "Kvalitetssertifisering", labelEn: "Quality Certification", icon: FileCheck },
-  { value: "audit_report", labelNb: "Internrevisjonsrapport", labelEn: "Internal Audit Report", icon: FileText },
+  { value: "vendor_assessment", labelNb: "Leverandørvurdering", labelEn: "Vendor Assessment", icon: FileText,
+    descNb: "En helhetlig vurdering av leverandørens sikkerhet, personvern og compliance-praksis. Brukes for å kartlegge risiko ved bruk av leverandøren.",
+    descEn: "A comprehensive assessment of the vendor's security, privacy and compliance practices. Used to map risks associated with the vendor." },
+  { value: "dpa", labelNb: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement", icon: FileCheck,
+    descNb: "Avtale som regulerer hvordan leverandøren behandler personopplysninger på deres vegne (påkrevd av GDPR art. 28).",
+    descEn: "Agreement governing how the vendor processes personal data on your behalf (required by GDPR Art. 28)." },
+  { value: "iso_documentation", labelNb: "ISO 27001 dokumentasjon", labelEn: "ISO 27001 Documentation", icon: Shield,
+    descNb: "Forespørsel om sertifikat eller dokumentasjon som viser at leverandøren følger ISO 27001 for informasjonssikkerhet.",
+    descEn: "Request for certificate or documentation showing the vendor follows ISO 27001 for information security." },
+  { value: "soc2", labelNb: "SOC 2-rapport", labelEn: "SOC 2 Report", icon: FileText,
+    descNb: "Uavhengig revisjonsrapport som bekrefter leverandørens kontroller for sikkerhet, tilgjengelighet og konfidensialitet.",
+    descEn: "Independent audit report confirming the vendor's controls for security, availability and confidentiality." },
+  { value: "gdpr_report", labelNb: "GDPR-rapport", labelEn: "GDPR Report", icon: FileText,
+    descNb: "Oversikt over leverandørens GDPR-etterlevelse, inkludert behandlingsaktiviteter og tekniske tiltak.",
+    descEn: "Overview of the vendor's GDPR compliance, including processing activities and technical measures." },
+  { value: "hms_documentation", labelNb: "HMS-dokumentasjon", labelEn: "HSE Documentation", icon: Shield,
+    descNb: "Dokumentasjon på leverandørens helse-, miljø- og sikkerhetsarbeid (relevant for fysiske tjenester og arbeid på lokasjon).",
+    descEn: "Documentation of the vendor's health, safety and environment practices (relevant for physical services and on-site work)." },
+  { value: "quality_certification", labelNb: "Kvalitetssertifisering", labelEn: "Quality Certification", icon: FileCheck,
+    descNb: "Sertifikat eller dokumentasjon som viser at leverandøren har et kvalitetsstyringssystem (f.eks. ISO 9001).",
+    descEn: "Certificate or documentation showing the vendor has a quality management system (e.g. ISO 9001)." },
+  { value: "audit_report", labelNb: "Internrevisjonsrapport", labelEn: "Internal Audit Report", icon: FileText,
+    descNb: "Forespørsel om leverandørens siste internrevisjonsrapport for innsyn i deres egenkontroll.",
+    descEn: "Request for the vendor's latest internal audit report for insight into their self-assessment." },
 ];
 
 interface SendRequestWizardProps {
@@ -119,13 +135,18 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
               {REQUEST_TYPES.map((rt) => (
                 <label
                   key={rt.value}
-                  className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                  className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                     selectedType === rt.value ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
                   }`}
                 >
-                  <RadioGroupItem value={rt.value} />
-                  <rt.icon className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">{isNb ? rt.labelNb : rt.labelEn}</span>
+                  <RadioGroupItem value={rt.value} className="mt-0.5" />
+                  <rt.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium">{isNb ? rt.labelNb : rt.labelEn}</span>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      {isNb ? rt.descNb : rt.descEn}
+                    </p>
+                  </div>
                 </label>
               ))}
             </RadioGroup>
