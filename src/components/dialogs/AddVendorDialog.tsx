@@ -13,7 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -36,6 +38,7 @@ import {
   Monitor,
   Home,
   MoreHorizontal,
+  Sparkles,
 } from "lucide-react";
 
 interface AddVendorDialogProps {
@@ -100,6 +103,15 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const [addedVendors, setAddedVendors] = useState<string[]>([]);
   const [vendorCategory, setVendorCategory] = useState<VendorCategory | "">("");
   const [gdprRole, setGdprRole] = useState<GdprRole | "">("");
+  const [vendorDescription, setVendorDescription] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState<{
+    suggested_description?: string;
+    vendor_category?: string;
+    vendor_category_reason?: string;
+    gdpr_role?: string;
+    gdpr_role_reason?: string;
+  } | null>(null);
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
   const resetForm = useCallback(() => {
     setStep("quantity");
@@ -115,6 +127,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setContactRole("");
     setVendorCategory("");
     setGdprRole("");
+    setVendorDescription("");
+    setAiSuggestion(null);
+    setIsSuggesting(false);
     clearResults();
   }, [clearResults]);
 
@@ -130,6 +145,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setContactRole("");
     setVendorCategory("");
     setGdprRole("");
+    setVendorDescription("");
+    setAiSuggestion(null);
+    setIsSuggesting(false);
     clearResults();
   }, [clearResults]);
 
@@ -151,6 +169,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         org_number: vendor.orgNumber,
         contact_person: contactName || null,
         contact_email: contactEmail || null,
+        description: vendorDescription || null,
         vendor_category: vendorCategory || null,
         gdpr_role: gdprRole || null,
         metadata: {
@@ -179,6 +198,34 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       toast.error(t("addVendor.error", "Kunne ikke legge til leverandør"));
     },
   });
+
+  const handleAiSuggest = async () => {
+    const vendorName = selected?.name || manualName;
+    if (!vendorName) return;
+    setIsSuggesting(true);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("suggest-vendor-category", {
+        body: {
+          vendorName,
+          description: vendorDescription || undefined,
+          industry: (selected as VendorSearchResult)?.industry || undefined,
+          country: selected?.country || country,
+        },
+      });
+      if (fnError) throw fnError;
+      if (data?.error) throw new Error(data.error);
+      setAiSuggestion(data);
+      if (data.vendor_category) setVendorCategory(data.vendor_category as VendorCategory);
+      if (data.gdpr_role) setGdprRole(data.gdpr_role as GdprRole);
+      if (data.suggested_description && !vendorDescription) setVendorDescription(data.suggested_description);
+      toast.success(t("addVendor.aiSuggestionReady", "Lara har et forslag klart"));
+    } catch (e) {
+      console.error("AI suggestion error:", e);
+      toast.error(t("addVendor.aiSuggestionError", "Kunne ikke hente forslag"));
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -428,8 +475,79 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         {/* Step: Categorize */}
         {step === "categorize" && (
           <div className="space-y-5 pt-2">
+            {/* AI Suggestion Banner */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">
+                    {t("addVendor.laraCanHelp", "Lara kan hjelpe deg å klassifisere")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("addVendor.laraCanHelpDesc", "Basert på leverandørnavnet foreslår Lara type og GDPR-rolle")}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAiSuggest}
+                  disabled={isSuggesting}
+                  className="shrink-0 gap-1.5"
+                >
+                  {isSuggesting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  )}
+                  {isSuggesting
+                    ? t("addVendor.suggesting", "Analyserer...")
+                    : t("addVendor.askLara", "Spør Lara")}
+                </Button>
+              </div>
+            </div>
+
+            {/* AI Suggestion Reasons */}
+            {aiSuggestion && (
+              <div className="space-y-1.5">
+                {aiSuggestion.vendor_category_reason && (
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3 shrink-0 mt-0.5 text-primary" />
+                    <span><strong>{t("addVendor.vendorType", "Leverandørtype")}:</strong> {aiSuggestion.vendor_category_reason}</span>
+                  </div>
+                )}
+                {aiSuggestion.gdpr_role_reason && (
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3 shrink-0 mt-0.5 text-primary" />
+                    <span><strong>{t("addVendor.gdprRole", "GDPR-rolle")}:</strong> {aiSuggestion.gdpr_role_reason}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Description */}
             <div>
-              <Label className="text-sm font-medium">{t("addVendor.vendorType", "Leverandørtype")}</Label>
+              <Label className="text-sm font-medium">{t("addVendor.description", "Beskrivelse")}</Label>
+              <Textarea
+                placeholder={t("addVendor.descriptionPlaceholder", "Beskriv hva leverandøren leverer og hvordan dere bruker dem...")}
+                value={vendorDescription}
+                onChange={(e) => setVendorDescription(e.target.value)}
+                className="mt-1.5 min-h-[60px] resize-none"
+                rows={2}
+              />
+            </div>
+
+            {/* Vendor Type */}
+            <div>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium">{t("addVendor.vendorType", "Leverandørtype")}</Label>
+                {aiSuggestion?.vendor_category && vendorCategory === aiSuggestion.vendor_category && (
+                  <Badge variant="secondary" className="text-[10px] gap-1">
+                    <Sparkles className="h-2.5 w-2.5" /> Lara
+                  </Badge>
+                )}
+              </div>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 {VENDOR_CATEGORIES.map((cat) => (
                   <button
@@ -449,8 +567,16 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             </div>
 
+            {/* GDPR Role */}
             <div>
-              <Label className="text-sm font-medium">{t("addVendor.gdprRole", "GDPR-rolle")}</Label>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium">{t("addVendor.gdprRole", "GDPR-rolle")}</Label>
+                {aiSuggestion?.gdpr_role && gdprRole === aiSuggestion.gdpr_role && (
+                  <Badge variant="secondary" className="text-[10px] gap-1">
+                    <Sparkles className="h-2.5 w-2.5" /> Lara
+                  </Badge>
+                )}
+              </div>
               <RadioGroup value={gdprRole} onValueChange={(v) => setGdprRole(v as GdprRole)} className="mt-2 space-y-2">
                 {GDPR_ROLES.map((role) => (
                   <label
@@ -527,6 +653,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           <div className="space-y-4 pt-2">
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
               <h4 className="font-medium text-sm">{selected.name}</h4>
+              {vendorDescription && (
+                <p className="text-xs text-muted-foreground">{vendorDescription}</p>
+              )}
               <div className="grid grid-cols-2 gap-y-1.5 text-xs text-muted-foreground">
                 {selected.orgNumber && (
                   <>
