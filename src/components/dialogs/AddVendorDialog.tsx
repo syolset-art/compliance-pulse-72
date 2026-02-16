@@ -706,7 +706,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             </div>
 
-            {/* Extracted vendors (if vendor_list) */}
+            {/* Extracted vendors (if vendor_list with results) */}
             {(selectedDocType === "vendor_list" || classification.documentType === "vendor_list") && classification.extractedVendors.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -755,12 +755,24 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             )}
 
-            {/* Non-vendor-list info */}
-            {selectedDocType !== "vendor_list" && classification.documentType !== "vendor_list" && (
-              <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-sm text-muted-foreground">
-                  Dette dokumentet inneholder informasjon som kan brukes i compliance-arbeidet. Du kan laste det opp til en leverandørprofil for videre analyse.
-                </p>
+            {/* No vendors found - clear warning */}
+            {(!classification.extractedVendors || classification.extractedVendors.length === 0) && (
+              <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-2">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">Ingen leverandører funnet</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {classification.documentType !== "vendor_list"
+                        ? `Dette ser ut som et ${classification.documentTypeLabel.toLowerCase()}-dokument. Det inneholder ikke en liste over leverandører som kan importeres.`
+                        : "Vi klarte ikke å hente ut leverandørnavn fra dette dokumentet. Prøv med en annen fil eller legg til leverandører manuelt."
+                      }
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      For å importere leverandører trenger vi en fil som inneholder en oversikt eller liste over leverandørnavn.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -778,8 +790,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                   Importer {selectedVendorsToImport.size} leverandører
                 </Button>
               ) : (
-                <Button size="sm" onClick={() => { onOpenChange(false); resetForm(); }}>
-                  Lukk
+                <Button variant="outline" size="sm" onClick={() => setStep("search")}>
+                  <PenLine className="h-4 w-4 mr-1" /> Legg til manuelt
                 </Button>
               )}
             </div>
