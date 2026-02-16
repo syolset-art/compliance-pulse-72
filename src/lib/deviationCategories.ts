@@ -6,6 +6,9 @@ import {
   UserX,
   Brain,
   Lock,
+  HardHat,
+  ClipboardCheck,
+  Leaf as LeafIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -91,6 +94,36 @@ export const deviationCategories: DeviationCategory[] = [
     hoverBgColor: "hover:bg-emerald-500/20",
     defaultFrameworks: ["ISO27001", "NSM"],
   },
+  {
+    id: "hms",
+    label: "HMS-avvik",
+    description: "Personskade, nestenulykke eller farlige forhold",
+    icon: HardHat,
+    color: "text-amber-600",
+    bgColor: "bg-amber-600/10",
+    hoverBgColor: "hover:bg-amber-600/20",
+    defaultFrameworks: ["HMS"],
+  },
+  {
+    id: "kvalitet",
+    label: "Kvalitetsavvik",
+    description: "Kundereklamasjon, prosessavvik eller produktfeil",
+    icon: ClipboardCheck,
+    color: "text-sky-500",
+    bgColor: "bg-sky-500/10",
+    hoverBgColor: "hover:bg-sky-500/20",
+    defaultFrameworks: ["ISO9001"],
+  },
+  {
+    id: "miljo",
+    label: "Miljøavvik",
+    description: "Utslipp, avfall eller forurensning",
+    icon: LeafIcon,
+    color: "text-lime-600",
+    bgColor: "bg-lime-600/10",
+    hoverBgColor: "hover:bg-lime-600/20",
+    defaultFrameworks: ["ISO14001"],
+  },
 ];
 
 export const getCategoryById = (id: string): DeviationCategory | undefined => {
@@ -112,4 +145,7 @@ export const availableFrameworks = [
   "ISO42001",
   "NSM",
   "SOC2",
+  "HMS",
+  "ISO9001",
+  "ISO14001",
 ];

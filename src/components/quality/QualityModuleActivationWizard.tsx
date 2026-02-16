@@ -142,11 +142,19 @@ export const QualityModuleActivationWizard = ({
     setIsActivating(true);
     
     try {
-      // In a real implementation, this would create the quality_modules record
-      // and trigger the appropriate setup based on selections
-      
-      // For demo, we'll just show success
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Save each selected module to quality_modules table
+      const inserts = selectedModuleTypes.map(moduleType => ({
+        module_type: moduleType,
+        industry_type: detectedIndustry,
+        selected_industry_modules: selectedIndustryModules,
+        is_active: true,
+      }));
+
+      const { error } = await supabase
+        .from('quality_modules' as any)
+        .insert(inserts);
+
+      if (error) throw error;
       
       toast.success(
         isNorwegian 
@@ -154,14 +162,15 @@ export const QualityModuleActivationWizard = ({
           : "Quality System activated!",
         {
           description: isNorwegian
-            ? "Lara vil nå guide deg gjennom videre oppsett"
-            : "Lara will now guide you through further setup"
+            ? "Kvalitetsmodulen er nå tilgjengelig i menyen"
+            : "The quality module is now available in the menu"
         }
       );
       
       onActivated?.();
       handleClose();
     } catch (error) {
+      console.error("Activation error:", error);
       toast.error(
         isNorwegian 
           ? "Kunne ikke aktivere kvalitetssystem" 

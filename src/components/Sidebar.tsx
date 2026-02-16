@@ -58,7 +58,6 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   // Hidden for now – not deleted
   // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
-  // { name: "quality.title", href: "/quality", icon: Shield, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
   { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
   // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
@@ -121,6 +120,19 @@ const SidebarContent = () => {
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [hasQualityModule, setHasQualityModule] = useState(false);
+
+  useEffect(() => {
+    const fetchQualityModules = async () => {
+      const { data } = await supabase
+        .from('quality_modules' as any)
+        .select('id')
+        .eq('is_active', true)
+        .limit(1);
+      setHasQualityModule(!!(data && data.length > 0));
+    };
+    fetchQualityModules();
+  }, []);
 
   const handleResetDemo = async () => {
     setResetting(true);
@@ -217,6 +229,26 @@ const SidebarContent = () => {
             </Link>
           );
         })}
+
+        {/* Quality System - conditional on active modules */}
+        {hasQualityModule && (
+          <Link
+            to="/quality"
+            className={cn(
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
+              location.pathname === "/quality"
+                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            )}
+          >
+            <Shield className="h-5 w-5" />
+            {t("quality.title", "Kvalitetssystem")}
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            </span>
+          </Link>
+        )}
 
         <div className="pt-4">
           <button 

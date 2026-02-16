@@ -1324,6 +1324,36 @@ export type Database = {
           },
         ]
       }
+      quality_modules: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          id: string
+          industry_type: string | null
+          is_active: boolean
+          module_type: string
+          selected_industry_modules: string[] | null
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          industry_type?: string | null
+          is_active?: boolean
+          module_type: string
+          selected_industry_modules?: string[] | null
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          industry_type?: string | null
+          is_active?: boolean
+          module_type?: string
+          selected_industry_modules?: string[] | null
+        }
+        Relationships: []
+      }
       requirement_status: {
         Row: {
           completed_at: string | null
