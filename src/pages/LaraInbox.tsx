@@ -7,7 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, X, Mail, Sparkles, FileText, ArrowRight } from "lucide-react";
+import { CheckCircle2, X, Mail, Sparkles, FileText, AlertTriangle, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -18,8 +18,32 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   soc2: "SOC 2-rapport",
   dpia: "DPIA",
   nda: "NDA",
+  incident: "Sikkerhetshendelse",
   other: "Dokument",
 };
+
+const SEVERITY_CONFIG: Record<string, { label: string; className: string }> = {
+  critical: { label: "Kritisk", className: "bg-red-500/15 text-red-700 border-red-500/30" },
+  high: { label: "Høy", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
+  medium: { label: "Middels", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
+  low: { label: "Lav", className: "bg-green-500/15 text-green-700 border-green-500/30" },
+};
+
+function getSeverityFromFileName(fileName?: string | null): string | null {
+  if (!fileName) return null;
+  // Mock incidents have IDs like 7SEC-2026-0451, map them to severity
+  const severityMap: Record<string, string> = {
+    "7SEC-2026-0451": "critical",
+    "7SEC-2026-0449": "high",
+    "7SEC-2026-0447": "medium",
+    "7SEC-2026-0445": "high",
+    "7SEC-2026-0443": "medium",
+  };
+  for (const [id, sev] of Object.entries(severityMap)) {
+    if (fileName.includes(id)) return sev;
+  }
+  return null;
+}
 
 const LaraInbox = () => {
   const { t, i18n } = useTranslation();
@@ -27,7 +51,6 @@ const LaraInbox = () => {
   const queryClient = useQueryClient();
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
 
-  // Fetch ALL inbox items with asset info
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox-global"],
     queryFn: async () => {
@@ -40,6 +63,7 @@ const LaraInbox = () => {
     },
   });
 
+  // Document approve mutation (existing)
   const approveMutation = useMutation({
     mutationFn: async (item: any) => {
       await supabase.from("vendor_documents").insert({
@@ -60,6 +84,32 @@ const LaraInbox = () => {
     },
   });
 
+  // Incident approve mutation (new)
+  const approveIncidentMutation = useMutation({
+    mutationFn: async (item: any) => {
+      const severity = getSeverityFromFileName(item.file_name) || "medium";
+      await supabase.from("system_incidents").insert({
+        system_id: item.matched_asset_id,
+        title: item.subject,
+        description: item.file_path,
+        risk_level: severity,
+        criticality: severity,
+        status: "open",
+        source: "7security",
+        source_incident_id: item.file_name?.replace(".json", "") || null,
+        source_severity: severity,
+        auto_created: true,
+        category: "sikkerhetshendelse",
+      } as any);
+      await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
+      queryClient.invalidateQueries({ queryKey: ["deviations"] });
+      toast.success("Hendelse godkjent og opprettet som avvik");
+    },
+  });
+
   const rejectMutation = useMutation({
     mutationFn: async (itemId: string) => {
       await supabase.from("lara_inbox").update({ status: "rejected", processed_at: new Date().toISOString() } as any).eq("id", itemId);
@@ -72,6 +122,8 @@ const LaraInbox = () => {
 
   const pendingItems = inboxItems.filter((i: any) => i.status === "new" || i.status === "auto_matched");
   const processedItems = inboxItems.filter((i: any) => i.status === "manually_assigned" || i.status === "rejected");
+
+  const isIncident = (item: any) => item.matched_document_type === "incident";
 
   return (
     <SidebarProvider>
@@ -90,7 +142,7 @@ const LaraInbox = () => {
                   )}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Dokumenter mottatt på e-post som Lara har analysert og foreslått matching for.
+                  Dokumenter og hendelser mottatt fra leverandører, analysert og foreslått av Lara.
                 </p>
               </div>
             </div>
@@ -109,40 +161,61 @@ const LaraInbox = () => {
                 ) : pendingItems.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Mail className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                    <p className="text-sm font-medium">Ingen ventende dokumenter</p>
-                    <p className="text-xs mt-1">Lara vil varsle deg når nye dokumenter mottas.</p>
+                    <p className="text-sm font-medium">Ingen ventende elementer</p>
+                    <p className="text-xs mt-1">Lara vil varsle deg når nye dokumenter eller hendelser mottas.</p>
                   </div>
                 ) : (
                   pendingItems.map((item: any) => {
                     const asset = item.assets;
+                    const incident = isIncident(item);
+                    const severity = incident ? getSeverityFromFileName(item.file_name) : null;
+                    const sevConfig = severity ? SEVERITY_CONFIG[severity] : null;
+
                     return (
-                      <div key={item.id} className="p-4 rounded-lg border border-border bg-card hover:shadow-sm transition-all">
+                      <div key={item.id} className={`p-4 rounded-lg border bg-card hover:shadow-sm transition-all ${incident ? "border-orange-500/30" : "border-border"}`}>
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-start gap-3 min-w-0">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <FileText className="h-4 w-4 text-primary" />
+                            <div className={`p-2 rounded-lg ${incident ? "bg-orange-500/10" : "bg-primary/10"}`}>
+                              {incident ? (
+                                <ShieldAlert className="h-4 w-4 text-orange-600" />
+                              ) : (
+                                <FileText className="h-4 w-4 text-primary" />
+                              )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">{item.file_name || item.subject}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium truncate">{item.subject || item.file_name}</p>
+                                {incident && sevConfig && (
+                                  <Badge className={`text-[10px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
+                                )}
+                              </div>
                               <p className="text-xs text-muted-foreground mt-0.5">
                                 Fra: {item.sender_name || item.sender_email} · {new Date(item.received_at).toLocaleDateString(locale)}
                               </p>
+                              {incident && item.file_path && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.file_path}</p>
+                              )}
 
-                              {/* Lara suggestion with asset link */}
+                              {/* Lara suggestion */}
                               <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-primary/5 border border-primary/10">
                                 <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                                 <p className="text-xs">
-                                  <span className="font-medium">Lara foreslår:</span> Koble til{" "}
+                                  <span className="font-medium">Lara foreslår:</span>{" "}
+                                  {incident ? "Opprett avvik for" : "Koble til"}{" "}
                                   <button
                                     onClick={() => asset?.id && navigate(`/assets/${asset.id}`)}
                                     className="font-semibold text-primary hover:underline"
                                   >
                                     {asset?.name || "Ukjent leverandør"}
                                   </button>{" "}
-                                  som{" "}
-                                  <Badge variant="secondary" className="text-[10px] mx-0.5">
-                                    {DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}
-                                  </Badge>
+                                  {!incident && (
+                                    <>
+                                      som{" "}
+                                      <Badge variant="secondary" className="text-[10px] mx-0.5">
+                                        {DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}
+                                      </Badge>
+                                    </>
+                                  )}
                                 </p>
                                 {item.confidence_score && (
                                   <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px] ml-auto flex-shrink-0">
@@ -154,9 +227,13 @@ const LaraInbox = () => {
                           </div>
 
                           <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <Button size="sm" className="h-8 text-xs" onClick={() => approveMutation.mutate(item)}>
+                            <Button
+                              size="sm"
+                              className={`h-8 text-xs ${incident ? "bg-orange-600 hover:bg-orange-700" : ""}`}
+                              onClick={() => incident ? approveIncidentMutation.mutate(item) : approveMutation.mutate(item)}
+                            >
                               <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                              Godkjenn
+                              {incident ? "Opprett avvik" : "Godkjenn"}
                             </Button>
                             <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => rejectMutation.mutate(item.id)}>
                               <X className="h-3.5 w-3.5 mr-1" />
@@ -180,17 +257,22 @@ const LaraInbox = () => {
                 <CardContent className="space-y-2">
                   {processedItems.map((item: any) => {
                     const asset = (item as any).assets;
+                    const incident = isIncident(item);
                     return (
                       <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border opacity-60">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        {incident ? (
+                          <ShieldAlert className="h-4 w-4 text-orange-500" />
+                        ) : (
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        )}
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium truncate">{item.file_name || item.subject}</p>
+                          <p className="text-xs font-medium truncate">{item.subject || item.file_name}</p>
                           <p className="text-[10px] text-muted-foreground">
                             {item.sender_name || item.sender_email} → {asset?.name || "Ukjent"}
                           </p>
                         </div>
                         <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[10px]">
-                          {item.status === "manually_assigned" ? "Godkjent" : "Avvist"}
+                          {item.status === "manually_assigned" ? (incident ? "Avvik opprettet" : "Godkjent") : "Avvist"}
                         </Badge>
                       </div>
                     );
