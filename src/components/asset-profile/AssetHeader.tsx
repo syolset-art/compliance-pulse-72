@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,9 @@ import {
   LucideIcon,
   User,
   Users,
-  Send
+  Send,
+  Camera,
+  Loader2
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
@@ -42,6 +44,7 @@ interface AssetHeaderProps {
     url: string | null;
     work_area_id: string | null;
     asset_manager: string | null;
+    logo_url: string | null;
     work_areas?: {
       id: string;
       name: string;
@@ -83,6 +86,9 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const isSelf = asset.asset_type === 'self';
 
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work_areas"],
@@ -128,6 +134,55 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
     updateAsset.mutate({ asset_manager: value });
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error(isNb ? "Kun bildefiler er tillatt" : "Only image files are allowed");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(isNb ? "Maks filstørrelse er 2MB" : "Max file size is 2MB");
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `${asset.id}/logo.${ext}`;
+
+      // Remove old logo if exists
+      await supabase.storage.from("company-logos").remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from("company-logos")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("company-logos")
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from("assets")
+        .update({ logo_url: urlData.publicUrl } as any)
+        .eq("id", asset.id);
+
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ["asset", asset.id] });
+      toast.success(isNb ? "Logo lastet opp" : "Logo uploaded");
+    } catch (err) {
+      console.error("Logo upload error:", err);
+      toast.error(isNb ? "Kunne ikke laste opp logo" : "Failed to upload logo");
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  };
+
   const selectedWorkArea = workAreas.find((a: any) => a.id === asset.work_area_id);
   const displayedManager = asset.asset_manager || selectedWorkArea?.responsible_person || null;
 
@@ -155,10 +210,45 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
 
   return (
     <Card className="p-5 md:p-6">
-      {/* Top row: icon + name + badges */}
+      {/* Hidden file input for logo */}
+      <input
+        ref={logoInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleLogoUpload}
+      />
+
+      {/* Top row: icon/logo + name + badges */}
       <div className="flex items-start gap-4">
-        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <IconComponent className="h-6 w-6 text-primary" />
+        {/* Logo / Icon area */}
+        <div className="relative group shrink-0">
+          {(asset as any).logo_url ? (
+            <div className="h-12 w-12 rounded-xl overflow-hidden border border-border">
+              <img
+                src={(asset as any).logo_url}
+                alt={`${asset.name} logo`}
+                className="h-full w-full object-contain bg-background"
+              />
+            </div>
+          ) : (
+            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <IconComponent className="h-6 w-6 text-primary" />
+            </div>
+          )}
+          {isSelf && (
+            <button
+              onClick={() => logoInputRef.current?.click()}
+              disabled={uploadingLogo}
+              className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+            >
+              {uploadingLogo ? (
+                <Loader2 className="h-4 w-4 text-white animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4 text-white" />
+              )}
+            </button>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
