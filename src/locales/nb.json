@@ -28,7 +28,8 @@
     "loggingOut": "Logger ut...",
     "notRegistered": "Ikke registrert",
     "clickLaraToStart": "Klikk på Lara for å starte",
-    "customerRequests": "Kundeforespørsler"
+    "customerRequests": "Kundeforespørsler",
+    "requests": "Forespørsler"
   },
   "customerRequests": {
     "title": "Kundeforespørsler",

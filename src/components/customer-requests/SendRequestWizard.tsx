@@ -1,0 +1,245 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check, Building2, Calendar } from "lucide-react";
+import { toast } from "sonner";
+
+const REQUEST_TYPES = [
+  { value: "vendor_assessment", labelNb: "Leverandørvurdering", labelEn: "Vendor Assessment", icon: FileText },
+  { value: "dpa", labelNb: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement", icon: FileCheck },
+  { value: "iso_documentation", labelNb: "ISO 27001 dokumentasjon", labelEn: "ISO 27001 Documentation", icon: Shield },
+  { value: "soc2", labelNb: "SOC 2-rapport", labelEn: "SOC 2 Report", icon: FileText },
+  { value: "gdpr_report", labelNb: "GDPR-rapport", labelEn: "GDPR Report", icon: FileText },
+];
+
+interface SendRequestWizardProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSend: (type: string, vendorIds: string[], dueDate: string) => void;
+}
+
+export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWizardProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const [step, setStep] = useState(1);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
+  const [dueDate, setDueDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split("T")[0];
+  });
+
+  const { data: vendors = [] } = useQuery({
+    queryKey: ["vendors-for-requests"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("assets")
+        .select("id, name, vendor_category, gdpr_role")
+        .eq("asset_type", "vendor")
+        .order("name");
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  const dataProcessors = vendors.filter((v: any) => v.gdpr_role === "databehandler");
+
+  const toggleVendor = (id: string) => {
+    setSelectedVendors((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllProcessors = () => {
+    const ids = dataProcessors.map((v: any) => v.id);
+    setSelectedVendors((prev) => {
+      const allSelected = ids.every((id: string) => prev.includes(id));
+      if (allSelected) return prev.filter((id) => !ids.includes(id));
+      return [...new Set([...prev, ...ids])];
+    });
+  };
+
+  const handleSend = () => {
+    onSend(selectedType, selectedVendors, dueDate);
+    toast.success(isNb ? `Forespørsel sendt til ${selectedVendors.length} leverandør(er)` : `Request sent to ${selectedVendors.length} vendor(s)`);
+    resetAndClose();
+  };
+
+  const resetAndClose = () => {
+    setStep(1);
+    setSelectedType("");
+    setSelectedVendors([]);
+    onOpenChange(false);
+  };
+
+  const typeName = REQUEST_TYPES.find((t) => t.value === selectedType);
+
+  return (
+    <Dialog open={open} onOpenChange={resetAndClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {isNb ? "Send forespørsel til leverandører" : "Send Request to Vendors"}
+          </DialogTitle>
+          <div className="flex items-center gap-2 mt-2">
+            {[1, 2, 3].map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`}
+              />
+            ))}
+          </div>
+        </DialogHeader>
+
+        {/* Step 1: Choose type */}
+        {step === 1 && (
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {isNb ? "Hva slags forespørsel vil du sende?" : "What type of request do you want to send?"}
+            </p>
+            <RadioGroup value={selectedType} onValueChange={setSelectedType} className="space-y-2">
+              {REQUEST_TYPES.map((rt) => (
+                <label
+                  key={rt.value}
+                  className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                    selectedType === rt.value ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                  }`}
+                >
+                  <RadioGroupItem value={rt.value} />
+                  <rt.icon className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">{isNb ? rt.labelNb : rt.labelEn}</span>
+                </label>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+
+        {/* Step 2: Select vendors */}
+        {step === 2 && (
+          <div className="space-y-3 py-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Velg leverandører" : "Select vendors"}
+              </p>
+              {dataProcessors.length > 0 && (
+                <Button variant="outline" size="sm" className="text-xs h-7" onClick={selectAllProcessors}>
+                  {isNb ? "Velg alle databehandlere" : "Select all data processors"}
+                  <Badge variant="secondary" className="ml-1 text-[10px]">{dataProcessors.length}</Badge>
+                </Button>
+              )}
+            </div>
+            <div className="max-h-64 overflow-y-auto space-y-1 border rounded-lg p-2">
+              {vendors.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {isNb ? "Ingen leverandører registrert ennå" : "No vendors registered yet"}
+                </p>
+              ) : (
+                vendors.map((v: any) => (
+                  <label
+                    key={v.id}
+                    className={`flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer transition-colors ${
+                      selectedVendors.includes(v.id) ? "bg-primary/5" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedVendors.includes(v.id)}
+                      onCheckedChange={() => toggleVendor(v.id)}
+                    />
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium">{v.name}</span>
+                      <div className="flex gap-1.5 mt-0.5">
+                        {v.vendor_category && (
+                          <Badge variant="outline" className="text-[10px] capitalize">{v.vendor_category}</Badge>
+                        )}
+                        {v.gdpr_role && (
+                          <Badge variant="secondary" className="text-[10px] capitalize">{v.gdpr_role}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {selectedVendors.length} {isNb ? "valgt" : "selected"}
+            </p>
+          </div>
+        )}
+
+        {/* Step 3: Confirm */}
+        {step === 3 && (
+          <div className="space-y-4 py-2">
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{isNb ? "Type" : "Type"}</span>
+                <span className="text-sm font-medium">{typeName ? (isNb ? typeName.labelNb : typeName.labelEn) : ""}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{isNb ? "Leverandører" : "Vendors"}</span>
+                <span className="text-sm font-medium">{selectedVendors.length}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{isNb ? "Frist" : "Due date"}</span>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-auto h-8 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {isNb
+                ? "Forespørselen sendes per e-post til kontaktpersonene hos valgte leverandører."
+                : "The request will be sent by email to the contact persons at selected vendors."}
+            </p>
+          </div>
+        )}
+
+        <DialogFooter className="flex justify-between gap-2">
+          {step > 1 ? (
+            <Button variant="outline" onClick={() => setStep(step - 1)}>
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              {isNb ? "Tilbake" : "Back"}
+            </Button>
+          ) : (
+            <div />
+          )}
+          {step < 3 ? (
+            <Button
+              onClick={() => setStep(step + 1)}
+              disabled={(step === 1 && !selectedType) || (step === 2 && selectedVendors.length === 0)}
+            >
+              {isNb ? "Neste" : "Next"}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          ) : (
+            <Button onClick={handleSend}>
+              <Check className="h-4 w-4 mr-1" />
+              {isNb ? "Bekreft og send" : "Confirm and send"}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

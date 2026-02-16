@@ -27,7 +27,8 @@
     "loggingOut": "Logging out...",
     "notRegistered": "Not registered",
     "clickLaraToStart": "Click Lara to get started",
-    "customerRequests": "Customer Requests"
+    "customerRequests": "Customer Requests",
+    "requests": "Requests"
   },
   "customerRequests": {
     "title": "Customer Requests",
