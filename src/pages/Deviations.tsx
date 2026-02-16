@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,14 @@ import {
   ListChecks,
   User,
   Calendar,
+  Radio,
+  Shield,
+  Zap,
+  Bell,
+  ArrowRight,
+  Info,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -78,6 +87,8 @@ export default function Deviations() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [liveEnabled, setLiveEnabled] = useState(false);
+  const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
 
   // Fetch deviations
   const { data: deviations = [], isLoading } = useQuery({
@@ -257,6 +268,150 @@ export default function Deviations() {
             Legg til avvik
           </Button>
         </div>
+
+        {/* Live Deviations Activation Banner */}
+        <Card className={cn(
+          "border transition-all overflow-hidden",
+          liveEnabled
+            ? "border-primary/30 bg-primary/5"
+            : "border-border bg-card"
+        )}>
+          <CardContent className="p-0">
+            <div className="p-4 md:p-5">
+              <div className="flex items-start gap-4">
+                {/* Icon */}
+                <div className={cn(
+                  "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+                  liveEnabled ? "bg-primary/15" : "bg-muted"
+                )}>
+                  <Radio className={cn("h-5 w-5", liveEnabled ? "text-primary" : "text-muted-foreground")} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-foreground">Live avvik</h3>
+                    {liveEnabled && (
+                      <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px]">
+                        Aktiv
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Motta sikkerhetshendelser i sanntid fra tilkoblede leverandører og overvåkingstjenester
+                  </p>
+
+                  {/* Expand/collapse details */}
+                  <button
+                    onClick={() => setLiveInfoExpanded(!liveInfoExpanded)}
+                    className="flex items-center gap-1 text-xs text-primary mt-2 hover:underline"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                    {liveInfoExpanded ? "Skjul detaljer" : "Hvordan fungerer det?"}
+                    {liveInfoExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  </button>
+                </div>
+
+                {/* Toggle */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                    {liveEnabled ? "Aktivert" : "Deaktivert"}
+                  </span>
+                  <Switch
+                    checked={liveEnabled}
+                    onCheckedChange={setLiveEnabled}
+                  />
+                </div>
+              </div>
+
+              {/* Expanded info */}
+              {liveInfoExpanded && (
+                <div className="mt-4 pt-4 border-t border-border space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <Zap className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Sanntidsovervåking</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Hendelser fra sikkerhetsleverandører som 7 Security mottas automatisk og opprettes som avvik i registeret
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <Shield className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Automatisk klassifisering</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Lara vurderer alvorlighetsgrad og kobler hendelsen til riktig system, prosess og rammeverk automatisk
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <Bell className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Varsling og eskalering</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Kritiske hendelser utløser umiddelbar varsling til ansvarlige personer med foreslåtte tiltak
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* How it works flow */}
+                  <div className="rounded-lg border border-border bg-muted/30 p-4">
+                    <p className="text-xs font-medium text-foreground mb-3">Slik fungerer det:</p>
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] bg-background">1</Badge>
+                        <span>Leverandør oppdager hendelse</span>
+                      </div>
+                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] bg-background">2</Badge>
+                        <span>Hendelsen sendes til Lara Innboks</span>
+                      </div>
+                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] bg-background">3</Badge>
+                        <span>Lara oppretter avvik automatisk</span>
+                      </div>
+                      <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] bg-background">4</Badge>
+                        <span>Du får varsel og kan følge opp</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Supported providers */}
+                  <div>
+                    <p className="text-xs font-medium text-foreground mb-2">Støttede leverandører:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className="bg-muted text-foreground border-border text-xs gap-1.5">
+                        <Shield className="h-3 w-3" />
+                        7 Security
+                      </Badge>
+                      <Badge variant="outline" className="text-xs text-muted-foreground gap-1.5">
+                        <Shield className="h-3 w-3" />
+                        Acronis (kommer snart)
+                      </Badge>
+                      <Badge variant="outline" className="text-xs text-muted-foreground gap-1.5">
+                        <Shield className="h-3 w-3" />
+                        Arctic Security (kommer snart)
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
