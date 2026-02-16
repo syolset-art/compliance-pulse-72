@@ -1,19 +1,47 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useBrregLookup } from "@/hooks/useBrregLookup";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useBrregLookup, type BrregRolle } from "@/hooks/useBrregLookup";
 import mynderLogo from "@/assets/mynder-logo.png";
 import {
   Mail, ArrowRight, Upload, Shield, LogIn, CheckCircle2,
   Building2, User, AtSign, FileText, Clock, ChevronLeft,
-  Loader2, AlertCircle, Search, ExternalLink, Inbox
+  Loader2, AlertCircle, Search, ExternalLink, Inbox,
+  UserCheck, Send, Bell, Play
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Step = "email" | "landing" | "upload" | "upload-done" | "trust-org" | "trust-contact" | "trust-verify" | "trust-profile";
+type Step = "email" | "landing" | "upload" | "upload-done" | "trust-org" | "trust-roles" | "trust-pending" | "trust-profile";
+
+// Demo context: we know who the vendor is from the email
+const DEMO_VENDOR = {
+  companyName: "Acme Consulting AS",
+  contactPerson: "Erik Hansen",
+  contactEmail: "erik@acmeconsulting.no",
+};
+
+// Mock roles for SE/DK demo companies
+const MOCK_ROLES: Record<string, BrregRolle[]> = {
+  "Spotify AB": [
+    { navn: "Daniel Ek", rolletype: "Daglig leder" },
+    { navn: "Martin Lorentzon", rolletype: "Styrets leder" },
+  ],
+  "Novo Nordisk A/S": [
+    { navn: "Lars Fruergaard Jørgensen", rolletype: "Daglig leder" },
+    { navn: "Helge Lund", rolletype: "Styrets leder" },
+  ],
+};
+
+interface SelectedCompany {
+  organisasjonsnummer: string;
+  navn: string;
+  naeringskode1?: { kode: string; beskrivelse: string };
+  forretningsadresse?: { kommune: string; poststed: string };
+}
 
 export default function VendorResponseDemo() {
   const navigate = useNavigate();
@@ -22,17 +50,68 @@ export default function VendorResponseDemo() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Trust profile form
-  const [orgNumber, setOrgNumber] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [verifyCode, setVerifyCode] = useState("");
+  // Trust profile flow state
+  const [searchQuery, setSearchQuery] = useState(DEMO_VENDOR.companyName);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<SelectedCompany | null>(null);
+  const [companyRoles, setCompanyRoles] = useState<BrregRolle[]>([]);
+  const [roleEmails, setRoleEmails] = useState<Record<string, string>>({});
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationConfirmed, setVerificationConfirmed] = useState(false);
+  const [hasAutoSearched, setHasAutoSearched] = useState(false);
 
-  const { lookupByOrgNumber, rawData, isLoading: brregLoading, error: brregError } = useBrregLookup();
+  const {
+    searchByName, lookupRoller, lookupByOrgNumber,
+    searchResults, rawData, roles,
+    isLoading, rolesLoading, rolesError, error,
+  } = useBrregLookup();
 
-  const handleBrregLookup = async () => {
-    await lookupByOrgNumber(orgNumber);
+  // Auto-search when trust-org step loads
+  useEffect(() => {
+    if (step === "trust-org" && !hasAutoSearched && searchQuery.trim().length >= 2) {
+      setHasAutoSearched(true);
+      searchByName(searchQuery);
+    }
+  }, [step, hasAutoSearched, searchQuery, searchByName]);
+
+  const handleSelectCompany = (result: SelectedCompany) => {
+    setSelectedCompanyId(result.organisasjonsnummer);
+    setSelectedCompany(result);
   };
+
+  const handleConfirmCompany = async () => {
+    if (!selectedCompany) return;
+    // Fetch roles from Brreg
+    const fetchedRoles = await lookupRoller(selectedCompany.organisasjonsnummer);
+    if (fetchedRoles.length > 0) {
+      setCompanyRoles(fetchedRoles);
+    } else {
+      // Fallback: check mock data or create generic placeholders
+      const mockMatch = MOCK_ROLES[selectedCompany.navn];
+      if (mockMatch) {
+        setCompanyRoles(mockMatch);
+      } else {
+        setCompanyRoles([
+          { navn: "(Ikke funnet)", rolletype: "Daglig leder" },
+          { navn: "(Ikke funnet)", rolletype: "Styrets leder" },
+        ]);
+      }
+    }
+    // Also fetch full data for the profile view
+    await lookupByOrgNumber(selectedCompany.organisasjonsnummer);
+    setStep("trust-roles");
+  };
+
+  const handleSendVerification = () => {
+    setVerificationSent(true);
+    setStep("trust-pending");
+  };
+
+  const handleSimulateConfirmation = () => {
+    setVerificationConfirmed(true);
+  };
+
+  const atLeastOneEmailFilled = Object.values(roleEmails).some(e => e && e.includes("@"));
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -48,7 +127,7 @@ export default function VendorResponseDemo() {
 
   const progressPercent = {
     email: 0, landing: 15, upload: 30, "upload-done": 100,
-    "trust-org": 30, "trust-contact": 55, "trust-verify": 80, "trust-profile": 100,
+    "trust-org": 30, "trust-roles": 55, "trust-pending": 80, "trust-profile": 100,
   }[step];
 
   const renderBackButton = (target: Step) => (
@@ -56,6 +135,8 @@ export default function VendorResponseDemo() {
       <ChevronLeft className="h-4 w-4" /> Tilbake
     </button>
   );
+
+  const companyDisplayName = selectedCompany?.navn || rawData?.navn || DEMO_VENDOR.companyName;
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,7 +173,7 @@ export default function VendorResponseDemo() {
                   <span>Fra: <strong className="text-foreground">HULT IT AS</strong> via Mynder &lt;no-reply@mynder.io&gt;</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Til: leverandor@eksempel.no
+                  Til: {DEMO_VENDOR.contactEmail}
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" /> I dag kl. 09:32
@@ -104,15 +185,16 @@ export default function VendorResponseDemo() {
                 </div>
                 <h2 className="text-xl font-semibold">Forespørsel om oppdatert databehandleravtale</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Hei,
+                  Hei {DEMO_VENDOR.contactPerson},
                   <br /><br />
                   <strong>HULT IT AS</strong> bruker Mynder for å administrere sin leverandørkjede og compliance-dokumentasjon.
-                  De ber deg om å sende inn en <strong>oppdatert databehandleravtale (DPA)</strong> innen <strong>15. mars 2026</strong>.
+                  De ber <strong>{DEMO_VENDOR.companyName}</strong> om å sende inn en <strong>oppdatert databehandleravtale (DPA)</strong> innen <strong>15. mars 2026</strong>.
                 </p>
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-1">
                   <p className="text-sm font-medium">Forespørselsdetaljer:</p>
                   <p className="text-sm text-muted-foreground">📄 Dokumenttype: Databehandleravtale (DPA)</p>
                   <p className="text-sm text-muted-foreground">🏢 Fra: HULT IT AS</p>
+                  <p className="text-sm text-muted-foreground">🏢 Til: {DEMO_VENDOR.companyName}</p>
                   <p className="text-sm text-muted-foreground">⏰ Frist: 15. mars 2026</p>
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -139,7 +221,6 @@ export default function VendorResponseDemo() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {/* Option A: Quick upload */}
               <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group" onClick={() => setStep("upload")}>
                 <CardHeader className="text-center pb-2">
                   <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
@@ -155,7 +236,6 @@ export default function VendorResponseDemo() {
                 </CardContent>
               </Card>
 
-              {/* Option B: Trust Profile */}
               <Card className="border-2 border-primary/30 hover:border-primary transition-colors cursor-pointer group relative" onClick={() => setStep("trust-org")}>
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">Anbefalt</span>
@@ -174,7 +254,6 @@ export default function VendorResponseDemo() {
                 </CardContent>
               </Card>
 
-              {/* Option C: Log in */}
               <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer group" onClick={() => navigate("/auth")}>
                 <CardHeader className="text-center pb-2">
                   <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-2 group-hover:bg-muted/80 transition-colors">
@@ -259,123 +338,252 @@ export default function VendorResponseDemo() {
           </div>
         )}
 
-        {/* ===================== STEP 3B-1: ORG LOOKUP ===================== */}
+        {/* ===================== STEP 3B-1: ORG SEARCH ===================== */}
         {step === "trust-org" && (
           <div className="max-w-lg mx-auto space-y-6">
             {renderBackButton("landing")}
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Steg 1 av 3</p>
               <h2 className="text-xl font-semibold">Finn din virksomhet</h2>
-              <p className="text-sm text-muted-foreground">Vi henter informasjon fra Brønnøysundregistrene.</p>
+              <p className="text-sm text-muted-foreground">
+                Vi har forhåndsutfylt basert på forespørselen. Bekreft at dette er riktig selskap.
+              </p>
             </div>
 
             <div className="space-y-3">
-              <label className="text-sm font-medium">Organisasjonsnummer</label>
+              <label className="text-sm font-medium">Selskapsnavn</label>
               <div className="flex gap-2">
                 <Input
-                  placeholder="F.eks. 912 345 678"
-                  value={orgNumber}
-                  onChange={(e) => setOrgNumber(e.target.value)}
+                  placeholder="Søk etter selskapsnavn..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSelectedCompanyId(null);
+                    setSelectedCompany(null);
+                  }}
                 />
-                <Button onClick={handleBrregLookup} disabled={brregLoading || orgNumber.replace(/\s/g, "").length < 9}>
-                  {brregLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                <Button onClick={() => searchByName(searchQuery)} disabled={isLoading || searchQuery.trim().length < 2}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
-              {brregError && (
+              {error && (
                 <p className="text-sm text-destructive flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" /> {brregError}
+                  <AlertCircle className="h-4 w-4" /> {error}
                 </p>
               )}
             </div>
 
-            {rawData && (
-              <Card className="border-primary/30 bg-primary/5">
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
-                    <p className="font-semibold">{rawData.navn}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Org.nr: {rawData.organisasjonsnummer}</p>
-                  {rawData.naeringskode1 && (
-                    <p className="text-sm text-muted-foreground">Bransje: {rawData.naeringskode1.beskrivelse}</p>
-                  )}
-                  {rawData.forretningsadresse && (
-                    <p className="text-sm text-muted-foreground">
-                      Sted: {rawData.forretningsadresse.poststed}, {rawData.forretningsadresse.kommune}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+            {/* Search results */}
+            {searchResults.length > 0 && (
+              <RadioGroup
+                value={selectedCompanyId || ""}
+                onValueChange={(val) => {
+                  const match = searchResults.find(r => r.organisasjonsnummer === val);
+                  if (match) handleSelectCompany(match);
+                }}
+                className="space-y-2"
+              >
+                {searchResults.map((result) => (
+                  <label
+                    key={result.organisasjonsnummer}
+                    className={cn(
+                      "flex items-start gap-3 border rounded-lg p-4 cursor-pointer transition-colors",
+                      selectedCompanyId === result.organisasjonsnummer
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/30"
+                    )}
+                  >
+                    <RadioGroupItem value={result.organisasjonsnummer} className="mt-1" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{result.navn}</p>
+                      <p className="text-xs text-muted-foreground">Org.nr: {result.organisasjonsnummer}</p>
+                      {result.naeringskode1 && (
+                        <p className="text-xs text-muted-foreground">{result.naeringskode1.beskrivelse}</p>
+                      )}
+                      {result.forretningsadresse && (
+                        <p className="text-xs text-muted-foreground">
+                          {result.forretningsadresse.poststed}{result.forretningsadresse.kommune ? `, ${result.forretningsadresse.kommune}` : ""}
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </RadioGroup>
             )}
 
-            <Button size="lg" className="w-full" disabled={!rawData} onClick={() => setStep("trust-contact")}>
-              Bekreft og gå videre <ArrowRight className="h-4 w-4 ml-2" />
+            {searchResults.length === 0 && !isLoading && hasAutoSearched && (
+              <div className="text-center py-6 text-muted-foreground">
+                <Building2 className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="text-sm">Ingen treff. Prøv å justere søket.</p>
+              </div>
+            )}
+
+            <Button
+              size="lg"
+              className="w-full"
+              disabled={!selectedCompany || rolesLoading}
+              onClick={handleConfirmCompany}
+            >
+              {rolesLoading ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Henter ledelse...</>
+              ) : (
+                <>Bekreft og gå videre <ArrowRight className="h-4 w-4 ml-2" /></>
+              )}
             </Button>
           </div>
         )}
 
-        {/* ===================== STEP 3B-2: CONTACT INFO ===================== */}
-        {step === "trust-contact" && (
+        {/* ===================== STEP 3B-2: ROLES ===================== */}
+        {step === "trust-roles" && (
           <div className="max-w-lg mx-auto space-y-6">
             {renderBackButton("trust-org")}
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Steg 2 av 3</p>
-              <h2 className="text-xl font-semibold">Kontaktinformasjon</h2>
-              <p className="text-sm text-muted-foreground">Hvem representerer {rawData?.navn || "selskapet"}?</p>
+              <h2 className="text-xl font-semibold">Bekreft ledelsen i {companyDisplayName}</h2>
+              <p className="text-sm text-muted-foreground">
+                En av disse må bekrefte at du representerer selskapet. Oppgi e-postadresse til styrets leder og/eller daglig leder.
+              </p>
             </div>
+
+            {rolesError && (
+              <p className="text-sm text-destructive flex items-center gap-1">
+                <AlertCircle className="h-4 w-4" /> {rolesError}
+              </p>
+            )}
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <User className="h-4 w-4" /> Fullt navn
-                </label>
-                <Input placeholder="Ola Nordmann" value={contactName} onChange={(e) => setContactName(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <AtSign className="h-4 w-4" /> E-postadresse
-                </label>
-                <Input type="email" placeholder="ola@eksempel.no" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
-              </div>
+              {companyRoles.map((role, idx) => (
+                <Card key={idx} className="border">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <UserCheck className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{role.navn}</p>
+                        <p className="text-xs text-muted-foreground">{role.rolletype}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">E-postadresse</label>
+                      <Input
+                        type="email"
+                        placeholder={`E-post til ${role.rolletype.toLowerCase()}`}
+                        value={roleEmails[`${role.rolletype}-${idx}`] || ""}
+                        onChange={(e) =>
+                          setRoleEmails(prev => ({ ...prev, [`${role.rolletype}-${idx}`]: e.target.value }))
+                        }
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
-            <Button size="lg" className="w-full" disabled={!contactName || !contactEmail} onClick={() => setStep("trust-verify")}>
-              Send verifiseringskode <ArrowRight className="h-4 w-4 ml-2" />
+            <div className="bg-muted/50 border rounded-lg p-4 flex items-start gap-3">
+              <Bell className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-muted-foreground">
+                Vi sender en verifiserings-e-post til den/de du oppgir. Når en av dem bekrefter, får du beskjed og kan fortsette.
+              </p>
+            </div>
+
+            <Button
+              size="lg"
+              className="w-full"
+              disabled={!atLeastOneEmailFilled}
+              onClick={handleSendVerification}
+            >
+              <Send className="h-4 w-4 mr-2" /> Send verifisering
             </Button>
           </div>
         )}
 
-        {/* ===================== STEP 3B-3: VERIFY ===================== */}
-        {step === "trust-verify" && (
+        {/* ===================== STEP 3B-3: PENDING ===================== */}
+        {step === "trust-pending" && (
           <div className="max-w-lg mx-auto space-y-6">
-            {renderBackButton("trust-contact")}
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Steg 3 av 3</p>
-              <h2 className="text-xl font-semibold">Verifiser e-postadressen din</h2>
+              <h2 className="text-xl font-semibold">Venter på bekreftelse</h2>
               <p className="text-sm text-muted-foreground">
-                Vi har sendt en kode til <strong>{contactEmail}</strong>
+                Vi har sendt verifisering til ledelsen i {companyDisplayName}. Du kan ikke gå videre før en av dem har bekreftet.
               </p>
             </div>
 
-            <div className="bg-muted/50 border rounded-lg p-4 text-center space-y-2">
-              <p className="text-xs text-muted-foreground">Demo: bruk koden</p>
-              <p className="text-2xl font-mono font-bold tracking-widest text-primary">1 2 3 4 5 6</p>
+            <div className="space-y-3">
+              {companyRoles.map((role, idx) => {
+                const email = roleEmails[`${role.rolletype}-${idx}`];
+                const hasSent = !!email && email.includes("@");
+                return (
+                  <Card key={idx} className={cn("border", verificationConfirmed && hasSent && "border-green-500/50 bg-green-50 dark:bg-green-900/10")}>
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className={cn(
+                        "h-10 w-10 rounded-full flex items-center justify-center",
+                        verificationConfirmed && hasSent
+                          ? "bg-green-100 dark:bg-green-900/30"
+                          : hasSent
+                            ? "bg-yellow-100 dark:bg-yellow-900/30"
+                            : "bg-muted"
+                      )}>
+                        {verificationConfirmed && hasSent ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        ) : hasSent ? (
+                          <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                        ) : (
+                          <User className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{role.navn}</p>
+                        <p className="text-xs text-muted-foreground">{role.rolletype}</p>
+                        {hasSent && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {verificationConfirmed ? "✅ Bekreftet" : `📧 Sendt til ${email}`}
+                          </p>
+                        )}
+                        {!hasSent && (
+                          <p className="text-xs text-muted-foreground mt-1">Ingen e-post oppgitt</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Verifiseringskode</label>
-              <Input
-                placeholder="123456"
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
-                maxLength={6}
-                className="text-center text-lg tracking-widest"
-              />
-            </div>
+            {!verificationConfirmed && (
+              <div className="bg-muted/50 border rounded-lg p-4 flex items-start gap-3">
+                <Bell className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground">
+                  Du får varsel på e-post når bekreftelsen er mottatt. Du trenger ikke holde denne siden åpen.
+                </p>
+              </div>
+            )}
 
-            <Button size="lg" className="w-full" disabled={verifyCode.replace(/\s/g, "") !== "123456"} onClick={() => setStep("trust-profile")}>
-              Verifiser og opprett profil <CheckCircle2 className="h-4 w-4 ml-2" />
-            </Button>
+            {verificationConfirmed && (
+              <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Bekreftelse mottatt! Du kan nå opprette Trust Profilen din.
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3">
+              {!verificationConfirmed && (
+                <Button variant="outline" onClick={handleSimulateConfirmation} className="w-full">
+                  <Play className="h-4 w-4 mr-2" /> Simuler bekreftelse (demo)
+                </Button>
+              )}
+
+              <Button
+                size="lg"
+                className="w-full"
+                disabled={!verificationConfirmed}
+                onClick={() => setStep("trust-profile")}
+              >
+                Fortsett til Trust Profil <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -387,7 +595,7 @@ export default function VendorResponseDemo() {
                 <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <h2 className="text-2xl font-bold">Trust Profilen din er opprettet!</h2>
-              <p className="text-muted-foreground">Velkommen til {rawData?.navn || "din virksomhet"} sin compliance-profil.</p>
+              <p className="text-muted-foreground">Velkommen til {companyDisplayName} sin compliance-profil.</p>
             </div>
 
             {/* Profile header */}
@@ -398,10 +606,10 @@ export default function VendorResponseDemo() {
                     <Building2 className="h-7 w-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold">{rawData?.navn || "Ditt selskap"}</h3>
-                    <p className="text-sm text-muted-foreground">Org.nr: {rawData?.organisasjonsnummer || orgNumber}</p>
-                    {rawData?.naeringskode1 && (
-                      <p className="text-sm text-muted-foreground">{rawData.naeringskode1.beskrivelse}</p>
+                    <h3 className="text-lg font-semibold">{companyDisplayName}</h3>
+                    <p className="text-sm text-muted-foreground">Org.nr: {selectedCompany?.organisasjonsnummer || rawData?.organisasjonsnummer || ""}</p>
+                    {(selectedCompany?.naeringskode1 || rawData?.naeringskode1) && (
+                      <p className="text-sm text-muted-foreground">{(selectedCompany?.naeringskode1 || rawData?.naeringskode1)?.beskrivelse}</p>
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
