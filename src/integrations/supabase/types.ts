@@ -431,6 +431,7 @@ export type Database = {
           id: string
           last_synced_at: string | null
           lifecycle_status: string | null
+          logo_url: string | null
           metadata: Json | null
           name: string
           next_review_date: string | null
@@ -466,6 +467,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           lifecycle_status?: string | null
+          logo_url?: string | null
           metadata?: Json | null
           name: string
           next_review_date?: string | null
@@ -501,6 +503,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           lifecycle_status?: string | null
+          logo_url?: string | null
           metadata?: Json | null
           name?: string
           next_review_date?: string | null
