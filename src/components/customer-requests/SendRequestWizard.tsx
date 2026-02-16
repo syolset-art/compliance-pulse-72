@@ -10,7 +10,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -48,14 +47,14 @@ const REQUEST_TYPES = [
 interface SendRequestWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSend: (type: string, vendorIds: string[], dueDate: string) => void;
+  onSend: (types: string[], vendorIds: string[], dueDate: string) => void;
 }
 
 export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWizardProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [step, setStep] = useState(1);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
@@ -93,20 +92,26 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
     });
   };
 
+  const toggleType = (value: string) => {
+    setSelectedTypes((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
+  };
+
   const handleSend = () => {
-    onSend(selectedType, selectedVendors, dueDate);
-    toast.success(isNb ? `Forespørsel sendt til ${selectedVendors.length} leverandør(er)` : `Request sent to ${selectedVendors.length} vendor(s)`);
+    onSend(selectedTypes, selectedVendors, dueDate);
+    toast.success(isNb ? `${selectedTypes.length} forespørsel(er) sendt til ${selectedVendors.length} leverandør(er)` : `${selectedTypes.length} request(s) sent to ${selectedVendors.length} vendor(s)`);
     resetAndClose();
   };
 
   const resetAndClose = () => {
     setStep(1);
-    setSelectedType("");
+    setSelectedTypes([]);
     setSelectedVendors([]);
     onOpenChange(false);
   };
 
-  const typeName = REQUEST_TYPES.find((t) => t.value === selectedType);
+  const selectedTypeNames = REQUEST_TYPES.filter((t) => selectedTypes.includes(t.value));
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
@@ -129,17 +134,23 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
         {step === 1 && (
           <div className="space-y-3 py-2">
             <p className="text-sm text-muted-foreground">
-              {isNb ? "Hva slags forespørsel vil du sende?" : "What type of request do you want to send?"}
+              {isNb ? "Hva slags forespørsler vil du sende? Du kan velge flere." : "What types of requests do you want to send? You can select multiple."}
             </p>
-            <RadioGroup value={selectedType} onValueChange={setSelectedType} className="space-y-2">
+            <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
               {REQUEST_TYPES.map((rt) => (
                 <label
                   key={rt.value}
                   className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
-                    selectedType === rt.value ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                    selectedTypes.includes(rt.value) ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
                   }`}
+                  onClick={() => toggleType(rt.value)}
                 >
-                  <RadioGroupItem value={rt.value} className="mt-0.5" />
+                  <Checkbox
+                    checked={selectedTypes.includes(rt.value)}
+                    onCheckedChange={() => toggleType(rt.value)}
+                    className="mt-0.5"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                   <rt.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-medium">{isNb ? rt.labelNb : rt.labelEn}</span>
@@ -149,7 +160,12 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                   </div>
                 </label>
               ))}
-            </RadioGroup>
+            </div>
+            {selectedTypes.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {selectedTypes.length} {isNb ? "valgt" : "selected"}
+              </p>
+            )}
           </div>
         )}
 
@@ -210,9 +226,15 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
         {step === 3 && (
           <div className="space-y-4 py-2">
             <div className="rounded-lg border p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{isNb ? "Type" : "Type"}</span>
-                <span className="text-sm font-medium">{typeName ? (isNb ? typeName.labelNb : typeName.labelEn) : ""}</span>
+              <div className="flex items-start justify-between">
+                <span className="text-sm text-muted-foreground">{isNb ? "Typer" : "Types"}</span>
+                <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                  {selectedTypeNames.map((t) => (
+                    <Badge key={t.value} variant="secondary" className="text-[10px]">
+                      {isNb ? t.labelNb : t.labelEn}
+                    </Badge>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{isNb ? "Leverandører" : "Vendors"}</span>
@@ -251,7 +273,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
           {step < 3 ? (
             <Button
               onClick={() => setStep(step + 1)}
-              disabled={(step === 1 && !selectedType) || (step === 2 && selectedVendors.length === 0)}
+              disabled={(step === 1 && selectedTypes.length === 0) || (step === 2 && selectedVendors.length === 0)}
             >
               {isNb ? "Neste" : "Next"}
               <ChevronRight className="h-4 w-4 ml-1" />
