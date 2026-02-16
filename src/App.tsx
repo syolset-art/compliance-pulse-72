@@ -32,6 +32,7 @@ import ComplianceChecklist from "./pages/ComplianceChecklist";
 import QualityDashboard from "./pages/QualityDashboard";
 import LaraInbox from "./pages/LaraInbox";
 import CustomerRequests from "./pages/CustomerRequests";
+import VendorResponseDemo from "./pages/VendorResponseDemo";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
                   <Route path="/customer-requests" element={<CustomerRequests />} />
                   <Route path="/systems" element={<Assets />} />
                   <Route path="/systems/:id" element={<AssetTrustProfile />} />
+                  <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
