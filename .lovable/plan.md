@@ -1,112 +1,90 @@
 
 
-# Forbedret "Finn din virksomhet" -- automatisk oppslag og eierskapsverifisering
+# Forbedret "Legg til leverandorer" -- filopplasting, AI-dokumentanalyse og skanningsgrense
 
-## Hva endres
-Steget "Finn din virksomhet" i Leverandordemo-flyten (`VendorResponseDemo.tsx`) redesignes fullstendig. I stedet for at brukeren manuelt skriver inn org.nr., bruker vi konteksten fra foresporselen (vi vet allerede hvilket firma som ble kontaktet) til aa automatisk soke opp virksomheten. Brukeren bekrefter, og vi henter styreleder og daglig leder fra Brreg for eierskapsverifisering.
+## Oversikt
+Nar brukeren velger "Flere leverandorer" i AddVendorDialog, far de to nye valg i tillegg til det eksisterende soket: (A) koble til et API (kommer senere, disabled) og (B) laste opp en fil med leverandoroversikt. Opplastet fil analyseres av AI som identifiserer dokumenttype (leverandorliste, policy, DPIA osv.) og lar brukeren bekrefte eller korrigere. Et skanningstellersystem begrenser gratis AI-skanninger til 5 per periode, med upsell til Premium.
 
-## Ny brukerreise
+## Ny brukerflyt
 
 ```text
-Steg 1: E-post (uendret)
-  Vi vet: firmanavn, kontaktperson, e-post
-          |
-          v
-Steg 2: Landingsside (uendret)
-          |
-          v
-Steg 3: Finn din virksomhet (NYTT)
-  - Firmanavnet fra e-posten er pre-fylt i sokefeltet
-  - Automatisk oppslag mot Brreg (NO) / demo-data (SE/DK)
-  - Brukeren ser en liste med treff og velger riktig virksomhet
-  - Bekrefter valget
-          |
-          v
-Steg 4: Bekreft ledelse (NYTT)
-  - Henter roller fra Brreg: styreleder + daglig leder
-  - Viser navn og rolletype i kort-layout
-  - Brukeren oppgir e-post til styreleder og/eller daglig leder
-  - Sender (simulert) verifiserings-e-post til en av dem
-          |
-          v
-Steg 5: Venter paa bekreftelse (NYTT)
-  - Statusside: "Venter paa bekreftelse fra [styreleder/daglig leder]"
-  - Viser hvem som har fatt e-post og status per person
-  - Brukeren kan ikke gaa videre for en av dem har bekreftet
-  - Demo: "Simuler bekreftelse"-knapp
-  - Varsling: "Du faar beskjed naar bekreftelsen er mottatt"
-          |
-          v
-Steg 6: Trust Profil (eksisterende, med justeringer)
-  - Brukeren kan na fortsette med selvdeklarering
+Steg 1: "Hvor mange?"
+  - En leverandor (uendret)
+  - Flere leverandorer -> NY "method"-steg
+
+Steg 2 (nytt): "Hvordan vil du legge til?"
+  A) Sok manuelt (eksisterende flyt)
+  B) Koble til API (disabled, "kommer snart")
+  C) Last opp fil med leverandoroversikt
+
+Steg 3 (ved filopplasting):
+  - Drag-and-drop / filvelger
+  - AI-skanningsteller vises (f.eks. "2 av 5 skanninger igjen")
+  - Animert analysesteg:
+    1. "Leser dokumentinnhold..."
+    2. "Identifiserer dokumenttype..."
+    3. "Henter ut data..."
+    4. "Sjekker compliance-informasjon..."
+  - AI foreslaar dokumenttype (leverandorliste / policy / DPA / DPIA / annet)
+  - Brukeren kan bekrefte eller korrigere forslaget
+  - Dersom leverandorliste: viser ekstraherte leverandorer som kan importeres
+  - Dersom policy/DPIA/annet: forklarer hva som ble funnet
+
+Steg 4: Ved 5 brukte skanninger
+  - Varselbanner: "Du har brukt alle AI-skanninger"
+  - Melding: "Etter dette maa du fylle inn manuelt (5-10 min per dokument)"
+  - To knapper: "Bruk siste skanning" / "Oppgrader forst"
+  - Premium-upsell: "Ubegrenset AI-skanning for $1.37/dag"
 ```
 
-## Tekniske detaljer
+## Tekniske endringer
 
-### Brreg Roller-API
-Brreg har et eget endepunkt for roller: `https://data.brreg.no/enhetsregisteret/api/enheter/{orgnr}/roller`
+### 1. Ny edge-funksjon: `classify-document`
+Kaller Lovable AI for a identifisere dokumenttype fra filinnhold. Returnerer:
+- `documentType`: "vendor_list" | "policy" | "dpa" | "dpia" | "certificate" | "report" | "other"
+- `confidence`: number (0-1)
+- `extractedVendors`: array (kun for vendor_list)
+- `summary`: kort oppsummering
 
-Returnerer rollegrupper med typer som:
-- "Daglig leder/adm.direktor" -- inneholder daglig leder
-- "Styre" -- inneholder styrets leder, nestleder, styremedlemmer
+Bruker tool calling for strukturert output. Modell: `google/gemini-2.5-flash`.
 
-Vi lager en ny funksjon `fetchRoller` i `useBrregLookup.ts` som henter og parser dette.
+### 2. Endringer i `AddVendorDialog.tsx`
+- Ny step-type `"method"` etter "quantity" naar mode === "multiple"
+- Ny step-type `"file-upload"` for filopplasting
+- Ny step-type `"file-analyzing"` med animert analyse-UI (som i referansebildet)
+- Ny step-type `"file-results"` som viser AI-forslag og lar brukeren bekrefte/korrigere
+- State for skanneteller (lagret lokalt, starter paa 5)
+- Varselbanner naar skanninger er brukt opp
 
-### Endringer i `useBrregLookup.ts`
-- Legge til interface `BrregRolle` med navn, foedselsdato, rolletype
-- Legge til interface `BrregRolleGruppe` med type og roller-liste
-- Ny funksjon `lookupRoller(orgNumber)` som kaller roller-endepunktet
-- Returnerer filtrert liste: kun "Daglig leder" og "Styrets leder"
+### 3. AI-analyse-UI (fra referansebildene)
+Analysesteg med animerte indikatorer:
+- Sirkulaert ikon med sparkles
+- Overskrift: "Identifiserer dokumenttype..."
+- Fire statuslinjer som animeres sekvensielt:
+  1. "Leser dokumentinnhold" (faded naar ferdig)
+  2. "Identifiserer dokumenttype" (bold naar aktiv)
+  3. "Henter ut datoer og tall"
+  4. "Sjekker compliance-informasjon"
+- Loading-dots animasjon
 
-### Endringer i `VendorResponseDemo.tsx`
-Nye steg og state:
+### 4. Dokumenttype-bekreftelse
+Etter analyse viser vi:
+- AI-foreslatt type med confidence-badge
+- Dropdown for a korrigere type
+- Dersom leverandorliste: tabell med ekstraherte leverandorer
+- "Importer valgte"-knapp for leverandorer
 
-**Ny state:**
-- `vendorCompanyName` -- pre-fylt fra "e-posten" (hardkodet "Acme Consulting AS" e.l.)
-- `searchResults` -- liste med Brreg-treff for navnesok
-- `selectedCompany` -- valgt virksomhet fra listen
-- `companyRoles` -- styreleder og daglig leder hentet fra Brreg
-- `roleEmails` -- objekt med e-post per rolle (fylt inn av brukeren)
-- `verificationSent` -- hvilke roller som har fatt e-post
-- `verificationConfirmed` -- om bekreftelse er mottatt
-
-**Nye step-typer:**
-- `"trust-org"` -- redesignet: viser pre-fylt sok med resultatliste
-- `"trust-roles"` -- nytt steg: viser styreleder/daglig leder, be om e-post
-- `"trust-pending"` -- nytt steg: venter paa bekreftelse
-- `"trust-contact"` -- fjernes (erstattes av trust-roles)
-- `"trust-verify"` -- fjernes (erstattes av trust-pending)
-
-**trust-org (redesignet):**
-- Firmanavn fra e-post-konteksten er pre-fylt i sokefeltet
-- Automatisk sok ved innlasting (useEffect)
-- Resultatliste med radioknapper eller klikkbare kort
-- Hvert kort viser: navn, org.nr, bransje, sted
-- "Bekreft"-knapp som henter roller og gaar videre
-
-**trust-roles (nytt):**
-- Overskrift: "Bekreft ledelsen i [Firmanavn]"
-- Kort for styreleder og daglig leder med navn og rolle
-- E-postfelt under hvert kort
-- Info-tekst: "En av disse maa bekrefte at du representerer selskapet"
-- "Send verifisering"-knapp
-
-**trust-pending (nytt):**
-- Statusvisning med ikon per person (venter/bekreftet)
-- Tekst: "Vi har sendt en e-post til [navn]. Naar de bekrefter, kan du fortsette."
-- "Du faar varsel paa e-post naar bekreftelsen er mottatt"
-- Demo-knapp: "Simuler bekreftelse" som setter confirmed = true
-- Naar bekreftet: "Fortsett til Trust Profil"-knapp aktiveres
-
-### Demo-data for Sverige og Danmark
-For SE/DK (som ikke har Brreg) legger vi til mock-roller i demo-dataen:
-- Spotify: CEO Daniel Ek, Styreleder (mock)
-- Novo Nordisk: CEO Lars Fruergaard Jorgensen, Styreleder (mock)
+### 5. Skanningsgrense-banner
+Gjenbruker monsteret fra referansebildene:
+- Gradientbar (gronn -> gul -> rod) som viser gjenvaerende skanninger
+- Teller: "X av 5 skanninger igjen dette aaret"
+- Reset-dato
+- Naar 0 igjen: gult varselbanner med upsell
 
 ### Filendringer
-- **Endret**: `src/hooks/useBrregLookup.ts` -- ny `lookupRoller`-funksjon og roller-interfaces
-- **Endret**: `src/pages/VendorResponseDemo.tsx` -- redesignet trust-org, nye steg trust-roles og trust-pending, fjernet trust-contact og trust-verify
+- **Ny**: `supabase/functions/classify-document/index.ts` -- AI-klassifisering
+- **Endret**: `src/components/dialogs/AddVendorDialog.tsx` -- nye steg, filopplasting, analyse-UI, skanneteller
 
 ### Ingen databaseendringer
-Hele flyten forblir en klientside-demo. Ingen migrasjoner.
+Skannetelleren lagres i localStorage for demo-formaal. Ingen nye tabeller.
 
