@@ -1,82 +1,68 @@
 
+# Utgaende leverandorforesporsler - Samlet oversikt
 
-# Leverandorkategorisering - Forbedret typeinndeling
+## Konsept
+I dag har "Kundeforesporsler"-siden kun innkommende foresporsler (kunder som spor dere). Det som mangler er den andre siden: at dere kan sende foresporsler til deres egne leverandorer og folge opp status samlet.
 
-## Problemet i dag
-Alle leverandorer lagres med `asset_type: "vendor"` uten underkategorisering. Microsoft 365, en renholdsleverandor og en advokatfirma vises pa samme mate. Det mangler ogsa skille mellom "system" (systemoversikt) og "vendor" (leverandoroversikt), selv om dette i praksis overlapper.
+Losningen: Utvide Kundeforesporsler-siden med to faner pa toppniva:
 
-## Hva rammeverk og konkurrenter gjor
+- **Innkommende** (eksisterende funksjonalitet - kunder som spor dere)
+- **Utgaende** (nytt - foresporsler dere har sendt til leverandorer)
 
-### ISO 27001 (Annex A 5.19)
-Krever klassifisering av leverandorer etter:
-- **Tilgangstype**: Tilgang til data, systemer, fysisk tilgang, eller ingen direkte tilgang
-- **Kritikalitet**: Kritisk / Viktig / Standard
-- **Tjenesteomrade**: IT, Kontor, Radgivning, osv.
+## Brukerflyt for utgaende foresporsler
 
-### GDPR (Art. 28/30)
-Krever dokumentasjon av:
-- **Rolle**: Databehandler / Underdatabehandler / Felles behandlingsansvarlig
-- **Overforingsgrunnlag**: EU/EOS, Adequacy, SCC, BCR
+1. Brukeren gar til "Kundeforesporsler" i menyen
+2. Velger fanen "Utgaende"
+3. Ser en samlet oversikt med:
+   - Metrikk-kort: Totalt sendt, Avventer svar, Mottatt, Forfalt
+   - Filterbar: Sok, type foresporsler, leverandorkategori, status
+   - Liste med alle sendte foresporsler, gruppert per leverandor
+4. Kan sende ny foresporsler via "Send foresporsler"-knapp som apner en veiviser
 
-### Openli (dansk konkurrent)
-- Leverandorer tagges som **Subprocessor** (ja/nei toggle)
-- Filtrering pa **Properties** (egendefinerte tags), **DPA-status**, **Business Owner**
-- Enkel, flat liste med smarte filtre - ikke komplekse kategorier
+## Veiviser for a sende foresporsler
 
-### RISMA Systems (dansk konkurrent)
-- Fokus pa **kontraktstyring** koblet til leverandorer
-- Risikoklassifisering og compliance-scoring per leverandor
-- Kategorisering etter tjenesteomrade
+Tre steg:
 
-## Forslag: To-dimensjonal kategorisering
+**Steg 1 - Velg type**
+Radioknapper: Leverandorvurdering, DPA, ISO-dokumentasjon, SOC 2-rapport, GDPR-rapport
 
-### Dimensjon 1: Leverandortype (hva de leverer)
-| Type | Beskrivelse | Eksempel |
-|------|-------------|----------|
-| SaaS / Skytjeneste | Software-as-a-Service | Microsoft 365, Slack, HubSpot |
-| Infrastruktur / IaaS | Hosting, sky-infrastruktur | AWS, Azure, Hetzner |
-| Radgivning | Konsulenter, advokater, revisorer | PwC, Deloitte |
-| IT-drift | Driftspartner, managed services | Atea, Basefarm |
-| Kontor og fasiliteter | Renhold, kantine, kontorrekvisita | ISS, Sodexo |
-| Annet | Alt som ikke passer over | - |
+**Steg 2 - Velg leverandorer**
+- Hent leverandorer fra assets-tabellen (asset_type = "vendor")
+- Filtrer pa vendor_category og gdpr_role (de nye feltene)
+- Multi-select med checkboxer
+- "Velg alle databehandlere" som hurtigvalg
 
-### Dimensjon 2: GDPR-rolle (hvordan de behandler data)
-| Rolle | Beskrivelse |
-|-------|-------------|
-| Databehandler | Behandler personopplysninger pa vegne av dere (krever DPA) |
-| Underdatabehandler | Brukes av en av deres databehandlere |
-| Ingen persondata | Ingen tilgang til personopplysninger |
+**Steg 3 - Bekreft og send**
+- Oppsummering med frist-dato
+- Bekreft-knapp
+
+## Demo-data
+
+For prototypen legges det til demo-data som viser typiske foresporsler en stor kunde som Helse Vest IKT ville sende:
+
+| Leverandor | Type | Status | Frist |
+|------------|------|--------|-------|
+| Microsoft Norge | Leverandorvurdering | Mottatt | 2026-01-15 |
+| Atea AS | DPA-fornyelse | Avventer | 2026-03-01 |
+| AWS (Amazon) | SOC 2-rapport | Forfalt | 2026-02-01 |
+| Visma | ISO 27001 dokumentasjon | Mottatt | 2026-02-10 |
+| Basefarm | Leverandorvurdering | Under arbeid | 2026-04-01 |
+
+## Menyendring
+
+Oppdatere sidebar-menyelementet fra "Kundeforesporsler" til "Foresporsler" for a dekke begge retninger. Beholde eksisterende ikon (FileQuestion).
 
 ## Teknisk implementasjon
 
-### 1. Databaseendring
-Legg til to nye kolonner pa `assets`-tabellen:
-- `vendor_category` (text, nullable) - SaaS, Infrastruktur, Radgivning, IT-drift, Kontor, Annet
-- `gdpr_role` (text, nullable) - databehandler, underdatabehandler, ingen
-
-### 2. AddVendorDialog - nytt steg
-Etter sokeresultat-valg, for kontaktinfo-steget, legg til et kort steg:
-- **Leverandortype**: 6 knapper med ikoner (som land-velgeren i dag)
-- **GDPR-rolle**: 3 radioknapper med korte forklaringer
-
-### 3. VendorListTab - filtrering
-Legg til to nye filter-dropdowns i verktoylinjen:
-- **Type**: SaaS, Infrastruktur, Radgivning, osv.
-- **GDPR-rolle**: Databehandler, Underdatabehandler, Ingen
-
-Vis type og GDPR-rolle som badges pa VendorCard og i listevisningen.
-
-### 4. VendorOverviewTab - gruppering
-Vis en liten oversikt over fordelingen per type (f.eks. "12 SaaS, 3 Infrastruktur, 2 Radgivning") som klikkbare badges som filtrerer listen.
+### Nye filer
+- `src/components/customer-requests/OutboundRequestsTab.tsx` - Oversikt over utgaende foresporsler med metrikk, filtre og liste
+- `src/components/customer-requests/OutboundRequestCard.tsx` - Kort for hver utgaende foresporsler
+- `src/components/customer-requests/SendRequestWizard.tsx` - 3-stegs dialog for a sende nye foresporsler
 
 ### Endrede filer
-- `src/pages/Assets.tsx` - Minimale endringer (props)
-- `src/components/dialogs/AddVendorDialog.tsx` - Nytt steg for type/rolle
-- `src/components/vendor-dashboard/VendorListTab.tsx` - Nye filter-dropdowns + badges
-- `src/components/vendor-dashboard/VendorCard.tsx` - Vis type/rolle-badges
-- `src/components/vendor-dashboard/VendorOverviewTab.tsx` - Fordelingsoversikt
-- Database-migrasjon for nye kolonner
+- `src/pages/CustomerRequests.tsx` - Legge til toppniva-faner (Innkommende / Utgaende), flytte eksisterende innhold under "Innkommende"
+- `src/components/Sidebar.tsx` - Endre menynavn fra "nav.customerRequests" til "nav.requests"
+- `src/locales/nb.json` og `src/locales/en.json` - Nye oversettelser
 
-### Forholdet mellom Systemer og Leverandorer
-Systemoversikten (`/systems`) og leverandoroversikten (`/assets`) forblir separate sider, men SaaS-leverandorer kan kobles til systemer via eksisterende `asset_relationships`-tabellen. Dette er allerede stottet i koden.
-
+### Datamodell
+Alle utgaende foresporsler lagres som demo-data i koden (DEMO_OUTBOUND_REQUESTS array) uten databaseendringer, i trad med prototypetilnaermingen.
