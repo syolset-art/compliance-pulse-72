@@ -123,8 +123,8 @@ export function OutboundRequestsTab() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={isNb ? "Søk leverandør..." : "Search vendor..."}
@@ -134,7 +134,7 @@ export function OutboundRequestsTab() {
           />
         </div>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[160px]">
             <SelectValue placeholder={isNb ? "Type" : "Type"} />
           </SelectTrigger>
           <SelectContent>
@@ -147,7 +147,7 @@ export function OutboundRequestsTab() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -158,7 +158,7 @@ export function OutboundRequestsTab() {
             <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => setWizardOpen(true)} className="gap-1.5">
+        <Button onClick={() => setWizardOpen(true)} className="gap-1.5 ml-auto">
           <Plus className="h-4 w-4" />
           {isNb ? "Send forespørsel" : "Send Request"}
         </Button>
