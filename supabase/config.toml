@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.push-vendor-incidents]
 verify_jwt = false
+
+[functions.classify-document]
+verify_jwt = false
+
+[functions.suggest-vendor-category]
+verify_jwt = false
