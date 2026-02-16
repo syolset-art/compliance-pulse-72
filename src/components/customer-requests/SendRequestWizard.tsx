@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +14,42 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check, Building2, Calendar } from "lucide-react";
+import {
+  FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check,
+  Building2, Calendar, Upload, Paperclip, X, BookOpen, Save,
+} from "lucide-react";
 import { toast } from "sonner";
 
+// --- Template storage (localStorage demo) ---
+const TEMPLATES_KEY = "mynder_request_templates";
+
+interface SavedTemplate {
+  id: string;
+  name: string;
+  fileName: string;
+  fileSize: number;
+  createdAt: string;
+  requestTypes: string[]; // which request types it's relevant for
+}
+
+function getSavedTemplates(): SavedTemplate[] {
+  try {
+    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]");
+  } catch { return []; }
+}
+
+function saveTemplate(template: SavedTemplate) {
+  const existing = getSavedTemplates();
+  existing.push(template);
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(existing));
+}
+
+function removeTemplate(id: string) {
+  const existing = getSavedTemplates().filter((t) => t.id !== id);
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(existing));
+}
+
+// --- Request types ---
 const REQUEST_TYPES = [
   { value: "vendor_assessment", labelNb: "Leverandørvurdering", labelEn: "Vendor Assessment", icon: FileText,
     descNb: "En helhetlig vurdering av leverandørens sikkerhet, personvern og compliance-praksis. Brukes for å kartlegge risiko ved bruk av leverandøren.",
@@ -44,6 +77,8 @@ const REQUEST_TYPES = [
     descEn: "Request for the vendor's latest internal audit report for insight into their self-assessment." },
 ];
 
+const TOTAL_STEPS = 4;
+
 interface SendRequestWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,6 +96,14 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
     d.setDate(d.getDate() + 30);
     return d.toISOString().split("T")[0];
   });
+
+  // Attachments
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [attachedTemplateIds, setAttachedTemplateIds] = useState<string[]>([]);
+  const [showSavePrompt, setShowSavePrompt] = useState<File | null>(null);
+  const [saveTemplateName, setSaveTemplateName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [templates, setTemplates] = useState<SavedTemplate[]>(getSavedTemplates);
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendors-for-requests"],
@@ -98,6 +141,45 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
     );
   };
 
+  const handleFileUpload = (file: File) => {
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(isNb ? "Filen er for stor. Maks 20 MB." : "File too large. Max 20 MB.");
+      return;
+    }
+    setAttachedFiles((prev) => [...prev, file]);
+    // Ask if they want to save as template
+    setShowSavePrompt(file);
+    setSaveTemplateName(file.name.replace(/\.[^/.]+$/, ""));
+  };
+
+  const handleSaveAsTemplate = () => {
+    if (!showSavePrompt || !saveTemplateName.trim()) return;
+    const newTemplate: SavedTemplate = {
+      id: `tpl-${Date.now()}`,
+      name: saveTemplateName.trim(),
+      fileName: showSavePrompt.name,
+      fileSize: showSavePrompt.size,
+      createdAt: new Date().toISOString(),
+      requestTypes: selectedTypes,
+    };
+    saveTemplate(newTemplate);
+    setTemplates(getSavedTemplates());
+    toast.success(isNb ? "Mal lagret for gjenbruk" : "Template saved for reuse");
+    setShowSavePrompt(null);
+    setSaveTemplateName("");
+  };
+
+  const toggleTemplate = (id: string) => {
+    setAttachedTemplateIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    );
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSend = () => {
     onSend(selectedTypes, selectedVendors, dueDate);
     toast.success(isNb ? `${selectedTypes.length} forespørsel(er) sendt til ${selectedVendors.length} leverandør(er)` : `${selectedTypes.length} request(s) sent to ${selectedVendors.length} vendor(s)`);
@@ -108,10 +190,22 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
     setStep(1);
     setSelectedTypes([]);
     setSelectedVendors([]);
+    setAttachedFiles([]);
+    setAttachedTemplateIds([]);
+    setShowSavePrompt(null);
     onOpenChange(false);
   };
 
   const selectedTypeNames = REQUEST_TYPES.filter((t) => selectedTypes.includes(t.value));
+  const totalAttachments = attachedFiles.length + attachedTemplateIds.length;
+
+  // Filter templates relevant to selected request types
+  const relevantTemplates = templates.filter(
+    (t) => t.requestTypes.length === 0 || t.requestTypes.some((rt) => selectedTypes.includes(rt))
+  );
+  const otherTemplates = templates.filter(
+    (t) => t.requestTypes.length > 0 && !t.requestTypes.some((rt) => selectedTypes.includes(rt))
+  );
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
@@ -121,7 +215,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
             {isNb ? "Send forespørsel til leverandører" : "Send Request to Vendors"}
           </DialogTitle>
           <div className="flex items-center gap-2 mt-2">
-            {[1, 2, 3].map((s) => (
+            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
               <div
                 key={s}
                 className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`}
@@ -130,7 +224,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
           </div>
         </DialogHeader>
 
-        {/* Step 1: Choose type */}
+        {/* Step 1: Choose types */}
         {step === 1 && (
           <div className="space-y-3 py-2">
             <p className="text-sm text-muted-foreground">
@@ -222,8 +316,159 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
           </div>
         )}
 
-        {/* Step 3: Confirm */}
+        {/* Step 3: Attachments */}
         {step === 3 && (
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              {isNb
+                ? "Vil du legge ved egne maler eller dokumenter? F.eks. en egen DPA-mal leverandøren skal fylle ut."
+                : "Want to attach your own templates or documents? E.g. a custom DPA template for the vendor to fill out."}
+            </p>
+
+            {/* Save-as-template prompt */}
+            {showSavePrompt && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-start gap-2">
+                  <Save className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 space-y-2">
+                    <p className="text-xs font-medium">
+                      {isNb
+                        ? "Vil du lagre dette dokumentet som en gjenbrukbar mal?"
+                        : "Save this document as a reusable template?"}
+                    </p>
+                    <Input
+                      placeholder={isNb ? "Gi malen et navn..." : "Name the template..."}
+                      value={saveTemplateName}
+                      onChange={(e) => setSaveTemplateName(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" className="h-7 text-xs" onClick={handleSaveAsTemplate}>
+                        <Save className="h-3 w-3 mr-1" /> {isNb ? "Lagre mal" : "Save template"}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setShowSavePrompt(null)}>
+                        {isNb ? "Nei takk" : "No thanks"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Saved templates */}
+            {templates.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs font-medium flex items-center gap-1.5">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  {isNb ? "Lagrede maler" : "Saved templates"}
+                </Label>
+                <div className="max-h-36 overflow-y-auto space-y-1 border rounded-lg p-2">
+                  {(relevantTemplates.length > 0 ? relevantTemplates : templates).map((tpl) => (
+                    <label
+                      key={tpl.id}
+                      className={`flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer transition-colors ${
+                        attachedTemplateIds.includes(tpl.id) ? "bg-primary/5" : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={attachedTemplateIds.includes(tpl.id)}
+                        onCheckedChange={() => toggleTemplate(tpl.id)}
+                      />
+                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium">{tpl.name}</span>
+                        <p className="text-[10px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</p>
+                      </div>
+                    </label>
+                  ))}
+                  {relevantTemplates.length > 0 && otherTemplates.length > 0 && (
+                    <>
+                      <div className="px-3 py-1">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                          {isNb ? "Andre maler" : "Other templates"}
+                        </span>
+                      </div>
+                      {otherTemplates.map((tpl) => (
+                        <label
+                          key={tpl.id}
+                          className={`flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer transition-colors opacity-70 ${
+                            attachedTemplateIds.includes(tpl.id) ? "bg-primary/5 opacity-100" : "hover:bg-muted/50"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={attachedTemplateIds.includes(tpl.id)}
+                            onCheckedChange={() => toggleTemplate(tpl.id)}
+                          />
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium">{tpl.name}</span>
+                            <p className="text-[10px] text-muted-foreground">{tpl.fileName}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Upload new */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium flex items-center gap-1.5">
+                <Upload className="h-3.5 w-3.5" />
+                {isNb ? "Last opp nytt dokument" : "Upload new document"}
+              </Label>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border hover:border-primary/50 p-4 transition-colors cursor-pointer"
+              >
+                <Upload className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {isNb ? "Klikk for å velge fil" : "Click to select file"}
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.txt"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileUpload(file);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
+            {/* Attached files list */}
+            {attachedFiles.length > 0 && (
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">
+                  {isNb ? "Vedlagte filer" : "Attached files"}
+                </Label>
+                {attachedFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-md border px-3 py-1.5">
+                    <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="text-sm flex-1 truncate">{f.name}</span>
+                    <span className="text-[10px] text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</span>
+                    <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-foreground">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              {isNb
+                ? "Vedlegg er valgfritt. Du kan også hoppe over dette steget."
+                : "Attachments are optional. You can skip this step."}
+            </p>
+          </div>
+        )}
+
+        {/* Step 4: Confirm */}
+        {step === 4 && (
           <div className="space-y-4 py-2">
             <div className="rounded-lg border p-4 space-y-3">
               <div className="flex items-start justify-between">
@@ -240,6 +485,12 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                 <span className="text-sm text-muted-foreground">{isNb ? "Leverandører" : "Vendors"}</span>
                 <span className="text-sm font-medium">{selectedVendors.length}</span>
               </div>
+              {totalAttachments > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{isNb ? "Vedlegg" : "Attachments"}</span>
+                  <span className="text-sm font-medium">{totalAttachments}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{isNb ? "Frist" : "Due date"}</span>
                 <div className="flex items-center gap-2">
@@ -270,12 +521,14 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
           ) : (
             <div />
           )}
-          {step < 3 ? (
+          {step < TOTAL_STEPS ? (
             <Button
               onClick={() => setStep(step + 1)}
               disabled={(step === 1 && selectedTypes.length === 0) || (step === 2 && selectedVendors.length === 0)}
             >
-              {isNb ? "Neste" : "Next"}
+              {step === 3 && totalAttachments === 0
+                ? (isNb ? "Hopp over" : "Skip")
+                : (isNb ? "Neste" : "Next")}
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
@@ -289,3 +542,6 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
     </Dialog>
   );
 }
+
+// Export for use in template library
+export { getSavedTemplates, removeTemplate, type SavedTemplate };
