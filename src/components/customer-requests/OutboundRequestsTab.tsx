@@ -81,15 +81,17 @@ export function OutboundRequestsTab() {
   const received = requests.filter((r) => r.status === "received").length;
   const overdue = requests.filter((r) => r.status === "overdue").length;
 
-  const handleSend = (type: string, vendorIds: string[], dueDate: string) => {
-    const newRequests: OutboundRequest[] = vendorIds.map((id, i) => ({
-      id: `out-new-${Date.now()}-${i}`,
-      vendor_name: `Leverandør ${id.substring(0, 6)}`,
-      request_type: type,
-      status: "awaiting" as const,
-      due_date: dueDate,
-      sent_date: new Date().toISOString().split("T")[0],
-    }));
+  const handleSend = (types: string[], vendorIds: string[], dueDate: string) => {
+    const newRequests: OutboundRequest[] = types.flatMap((type) =>
+      vendorIds.map((id, i) => ({
+        id: `out-new-${Date.now()}-${type}-${i}`,
+        vendor_name: `Leverandør ${id.substring(0, 6)}`,
+        request_type: type,
+        status: "awaiting" as const,
+        due_date: dueDate,
+        sent_date: new Date().toISOString().split("T")[0],
+      }))
+    );
     setRequests((prev) => [...newRequests, ...prev]);
   };
 
