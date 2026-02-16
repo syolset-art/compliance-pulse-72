@@ -21,42 +21,49 @@ interface BrregSuggestion {
   employeesLabel: string;
 }
 
+export interface BrregRolle {
+  navn: string;
+  rolletype: string;
+}
+
+interface BrregSearchResult {
+  organisasjonsnummer: string;
+  navn: string;
+  naeringskode1?: {
+    kode: string;
+    beskrivelse: string;
+  };
+  forretningsadresse?: {
+    kommune: string;
+    poststed: string;
+  };
+}
+
 // Map Brønnøysund industry codes to our internal industry values
 const mapNaeringskodeToIndustry = (kode: string, beskrivelse: string): { id: string; label: string } => {
   const lowerBeskrivelse = beskrivelse.toLowerCase();
   
-  // Energy sector
   if (kode.startsWith("35") || lowerBeskrivelse.includes("energi") || lowerBeskrivelse.includes("kraft")) {
     return { id: "energi", label: "Energi" };
   }
-  
-  // Healthcare
   if (kode.startsWith("86") || kode.startsWith("87") || kode.startsWith("88") || 
       lowerBeskrivelse.includes("helse") || lowerBeskrivelse.includes("medisin")) {
     return { id: "helse", label: "Helse" };
   }
-  
-  // Finance
   if (kode.startsWith("64") || kode.startsWith("65") || kode.startsWith("66") ||
       lowerBeskrivelse.includes("finans") || lowerBeskrivelse.includes("bank") || 
       lowerBeskrivelse.includes("forsikring")) {
     return { id: "finans", label: "Finans" };
   }
-  
-  // Public sector
   if (kode.startsWith("84") || lowerBeskrivelse.includes("offentlig") || 
       lowerBeskrivelse.includes("forvaltning") || lowerBeskrivelse.includes("kommune")) {
     return { id: "offentlig", label: "Offentlig sektor" };
   }
-  
-  // Tech / SaaS
   if (kode.startsWith("62") || kode.startsWith("63") || kode.startsWith("58") ||
       lowerBeskrivelse.includes("programvare") || lowerBeskrivelse.includes("it-") ||
       lowerBeskrivelse.includes("data") || lowerBeskrivelse.includes("software")) {
     return { id: "saas", label: "Tech / SaaS" };
   }
-  
-  // Default
   return { id: "other", label: beskrivelse };
 };
 
@@ -75,12 +82,13 @@ export function useBrregLookup() {
   const [error, setError] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<BrregSuggestion | null>(null);
   const [rawData, setRawData] = useState<BrregData | null>(null);
+  const [searchResults, setSearchResults] = useState<BrregSearchResult[]>([]);
+  const [roles, setRoles] = useState<BrregRolle[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
+  const [rolesError, setRolesError] = useState<string | null>(null);
 
   const lookupByOrgNumber = useCallback(async (orgNumber: string): Promise<BrregSuggestion | null> => {
-    // Clean the org number (remove spaces and dashes)
     const cleanOrgNumber = orgNumber.replace(/[\s-]/g, "");
-    
-    // Validate org number format (9 digits for Norwegian org numbers)
     if (!/^\d{9}$/.test(cleanOrgNumber)) {
       setError("Ugyldig organisasjonsnummer");
       return null;
@@ -106,7 +114,6 @@ export function useBrregLookup() {
       const data: BrregData = await response.json();
       setRawData(data);
 
-      // Map the data to our format
       const industryMapping = data.naeringskode1 
         ? mapNaeringskodeToIndustry(data.naeringskode1.kode, data.naeringskode1.beskrivelse)
         : { id: "other", label: "Ukjent" };
@@ -133,17 +140,127 @@ export function useBrregLookup() {
     }
   }, []);
 
+  const searchByName = useCallback(async (name: string): Promise<BrregSearchResult[]> => {
+    if (!name || name.trim().length < 2) {
+      setSearchResults([]);
+      return [];
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setSearchResults([]);
+
+    try {
+      const response = await fetch(
+        `https://data.brreg.no/enhetsregisteret/api/enheter?navn=${encodeURIComponent(name.trim())}&size=5`
+      );
+
+      if (!response.ok) {
+        setError("Kunne ikke søke i Brønnøysundregistrene");
+        return [];
+      }
+
+      const data = await response.json();
+      const results: BrregSearchResult[] = (data._embedded?.enheter || []).map((e: any) => ({
+        organisasjonsnummer: e.organisasjonsnummer,
+        navn: e.navn,
+        naeringskode1: e.naeringskode1,
+        forretningsadresse: e.forretningsadresse,
+      }));
+
+      setSearchResults(results);
+      return results;
+    } catch (err) {
+      console.error("Error searching Brønnøysund:", err);
+      setError("Nettverksfeil ved søk mot Brønnøysundregistrene");
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const lookupRoller = useCallback(async (orgNumber: string): Promise<BrregRolle[]> => {
+    const cleanOrgNumber = orgNumber.replace(/[\s-]/g, "");
+    if (!/^\d{9}$/.test(cleanOrgNumber)) {
+      setRolesError("Ugyldig organisasjonsnummer");
+      return [];
+    }
+
+    setRolesLoading(true);
+    setRolesError(null);
+    setRoles([]);
+
+    try {
+      const response = await fetch(
+        `https://data.brreg.no/enhetsregisteret/api/enheter/${cleanOrgNumber}/roller`
+      );
+
+      if (!response.ok) {
+        setRolesError("Kunne ikke hente roller fra Brønnøysundregistrene");
+        return [];
+      }
+
+      const data = await response.json();
+      const extractedRoles: BrregRolle[] = [];
+
+      // Parse rollegrupper to find Daglig leder and Styrets leder
+      for (const gruppe of data.rollegrupper || []) {
+        for (const roller of gruppe.roller || []) {
+          const roleType = roller.type?.beskrivelse || "";
+          
+          if (roleType === "Daglig leder/ adm. direktør" || roleType === "Daglig leder/adm.direktør" || roleType.toLowerCase().includes("daglig leder")) {
+            const person = roller.person;
+            if (person) {
+              extractedRoles.push({
+                navn: `${person.navn?.fornavn || ""} ${person.navn?.etternavn || ""}`.trim(),
+                rolletype: "Daglig leder",
+              });
+            }
+          }
+          
+          if (roleType === "Styrets leder" || roleType.toLowerCase().includes("styrets leder")) {
+            const person = roller.person;
+            if (person) {
+              extractedRoles.push({
+                navn: `${person.navn?.fornavn || ""} ${person.navn?.etternavn || ""}`.trim(),
+                rolletype: "Styrets leder",
+              });
+            }
+          }
+        }
+      }
+
+      setRoles(extractedRoles);
+      return extractedRoles;
+    } catch (err) {
+      console.error("Error fetching roles from Brønnøysund:", err);
+      setRolesError("Nettverksfeil ved henting av roller");
+      return [];
+    } finally {
+      setRolesLoading(false);
+    }
+  }, []);
+
   const clearSuggestion = useCallback(() => {
     setSuggestion(null);
     setRawData(null);
     setError(null);
+    setSearchResults([]);
+    setRoles([]);
+    setRolesError(null);
   }, []);
 
   return {
     lookupByOrgNumber,
+    searchByName,
+    lookupRoller,
     clearSuggestion,
     suggestion,
     rawData,
+    searchResults,
+    roles,
+    rolesLoading,
+    rolesError,
     isLoading,
     error,
   };
