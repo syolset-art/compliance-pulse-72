@@ -10,19 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowLeft, Building2, CreditCard, Mail, FileText, Save } from "lucide-react";
+import { ArrowLeft, Building2, CreditCard, Mail, FileText, Save, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface BillingSettings {
-  company_name: string;
   address_line1: string;
   address_line2: string;
   postal_code: string;
   city: string;
   country: string;
-  org_number: string;
   vat_number: string;
   contact_email: string;
   invoice_email: string;
@@ -33,13 +30,11 @@ interface BillingSettings {
 }
 
 const defaults: BillingSettings = {
-  company_name: "",
   address_line1: "",
   address_line2: "",
   postal_code: "",
   city: "",
   country: "Norge",
-  org_number: "",
   vat_number: "",
   contact_email: "",
   invoice_email: "",
@@ -53,6 +48,19 @@ export default function MSPBillingSettings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<BillingSettings>(defaults);
+
+  // Fetch company profile (read-only company info)
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company-profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("name, org_number")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ["msp-billing-settings", user?.id],
@@ -71,13 +79,11 @@ export default function MSPBillingSettings() {
   useEffect(() => {
     if (existing) {
       setForm({
-        company_name: existing.company_name || "",
         address_line1: existing.address_line1 || "",
         address_line2: existing.address_line2 || "",
         postal_code: existing.postal_code || "",
         city: existing.city || "",
         country: existing.country || "Norge",
-        org_number: existing.org_number || "",
         vat_number: existing.vat_number || "",
         contact_email: existing.contact_email || "",
         invoice_email: existing.invoice_email || "",
@@ -91,7 +97,13 @@ export default function MSPBillingSettings() {
 
   const mutation = useMutation({
     mutationFn: async (data: BillingSettings) => {
-      const payload = { ...data, msp_user_id: user!.id, updated_at: new Date().toISOString() };
+      const payload = {
+        ...data,
+        company_name: companyProfile?.name || "",
+        org_number: companyProfile?.org_number || "",
+        msp_user_id: user!.id,
+        updated_at: new Date().toISOString(),
+      };
       if (existing) {
         const { error } = await supabase
           .from("msp_billing_settings" as any)
@@ -145,20 +157,40 @@ export default function MSPBillingSettings() {
             </div>
           </div>
 
-          {/* Company info */}
+          {/* Company info – read-only from company_profile */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Firmainformasjon
+                Selskapsinformasjon
+              </CardTitle>
+              <CardDescription className="flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5" />
+                Hentes fra firmaprofilen og kan endres under Innstillinger
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Firmanavn</Label>
+                <Input value={companyProfile?.name || "–"} disabled className="bg-muted/50" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Organisasjonsnummer</Label>
+                <Input value={companyProfile?.org_number || "–"} disabled className="bg-muted/50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Billing address */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Fakturaadresse
               </CardTitle>
               <CardDescription>Adressen som vises på fakturaer</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Firmanavn</Label>
-                <Input value={form.company_name} onChange={(e) => update("company_name", e.target.value)} placeholder="Firmanavn AS" />
-              </div>
               <div className="space-y-2">
                 <Label>Adresselinje 1</Label>
                 <Input value={form.address_line1} onChange={(e) => update("address_line1", e.target.value)} placeholder="Gateadresse" />
@@ -238,10 +270,6 @@ export default function MSPBillingSettings() {
                   <div className="flex items-center gap-3">
                     <Switch checked={form.ehf_enabled} onCheckedChange={(v) => update("ehf_enabled", v)} />
                     <Label>EHF er aktivert hos oss</Label>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Organisasjonsnummer</Label>
-                    <Input value={form.org_number} onChange={(e) => update("org_number", e.target.value)} placeholder="123 456 789" />
                   </div>
                   <div className="space-y-2">
                     <Label>VAT-nummer</Label>
