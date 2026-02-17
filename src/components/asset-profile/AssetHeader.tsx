@@ -91,6 +91,18 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
 
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company_profile_msp"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_profile").select("is_msp_partner").limit(1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: isSelf,
+  });
+
+  const isMspPartner = isSelf && (companyProfile as any)?.is_msp_partner === true;
+
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work_areas"],
     queryFn: async () => {
@@ -258,6 +270,12 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             {asset.asset_type === 'self' && (
               <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px] shrink-0">
                 {isNb ? "Selverklæring" : "Self-declaration"}
+              </Badge>
+            )}
+            {isMspPartner && (
+              <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] shrink-0 gap-1">
+                <Award className="h-3 w-3" />
+                Mynder Partner
               </Badge>
             )}
             <Badge variant="outline" className="text-[10px] shrink-0">
