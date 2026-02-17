@@ -1389,7 +1389,8 @@
       "overview": "Overview",
       "all": "All Vendors",
       "map": "Map",
-      "supplyChain": "Supply Chain"
+      "supplyChain": "Supply Chain",
+      "compare": "Compare"
     },
     "addVendor": "Add Vendor",
     "discoverAI": "Discover with AI",

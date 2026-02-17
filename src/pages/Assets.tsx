@@ -14,6 +14,7 @@ import { VendorOverviewTab } from "@/components/vendor-dashboard/VendorOverviewT
 import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
+import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 export default function Assets() {
@@ -120,6 +121,7 @@ export default function Assets() {
               <TabsTrigger value="all">{t("vendorDashboard.tabs.all")}</TabsTrigger>
               <TabsTrigger value="map">{t("vendorDashboard.tabs.map")}</TabsTrigger>
               <TabsTrigger value="supplyChain">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
+              <TabsTrigger value="compare">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -150,6 +152,10 @@ export default function Assets() {
                 allAssets={assets}
                 relationships={relationships}
               />
+            </TabsContent>
+
+            <TabsContent value="compare">
+              <VendorCompareTab vendors={vendors} />
             </TabsContent>
           </Tabs>
         </div>
