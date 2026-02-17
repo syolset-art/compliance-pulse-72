@@ -10,6 +10,7 @@ import { MSPMetricsRow } from "@/components/msp/MSPMetricsRow";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { MSPInvoicesTab } from "@/components/msp/MSPInvoicesTab";
+import { MSPLicensesTab } from "@/components/msp/MSPLicensesTab";
 
 export default function MSPDashboard() {
   const { user } = useAuth();
@@ -49,6 +50,7 @@ export default function MSPDashboard() {
           <Tabs defaultValue="kunder" className="space-y-6">
             <TabsList>
               <TabsTrigger value="kunder">Kunder</TabsTrigger>
+              <TabsTrigger value="lisenser">Lisenser</TabsTrigger>
               <TabsTrigger value="fakturaer">Fakturaer</TabsTrigger>
             </TabsList>
 
@@ -67,6 +69,10 @@ export default function MSPDashboard() {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="lisenser">
+              <MSPLicensesTab />
             </TabsContent>
 
             <TabsContent value="fakturaer">

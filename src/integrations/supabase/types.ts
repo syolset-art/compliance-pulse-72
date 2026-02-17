@@ -1246,6 +1246,102 @@ export type Database = {
         }
         Relationships: []
       }
+      msp_license_purchases: {
+        Row: {
+          created_at: string
+          discount_percent: number
+          id: string
+          msp_user_id: string
+          period_end: string
+          period_start: string
+          purchased_at: string
+          quantity: number
+          renewal_price: number | null
+          status: string
+          total_amount: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          msp_user_id: string
+          period_end?: string
+          period_start?: string
+          purchased_at?: string
+          quantity: number
+          renewal_price?: number | null
+          status?: string
+          total_amount: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          msp_user_id?: string
+          period_end?: string
+          period_start?: string
+          purchased_at?: string
+          quantity?: number
+          renewal_price?: number | null
+          status?: string
+          total_amount?: number
+          unit_price?: number
+        }
+        Relationships: []
+      }
+      msp_licenses: {
+        Row: {
+          assigned_customer_id: string | null
+          created_at: string
+          id: string
+          license_key: string
+          msp_user_id: string
+          period_end: string
+          period_start: string
+          purchase_id: string
+          status: string
+        }
+        Insert: {
+          assigned_customer_id?: string | null
+          created_at?: string
+          id?: string
+          license_key?: string
+          msp_user_id: string
+          period_end?: string
+          period_start?: string
+          purchase_id: string
+          status?: string
+        }
+        Update: {
+          assigned_customer_id?: string | null
+          created_at?: string
+          id?: string
+          license_key?: string
+          msp_user_id?: string
+          period_end?: string
+          period_start?: string
+          purchase_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msp_licenses_assigned_customer_id_fkey"
+            columns: ["assigned_customer_id"]
+            isOneToOne: false
+            referencedRelation: "msp_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "msp_licenses_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "msp_license_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
