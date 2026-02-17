@@ -3,9 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import {
+  INDUSTRIES, EMPLOYEE_RANGES, SUBSCRIPTION_PLANS, COMPANY_ROLES, COMPLIANCE_ROLES,
+} from "@/lib/mspCustomerConstants";
 
 interface Props {
   open: boolean;
@@ -16,34 +22,45 @@ interface Props {
 
 export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: Props) {
   const { user } = useAuth();
-  const [customerName, setCustomerName] = useState("");
-  const [contactPerson, setContactPerson] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    customer_name: "",
+    org_number: "",
+    industry: "",
+    employees: "",
+    contact_person: "",
+    contact_email: "",
+    contact_company_role: "",
+    contact_compliance_role: "",
+    subscription_plan: "SMB",
+  });
 
-  const isValid = customerName.trim().length > 0 && contactEmail.trim().length > 0 && contactEmail.includes("@");
+  const isValid = form.customer_name.trim().length > 0 && form.contact_email.trim().length > 0 && form.contact_email.includes("@");
 
   const handleAssign = async () => {
     if (!isValid || !license || !user?.id) return;
     setLoading(true);
     try {
-      // Create customer record
       const { data: customer, error: customerError } = await supabase
         .from("msp_customers" as any)
         .insert({
           msp_user_id: user.id,
-          customer_name: customerName.trim(),
-          contact_person: contactPerson.trim() || null,
-          contact_email: contactEmail.trim(),
+          customer_name: form.customer_name.trim(),
+          org_number: form.org_number || null,
+          industry: form.industry || null,
+          employees: form.employees || null,
+          contact_person: form.contact_person.trim() || null,
+          contact_email: form.contact_email.trim(),
+          contact_company_role: form.contact_company_role || null,
+          contact_compliance_role: form.contact_compliance_role || null,
           status: "onboarding",
-          subscription_plan: "SMB",
+          subscription_plan: form.subscription_plan,
         } as any)
         .select()
         .single();
 
       if (customerError) throw customerError;
 
-      // Assign license to new customer
       const { error: licenseError } = await supabase
         .from("msp_licenses" as any)
         .update({ assigned_customer_id: (customer as any).id, status: "assigned" } as any)
@@ -51,12 +68,10 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
 
       if (licenseError) throw licenseError;
 
-      toast.success(`Lisens tildelt ${customerName.trim()}. Onboarding-e-post sendes.`);
+      toast.success(`Lisens tildelt ${form.customer_name.trim()}. Onboarding-e-post sendes.`);
       onSuccess();
       onOpenChange(false);
-      setCustomerName("");
-      setContactPerson("");
-      setContactEmail("");
+      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", contact_company_role: "", contact_compliance_role: "", subscription_plan: "SMB" });
     } catch (e: any) {
       toast.error("Feil: " + e.message);
     } finally {
@@ -66,7 +81,7 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Tildel lisens til ny kunde</DialogTitle>
           <DialogDescription>Lisensnøkkel: {license?.license_key}</DialogDescription>
@@ -77,20 +92,88 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
             <Input
               id="customer-name"
               placeholder="Firma AS"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
+              value={form.customer_name}
+              onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
               maxLength={200}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="org-number">Org.nummer</Label>
+            <Input
+              id="org-number"
+              placeholder="123 456 789"
+              value={form.org_number}
+              onChange={(e) => setForm({ ...form, org_number: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Bransje</Label>
+              <Select value={form.industry} onValueChange={(v) => setForm({ ...form, industry: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg bransje" /></SelectTrigger>
+                <SelectContent>
+                  {INDUSTRIES.map((i) => (
+                    <SelectItem key={i} value={i}>{i}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Antall ansatte</Label>
+              <Select value={form.employees} onValueChange={(v) => setForm({ ...form, employees: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg" /></SelectTrigger>
+                <SelectContent>
+                  {EMPLOYEE_RANGES.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="contact-person">Kontaktperson</Label>
             <Input
               id="contact-person"
               placeholder="Ola Nordmann"
-              value={contactPerson}
-              onChange={(e) => setContactPerson(e.target.value)}
+              value={form.contact_person}
+              onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
               maxLength={200}
             />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Rolle i selskapet</Label>
+              <Select value={form.contact_company_role} onValueChange={(v) => setForm({ ...form, contact_company_role: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg rolle" /></SelectTrigger>
+                <SelectContent>
+                  {COMPANY_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Compliance-rolle</Label>
+              <Select value={form.contact_compliance_role} onValueChange={(v) => setForm({ ...form, contact_compliance_role: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg rolle" /></SelectTrigger>
+                <SelectContent>
+                  {COMPLIANCE_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Abonnement</Label>
+            <Select value={form.subscription_plan} onValueChange={(v) => setForm({ ...form, subscription_plan: v })}>
+              <SelectTrigger><SelectValue placeholder="Velg plan" /></SelectTrigger>
+              <SelectContent>
+                {SUBSCRIPTION_PLANS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="contact-email">E-post *</Label>
@@ -98,8 +181,8 @@ export function AssignLicenseDialog({ open, onOpenChange, license, onSuccess }: 
               id="contact-email"
               type="email"
               placeholder="kontakt@firma.no"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
+              value={form.contact_email}
+              onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
               maxLength={255}
             />
             <p className="text-xs text-muted-foreground">Kunden mottar en e-post med invitasjon til onboarding</p>
