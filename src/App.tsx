@@ -33,6 +33,8 @@ import QualityDashboard from "./pages/QualityDashboard";
 import LaraInbox from "./pages/LaraInbox";
 import CustomerRequests from "./pages/CustomerRequests";
 import VendorResponseDemo from "./pages/VendorResponseDemo";
+import MSPDashboard from "./pages/MSPDashboard";
+import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +77,8 @@ const App = () => (
                   <Route path="/systems" element={<Assets />} />
                   <Route path="/systems/:id" element={<AssetTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
+                  <Route path="/msp-dashboard" element={<MSPDashboard />} />
+                  <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
