@@ -534,8 +534,14 @@ export type Database = {
         Row: {
           brreg_employees: number | null
           brreg_industry: string | null
+          ciso_email: string | null
+          ciso_name: string | null
+          compliance_officer: string | null
+          compliance_officer_email: string | null
           created_at: string | null
           domain: string | null
+          dpo_email: string | null
+          dpo_name: string | null
           employees: string | null
           id: string
           industry: string
@@ -551,8 +557,14 @@ export type Database = {
         Insert: {
           brreg_employees?: number | null
           brreg_industry?: string | null
+          ciso_email?: string | null
+          ciso_name?: string | null
+          compliance_officer?: string | null
+          compliance_officer_email?: string | null
           created_at?: string | null
           domain?: string | null
+          dpo_email?: string | null
+          dpo_name?: string | null
           employees?: string | null
           id?: string
           industry: string
@@ -568,8 +580,14 @@ export type Database = {
         Update: {
           brreg_employees?: number | null
           brreg_industry?: string | null
+          ciso_email?: string | null
+          ciso_name?: string | null
+          compliance_officer?: string | null
+          compliance_officer_email?: string | null
           created_at?: string | null
           domain?: string | null
+          dpo_email?: string | null
+          dpo_name?: string | null
           employees?: string | null
           id?: string
           industry?: string
