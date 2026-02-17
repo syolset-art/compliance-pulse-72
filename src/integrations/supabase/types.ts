@@ -1158,6 +1158,7 @@ export type Database = {
           onboarding_completed: boolean | null
           org_number: string | null
           status: string | null
+          subscription_plan: string
         }
         Insert: {
           active_frameworks?: string[] | null
@@ -1175,6 +1176,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           org_number?: string | null
           status?: string | null
+          subscription_plan?: string
         }
         Update: {
           active_frameworks?: string[] | null
@@ -1192,6 +1194,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           org_number?: string | null
           status?: string | null
+          subscription_plan?: string
         }
         Relationships: []
       }
