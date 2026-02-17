@@ -1214,6 +1214,8 @@ export type Database = {
         Row: {
           active_frameworks: string[] | null
           compliance_score: number | null
+          contact_company_role: string | null
+          contact_compliance_role: string | null
           contact_email: string | null
           contact_person: string | null
           created_at: string | null
@@ -1232,6 +1234,8 @@ export type Database = {
         Insert: {
           active_frameworks?: string[] | null
           compliance_score?: number | null
+          contact_company_role?: string | null
+          contact_compliance_role?: string | null
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null
@@ -1250,6 +1254,8 @@ export type Database = {
         Update: {
           active_frameworks?: string[] | null
           compliance_score?: number | null
+          contact_company_role?: string | null
+          contact_compliance_role?: string | null
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null

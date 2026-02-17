@@ -29,6 +29,23 @@ const EMPLOYEE_RANGES = [
 
 const SUBSCRIPTION_PLANS = ["Gratis", "Basis", "Premium"];
 
+const COMPANY_ROLES = [
+  "Daglig leder",
+  "IT-sjef / CTO",
+  "Administrasjonsleder",
+  "Avdelingsleder",
+  "Annet",
+];
+
+const COMPLIANCE_ROLES = [
+  "Compliance-ansvarlig",
+  "Personvernombud (DPO)",
+  "Sikkerhetsansvarlig (CISO)",
+  "AI Governance-ansvarlig",
+  "Operativ bruker",
+  "Ingen spesifikk rolle",
+];
+
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
@@ -39,6 +56,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     employees: "",
     contact_person: "",
     contact_email: "",
+    contact_company_role: "",
+    contact_compliance_role: "",
     subscription_plan: "Gratis",
   });
 
@@ -62,6 +81,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         employees: form.employees || null,
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
+        contact_company_role: form.contact_company_role || null,
+        contact_compliance_role: form.contact_compliance_role || null,
         compliance_score: 0,
         status: "onboarding",
         active_frameworks: [],
@@ -71,7 +92,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
       if (error) throw error;
 
       toast.success("Kunde lagt til!");
-      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", subscription_plan: "Gratis" });
+      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", contact_company_role: "", contact_compliance_role: "", subscription_plan: "Gratis" });
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -138,6 +159,30 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
               placeholder="Navn Navnesen"
             />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Rolle i selskapet</Label>
+              <Select value={form.contact_company_role} onValueChange={(v) => setForm({ ...form, contact_company_role: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg rolle" /></SelectTrigger>
+                <SelectContent>
+                  {COMPANY_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Compliance-rolle</Label>
+              <Select value={form.contact_compliance_role} onValueChange={(v) => setForm({ ...form, contact_compliance_role: v })}>
+                <SelectTrigger><SelectValue placeholder="Velg rolle" /></SelectTrigger>
+                <SelectContent>
+                  {COMPLIANCE_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div>
             <Label>Abonnement</Label>
