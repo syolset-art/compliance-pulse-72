@@ -28,7 +28,8 @@ import {
   Users,
   Send,
   Camera,
-  Loader2
+  Loader2,
+  Award
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
