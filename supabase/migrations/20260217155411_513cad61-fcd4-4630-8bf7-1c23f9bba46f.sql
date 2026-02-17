@@ -1,0 +1,1 @@
+ALTER TABLE public.msp_customers ADD COLUMN subscription_plan text DEFAULT 'Gratis' NOT NULL;
