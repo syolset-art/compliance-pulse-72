@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -49,6 +51,18 @@ export default function VendorResponseDemo() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch the user's company profile to personalize the demo
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company_profile_demo"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_profile").select("*").limit(1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const senderCompanyName = companyProfile?.name || "Din virksomhet";
 
   // Trust profile flow state
   const [searchQuery, setSearchQuery] = useState(DEMO_VENDOR.companyName);
@@ -170,7 +184,7 @@ export default function VendorResponseDemo() {
               <div className="bg-muted/50 px-6 py-4 border-b space-y-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Mail className="h-4 w-4" />
-                  <span>Fra: <strong className="text-foreground">HULT IT AS</strong> via Mynder &lt;no-reply@mynder.io&gt;</span>
+                  <span>Fra: <strong className="text-foreground">{senderCompanyName}</strong> via Mynder &lt;no-reply@mynder.io&gt;</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Til: {DEMO_VENDOR.contactEmail}
@@ -187,13 +201,13 @@ export default function VendorResponseDemo() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Hei {DEMO_VENDOR.contactPerson},
                   <br /><br />
-                  <strong>HULT IT AS</strong> bruker Mynder for å administrere sin leverandørkjede og compliance-dokumentasjon.
-                  De ber <strong>{DEMO_VENDOR.companyName}</strong> om å sende inn en <strong>oppdatert databehandleravtale (DPA)</strong> innen <strong>15. mars 2026</strong>.
-                </p>
+                   <strong>{senderCompanyName}</strong> bruker Mynder for å administrere sin leverandørkjede og compliance-dokumentasjon.
+                   De ber <strong>{DEMO_VENDOR.companyName}</strong> om å sende inn en <strong>oppdatert databehandleravtale (DPA)</strong> innen <strong>15. mars 2026</strong>.
+                 </p>
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-1">
                   <p className="text-sm font-medium">Forespørselsdetaljer:</p>
                   <p className="text-sm text-muted-foreground">📄 Dokumenttype: Databehandleravtale (DPA)</p>
-                  <p className="text-sm text-muted-foreground">🏢 Fra: HULT IT AS</p>
+                  <p className="text-sm text-muted-foreground">🏢 Fra: {senderCompanyName}</p>
                   <p className="text-sm text-muted-foreground">🏢 Til: {DEMO_VENDOR.companyName}</p>
                   <p className="text-sm text-muted-foreground">⏰ Frist: 15. mars 2026</p>
                 </div>
@@ -204,7 +218,7 @@ export default function VendorResponseDemo() {
                   Se forespørselen <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  Denne e-posten er sendt via Mynder på vegne av HULT IT AS.
+                  Denne e-posten er sendt via Mynder på vegne av {senderCompanyName}.
                 </p>
               </CardContent>
             </Card>
@@ -216,7 +230,7 @@ export default function VendorResponseDemo() {
           <div className="max-w-3xl mx-auto space-y-8">
             {renderBackButton("email")}
             <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold">HULT IT AS ber om en oppdatert databehandleravtale</h1>
+              <h1 className="text-2xl font-bold">{senderCompanyName} ber om en oppdatert databehandleravtale</h1>
               <p className="text-muted-foreground">Velg hvordan du vil svare på forespørselen</p>
             </div>
 
@@ -277,7 +291,7 @@ export default function VendorResponseDemo() {
           <div className="max-w-xl mx-auto space-y-6">
             {renderBackButton("landing")}
             <h2 className="text-xl font-semibold">Last opp databehandleravtale</h2>
-            <p className="text-sm text-muted-foreground">Dokumentet sendes direkte til HULT IT AS.</p>
+            <p className="text-sm text-muted-foreground">Dokumentet sendes direkte til {senderCompanyName}.</p>
 
             <div
               className={cn(
@@ -306,9 +320,9 @@ export default function VendorResponseDemo() {
               )}
             </div>
 
-            <Button size="lg" className="w-full" disabled={!uploadedFile} onClick={() => setStep("upload-done")}>
-              Send dokument til HULT IT <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
+             <Button size="lg" className="w-full" disabled={!uploadedFile} onClick={() => setStep("upload-done")}>
+               Send dokument til {senderCompanyName} <ArrowRight className="h-4 w-4 ml-2" />
+             </Button>
           </div>
         )}
 
@@ -320,12 +334,12 @@ export default function VendorResponseDemo() {
             </div>
             <h2 className="text-2xl font-bold">Dokumentet er sendt!</h2>
             <p className="text-muted-foreground">
-              Din databehandleravtale er sendt til <strong>HULT IT AS</strong>. De vil gjennomgå dokumentet og komme tilbake til deg.
+              Din databehandleravtale er sendt til <strong>{senderCompanyName}</strong>. De vil gjennomgå dokumentet og komme tilbake til deg.
             </p>
             <Card className="text-left">
               <CardContent className="p-4 space-y-2">
                 <p className="text-sm"><strong>Dokument:</strong> {uploadedFile?.name}</p>
-                <p className="text-sm"><strong>Sendt til:</strong> HULT IT AS</p>
+                <p className="text-sm"><strong>Sendt til:</strong> {senderCompanyName}</p>
                 <p className="text-sm"><strong>Status:</strong> <span className="text-green-600">Mottatt</span></p>
               </CardContent>
             </Card>
@@ -638,7 +652,7 @@ export default function VendorResponseDemo() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">Databehandleravtale (DPA)</p>
-                    <p className="text-xs text-muted-foreground">Fra HULT IT AS · Frist: 15. mars 2026</p>
+                    <p className="text-xs text-muted-foreground">Fra {senderCompanyName} · Frist: 15. mars 2026</p>
                     <div className="mt-2">
                       <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full">
                         Venter på svar
