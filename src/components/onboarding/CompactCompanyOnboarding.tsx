@@ -8,6 +8,7 @@ import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
 import { seedDemoInbox, seedDemoDocuments } from "@/lib/demoSeedInbox";
 import { Loader2, Search, Check, Building2, ChevronRight, Globe, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { KeyPersonnelSection, validateKeyPersonnel, type KeyPersonnelData } from "./KeyPersonnelSection";
 
 interface CompactCompanyOnboardingProps {
   onComplete: () => void;
@@ -69,8 +70,15 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     kommune: "",
     domain: ""
   });
+  const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
+    compliance_officer: "",
+    compliance_officer_email: "",
+    dpo_name: "",
+    dpo_email: "",
+    ciso_name: "",
+    ciso_email: "",
+  });
 
-  // Domain validation and cleaning
   const cleanDomain = (input: string): string => {
     return input
       .replace(/^https?:\/\//, '')
@@ -81,7 +89,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
   };
 
   const validateDomain = (domain: string): boolean => {
-    if (!domain) return true; // Optional field
+    if (!domain) return true;
     const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
     return pattern.test(domain);
   };
@@ -93,7 +101,6 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
 
   const searchBrreg = async () => {
     const trimmedName = companyName.trim();
-    
     if (trimmedName.length < 2) {
       toast.error("Skriv inn minst 2 tegn for å søke");
       return;
@@ -107,19 +114,16 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       const response = await fetch(
         `https://data.brreg.no/enhetsregisteret/api/enheter?navn=${encodeURIComponent(trimmedName)}&size=10`
       );
-      
       if (!response.ok) {
         toast.error("Kunne ikke søke i Brønnøysundregistrene");
         return;
       }
-
       const data: BrregSearchResult = await response.json();
       const companies = data._embedded?.enheter || [];
       
       if (companies.length === 0) {
         toast.info("Fant ingen bedrifter med dette navnet");
       } else if (companies.length === 1) {
-        // Automatically select if only one result
         selectCompany(companies[0]);
       } else {
         setSearchResults(companies);
@@ -158,6 +162,13 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       return;
     }
 
+    // Validate key personnel
+    const personnelError = validateKeyPersonnel(formData.industry, formData.employees, keyPersonnel);
+    if (personnelError) {
+      toast.error(personnelError);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase
@@ -167,22 +178,25 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           org_number: formData.orgNumber || null,
           industry: formData.industry,
           employees: formData.employees || null,
-          domain: formData.domain || null
-        });
+          domain: formData.domain || null,
+          compliance_officer: keyPersonnel.compliance_officer || null,
+          compliance_officer_email: keyPersonnel.compliance_officer_email || null,
+          dpo_name: keyPersonnel.dpo_name || null,
+          dpo_email: keyPersonnel.dpo_email || null,
+          ciso_name: keyPersonnel.ciso_name || null,
+          ciso_email: keyPersonnel.ciso_email || null,
+        } as any);
 
       if (error) throw error;
 
-      // Update onboarding_progress
       await supabase
         .from("onboarding_progress")
         .upsert({ id: "default", company_info_completed: true });
 
-      // Auto-create default work areas based on industry
       await createDefaultWorkAreas(formData.industry);
 
       toast.success("Selskapsinformasjon lagret!");
       
-      // Seed demo inbox items after a short delay (vendors may be added via file upload after onComplete)
       setTimeout(async () => {
         await seedDemoInbox();
         await seedDemoDocuments();
@@ -209,29 +223,18 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     setHasSearched(false);
     setSearchResults([]);
     setCompanyName("");
-    setFormData({
-      name: "",
-      orgNumber: "",
-      industry: "",
-      employees: "",
-      kommune: "",
-      domain: ""
-    });
+    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "" });
+    setKeyPersonnel({ compliance_officer: "", compliance_officer_email: "", dpo_name: "", dpo_email: "", ciso_name: "", ciso_email: "" });
   };
 
-  // Show search results for selection
+  // Search results view
   if (searchResults.length > 0) {
     return (
       <div className="space-y-4">
         <div className="text-center mb-2">
-          <p className="text-sm font-medium text-foreground">
-            Velg riktig bedrift
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Fant {searchResults.length} treff for "{companyName}"
-          </p>
+          <p className="text-sm font-medium text-foreground">Velg riktig bedrift</p>
+          <p className="text-xs text-muted-foreground">Fant {searchResults.length} treff for "{companyName}"</p>
         </div>
-        
         <ScrollArea className="h-[240px] pr-2">
           <div className="space-y-2">
             {searchResults.map((company) => (
@@ -244,9 +247,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                   <Building2 className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-foreground truncate">
-                    {company.navn}
-                  </h4>
+                  <h4 className="text-sm font-medium text-foreground truncate">{company.navn}</h4>
                   <p className="text-xs text-muted-foreground">
                     Org.nr: {company.organisasjonsnummer}
                     {company.forretningsadresse?.kommune && ` • ${company.forretningsadresse.kommune}`}
@@ -257,13 +258,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
             ))}
           </div>
         </ScrollArea>
-
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={resetSearch}
-          className="w-full"
-        >
+        <Button variant="outline" size="sm" onClick={resetSearch} className="w-full">
           Søk på nytt
         </Button>
       </div>
@@ -279,15 +274,10 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
               <Building2 className="h-8 w-8 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">La oss bli kjent</h3>
-            <p className="text-sm text-muted-foreground">
-              Søk opp selskapet ditt for en personlig opplevelse
-            </p>
+            <p className="text-sm text-muted-foreground">Søk opp selskapet ditt for en personlig opplevelse</p>
           </div>
-          
           <div className="space-y-2">
-            <Label htmlFor="companySearch" className="text-xs font-medium">
-              Bedriftsnavn
-            </Label>
+            <Label htmlFor="companySearch" className="text-xs font-medium">Bedriftsnavn</Label>
             <div className="flex gap-2">
               <Input
                 id="companySearch"
@@ -297,23 +287,14 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                 placeholder="Skriv inn bedriftsnavn..."
                 className="flex-1"
               />
-              <Button 
-                onClick={searchBrreg} 
-                disabled={isSearching || companyName.trim().length < 2}
-                size="icon"
-              >
-                {isSearching ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Search className="h-4 w-4" />
-                )}
+              <Button onClick={searchBrreg} disabled={isSearching || companyName.trim().length < 2} size="icon">
+                {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
               {hasSearched && searchResults.length === 0 && !isSearching
                 ? "Ingen treff. Prøv et annet søkeord."
-                : "Skriv inn bedriftsnavn og trykk søk"
-              }
+                : "Skriv inn bedriftsnavn og trykk søk"}
             </p>
           </div>
         </div>
@@ -327,9 +308,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-foreground">{formData.name}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Org.nr: {formData.orgNumber}
-                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">Org.nr: {formData.orgNumber}</p>
               </div>
             </div>
           </div>
@@ -356,13 +335,20 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
             )}
           </div>
 
+          {/* Key Personnel Section */}
+          <KeyPersonnelSection
+            industry={formData.industry}
+            employees={formData.employees}
+            data={keyPersonnel}
+            onChange={setKeyPersonnel}
+            compact
+          />
+
           {/* Domain input section */}
           <div className="p-4 rounded-xl bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-3">
               <Globe className="h-4 w-4 text-muted-foreground" />
-              <Label htmlFor="domain" className="text-sm font-medium">
-                Nettverksdomene (valgfritt)
-              </Label>
+              <Label htmlFor="domain" className="text-sm font-medium">Nettverksdomene (valgfritt)</Label>
             </div>
             <Input
               id="domain"
@@ -379,25 +365,11 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
 
           {/* Action buttons */}
           <div className="flex gap-2 pt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={resetSearch}
-              className="flex-1"
-            >
+            <Button variant="outline" size="sm" onClick={resetSearch} className="flex-1">
               Søk på nytt
             </Button>
-            <Button 
-              size="sm" 
-              onClick={handleSubmit} 
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Bekreft"
-              )}
+            <Button size="sm" onClick={handleSubmit} disabled={isLoading} className="flex-1">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bekreft"}
             </Button>
           </div>
         </div>
