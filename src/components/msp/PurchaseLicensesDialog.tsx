@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -20,7 +22,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
   const { user } = useAuth();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const discount = getDiscountPercent(quantity);
   const listTotal = quantity * UNIT_PRICE_ORE;
   const discountAmount = Math.round(listTotal * (discount / 100));
@@ -159,12 +161,37 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
               <span>Pris per lisens</span>
               <span>{formatKr(pricePerLicense)}</span>
             </div>
+           </div>
+
+          {/* Terms & conditions */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Vilkår for lisenskjøp</Label>
+            <ScrollArea className="h-40 rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground space-y-3 pr-3">
+                <p>Vederlag for avtalte ytelser faktureres forskuddsvis pr kvartal og med 14 dagers forfall (om ønskelig månedlig). Første gang ved Oppstartsdato.</p>
+                <p>Vederlag basert på medgått tid faktureres etterskuddsvis, med 14 dagers forfall.</p>
+                <p>Fakturaer skal være spesifisert slik at Kunden enkelt kan kontrollere fakturaen i forhold til det avtalte vederlag. Fakturaer for løpende timer har detaljert spesifikasjon over påløpte timer. Utlegg angis særskilt.</p>
+                <p className="font-medium text-foreground">Leverandøren kan regulere prisene i prisbilaget (og eventuelle andre priser) i samsvar med konsumprisindeksen 31. desember hvert år med virkning for neste kalenderår. Indeksen skal baseres på endringen i indeksen foregående kalenderår (siste kjente indeks benyttes).</p>
+                <p>Priser kan justeres ved endringer i offentlige avgifter eller andre myndighetspålagte krav/regler/vedtak som innebærer kostnadsøkninger for Leverandør. Videre kan priser justeres ved andre forhold som medfører vesentlige endringer i kostnadsbildet utenfor Leverandørs kontroll. Prisjusteringer som nevnt i dette avsnittet varsles senest en måned før endringen trer i kraft, og skal ikke overstige dokumentert kostnadsøkning for Leverandør. På forespørsel skal dokumentasjonen kunne fremlegges.</p>
+              </div>
+            </ScrollArea>
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="accept-terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="accept-terms" className="text-sm cursor-pointer leading-tight">
+                Jeg har lest og godkjenner vilkårene for lisenskjøp
+              </label>
+            </div>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Avbryt</Button>
-          <Button onClick={handlePurchase} disabled={loading}>
+          <Button variant="outline" onClick={() => { onOpenChange(false); setTermsAccepted(false); }}>Avbryt</Button>
+          <Button onClick={handlePurchase} disabled={loading || !termsAccepted}>
             {loading ? "Behandler..." : "Bekreft kjøp"}
           </Button>
         </DialogFooter>
