@@ -1,5 +1,22 @@
-export const UNIT_PRICE_ORE = 4200000; // 42 000 kr in øre
-export const UNIT_PRICE_KR = 42000;
+export interface LicenseTier {
+  id: string;
+  name: string;
+  maxSystems: number;
+  priceKr: number;
+  priceOre: number;
+  extraSystemKr: number;
+}
+
+export const LICENSE_TIERS: LicenseTier[] = [
+  { id: "basis", name: "Basis", maxSystems: 20, priceKr: 42000, priceOre: 4200000, extraSystemKr: 75 },
+  { id: "premium", name: "Premium", maxSystems: 50, priceKr: 76000, priceOre: 7600000, extraSystemKr: 75 },
+];
+
+export const DEFAULT_TIER = LICENSE_TIERS[0];
+
+// Legacy exports for backward compat
+export const UNIT_PRICE_ORE = DEFAULT_TIER.priceOre;
+export const UNIT_PRICE_KR = DEFAULT_TIER.priceKr;
 
 export function getDiscountPercent(quantity: number): number {
   if (quantity >= 5) return 50;

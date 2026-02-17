@@ -7,7 +7,7 @@ export const EMPLOYEE_RANGES = [
   "1-10", "11-50", "51-200", "201-500", "500+",
 ];
 
-export const SUBSCRIPTION_PLANS = ["Gratis", "Basis", "Premium"];
+export const SUBSCRIPTION_PLANS = ["Basis", "Premium"];
 
 export const COMPANY_ROLES = [
   "Daglig leder",

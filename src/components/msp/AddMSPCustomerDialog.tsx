@@ -36,7 +36,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_email: "",
     contact_company_role: "",
     contact_compliance_role: "",
-    subscription_plan: "Gratis",
+    subscription_plan: "Basis",
   });
 
   // Fetch license info
@@ -103,7 +103,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
       }
 
       toast.success("Kunde lagt til!");
-      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", contact_company_role: "", contact_compliance_role: "", subscription_plan: "Gratis" });
+      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", contact_company_role: "", contact_compliance_role: "", subscription_plan: "Basis" });
       onOpenChange(false);
       onSuccess();
     } catch (err) {
