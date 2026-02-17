@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -8,43 +9,20 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { Key, AlertTriangle } from "lucide-react";
+import {
+  INDUSTRIES, EMPLOYEE_RANGES, SUBSCRIPTION_PLANS, COMPANY_ROLES, COMPLIANCE_ROLES,
+} from "@/lib/mspCustomerConstants";
 
 interface AddMSPCustomerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
-
-const INDUSTRIES = [
-  "Teknologi", "Helse", "Finans", "Offentlig", "Utdanning",
-  "Energi", "Bygg og anlegg", "Transport", "Handel", "Annet",
-];
-
-const EMPLOYEE_RANGES = [
-  "1-10", "11-50", "51-200", "201-500", "500+",
-];
-
-const SUBSCRIPTION_PLANS = ["Gratis", "Basis", "Premium"];
-
-const COMPANY_ROLES = [
-  "Daglig leder",
-  "IT-sjef / CTO",
-  "Administrasjonsleder",
-  "Avdelingsleder",
-  "Annet",
-];
-
-const COMPLIANCE_ROLES = [
-  "Compliance-ansvarlig",
-  "Personvernombud (DPO)",
-  "Sikkerhetsansvarlig (CISO)",
-  "AI Governance-ansvarlig",
-  "Operativ bruker",
-  "Ingen spesifikk rolle",
-];
 
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
@@ -61,6 +39,31 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     subscription_plan: "Gratis",
   });
 
+  // Fetch license info
+  const { data: licenseInfo } = useQuery({
+    queryKey: ["msp-license-info", user?.id],
+    queryFn: async () => {
+      const { count: totalCount } = await supabase
+        .from("msp_licenses" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("msp_user_id", user!.id);
+
+      const { data: availableLicenses } = await supabase
+        .from("msp_licenses" as any)
+        .select("id")
+        .eq("msp_user_id", user!.id)
+        .eq("status", "available")
+        .order("created_at", { ascending: true });
+
+      const total = totalCount || 0;
+      const available = availableLicenses?.length || 0;
+      const assigned = total - available;
+
+      return { total, available, assigned, firstAvailableId: (availableLicenses as any)?.[0]?.id || null };
+    },
+    enabled: !!user?.id && open,
+  });
+
   const handleSave = async () => {
     if (!form.customer_name.trim()) {
       toast.error("Kundenavn er påkrevd");
@@ -73,7 +76,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
     setSaving(true);
     try {
-      const { error } = await supabase.from("msp_customers" as any).insert({
+      const { data: customer, error } = await supabase.from("msp_customers" as any).insert({
         msp_user_id: user.id,
         customer_name: form.customer_name.trim(),
         org_number: form.org_number || null,
@@ -87,9 +90,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         status: "onboarding",
         active_frameworks: [],
         subscription_plan: form.subscription_plan,
-      });
+      } as any).select().single();
 
       if (error) throw error;
+
+      // Auto-assign first available license
+      if (licenseInfo?.firstAvailableId && customer) {
+        await supabase
+          .from("msp_licenses" as any)
+          .update({ assigned_customer_id: (customer as any).id, status: "assigned" } as any)
+          .eq("id", licenseInfo.firstAvailableId);
+      }
 
       toast.success("Kunde lagt til!");
       setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", contact_company_role: "", contact_compliance_role: "", subscription_plan: "Gratis" });
@@ -105,11 +116,29 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Legg til kunde</DialogTitle>
           <DialogDescription>Registrer en ny kunde i din partneroversikt.</DialogDescription>
         </DialogHeader>
+
+        {/* License info banner */}
+        {licenseInfo && licenseInfo.total > 0 && (
+          <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${licenseInfo.available > 0 ? "border-primary/30 bg-primary/5 text-primary" : "border-destructive/30 bg-destructive/5 text-destructive"}`}>
+            {licenseInfo.available > 0 ? (
+              <>
+                <Key className="h-4 w-4 shrink-0" />
+                <span>Lisens {licenseInfo.assigned + 1} av {licenseInfo.total} vil bli tildelt denne kunden</span>
+                <Badge variant="secondary" className="ml-auto">{licenseInfo.available} ledig{licenseInfo.available !== 1 ? "e" : ""}</Badge>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>Ingen tilgjengelige lisenser. Kunden opprettes uten lisens.</span>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="space-y-4">
           <div>
