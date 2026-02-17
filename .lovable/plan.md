@@ -1,91 +1,86 @@
 
-# MSP Partner Dashboard
+# Fakturaoversikt for MSP-dashbordet
 
-## Oversikt
-Et nytt dashbord for MSP-partnere (Managed Service Providers) som videreselger Mynder-plattformen. Dashbordet gir oversikt over alle kunder de har solgt til, med kundenavn, compliance-status, logo og total samsvarsscore. Ved klikk pa en kunde navigerer man inn til kundens dashbord.
+## Hva skal bygges
+En ny seksjon pa MSP-dashbordet der partneren kan se alle fakturaer knyttet til lisenskjop. Hver faktura viser dato, beskrivelse (f.eks. "5x Premium-lisenser"), belop, status og en nedlastingsknapp for PDF.
 
 ## Datamodell
 
-### Ny tabell: `msp_customers`
-Lagrer relasjonen mellom MSP-partneren og deres kunder.
+### Ny tabell: `msp_invoices`
 
 | Kolonne | Type | Beskrivelse |
 |---------|------|-------------|
 | id | uuid (PK) | Unik ID |
-| msp_user_id | uuid | Bruker-ID til MSP-partneren |
-| customer_name | text | Kundenavn |
-| org_number | text | Organisasjonsnummer (valgfritt) |
-| industry | text | Bransje |
-| employees | text | Antall ansatte |
-| logo_url | text | URL til kundens logo |
-| compliance_score | integer | Total compliance-score (0-100) |
-| active_frameworks | text[] | Aktive regelverk |
-| onboarding_completed | boolean | Om onboarding er fullfort |
-| last_activity_at | timestamptz | Siste aktivitet |
+| msp_user_id | uuid | MSP-partnerens bruker-ID |
+| invoice_number | text | Fakturanummer (f.eks. "MSP-2026-001") |
+| description | text | Beskrivelse (f.eks. "5x Premium-lisenser") |
+| amount | integer | Belop i ore (f.eks. 124500 = 1 245 kr) |
+| currency | text | Valuta (default "NOK") |
+| status | text | "paid", "pending", "overdue" |
+| issued_at | timestamptz | Fakturadato |
+| paid_at | timestamptz | Betalingsdato (nullable) |
+| due_date | date | Forfallsdato |
+| pdf_url | text | URL til faktura-PDF (nullable, for fremtidig bruk) |
 | created_at | timestamptz | Opprettet |
-| status | text | Status (active, inactive, onboarding) |
-| contact_person | text | Kontaktperson |
-| contact_email | text | E-post |
 
-RLS-policy: Brukere kan kun se sine egne MSP-kunder (`msp_user_id = auth.uid()`).
+RLS: Kun tilgang til egne fakturaer (`msp_user_id = auth.uid()`).
 
-## Ny side: `/msp-dashboard`
+## UI-endringer
 
-### Layout
-Bruker standard layout med Sidebar + main content (container max-w-7xl mx-auto).
+### 1. Ny fane/seksjon pa MSP-dashbordet
 
-### Header
-- Tittel: "Partneroversikt"
-- Undertittel: "Oversikt over dine kunder og deres compliance-status"
-- Knapp: "+ Legg til kunde" (apner en dialog for a registrere ny kunde manuelt)
+Legger til en Tabs-komponent pa MSP-dashbordet med to faner:
+- **Kunder** (eksisterende innhold - metrics + kundeliste)
+- **Fakturaer** (ny fakturaoversikt)
 
-### Oppsummeringsrad (4 MetricCards)
-- **Totalt antall kunder** (alle aktive)
-- **Gjennomsnittlig compliance-score** (snitt av alle kunders score)
-- **Kunder under onboarding** (status = 'onboarding')
-- **Kunder med lav score** (score under 50%)
+### 2. Fakturaoversikt (`MSPInvoicesTab.tsx`)
 
-### Kundeliste
-En grid med kundekort som viser:
-- **Kundelogo** (fra logo_url, eller initialer-avatar som fallback)
-- **Kundenavn** (bold)
-- **Bransje** og **antall ansatte** (badge)
-- **Aktive regelverk** (badges, f.eks. "GDPR", "ISO 27001")
-- **Compliance-score** (sirkelprogress eller prosent i farge: gron 80+, gul 50-79, rod under 50)
-- **Status-badge** (Aktiv / Under onboarding / Inaktiv)
-- **Siste aktivitet** (relativ tid, f.eks. "2 dager siden")
+En tabell med kolonner:
+- **Fakturanr.** - klikkbar tekst
+- **Beskrivelse** - hva som er kjopt
+- **Belop** - formatert med kr og ore
+- **Dato** - fakturadato
+- **Forfallsdato** - forfallsdato
+- **Status** - badge (Betalt = gron, Ubetalt = gul, Forfalt = rod)
+- **Last ned** - knapp med Download-ikon som genererer og laster ned en PDF
 
-Ved klikk pa et kort navigeres man til `/msp-dashboard/:customerId` som viser en read-only versjon av kundens dashbord med de viktigste widgetene.
+### 3. PDF-generering
 
-### Kundedetalj-side (`/msp-dashboard/:customerId`)
-Viser:
-- Kundens navn og logo i header
-- Compliance-score og aktive regelverk
-- Forenklet dashbord med: StatusOverviewWidget, CriticalTasksWidget, DomainComplianceWidget
-- Knapp "Tilbake til partneroversikt"
+Bruker `jspdf` (allerede installert) til a generere en enkel faktura-PDF pa klientsiden med:
+- Mynder-logo
+- Fakturanummer, dato, forfallsdato
+- MSP-partnerens navn
+- Linjebeskrivelse og belop
+- Betalingsstatus
 
-### Legg til kunde-dialog
-Enkel dialog med felter:
-- Kundenavn (obligatorisk)
-- Org.nummer (valgfritt)
-- Bransje (select)
-- Antall ansatte (select)
-- Kontaktperson og e-post
-- Logo (filopplasting til company-logos bucket)
+### 4. Demo-data
 
-## Navigasjon
-Legger til "Partneroversikt" i sidebar under Admin-seksjonen med Building2-ikon, kun synlig for MSP-brukere (kan styre med en sjekk mot msp_customers-tabellen eller en egen rolle).
+Legger inn 3-4 syntetiske fakturaer for den innloggede brukeren, f.eks.:
+- MSP-2026-001: "10x Basis-lisenser" - 4 990 kr - Betalt
+- MSP-2026-002: "5x Premium-lisenser" - 12 450 kr - Betalt
+- MSP-2026-003: "3x Basis-lisenser" - 1 497 kr - Ubetalt
 
-## Filer som opprettes/endres
+## Teknisk plan
 
 ### Nye filer
-- **Database-migrasjon**: Ny tabell `msp_customers` med RLS
-- **`src/pages/MSPDashboard.tsx`**: Hovedside med kundeliste
-- **`src/pages/MSPCustomerDetail.tsx`**: Kundedetalj-side
-- **`src/components/msp/MSPCustomerCard.tsx`**: Kundekort-komponent
-- **`src/components/msp/MSPMetricsRow.tsx`**: Oppsummeringsrad
-- **`src/components/msp/AddMSPCustomerDialog.tsx`**: Dialog for a legge til kunde
+- `supabase/migrations/...` - Ny tabell `msp_invoices` med RLS
+- `src/components/msp/MSPInvoicesTab.tsx` - Fakturatabell med nedlasting
+- `src/components/msp/generateInvoicePdf.ts` - PDF-generering med jspdf
 
 ### Endrede filer
-- **`src/App.tsx`**: Nye ruter `/msp-dashboard` og `/msp-dashboard/:customerId`
-- **`src/components/Sidebar.tsx`**: Nytt navigasjonspunkt "Partneroversikt"
+- `src/pages/MSPDashboard.tsx` - Legge til Tabs-komponent med "Kunder" og "Fakturaer"
+- `src/integrations/supabase/types.ts` - Oppdateres automatisk
+
+### Filstruktur
+
+```text
+MSPDashboard.tsx
+  +-- Tabs
+       +-- "Kunder"
+       |     +-- MSPMetricsRow
+       |     +-- MSPCustomerCard (grid)
+       +-- "Fakturaer"
+             +-- MSPInvoicesTab
+                   +-- Table med fakturaer
+                   +-- Download-knapp -> generateInvoicePdf()
+```
