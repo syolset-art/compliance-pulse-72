@@ -1390,7 +1390,8 @@
       "overview": "Oversikt",
       "all": "Alle leverandører",
       "map": "Kart",
-      "supplyChain": "Leverandørkjede"
+      "supplyChain": "Leverandørkjede",
+      "compare": "Sammenlign"
     },
     "addVendor": "Legg til leverandør",
     "discoverAI": "Oppdag med AI",
