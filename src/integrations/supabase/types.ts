@@ -1141,6 +1141,60 @@ export type Database = {
           },
         ]
       }
+      msp_customers: {
+        Row: {
+          active_frameworks: string[] | null
+          compliance_score: number | null
+          contact_email: string | null
+          contact_person: string | null
+          created_at: string | null
+          customer_name: string
+          employees: string | null
+          id: string
+          industry: string | null
+          last_activity_at: string | null
+          logo_url: string | null
+          msp_user_id: string
+          onboarding_completed: boolean | null
+          org_number: string | null
+          status: string | null
+        }
+        Insert: {
+          active_frameworks?: string[] | null
+          compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          customer_name: string
+          employees?: string | null
+          id?: string
+          industry?: string | null
+          last_activity_at?: string | null
+          logo_url?: string | null
+          msp_user_id: string
+          onboarding_completed?: boolean | null
+          org_number?: string | null
+          status?: string | null
+        }
+        Update: {
+          active_frameworks?: string[] | null
+          compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          customer_name?: string
+          employees?: string | null
+          id?: string
+          industry?: string | null
+          last_activity_at?: string | null
+          logo_url?: string | null
+          msp_user_id?: string
+          onboarding_completed?: boolean | null
+          org_number?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
