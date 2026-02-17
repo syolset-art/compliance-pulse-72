@@ -1198,6 +1198,51 @@ export type Database = {
         }
         Relationships: []
       }
+      msp_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          due_date: string
+          id: string
+          invoice_number: string
+          issued_at: string
+          msp_user_id: string
+          paid_at: string | null
+          pdf_url: string | null
+          status: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          msp_user_id: string
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          msp_user_id?: string
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
