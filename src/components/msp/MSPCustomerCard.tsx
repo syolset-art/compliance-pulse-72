@@ -14,6 +14,7 @@ interface MSPCustomer {
   compliance_score: number;
   active_frameworks: string[];
   status: string;
+  subscription_plan: string;
   last_activity_at: string | null;
 }
 
@@ -89,6 +90,11 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
               <Badge variant="outline" className="text-xs">{customer.employees} ansatte</Badge>
             )}
           </div>
+
+          {/* Subscription */}
+          <Badge variant="outline" className="text-xs border-primary/40 text-primary mt-1">
+            {customer.subscription_plan || "Gratis"}
+          </Badge>
 
           {/* Frameworks */}
           {customer.active_frameworks?.length > 0 && (

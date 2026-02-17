@@ -96,6 +96,9 @@ export default function MSPCustomerDetail() {
                 <div className="flex items-center gap-3 mt-2">
                   {customer.industry && <Badge variant="outline">{customer.industry}</Badge>}
                   {customer.employees && <Badge variant="outline">{customer.employees} ansatte</Badge>}
+                <Badge variant="outline" className="border-primary/40 text-primary">
+                    {customer.subscription_plan || "Gratis"}
+                  </Badge>
                   {customer.active_frameworks?.map((fw: string) => (
                     <Badge key={fw} variant="secondary">{fw}</Badge>
                   ))}

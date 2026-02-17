@@ -27,6 +27,8 @@ const EMPLOYEE_RANGES = [
   "1-10", "11-50", "51-200", "201-500", "500+",
 ];
 
+const SUBSCRIPTION_PLANS = ["Gratis", "Basis", "Premium"];
+
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
@@ -37,6 +39,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     employees: "",
     contact_person: "",
     contact_email: "",
+    subscription_plan: "Gratis",
   });
 
   const handleSave = async () => {
@@ -62,12 +65,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         compliance_score: 0,
         status: "onboarding",
         active_frameworks: [],
+        subscription_plan: form.subscription_plan,
       });
 
       if (error) throw error;
 
       toast.success("Kunde lagt til!");
-      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "" });
+      setForm({ customer_name: "", org_number: "", industry: "", employees: "", contact_person: "", contact_email: "", subscription_plan: "Gratis" });
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -134,6 +138,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
               placeholder="Navn Navnesen"
             />
+          </div>
+          <div>
+            <Label>Abonnement</Label>
+            <Select value={form.subscription_plan} onValueChange={(v) => setForm({ ...form, subscription_plan: v })}>
+              <SelectTrigger><SelectValue placeholder="Velg plan" /></SelectTrigger>
+              <SelectContent>
+                {SUBSCRIPTION_PLANS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>E-post</Label>
