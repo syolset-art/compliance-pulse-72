@@ -185,7 +185,6 @@ export function MSPLicensesTab() {
           open={!!assignLicense}
           onOpenChange={(open) => !open && setAssignLicense(null)}
           license={assignLicense}
-          customers={customers}
           onSuccess={handleRefresh}
         />
       )}
