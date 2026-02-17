@@ -1,90 +1,99 @@
 
 
-# Forbedret "Legg til leverandorer" -- filopplasting, AI-dokumentanalyse og skanningsgrense
+# Leverandør-sammenligning: Compliance-modenhet
 
-## Oversikt
-Nar brukeren velger "Flere leverandorer" i AddVendorDialog, far de to nye valg i tillegg til det eksisterende soket: (A) koble til et API (kommer senere, disabled) og (B) laste opp en fil med leverandoroversikt. Opplastet fil analyseres av AI som identifiserer dokumenttype (leverandorliste, policy, DPIA osv.) og lar brukeren bekrefte eller korrigere. Et skanningstellersystem begrenser gratis AI-skanninger til 5 per periode, med upsell til Premium.
+## Bakgrunn
+Organisasjoner som Helse Vest IKT har mange leverandorer og trenger a sammenligne dem side-ved-side pa compliance-modenhet for a prioritere oppfolging, identifisere svake ledd, og dokumentere forsvarlig leverandorstyring.
 
-## Ny brukerflyt
+## Losning: Ny "Sammenlign"-fane i leverandoroversikten
+
+### Brukerflyt
+
+1. Brukeren gar til Leverandorer-siden og velger den nye fanen **"Sammenlign"**
+2. Brukeren velger 2-5 leverandorer fra en soksbar liste med avkrysningsbokser
+3. Sammenligningsvisningen viser:
+   - **Sammenstillingstabell** med rad per dimensjon (overall score, sikkerhet, datahandtering, personvern, tilgjengelighet, risikoniva, DPA-status, GDPR-rolle)
+   - **Radarkart** (Spider chart) som overlegger alle valgte leverandorer i ett diagram
+   - **Fargekodede celler** (gront/gult/rodt) for rask visuell scanning
+   - **Eksporter til PDF/Excel**-knapp for rapportering
+
+### Datadimensjoner som sammenlignes
+
+| Dimensjon | Kilde |
+|-----------|-------|
+| Samlet compliance-score | `assets.compliance_score` |
+| Risikoniva | `assets.risk_level` |
+| GDPR-rolle | `assets.gdpr_role` |
+| Leverandorkategori | `assets.vendor_category` |
+| Land/region | `assets.country` |
+| DPA-status | Utledet fra `vendor_documents` |
+| Sikkerhet-score | `vendor_analyses.category_scores.security` |
+| Datahandtering-score | `vendor_analyses.category_scores.data_handling` |
+| Personvern-score | `vendor_analyses.category_scores.privacy` |
+| Tilgjengelighet-score | `vendor_analyses.category_scores.availability` |
+| AI-analyse totalscore | `vendor_analyses.overall_score` |
+| Utdaterte dokumenter | Telt fra `vendor_documents` |
+
+### Teknisk implementasjon
+
+**Nye filer:**
+- `src/components/vendor-dashboard/VendorCompareTab.tsx` -- Hovedkomponent med velger + visning
+- `src/components/vendor-dashboard/CompareRadarChart.tsx` -- Radarkart med flere leverandorer
+- `src/components/vendor-dashboard/CompareTable.tsx` -- Tabell med fargekodede celler
+
+**Endrede filer:**
+- `src/pages/Assets.tsx` -- Legg til "Sammenlign"-fane i TabsList
+- `src/locales/nb.json` / `src/locales/en.json` -- Oversettelsesnokkler
+
+**Hovedlogikk:**
+1. Brukeren velger leverandorer via checkbokser i en `ScrollArea`-liste med sok
+2. For valgte leverandorer hentes `vendor_analyses` (siste per asset) via en `useQuery`
+3. Data flates ut til en matrise og rendres som tabell + radarkart
+4. Radarkart bruker `recharts` (allerede installert) med en `Radar` per leverandor
+5. Eksport bruker `jspdf` + `jspdf-autotable` (allerede installert) eller `xlsx` for Excel
+
+**Ingen databaseendringer nodvendig** -- all data finnes allerede i `assets` + `vendor_analyses` + `vendor_documents`.
+
+### UI-skisse
 
 ```text
-Steg 1: "Hvor mange?"
-  - En leverandor (uendret)
-  - Flere leverandorer -> NY "method"-steg
-
-Steg 2 (nytt): "Hvordan vil du legge til?"
-  A) Sok manuelt (eksisterende flyt)
-  B) Koble til API (disabled, "kommer snart")
-  C) Last opp fil med leverandoroversikt
-
-Steg 3 (ved filopplasting):
-  - Drag-and-drop / filvelger
-  - AI-skanningsteller vises (f.eks. "2 av 5 skanninger igjen")
-  - Animert analysesteg:
-    1. "Leser dokumentinnhold..."
-    2. "Identifiserer dokumenttype..."
-    3. "Henter ut data..."
-    4. "Sjekker compliance-informasjon..."
-  - AI foreslaar dokumenttype (leverandorliste / policy / DPA / DPIA / annet)
-  - Brukeren kan bekrefte eller korrigere forslaget
-  - Dersom leverandorliste: viser ekstraherte leverandorer som kan importeres
-  - Dersom policy/DPIA/annet: forklarer hva som ble funnet
-
-Steg 4: Ved 5 brukte skanninger
-  - Varselbanner: "Du har brukt alle AI-skanninger"
-  - Melding: "Etter dette maa du fylle inn manuelt (5-10 min per dokument)"
-  - To knapper: "Bruk siste skanning" / "Oppgrader forst"
-  - Premium-upsell: "Ubegrenset AI-skanning for $1.37/dag"
++-----------------------------------------------------------+
+| Leverandorer                                               |
+| [Oversikt] [Alle] [Kart] [Forsyningskjede] [Sammenlign]  |
++-----------------------------------------------------------+
+| Velg leverandorer (2-5):                                   |
+| [Sok...]                                                   |
+| [x] Microsoft Azure    72%                                 |
+| [x] Visma              85%                                 |
+| [x] TietoEvry          61%                                 |
+| [ ] Basefarm           44%                                 |
++-----------------------------------------------------------+
+| Radarkart                          | Samlet   |           |
+|    Sikkerhet                       | Azure 72 |           |
+|   /        \                       | Visma 85 |           |
+| Tilgj.   Datah.                    | Tieto 61 |           |
+|   \        /                       |          |           |
+|    Personvern                      |          |           |
++-----------------------------------------------------------+
+| Dimensjon       | Azure | Visma | TietoEvry |             |
+| Compliance      |  72%  |  85%  |    61%    |             |
+| Sikkerhet       |  80   |  90   |    55     |             |
+| Datahandtering  |  65   |  82   |    70     |             |
+| Personvern      |  70   |  88   |    58     |             |
+| Tilgjengelighet |  75   |  80   |    62     |             |
+| Risiko          | Med.  |  Lav  |   Hoy     |             |
+| DPA             |  Ja   |  Ja   |   Nei     |             |
+| GDPR-rolle      | Datab.| Datab.| Under-db  |             |
++-----------------------------------------------------------+
+| [Eksporter PDF]  [Eksporter Excel]                        |
++-----------------------------------------------------------+
 ```
 
-## Tekniske endringer
-
-### 1. Ny edge-funksjon: `classify-document`
-Kaller Lovable AI for a identifisere dokumenttype fra filinnhold. Returnerer:
-- `documentType`: "vendor_list" | "policy" | "dpa" | "dpia" | "certificate" | "report" | "other"
-- `confidence`: number (0-1)
-- `extractedVendors`: array (kun for vendor_list)
-- `summary`: kort oppsummering
-
-Bruker tool calling for strukturert output. Modell: `google/gemini-2.5-flash`.
-
-### 2. Endringer i `AddVendorDialog.tsx`
-- Ny step-type `"method"` etter "quantity" naar mode === "multiple"
-- Ny step-type `"file-upload"` for filopplasting
-- Ny step-type `"file-analyzing"` med animert analyse-UI (som i referansebildet)
-- Ny step-type `"file-results"` som viser AI-forslag og lar brukeren bekrefte/korrigere
-- State for skanneteller (lagret lokalt, starter paa 5)
-- Varselbanner naar skanninger er brukt opp
-
-### 3. AI-analyse-UI (fra referansebildene)
-Analysesteg med animerte indikatorer:
-- Sirkulaert ikon med sparkles
-- Overskrift: "Identifiserer dokumenttype..."
-- Fire statuslinjer som animeres sekvensielt:
-  1. "Leser dokumentinnhold" (faded naar ferdig)
-  2. "Identifiserer dokumenttype" (bold naar aktiv)
-  3. "Henter ut datoer og tall"
-  4. "Sjekker compliance-informasjon"
-- Loading-dots animasjon
-
-### 4. Dokumenttype-bekreftelse
-Etter analyse viser vi:
-- AI-foreslatt type med confidence-badge
-- Dropdown for a korrigere type
-- Dersom leverandorliste: tabell med ekstraherte leverandorer
-- "Importer valgte"-knapp for leverandorer
-
-### 5. Skanningsgrense-banner
-Gjenbruker monsteret fra referansebildene:
-- Gradientbar (gronn -> gul -> rod) som viser gjenvaerende skanninger
-- Teller: "X av 5 skanninger igjen dette aaret"
-- Reset-dato
-- Naar 0 igjen: gult varselbanner med upsell
-
-### Filendringer
-- **Ny**: `supabase/functions/classify-document/index.ts` -- AI-klassifisering
-- **Endret**: `src/components/dialogs/AddVendorDialog.tsx` -- nye steg, filopplasting, analyse-UI, skanneteller
-
-### Ingen databaseendringer
-Skannetelleren lagres i localStorage for demo-formaal. Ingen nye tabeller.
+### Implementasjonsrekkefolge
+1. Opprett `VendorCompareTab` med leverandorvelger
+2. Opprett `CompareTable` med fargekodede celler
+3. Opprett `CompareRadarChart` med multi-leverandor overlay
+4. Integrer i `Assets.tsx` som ny fane
+5. Legg til PDF/Excel-eksport
+6. Legg til oversettelser
 
