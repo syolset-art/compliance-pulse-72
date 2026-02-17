@@ -5,9 +5,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MSPMetricsRow } from "@/components/msp/MSPMetricsRow";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
+import { MSPInvoicesTab } from "@/components/msp/MSPInvoicesTab";
 
 export default function MSPDashboard() {
   const { user } = useAuth();
@@ -43,22 +45,34 @@ export default function MSPDashboard() {
             </Button>
           </div>
 
-          {/* Metrics */}
-          <MSPMetricsRow customers={customers} />
+          {/* Tabs */}
+          <Tabs defaultValue="kunder" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="kunder">Kunder</TabsTrigger>
+              <TabsTrigger value="fakturaer">Fakturaer</TabsTrigger>
+            </TabsList>
 
-          {/* Customer grid */}
-          {customers.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <p className="text-lg">Ingen kunder registrert ennå</p>
-              <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {customers.map((c: any) => (
-                <MSPCustomerCard key={c.id} customer={c} />
-              ))}
-            </div>
-          )}
+            <TabsContent value="kunder" className="space-y-8">
+              <MSPMetricsRow customers={customers} />
+
+              {customers.length === 0 ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <p className="text-lg">Ingen kunder registrert ennå</p>
+                  <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {customers.map((c: any) => (
+                    <MSPCustomerCard key={c.id} customer={c} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="fakturaer">
+              <MSPInvoicesTab />
+            </TabsContent>
+          </Tabs>
         </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
