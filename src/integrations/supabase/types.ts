@@ -1144,6 +1144,72 @@ export type Database = {
           },
         ]
       }
+      msp_billing_settings: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          company_name: string | null
+          contact_email: string | null
+          country: string | null
+          created_at: string
+          delivery_method: string | null
+          ehf_enabled: boolean | null
+          id: string
+          invoice_email: string | null
+          msp_user_id: string
+          notes: string | null
+          org_number: string | null
+          payment_method: string | null
+          postal_code: string | null
+          stripe_customer_id: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          delivery_method?: string | null
+          ehf_enabled?: boolean | null
+          id?: string
+          invoice_email?: string | null
+          msp_user_id: string
+          notes?: string | null
+          org_number?: string | null
+          payment_method?: string | null
+          postal_code?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          country?: string | null
+          created_at?: string
+          delivery_method?: string | null
+          ehf_enabled?: boolean | null
+          id?: string
+          invoice_email?: string | null
+          msp_user_id?: string
+          notes?: string | null
+          org_number?: string | null
+          payment_method?: string | null
+          postal_code?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
       msp_customers: {
         Row: {
           active_frameworks: string[] | null
