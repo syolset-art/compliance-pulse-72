@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MSPMetricsRow } from "@/components/msp/MSPMetricsRow";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
@@ -40,10 +41,18 @@ export default function MSPDashboard() {
               <h1 className="text-3xl font-bold text-foreground">Partneroversikt</h1>
               <p className="text-muted-foreground mt-1">Oversikt over dine kunder og deres compliance-status</p>
             </div>
-            <Button onClick={() => setAddOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Legg til kunde
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link to="/msp-billing">
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Fakturainnstillinger
+                </Button>
+              </Link>
+              <Button onClick={() => setAddOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Legg til kunde
+              </Button>
+            </div>
           </div>
 
           {/* Tabs */}
