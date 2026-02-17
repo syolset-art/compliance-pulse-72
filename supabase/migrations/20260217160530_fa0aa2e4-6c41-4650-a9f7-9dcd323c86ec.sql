@@ -1,0 +1,1 @@
+ALTER TABLE company_profile ADD COLUMN is_msp_partner boolean NOT NULL DEFAULT false;

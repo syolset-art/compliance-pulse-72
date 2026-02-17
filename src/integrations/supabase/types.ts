@@ -546,6 +546,7 @@ export type Database = {
           id: string
           industry: string
           initial_maturity: string | null
+          is_msp_partner: boolean
           maturity: string | null
           maturity_calculated_at: string | null
           name: string
@@ -569,6 +570,7 @@ export type Database = {
           id?: string
           industry: string
           initial_maturity?: string | null
+          is_msp_partner?: boolean
           maturity?: string | null
           maturity_calculated_at?: string | null
           name: string
@@ -592,6 +594,7 @@ export type Database = {
           id?: string
           industry?: string
           initial_maturity?: string | null
+          is_msp_partner?: boolean
           maturity?: string | null
           maturity_calculated_at?: string | null
           name?: string
