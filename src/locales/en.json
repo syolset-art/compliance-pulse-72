@@ -677,12 +677,12 @@
     "tabs": {
       "validation": "Validation from Mynder",
       "usage": "System Usage",
-      "aiUsage": "AI Usage",
       "dataHandling": "Data Handling",
       "riskManagement": "Audit & Risk Management",
-      "incidents": "Incident Management",
+      "incidents": "Deviations & Incidents",
       "relations": "Relations",
       "components": "Components",
+      "certificates": "Certificates",
       "documents": "Documents",
       "analysis": "Analysis",
       "benchmark": "Benchmarking"

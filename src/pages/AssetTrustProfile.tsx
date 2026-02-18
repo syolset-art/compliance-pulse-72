@@ -17,7 +17,7 @@ import { DataHandlingTab } from "@/components/asset-profile/tabs/DataHandlingTab
 import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagementTab";
 import { IncidentManagementTab } from "@/components/asset-profile/tabs/IncidentManagementTab";
 import { RelationsTab } from "@/components/asset-profile/tabs/RelationsTab";
-import { AIUsageTab } from "@/components/asset-profile/tabs/AIUsageTab";
+import { CertificatesTab } from "@/components/asset-profile/tabs/CertificatesTab";
 import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
 import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
@@ -100,7 +100,7 @@ const AssetTrustProfile = () => {
   });
 
   const isSelf = asset?.asset_type === 'self';
-  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'aiUsage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'documents', 'analysis', 'benchmark'];
+  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark'];
 
   if (isLoading) {
     return (
@@ -180,11 +180,6 @@ const AssetTrustProfile = () => {
                         {t("trustProfile.tabs.usage")}
                       </TabsTrigger>
                     )}
-                    {enabledTabs.includes('aiUsage') && (
-                      <TabsTrigger value="aiUsage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.aiUsage")}
-                      </TabsTrigger>
-                    )}
                     {enabledTabs.includes('dataHandling') && (
                       <TabsTrigger value="dataHandling" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.dataHandling")}
@@ -203,6 +198,11 @@ const AssetTrustProfile = () => {
                     {enabledTabs.includes('relations') && (
                       <TabsTrigger value="relations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {t("trustProfile.tabs.relations")}
+                      </TabsTrigger>
+                    )}
+                    {enabledTabs.includes('certificates') && (
+                      <TabsTrigger value="certificates" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
+                        {t("trustProfile.tabs.certificates")}
                       </TabsTrigger>
                     )}
                     {enabledTabs.includes('documents') && (
@@ -244,15 +244,6 @@ const AssetTrustProfile = () => {
                 <UsageTab assetId={asset.id} />
               </TabsContent>
 
-              <TabsContent value="aiUsage" className="mt-6">
-                <AIUsageTab 
-                  assetId={asset.id} 
-                  assetCategory={asset.category || undefined}
-                  assetVendor={asset.vendor || undefined}
-                  assetName={asset.name}
-                />
-              </TabsContent>
-
               <TabsContent value="dataHandling" className="mt-6">
                 <DataHandlingTab assetId={asset.id} />
               </TabsContent>
@@ -267,6 +258,10 @@ const AssetTrustProfile = () => {
 
               <TabsContent value="relations" className="mt-6">
                 <RelationsTab assetId={asset.id} />
+              </TabsContent>
+
+              <TabsContent value="certificates" className="mt-6">
+                <CertificatesTab assetId={asset.id} />
               </TabsContent>
 
               <TabsContent value="documents" className="mt-6">

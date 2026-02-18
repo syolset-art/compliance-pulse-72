@@ -678,12 +678,12 @@
     "tabs": {
       "validation": "Validering fra Mynder",
       "usage": "Bruk av systemet",
-      "aiUsage": "AI-bruk",
       "dataHandling": "Datahåndtering",
       "riskManagement": "Revisjon og risikostyring",
-      "incidents": "Hendelseshåndtering",
+      "incidents": "Avvik og hendelser",
       "relations": "Relasjoner",
       "components": "Komponenter",
+      "certificates": "Sertifikater",
       "documents": "Dokumenter",
       "analysis": "Analyse",
       "benchmark": "Benchmarking"
