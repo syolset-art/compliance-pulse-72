@@ -279,7 +279,7 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
               </Badge>
             )}
             <Badge variant="outline" className="text-[10px] shrink-0">
-              {template?.display_name || asset.asset_type}
+              {template?.display_name || (isSelf ? (isNb ? "Selverklæring" : "Self-declaration") : asset.asset_type)}
             </Badge>
             <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
               {getStatusLabel(asset.lifecycle_status)}
