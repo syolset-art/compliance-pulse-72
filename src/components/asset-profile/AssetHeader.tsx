@@ -290,15 +290,17 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
             {asset.vendor && (
               <p className="text-sm text-muted-foreground">{asset.vendor}</p>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1.5 w-fit"
-              onClick={() => setRequestDialogOpen(true)}
-            >
-              <Send className="h-3 w-3" />
-              {isNb ? "Be om oppdatering" : "Request update"}
-            </Button>
+            {!isSelf && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs gap-1.5 w-fit"
+                onClick={() => setRequestDialogOpen(true)}
+              >
+                <Send className="h-3 w-3" />
+                {isNb ? "Be om oppdatering" : "Request update"}
+              </Button>
+            )}
           </div>
 
           {asset.description && (
