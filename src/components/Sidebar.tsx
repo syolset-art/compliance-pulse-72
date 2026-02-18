@@ -76,16 +76,39 @@ const SelfTrustProfileLink = () => {
   const [selfAssetId, setSelfAssetId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSelf = async () => {
+    const fetchOrCreateSelf = async () => {
       const { data } = await supabase
         .from("assets")
         .select("id")
         .eq("asset_type", "self")
         .limit(1)
         .maybeSingle();
-      if (data) setSelfAssetId(data.id);
+      if (data) {
+        setSelfAssetId(data.id);
+      } else {
+        // Auto-create self asset from company profile if missing
+        const { data: profile } = await supabase
+          .from("company_profile")
+          .select("name")
+          .limit(1)
+          .maybeSingle();
+        if (profile?.name) {
+          const { data: created } = await supabase
+            .from("assets")
+            .insert({
+              name: profile.name,
+              asset_type: "self",
+              description: "Vår egen Trust Profil – selverklæring og compliance-dokumentasjon",
+              lifecycle_status: "active",
+              compliance_score: 0,
+            })
+            .select("id")
+            .single();
+          if (created) setSelfAssetId(created.id);
+        }
+      }
     };
-    fetchSelf();
+    fetchOrCreateSelf();
   }, []);
 
   if (!selfAssetId) return null;

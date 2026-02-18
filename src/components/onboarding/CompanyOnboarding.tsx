@@ -185,6 +185,24 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
 
       await createDefaultWorkAreas(formData.industry);
 
+      // Create self-type Trust Profile asset for the company
+      const { data: existingSelf } = await supabase
+        .from("assets")
+        .select("id")
+        .eq("asset_type", "self")
+        .limit(1)
+        .maybeSingle();
+
+      if (!existingSelf) {
+        await supabase.from("assets").insert({
+          name: formData.name,
+          asset_type: "self",
+          description: "Vår egen Trust Profil – selverklæring og compliance-dokumentasjon",
+          lifecycle_status: "active",
+          compliance_score: 0,
+        });
+      }
+
       const suggestedRoles = suggestRolesForCompany({
         industry: formData.industry,
         employees: formData.employees,
