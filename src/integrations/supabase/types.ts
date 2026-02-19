@@ -1537,6 +1537,9 @@ export type Database = {
           filter_criteria: Json | null
           id: string
           is_enabled: boolean
+          is_mandatory: boolean
+          is_premium: boolean
+          regulatory_basis: string | null
           updated_at: string
         }
         Insert: {
@@ -1547,6 +1550,9 @@ export type Database = {
           filter_criteria?: Json | null
           id?: string
           is_enabled?: boolean
+          is_mandatory?: boolean
+          is_premium?: boolean
+          regulatory_basis?: string | null
           updated_at?: string
         }
         Update: {
@@ -1557,6 +1563,9 @@ export type Database = {
           filter_criteria?: Json | null
           id?: string
           is_enabled?: boolean
+          is_mandatory?: boolean
+          is_premium?: boolean
+          regulatory_basis?: string | null
           updated_at?: string
         }
         Relationships: []
