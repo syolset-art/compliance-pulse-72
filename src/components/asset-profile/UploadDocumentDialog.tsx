@@ -14,9 +14,10 @@ import { Progress } from "@/components/ui/progress";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Upload, X, FileText, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Loader2,
-  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink,
+  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -123,6 +124,13 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [uploading, setUploading] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
 
+  // Feedback state
+  const [feedbackGiven, setFeedbackGiven] = useState<null | "positive" | "negative">(null);
+  const [feedbackExpanded, setFeedbackExpanded] = useState(false);
+  const [correctType, setCorrectType] = useState("");
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackSaving, setFeedbackSaving] = useState(false);
+
   const resetDialog = () => {
     setStep("upload");
     setFile(null);
@@ -137,6 +145,53 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setValidTo("");
     setUploading(false);
     setAnimatedScore(0);
+    setFeedbackGiven(null);
+    setFeedbackExpanded(false);
+    setCorrectType("");
+    setFeedbackComment("");
+    setFeedbackSaving(false);
+  };
+
+  const handleFeedback = async (type: "positive" | "negative") => {
+    if (type === "positive") {
+      setFeedbackSaving(true);
+      try {
+        await supabase.from("ai_classification_feedback" as any).insert({
+          asset_id: assetId,
+          file_name: file?.name || "",
+          ai_suggested_type: classification?.documentType || "",
+          ai_confidence: classification?.confidence || 0,
+          feedback: "positive",
+        } as any);
+        setFeedbackGiven("positive");
+      } catch { /* silent */ }
+      setFeedbackSaving(false);
+    } else {
+      setFeedbackExpanded(true);
+    }
+  };
+
+  const submitNegativeFeedback = async () => {
+    setFeedbackSaving(true);
+    try {
+      await supabase.from("ai_classification_feedback" as any).insert({
+        asset_id: assetId,
+        file_name: file?.name || "",
+        ai_suggested_type: classification?.documentType || "",
+        ai_confidence: classification?.confidence || 0,
+        feedback: "negative",
+        correct_document_type: correctType || null,
+        user_comment: feedbackComment || null,
+      } as any);
+      setFeedbackGiven("negative");
+      setFeedbackExpanded(false);
+      // Update the main form's docType to the corrected type
+      if (correctType) {
+        setDocType(correctType);
+        setCategory(inferCategory(correctType));
+      }
+    } catch { /* silent */ }
+    setFeedbackSaving(false);
   };
 
   const handleOpenChange = (v: boolean) => {
@@ -439,29 +494,101 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
 
             {/* Confidence indicator - prominent placement */}
             {classification && (
-              <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/20">
-                <Sparkles className={`h-4 w-4 shrink-0 ${confidenceTextColor}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium">{isNb ? "AI-konfidensgrad" : "AI Confidence"}</span>
-                    <span className={`text-sm font-bold ${confidenceTextColor}`}>{confidencePercent}%</span>
-                  </div>
-                  <Progress
-                    value={confidencePercent}
-                    className="h-2"
-                    style={{
-                      // Override indicator color based on confidence
-                      ["--progress-color" as any]: undefined,
-                    }}
-                  />
-                  {/* Custom colored bar overlay */}
-                  <div className="relative -mt-2 h-2 w-full overflow-hidden rounded-full">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${confidenceColor}`}
-                      style={{ width: `${confidencePercent}%` }}
+              <div className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center gap-3">
+                  <Sparkles className={`h-4 w-4 shrink-0 ${confidenceTextColor}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium">{isNb ? "AI-konfidensgrad" : "AI Confidence"}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-bold ${confidenceTextColor}`}>{confidencePercent}%</span>
+                        {/* Feedback buttons */}
+                        {!feedbackGiven && (
+                          <div className="flex items-center gap-0.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10"
+                              onClick={() => handleFeedback("positive")}
+                              disabled={feedbackSaving}
+                              title={isNb ? "Riktig klassifisering" : "Correct classification"}
+                            >
+                              <ThumbsUp className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleFeedback("negative")}
+                              disabled={feedbackSaving}
+                              title={isNb ? "Feil klassifisering" : "Wrong classification"}
+                            >
+                              <ThumbsDown className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        )}
+                        {feedbackGiven === "positive" && (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        )}
+                        {feedbackGiven === "negative" && (
+                          <span className="text-xs text-muted-foreground">{isNb ? "Takk!" : "Thanks!"}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Progress
+                      value={confidencePercent}
+                      className="h-2"
+                      style={{ ["--progress-color" as any]: undefined }}
                     />
+                    <div className="relative -mt-2 h-2 w-full overflow-hidden rounded-full">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${confidenceColor}`}
+                        style={{ width: `${confidencePercent}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
+
+                {/* Negative feedback form */}
+                {feedbackExpanded && !feedbackGiven && (
+                  <div className="pt-2 border-t space-y-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">{isNb ? "Hva slags dokument er dette egentlig?" : "What type of document is this?"}</Label>
+                      <Select value={correctType} onValueChange={setCorrectType}>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder={isNb ? "Velg riktig type" : "Select correct type"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DOC_TYPES.map((dt) => (
+                            <SelectItem key={dt.value} value={dt.value}>
+                              {isNb ? dt.labelNb : dt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">{isNb ? "Kommentar (valgfritt)" : "Comment (optional)"}</Label>
+                      <Textarea
+                        value={feedbackComment}
+                        onChange={(e) => setFeedbackComment(e.target.value)}
+                        placeholder={isNb ? "F.eks. dette er en NDA, ikke en DPA" : "E.g. this is an NDA, not a DPA"}
+                        rows={2}
+                        className="text-xs min-h-[50px]"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      className="w-full h-7 text-xs"
+                      onClick={submitNegativeFeedback}
+                      disabled={feedbackSaving || !correctType}
+                    >
+                      {feedbackSaving
+                        ? (isNb ? "Sender..." : "Sending...")
+                        : (isNb ? "Send tilbakemelding" : "Submit feedback")}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
