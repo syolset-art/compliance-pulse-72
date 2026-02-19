@@ -713,6 +713,38 @@ export type Database = {
         }
         Relationships: []
       }
+      course_completions: {
+        Row: {
+          completed_at: string
+          course_id: string
+          employee_token: string
+          id: string
+          score: number | null
+        }
+        Insert: {
+          completed_at?: string
+          course_id: string
+          employee_token: string
+          id?: string
+          score?: number | null
+        }
+        Update: {
+          completed_at?: string
+          course_id?: string
+          employee_token?: string
+          id?: string
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_completions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "security_micro_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_compliance_requests: {
         Row: {
           archived_at: string | null
@@ -804,6 +836,88 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "domain_addons_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_connections: {
+        Row: {
+          company_id: string | null
+          connected_at: string
+          employee_token: string
+          id: string
+          last_seen_at: string | null
+          status: string
+        }
+        Insert: {
+          company_id?: string | null
+          connected_at?: string
+          employee_token: string
+          id?: string
+          last_seen_at?: string | null
+          status?: string
+        }
+        Update: {
+          company_id?: string | null
+          connected_at?: string
+          employee_token?: string
+          id?: string
+          last_seen_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_connections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_notifications: {
+        Row: {
+          company_id: string | null
+          content: string | null
+          content_no: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          severity: string
+          title: string
+          title_no: string | null
+          type: string
+        }
+        Insert: {
+          company_id?: string | null
+          content?: string | null
+          content_no?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          severity?: string
+          title: string
+          title_no?: string | null
+          type?: string
+        }
+        Update: {
+          company_id?: string | null
+          content?: string | null
+          content_no?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          severity?: string
+          title?: string
+          title_no?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_notifications_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "company_profile"
@@ -1741,6 +1855,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_micro_courses: {
+        Row: {
+          category: string
+          content: string | null
+          content_no: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          title: string
+          title_no: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          content?: string | null
+          content_no?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          title: string
+          title_no?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          content_no?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          title?: string
+          title_no?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       selected_frameworks: {
         Row: {
