@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     const employeeToken = req.headers.get("x-employee-token");
 
     // Actions that require employee token
-    const tokenActions = ["get-policies", "get-incidents", "get-courses", "submit-course-completion", "get-consents", "get-ai-systems"];
+    const tokenActions = ["get-policies", "get-incidents", "get-courses", "submit-course-completion", "get-consents", "get-ai-systems", "get-shared-content", "get-processing-records", "get-data-systems", "get-vendors", "get-frameworks"];
 
     if (tokenActions.includes(action || "") && !employeeToken) {
       return new Response(JSON.stringify({ error: "Missing employee token" }), {
@@ -125,6 +125,47 @@ Deno.serve(async (req) => {
           .select("name, description, status")
           .eq("status", "active")
           .limit(50);
+        result = data;
+        break;
+      }
+
+      case "get-shared-content": {
+        const { data } = await supabase
+          .from("mynder_me_shared_content")
+          .select("content_type, is_enabled, display_title_no, display_description_no")
+          .eq("is_enabled", true);
+        result = data;
+        break;
+      }
+
+      case "get-processing-records": {
+        const { data: cfg } = await supabase.from("mynder_me_shared_content").select("is_enabled").eq("content_type", "processing_records").maybeSingle();
+        if (!cfg?.is_enabled) { result = { error: "Not shared" }; break; }
+        const { data } = await supabase.from("system_processes").select("name, description, status").eq("status", "active").limit(100);
+        result = data;
+        break;
+      }
+
+      case "get-data-systems": {
+        const { data: cfg } = await supabase.from("mynder_me_shared_content").select("is_enabled").eq("content_type", "data_systems").maybeSingle();
+        if (!cfg?.is_enabled) { result = { error: "Not shared" }; break; }
+        const { data } = await supabase.from("assets").select("name, description, vendor, category, country, region").in("asset_type", ["system", "software", "cloud_service"]).eq("lifecycle_status", "active").limit(100);
+        result = data;
+        break;
+      }
+
+      case "get-vendors": {
+        const { data: cfg } = await supabase.from("mynder_me_shared_content").select("is_enabled").eq("content_type", "vendors").maybeSingle();
+        if (!cfg?.is_enabled) { result = { error: "Not shared" }; break; }
+        const { data } = await supabase.from("assets").select("name, description, country, region, gdpr_role").eq("asset_type", "vendor").limit(100);
+        result = data;
+        break;
+      }
+
+      case "get-frameworks": {
+        const { data: cfg } = await supabase.from("mynder_me_shared_content").select("is_enabled").eq("content_type", "frameworks").maybeSingle();
+        if (!cfg?.is_enabled) { result = { error: "Not shared" }; break; }
+        const { data } = await supabase.from("selected_frameworks").select("framework_name, category").eq("is_selected", true);
         result = data;
         break;
       }
