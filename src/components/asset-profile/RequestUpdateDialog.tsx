@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +21,26 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Send, Sparkles, AlertTriangle } from "lucide-react";
+import { CalendarIcon, Send, Sparkles, AlertTriangle, Paperclip, BookOpen, Upload, X, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+// Reuse template storage from SendRequestWizard
+const TEMPLATES_KEY = "mynder_request_templates";
+
+interface SavedTemplate {
+  id: string;
+  name: string;
+  fileName: string;
+  fileSize: number;
+  createdAt: string;
+  requestTypes: string[];
+}
+
+function getSavedTemplates(): SavedTemplate[] {
+  try {
+    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]");
+  } catch { return []; }
+}
 
 const REQUEST_TYPES = [
   { value: "penetration_test", nb: "Penetrasjonstest", en: "Penetration Test" },
@@ -53,6 +71,7 @@ export function RequestUpdateDialog({
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const isNb = i18n.language === "nb";
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: expiredDocs = [] } = useQuery({
     queryKey: ["expired-docs-detail", assetId],
@@ -76,6 +95,29 @@ export function RequestUpdateDialog({
   const [deadline, setDeadline] = useState<Date>(addDays(new Date(), 30));
   const [message, setMessage] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [attachedTemplateIds, setAttachedTemplateIds] = useState<string[]>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+
+  const templates = getSavedTemplates();
+  // Filter templates relevant to selected types (with mapping for type key differences)
+  const typeMapping: Record<string, string[]> = {
+    dpa: ["dpa"],
+    iso27001: ["iso_documentation"],
+    soc2: ["soc2"],
+    dpia: ["gdpr_report"],
+    penetration_test: ["vendor_assessment"],
+    general: [],
+  };
+  const relevantTemplates = templates.filter((tpl) => {
+    if (tpl.requestTypes.length === 0) return true;
+    return selectedTypes.some((st) => {
+      const mapped = typeMapping[st] || [st];
+      return tpl.requestTypes.some((rt) => mapped.includes(rt) || rt === st);
+    });
+  });
+
+  const totalAttachments = attachedFiles.length + attachedTemplateIds.length;
 
   // Auto-select expired doc types when dialog opens
   useEffect(() => {
@@ -88,6 +130,27 @@ export function RequestUpdateDialog({
     setSelectedTypes((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
+  };
+
+  const toggleTemplate = (id: string) => {
+    setAttachedTemplateIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    );
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error(isNb ? "Filen er for stor. Maks 20 MB." : "File too large. Max 20 MB.");
+      return;
+    }
+    setAttachedFiles((prev) => [...prev, file]);
+    e.target.value = "";
   };
 
   const sendMutation = useMutation({
@@ -107,6 +170,24 @@ export function RequestUpdateDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-document-requests", assetId] });
+
+      // Persist to outbound requests
+      const STORAGE_KEY = "mynder_outbound_requests";
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const newRequests = selectedTypes.map((type, i) => ({
+          id: `out-req-${Date.now()}-${type}-${i}`,
+          vendor_name: vendorName || assetName,
+          request_type: type,
+          status: "awaiting" as const,
+          due_date: deadline.toISOString().split("T")[0],
+          sent_date: new Date().toISOString().split("T")[0],
+          attachments: totalAttachments,
+        }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...newRequests, ...existing]));
+        window.dispatchEvent(new Event("outbound-requests-updated"));
+      } catch {}
+
       const recipient = recipientEmail || vendorName || assetName;
       toast.success(
         isNb
@@ -115,8 +196,8 @@ export function RequestUpdateDialog({
         {
           icon: "🦋",
           description: isNb
-            ? `Lara følger opp og gir deg beskjed når svaret kommer i innboksen.`
-            : `Lara will follow up and notify you when a response arrives in your inbox.`,
+            ? `${totalAttachments > 0 ? `${totalAttachments} vedlegg inkludert. ` : ""}Lara følger opp og gir deg beskjed når svaret kommer i innboksen.`
+            : `${totalAttachments > 0 ? `${totalAttachments} attachment(s) included. ` : ""}Lara will follow up and notify you when a response arrives in your inbox.`,
           duration: 6000,
         }
       );
@@ -124,6 +205,9 @@ export function RequestUpdateDialog({
       setSelectedTypes([]);
       setMessage("");
       setRecipientEmail("");
+      setAttachedFiles([]);
+      setAttachedTemplateIds([]);
+      setShowTemplates(false);
     },
     onError: () => {
       toast.error(isNb ? "Kunne ikke sende forespørsel" : "Could not send request");
@@ -135,12 +219,17 @@ export function RequestUpdateDialog({
     if (val && preselectedType) {
       setSelectedTypes([preselectedType]);
     }
+    if (!val) {
+      setAttachedFiles([]);
+      setAttachedTemplateIds([]);
+      setShowTemplates(false);
+    }
     onOpenChange(val);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
@@ -208,6 +297,106 @@ export function RequestUpdateDialog({
                 </label>
               ))}
             </div>
+          </div>
+
+          {/* Attachments & Templates section */}
+          <div className="space-y-3">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Vedlegg & maler" : "Attachments & Templates"}
+            </Label>
+            <p className="text-xs text-muted-foreground -mt-1">
+              {isNb
+                ? "Legg ved din egen mal (f.eks. egen DPA-mal) som leverandøren skal fylle ut og returnere."
+                : "Attach your own template (e.g. custom DPA template) for the vendor to fill out and return."}
+            </p>
+
+            {/* Saved templates from platform */}
+            {templates.length > 0 && (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-xs gap-2"
+                  onClick={() => setShowTemplates(!showTemplates)}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  {isNb ? "Velg fra malbiblioteket" : "Choose from template library"}
+                  <Badge variant="secondary" className="text-[10px] ml-auto">{templates.length}</Badge>
+                </Button>
+
+                {showTemplates && (
+                  <div className="border rounded-lg p-2 space-y-1 max-h-40 overflow-y-auto bg-muted/30">
+                    {(relevantTemplates.length > 0 ? relevantTemplates : templates).map((tpl) => (
+                      <label
+                        key={tpl.id}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-md px-3 py-2 cursor-pointer transition-colors text-sm",
+                          attachedTemplateIds.includes(tpl.id) ? "bg-primary/10" : "hover:bg-muted"
+                        )}
+                      >
+                        <Checkbox
+                          checked={attachedTemplateIds.includes(tpl.id)}
+                          onCheckedChange={() => toggleTemplate(tpl.id)}
+                        />
+                        <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-medium truncate block">{tpl.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Upload new file */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx"
+              onChange={handleFileUpload}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start text-xs gap-2"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {isNb ? "Last opp nytt vedlegg" : "Upload new attachment"}
+            </Button>
+
+            {/* Attached items display */}
+            {totalAttachments > 0 && (
+              <div className="space-y-1.5">
+                {attachedFiles.map((file, idx) => (
+                  <div key={`file-${idx}`} className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5 text-sm">
+                    <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="flex-1 truncate text-xs">{file.name}</span>
+                    <span className="text-[10px] text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => removeFile(idx)}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                {attachedTemplateIds.map((id) => {
+                  const tpl = templates.find((t) => t.id === id);
+                  if (!tpl) return null;
+                  return (
+                    <div key={id} className="flex items-center gap-2 rounded-md bg-primary/5 border border-primary/20 px-3 py-1.5 text-sm">
+                      <BookOpen className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="flex-1 truncate text-xs font-medium">{tpl.name}</span>
+                      <Badge variant="outline" className="text-[9px]">{isNb ? "Mal" : "Template"}</Badge>
+                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => toggleTemplate(id)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Deadline */}
@@ -285,6 +474,9 @@ export function RequestUpdateDialog({
           >
             <Sparkles className="h-3.5 w-3.5" />
             {isNb ? "Send via Lara" : "Send via Lara"}
+            {totalAttachments > 0 && (
+              <Badge variant="secondary" className="text-[10px] ml-1">{totalAttachments} {isNb ? "vedlegg" : "att."}</Badge>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
