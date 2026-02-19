@@ -513,18 +513,6 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                   <span className="text-sm font-medium">{totalAttachments}</span>
                 </div>
               )}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{isNb ? "Frist" : "Due date"}</span>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                  <Input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-auto h-8 text-sm"
-                  />
-                </div>
-              </div>
             </div>
             <p className="text-xs text-muted-foreground">
               {isNb
