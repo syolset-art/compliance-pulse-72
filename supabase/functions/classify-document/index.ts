@@ -42,7 +42,13 @@ serve(async (req) => {
           {
             role: "system",
             content: `Du er en ekspert på dokumentklassifisering for compliance og leverandørstyring.
-Analyser dokumentet og klassifiser det. Hvis det er en leverandørliste, ekstraher leverandørnavnene.`
+Analyser dokumentet og klassifiser det. Identifiser:
+1. Dokumenttype
+2. Om dokumentet har en utløpsdato eller gyldighetsdato - og om det er utgått
+3. Hvilke regelverk dokumentet er relevant for (GDPR, ISO 27001, ISO 27701, SOC 2, NIS2, AI Act, DORA)
+4. Hvis det er en leverandørliste, ekstraher leverandørnavnene.
+
+Dagens dato er ${new Date().toISOString().split('T')[0]}.`
           },
           {
             role: "user",
@@ -60,12 +66,12 @@ Analyser dokumentet og klassifiser det. Hvis det er en leverandørliste, ekstrah
                 properties: {
                   documentType: {
                     type: "string",
-                    enum: ["vendor_list", "policy", "dpa", "dpia", "certificate", "report", "other"],
+                    enum: ["vendor_list", "policy", "dpa", "dpia", "certificate", "report", "agreement", "penetration_test", "soc2", "iso27001", "other"],
                     description: "Type dokument"
                   },
                   documentTypeLabel: {
                     type: "string",
-                    description: "Norsk label for dokumenttypen, f.eks. 'Leverandørliste', 'Personvernpolicy', 'Databehandleravtale (DPA)', 'DPIA', 'Sertifikat', 'Rapport', 'Annet'"
+                    description: "Norsk label for dokumenttypen, f.eks. 'Leverandørliste', 'Personvernpolicy', 'Databehandleravtale (DPA)', 'DPIA', 'Sertifikat', 'Rapport', 'Avtale', 'Penetrasjonstest', 'SOC 2', 'ISO 27001', 'Annet'"
                   },
                   confidence: {
                     type: "number",
@@ -74,6 +80,32 @@ Analyser dokumentet og klassifiser det. Hvis det er en leverandørliste, ekstrah
                   summary: {
                     type: "string",
                     description: "Kort oppsummering av dokumentets innhold (1-2 setninger)"
+                  },
+                  validFrom: {
+                    type: "string",
+                    description: "Gyldig-fra dato i ISO-format (YYYY-MM-DD) hvis funnet i dokumentet, ellers null"
+                  },
+                  validTo: {
+                    type: "string",
+                    description: "Gyldig-til / utløpsdato i ISO-format (YYYY-MM-DD) hvis funnet i dokumentet, ellers null"
+                  },
+                  expiryStatus: {
+                    type: "string",
+                    enum: ["valid", "expired", "expiring_soon", "unknown"],
+                    description: "Om dokumentet er gyldig, utgått, utløper snart (innen 30 dager), eller ukjent"
+                  },
+                  relevantRegulations: {
+                    type: "array",
+                    description: "Liste over relevante regelverk dette dokumentet dekker eller er relevant for",
+                    items: {
+                      type: "object",
+                      properties: {
+                        regulation: { type: "string", description: "Navn på regelverk (GDPR, ISO 27001, ISO 27701, SOC 2, NIS2, AI Act, DORA)" },
+                        relevance: { type: "string", enum: ["high", "medium", "low"], description: "Hvor relevant dokumentet er for dette regelverket" },
+                        reason: { type: "string", description: "Kort begrunnelse for hvorfor dokumentet er relevant (1 setning)" }
+                      },
+                      required: ["regulation", "relevance", "reason"]
+                    }
                   },
                   extractedVendors: {
                     type: "array",
@@ -88,7 +120,7 @@ Analyser dokumentet og klassifiser det. Hvis det er en leverandørliste, ekstrah
                     }
                   }
                 },
-                required: ["documentType", "documentTypeLabel", "confidence", "summary", "extractedVendors"]
+                required: ["documentType", "documentTypeLabel", "confidence", "summary", "expiryStatus", "relevantRegulations", "extractedVendors"]
               }
             }
           }
@@ -130,7 +162,7 @@ Analyser dokumentet og klassifiser det. Hvis det er en leverandørliste, ekstrah
     }
 
     const classification = JSON.parse(toolCall.function.arguments);
-    console.log(`Classification: ${classification.documentType} (${classification.confidence}), vendors: ${classification.extractedVendors?.length || 0}`);
+    console.log(`Classification: ${classification.documentType} (${classification.confidence}), expiry: ${classification.expiryStatus}, regulations: ${classification.relevantRegulations?.length || 0}, vendors: ${classification.extractedVendors?.length || 0}`);
 
     return new Response(
       JSON.stringify({ classification }),
