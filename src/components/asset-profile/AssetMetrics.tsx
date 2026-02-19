@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send, TrendingUp } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
 interface AssetMetricsProps {
@@ -17,16 +19,38 @@ interface AssetMetricsProps {
     next_review_date: string | null;
     criticality: string | null;
     asset_type?: string;
+    work_area_id?: string | null;
+    asset_manager?: string | null;
+    asset_owner?: string | null;
+    description?: string | null;
+    gdpr_role?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
   };
   tasksCount: number;
 }
+
+// Each criterion contributes points — total = 100%
+const COMPLIANCE_CRITERIA = [
+  { key: "owner", points: 15, labelNb: "Eier tilordnet", labelEn: "Owner assigned" },
+  { key: "manager", points: 10, labelNb: "Ansvarlig person", labelEn: "Responsible person" },
+  { key: "description", points: 5, labelNb: "Beskrivelse utfylt", labelEn: "Description filled" },
+  { key: "risk_level", points: 10, labelNb: "Risikonivå satt", labelEn: "Risk level set" },
+  { key: "criticality", points: 5, labelNb: "Kritikalitet satt", labelEn: "Criticality set" },
+  { key: "gdpr_role", points: 10, labelNb: "GDPR-rolle definert", labelEn: "GDPR role defined" },
+  { key: "contact", points: 5, labelNb: "Kontaktperson", labelEn: "Contact person" },
+  { key: "review_date", points: 5, labelNb: "Neste gjennomgang", labelEn: "Next review date" },
+  { key: "documents", points: 25, labelNb: "Dokumenter lastet opp", labelEn: "Documents uploaded" },
+  { key: "relations", points: 10, labelNb: "Relasjoner definert", labelEn: "Relations defined" },
+];
+
+const TOTAL_POINTS = COMPLIANCE_CRITERIA.reduce((s, c) => s + c.points, 0);
 
 export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
 
-  // Query expired documents count
   const { data: expiredCount = 0 } = useQuery({
     queryKey: ["expired-docs-count", asset.id],
     queryFn: async () => {
@@ -40,6 +64,48 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
       return (data || []).filter((d: any) => new Date(d.valid_to) < now).length;
     },
   });
+
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["vendor-documents-count", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id")
+        .eq("asset_id", asset.id);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  const { data: relationsCount = 0 } = useQuery({
+    queryKey: ["asset-relations-count", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("asset_relationships")
+        .select("id")
+        .or(`source_asset_id.eq.${asset.id},target_asset_id.eq.${asset.id}`);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  // Dynamic compliance calculation
+  const fulfilled: string[] = [];
+  if (asset.work_area_id) fulfilled.push("owner");
+  if (asset.asset_manager) fulfilled.push("manager");
+  if (asset.description) fulfilled.push("description");
+  if (asset.risk_level) fulfilled.push("risk_level");
+  if (asset.criticality) fulfilled.push("criticality");
+  if (asset.gdpr_role) fulfilled.push("gdpr_role");
+  if (asset.contact_person || asset.contact_email) fulfilled.push("contact");
+  if (asset.next_review_date) fulfilled.push("review_date");
+  if (docsCount > 0) fulfilled.push("documents");
+  if (relationsCount > 0) fulfilled.push("relations");
+
+  const earnedPoints = COMPLIANCE_CRITERIA
+    .filter((c) => fulfilled.includes(c.key))
+    .reduce((s, c) => s + c.points, 0);
+  const complianceScore = Math.round((earnedPoints / TOTAL_POINTS) * 100);
 
   const getRiskBadge = (level: string | null) => {
     switch (level) {
@@ -61,54 +127,22 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   };
 
   const risk = getRiskBadge(asset.risk_level);
-  const criticality = getCriticalityBadge(asset.criticality);
-  const complianceScore = asset.compliance_score || 0;
-  const complianceColor = complianceScore >= 80 ? "text-success" : complianceScore >= 50 ? "text-warning" : "text-destructive";
-  const formattedReviewDate = asset.next_review_date 
+  const crit = getCriticalityBadge(asset.criticality);
+  const complianceColor = complianceScore >= 80 ? "text-success" : complianceScore >= 50 ? "text-warning" : complianceScore > 0 ? "text-primary" : "text-muted-foreground";
+  const formattedReviewDate = asset.next_review_date
     ? new Date(asset.next_review_date).toLocaleDateString()
     : t("trustProfile.notSet");
 
-  const metrics = [
-    {
-      icon: AlertTriangle,
-      label: t("trustProfile.riskLevel"),
-      value: risk.label,
-      valueClass: risk.color,
-      bgClass: risk.bg,
-    },
-    {
-      icon: Shield,
-      label: t("assets.criticality"),
-      value: criticality.label,
-      valueClass: criticality.color,
-      bgClass: criticality.bg,
-    },
-    {
-      icon: CheckCircle2,
-      label: t("trustProfile.complianceScore"),
-      value: `${complianceScore}%`,
-      valueClass: complianceColor,
-      bgClass: "",
-    },
-    {
-      icon: Calendar,
-      label: t("trustProfile.nextReview"),
-      value: formattedReviewDate,
-      valueClass: "text-foreground",
-      bgClass: "",
-    },
-    {
-      icon: ListTodo,
-      label: t("trustProfile.tasks"),
-      value: String(tasksCount),
-      valueClass: "text-foreground",
-      bgClass: "",
-    },
+  const smallMetrics = [
+    { icon: AlertTriangle, label: t("trustProfile.riskLevel"), value: risk.label, valueClass: risk.color, bgClass: risk.bg },
+    { icon: Shield, label: t("assets.criticality"), value: crit.label, valueClass: crit.color, bgClass: crit.bg },
+    { icon: Calendar, label: t("trustProfile.nextReview"), value: formattedReviewDate, valueClass: "text-foreground", bgClass: "" },
+    { icon: ListTodo, label: t("trustProfile.tasks"), value: String(tasksCount), valueClass: "text-foreground", bgClass: "" },
   ];
 
   return (
     <div className="space-y-3">
-      {expiredCount > 0 && asset.asset_type !== 'self' && (
+      {expiredCount > 0 && asset.asset_type !== "self" && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
@@ -130,12 +164,54 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {metrics.map((m, idx) => (
-          <Card key={m.label} className={`p-3.5 ${idx === metrics.length - 1 ? 'col-span-2 md:col-span-1' : ''}`}>
+      {/* Compliance Score — prominent card with checklist */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">{isNb ? "Samsvar" : "Compliance"}</span>
+          </div>
+          <span className={`text-2xl font-bold ${complianceColor}`}>{complianceScore}%</span>
+        </div>
+        <Progress value={complianceScore} className="h-2 mb-3" />
+        <TooltipProvider>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5">
+            {COMPLIANCE_CRITERIA.map((c) => {
+              const done = fulfilled.includes(c.key);
+              return (
+                <Tooltip key={c.key}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] transition-colors ${
+                        done ? "bg-success/10 text-success" : "bg-muted/50 text-muted-foreground"
+                      }`}
+                    >
+                      <CheckCircle2
+                        className={`h-3 w-3 shrink-0 ${done ? "text-success" : "text-muted-foreground/30"}`}
+                      />
+                      <span className="truncate">{isNb ? c.labelNb : c.labelEn}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    {done
+                      ? `✓ ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`
+                      : `${isNb ? "Mangler" : "Missing"}: ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        </TooltipProvider>
+      </Card>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {smallMetrics.map((m) => (
+          <Card key={m.label} className="p-3.5">
             <div className="flex items-center gap-1.5 mb-2">
               <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{m.label}</span>
+              <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                {m.label}
+              </span>
             </div>
             {m.bgClass ? (
               <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold ${m.valueClass} ${m.bgClass}`}>
