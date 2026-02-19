@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Building2,
-  ShieldCheck,
-  FileX,
   AlertTriangle,
   Plus,
   Sparkles,
@@ -19,9 +17,6 @@ import {
   Globe,
   Shield,
   ArrowRight,
-  Clock,
-  FileWarning,
-  Mail,
 } from "lucide-react";
 import {
   PieChart,
@@ -34,6 +29,9 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import { VendorActionCards } from "./VendorActionCards";
+import { SendRequestWizard } from "@/components/customer-requests/SendRequestWizard";
+import { toast } from "sonner";
 
 interface Asset {
   id: string;
@@ -78,6 +76,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDiscoverAI, onDelete }: VendorOverviewTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [requestWizardOpen, setRequestWizardOpen] = useState(false);
+  const [preselectedVendorIds, setPreselectedVendorIds] = useState<string[]>([]);
+  const [preselectedRequestType, setPreselectedRequestType] = useState<string>("");
 
   const { data: inboxCounts = {} } = useQuery({
     queryKey: ["lara-inbox-counts"],
@@ -273,49 +274,17 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         </Card>
       </div>
 
-      {/* Attention Banner */}
-      {totalAttention > 0 && (
-        <Card variant="flat" className="p-4 border-warning/30 bg-warning/5">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground mb-2">Krever oppmerksomhet</p>
-              <div className="flex flex-wrap gap-4 text-sm">
-                {attentionCounts.missingDPA > 0 && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <FileX className="h-3.5 w-3.5 text-warning" />
-                    <span>{attentionCounts.missingDPA} mangler DPA</span>
-                  </div>
-                )}
-                {attentionCounts.overdue > 0 && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Clock className="h-3.5 w-3.5 text-orange-500" />
-                    <span>{attentionCounts.overdue} forfalt gjennomgang</span>
-                  </div>
-                )}
-                {attentionCounts.highRiskUnaudited > 0 && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-                    <span>{attentionCounts.highRiskUnaudited} høyrisiko uten audit</span>
-                  </div>
-                )}
-                {metrics.withExpiredDocs > 0 && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <FileWarning className="h-3.5 w-3.5 text-destructive" />
-                    <span>{metrics.withExpiredDocs} utdaterte dokumenter</span>
-                  </div>
-                )}
-                {metrics.pendingInbox > 0 && (
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Mail className="h-3.5 w-3.5 text-primary" />
-                    <span>{metrics.pendingInbox} ventende i innboks</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
+      {/* Actionable Attention Section */}
+      <VendorActionCards
+        vendors={vendors}
+        expiredDocVendorIds={Object.keys(expiredCounts).filter(id => vendors.some(v => v.id === id))}
+        pendingInboxVendorIds={Object.keys(inboxCounts).filter(id => vendors.some(v => v.id === id))}
+        onSendRequest={(vendorIds, requestType) => {
+          setPreselectedVendorIds(vendorIds);
+          setPreselectedRequestType(requestType);
+          setRequestWizardOpen(true);
+        }}
+      />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -460,6 +429,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
           <ComplianceDistribution vendors={vendors} />
         </Card>
       </div>
+
+      <SendRequestWizard
+        open={requestWizardOpen}
+        onOpenChange={setRequestWizardOpen}
+        onSend={(types, vendorIds, dueDate) => {
+          toast.success(`Forespørsel sendt til ${vendorIds.length} leverandør(er)`);
+          setRequestWizardOpen(false);
+        }}
+      />
     </div>
   );
 }
