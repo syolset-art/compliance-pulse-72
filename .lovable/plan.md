@@ -1,42 +1,57 @@
 
-# Mynder Me: Aktivitetslogg med ansatt- og kundefaner
+
+# Mynder Me: Separasjon av ansatte og kunders medarbeidere
 
 ## Oversikt
-Legger til en ny "Aktivitet"-fane i Mynder Me-dashbordet som viser konkrete hendelser -- godkjenninger, signeringer og tidsbesparelser. Fanen deles i to underfaner: **Ansatte** og **Kunder**, for a skille mellom interne og eksterne interaksjoner.
+Restructurerer Mynder Me-dashbordet med to tydelige hovedseksjoner -- **Ansatte** og **Kunders medarbeidere** -- slik at det er klart hva som gjelder hvem. Kurs og delt innhold er kun for egne ansatte, mens kunder har sin egen seksjon med godkjenninger, tilkoblinger og aktivitet.
 
-## Hva som lages
+## Ny struktur
 
-### Ny komponent: `ActivityTab`
-En fane med to underkategorier (ansatte / kunder) som viser demo-data for:
+```text
+Mynder Me
++--------------------------------------------------+
+| Metrikk-kort (overordnet)                        |
++--------------------------------------------------+
+| [ Ansatte ]  [ Kunders medarbeidere ]            |  <-- Hovedfaner (top-level)
++--------------------------------------------------+
 
-**Ansatte-underfane:**
-1. **Personvernerklæring godkjent** -- Melding sendt ut for 24 timer siden, 100% av 12 ansatte har godkjent oppdatert personvernerklæring. Viser tidsbesparelse (estimert: "Spart ca. 4 timer sammenlignet med manuell prosess").
-2. **Arbeidskontrakt signert** -- En arbeidskontrakt er sendt ut og signert av en ansatt via Mynder Me.
+Ansatte-fane:
+  - Kurs (CoursesTab)
+  - Aktivitet (ansatt-delen av ActivityTab)
+  - Delt innhold (SharedContentTab)
+  - Tilkoblinger (ansatte-tilkoblinger)
 
-**Kunder-underfane:**
-3. **CEO-godkjenning fra Helsereiser AS** -- Lars Hansen (CEO, Helsereiser AS) har godkjent Terms & Conditions og personvernerklæring via Mynder Me. Viser rolle og selskapsnavn tydelig.
+Kunders medarbeidere-fane:
+  - Aktivitet (kunde-delen av ActivityTab)
+  - Kundeorganisasjoner (oversikt)
+  - Tilkoblinger (kunde-tilkoblinger)
+```
 
-### Visuelt oppsett
-- Hver hendelse vises som et kort med:
-  - Ikon og fargekode etter type (grønn = fullført/godkjent)
-  - Tidsstempel (relativ tid, f.eks. "for 24 timer siden")
-  - Prosentbar for godkjenningsrate
-  - ROI/tidsbesparelse-indikator der relevant
-- Kunder vises med firmanavn, rolle og kontaktperson
+## Hva som endres
 
-### Dashboard-oppdatering
-- Ny fane "Aktivitet" legges til i TabsList mellom "Varsler" og "Delt innhold"
+### 1. MynderMeDashboard.tsx -- Ny toppniva-struktur
+- Erstatter dagens flate fane-liste med to hovedfaner: **"Ansatte"** og **"Kunders medarbeidere"**
+- Under "Ansatte": Underfaner for Kurs, Aktivitet, Delt innhold, Tilkoblinger
+- Under "Kunders medarbeidere": Underfaner for Aktivitet, Organisasjoner, Tilkoblinger
+- Metrikk-kort tilpasses: Ansatte-metrikkene (kurs, fullforinger) vises under ansatte-seksjonen, kundeorganisasjoner under kunde-seksjonen
+
+### 2. ActivityTab.tsx -- Splittes i to komponenter
+- **EmployeeActivitySection**: Personvernerklaring godkjent (100%), arbeidskontrakt signert
+- **CustomerActivitySection**: Lars Hansen / Helsereiser AS godkjenning
+- Fjerner den interne fane-veksleren (ansatte/kunder) som na finnes inne i ActivityTab, siden dette na handteres av toppniva-strukturen
+
+### 3. MynderMe.tsx -- Oppdatert beskrivelse
+- Legg til en kort forklaring under headeren som forklarer de to malgruppene
 
 ## Tekniske detaljer
 
-### Filer som opprettes
-- `src/components/mynder-me/ActivityTab.tsx` -- Ny komponent med hardkodet demo-data (ingen nye tabeller), to underfaner via intern state
-
 ### Filer som endres
-- `src/components/mynder-me/MynderMeDashboard.tsx` -- Import og registrering av ActivityTab i Tabs-komponenten
+- `src/components/mynder-me/MynderMeDashboard.tsx` -- Hovedrestrukturering med nestede Tabs
+- `src/components/mynder-me/ActivityTab.tsx` -- Splittes til to eksporterte komponenter (EmployeeActivitySection og CustomerActivitySection)
 
 ### Implementasjonsdetaljer
-- Alt er demo-data (statisk) -- ingen nye database-tabeller
-- Tidsstempel beregnes dynamisk relativt til `Date.now() - 24 timer`
-- Tidsbesparelse beregnet som: 12 ansatte x 20 min manuelt = 4 timer, vs. 5 min med Mynder Me
-- Bruker eksisterende UI-komponenter: Card, Badge, Progress, Tabs
+- Bruker nestede Tabs-komponenter: ytre for ansatte/kunder, indre for underkategorier
+- Visuelt skille med ulik bakgrunnsfarge eller ikon pa de to hovedfanene (Users-ikon for ansatte, Building2-ikon for kunder)
+- Kurs-fanen og Delt innhold-fanen vises KUN under "Ansatte" -- de er ikke relevante for kunders medarbeidere
+- Avviksbanneret (fra ansatte) forblir globalt synlig uavhengig av valgt fane
+- Ingen nye database-tabeller eller API-endringer -- kun UI-omstrukturering
