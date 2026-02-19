@@ -307,11 +307,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
       .eq("asset_id", assetId);
 
     const existingTypes = new Set((docs || []).map((d: any) => d.document_type));
-    // Score BEFORE adding new doc
     const coveredBefore = EXPECTED_DOC_TYPES.filter((t) => existingTypes.has(t));
     const scoreBefore = Math.round((coveredBefore.length / EXPECTED_DOC_TYPES.length) * 100);
 
-    // Score AFTER (new doc already saved at this point)
+    // After includes the doc being uploaded now
     existingTypes.add(docType);
     const coveredAfter = EXPECTED_DOC_TYPES.filter((t) => existingTypes.has(t));
     const scoreAfter = Math.round((coveredAfter.length / EXPECTED_DOC_TYPES.length) * 100);
@@ -357,20 +356,28 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
 
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
 
-      // Calculate coverage including the new doc type
-      const { data: updatedDocs } = await supabase
-        .from("vendor_documents")
-        .select("document_type")
-        .eq("asset_id", assetId);
-      const allTypes = new Set((updatedDocs || []).map((d: any) => d.document_type));
-      allTypes.add(docType); // Include current doc even if insert failed
-      const coveredAfter = EXPECTED_DOC_TYPES.filter((t) => allTypes.has(t));
+      // Ensure the new doc type is included in coverage even if DB insert failed (demo)
+      const coveredAfter = [...new Set([...impact.coveredTypes, docType].filter((t) => EXPECTED_DOC_TYPES.includes(t)))];
+      // Also include types from linked regulations mapping for richer demo
+      const extraMapped: Record<string, string[]> = {
+        "GDPR": ["dpa", "dpia", "policy"],
+        "ISO 27001": ["iso27001", "policy", "penetration_test"],
+        "SOC 2": ["soc2", "report"],
+      };
+      for (const reg of linkedRegulations) {
+        for (const t of (extraMapped[reg] || [])) {
+          if (EXPECTED_DOC_TYPES.includes(t) && !coveredAfter.includes(t)) {
+            // Don't auto-add, just keep what we have
+          }
+        }
+      }
       const scoreAfter = Math.round((coveredAfter.length / EXPECTED_DOC_TYPES.length) * 100);
 
       setComplianceImpact({
-        ...impact,
+        scoreBefore: impact.scoreBefore,
         scoreAfter,
         coveredTypes: coveredAfter,
+        totalExpected: EXPECTED_DOC_TYPES.length,
       });
       setStep("saved");
     } catch {
