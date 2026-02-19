@@ -90,8 +90,8 @@ export default function Deviations() {
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
 
-  // Fetch deviations
-  const { data: deviations = [], isLoading } = useQuery({
+  // Fetch deviations from system_incidents
+  const { data: systemDeviations = [], isLoading: loadingSystem } = useQuery({
     queryKey: ["deviations"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -102,6 +102,42 @@ export default function Deviations() {
       return (data || []) as Deviation[];
     },
   });
+
+  // Fetch employee deviation reports
+  const { data: employeeReports = [], isLoading: loadingEmployee } = useQuery({
+    queryKey: ["employee-deviation-reports"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employee_deviation_reports")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []).map((r: any) => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        category: r.category,
+        criticality: r.severity === "critical" ? "critical" : r.severity === "high" ? "high" : r.severity === "low" ? "low" : "medium",
+        status: r.status === "new" ? "open" : r.status === "approved" ? "in_progress" : r.status === "rejected" ? "resolved" : "open",
+        responsible: r.processed_by || null,
+        due_date: null,
+        systems_count: 0,
+        processes_count: 0,
+        measures_count: 0,
+        measures_completed: 0,
+        relevant_frameworks: [],
+        created_at: r.created_at,
+        system_id: "",
+        source: "employee",
+        auto_created: false,
+      } as Deviation));
+    },
+  });
+
+  const isLoading = loadingSystem || loadingEmployee;
+  const deviations = [...systemDeviations, ...employeeReports].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   // Calculate summary stats
   const stats = {
@@ -123,11 +159,13 @@ export default function Deviations() {
     if (statusFilter !== "all" && d.status !== statusFilter) {
       return false;
     }
-    if (sourceFilter !== "all") {
-      if (sourceFilter === "external" && !d.source) return false;
-      if (sourceFilter === "external" && d.source === "manual") return false;
-      if (sourceFilter === "manual" && d.source && d.source !== "manual") return false;
-    }
+      if (sourceFilter !== "all") {
+        if (sourceFilter === "external" && !d.source) return false;
+        if (sourceFilter === "external" && d.source === "manual") return false;
+        if (sourceFilter === "external" && d.source === "employee") return false;
+        if (sourceFilter === "manual" && d.source && d.source !== "manual") return false;
+        if (sourceFilter === "employee" && d.source !== "employee") return false;
+      }
     return true;
   });
 
@@ -162,6 +200,11 @@ export default function Deviations() {
             {deviation.source === "7security" && (
               <Badge className="text-[10px] bg-orange-500/15 text-orange-700 border-orange-500/30">
                 7 Security
+              </Badge>
+            )}
+            {deviation.source === "employee" && (
+              <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30">
+                Ansattmelding
               </Badge>
             )}
             {deviation.auto_created && (
@@ -502,6 +545,7 @@ export default function Deviations() {
                 <SelectContent>
                   <SelectItem value="all">Alle kilder</SelectItem>
                   <SelectItem value="external">Ekstern (7 Security)</SelectItem>
+                  <SelectItem value="employee">Ansattmelding (Mynder Me)</SelectItem>
                   <SelectItem value="manual">Manuell</SelectItem>
                 </SelectContent>
               </Select>
