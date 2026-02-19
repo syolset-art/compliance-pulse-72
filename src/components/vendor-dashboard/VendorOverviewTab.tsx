@@ -30,7 +30,7 @@ import {
   Tooltip,
 } from "recharts";
 import { VendorActionCards } from "./VendorActionCards";
-import { SendRequestWizard } from "@/components/customer-requests/SendRequestWizard";
+import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
 import { toast } from "sonner";
 
 interface Asset {
@@ -430,11 +430,14 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         </Card>
       </div>
 
-      <SendRequestWizard
+      <BulkSendConfirmDialog
         open={requestWizardOpen}
         onOpenChange={setRequestWizardOpen}
-        onSend={(types, vendorIds, dueDate) => {
-          toast.success(`Forespørsel sendt til ${vendorIds.length} leverandør(er)`);
+        vendorNames={vendors
+          .filter((v) => preselectedVendorIds.includes(v.id))
+          .map((v) => ({ id: v.id, name: v.name }))}
+        requestType={preselectedRequestType}
+        onConfirm={(dueDate) => {
           setRequestWizardOpen(false);
         }}
       />
