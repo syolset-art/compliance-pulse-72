@@ -10,6 +10,7 @@ import { CoursesTab } from "./CoursesTab";
 import { NotificationsTab } from "./NotificationsTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
+import { ActivityTab } from "./ActivityTab";
 
 export function MynderMeDashboard() {
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ export function MynderMeDashboard() {
         <TabsList>
           <TabsTrigger value="courses">Kurs</TabsTrigger>
           <TabsTrigger value="notifications">Varsler</TabsTrigger>
+          <TabsTrigger value="activity">Aktivitet</TabsTrigger>
           <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
           <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
         </TabsList>
@@ -112,6 +114,9 @@ export function MynderMeDashboard() {
         </TabsContent>
         <TabsContent value="notifications">
           <NotificationsTab />
+        </TabsContent>
+        <TabsContent value="activity">
+          <ActivityTab />
         </TabsContent>
         <TabsContent value="shared-content">
           <SharedContentTab />
