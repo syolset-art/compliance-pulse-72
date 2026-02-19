@@ -689,48 +689,35 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
             </div>
 
             {/* Relevant regulations */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-xs font-medium flex items-center gap-1">
                 <Shield className="h-3 w-3" />
                 {isNb ? "Relevante regelverk" : "Relevant Regulations"}
-                {classification?.relevantRegulations && classification.relevantRegulations.length > 0 && (
-                  <Badge variant="outline" className="text-[9px] ml-1">AI-forslag</Badge>
-                )}
               </Label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1">
                 {ALL_REGULATIONS.map((reg) => {
                   const selected = linkedRegulations.includes(reg);
                   const aiSuggestion = classification?.relevantRegulations?.find((r) => r.regulation === reg);
                   return (
-                    <Badge
+                    <button
                       key={reg}
-                      variant={selected ? "default" : "outline"}
-                      className={`text-[10px] cursor-pointer transition-colors ${
-                        selected ? "" : aiSuggestion ? "border-primary/40 text-primary" : ""
-                      }`}
+                      type="button"
                       onClick={() => toggleRegulation(reg)}
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                        selected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : aiSuggestion
+                            ? "border-primary/40 text-primary hover:bg-primary/5"
+                            : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                      }`}
+                      title={aiSuggestion?.reason || ""}
                     >
                       {reg}
-                    </Badge>
+                      {aiSuggestion && !selected && <Sparkles className="h-2.5 w-2.5 opacity-60" />}
+                    </button>
                   );
                 })}
               </div>
-
-              {/* AI regulation reasons */}
-              {classification?.relevantRegulations && classification.relevantRegulations.length > 0 && (
-                <div className="space-y-1 mt-2">
-                  {classification.relevantRegulations
-                    .filter((r) => r.relevance === "high" || r.relevance === "medium")
-                    .map((r, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-[11px] text-muted-foreground">
-                        <Badge variant={r.relevance === "high" ? "default" : "secondary"} className="text-[9px] shrink-0 mt-0.5">
-                          {r.regulation}
-                        </Badge>
-                        <span>{r.reason}</span>
-                      </div>
-                    ))}
-                </div>
-              )}
             </div>
           </div>
         )}
