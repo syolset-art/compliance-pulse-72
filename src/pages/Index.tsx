@@ -21,7 +21,7 @@ import { SecurityPostureWidget } from "@/components/widgets/SecurityPostureWidge
 import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { AddModuleDialog } from "@/components/AddModuleDialog";
 import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
-import { CertificationJourney } from "@/components/iso-readiness/CertificationJourney";
+
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
@@ -275,10 +275,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                 {/* Onboarding Progress Widget */}
                 <OnboardingProgressWidget />
 
-                {/* PECB Certification Journey */}
-                <Card className="p-4 mb-8">
-                  <CertificationJourney completedPercent={stats.progressPercent} />
-                </Card>
 
                 {/* Role-specific primary widget */}
                 {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
