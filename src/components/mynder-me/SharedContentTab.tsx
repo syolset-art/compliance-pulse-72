@@ -174,10 +174,28 @@ export function SharedContentTab() {
         })}
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Aktiverte kategorier blir tilgjengelige for ansatte via Mynder Me-appen i et forenklet, ansattvennlig format.
-        Ingen personopplysninger om individuelle ansatte lagres.
-      </p>
+      <Card variant="flat" className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30">
+        <CardContent className="pt-5 pb-5">
+          <div className="flex gap-3">
+            <div className="shrink-0 mt-0.5">
+              <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>
+                <strong className="text-foreground">Ingen duplisering av data.</strong>{" "}
+                Ansatte får lesetilgang til informasjonen direkte fra Mynder – dataene lagres kun ett sted.
+              </p>
+              <p>
+                <strong className="text-foreground">Kun relevante behandlingsprotokoller.</strong>{" "}
+                Det er kun behandlingsprotokoller som omhandler ansattdata som bør deles – ikke protokoller knyttet til kunder, leverandører eller andre registrerte. Sørg for at behandlingsprotokollene som er aktive i plattformen reflekterer dette.
+              </p>
+              <p>
+                Ingen personopplysninger om individuelle ansatte lagres i Mynder Me.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
