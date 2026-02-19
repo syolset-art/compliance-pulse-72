@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -53,6 +54,8 @@ import {
   AlertTriangle,
   Crown,
   CheckCircle2,
+  Shield,
+  ExternalLink,
 } from "lucide-react";
 
 interface AddVendorDialogProps {
@@ -118,6 +121,28 @@ interface ClassificationResult {
   confidence: number;
   summary: string;
   extractedVendors: { name: string; description?: string }[];
+}
+
+// Helper: determine if a Trust Profile is "verified" (self-managed) vs AI-generated
+function isVerifiedTrustProfile(result: VendorSearchResult): boolean {
+  return (result.publishMode != null && result.publishMode !== "private") || (result.documentCount != null && result.documentCount > 0);
+}
+
+// --- Trust Profile Badge ---
+function TrustProfileBadge({ result }: { result: VendorSearchResult }) {
+  const verified = isVerifiedTrustProfile(result);
+  if (verified) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        <Shield className="h-3 w-3" /> Verifisert Trust Profile
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+      <Sparkles className="h-3 w-3" /> AI-generert profil
+    </span>
+  );
 }
 
 // --- Animated analysis steps component ---
@@ -194,10 +219,49 @@ function ScanLimitBanner({ used, limit }: { used: number; limit: number }) {
   );
 }
 
+// --- Existing vendor warning card ---
+function ExistingVendorCard({ vendor, onOpenProfile, onClose }: { vendor: VendorSearchResult; onOpenProfile: () => void; onClose: () => void }) {
+  return (
+    <div className="rounded-lg border-2 border-yellow-500/40 bg-yellow-50/50 dark:bg-yellow-900/10 p-4 space-y-3">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-semibold text-foreground">Denne leverandøren finnes allerede</h4>
+          <p className="text-xs text-muted-foreground mt-1">
+            <strong>{vendor.name}</strong> er allerede registrert i systemet.
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        <TrustProfileBadge result={vendor} />
+        {vendor.complianceScore != null && vendor.complianceScore > 0 && (
+          <span className="text-[10px] font-medium text-muted-foreground">
+            Compliance: {vendor.complianceScore}%
+          </span>
+        )}
+        {vendor.documentCount != null && vendor.documentCount > 0 && (
+          <span className="text-[10px] text-muted-foreground">
+            {vendor.documentCount} dokumenter
+          </span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" variant="default" onClick={onOpenProfile} className="gap-1.5">
+          <ExternalLink className="h-3.5 w-3.5" /> Åpne Trust Profile
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onClose} className="text-xs">
+          Lukk
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendorDialogProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { search: vendorSearch, searchInternalOnly, clearResults, results, isLoading, error } = useVendorLookup();
+  const navigate = useNavigate();
+  const { search: vendorSearch, searchInternalOnly, checkDuplicate, clearResults, results, isLoading, error } = useVendorLookup();
 
   const [step, setStep] = useState<Step>("quantity");
   const [mode, setMode] = useState<Mode>("single");
@@ -222,6 +286,10 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     gdpr_role_reason?: string;
   } | null>(null);
   const [isSuggesting, setIsSuggesting] = useState(false);
+
+  // Duplicate check state
+  const [duplicateMatch, setDuplicateMatch] = useState<VendorSearchResult | null>(null);
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
 
   // File upload state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -254,6 +322,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setClassification(null);
     setSelectedDocType("");
     setSelectedVendorsToImport(new Set());
+    setDuplicateMatch(null);
+    setIsCheckingDuplicate(false);
     clearResults();
   }, [clearResults]);
 
@@ -272,6 +342,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setVendorDescription("");
     setAiSuggestion(null);
     setIsSuggesting(false);
+    setDuplicateMatch(null);
+    setIsCheckingDuplicate(false);
     clearResults();
   }, [clearResults]);
 
@@ -383,15 +455,34 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
 
   const handleSelect = (result: VendorSearchResult) => {
     if (result.existingId) {
-      toast.info(t("addVendor.alreadyExists", "Denne leverandøren finnes allerede"));
+      // Show existing vendor card instead of adding
+      setDuplicateMatch(result);
       return;
     }
     setSelected(result);
     setStep("categorize");
   };
 
-  const handleManualConfirm = () => {
+  const handleOpenExistingProfile = (id: string) => {
+    onOpenChange(false);
+    resetForm();
+    navigate(`/assets/${id}`);
+  };
+
+  const handleManualConfirm = async () => {
     if (!manualName.trim()) return;
+    setIsCheckingDuplicate(true);
+    try {
+      const existing = await checkDuplicate(manualName);
+      if (existing) {
+        setDuplicateMatch(existing);
+        setIsCheckingDuplicate(false);
+        return;
+      }
+    } catch {
+      // If check fails, proceed anyway
+    }
+    setIsCheckingDuplicate(false);
     setSelected({
       source: "manual",
       name: manualName,
@@ -415,7 +506,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
-  const READABLE_EXTENSIONS = [".csv", ".txt", ".json"]; // can read as text directly
   const READABLE_FORMATS_LABEL = "CSV, Excel, PDF, Word, TXT, JSON";
 
   const handleFileSelect = (file: File) => {
@@ -443,7 +533,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const startAnalysis = async () => {
     if (!uploadedFile) return;
 
-    // Check scan limit
     if (getScanCount() >= SCAN_LIMIT) {
       setStep("scan-limit");
       return;
@@ -452,7 +541,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     setStep("file-analyzing");
     setAnalysisPhase(0);
 
-    // Check if the file is readable as text
     const ext = "." + uploadedFile.name.split(".").pop()?.toLowerCase();
     const binaryFormats = [".pdf", ".xlsx", ".xls", ".doc", ".docx"];
     if (binaryFormats.includes(ext)) {
@@ -463,7 +551,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       return;
     }
 
-    // Read file text
     let documentText = "";
     try {
       documentText = await uploadedFile.text();
@@ -479,7 +566,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       return;
     }
 
-    // Animate phases
     const phaseTimer = setInterval(() => {
       setAnalysisPhase((p) => Math.min(p + 1, 3));
     }, 1200);
@@ -497,12 +583,10 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       const result = data.classification as ClassificationResult;
       setClassification(result);
       setSelectedDocType(result.documentType);
-      // Pre-select all vendors
       if (result.extractedVendors?.length) {
         setSelectedVendorsToImport(new Set(result.extractedVendors.map((_, i) => i)));
       }
 
-      // Increment scan counter
       const newCount = incrementScanCount();
       setScanCount(newCount);
 
@@ -595,7 +679,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           </div>
         )}
 
-        {/* Step: Method (new - only for multiple) */}
+        {/* Step: Method (only for multiple) */}
         {step === "method" && (
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
@@ -713,7 +797,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           <div className="space-y-4 pt-2">
             <ScanLimitBanner used={scanCount} limit={SCAN_LIMIT} />
 
-            {/* Document type suggestion */}
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -742,7 +825,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             </div>
 
-            {/* Extracted vendors (if vendor_list with results) */}
             {(selectedDocType === "vendor_list" || classification.documentType === "vendor_list") && classification.extractedVendors.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -791,7 +873,6 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             )}
 
-            {/* No vendors found - clear warning */}
             {(!classification.extractedVendors || classification.extractedVendors.length === 0) && (
               <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-2">
                 <div className="flex items-start gap-3">
@@ -895,6 +976,15 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </div>
             )}
 
+            {/* Duplicate match warning */}
+            {duplicateMatch && (
+              <ExistingVendorCard
+                vendor={duplicateMatch}
+                onOpenProfile={() => handleOpenExistingProfile(duplicateMatch.existingId!)}
+                onClose={() => setDuplicateMatch(null)}
+              />
+            )}
+
             <div>
               <Label htmlFor="vendor-search">{t("addVendor.searchLabel", "Søk etter leverandør")}</Label>
               <div className="flex gap-2 mt-1.5">
@@ -939,19 +1029,34 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     <button
                       key={i}
                       onClick={() => handleSelect(r)}
-                      className={`w-full text-left p-3 rounded-lg border transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                        r.existingId ? "border-muted bg-muted/30 opacity-60" : "border-border"
-                      }`}
+                      className={cn(
+                        "w-full text-left p-3 rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        r.existingId
+                          ? "border-yellow-500/40 bg-yellow-50/30 dark:bg-yellow-900/10 hover:border-yellow-500/60"
+                          : "border-border hover:border-primary"
+                      )}
                       role="option"
                       aria-selected={false}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <span className="font-medium text-sm">{r.name}</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-sm">{r.name}</span>
+                            {r.existingId && (
+                              <Badge variant="warning" className="text-[10px] gap-1">
+                                <CheckCircle2 className="h-2.5 w-2.5" /> Allerede registrert
+                              </Badge>
+                            )}
+                          </div>
                           {r.existingId && (
-                            <span className="ml-2 text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                              {t("addVendor.existing", "Allerede registrert")}
-                            </span>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <TrustProfileBadge result={r} />
+                              {r.complianceScore != null && r.complianceScore > 0 && (
+                                <span className="text-[10px] text-muted-foreground">
+                                  Compliance: {r.complianceScore}%
+                                </span>
+                              )}
+                            </div>
                           )}
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
                             {r.industry && <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{r.industry}</span>}
@@ -998,6 +1103,14 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         {/* Manual mode */}
         {step === "search" && manualMode && (
           <div className="space-y-4 pt-2">
+            {/* Duplicate match warning in manual mode */}
+            {duplicateMatch && (
+              <ExistingVendorCard
+                vendor={duplicateMatch}
+                onOpenProfile={() => handleOpenExistingProfile(duplicateMatch.existingId!)}
+                onClose={() => setDuplicateMatch(null)}
+              />
+            )}
             <div>
               <Label htmlFor="manual-name">{t("addVendor.vendorName", "Leverandørnavn")} *</Label>
               <Input id="manual-name" value={manualName} onChange={(e) => setManualName(e.target.value)} className="mt-1.5" />
@@ -1013,7 +1126,8 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               <Button variant="ghost" size="sm" onClick={() => setManualMode(false)}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> {t("addVendor.back", "Tilbake")}
               </Button>
-              <Button size="sm" onClick={handleManualConfirm} disabled={!manualName.trim()}>
+              <Button size="sm" onClick={handleManualConfirm} disabled={!manualName.trim() || isCheckingDuplicate}>
+                {isCheckingDuplicate ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                 {t("addVendor.next", "Neste")} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
