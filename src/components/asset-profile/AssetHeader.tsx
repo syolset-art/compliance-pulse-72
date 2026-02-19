@@ -391,6 +391,8 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
         assetId={asset.id}
         assetName={asset.name}
         vendorName={asset.vendor || undefined}
+        contactPerson={(asset as any).contact_person || undefined}
+        contactEmail={(asset as any).contact_email || undefined}
       />
     </Card>
   );

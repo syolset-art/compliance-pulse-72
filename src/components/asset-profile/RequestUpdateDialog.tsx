@@ -58,6 +58,8 @@ interface RequestUpdateDialogProps {
   assetName: string;
   vendorName?: string;
   preselectedType?: string;
+  contactPerson?: string | null;
+  contactEmail?: string | null;
 }
 
 export function RequestUpdateDialog({
@@ -67,6 +69,8 @@ export function RequestUpdateDialog({
   assetName,
   vendorName,
   preselectedType,
+  contactPerson,
+  contactEmail,
 }: RequestUpdateDialogProps) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
@@ -94,7 +98,7 @@ export function RequestUpdateDialog({
   );
   const [deadline, setDeadline] = useState<Date>(addDays(new Date(), 30));
   const [message, setMessage] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState(contactEmail || "");
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [attachedTemplateIds, setAttachedTemplateIds] = useState<string[]>([]);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -204,7 +208,7 @@ export function RequestUpdateDialog({
       onOpenChange(false);
       setSelectedTypes([]);
       setMessage("");
-      setRecipientEmail("");
+      setRecipientEmail(contactEmail || "");
       setAttachedFiles([]);
       setAttachedTemplateIds([]);
       setShowTemplates(false);
@@ -437,6 +441,11 @@ export function RequestUpdateDialog({
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {isNb ? "Mottaker (e-post)" : "Recipient (email)"}
             </Label>
+            {contactPerson && (
+              <p className="text-xs text-muted-foreground -mt-0.5">
+                {contactPerson}
+              </p>
+            )}
             <Input
               type="email"
               placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
