@@ -82,7 +82,7 @@ const TOTAL_STEPS = 4;
 interface SendRequestWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSend: (types: string[], vendorIds: string[], dueDate: string) => void;
+  onSend: (types: string[], vendorIds: string[], dueDate: string, vendorNames?: Record<string, string>) => void;
 }
 
 export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWizardProps) {
@@ -181,7 +181,29 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
   };
 
   const handleSend = () => {
-    onSend(selectedTypes, selectedVendors, dueDate);
+    // Build vendor name map for display
+    const vendorNames: Record<string, string> = {};
+    vendors.forEach((v: any) => { vendorNames[v.id] = v.name; });
+    onSend(selectedTypes, selectedVendors, dueDate, vendorNames);
+
+    // Also persist to localStorage so it shows on the Forespørsler page
+    const STORAGE_KEY = "mynder_outbound_requests";
+    try {
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      const newRequests = selectedTypes.flatMap((type) =>
+        selectedVendors.map((id, i) => ({
+          id: `out-new-${Date.now()}-${type}-${i}`,
+          vendor_name: vendorNames[id] || `Leverandør ${id.substring(0, 6)}`,
+          request_type: type,
+          status: "awaiting" as const,
+          due_date: dueDate,
+          sent_date: new Date().toISOString().split("T")[0],
+        }))
+      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...newRequests, ...existing]));
+      window.dispatchEvent(new Event("outbound-requests-updated"));
+    } catch {}
+
     toast.success(isNb ? `${selectedTypes.length} forespørsel(er) sendt til ${selectedVendors.length} leverandør(er)` : `${selectedTypes.length} request(s) sent to ${selectedVendors.length} vendor(s)`);
     resetAndClose();
   };
