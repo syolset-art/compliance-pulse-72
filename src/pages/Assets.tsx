@@ -178,6 +178,7 @@ export default function Assets() {
                 relationships={relationships}
                 onAddVendor={() => setIsVendorDialogOpen(true)}
                 onDiscoverAI={handleDiscoverAI}
+                onDelete={(id) => deleteAsset.mutate(id)}
               />
             </TabsContent>
 

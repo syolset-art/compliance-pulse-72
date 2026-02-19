@@ -22,6 +22,7 @@ interface Asset {
   next_review_date?: string | null;
   vendor_category?: string | null;
   gdpr_role?: string | null;
+  work_area_id?: string | null;
 }
 
 interface VendorOverviewTabProps {
@@ -29,9 +30,10 @@ interface VendorOverviewTabProps {
   relationships: { source_asset_id: string; target_asset_id: string }[];
   onAddVendor: () => void;
   onDiscoverAI: () => void;
+  onDelete?: (id: string) => void;
 }
 
-export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDiscoverAI }: VendorOverviewTabProps) {
+export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDiscoverAI, onDelete }: VendorOverviewTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -164,6 +166,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 inboxCount={inboxCounts[v.id] || 0}
                 expiredDocsCount={expiredCounts[v.id] || 0}
                 onClick={() => navigate(`/assets/${v.id}`)}
+                onDelete={onDelete}
               />
             ))}
           </div>
