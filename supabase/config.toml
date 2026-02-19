@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.suggest-vendor-category]
 verify_jwt = false
+
+[functions.mynder-me-api]
+verify_jwt = false

@@ -363,6 +363,24 @@ const SidebarContent = () => {
           Partneroversikt
         </Link>
 
+        {/* Mynder Me */}
+        <Link
+          to="/mynder-me"
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all mt-1",
+            location.pathname === "/mynder-me"
+              ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+          )}
+        >
+          <Users className="h-5 w-5" />
+          Mynder Me
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+          </span>
+        </Link>
+
         {/* Vendor Demo link */}
         <Link
           to="/vendor-response-demo"

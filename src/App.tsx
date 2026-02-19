@@ -36,6 +36,7 @@ import VendorResponseDemo from "./pages/VendorResponseDemo";
 import MSPDashboard from "./pages/MSPDashboard";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
+import MynderMe from "./pages/MynderMe";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const App = () => (
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
+                  <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
