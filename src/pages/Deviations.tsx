@@ -134,8 +134,40 @@ export default function Deviations() {
     },
   });
 
-  const isLoading = loadingSystem || loadingEmployee;
-  const deviations = [...systemDeviations, ...employeeReports].sort(
+  // Fetch employee notifications (varsler)
+  const { data: notificationItems = [], isLoading: loadingNotifications } = useQuery({
+    queryKey: ["employee-notifications-deviations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employee_notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const severityMap: Record<string, string> = { critical: "critical", warning: "high", info: "low" };
+      return (data || []).map((n: any) => ({
+        id: n.id,
+        title: n.title_no || n.title,
+        description: n.content_no || n.content,
+        category: n.type || "varsel",
+        criticality: severityMap[n.severity] || "low",
+        status: "resolved",
+        responsible: null,
+        due_date: n.expires_at,
+        systems_count: 0,
+        processes_count: 0,
+        measures_count: 0,
+        measures_completed: 0,
+        relevant_frameworks: [],
+        created_at: n.created_at,
+        system_id: "",
+        source: "notification",
+        auto_created: false,
+      } as Deviation));
+    },
+  });
+
+  const isLoading = loadingSystem || loadingEmployee || loadingNotifications;
+  const deviations = [...systemDeviations, ...employeeReports, ...notificationItems].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
@@ -163,8 +195,10 @@ export default function Deviations() {
         if (sourceFilter === "external" && !d.source) return false;
         if (sourceFilter === "external" && d.source === "manual") return false;
         if (sourceFilter === "external" && d.source === "employee") return false;
+        if (sourceFilter === "external" && d.source === "notification") return false;
         if (sourceFilter === "manual" && d.source && d.source !== "manual") return false;
         if (sourceFilter === "employee" && d.source !== "employee") return false;
+        if (sourceFilter === "notification" && d.source !== "notification") return false;
       }
     return true;
   });
@@ -205,6 +239,11 @@ export default function Deviations() {
             {deviation.source === "employee" && (
               <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30">
                 Ansattmelding
+              </Badge>
+            )}
+            {deviation.source === "notification" && (
+              <Badge className="text-[10px] bg-purple-500/15 text-purple-700 border-purple-500/30">
+                Varsel
               </Badge>
             )}
             {deviation.auto_created && (
@@ -546,6 +585,7 @@ export default function Deviations() {
                   <SelectItem value="all">Alle kilder</SelectItem>
                   <SelectItem value="external">Ekstern (7 Security)</SelectItem>
                   <SelectItem value="employee">Ansattmelding (Mynder Me)</SelectItem>
+                  <SelectItem value="notification">Varsel (Mynder Me)</SelectItem>
                   <SelectItem value="manual">Manuell</SelectItem>
                 </SelectContent>
               </Select>

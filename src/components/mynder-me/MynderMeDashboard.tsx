@@ -5,9 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Bell, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
+import { Users, BookOpen, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
 import { CoursesTab } from "./CoursesTab";
-import { NotificationsTab } from "./NotificationsTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
 import { ActivityTab } from "./ActivityTab";
@@ -19,17 +18,15 @@ export function MynderMeDashboard() {
     activeConnections: 0,
     courses: 0,
     completions: 0,
-    notifications: 0,
     deviationReports: 0,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [connRes, courseRes, complRes, notifRes, devRes] = await Promise.all([
+      const [connRes, courseRes, complRes, devRes] = await Promise.all([
         supabase.from("employee_connections").select("id, status"),
         supabase.from("security_micro_courses").select("id").eq("is_active", true),
         supabase.from("course_completions").select("id"),
-        supabase.from("employee_notifications").select("id"),
         supabase.from("employee_deviation_reports").select("id").eq("status", "new"),
       ]);
 
@@ -39,7 +36,6 @@ export function MynderMeDashboard() {
         activeConnections: connections.filter((c: any) => c.status === "active").length,
         courses: courseRes.data?.length || 0,
         completions: complRes.data?.length || 0,
-        notifications: notifRes.data?.length || 0,
         deviationReports: devRes.data?.length || 0,
       });
     };
@@ -71,12 +67,6 @@ export function MynderMeDashboard() {
           subtitle={`${completionRate}% fullføringsrate`}
           icon={TrendingUp}
         />
-        <MetricCard
-          title="Sendte varsler"
-          value={stats.notifications}
-          subtitle="Til ansatte"
-          icon={Bell}
-        />
       </div>
 
       {/* Employee deviation reports banner */}
@@ -103,7 +93,6 @@ export function MynderMeDashboard() {
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
           <TabsTrigger value="courses">Kurs</TabsTrigger>
-          <TabsTrigger value="notifications">Varsler</TabsTrigger>
           <TabsTrigger value="activity">Aktivitet</TabsTrigger>
           <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
           <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
@@ -111,9 +100,6 @@ export function MynderMeDashboard() {
 
         <TabsContent value="courses">
           <CoursesTab />
-        </TabsContent>
-        <TabsContent value="notifications">
-          <NotificationsTab />
         </TabsContent>
         <TabsContent value="activity">
           <ActivityTab />
