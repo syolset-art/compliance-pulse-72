@@ -1,30 +1,35 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Users, BookOpen, Bell, TrendingUp, AlertTriangle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, BookOpen, Bell, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
 import { CoursesTab } from "./CoursesTab";
 import { NotificationsTab } from "./NotificationsTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
-import { DeviationReportsTab } from "./DeviationReportsTab";
 
 export function MynderMeDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     connections: 0,
     activeConnections: 0,
     courses: 0,
     completions: 0,
     notifications: 0,
+    deviationReports: 0,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [connRes, courseRes, complRes, notifRes] = await Promise.all([
+      const [connRes, courseRes, complRes, notifRes, devRes] = await Promise.all([
         supabase.from("employee_connections").select("id, status"),
         supabase.from("security_micro_courses").select("id").eq("is_active", true),
         supabase.from("course_completions").select("id"),
         supabase.from("employee_notifications").select("id"),
+        supabase.from("employee_deviation_reports").select("id").eq("status", "new"),
       ]);
 
       const connections = connRes.data || [];
@@ -34,6 +39,7 @@ export function MynderMeDashboard() {
         courses: courseRes.data?.length || 0,
         completions: complRes.data?.length || 0,
         notifications: notifRes.data?.length || 0,
+        deviationReports: devRes.data?.length || 0,
       });
     };
     fetchStats();
@@ -72,10 +78,30 @@ export function MynderMeDashboard() {
         />
       </div>
 
+      {/* Employee deviation reports banner */}
+      {stats.deviationReports > 0 && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{stats.deviationReports} nye avviksmeldinger fra ansatte</p>
+                <p className="text-sm text-muted-foreground">Behandles i det felles avviksregisteret</p>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => navigate("/deviations")} className="gap-2">
+              Gå til avviksregister
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
           <TabsTrigger value="courses">Kurs</TabsTrigger>
-          <TabsTrigger value="deviation-reports">Avviksmeldinger</TabsTrigger>
           <TabsTrigger value="notifications">Varsler</TabsTrigger>
           <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
           <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
@@ -83,9 +109,6 @@ export function MynderMeDashboard() {
 
         <TabsContent value="courses">
           <CoursesTab />
-        </TabsContent>
-        <TabsContent value="deviation-reports">
-          <DeviationReportsTab />
         </TabsContent>
         <TabsContent value="notifications">
           <NotificationsTab />
