@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   FileText,
@@ -14,12 +13,17 @@ import {
   ShieldCheck,
   Eye,
   Loader2,
+  Lock,
+  Crown,
 } from "lucide-react";
 
 interface SharedContentRow {
   id: string;
   content_type: string;
   is_enabled: boolean;
+  is_mandatory: boolean;
+  is_premium: boolean;
+  regulatory_basis: string | null;
   display_title_no: string;
   display_description_no: string | null;
 }
@@ -84,6 +88,7 @@ export function SharedContentTab() {
   };
 
   const handleToggle = async (row: SharedContentRow) => {
+    if (row.is_mandatory) return;
     setToggling(row.id);
     const newVal = !row.is_enabled;
     const { error } = await supabase
@@ -107,6 +112,8 @@ export function SharedContentTab() {
   };
 
   const enabledCount = rows.filter((r) => r.is_enabled).length;
+  const mandatoryRows = rows.filter((r) => r.is_mandatory);
+  const optionalRows = rows.filter((r) => !r.is_mandatory);
 
   if (loading) {
     return (
@@ -115,6 +122,63 @@ export function SharedContentTab() {
       </div>
     );
   }
+
+  const renderCard = (row: SharedContentRow) => {
+    const meta = CONTENT_META[row.content_type];
+    const Icon = meta?.icon || FileText;
+    const count = counts[row.content_type as keyof ContentCounts] || 0;
+
+    return (
+      <Card key={row.id} variant="flat" className="overflow-hidden">
+        <div className="flex items-center gap-4 p-5">
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted ${meta?.color || ""}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h4 className="font-medium text-foreground">{row.display_title_no}</h4>
+              <Badge variant={row.is_enabled ? "default" : "secondary"} className="text-xs">
+                {count} elementer
+              </Badge>
+              {row.is_mandatory && (
+                <Badge variant="outline" className="text-xs gap-1 border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
+                  <Lock className="h-3 w-3" />
+                  Lovpålagt
+                </Badge>
+              )}
+              {row.is_premium && (
+                <Badge variant="outline" className="text-xs gap-1 border-purple-300 text-purple-700 dark:border-purple-700 dark:text-purple-400">
+                  <Crown className="h-3 w-3" />
+                  Premium
+                </Badge>
+              )}
+            </div>
+            {row.regulatory_basis && (
+              <p className="text-xs text-muted-foreground mb-0.5">{row.regulatory_basis}</p>
+            )}
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {row.display_description_no}
+            </p>
+          </div>
+
+          <div className="shrink-0 flex items-center gap-3">
+            {row.is_premium && !row.is_enabled ? (
+              <Badge variant="secondary" className="text-xs cursor-default">
+                Krever oppgradering
+              </Badge>
+            ) : (
+              <Switch
+                checked={row.is_enabled}
+                disabled={row.is_mandatory || toggling === row.id}
+                onCheckedChange={() => handleToggle(row)}
+              />
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -135,45 +199,33 @@ export function SharedContentTab() {
         </CardContent>
       </Card>
 
-      {/* Content category cards */}
-      <div className="grid gap-4">
-        {rows.map((row) => {
-          const meta = CONTENT_META[row.content_type];
-          const Icon = meta?.icon || FileText;
-          const count = counts[row.content_type as keyof ContentCounts] || 0;
+      {/* Mandatory section */}
+      {mandatoryRows.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <h3 className="text-sm font-semibold text-foreground">Lovpålagt deling</h3>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-1">
+            Disse kategoriene er påkrevd etter GDPR og AI Act, og kan ikke deaktiveres.
+          </p>
+          <div className="grid gap-3">
+            {mandatoryRows.map(renderCard)}
+          </div>
+        </div>
+      )}
 
-          return (
-            <Card key={row.id} variant="flat" className="overflow-hidden">
-              <div className="flex items-center gap-4 p-5">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted ${meta?.color || ""}`}>
-                  <Icon className="h-5 w-5" />
-                </div>
+      {/* Optional section */}
+      {optionalRows.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Valgfritt</h3>
+          <div className="grid gap-3">
+            {optionalRows.map(renderCard)}
+          </div>
+        </div>
+      )}
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-foreground">{row.display_title_no}</h4>
-                    <Badge variant={row.is_enabled ? "default" : "secondary"} className="text-xs">
-                      {count} elementer
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {row.display_description_no}
-                  </p>
-                </div>
-
-                <div className="shrink-0 flex items-center gap-3">
-                  <Switch
-                    checked={row.is_enabled}
-                    disabled={toggling === row.id}
-                    onCheckedChange={() => handleToggle(row)}
-                  />
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
+      {/* Info card */}
       <Card variant="flat" className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30">
         <CardContent className="pt-5 pb-5">
           <div className="flex gap-3">
