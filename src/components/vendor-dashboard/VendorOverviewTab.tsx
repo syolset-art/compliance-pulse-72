@@ -79,6 +79,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   const [requestWizardOpen, setRequestWizardOpen] = useState(false);
   const [preselectedVendorIds, setPreselectedVendorIds] = useState<string[]>([]);
   const [preselectedRequestType, setPreselectedRequestType] = useState<string>("");
+  const [sentCategories, setSentCategories] = useState<string[]>([]);
+  const [preselectedCategoryKey, setPreselectedCategoryKey] = useState<string>("");
 
   const { data: inboxCounts = {} } = useQuery({
     queryKey: ["lara-inbox-counts"],
@@ -279,9 +281,11 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         vendors={vendors}
         expiredDocVendorIds={Object.keys(expiredCounts).filter(id => vendors.some(v => v.id === id))}
         pendingInboxVendorIds={Object.keys(inboxCounts).filter(id => vendors.some(v => v.id === id))}
-        onSendRequest={(vendorIds, requestType) => {
+        sentCategories={sentCategories}
+        onSendRequest={(vendorIds, requestType, categoryKey) => {
           setPreselectedVendorIds(vendorIds);
           setPreselectedRequestType(requestType);
+          setPreselectedCategoryKey(categoryKey);
           setRequestWizardOpen(true);
         }}
       />
@@ -438,6 +442,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
           .map((v) => ({ id: v.id, name: v.name }))}
         requestType={preselectedRequestType}
         onConfirm={(dueDate) => {
+          setSentCategories((prev) => [...prev, preselectedCategoryKey]);
           setRequestWizardOpen(false);
         }}
       />
