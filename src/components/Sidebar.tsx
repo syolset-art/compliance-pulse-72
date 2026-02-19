@@ -21,7 +21,8 @@ import {
   LogOut,
   RotateCcw,
   FileQuestion,
-  Play
+  Play,
+  Code2
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -139,6 +140,7 @@ const SidebarContent = () => {
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
   const [adminOpen, setAdminOpen] = useState(false);
+  const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
@@ -348,6 +350,40 @@ const SidebarContent = () => {
           <BookOpen className="h-5 w-5" />
           {t("nav.resources")}
         </Link>
+
+        {/* Utviklere menu */}
+        <div className="pt-1">
+          <button 
+            onClick={() => setDevOpen(!devOpen)}
+            className={cn(
+              "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              location.pathname.startsWith("/developer") ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <Code2 className="h-5 w-5" />
+              Utviklere
+            </div>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", devOpen && "rotate-180")} />
+          </button>
+          
+          {devOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              <Link
+                to="/developer/trust-profile-architecture"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  location.pathname === "/developer/trust-profile-architecture"
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                )}
+              >
+                <Shield className="h-4 w-4" />
+                TP Arkitektur
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* MSP Partner Dashboard */}
         <Link
