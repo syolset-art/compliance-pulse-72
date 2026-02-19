@@ -13,6 +13,8 @@ import {
   Building2,
   ArrowRight,
   ShieldAlert,
+  CheckCircle2,
+  Bell,
 } from "lucide-react";
 
 interface VendorActionItem {
@@ -48,13 +50,15 @@ interface VendorActionCardsProps {
   }[];
   expiredDocVendorIds: string[];
   pendingInboxVendorIds: string[];
-  onSendRequest: (vendorIds: string[], requestType: string) => void;
+  sentCategories: string[];
+  onSendRequest: (vendorIds: string[], requestType: string, categoryKey: string) => void;
 }
 
 export function VendorActionCards({
   vendors,
   expiredDocVendorIds,
   pendingInboxVendorIds,
+  sentCategories,
   onSendRequest,
 }: VendorActionCardsProps) {
   const navigate = useNavigate();
@@ -201,32 +205,46 @@ export function VendorActionCards({
               </div>
 
               <div className="flex gap-2">
-                {cat.requestType && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="gap-1.5 text-xs"
-                    onClick={() =>
-                      onSendRequest(
-                        cat.vendors.map((v) => v.id),
-                        cat.requestType!
-                      )
-                    }
-                  >
-                    <Send className="h-3 w-3" />
-                    Send forespørsel
-                  </Button>
-                )}
-                {cat.key === "pending_inbox" && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="gap-1.5 text-xs"
-                    onClick={() => navigate("/lara-inbox")}
-                  >
-                    <Mail className="h-3 w-3" />
-                    Åpne innboks
-                  </Button>
+                {sentCategories.includes(cat.key) ? (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-xs font-medium text-emerald-700">Forespørsel sendt</span>
+                    <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-600 gap-1">
+                      <Bell className="h-2.5 w-2.5" />
+                      Lara purrer automatisk
+                    </Badge>
+                  </div>
+                ) : (
+                  <>
+                    {cat.requestType && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="gap-1.5 text-xs"
+                        onClick={() =>
+                          onSendRequest(
+                            cat.vendors.map((v) => v.id),
+                            cat.requestType!,
+                            cat.key
+                          )
+                        }
+                      >
+                        <Send className="h-3 w-3" />
+                        Send forespørsel
+                      </Button>
+                    )}
+                    {cat.key === "pending_inbox" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="gap-1.5 text-xs"
+                        onClick={() => navigate("/lara-inbox")}
+                      >
+                        <Mail className="h-3 w-3" />
+                        Åpne innboks
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </Card>
