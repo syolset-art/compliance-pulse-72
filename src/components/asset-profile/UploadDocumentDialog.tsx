@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -10,24 +10,27 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Upload, X, FileText, Sparkles, CheckCircle2, Plus, ArrowRight, Info } from "lucide-react";
+import {
+  Upload, X, FileText, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Loader2,
+  Calendar, Shield, Clock, XCircle,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const DOC_TYPES = [
-  { value: "policy", label: "Policy", labelNb: "Policy", desc: "Internal or external policy document", descNb: "Internt eller eksternt policydokument" },
-  { value: "certificate", label: "Certificate", labelNb: "Sertifikat", desc: "ISO, SOC 2, or other certification", descNb: "ISO, SOC 2 eller annen sertifisering" },
-  { value: "report", label: "Report", labelNb: "Rapport", desc: "Audit report, risk assessment, etc.", descNb: "Revisjonsrapport, risikovurdering o.l." },
-  { value: "agreement", label: "Agreement", labelNb: "Avtale", desc: "DPA, SLA, or contract", descNb: "DPA, SLA eller kontrakt" },
-  { value: "penetration_test", label: "Penetration Test", labelNb: "Penetrasjonstest", desc: "Pentest report or findings", descNb: "Pentestrapport eller funn" },
-  { value: "dpia", label: "DPIA", labelNb: "DPIA", desc: "Data Protection Impact Assessment", descNb: "Vurdering av personvernkonsekvenser" },
-  { value: "soc2", label: "SOC 2", labelNb: "SOC 2", desc: "SOC 2 Type I or Type II report", descNb: "SOC 2 Type I- eller Type II-rapport" },
-  { value: "iso27001", label: "ISO 27001", labelNb: "ISO 27001", desc: "ISO 27001 certificate or documentation", descNb: "ISO 27001-sertifikat eller dokumentasjon" },
-  { value: "dpa", label: "DPA", labelNb: "DPA", desc: "Data Processing Agreement", descNb: "Databehandleravtale" },
-  { value: "other", label: "Other", labelNb: "Annet", desc: "Describe below what this document contains", descNb: "Beskriv nedenfor hva dokumentet inneholder" },
+  { value: "policy", label: "Policy", labelNb: "Policy" },
+  { value: "certificate", label: "Certificate", labelNb: "Sertifikat" },
+  { value: "report", label: "Report", labelNb: "Rapport" },
+  { value: "agreement", label: "Agreement", labelNb: "Avtale" },
+  { value: "penetration_test", label: "Penetration Test", labelNb: "Penetrasjonstest" },
+  { value: "dpia", label: "DPIA", labelNb: "DPIA" },
+  { value: "soc2", label: "SOC 2", labelNb: "SOC 2" },
+  { value: "iso27001", label: "ISO 27001", labelNb: "ISO 27001" },
+  { value: "dpa", label: "DPA", labelNb: "DPA" },
+  { value: "other", label: "Other", labelNb: "Annet" },
 ];
 
 const DOC_CATEGORIES = [
@@ -39,17 +42,24 @@ const DOC_CATEGORIES = [
   { value: "Other", label: "Other" },
 ];
 
-const REGULATIONS = [
+const ALL_REGULATIONS = [
   "GDPR", "ISO 27001", "ISO 27701", "SOC 2", "NIS2", "AI Act", "DORA",
 ];
 
-interface FileEntry {
-  file: File;
-  type: string;
-  category: string;
-  displayName: string;
-  linkedRegulations: string[];
-  confirmed: boolean;
+interface AIClassification {
+  documentType: string;
+  documentTypeLabel: string;
+  confidence: number;
+  summary: string;
+  validFrom?: string | null;
+  validTo?: string | null;
+  expiryStatus: "valid" | "expired" | "expiring_soon" | "unknown";
+  relevantRegulations: Array<{
+    regulation: string;
+    relevance: "high" | "medium" | "low";
+    reason: string;
+  }>;
+  extractedVendors: Array<{ name: string; description?: string }>;
 }
 
 interface UploadDocumentDialogProps {
@@ -58,25 +68,38 @@ interface UploadDocumentDialogProps {
   assetId: string;
 }
 
+type Step = "upload" | "analyzing" | "review";
+
 export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocumentDialogProps) {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Step 0: classify before upload
-  const [step, setStep] = useState<"classify" | "upload">("classify");
-  const [selectedDocType, setSelectedDocType] = useState<string>("");
-  const [docDescription, setDocDescription] = useState("");
+  const [step, setStep] = useState<Step>("upload");
+  const [file, setFile] = useState<File | null>(null);
+  const [classification, setClassification] = useState<AIClassification | null>(null);
 
-  const [files, setFiles] = useState<FileEntry[]>([]);
+  // Editable fields (populated by AI, adjustable by user)
+  const [docType, setDocType] = useState("");
+  const [category, setCategory] = useState("Other");
+  const [displayName, setDisplayName] = useState("");
+  const [linkedRegulations, setLinkedRegulations] = useState<string[]>([]);
+  const [validFrom, setValidFrom] = useState("");
+  const [validTo, setValidTo] = useState("");
+
   const [uploading, setUploading] = useState(false);
 
   const resetDialog = () => {
-    setStep("classify");
-    setSelectedDocType("");
-    setDocDescription("");
-    setFiles([]);
+    setStep("upload");
+    setFile(null);
+    setClassification(null);
+    setDocType("");
+    setCategory("Other");
+    setDisplayName("");
+    setLinkedRegulations([]);
+    setValidFrom("");
+    setValidTo("");
     setUploading(false);
   };
 
@@ -85,76 +108,100 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     onOpenChange(v);
   };
 
-  const handleProceedToUpload = () => {
-    setStep("upload");
+  const readFileAsText = async (f: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string || "");
+      reader.onerror = () => resolve("");
+      reader.readAsText(f);
+    });
   };
 
-  const addFiles = useCallback((newFiles: FileList | File[]) => {
-    const entries: FileEntry[] = Array.from(newFiles).map((f) => ({
-      file: f,
-      type: selectedDocType || "other",
-      category: inferCategory(selectedDocType),
-      displayName: f.name.replace(/\.[^/.]+$/, ""),
-      linkedRegulations: inferRegulations(selectedDocType),
-      confirmed: false,
-    }));
-    setFiles((prev) => [...prev, ...entries]);
-  }, [selectedDocType]);
+  const handleFileSelected = useCallback(async (selectedFile: File) => {
+    setFile(selectedFile);
+    setDisplayName(selectedFile.name.replace(/\.[^/.]+$/, ""));
+    setStep("analyzing");
 
-  const updateFile = (index: number, updates: Partial<FileEntry>) => {
-    setFiles((prev) => prev.map((f, i) => (i === index ? { ...f, ...updates } : f)));
-  };
+    try {
+      const text = await readFileAsText(selectedFile);
+      if (!text || text.length < 20) {
+        // Binary file - can't extract text, skip AI
+        toast.info(isNb ? "Kunne ikke lese filinnhold for AI-analyse. Velg type manuelt." : "Could not read file for AI analysis. Select type manually.");
+        setStep("review");
+        setDocType("other");
+        setCategory("Other");
+        return;
+      }
 
-  const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+      const { data, error } = await supabase.functions.invoke("classify-document", {
+        body: { documentText: text, fileName: selectedFile.name },
+      });
 
-  const toggleRegulation = (index: number, reg: string) => {
-    setFiles((prev) =>
-      prev.map((f, i) => {
-        if (i !== index) return f;
-        const has = f.linkedRegulations.includes(reg);
-        return {
-          ...f,
-          linkedRegulations: has
-            ? f.linkedRegulations.filter((r) => r !== reg)
-            : [...f.linkedRegulations, reg],
-        };
-      })
+      if (error || data?.error) {
+        console.error("Classification error:", error || data?.error);
+        toast.error(isNb ? "AI-klassifisering feilet. Velg type manuelt." : "AI classification failed. Select type manually.");
+        setStep("review");
+        setDocType("other");
+        setCategory("Other");
+        return;
+      }
+
+      const cls: AIClassification = data.classification;
+      setClassification(cls);
+      setDocType(cls.documentType === "vendor_list" ? "other" : cls.documentType);
+      setCategory(inferCategory(cls.documentType));
+      setLinkedRegulations(
+        (cls.relevantRegulations || [])
+          .filter((r) => r.relevance === "high" || r.relevance === "medium")
+          .map((r) => r.regulation)
+      );
+      if (cls.validFrom) setValidFrom(cls.validFrom);
+      if (cls.validTo) setValidTo(cls.validTo);
+      setStep("review");
+    } catch (err) {
+      console.error("Classification error:", err);
+      toast.error(isNb ? "AI-analyse feilet" : "AI analysis failed");
+      setStep("review");
+      setDocType("other");
+      setCategory("Other");
+    }
+  }, [isNb]);
+
+  const toggleRegulation = (reg: string) => {
+    setLinkedRegulations((prev) =>
+      prev.includes(reg) ? prev.filter((r) => r !== reg) : [...prev, reg]
     );
   };
 
-  const confirmedCount = files.filter((f) => f.confirmed).length;
-
-  const handleUploadAll = async () => {
-    const toUpload = files.filter((f) => f.confirmed);
-    if (toUpload.length === 0) return;
+  const handleSave = async () => {
+    if (!file) return;
     setUploading(true);
     try {
-      for (const entry of toUpload) {
-        const filePath = `${assetId}/${Date.now()}_${entry.file.name}`;
-        const { error: storageErr } = await supabase.storage
-          .from("vendor-documents")
-          .upload(filePath, entry.file);
-        if (storageErr) throw storageErr;
+      const filePath = `${assetId}/${Date.now()}_${file.name}`;
+      const { error: storageErr } = await supabase.storage
+        .from("vendor-documents")
+        .upload(filePath, file);
+      if (storageErr) throw storageErr;
 
-        const { error: dbErr } = await supabase.from("vendor_documents").insert({
-          asset_id: assetId,
-          file_name: entry.file.name,
-          file_path: filePath,
-          document_type: entry.type,
-          display_name: entry.displayName,
-          category: entry.category,
-          linked_regulations: entry.linkedRegulations,
-          source: "manual_upload",
-          status: "current",
-          received_at: new Date().toISOString(),
-          context_description: docDescription || null,
-        } as any);
-        if (dbErr) throw dbErr;
-      }
+      const { error: dbErr } = await supabase.from("vendor_documents").insert({
+        asset_id: assetId,
+        file_name: file.name,
+        file_path: filePath,
+        document_type: docType,
+        display_name: displayName,
+        category,
+        linked_regulations: linkedRegulations,
+        source: "manual_upload",
+        status: "current",
+        received_at: new Date().toISOString(),
+        valid_from: validFrom || null,
+        valid_to: validTo || null,
+        context_description: classification?.summary || null,
+      } as any);
+      if (dbErr) throw dbErr;
+
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(isNb ? `${toUpload.length} dokument(er) lastet opp` : `${toUpload.length} document(s) uploaded`);
+      toast.success(isNb ? "Dokument lastet opp og klassifisert" : "Document uploaded and classified");
       resetDialog();
       onOpenChange(false);
     } catch {
@@ -167,285 +214,272 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+      const f = e.dataTransfer.files?.[0];
+      if (f) handleFileSelected(f);
     },
-    [addFiles]
+    [handleFileSelected]
   );
+
+  const expiryStatusConfig = {
+    valid: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800", label: isNb ? "Gyldig" : "Valid" },
+    expired: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10 border-destructive/20", label: isNb ? "Utgått" : "Expired" },
+    expiring_soon: { icon: AlertTriangle, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800", label: isNb ? "Utløper snart" : "Expiring soon" },
+    unknown: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border", label: isNb ? "Ukjent" : "Unknown" },
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {step === "classify"
-              ? (isNb ? "Hva slags dokument er dette?" : "What type of document is this?")
-              : (isNb ? "Last opp dokumenter" : "Upload Documents")}
-            {step === "upload" && (
-              <Badge variant="secondary" className="text-[10px] gap-1">
-                <Sparkles className="h-3 w-3" />
-                Smart Classification
-              </Badge>
+            {step === "upload" && (isNb ? "Last opp dokument" : "Upload Document")}
+            {step === "analyzing" && (isNb ? "Analyserer dokument..." : "Analyzing document...")}
+            {step === "review" && (
+              <>
+                {isNb ? "AI-analyse ferdig" : "AI Analysis Complete"}
+                <Badge variant="secondary" className="text-[10px] gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  AI
+                </Badge>
+              </>
             )}
           </DialogTitle>
           <DialogDescription>
-            {step === "classify"
-              ? (isNb
-                  ? "Velg type og beskriv dokumentet kort, slik at vi kan gi en bedre analyse."
-                  : "Select a type and briefly describe the document so we can provide a better analysis.")
-              : (isNb ? "Legg til metadata og koble til regelverk før opplasting" : "Add metadata and link to regulations before uploading")}
+            {step === "upload" && (isNb ? "Last opp et dokument, så analyserer vi det automatisk" : "Upload a document and we'll analyze it automatically")}
+            {step === "analyzing" && (isNb ? "Vi klassifiserer dokumentet og identifiserer relevante regelverk..." : "We're classifying the document and identifying relevant regulations...")}
+            {step === "review" && (isNb ? "Gjennomgå og juster AI-forslagene før du lagrer" : "Review and adjust AI suggestions before saving")}
           </DialogDescription>
         </DialogHeader>
 
-        {/* ===== STEP: CLASSIFY ===== */}
-        {step === "classify" && (
-          <div className="space-y-5">
-            {/* Info banner */}
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-              <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-blue-700 dark:text-blue-300">
-                {isNb
-                  ? "Ved å velge riktig type og gi en kort beskrivelse, kan vi automatisk koble dokumentet til relevante regelverk og gi mer presise analyseresultater."
-                  : "By selecting the correct type and providing a brief description, we can automatically link the document to relevant regulations and provide more precise analysis results."}
-              </p>
+        {/* ===== STEP: UPLOAD ===== */}
+        {step === "upload" && (
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center gap-3 p-10 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/30 cursor-pointer transition-colors"
+          >
+            <Upload className="h-8 w-8 text-muted-foreground" />
+            <div className="text-center">
+              <p className="text-sm font-medium">{isNb ? "Dra og slipp fil her, eller klikk for å velge" : "Drag and drop a file, or click to select"}</p>
+              <p className="text-xs text-muted-foreground mt-1">PDF, Word, Excel, PowerPoint</p>
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.txt,.csv"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFileSelected(f);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        )}
 
-            {/* Document type grid */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                {isNb ? "Dokumenttype" : "Document Type"}
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                {DOC_TYPES.map((dt) => {
-                  const isSelected = selectedDocType === dt.value;
-                  return (
-                    <button
-                      key={dt.value}
-                      onClick={() => setSelectedDocType(dt.value)}
-                      className={`text-left p-3 rounded-lg border transition-all ${
-                        isSelected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                          : "border-border hover:border-muted-foreground/30 hover:bg-muted/30"
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{isNb ? dt.labelNb : dt.label}</span>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {isNb ? dt.descNb : dt.desc}
-                      </p>
-                    </button>
-                  );
-                })}
+        {/* ===== STEP: ANALYZING ===== */}
+        {step === "analyzing" && (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <div className="relative">
+              <Loader2 className="h-10 w-10 text-primary animate-spin" />
+              <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-sm font-medium">{isNb ? "Analyserer" : "Analyzing"} {file?.name}</p>
+              <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                <span>🔍 {isNb ? "Identifiserer dokumenttype..." : "Identifying document type..."}</span>
+                <span>📅 {isNb ? "Sjekker gyldighetsdatoer..." : "Checking validity dates..."}</span>
+                <span>⚖️ {isNb ? "Kobler til relevante regelverk..." : "Linking to relevant regulations..."}</span>
               </div>
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                {isNb ? "Kort beskrivelse (valgfritt)" : "Brief description (optional)"}
-              </Label>
-              <Textarea
-                value={docDescription}
-                onChange={(e) => setDocDescription(e.target.value)}
-                placeholder={isNb
-                  ? "F.eks. «SOC 2 Type II-rapport fra 2024 for vår skyplattform» eller «Internt policy-dokument for informasjonssikkerhet»"
-                  : "E.g. 'SOC 2 Type II report from 2024 for our cloud platform' or 'Internal information security policy document'"}
-                rows={3}
-                className="text-sm resize-none"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                {isNb
-                  ? "En kort beskrivelse hjelper AI-analysen å forstå dokumentets kontekst og formål."
-                  : "A brief description helps the AI analysis understand the document's context and purpose."}
-              </p>
             </div>
           </div>
         )}
 
-        {/* ===== STEP: UPLOAD ===== */}
-        {step === "upload" && (
-          <>
-            {/* Context summary */}
-            <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
-              <div className="flex items-center gap-2">
-                <FileText className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium">
-                  {isNb ? "Dokumenttype" : "Document type"}:{" "}
-                  {DOC_TYPES.find((d) => d.value === selectedDocType)?.[isNb ? "labelNb" : "label"] || (isNb ? "Annet" : "Other")}
-                </span>
-              </div>
-              {docDescription && (
-                <p className="text-[11px] text-muted-foreground pl-5.5 truncate">
-                  «{docDescription}»
-                </p>
-              )}
-              <button onClick={() => setStep("classify")} className="text-[11px] text-primary hover:underline pl-5.5">
-                {isNb ? "Endre" : "Change"}
-              </button>
+        {/* ===== STEP: REVIEW ===== */}
+        {step === "review" && (
+          <div className="space-y-4">
+            {/* File info */}
+            <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/30">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-medium truncate">{file?.name}</span>
+              <span className="text-[10px] text-muted-foreground shrink-0">
+                {file && (file.size / 1024 / 1024).toFixed(1)} MB
+              </span>
+              <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto shrink-0" onClick={() => { setFile(null); setClassification(null); setStep("upload"); }}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
             </div>
 
-            {/* AI Auto-Fill banner */}
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1.5">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Sparkles className="h-4 w-4 text-primary" />
-                AI Auto-Fill Available
-              </div>
-              <p className="text-xs text-muted-foreground">2 of 3 scans remaining this year</p>
-              <Progress value={66} className="h-1.5" />
-            </div>
+            {/* AI Summary */}
+            {classification?.summary && (
+              <Alert>
+                <Sparkles className="h-4 w-4" />
+                <AlertDescription className="text-sm">{classification.summary}</AlertDescription>
+              </Alert>
+            )}
 
-            {/* File count */}
-            {files.length > 0 && (
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>{files.length} {isNb ? "fil(er) klar" : "file(s) ready"}</span>
-                <Badge variant="outline" className="text-[10px]">Premium Features</Badge>
+            {/* Expiry status banner */}
+            {classification && classification.expiryStatus !== "unknown" && (
+              <div className={`flex items-center gap-2 p-3 rounded-lg border ${expiryStatusConfig[classification.expiryStatus].bg}`}>
+                {(() => {
+                  const Icon = expiryStatusConfig[classification.expiryStatus].icon;
+                  return <Icon className={`h-4 w-4 ${expiryStatusConfig[classification.expiryStatus].color}`} />;
+                })()}
+                <div>
+                  <span className={`text-sm font-medium ${expiryStatusConfig[classification.expiryStatus].color}`}>
+                    {expiryStatusConfig[classification.expiryStatus].label}
+                  </span>
+                  {classification.expiryStatus === "expired" && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {isNb ? "Dette dokumentet er utgått. Du bør be leverandøren om en oppdatert versjon." : "This document has expired. You should request an updated version from the vendor."}
+                    </p>
+                  )}
+                  {classification.expiryStatus === "expiring_soon" && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {isNb ? "Dokumentet utløper snart. Planlegg fornyelse." : "Document is expiring soon. Plan for renewal."}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
-            {/* File cards */}
-            <div className="space-y-4">
-              {files.map((entry, idx) => (
-                <div key={idx} className="rounded-lg border bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <FileText className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-sm font-medium truncate">{entry.file.name}</span>
-                      <span className="text-[10px] text-muted-foreground shrink-0">
-                        {(entry.file.size / 1024 / 1024).toFixed(1)} MB
-                      </span>
-                      {entry.confirmed && (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      )}
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => removeFile(idx)}>
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-[11px]">{isNb ? "Type" : "Type"}</Label>
-                      <Select value={entry.type} onValueChange={(v) => updateFile(idx, { type: v })}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {DOC_TYPES.map((dt) => (
-                            <SelectItem key={dt.value} value={dt.value}>
-                              {isNb ? dt.labelNb : dt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-[11px]">{isNb ? "Kategori" : "Category"}</Label>
-                      <Select value={entry.category} onValueChange={(v) => updateFile(idx, { category: v })}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {DOC_CATEGORIES.map((c) => (
-                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label className="text-[11px]">{isNb ? "Visningsnavn" : "Display Name"}</Label>
-                    <Input
-                      value={entry.displayName}
-                      onChange={(e) => updateFile(idx, { displayName: e.target.value })}
-                      className="h-8 text-xs"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-[11px]">{isNb ? "Regelverk" : "Regulations"}</Label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {REGULATIONS.map((reg) => {
-                        const selected = entry.linkedRegulations.includes(reg);
-                        return (
-                          <Badge
-                            key={reg}
-                            variant={selected ? "default" : "outline"}
-                            className="text-[10px] cursor-pointer transition-colors"
-                            onClick={() => toggleRegulation(idx, reg)}
-                          >
-                            {reg}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      variant={entry.confirmed ? "secondary" : "default"}
-                      className="h-7 text-xs"
-                      onClick={() => updateFile(idx, { confirmed: !entry.confirmed })}
-                    >
-                      {entry.confirmed ? (isNb ? "Bekreftet ✓" : "Confirmed ✓") : (isNb ? "Bekreft" : "Confirm")}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+            {/* Suggested type & category */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium flex items-center gap-1">
+                  {isNb ? "Dokumenttype" : "Document Type"}
+                  {classification && <Badge variant="outline" className="text-[9px] ml-1">AI-forslag</Badge>}
+                </Label>
+                <Select value={docType} onValueChange={setDocType}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DOC_TYPES.map((dt) => (
+                      <SelectItem key={dt.value} value={dt.value}>
+                        {isNb ? dt.labelNb : dt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">{isNb ? "Kategori" : "Category"}</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {DOC_CATEGORIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Add more files */}
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-accent/30 cursor-pointer transition-colors"
-            >
-              <Plus className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {files.length === 0
-                  ? (isNb ? "Velg filer eller dra og slipp her" : "Select files or drag and drop here")
-                  : (isNb ? "Legg til flere filer" : "Add more files")}
-              </span>
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                multiple
-                accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx"
-                onChange={(e) => {
-                  if (e.target.files) addFiles(e.target.files);
-                  e.target.value = "";
-                }}
+            {/* Display name */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">{isNb ? "Visningsnavn" : "Display Name"}</Label>
+              <Input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="h-8 text-xs"
               />
             </div>
-          </>
+
+            {/* Validity dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {isNb ? "Gyldig fra" : "Valid from"}
+                </Label>
+                <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {isNb ? "Gyldig til" : "Valid to"}
+                </Label>
+                <Input type="date" value={validTo} onChange={(e) => setValidTo(e.target.value)} className="h-8 text-xs" />
+              </div>
+            </div>
+
+            {/* Relevant regulations */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium flex items-center gap-1">
+                <Shield className="h-3 w-3" />
+                {isNb ? "Relevante regelverk" : "Relevant Regulations"}
+                {classification?.relevantRegulations && classification.relevantRegulations.length > 0 && (
+                  <Badge variant="outline" className="text-[9px] ml-1">AI-forslag</Badge>
+                )}
+              </Label>
+              <div className="flex flex-wrap gap-1.5">
+                {ALL_REGULATIONS.map((reg) => {
+                  const selected = linkedRegulations.includes(reg);
+                  const aiSuggestion = classification?.relevantRegulations?.find((r) => r.regulation === reg);
+                  return (
+                    <Badge
+                      key={reg}
+                      variant={selected ? "default" : "outline"}
+                      className={`text-[10px] cursor-pointer transition-colors ${
+                        selected ? "" : aiSuggestion ? "border-primary/40 text-primary" : ""
+                      }`}
+                      onClick={() => toggleRegulation(reg)}
+                    >
+                      {reg}
+                    </Badge>
+                  );
+                })}
+              </div>
+
+              {/* AI regulation reasons */}
+              {classification?.relevantRegulations && classification.relevantRegulations.length > 0 && (
+                <div className="space-y-1 mt-2">
+                  {classification.relevantRegulations
+                    .filter((r) => r.relevance === "high" || r.relevance === "medium")
+                    .map((r, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-[11px] text-muted-foreground">
+                        <Badge variant={r.relevance === "high" ? "default" : "secondary"} className="text-[9px] shrink-0 mt-0.5">
+                          {r.regulation}
+                        </Badge>
+                        <span>{r.reason}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* Footer */}
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          {step === "classify" && (
+          {step === "upload" && (
+            <Button variant="outline" onClick={() => handleOpenChange(false)}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+          )}
+          {step === "analyzing" && (
+            <Button variant="outline" onClick={() => { setStep("upload"); setFile(null); }}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+          )}
+          {step === "review" && (
             <>
               <span className="text-xs text-muted-foreground mr-auto">
-                {isNb ? "Du kan endre dette senere" : "You can change this later"}
+                {classification && (
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    {isNb ? `Konfidensgrad: ${Math.round((classification.confidence || 0) * 100)}%` : `Confidence: ${Math.round((classification.confidence || 0) * 100)}%`}
+                  </span>
+                )}
               </span>
-              <Button variant="outline" onClick={() => handleOpenChange(false)}>
-                {isNb ? "Avbryt" : "Cancel"}
+              <Button variant="outline" onClick={() => { setFile(null); setClassification(null); setStep("upload"); }}>
+                {isNb ? "Velg annen fil" : "Choose another file"}
               </Button>
-              <Button onClick={handleProceedToUpload} disabled={!selectedDocType}>
-                <ArrowRight className="h-3.5 w-3.5 mr-1.5" />
-                {isNb ? "Neste: Velg filer" : "Next: Select files"}
-              </Button>
-            </>
-          )}
-          {step === "upload" && (
-            <>
-              <span className="text-sm text-muted-foreground mr-auto">
-                {confirmedCount} {isNb ? "dokument(er) klar til opplasting" : "document(s) ready to upload"}
-              </span>
-              <Button variant="outline" onClick={() => setStep("classify")}>
-                {isNb ? "Tilbake" : "Back"}
-              </Button>
-              <Button onClick={handleUploadAll} disabled={confirmedCount === 0 || uploading}>
+              <Button onClick={handleSave} disabled={uploading || !docType}>
                 <Upload className="h-3.5 w-3.5 mr-1.5" />
                 {uploading
-                  ? (isNb ? "Laster opp..." : "Uploading...")
-                  : (isNb ? "Last opp alle" : "Upload All")}
+                  ? (isNb ? "Lagrer..." : "Saving...")
+                  : (isNb ? "Lagre dokument" : "Save Document")}
               </Button>
             </>
           )}
@@ -455,7 +489,6 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   );
 }
 
-/** Infer a default category from doc type */
 function inferCategory(docType: string): string {
   const map: Record<string, string> = {
     policy: "Compliance",
@@ -469,20 +502,4 @@ function inferCategory(docType: string): string {
     dpa: "Privacy",
   };
   return map[docType] || "Other";
-}
-
-/** Infer linked regulations from doc type */
-function inferRegulations(docType: string): string[] {
-  const map: Record<string, string[]> = {
-    dpia: ["GDPR"],
-    dpa: ["GDPR"],
-    iso27001: ["ISO 27001"],
-    soc2: ["SOC 2"],
-    policy: [],
-    certificate: [],
-    report: [],
-    agreement: [],
-    penetration_test: [],
-  };
-  return map[docType] || [];
 }
