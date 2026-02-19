@@ -1,87 +1,89 @@
 
 
-# Mynder Me - Agent API for ansatte
+# Mynder Me - Datadeling og innholdsstyring
 
-## Konsept
+## Oversikt
 
-Mynder Me er en personlig AI-agent-app for ansatte som kobler seg til virksomhetens Mynder-plattform. Appen gir ansatte innsyn i personvern, sikkerhet og AI-politikk, og hjelper dem med compliance i hverdagen.
+Bygge en ny fane "Delt innhold" i Mynder Me-administrasjonen der compliance-ansvarlig kan velge hvilke data fra plattformen som skal deles med ansatte via Mynder Me-appen. Dataene formidles i et forenklet, ansattvennlig format.
 
-### Verdi for compliance-ansvarlig
-- Automatisk distribusjon av policyer og oppdateringer til alle ansatte
-- Sporbar gjennomforing av sikkerhetskurs (dokumenterbar compliance)
-- Redusert manuelt arbeid - informasjon pushes automatisk
-- Oversikt over hvem som har fullfort kurs, lest policyer, og godkjent samtykker
-- Hendelseslogg som viser at ansatte ble varslet ved avvik
+## Hvilke data er relevante for ansatte?
 
-### Verdi for ansatte
-- Personlig AI-agent som forklarer policyer pa et forstaelig sprak
-- Automatisk varsling ved hendelser som pavirker dem
-- Kontroll over egne personopplysninger og samtykker
-- Phishing-beskyttelse og sikkerhetsrad
-- Mandlige mikro-kurs tilpasset deres rolle
+Basert på dataene som allerede finnes i plattformen, er dette informasjonen ansatte har rett til og nytte av:
 
-## Implementering i Mynder-plattformen
+### 1. Behandlingsprotokoller (ROPA)
+- **Kilde:** `system_processes` - prosesser som behandler personopplysninger
+- **Verdi for ansatt:** "Slik bruker vi dine personopplysninger" - forenklet oversikt over formalet med behandlingen, rettslig grunnlag, og hvem som har tilgang
 
-### Fase 1: API-lag (Edge Functions)
+### 2. AI-systemer som pavirker ansatte
+- **Kilde:** `ai_system_registry` - AI-systemer med risikovurdering
+- **Verdi for ansatt:** Transparens om hvilke AI-systemer som brukes, om de tar automatiserte beslutninger, og grad av menneskelig tilsyn (AI Act Art. 13-14)
 
-Opprette en `mynder-me-api` edge function som fungerer som gateway for Mynder Me-appen:
+### 3. Systemer som behandler ansattdata
+- **Kilde:** `assets` (systemer/leverandorer) + `system_data_handling` (datalokasjoner, AI-bruk)
+- **Verdi for ansatt:** Oversikt over hvilke systemer som lagrer deres data, og hvor dataene befinner seg geografisk
 
-**Endepunkter (branching i en funksjon):**
+### 4. Underleverandorer / Databehandlere
+- **Kilde:** `system_vendors` - underleverandorer med EU/EOS-status
+- **Verdi for ansatt:** Hvem deler arbeidsgiveren personopplysningene mine med? Er de innenfor EU/EOS?
 
-| Handling | Beskrivelse |
-|----------|-------------|
-| `get-policies` | Henter aktive personvern- og sikkerhetspolicyer |
-| `get-incidents` | Henter hendelser relevant for den ansatte |
-| `get-courses` | Henter tilgjengelige mikro-kurs |
-| `submit-course-completion` | Logger fullfort kurs |
-| `get-consents` | Viser aktive samtykker og databehandlinger |
-| `get-ai-systems` | Henter AI-systemer som pavirker den ansatte |
+### 5. Hendelser og avvik
+- **Kilde:** `system_incidents` - hendelser som kan pavirke ansatte
+- **Verdi for ansatt:** Varsling om sikkerhetsbrudd som pavirker dem (GDPR Art. 34)
 
-### Fase 2: Database
+### 6. Sertifiseringer og rammeverk
+- **Kilde:** `selected_frameworks` - aktive rammeverk virksomheten folger
+- **Verdi for ansatt:** Trygghet om at arbeidsgiver tar personvern og sikkerhet pa alvor
 
-Nye tabeller:
+## Teknisk implementering
 
-**`employee_connections`** - Kobling mellom Mynder Me-app og virksomheten
-- `id`, `company_id`, `employee_token` (anonymisert), `connected_at`, `status`
-- Ingen persondata lagres pa virksomhetens side - bare en token
+### 1. Ny database-tabell: `mynder_me_shared_content`
 
-**`security_micro_courses`** - Sikkerhetskurs-bibliotek
-- `id`, `title`, `title_no`, `content`, `content_no`, `duration_minutes`, `category`, `created_at`
+Konfigurasjonstabell som styrer hva som er delt med ansatte:
 
-**`course_completions`** - Sporingslogg
-- `id`, `employee_token`, `course_id`, `completed_at`, `score`
+| Kolonne | Type | Beskrivelse |
+|---------|------|-------------|
+| `id` | uuid | Primaernokkel |
+| `content_type` | text | Kategori: `processing_records`, `ai_systems`, `data_systems`, `vendors`, `incidents`, `frameworks` |
+| `is_enabled` | boolean | Om kategorien er aktivert for deling |
+| `display_title_no` | text | Norsk visningstittel for ansattappen |
+| `display_description_no` | text | Norsk forklaring til ansatte |
+| `filter_criteria` | jsonb | Valgfri filtrering (f.eks. kun bestemte arbeidsomrader) |
+| `created_at` / `updated_at` | timestamp | Tidsstempler |
 
-**`employee_notifications`** - Meldinger til ansatte
-- `id`, `company_id`, `type` (incident/policy_update/course_assignment), `title`, `content`, `severity`, `created_at`, `expires_at`
+### 2. Ny fane i MynderMeDashboard: "Delt innhold"
 
-### Fase 3: Administrasjonsside
+Ny komponent `SharedContentTab.tsx` med:
+- Toggles for hver datakategori (behandlingsprotokoller, AI-systemer, systemer, leverandorer, hendelser, rammeverk)
+- Forhåndsvisning av hva ansatte vil se for hver kategori
+- Forklarende tekst for compliance-ansvarlig om hva som deles
+- Teller som viser antall elementer i hver kategori
 
-Ny side i Mynder: `/mynder-me` med:
-- Oversikt over tilkoblede ansatte (anonymisert - kun antall)
-- Kurs-administrasjon (opprett, tildel, se fullforingsrate)
-- Varslings-senter (send ut meldinger til ansatte)
-- Statistikk-dashboard: fullforingsrate, gjennomsnittlig responstid
+### 3. Nye API-endepunkter i `mynder-me-api`
 
-### Fase 4: Sidebar-integrasjon
+| Endepunkt | Beskrivelse |
+|-----------|-------------|
+| `get-shared-content` | Returnerer oversikt over hva som er delt |
+| `get-processing-records` | Forenklede behandlingsprotokoller |
+| `get-data-systems` | Systemer som behandler ansattdata |
+| `get-vendors` | Databehandlere/underleverandorer |
+| `get-frameworks` | Aktive rammeverk og sertifiseringer |
 
-Legge til "Mynder Me" som menyvalg i sidebaren under en ny seksjon "Ansatte" med ikon.
+Hvert endepunkt sjekker at kategorien er aktivert i `mynder_me_shared_content` for det leveres data.
 
-## Teknisk oversikt
+### 4. Oppdatert UI
 
-| Fil/Komponent | Endring |
-|---------------|---------|
-| `supabase/functions/mynder-me-api/index.ts` | Ny edge function - API gateway |
-| Database-migrering | 4 nye tabeller med RLS |
-| `src/pages/MynderMe.tsx` | Ny administrasjonsside |
-| `src/components/mynder-me/` | Dashboard, kurs-admin, varslings-senter |
-| `src/components/Sidebar.tsx` | Nytt menypunkt |
-| `src/App.tsx` | Ny route `/mynder-me` |
-| `src/locales/nb.json` og `en.json` | Oversettelser |
+- Ny fane "Delt innhold" i tabsene (mellom "Varsler" og "Tilkoblinger")
+- Kort-basert layout med en Switch-toggle per kategori
+- Statuskort som viser "X behandlingsprotokoller delt", "Y AI-systemer synlige" osv.
+- Forhåndsvisning-knapp som viser ansattens perspektiv
 
-## Sikkerhet
+## Filer som endres/opprettes
 
-- Ansatte autentiseres via token-basert system (ikke bruker-ID)
-- Virksomheten ser kun aggregerte data, aldri individuelle ansatte
-- Edge function validerer token for hvert kall
-- RLS-policyer sikrer at kun autoriserte virksomheter kan opprette kurs og varsler
+| Fil | Endring |
+|-----|---------|
+| `supabase/migrations/...` | Ny tabell `mynder_me_shared_content` + seed-data |
+| `src/components/mynder-me/SharedContentTab.tsx` | Ny komponent for innholdsstyring |
+| `src/components/mynder-me/MynderMeDashboard.tsx` | Legge til ny fane |
+| `supabase/functions/mynder-me-api/index.ts` | Nye endepunkter for delt innhold |
+| `src/integrations/supabase/types.ts` | Oppdateres automatisk |
 
