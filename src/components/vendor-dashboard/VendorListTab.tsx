@@ -38,6 +38,7 @@ interface Asset {
   created_at?: string;
   vendor_category?: string | null;
   gdpr_role?: string | null;
+  work_area_id?: string | null;
 }
 
 interface VendorListTabProps {
@@ -226,6 +227,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               inboxCount={inboxCounts[v.id] || 0}
               expiredDocsCount={expiredCounts[v.id] || 0}
               onClick={() => navigate(`/assets/${v.id}`)}
+              onDelete={onDelete}
             />
           ))}
         </div>
@@ -266,9 +268,13 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                   <div className={`font-semibold ${scoreColor}`}>{score}%</div>
                   <div className="flex justify-center"><div className={`h-3 w-3 rounded-full ${riskColor}`} /></div>
                   <div className="flex justify-end" onClick={e => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => onDelete(asset.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!asset.work_area_id ? (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => onDelete(asset.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground italic">Tilknyttet</span>
+                    )}
                   </div>
                 </div>
               );

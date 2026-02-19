@@ -1,4 +1,4 @@
-import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal } from "lucide-react";
+import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
@@ -40,6 +40,7 @@ interface VendorCardProps {
     vendor?: string | null;
     vendor_category?: string | null;
     gdpr_role?: string | null;
+    work_area_id?: string | null;
   };
   connectedSystemsCount?: number;
   hasDPA?: boolean;
@@ -47,9 +48,10 @@ interface VendorCardProps {
   expiredDocsCount?: number;
   onClick?: () => void;
   compact?: boolean;
+  onDelete?: (id: string) => void;
 }
 
-export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact }: VendorCardProps) {
+export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, onDelete }: VendorCardProps) {
   const { t } = useTranslation();
   const score = vendor.compliance_score || 0;
 
@@ -80,7 +82,18 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
             <p className="text-xs text-muted-foreground truncate">{vendor.category || "—"}</p>
           </div>
         </div>
-        <div className={cn("text-lg font-bold", complianceColor)}>{score}%</div>
+        <div className="flex items-center gap-2">
+          {onDelete && !vendor.work_area_id && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(vendor.id); }}
+              className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              title="Slett leverandør"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <div className={cn("text-lg font-bold", complianceColor)}>{score}%</div>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mt-3 flex-wrap">
