@@ -10,7 +10,7 @@ export default function MynderMe() {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Mynder Me</h1>
             <p className="text-muted-foreground mt-1">
-              Administrer ansatt-appen — kurs, varsler og engasjement
+              Personvern- og sikkerhetsappen for ansatte og kunders medarbeidere
             </p>
           </div>
           <MynderMeDashboard />

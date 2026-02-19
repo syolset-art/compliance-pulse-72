@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
+import { Users, BookOpen, TrendingUp, AlertTriangle, ArrowRight, Building2 } from "lucide-react";
 import { CoursesTab } from "./CoursesTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
@@ -50,10 +50,16 @@ export function MynderMeDashboard() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Tilkoblede ansatte"
+          title="Tilkoblede brukere"
           value={stats.connections}
-          subtitle={`${stats.activeConnections} aktive`}
+          subtitle={`${stats.activeConnections} aktive (ansatte + kunders medarbeidere)`}
           icon={Users}
+        />
+        <MetricCard
+          title="Kundeorganisasjoner"
+          value={3}
+          subtitle="Bruker Mynder Me aktivt"
+          icon={Building2}
         />
         <MetricCard
           title="Aktive kurs"
