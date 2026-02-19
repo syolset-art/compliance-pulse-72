@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import {
   Upload, X, FileText, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Loader2,
-  Calendar, Shield, Clock, XCircle,
+  Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -46,6 +46,29 @@ const ALL_REGULATIONS = [
   "GDPR", "ISO 27001", "ISO 27701", "SOC 2", "NIS2", "AI Act", "DORA",
 ];
 
+const EXPECTED_DOC_TYPES = ["dpa", "dpia", "soc2", "iso27001", "penetration_test"];
+
+const VALIDITY_YEARS: Record<string, number> = {
+  iso27001: 3,
+  soc2: 1,
+  penetration_test: 1,
+  dpa: 1,
+  dpia: 2,
+  certificate: 3,
+  policy: 1,
+};
+
+function getDefaultValidTo(docType: string): string {
+  const years = VALIDITY_YEARS[docType] || 1;
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + years);
+  return d.toISOString().split("T")[0];
+}
+
+function getTodayISO(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
 interface AIClassification {
   documentType: string;
   documentTypeLabel: string;
@@ -62,13 +85,20 @@ interface AIClassification {
   extractedVendors: Array<{ name: string; description?: string }>;
 }
 
+interface ComplianceImpact {
+  scoreBefore: number;
+  scoreAfter: number;
+  coveredTypes: string[];
+  totalExpected: number;
+}
+
 interface UploadDocumentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   assetId: string;
 }
 
-type Step = "upload" | "analyzing" | "review";
+type Step = "upload" | "analyzing" | "review" | "saved";
 
 export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocumentDialogProps) {
   const { t, i18n } = useTranslation();
@@ -79,6 +109,8 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [step, setStep] = useState<Step>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [classification, setClassification] = useState<AIClassification | null>(null);
+  const [complianceImpact, setComplianceImpact] = useState<ComplianceImpact | null>(null);
+  const [datesAreDefaults, setDatesAreDefaults] = useState(false);
 
   // Editable fields (populated by AI, adjustable by user)
   const [docType, setDocType] = useState("");
@@ -89,11 +121,14 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [validTo, setValidTo] = useState("");
 
   const [uploading, setUploading] = useState(false);
+  const [animatedScore, setAnimatedScore] = useState(0);
 
   const resetDialog = () => {
     setStep("upload");
     setFile(null);
     setClassification(null);
+    setComplianceImpact(null);
+    setDatesAreDefaults(false);
     setDocType("");
     setCategory("Other");
     setDisplayName("");
@@ -101,12 +136,24 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setValidFrom("");
     setValidTo("");
     setUploading(false);
+    setAnimatedScore(0);
   };
 
   const handleOpenChange = (v: boolean) => {
     if (!v) resetDialog();
     onOpenChange(v);
   };
+
+  // Animate score on saved step
+  useEffect(() => {
+    if (step === "saved" && complianceImpact) {
+      const target = complianceImpact.scoreAfter;
+      const start = complianceImpact.scoreBefore;
+      setAnimatedScore(start);
+      const timer = setTimeout(() => setAnimatedScore(target), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [step, complianceImpact]);
 
   const readFileAsText = async (f: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -125,11 +172,14 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     try {
       const text = await readFileAsText(selectedFile);
       if (!text || text.length < 20) {
-        // Binary file - can't extract text, skip AI
         toast.info(isNb ? "Kunne ikke lese filinnhold for AI-analyse. Velg type manuelt." : "Could not read file for AI analysis. Select type manually.");
         setStep("review");
         setDocType("other");
         setCategory("Other");
+        // Set default dates
+        setValidFrom(getTodayISO());
+        setValidTo(getDefaultValidTo("other"));
+        setDatesAreDefaults(true);
         return;
       }
 
@@ -143,6 +193,9 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
         setStep("review");
         setDocType("other");
         setCategory("Other");
+        setValidFrom(getTodayISO());
+        setValidTo(getDefaultValidTo("other"));
+        setDatesAreDefaults(true);
         return;
       }
 
@@ -155,8 +208,23 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           .filter((r) => r.relevance === "high" || r.relevance === "medium")
           .map((r) => r.regulation)
       );
-      if (cls.validFrom) setValidFrom(cls.validFrom);
-      if (cls.validTo) setValidTo(cls.validTo);
+
+      // Set dates: use AI dates if available, otherwise defaults
+      if (cls.validFrom) {
+        setValidFrom(cls.validFrom);
+        setDatesAreDefaults(false);
+      } else {
+        setValidFrom(getTodayISO());
+        setDatesAreDefaults(true);
+      }
+      if (cls.validTo) {
+        setValidTo(cls.validTo);
+      } else {
+        const effectiveType = cls.documentType === "vendor_list" ? "other" : cls.documentType;
+        setValidTo(getDefaultValidTo(effectiveType));
+        setDatesAreDefaults(true);
+      }
+
       setStep("review");
     } catch (err) {
       console.error("Classification error:", err);
@@ -164,6 +232,9 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
       setStep("review");
       setDocType("other");
       setCategory("Other");
+      setValidFrom(getTodayISO());
+      setValidTo(getDefaultValidTo("other"));
+      setDatesAreDefaults(true);
     }
   }, [isNb]);
 
@@ -173,10 +244,38 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     );
   };
 
+  const calculateComplianceImpact = async (): Promise<ComplianceImpact> => {
+    // Get existing documents for this asset
+    const { data: docs } = await supabase
+      .from("vendor_documents")
+      .select("document_type")
+      .eq("asset_id", assetId);
+
+    const existingTypes = new Set((docs || []).map((d: any) => d.document_type));
+    // Score BEFORE adding new doc
+    const coveredBefore = EXPECTED_DOC_TYPES.filter((t) => existingTypes.has(t));
+    const scoreBefore = Math.round((coveredBefore.length / EXPECTED_DOC_TYPES.length) * 100);
+
+    // Score AFTER (new doc already saved at this point)
+    existingTypes.add(docType);
+    const coveredAfter = EXPECTED_DOC_TYPES.filter((t) => existingTypes.has(t));
+    const scoreAfter = Math.round((coveredAfter.length / EXPECTED_DOC_TYPES.length) * 100);
+
+    return {
+      scoreBefore,
+      scoreAfter,
+      coveredTypes: coveredAfter,
+      totalExpected: EXPECTED_DOC_TYPES.length,
+    };
+  };
+
   const handleSave = async () => {
     if (!file) return;
     setUploading(true);
     try {
+      // Calculate compliance BEFORE saving
+      const impact = await calculateComplianceImpact();
+
       const filePath = `${assetId}/${Date.now()}_${file.name}`;
       const { error: storageErr } = await supabase.storage
         .from("vendor-documents")
@@ -201,9 +300,22 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
       if (dbErr) throw dbErr;
 
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(isNb ? "Dokument lastet opp og klassifisert" : "Document uploaded and classified");
-      resetDialog();
-      onOpenChange(false);
+
+      // Recalculate after save to get accurate "after" score
+      const { data: updatedDocs } = await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", assetId);
+      const updatedTypes = new Set((updatedDocs || []).map((d: any) => d.document_type));
+      const coveredAfter = EXPECTED_DOC_TYPES.filter((t) => updatedTypes.has(t));
+      const scoreAfter = Math.round((coveredAfter.length / EXPECTED_DOC_TYPES.length) * 100);
+
+      setComplianceImpact({
+        ...impact,
+        scoreAfter,
+        coveredTypes: coveredAfter,
+      });
+      setStep("saved");
     } catch {
       toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
     } finally {
@@ -227,6 +339,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     unknown: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border", label: isNb ? "Ukjent" : "Unknown" },
   };
 
+  const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
+  const confidenceColor = confidencePercent >= 80 ? "bg-emerald-500" : confidencePercent >= 50 ? "bg-yellow-500" : "bg-destructive";
+  const confidenceTextColor = confidencePercent >= 80 ? "text-emerald-600" : confidencePercent >= 50 ? "text-yellow-600" : "text-destructive";
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -243,11 +359,13 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 </Badge>
               </>
             )}
+            {step === "saved" && (isNb ? "Dokument lagret" : "Document Saved")}
           </DialogTitle>
           <DialogDescription>
             {step === "upload" && (isNb ? "Last opp et dokument, så analyserer vi det automatisk" : "Upload a document and we'll analyze it automatically")}
             {step === "analyzing" && (isNb ? "Vi klassifiserer dokumentet og identifiserer relevante regelverk..." : "We're classifying the document and identifying relevant regulations...")}
             {step === "review" && (isNb ? "Gjennomgå og juster AI-forslagene før du lagrer" : "Review and adjust AI suggestions before saving")}
+            {step === "saved" && (isNb ? "Se hvordan dokumentet påvirker din Trust Profile" : "See how the document impacts your Trust Profile")}
           </DialogDescription>
         </DialogHeader>
 
@@ -317,6 +435,34 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 <Sparkles className="h-4 w-4" />
                 <AlertDescription className="text-sm">{classification.summary}</AlertDescription>
               </Alert>
+            )}
+
+            {/* Confidence indicator - prominent placement */}
+            {classification && (
+              <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/20">
+                <Sparkles className={`h-4 w-4 shrink-0 ${confidenceTextColor}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium">{isNb ? "AI-konfidensgrad" : "AI Confidence"}</span>
+                    <span className={`text-sm font-bold ${confidenceTextColor}`}>{confidencePercent}%</span>
+                  </div>
+                  <Progress
+                    value={confidencePercent}
+                    className="h-2"
+                    style={{
+                      // Override indicator color based on confidence
+                      ["--progress-color" as any]: undefined,
+                    }}
+                  />
+                  {/* Custom colored bar overlay */}
+                  <div className="relative -mt-2 h-2 w-full overflow-hidden rounded-full">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${confidenceColor}`}
+                      style={{ width: `${confidencePercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Expiry status banner */}
@@ -391,15 +537,27 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 <Label className="text-xs font-medium flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig fra" : "Valid from"}
+                  {datesAreDefaults && !classification?.validFrom && (
+                    <Badge variant="outline" className="text-[9px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                  )}
+                  {classification?.validFrom && (
+                    <Badge variant="outline" className="text-[9px] ml-1">AI</Badge>
+                  )}
                 </Label>
-                <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} className="h-8 text-xs" />
+                <Input type="date" value={validFrom} onChange={(e) => { setValidFrom(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig til" : "Valid to"}
+                  {datesAreDefaults && !classification?.validTo && (
+                    <Badge variant="outline" className="text-[9px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                  )}
+                  {classification?.validTo && (
+                    <Badge variant="outline" className="text-[9px] ml-1">AI</Badge>
+                  )}
                 </Label>
-                <Input type="date" value={validTo} onChange={(e) => setValidTo(e.target.value)} className="h-8 text-xs" />
+                <Input type="date" value={validTo} onChange={(e) => { setValidTo(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
               </div>
             </div>
 
@@ -450,6 +608,92 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           </div>
         )}
 
+        {/* ===== STEP: SAVED ===== */}
+        {step === "saved" && complianceImpact && (
+          <div className="space-y-5 py-2">
+            {/* Success header */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              </div>
+              <div className="text-center">
+                <p className="font-semibold">{isNb ? "Dokument lagret!" : "Document saved!"}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{displayName || file?.name}</p>
+              </div>
+            </div>
+
+            {/* Compliance score impact */}
+            <div className="p-4 rounded-lg border bg-muted/20 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">{isNb ? "Compliance-effekt på Trust Profile" : "Compliance Impact on Trust Profile"}</span>
+              </div>
+
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-muted-foreground">{complianceImpact.scoreBefore}%</p>
+                  <p className="text-[10px] text-muted-foreground uppercase">{isNb ? "Før" : "Before"}</p>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                <div className="text-center">
+                  <p className={`text-3xl font-bold transition-all duration-700 ${animatedScore > complianceImpact.scoreBefore ? "text-emerald-600" : "text-foreground"}`}>
+                    {animatedScore}%
+                  </p>
+                  <p className="text-[10px] text-muted-foreground uppercase">{isNb ? "Etter" : "After"}</p>
+                </div>
+              </div>
+
+              {complianceImpact.scoreAfter > complianceImpact.scoreBefore && (
+                <div className="flex items-center justify-center">
+                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-xs">
+                    +{complianceImpact.scoreAfter - complianceImpact.scoreBefore}% {isNb ? "økning" : "increase"}
+                  </Badge>
+                </div>
+              )}
+
+              <Progress
+                value={animatedScore}
+                className="h-2.5"
+              />
+            </div>
+
+            {/* Coverage breakdown */}
+            <div className="p-4 rounded-lg border space-y-2">
+              <p className="text-xs font-medium">{isNb ? "Dokumentdekning" : "Document Coverage"} ({complianceImpact.coveredTypes.length}/{complianceImpact.totalExpected})</p>
+              <div className="grid grid-cols-1 gap-1.5">
+                {EXPECTED_DOC_TYPES.map((type) => {
+                  const covered = complianceImpact.coveredTypes.includes(type);
+                  const isNew = type === docType;
+                  const typeLabel = DOC_TYPES.find((d) => d.value === type);
+                  return (
+                    <div key={type} className={`flex items-center gap-2 text-xs p-1.5 rounded ${isNew ? "bg-emerald-50 dark:bg-emerald-950/20" : ""}`}>
+                      {covered ? (
+                        <CheckCircle2 className={`h-3.5 w-3.5 ${isNew ? "text-emerald-600" : "text-emerald-500"}`} />
+                      ) : (
+                        <XCircle className="h-3.5 w-3.5 text-muted-foreground/40" />
+                      )}
+                      <span className={covered ? "font-medium" : "text-muted-foreground"}>
+                        {isNb ? typeLabel?.labelNb : typeLabel?.label || type}
+                      </span>
+                      {isNew && <Badge className="text-[9px] bg-emerald-500/15 text-emerald-700 border-emerald-500/30">{isNb ? "Ny" : "New"}</Badge>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Linked regulations summary */}
+            {linkedRegulations.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-xs text-muted-foreground mr-1">{isNb ? "Dekker:" : "Covers:"}</span>
+                {linkedRegulations.map((reg) => (
+                  <Badge key={reg} variant="secondary" className="text-[10px]">{reg}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Footer */}
         <DialogFooter className="flex-col sm:flex-row gap-2">
           {step === "upload" && (
@@ -464,14 +708,6 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           )}
           {step === "review" && (
             <>
-              <span className="text-xs text-muted-foreground mr-auto">
-                {classification && (
-                  <span className="flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    {isNb ? `Konfidensgrad: ${Math.round((classification.confidence || 0) * 100)}%` : `Confidence: ${Math.round((classification.confidence || 0) * 100)}%`}
-                  </span>
-                )}
-              </span>
               <Button variant="outline" onClick={() => { setFile(null); setClassification(null); setStep("upload"); }}>
                 {isNb ? "Velg annen fil" : "Choose another file"}
               </Button>
@@ -480,6 +716,17 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 {uploading
                   ? (isNb ? "Lagrer..." : "Saving...")
                   : (isNb ? "Lagre dokument" : "Save Document")}
+              </Button>
+            </>
+          )}
+          {step === "saved" && (
+            <>
+              <Button variant="outline" onClick={() => handleOpenChange(false)}>
+                {isNb ? "Lukk" : "Close"}
+              </Button>
+              <Button onClick={() => handleOpenChange(false)}>
+                <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                {isNb ? "Se Trust Profile" : "View Trust Profile"}
               </Button>
             </>
           )}
