@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, FileText, Trash2, FileCheck, Lock, Calendar, CheckCircle2, AlertTriangle, Clock, Send } from "lucide-react";
+import { Upload, FileText, Trash2, FileCheck, Lock, Calendar, CheckCircle2, AlertTriangle, Clock, Send, Building2, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
@@ -168,106 +168,157 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
   return (
     <div className="space-y-6">
-      {/* Document overview table */}
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 gap-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <FileCheck className="h-4 w-4 text-primary" />
-            {t("vendorDocs.documentsTitle", "Dokumenter")} ({documents.length})
-          </CardTitle>
-          <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="w-full sm:w-auto">
-            <Upload className="h-3.5 w-3.5 mr-1.5" />
-            {t("vendorDocs.uploadTitle", "Last opp")}
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
-          ) : documents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+      {/* Header with upload button */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <FileCheck className="h-4 w-4 text-primary" />
+          {t("vendorDocs.documentsTitle", "Dokumenter")} ({documents.length})
+        </h3>
+        <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit}>
+          <Upload className="h-3.5 w-3.5 mr-1.5" />
+          {t("vendorDocs.uploadTitle", "Last opp")}
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
+      ) : documents.length === 0 ? (
+        <Card>
+          <CardContent className="py-8">
+            <div className="text-center text-muted-foreground">
               <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
               <p className="text-sm">{t("vendorDocs.noDocuments", "Ingen dokumenter lastet opp ennå")}</p>
             </div>
-          ) : (
-            <div className="rounded-lg border overflow-x-auto">
-               <Table className="min-w-[600px]">
-                 <TableHeader>
-                   <TableRow className="bg-muted/30">
-                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.name", "Navn")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.documentType", "Type")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{t("vendorDocs.version", "Versjon")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.validTo", "Gyldig til")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.statusLabel", "Status")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.source", "Kilde")}</TableHead>
-                     <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.date", "Dato")}</TableHead>
-                     <TableHead className="w-10" />
-                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documents.map((doc: any) => (
-                    <TableRow key={doc.id} className="hover:bg-accent/30">
-                      <TableCell className="py-2.5">
-                        {(() => {
-                          const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
-                          return (
-                            <div
-                              className={`flex items-center gap-2 ${isExpired ? "cursor-pointer group" : ""}`}
-                              onClick={() => isExpired && setDetailDoc(doc)}
-                            >
-                              <FileCheck className="h-4 w-4 text-primary flex-shrink-0" />
-                              <span className={`text-sm font-medium truncate max-w-[180px] ${isExpired ? "underline decoration-destructive/40 group-hover:decoration-destructive" : ""}`}>{doc.file_name}</span>
-                            </div>
-                          );
-                        })()}
-                      </TableCell>
-                      <TableCell className="py-2.5">
-                        <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
-                      </TableCell>
-                      <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">{doc.version || "v1.0"}</TableCell>
-                      <TableCell className="py-2.5 text-sm text-muted-foreground">
-                         {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
-                       </TableCell>
-                       <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, t)}</TableCell>
-                       <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">{getSourceLabel(doc.source)}</TableCell>
-                       <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">
-                         {new Date(doc.created_at).toLocaleDateString(locale)}
-                       </TableCell>
-                      <TableCell className="py-2.5">
-                        <div className="flex items-center gap-0.5">
-                          {doc.valid_to && new Date(doc.valid_to) < new Date() && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              title={isNb ? "Be om ny versjon" : "Request new version"}
-                              onClick={() => {
-                                setPreselectedDocType(doc.document_type);
-                                setRequestDialogOpen(true);
-                              }}
-                            >
-                              <Send className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Vendor documents */}
+          {(() => {
+            const vendorDocs = documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
+            const customerDocs = documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
 
-          {atLimit && (
-            <div className="flex items-center gap-2 p-3 mt-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-sm">
-              <Lock className="h-4 w-4 text-yellow-600" />
-              <span className="text-muted-foreground">{t("vendorDocs.upgradeForMore", "Oppgrader til Professional for ubegrenset antall dokumenter.")}</span>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            const renderDocTable = (docs: any[], emptyMsg: string) => (
+              docs.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">{emptyMsg}</p>
+              ) : (
+                <div className="rounded-lg border overflow-x-auto">
+                  <Table className="min-w-[600px]">
+                    <TableHeader>
+                      <TableRow className="bg-muted/30">
+                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.name", "Navn")}</TableHead>
+                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.documentType", "Type")}</TableHead>
+                        <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{t("vendorDocs.version", "Versjon")}</TableHead>
+                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.validTo", "Gyldig til")}</TableHead>
+                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.statusLabel", "Status")}</TableHead>
+                        <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.date", "Dato")}</TableHead>
+                        <TableHead className="w-10" />
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {docs.map((doc: any) => (
+                        <TableRow key={doc.id} className="hover:bg-accent/30">
+                          <TableCell className="py-2.5">
+                            {(() => {
+                              const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                              return (
+                                <div
+                                  className={`flex items-center gap-2 ${isExpired ? "cursor-pointer group" : ""}`}
+                                  onClick={() => isExpired && setDetailDoc(doc)}
+                                >
+                                  <FileCheck className="h-4 w-4 text-primary flex-shrink-0" />
+                                  <span className={`text-sm font-medium truncate max-w-[180px] ${isExpired ? "underline decoration-destructive/40 group-hover:decoration-destructive" : ""}`}>{doc.file_name}</span>
+                                </div>
+                              );
+                            })()}
+                          </TableCell>
+                          <TableCell className="py-2.5">
+                            <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
+                          </TableCell>
+                          <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">{doc.version || "v1.0"}</TableCell>
+                          <TableCell className="py-2.5 text-sm text-muted-foreground">
+                            {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
+                          </TableCell>
+                          <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, t)}</TableCell>
+                          <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">
+                            {new Date(doc.created_at).toLocaleDateString(locale)}
+                          </TableCell>
+                          <TableCell className="py-2.5">
+                            <div className="flex items-center gap-0.5">
+                              {doc.valid_to && new Date(doc.valid_to) < new Date() && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  title={isNb ? "Be om ny versjon" : "Request new version"}
+                                  onClick={() => {
+                                    setPreselectedDocType(doc.document_type);
+                                    setRequestDialogOpen(true);
+                                  }}
+                                >
+                                  <Send className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )
+            );
+
+            return (
+              <>
+                {/* From vendor */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-primary" />
+                      {isNb ? "Fra leverandør" : "From vendor"}
+                      <Badge variant="outline" className="text-[10px] ml-1">{vendorDocs.length}</Badge>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {isNb ? "Dokumenter mottatt direkte fra leverandøren via portal eller e-post" : "Documents received directly from the vendor via portal or email"}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
+                  </CardContent>
+                </Card>
+
+                {/* From customer / internal */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      {isNb ? "Intern / Lastet opp av virksomheten" : "Internal / Uploaded by organization"}
+                      <Badge variant="outline" className="text-[10px] ml-1">{customerDocs.length}</Badge>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {isNb ? "Dokumenter lastet opp og vedlikeholdt av din organisasjon" : "Documents uploaded and maintained by your organization"}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {renderDocTable(customerDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
+                  </CardContent>
+                </Card>
+              </>
+            );
+          })()}
+        </>
+      )}
+
+      {atLimit && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-sm">
+          <Lock className="h-4 w-4 text-yellow-600" />
+          <span className="text-muted-foreground">{t("vendorDocs.upgradeForMore", "Oppgrader til Professional for ubegrenset antall dokumenter.")}</span>
+        </div>
+      )}
 
       {/* Upload section - collapsible */}
       {showUpload && (
