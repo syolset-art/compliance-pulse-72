@@ -9,7 +9,8 @@ import { Users, BookOpen, TrendingUp, AlertTriangle, ArrowRight, Building2 } fro
 import { CoursesTab } from "./CoursesTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
-import { ActivityTab } from "./ActivityTab";
+import { EmployeeActivitySection, CustomerActivitySection } from "./ActivityTab";
+import { CustomerOrganizationsTab } from "./CustomerOrganizationsTab";
 
 export function MynderMeDashboard() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export function MynderMeDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Overordnede metrikk-kort */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Tilkoblede brukere"
@@ -64,7 +66,7 @@ export function MynderMeDashboard() {
         <MetricCard
           title="Aktive kurs"
           value={stats.courses}
-          subtitle="Tilgjengelig i appen"
+          subtitle="Tilgjengelig for ansatte"
           icon={BookOpen}
         />
         <MetricCard
@@ -75,7 +77,7 @@ export function MynderMeDashboard() {
         />
       </div>
 
-      {/* Employee deviation reports banner */}
+      {/* Avviksbanner */}
       {stats.deviationReports > 0 && (
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="p-4 flex items-center justify-between">
@@ -96,25 +98,61 @@ export function MynderMeDashboard() {
         </Card>
       )}
 
-      <Tabs defaultValue="courses" className="w-full">
-        <TabsList>
-          <TabsTrigger value="courses">Kurs</TabsTrigger>
-          <TabsTrigger value="activity">Aktivitet</TabsTrigger>
-          <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
-          <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
+      {/* Hovedfaner: Ansatte vs Kunders medarbeidere */}
+      <Tabs defaultValue="employees" className="w-full">
+        <TabsList className="h-11">
+          <TabsTrigger value="employees" className="gap-2">
+            <Users className="h-4 w-4" />
+            Ansatte
+          </TabsTrigger>
+          <TabsTrigger value="customers" className="gap-2">
+            <Building2 className="h-4 w-4" />
+            Kunders medarbeidere
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="courses">
-          <CoursesTab />
+        {/* === ANSATTE === */}
+        <TabsContent value="employees">
+          <Tabs defaultValue="courses" className="w-full mt-4">
+            <TabsList>
+              <TabsTrigger value="courses">Kurs</TabsTrigger>
+              <TabsTrigger value="activity">Aktivitet</TabsTrigger>
+              <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
+              <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
+            </TabsList>
+            <TabsContent value="courses">
+              <CoursesTab />
+            </TabsContent>
+            <TabsContent value="activity">
+              <EmployeeActivitySection />
+            </TabsContent>
+            <TabsContent value="shared-content">
+              <SharedContentTab />
+            </TabsContent>
+            <TabsContent value="connections">
+              <ConnectionsTab />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
-        <TabsContent value="activity">
-          <ActivityTab />
-        </TabsContent>
-        <TabsContent value="shared-content">
-          <SharedContentTab />
-        </TabsContent>
-        <TabsContent value="connections">
-          <ConnectionsTab />
+
+        {/* === KUNDERS MEDARBEIDERE === */}
+        <TabsContent value="customers">
+          <Tabs defaultValue="activity" className="w-full mt-4">
+            <TabsList>
+              <TabsTrigger value="activity">Aktivitet</TabsTrigger>
+              <TabsTrigger value="organizations">Organisasjoner</TabsTrigger>
+              <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
+            </TabsList>
+            <TabsContent value="activity">
+              <CustomerActivitySection />
+            </TabsContent>
+            <TabsContent value="organizations">
+              <CustomerOrganizationsTab />
+            </TabsContent>
+            <TabsContent value="connections">
+              <ConnectionsTab />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
