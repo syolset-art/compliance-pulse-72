@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Inbox } from "lucide-react";
+import { Inbox, Database, Trash2, Loader2 } from "lucide-react";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -16,6 +16,8 @@ import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
+import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function Assets() {
   const { t } = useTranslation();
@@ -24,6 +26,34 @@ export default function Assets() {
   const navigate = useNavigate();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleSeedDemo = async () => {
+    setIsSeeding(true);
+    try {
+      const count = await seedDemoVendorProfiles();
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success(`${count} demo-leverandører ble lastet inn`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke laste inn demo-data");
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  const handleDeleteDemo = async () => {
+    setIsDeleting(true);
+    try {
+      const count = await deleteDemoVendorProfiles();
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success(`${count} demo-leverandører ble fjernet`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke fjerne demo-data");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Fetch total inbox count
   const { data: totalInboxCount = 0 } = useQuery({
@@ -112,6 +142,24 @@ export default function Assets() {
                 )}
               </button>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
+                  {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+                  Demo-data
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSeedDemo} disabled={isSeeding}>
+                  <Database className="h-4 w-4 mr-2" />
+                  Last inn demo-leverandører
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeleteDemo} disabled={isDeleting} className="text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Fjern demo-leverandører
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Tabbed Layout */}
