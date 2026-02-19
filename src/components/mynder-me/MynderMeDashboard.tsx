@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Users, BookOpen, Bell, TrendingUp } from "lucide-react";
+import { Users, BookOpen, Bell, TrendingUp, AlertTriangle } from "lucide-react";
 import { CoursesTab } from "./CoursesTab";
 import { NotificationsTab } from "./NotificationsTab";
 import { ConnectionsTab } from "./ConnectionsTab";
 import { SharedContentTab } from "./SharedContentTab";
+import { DeviationReportsTab } from "./DeviationReportsTab";
 
 export function MynderMeDashboard() {
   const [stats, setStats] = useState({
@@ -74,6 +75,7 @@ export function MynderMeDashboard() {
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
           <TabsTrigger value="courses">Kurs</TabsTrigger>
+          <TabsTrigger value="deviation-reports">Avviksmeldinger</TabsTrigger>
           <TabsTrigger value="notifications">Varsler</TabsTrigger>
           <TabsTrigger value="shared-content">Delt innhold</TabsTrigger>
           <TabsTrigger value="connections">Tilkoblinger</TabsTrigger>
@@ -81,6 +83,9 @@ export function MynderMeDashboard() {
 
         <TabsContent value="courses">
           <CoursesTab />
+        </TabsContent>
+        <TabsContent value="deviation-reports">
+          <DeviationReportsTab />
         </TabsContent>
         <TabsContent value="notifications">
           <NotificationsTab />

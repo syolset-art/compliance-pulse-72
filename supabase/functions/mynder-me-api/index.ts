@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     const employeeToken = req.headers.get("x-employee-token");
 
     // Actions that require employee token
-    const tokenActions = ["get-policies", "get-incidents", "get-courses", "submit-course-completion", "get-consents", "get-ai-systems", "get-shared-content", "get-processing-records", "get-data-systems", "get-vendors", "get-frameworks"];
+    const tokenActions = ["get-policies", "get-incidents", "get-courses", "submit-course-completion", "get-consents", "get-ai-systems", "get-shared-content", "get-processing-records", "get-data-systems", "get-vendors", "get-frameworks", "submit-deviation-report"];
 
     if (tokenActions.includes(action || "") && !employeeToken) {
       return new Response(JSON.stringify({ error: "Missing employee token" }), {
@@ -167,6 +167,31 @@ Deno.serve(async (req) => {
         if (!cfg?.is_enabled) { result = { error: "Not shared" }; break; }
         const { data } = await supabase.from("selected_frameworks").select("framework_name, category").eq("is_selected", true);
         result = data;
+        break;
+      }
+
+      case "submit-deviation-report": {
+        const body = await req.json();
+        if (!body.title || !body.category) {
+          return new Response(JSON.stringify({ error: "Title and category are required" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const { data, error } = await supabase
+          .from("employee_deviation_reports")
+          .insert({
+            employee_token: employeeToken!,
+            title: body.title.substring(0, 200),
+            description: body.description?.substring(0, 2000) || null,
+            category: body.category,
+            severity: body.severity || "medium",
+            location: body.location?.substring(0, 200) || null,
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        result = { success: true, id: data.id };
         break;
       }
 
