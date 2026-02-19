@@ -1,50 +1,42 @@
 
-
-# Utviklere-meny med Trust Profile Arkitektur-side
+# Mynder Me: Aktivitetslogg med ansatt- og kundefaner
 
 ## Oversikt
-Legger til et nytt "Utviklere"-menypunkt i sidemenyen med en undermeny. Første side blir en arkitektur- og datamodell-dokumentasjon som forklarer logikken bak Trust Profiles -- inkludert rollene fra whiteboard-skissen.
+Legger til en ny "Aktivitet"-fane i Mynder Me-dashbordet som viser konkrete hendelser -- godkjenninger, signeringer og tidsbesparelser. Fanen deles i to underfaner: **Ansatte** og **Kunder**, for a skille mellom interne og eksterne interaksjoner.
 
 ## Hva som lages
 
-### 1. Ny side: `/developer/trust-profile-architecture`
-En dokumentasjonsside med visuell forklaring av Trust Profile-modellen:
+### Ny komponent: `ActivityTab`
+En fane med to underkategorier (ansatte / kunder) som viser demo-data for:
 
-**Rolleoversikt (basert på whiteboard-skissen):**
-- **Grnn (Karl / Virksomheten)**: Bruker Mynder Core til a kartlegge systemer og leverandorer. Oppretter og vedlikeholder egne data i Trust Profiler.
-- **Sort (AI / Lara)**: AI-generert innhold -- automatisk klassifisering, risikovurdering, forslag til regelverk.
-- **Bla (Tobby / Kontakt opprettet)**: En Trust Profil er opprettet med kontaktinformasjon, men eieren har ikke tatt eierskap enna. Ingen foresporsler sendt/mottatt.
-- **Rod (Underleverandor / SaaS / Konsulent)**: Eieren av Trust Profilen som har tatt eierskap og kan svare pa foresporsler, laste opp dokumenter direkte i sin TP.
+**Ansatte-underfane:**
+1. **Personvernerklæring godkjent** -- Melding sendt ut for 24 timer siden, 100% av 12 ansatte har godkjent oppdatert personvernerklæring. Viser tidsbesparelse (estimert: "Spart ca. 4 timer sammenlignet med manuell prosess").
+2. **Arbeidskontrakt signert** -- En arbeidskontrakt er sendt ut og signert av en ansatt via Mynder Me.
 
-**Seksjoner pa siden:**
-1. **Oversikt** -- Hva er en Trust Profil og hvorfor
-2. **Roller og dataflyt** -- Visuelt diagram med fargekodede roller
-3. **Livssyklus** -- Fra opprettelse (bla) via forespørsel til aktiv samhandling (rod)
-4. **Datamodell** -- Tabeller og relasjoner (assets, vendor_documents, asset_relationships, customer_compliance_requests)
-5. **Forsporselsflyt** -- Karl sender forespørsel -> Tobby mottar e-post -> Tobby velger a svare via e-post eller overta sin TP
+**Kunder-underfane:**
+3. **CEO-godkjenning fra Helsereiser AS** -- Lars Hansen (CEO, Helsereiser AS) har godkjent Terms & Conditions og personvernerklæring via Mynder Me. Viser rolle og selskapsnavn tydelig.
 
-### 2. Sidebar: Nytt "Utviklere"-menypunkt
-- Ikon: `Code2` fra lucide-react
-- Ekspanderbar undermeny (samme monster som Admin-menyen)
-- Forste undermeny-element: "TP Arkitektur"
-- Plasseres etter Resources-lenken
+### Visuelt oppsett
+- Hver hendelse vises som et kort med:
+  - Ikon og fargekode etter type (grønn = fullført/godkjent)
+  - Tidsstempel (relativ tid, f.eks. "for 24 timer siden")
+  - Prosentbar for godkjenningsrate
+  - ROI/tidsbesparelse-indikator der relevant
+- Kunder vises med firmanavn, rolle og kontaktperson
 
-### 3. Ruting
-- Ny rute `/developer/trust-profile-architecture` i App.tsx
+### Dashboard-oppdatering
+- Ny fane "Aktivitet" legges til i TabsList mellom "Varsler" og "Delt innhold"
 
 ## Tekniske detaljer
 
 ### Filer som opprettes
-- `src/pages/developer/TrustProfileArchitecture.tsx` -- Hovedsiden med dokumentasjon, diagrammer og fargekodede rollekort
+- `src/components/mynder-me/ActivityTab.tsx` -- Ny komponent med hardkodet demo-data (ingen nye tabeller), to underfaner via intern state
 
 ### Filer som endres
-- `src/components/Sidebar.tsx` -- Legger til "Utviklere"-seksjon med Code2-ikon og undermeny
-- `src/App.tsx` -- Ny rute for developer-siden
+- `src/components/mynder-me/MynderMeDashboard.tsx` -- Import og registrering av ActivityTab i Tabs-komponenten
 
-### Sideoppsett
-Siden bruker standard layout (Sidebar + main) og inneholder:
-- Kort med fargekodede roller (gronn, sort, bla, rod) som forklarer hvem som genererer hvilke data
-- Flytdiagram i ren HTML/CSS som viser livssyklusen til en Trust Profil
-- Tabell-oversikt over relevante database-tabeller og deres relasjoner
-- Steg-for-steg-forklaring av foresporselsflyt mellom Karl og Tobby
-
+### Implementasjonsdetaljer
+- Alt er demo-data (statisk) -- ingen nye database-tabeller
+- Tidsstempel beregnes dynamisk relativt til `Date.now() - 24 timer`
+- Tidsbesparelse beregnet som: 12 ansatte x 20 min manuelt = 4 timer, vs. 5 min med Mynder Me
+- Bruker eksisterende UI-komponenter: Card, Badge, Progress, Tabs
