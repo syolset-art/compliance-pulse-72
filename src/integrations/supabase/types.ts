@@ -878,6 +878,57 @@ export type Database = {
           },
         ]
       }
+      employee_deviation_reports: {
+        Row: {
+          admin_notes: string | null
+          category: string
+          created_at: string
+          description: string | null
+          employee_token: string
+          id: string
+          linked_deviation_id: string | null
+          location: string | null
+          processed_at: string | null
+          processed_by: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          employee_token: string
+          id?: string
+          linked_deviation_id?: string | null
+          location?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          employee_token?: string
+          id?: string
+          linked_deviation_id?: string | null
+          location?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employee_notifications: {
         Row: {
           company_id: string | null
