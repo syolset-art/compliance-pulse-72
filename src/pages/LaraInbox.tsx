@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +8,10 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, X, Mail, Sparkles, FileText, AlertTriangle, ShieldAlert } from "lucide-react";
+import { CheckCircle2, X, Mail, Sparkles, FileText, AlertTriangle, ShieldAlert, Database, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   penetration_test: "Penetrasjonstest",
@@ -50,6 +52,64 @@ const LaraInbox = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+
+  const seedDemoInboxItems = async () => {
+    setIsSeeding(true);
+    try {
+      // Fetch 3 random vendors
+      const { data: vendors } = await supabase
+        .from("assets")
+        .select("id, name")
+        .eq("asset_type", "vendor")
+        .limit(10);
+      if (!vendors || vendors.length === 0) {
+        toast.error("Ingen leverandører registrert ennå");
+        return;
+      }
+      const shuffled = vendors.sort(() => Math.random() - 0.5).slice(0, 3);
+      const templates = [
+        { type: "dpa", subject: "Databehandleravtale" },
+        { type: "iso27001", subject: "ISO 27001-sertifikat" },
+        { type: "soc2", subject: "SOC 2 Type II-rapport" },
+      ];
+      const items = shuffled.map((v, i) => ({
+        matched_asset_id: v.id,
+        matched_document_type: templates[i].type,
+        subject: `${templates[i].subject} – ${v.name}`,
+        file_name: `${templates[i].type}_${v.name.replace(/\s/g, "_")}.pdf`,
+        sender_name: `Compliance – ${v.name}`,
+        sender_email: `compliance@${v.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`,
+        confidence_score: +(0.88 + Math.random() * 0.1).toFixed(2),
+        status: "new",
+        received_at: new Date(Date.now() - Math.floor(Math.random() * 7 * 86400000)).toISOString(),
+      }));
+      const { error } = await supabase.from("lara_inbox").insert(items);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
+      queryClient.invalidateQueries({ queryKey: ["lara-inbox-total"] });
+      toast.success("3 demo-elementer lagt til i innboksen");
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke laste inn demo-data");
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  const clearInbox = async () => {
+    setIsClearing(true);
+    try {
+      await supabase.from("lara_inbox").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
+      queryClient.invalidateQueries({ queryKey: ["lara-inbox-total"] });
+      toast.success("Innboksen er tømt");
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke tømme innboksen");
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox-global"],
@@ -132,19 +192,39 @@ const LaraInbox = () => {
         <main className="flex-1 overflow-auto">
           <div className="p-4 md:p-6 space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-3">
-              <img src={laraButterfly} alt="Lara" className="h-10 w-10" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  Lara Innboks
-                  {pendingItems.length > 0 && (
-                    <Badge className="bg-primary/15 text-primary border-primary/30">{pendingItems.length} nye</Badge>
-                  )}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Dokumenter og hendelser mottatt fra leverandører, analysert og foreslått av Lara.
-                </p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <img src={laraButterfly} alt="Lara" className="h-10 w-10" />
+                <div>
+                  <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    Lara Innboks
+                    {pendingItems.length > 0 && (
+                      <Badge className="bg-primary/15 text-primary border-primary/30">{pendingItems.length} nye</Badge>
+                    )}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Dokumenter og hendelser mottatt fra leverandører, analysert og foreslått av Lara.
+                  </p>
+                </div>
               </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isSeeding || isClearing}>
+                    {(isSeeding || isClearing) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+                    Demo-data
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={seedDemoInboxItems} disabled={isSeeding}>
+                    <Database className="h-4 w-4 mr-2" />
+                    Legg til 3 demo-elementer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={clearInbox} disabled={isClearing} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Tøm innboksen
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Pending items */}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { MetricCard } from "@/components/widgets/MetricCard";
 import { OutboundRequestCard, type OutboundRequest } from "./OutboundRequestCard";
@@ -8,55 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, Clock, CheckCircle2, AlertTriangle, Search, Plus, Inbox } from "lucide-react";
 
-const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
-  {
-    id: "out-1",
-    vendor_name: "Microsoft Norge",
-    vendor_category: "SaaS",
-    request_type: "vendor_assessment",
-    status: "received",
-    due_date: "2026-01-15",
-    sent_date: "2025-12-01",
-    response_date: "2026-01-10",
-  },
-  {
-    id: "out-2",
-    vendor_name: "Atea AS",
-    vendor_category: "IT-drift",
-    request_type: "dpa",
-    status: "awaiting",
-    due_date: "2026-03-01",
-    sent_date: "2026-01-15",
-  },
-  {
-    id: "out-3",
-    vendor_name: "AWS (Amazon)",
-    vendor_category: "Infrastruktur",
-    request_type: "soc2",
-    status: "overdue",
-    due_date: "2026-02-01",
-    sent_date: "2025-12-15",
-  },
-  {
-    id: "out-4",
-    vendor_name: "Visma",
-    vendor_category: "SaaS",
-    request_type: "iso_documentation",
-    status: "received",
-    due_date: "2026-02-10",
-    sent_date: "2026-01-05",
-    response_date: "2026-02-08",
-  },
-  {
-    id: "out-5",
-    vendor_name: "Basefarm",
-    vendor_category: "Infrastruktur",
-    request_type: "vendor_assessment",
-    status: "in_progress",
-    due_date: "2026-04-01",
-    sent_date: "2026-02-01",
-  },
-];
+const STORAGE_KEY = "mynder_outbound_requests";
+
+function loadOutboundRequests(): OutboundRequest[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOutboundRequests(requests: OutboundRequest[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
+}
 
 export function OutboundRequestsTab() {
   const { i18n } = useTranslation();
@@ -64,7 +29,7 @@ export function OutboundRequestsTab() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [requests, setRequests] = useState<OutboundRequest[]>(DEMO_OUTBOUND_REQUESTS);
+  const [requests, setRequests] = useState<OutboundRequest[]>(loadOutboundRequests);
   const [wizardOpen, setWizardOpen] = useState(false);
 
   const filtered = useMemo(() => {
@@ -81,11 +46,23 @@ export function OutboundRequestsTab() {
   const received = requests.filter((r) => r.status === "received").length;
   const overdue = requests.filter((r) => r.status === "overdue").length;
 
-  const handleSend = (types: string[], vendorIds: string[], dueDate: string) => {
+  // Persist to localStorage when requests change
+  useEffect(() => {
+    saveOutboundRequests(requests);
+  }, [requests]);
+
+  // Listen for cross-component events (e.g. from asset profile)
+  useEffect(() => {
+    const handler = () => setRequests(loadOutboundRequests());
+    window.addEventListener("outbound-requests-updated", handler);
+    return () => window.removeEventListener("outbound-requests-updated", handler);
+  }, []);
+
+  const handleSend = (types: string[], vendorIds: string[], dueDate: string, vendorNames?: Record<string, string>) => {
     const newRequests: OutboundRequest[] = types.flatMap((type) =>
       vendorIds.map((id, i) => ({
         id: `out-new-${Date.now()}-${type}-${i}`,
-        vendor_name: `Leverandør ${id.substring(0, 6)}`,
+        vendor_name: vendorNames?.[id] || `Leverandør ${id.substring(0, 6)}`,
         request_type: type,
         status: "awaiting" as const,
         due_date: dueDate,
