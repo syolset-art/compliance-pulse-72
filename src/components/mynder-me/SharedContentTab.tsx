@@ -160,12 +160,17 @@ export function SharedContentTab() {
             <p className="text-sm text-muted-foreground line-clamp-2">
               {row.display_description_no}
             </p>
+            {row.is_premium && row.content_type === "incidents" && (
+              <p className="text-xs text-muted-foreground mt-1 italic">
+                Når du aktiverer Live avvik i plattformen, blir sanntidsvarsler automatisk tilgjengelig for ansatte i Mynder Me.
+              </p>
+            )}
           </div>
 
           <div className="shrink-0 flex items-center gap-3">
             {row.is_premium && !row.is_enabled ? (
               <Badge variant="secondary" className="text-xs cursor-default">
-                Krever oppgradering
+                Kommer snart
               </Badge>
             ) : (
               <Switch
