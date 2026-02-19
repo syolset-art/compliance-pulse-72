@@ -1528,6 +1528,39 @@ export type Database = {
           },
         ]
       }
+      mynder_me_shared_content: {
+        Row: {
+          content_type: string
+          created_at: string
+          display_description_no: string | null
+          display_title_no: string
+          filter_criteria: Json | null
+          id: string
+          is_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          display_description_no?: string | null
+          display_title_no: string
+          filter_criteria?: Json | null
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          display_description_no?: string | null
+          display_title_no?: string
+          filter_criteria?: Json | null
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
