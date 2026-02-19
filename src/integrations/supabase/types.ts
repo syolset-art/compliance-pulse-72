@@ -41,6 +41,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_classification_feedback: {
+        Row: {
+          ai_confidence: number
+          ai_suggested_type: string
+          asset_id: string | null
+          correct_document_type: string | null
+          created_at: string | null
+          feedback: string
+          file_name: string
+          id: string
+          user_comment: string | null
+        }
+        Insert: {
+          ai_confidence: number
+          ai_suggested_type: string
+          asset_id?: string | null
+          correct_document_type?: string | null
+          created_at?: string | null
+          feedback: string
+          file_name: string
+          id?: string
+          user_comment?: string | null
+        }
+        Update: {
+          ai_confidence?: number
+          ai_suggested_type?: string
+          asset_id?: string | null
+          correct_document_type?: string | null
+          created_at?: string | null
+          feedback?: string
+          file_name?: string
+          id?: string
+          user_comment?: string | null
+        }
+        Relationships: []
+      }
       ai_system_registry: {
         Row: {
           accuracy_percent: number | null
