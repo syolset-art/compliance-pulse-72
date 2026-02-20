@@ -1,117 +1,127 @@
 
 
-# MSP Rådgivnings-onboarding og Acronis-tilpasset dashboard
+# Dashboard 2.0 -- Compliance som spill
 
-## Bakgrunn
+## Konsept
 
-MSP-partnere som selger Mynder til sine kunder trenger en strukturert rådgivningsprosess -- ikke bare teknisk setup. Typiske spørsmål som "Har dere styregodkjent risikovurdering?" og "Har dere dokumentert backup-testing?" bør integreres i plattformen slik at onboarding blir en compliance-kartlegging, ikke bare en registrering.
+Et helt nytt dashbord som en separat side (`/dashboard-v2`) der compliance presenteres som et spill. Brukeren ser umiddelbart:
+1. **Er jeg trygg?** (ett stort "shield score" med farge)
+2. **Hva ma jeg gjore na?** (neste handling, ikke 15 widgets)
+3. **Mestringsfølelse** (XP, streak, niva)
 
-Dagens dashboard og onboarding mangler:
-- Kobling til Acronis-data (enheter som allerede er importert)
-- MSP-spesifikke rådgivningsspørsmål som gir verdi under onboarding
-- Et "steg 2" for kunder som har eller vurderer MSP-leverandør
+Dagens dashbord har 12+ widgets som krever scrolling og tolkning. Dashboard 2.0 har 3 soner som alle er synlige uten scroll.
 
-## Hva skal bygges
-
-### 1. MSP Compliance Assessment -- nytt steg i kunderegistrering
-
-Utvid `AddMSPCustomerDialog` med et ekstra steg **etter** at basisinfo er fylt inn. Steget inneholder en rask compliance-kartlegging med 6-8 spørsmål MSP-partneren stiller kunden:
-
-| Spørsmål | Svaralternativ | Påvirkning |
-|----------|---------------|------------|
-| Har dere styregodkjent risikovurdering? | Ja / Nei / Usikker | Prioriterer risikomodul |
-| Har dere dokumentert backup-testing? | Ja / Nei / Usikker | Kobles til Acronis-data |
-| Har dere behandlingsprotokoll (ROPA)? | Ja / Nei / Usikker | Prioriterer GDPR-sjekkliste |
-| Har dere hendelseshåndteringsrutine? | Ja / Nei / Usikker | Aktiverer avviksmodul |
-| Har dere databehandleravtaler med alle leverandører? | Ja / Nei / Usikker | Prioriterer leverandørstyring |
-| Er ansatte opplært i informasjonssikkerhet? | Ja / Nei / Usikker | Anbefaler Mynder Me-kurs |
-
-Svarene lagres i en ny `msp_customer_assessments`-tabell og brukes til å generere en tilpasset handlingsplan for kunden.
-
-### 2. MSP Customer Detail -- utvidet med rådgivningsstatus
-
-Utvid `MSPCustomerDetail`-siden med:
-- **Compliance Assessment-kort**: Viser resultat av kartleggingen (antall "Ja" vs "Nei") med fargekoding
-- **Acronis-status**: Hvis Acronis er koblet til, vis antall beskyttede enheter og backup-status for denne kunden
-- **Anbefalt handlingsplan**: Automatisk generert basert på kartleggingssvar -- "Mangler backup-dokumentasjon", "Trenger hendelseshåndteringsrutine" etc.
-
-### 3. PostOnboardingRoadmapWidget -- MSP-aware
-
-Hvis brukeren er registrert via en MSP-partner (sjekk `company_profile` for MSP-kobling), vis tilpassede handlinger i roadmap-widgeten:
-- "Koble til Acronis for å importere enheter" (hvis ikke allerede koblet)
-- "Gå gjennom risikovurdering med din IT-partner"
-- "Verifiser backup-rutiner" (koblet til Acronis-data)
-
-### 4. Database-endringer
-
-**Ny tabell: `msp_customer_assessments`**
+## Design: Tre soner
 
 ```text
-id                  uuid (PK)
-msp_customer_id     uuid (FK -> msp_customers)
-question_key        text (f.eks. "risk_assessment_approved")
-answer              text ("yes" / "no" / "unsure")
-notes               text (valgfritt)
-assessed_by         text
-assessed_at         timestamptz
-created_at          timestamptz
++---------------------------------------------------------------+
+|  SONE 1: COMPLIANCE SHIELD                                    |
+|  +-----------+  +------------------------------------------+  |
+|  |           |  |  "Du har kontroll"  /  "Trenger oppfolging" |
+|  |  SHIELD   |  |  Score: 67/100                             |
+|  |   67      |  |  Niva: Implementerer  (XP: 1240)           |
+|  |           |  |  Streak: 5 uker aktiv                      |
+|  +-----------+  +------------------------------------------+  |
+|                                                               |
+|  [Personvern: 72%] [Sikkerhet: 58%] [AI: 71%]  <- 3 piller   |
++---------------------------------------------------------------+
+|  SONE 2: NESTE HANDLING (maks 3 kort)                         |
+|  +-------------------+ +-------------------+ +-----------+    |
+|  | ! Godkjenn risiko  | | Mangler 2 DPA-er | | Kurs X    |    |
+|  |   vurdering        | |                   | |           |    |
+|  |   +50 XP           | |   +30 XP          | | +20 XP    |    |
+|  |   [Gjor det ->]    | |   [Gjor det ->]   | | [Start]   |    |
+|  +-------------------+ +-------------------+ +-----------+    |
++---------------------------------------------------------------+
+|  SONE 3: RISIKOBILDE + ARSHJUL (side-by-side)                 |
+|  +---------------------------+ +---------------------------+  |
+|  | Risikoradar               | | Arshjul                   |  |
+|  | [K:3] [H:5] [M:13] [L:15]| | Q1: ok  Q2: aktiv        |  |
+|  |                           | | Q3: --  Q4: --            |  |
+|  +---------------------------+ +---------------------------+  |
++---------------------------------------------------------------+
 ```
 
-RLS: Tilgang styres via `msp_user_id` gjennom join til `msp_customers`.
+## Gamification-elementer
 
-**Ny kolonne i `msp_customers`:**
-- `has_acronis_integration` boolean default false
-- `acronis_device_count` integer default 0
-- `initial_assessment_score` integer default 0 (prosent "ja"-svar)
+| Element | Hva det gjor | Data-kilde |
+|---------|-------------|------------|
+| **Compliance Shield Score** | Ett tall 0-100 basert pa vektet compliance-prosent per domene | `useComplianceRequirements` |
+| **Niva** | Maturity-level vist som spillniva (Initial -> Definert -> Implementert -> Malt -> Optimalisert) | `MATURITY_LEVELS` |
+| **XP** | Poeng basert pa fullforte krav (critical=50, high=30, medium=20, low=10) | Beregnet fra `requirement_status` |
+| **Streak** | Antall uker pa rad med minst 1 fullfort handling | Beregnet fra `completed_at` timestamps |
+| **Neste handling** | De 3 viktigste tingene a gjore akkurat na, med XP-belonning | Dynamisk fra `grouped.incompleteManual` |
+
+## Mestringssprak
+
+I stedet for teknisk compliance-sprak bruker vi:
+
+| Score | Melding | Farge |
+|-------|---------|-------|
+| 80-100 | "Du har kontroll" | Gronn shield |
+| 60-79 | "Pa god vei" | Bla shield |
+| 40-59 | "Trenger oppfolging" | Gul shield |
+| 0-39 | "Viktige mangler" | Rod shield |
 
 ## Teknisk plan
 
-### Fil 1: Database-migrasjon
-- Opprett `msp_customer_assessments`-tabell med RLS
-- Legg til nye kolonner i `msp_customers`
+### Ny fil: `src/pages/DashboardV2.tsx`
+- Hovedside med sidebar (gjenbruker `Sidebar`)
+- Tre soner i en enkel flex-layout uten scroll
+- Bruker `useComplianceRequirements` for all data
+- Beregner XP, streak, niva lokalt
 
-### Fil 2: `src/lib/mspAssessmentQuestions.ts` (ny)
-- Definerer spørsmålene som en konstant array med `key`, `question_no`, `question_en`, `category`, `impact_area`
-- Gjenbrukbar i dialog og i kundedetaljvisning
+### Ny fil: `src/components/dashboard-v2/ComplianceShield.tsx`
+- Stor animert shield-ikon med score i midten
+- SVG-basert sirkelprogress (ligner CriticalTasksWidget sin donut, men storre)
+- Fargeskala basert pa score
+- Viser niva-badge og XP-teller
+- Tre domene-piller under (personvern, sikkerhet, AI) med mini-progress
 
-### Fil 3: `src/components/msp/MSPAssessmentStep.tsx` (ny)
-- Komponent med 6-8 spørsmål, hvert med Ja/Nei/Usikker-knapper
-- Viser fremdrift (3 av 6 besvart)
-- Brukes som steg 2 i `AddMSPCustomerDialog`
+### Ny fil: `src/components/dashboard-v2/NextActionCards.tsx`
+- Maks 3 handlingskort, sortert etter prioritet og XP-verdi
+- Hvert kort har: ikon, tittel, kort beskrivelse, XP-belonning, handlingsknapp
+- Handlingsknappen navigerer til riktig side
+- Prioriteringslogikk fra PostOnboardingRoadmapWidget, men forenklet
 
-### Fil 4: `src/components/msp/AddMSPCustomerDialog.tsx` (endring)
-- Legg til steg-logikk: Steg 1 = basisinfo (eksisterende), Steg 2 = compliance-kartlegging
-- Etter steg 2, lagre svar til `msp_customer_assessments` og beregn `initial_assessment_score`
+### Ny fil: `src/components/dashboard-v2/RiskAndCalendarSection.tsx`
+- To kolonner side-by-side
+- Venstre: Forenklet risikoradar (3 domener med fargekodede risikotall)
+- Hoyre: Kompakt arshjul (4 kvartaler, markerer aktivt kvartal)
 
-### Fil 5: `src/components/msp/MSPAssessmentCard.tsx` (ny)
-- Viser kartleggingsresultat som et kort med prosent-score og liste over mangler
-- Brukes i `MSPCustomerDetail`
+### Endring: `src/App.tsx`
+- Legg til route: `/dashboard-v2`
 
-### Fil 6: `src/pages/MSPCustomerDetail.tsx` (endring)
-- Legg til `MSPAssessmentCard` og Acronis-status i kundedetaljvisningen
-- Vis "Anbefalte handlinger" basert på kartleggingssvar
+### Endring: `src/components/Sidebar.tsx`
+- Legg til navigasjonslenke "Dashboard 2.0" under hovednavigasjon (midlertidig, for sammenligning)
 
-### Fil 7: `src/components/widgets/PostOnboardingRoadmapWidget.tsx` (endring)
-- Sjekk om selskapet har MSP-partner via `company_profile`
-- Hvis ja, inkluder MSP-spesifikke handlinger (Acronis, backup-verifisering)
-
-## Brukerflyt for MSP-partner
+## XP-beregning
 
 ```text
-MSP-partner logger inn
-  -> Partneroversikt (/msp-dashboard)
-  -> Klikk "Legg til kunde"
-  -> Steg 1: Basisinfo (navn, org.nr, bransje, kontakt)
-  -> Steg 2: Compliance-kartlegging (6 spørsmål)
-  -> Kunde opprettes med assessment-score
-  -> Kundedetalj viser handlingsplan basert på svar
-  -> Hvis Acronis koblet: viser enheter og backup-status
+xp = sum av fullforte krav * poeng per prioritet
+  critical = 50 XP
+  high     = 30 XP
+  medium   = 20 XP
+  low      = 10 XP
 ```
 
-## Hva dette gjør for MSP-partneren
+Beregnes fra `requirements.filter(r => r.status === 'completed')` som allerede finnes i `useComplianceRequirements`.
 
-- Onboarding blir en **rådgivningsprosess** der partneren stiller de riktige spørsmålene
-- Kartleggingen skaper umiddelbar verdi for kunden ("vi fant 4 av 6 mangler")
-- Resultatene gir partneren et konkret salgsargument for oppfølging
-- Acronis-data kobles til compliance-kontekst (backup-testing = ISO 27001 A.12.3)
+## Streak-beregning
+
+```text
+Grupper completed_at etter uke (ISO week)
+Tell antall sammenhengende uker bakover fra na
+```
+
+Bruker `date-fns` (allerede installert) for ukeberegning.
+
+## Hvorfor dette fungerer
+
+- **Ett tall** (shield score) gir umiddelbar forstaelse av status
+- **Mestringssprak** ("Du har kontroll") i stedet for teknisk sjargong
+- **Maks 3 handlinger** fjerner beslutningsvegring
+- **XP og streak** gir motivasjon til a komme tilbake
+- **Alt synlig uten scroll** -- ingen informasjonsoverbelastning
+- **Separat side** betyr ingen risiko for eksisterende dashboard
 
