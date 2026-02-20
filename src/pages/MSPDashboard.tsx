@@ -4,14 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus } from "lucide-react";
 import { MSPMetricsRow } from "@/components/msp/MSPMetricsRow";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
-import { MSPInvoicesTab } from "@/components/msp/MSPInvoicesTab";
-import { MSPLicensesTab } from "@/components/msp/MSPLicensesTab";
 
 export default function MSPDashboard() {
   const { user } = useAuth();
@@ -35,59 +31,31 @@ export default function MSPDashboard() {
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-8">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Partneroversikt</h1>
+              <h1 className="text-3xl font-bold text-foreground">Kunder</h1>
               <p className="text-muted-foreground mt-1">Oversikt over dine kunder og deres compliance-status</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Link to="/msp-billing">
-                <Button variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Fakturainnstillinger
-                </Button>
-              </Link>
-              <Button onClick={() => setAddOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Legg til kunde
-              </Button>
-            </div>
+            <Button onClick={() => setAddOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Legg til kunde
+            </Button>
           </div>
 
-          {/* Tabs */}
-          <Tabs defaultValue="kunder" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="kunder">Kunder</TabsTrigger>
-              <TabsTrigger value="lisenser">Lisenser</TabsTrigger>
-              <TabsTrigger value="fakturaer">Fakturaer</TabsTrigger>
-            </TabsList>
+          <MSPMetricsRow customers={customers} />
 
-            <TabsContent value="kunder" className="space-y-8">
-              <MSPMetricsRow customers={customers} />
-
-              {customers.length === 0 ? (
-                <div className="text-center py-16 text-muted-foreground">
-                  <p className="text-lg">Ingen kunder registrert ennå</p>
-                  <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {customers.map((c: any) => (
-                    <MSPCustomerCard key={c.id} customer={c} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="lisenser">
-              <MSPLicensesTab />
-            </TabsContent>
-
-            <TabsContent value="fakturaer">
-              <MSPInvoicesTab />
-            </TabsContent>
-          </Tabs>
+          {customers.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <p className="text-lg">Ingen kunder registrert ennå</p>
+              <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {customers.map((c: any) => (
+                <MSPCustomerCard key={c.id} customer={c} />
+              ))}
+            </div>
+          )}
         </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
