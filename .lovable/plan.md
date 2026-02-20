@@ -1,85 +1,105 @@
 
 
-# Partner-meny med undermenyer, ROI-kalkulator og salgsguide
+# ROI-kalkulator: Fra "besparelse" til "fortjeneste"
 
-## Oversikt
+## Problemet
 
-Endre "Partneroversikt" fra en enkel lenke til en utvidbar meny (som "Admin" og "Utviklere" allerede fungerer), med fire undermenypunkter. Samtidig opprettes to nye sider.
+Kalkulatoren er i dag vinklet mot tidsbesparelse og kostnadskutt. MSP-partnere tenker ikke slik -- de tenker inntekt, margin og skalerbarhet. Hele siden ma skrives om med ny vinkling og riktige priser.
 
-## Ny menystruktur i sidepanelet
+## Ny vinkling
+
+Overskrift endres fra "Beregn besparelsen" til **"Se hva du kan tjene ved a selge Mynder"**.
+
+Fokuset flyttes til:
+1. **Ny arlig inntekt (ARR)** -- hva tjener MSP-en pa lisenser
+2. **Oppstartsinntekt** -- engangsinntekt fra onboarding
+3. **Total fortjeneste** -- ARR + oppstart - MSPs egen tid
+4. **Margin per kunde** -- hvor lonnsomt er hver kunde
+
+## Prismodell som brukes
+
+| Produkt | Pris |
+|---------|------|
+| Trust Engine | 490 kr/mnd (5 880 kr/ar) |
+| Core (20 systemer) | 3 490 kr/mnd (41 880 kr/ar) |
+| Readiness add-on | 457,50 kr/mnd (5 490 kr/ar) per standard |
+| Oppstart S (0-20 systemer) | 9 900 kr (engangs) |
+| Oppstart M (21-50 systemer) | 19 900 kr (engangs) |
+| Oppstart L (51+ systemer) | 39 900 kr (engangs) |
+
+## Ny side-layout
+
+### Input-kort (venstre kolonne)
+- **Antall kunder** (slider eller tall, default 5)
+- **Gjennomsnittlig kundestorrelse** (dropdown: S / M / L -- bestemmer oppstartspris)
+- **Produkt per kunde** (dropdown: Trust Engine / Core / Core + Readiness)
+- **Antall Readiness-standarder** (vises kun hvis Readiness valgt, default 1)
+- **Din timepris** (for a beregne MSPs egen kostnad pa oppstart)
+
+### Resultat-kort (hoyre kolonne)
+
+**Topprad -- 3 store tall:**
+| Arlig inntekt (ARR) | Oppstartsinntekt (ar 1) | Total fortjeneste ar 1 |
+
+**Detaljkort:**
+
+1. **Inntektsberegning per kunde**
+   - Lisensinntekt per kunde per ar
+   - Oppstartsinntekt per kunde (engangs)
+   - Din kostnad for oppstart (timer * timepris)
+   - Margin per kunde ar 1
+   - Margin per kunde ar 2+ (ingen oppstartskostnad)
+
+2. **Portefolje-oppsummering**
+   - Total ARR (alle kunder)
+   - Total oppstartsinntekt (alle kunder)
+   - Total egen kostnad ar 1
+   - Netto fortjeneste ar 1
+   - Netto fortjeneste ar 2+ (ren ARR minus minimal drift)
+
+3. **Vekstscenario** (inspirerende kort)
+   - "Med 10 kunder: X kr/ar"
+   - "Med 25 kunder: X kr/ar"
+   - Viser skaleringseffekten
+
+### PDF-eksport
+Oppdateres med ny vinkling: "Mynder Partnerkalkyl" med inntekts- og margintall.
+
+## Teknisk implementasjon
+
+### Endres: `src/pages/MSPROICalculator.tsx`
+- Fullstendig omskriving av innhold og beregningslogikk
+- Nye state-variabler: `customerSize` (S/M/L), `product` (trust-engine/core/core-readiness), `readinessStandards`
+- Beregningslogikk basert pa de faktiske prisene
+- Ny PDF med fortjeneste-fokus
+- Beholder Sidebar-layout og eksport-knapp
+
+### Beregningslogikk (pseudokode)
 
 ```text
-Partner (utvidbar)
-  +-- Kunder          -> /msp-dashboard (eksisterende, men uten tabs for lisenser/fakturaer)
-  +-- Lisenser        -> /msp-licenses (ny side, flytter MSPLicensesTab hit)
-  +-- Faktura         -> /msp-invoices (ny side, flytter MSPInvoicesTab hit)
-  +-- ROI-kalkulator  -> /msp-roi (ny side)
-  +-- Salgsguide      -> /msp-sales-guide (ny side)
+// ARR per kunde
+if product == "trust-engine": arrPerCustomer = 5880
+if product == "core": arrPerCustomer = 41880
+if product == "core-readiness": arrPerCustomer = 41880 + (5490 * readinessStandards)
+
+// Oppstart per kunde
+if size == "S": onboardingRevenue = 9900, onboardingHours = 4
+if size == "M": onboardingRevenue = 19900, onboardingHours = 8
+if size == "L": onboardingRevenue = 39900, onboardingHours = 18
+
+// MSPs egen kostnad
+onboardingCost = onboardingHours * hourlyRate
+
+// Margin
+marginPerCustomerYear1 = arrPerCustomer + onboardingRevenue - onboardingCost
+marginPerCustomerYear2 = arrPerCustomer  // ingen oppstartskost
+
+// Portefolje
+totalARR = arrPerCustomer * customers
+totalOnboarding = onboardingRevenue * customers
+totalCostYear1 = onboardingCost * customers
+profitYear1 = totalARR + totalOnboarding - totalCostYear1
+profitYear2 = totalARR  // ren recurring
 ```
 
-## Endringer
-
-### 1. Sidebar.tsx -- Partner som utvidbar meny
-
-Erstatter den enkle "Partneroversikt"-lenken med en utvidbar meny som bruker samme moenster som "Admin"-menyen (ChevronDown, submenu-items). Ikonet forblir Building2.
-
-### 2. MSPDashboard.tsx -- Forenklet til kun kunder
-
-Fjerner tabs for lisenser og fakturaer (disse flyttes til egne sider). Beholder kun kundelisten, metrikker og "Legg til kunde"-knappen. Fjerner "Fakturainnstillinger"-knappen fra headeren (den flyttes til Faktura-siden).
-
-### 3. Ny side: MSPLicenses.tsx (/msp-licenses)
-
-En enkel wrapper-side med Sidebar og MSPLicensesTab-komponenten. Samme layout som resten av appen.
-
-### 4. Ny side: MSPInvoices.tsx (/msp-invoices)
-
-En enkel wrapper-side med Sidebar og MSPInvoicesTab. Inkluderer lenke til fakturainnstillinger i headeren.
-
-### 5. Ny side: MSPROICalculator.tsx (/msp-roi)
-
-En interaktiv ROI-kalkulator tilpasset MSP-partnere. Partneren taster inn:
-
-- Antall kunder
-- Gjennomsnittlig timepris (NOK)
-- Timer brukt per kunde per maaned paa manuell compliance
-
-Kalkulatoren beregner og viser:
-
-- Tidsbesparelse med Mynder (basert paa 80% automatisering)
-- Kostnadsbesparelse per aar
-- Inntektspotensial (lisenskostnad * antall kunder - Mynders pris)
-- Sammenligning: manuelt vs. med Mynder
-
-I tillegg vises en "Eksporter som PDF"-knapp slik at partneren kan bruke dette i salgsmoeter.
-
-### 6. Ny side: MSPSalesGuide.tsx (/msp-sales-guide)
-
-En steg-for-steg salgsguide som viser MSP-partneren hvordan de selger Mynder til sine kunder. Innholdet er strukturert som en tidslinje/stepper:
-
-| Steg | Tittel | Beskrivelse |
-|------|--------|-------------|
-| 1 | Identifiser kunden | Finn kunder som mangler compliance-verktoy eller bruker manuelle prosesser |
-| 2 | Book et moete | Bruk ROI-kalkulatoren til aa vise besparelsen. Ta med konkrete tall |
-| 3 | Kjor en kartlegging | Bruk "Legg til kunde" med compliance-assessment for aa avdekke gap |
-| 4 | Presenter handlingsplan | Vis kartleggingsresultatet -- "4 av 6 omraader mangler" |
-| 5 | Aktiver Mynder | Tildel lisens, koble Acronis, sett opp kundens portal |
-| 6 | Lopende oppfolging | Ga inn i kundens portal for aa hjelpe med compliance-arbeidet |
-
-Hvert steg har en ikon, utfyllende tekst, og en handlingsknapp som navigerer til riktig sted i appen (f.eks. "Gaa til ROI-kalkulator", "Legg til kunde", "Kjop lisenser").
-
-### 7. App.tsx -- Nye ruter
-
-Legger til fire nye ruter:
-- `/msp-licenses` -> MSPLicenses
-- `/msp-invoices` -> MSPInvoices
-- `/msp-roi` -> MSPROICalculator
-- `/msp-sales-guide` -> MSPSalesGuide
-
-## Tekniske detaljer
-
-- ROI-kalkulatoren bruker kun lokal state (useState) for input-verdier og beregner alt paa klientsiden
-- Salgsguiden er statisk innhold med navigasjonslenker
-- Eksisterende MSPLicensesTab og MSPInvoicesTab gjenbrukes uten endringer -- de wrappes bare i nye sider
-- Sidebar-menyen holder seg aapen naa brukeren er paa en av partner-rutene (sjekker `location.pathname.startsWith("/msp-")`)
-- jsPDF (allerede installert) brukes for PDF-eksport av ROI-rapporten
-
+Ingen andre filer endres -- dette er kun en omskriving av MSPROICalculator.tsx.
