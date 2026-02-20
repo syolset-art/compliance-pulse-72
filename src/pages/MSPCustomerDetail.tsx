@@ -1,17 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Building2, Mail, User } from "lucide-react";
+import { ArrowLeft, Mail, User, Wifi, Server, Eye, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
-import { Wifi, Server } from "lucide-react";
+import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 
 function getScoreColor(score: number) {
   if (score >= 80) return "text-green-600 dark:text-green-400";
@@ -22,6 +23,7 @@ function getScoreColor(score: number) {
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const [acronisOpen, setAcronisOpen] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -95,10 +97,10 @@ export default function MSPCustomerDetail() {
 
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-foreground">{customer.customer_name}</h1>
-                <div className="flex items-center gap-3 mt-2">
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
                   {customer.industry && <Badge variant="outline">{customer.industry}</Badge>}
                   {customer.employees && <Badge variant="outline">{customer.employees} ansatte</Badge>}
-                <Badge variant="outline" className="border-primary/40 text-primary">
+                  <Badge variant="outline" className="border-primary/40 text-primary">
                     {customer.subscription_plan || "Gratis"}
                   </Badge>
                   {customer.active_frameworks?.map((fw: string) => (
@@ -117,11 +119,21 @@ export default function MSPCustomerDetail() {
                 )}
               </div>
 
-              <div className="text-center">
-                <span className={cn("text-4xl font-bold", getScoreColor(customer.compliance_score || 0))}>
-                  {customer.compliance_score || 0}%
-                </span>
-                <p className="text-xs text-muted-foreground mt-1">Samsvar</p>
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-center">
+                  <span className={cn("text-4xl font-bold", getScoreColor(customer.compliance_score || 0))}>
+                    {customer.compliance_score || 0}%
+                  </span>
+                  <p className="text-xs text-muted-foreground mt-1">Samsvar</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => navigate(`/msp-dashboard/${customerId}/portal`)}
+                  className="gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  Gå inn i kundens portal
+                </Button>
               </div>
             </div>
           </Card>
@@ -138,7 +150,7 @@ export default function MSPCustomerDetail() {
                 <h3 className="font-semibold text-foreground">Acronis-status</h3>
               </div>
               {customer.has_acronis_integration ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Wifi className="h-4 w-4 text-green-500" />
                     <span className="text-sm text-foreground">Tilkoblet</span>
@@ -147,12 +159,20 @@ export default function MSPCustomerDetail() {
                     {customer.acronis_device_count || 0}
                     <span className="text-sm font-normal text-muted-foreground ml-1">enheter beskyttet</span>
                   </p>
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => setAcronisOpen(true)}>
+                    <RefreshCw className="h-3 w-3" />
+                    Synkroniser på nytt
+                  </Button>
                 </div>
               ) : (
                 <div className="text-center py-4">
                   <Wifi className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
                   <p className="text-sm text-muted-foreground">Acronis ikke tilkoblet</p>
                   <p className="text-xs text-muted-foreground mt-1">Koble til for å importere enheter og backup-status</p>
+                  <Button size="sm" className="mt-3 gap-2" onClick={() => setAcronisOpen(true)}>
+                    <Server className="h-4 w-4" />
+                    Koble til Acronis
+                  </Button>
                 </div>
               )}
             </Card>
@@ -165,6 +185,13 @@ export default function MSPCustomerDetail() {
           </div>
           <DomainComplianceWidget />
         </div>
+
+        <AcronisConnectDialog
+          open={acronisOpen}
+          onOpenChange={setAcronisOpen}
+          customerId={customerId!}
+          customerName={customer.customer_name}
+        />
       </main>
     </div>
   );

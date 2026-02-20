@@ -35,6 +35,7 @@ import CustomerRequests from "./pages/CustomerRequests";
 import VendorResponseDemo from "./pages/VendorResponseDemo";
 import MSPDashboard from "./pages/MSPDashboard";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
+import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
 import MynderMe from "./pages/MynderMe";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
+                  <Route path="/msp-dashboard/:customerId/portal" element={<MSPCustomerPortal />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
