@@ -53,6 +53,7 @@ import {
 
 const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
   { name: "nav.assets", href: "/assets", icon: Package },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },

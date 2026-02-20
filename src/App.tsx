@@ -38,6 +38,7 @@ import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
 import MynderMe from "./pages/MynderMe";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
+import DashboardV2 from "./pages/DashboardV2";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => (
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
+                  <Route path="/dashboard-v2" element={<DashboardV2 />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
