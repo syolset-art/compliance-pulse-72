@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,20 +16,11 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 
-// Import context directly to avoid throwing when not available
-import { createContext } from "react";
-
-// We need to access the context without throwing - create a safe hook
-const GlobalChatContext = createContext<{
-  openChatWithMessage: (message: string) => void;
-} | undefined>(undefined);
-
-// Re-export the context check
+// Safe hook to access GlobalChat context without throwing
 const useGlobalChatSafe = () => {
-  // Try to use the real context from GlobalChatProvider
   try {
-    // Dynamic import to avoid circular dependency issues
     const { useGlobalChat } = require("@/components/GlobalChatProvider");
     return useGlobalChat();
   } catch {
@@ -62,8 +53,13 @@ export function OnboardingProgressWidget() {
   const globalChat = useGlobalChatSafe();
   const [isDismissed, setIsDismissed] = useState(false);
 
-  // Don't show if dismissed or fully complete
-  if (isDismissed || isFullyComplete) {
+  // Show roadmap widget when onboarding is complete
+  if (isFullyComplete) {
+    return <PostOnboardingRoadmapWidget />;
+  }
+
+  // Don't show if dismissed
+  if (isDismissed) {
     return null;
   }
 
