@@ -16,8 +16,8 @@ const steps = [
   {
     icon: CalendarCheck,
     title: "Book et møte",
-    description: "Bruk ROI-kalkulatoren til å vise konkrete besparelser. Ta med tall tilpasset kundens situasjon – antall timer, timepris og antall systemer.",
-    action: { label: "Gå til ROI-kalkulator", href: "/msp-roi" },
+    description: "Bruk kunde-ROI-kalkulatoren til å vise kunden hva de sparer med Mynder. Tilpass tallene til kundens situasjon – antall systemer, timer og timepris.",
+    action: { label: "Vis kunden ROI-kalkulator", href: "/msp-customer-roi" },
   },
   {
     icon: ClipboardList,
