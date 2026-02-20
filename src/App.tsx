@@ -37,6 +37,10 @@ import MSPDashboard from "./pages/MSPDashboard";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
+import MSPLicenses from "./pages/MSPLicenses";
+import MSPInvoices from "./pages/MSPInvoices";
+import MSPROICalculator from "./pages/MSPROICalculator";
+import MSPSalesGuide from "./pages/MSPSalesGuide";
 import MynderMe from "./pages/MynderMe";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
@@ -85,6 +89,10 @@ const App = () => (
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
                   <Route path="/msp-dashboard/:customerId/portal" element={<MSPCustomerPortal />} />
+                  <Route path="/msp-licenses" element={<MSPLicenses />} />
+                  <Route path="/msp-invoices" element={<MSPInvoices />} />
+                  <Route path="/msp-roi" element={<MSPROICalculator />} />
+                  <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />

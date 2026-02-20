@@ -144,6 +144,7 @@ const SidebarContent = () => {
   const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -386,19 +387,51 @@ const SidebarContent = () => {
           )}
         </div>
 
-        {/* MSP Partner Dashboard */}
-        <Link
-          to="/msp-dashboard"
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all mt-1",
-            location.pathname.startsWith("/msp-dashboard")
-              ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+        {/* MSP Partner Menu */}
+        <div className="pt-1">
+          <button 
+            onClick={() => setPartnerOpen(!partnerOpen)}
+            className={cn(
+              "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              location.pathname.startsWith("/msp-") ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <Building2 className="h-5 w-5" />
+              Partner
+            </div>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", partnerOpen && "rotate-180")} />
+          </button>
+          
+          {partnerOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              {[
+                { name: "Kunder", href: "/msp-dashboard", icon: Users },
+                { name: "Lisenser", href: "/msp-licenses", icon: CreditCard },
+                { name: "Faktura", href: "/msp-invoices", icon: FileText },
+                { name: "ROI-kalkulator", href: "/msp-roi", icon: FileBarChart },
+                { name: "Salgsguide", href: "/msp-sales-guide", icon: BookOpen },
+              ].map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-primary"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
           )}
-        >
-          <Building2 className="h-5 w-5" />
-          Partneroversikt
-        </Link>
+        </div>
 
         {/* Mynder Me */}
         <Link
