@@ -19,15 +19,13 @@ import { ExecutiveSummaryWidget } from "@/components/widgets/ExecutiveSummaryWid
 import { GDPRHealthWidget } from "@/components/widgets/GDPRHealthWidget";
 import { SecurityPostureWidget } from "@/components/widgets/SecurityPostureWidget";
 import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
-import { AddModuleDialog } from "@/components/AddModuleDialog";
+
 import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { QualityModuleActivationWizard } from "@/components/quality/QualityModuleActivationWizard";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -42,7 +40,7 @@ const Index = () => {
   const { primaryRole } = useUserRole();
   const { stats } = useComplianceRequirements({});
   const activeView = primaryRole as AppRole | 'all';
-  const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
+  
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
@@ -99,25 +97,6 @@ const Index = () => {
     setContentView(null);
   };
 
-  const handleModuleCreated = (moduleData: any) => {
-    // Check if user selected quality-system type
-    if (moduleData.type === 'quality-system') {
-      setIsAddModuleOpen(false);
-      setIsQualityWizardOpen(true);
-      return;
-    }
-    
-    const explanation = `# Modul opprettet: ${moduleData.name}
-
-**Type:** ${moduleData.type?.replace("-", " ")}
-**Beskrivelse:** ${moduleData.description || "Ingen beskrivelse oppgitt"}
-${moduleData.file ? `**Fil:** ${moduleData.file.name}` : ""}
-${moduleData.config ? `\n## Konfigurasjon\n\`\`\`\n${moduleData.config}\n\`\`\`` : ""}
-
-Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhandle med den via chatten.`;
-
-    handleShowContent("module", undefined, undefined, explanation);
-  };
 
   // Mobile layout - simplified without resizable panels
   if (isMobile) {
@@ -146,10 +125,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                     </p>
                     <h1 className="text-2xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                   </div>
-                  <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury" size="sm">
-                    <Plus className="h-4 w-4" />
-                    {t("dashboard.addModule")}
-                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-xl">{t("dashboard.subtitle")}</p>
               </div>
@@ -205,11 +180,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
         </main>
 
 
-        <AddModuleDialog 
-          open={isAddModuleOpen}
-          onOpenChange={setIsAddModuleOpen}
-          onModuleCreated={handleModuleCreated}
-        />
         <AddAssetDialog
           open={isAddAssetOpen}
           onOpenChange={setIsAddAssetOpen}
@@ -262,10 +232,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
                       </p>
                       <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">{companyName || t("dashboard.title")}</h1>
                     </div>
-                    <Button onClick={() => setIsAddModuleOpen(true)} variant="luxury">
-                      <Plus className="h-4 w-4" />
-                      {t("dashboard.addModule")}
-                    </Button>
                   </div>
                   <p className="text-base text-muted-foreground max-w-2xl">
                     {activeView !== 'all' ? t(`dashboardViews.${activeView}.description`) : t("dashboard.subtitle")}
@@ -334,12 +300,6 @@ Modulen er nå tilgjengelig og kan brukes i AI-agenten. Du kan begynne å samhan
           </main>
 
 
-      {/* Add Module Dialog */}
-      <AddModuleDialog 
-        open={isAddModuleOpen}
-        onOpenChange={setIsAddModuleOpen}
-        onModuleCreated={handleModuleCreated}
-      />
 
       {/* Onboarding Dialogs */}
       <AddAssetDialog
