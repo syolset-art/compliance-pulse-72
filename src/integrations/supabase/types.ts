@@ -1411,8 +1411,50 @@ export type Database = {
         }
         Relationships: []
       }
+      msp_customer_assessments: {
+        Row: {
+          answer: string
+          assessed_at: string | null
+          assessed_by: string | null
+          created_at: string | null
+          id: string
+          msp_customer_id: string
+          notes: string | null
+          question_key: string
+        }
+        Insert: {
+          answer?: string
+          assessed_at?: string | null
+          assessed_by?: string | null
+          created_at?: string | null
+          id?: string
+          msp_customer_id: string
+          notes?: string | null
+          question_key: string
+        }
+        Update: {
+          answer?: string
+          assessed_at?: string | null
+          assessed_by?: string | null
+          created_at?: string | null
+          id?: string
+          msp_customer_id?: string
+          notes?: string | null
+          question_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msp_customer_assessments_msp_customer_id_fkey"
+            columns: ["msp_customer_id"]
+            isOneToOne: false
+            referencedRelation: "msp_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       msp_customers: {
         Row: {
+          acronis_device_count: number | null
           active_frameworks: string[] | null
           compliance_score: number | null
           contact_company_role: string | null
@@ -1422,8 +1464,10 @@ export type Database = {
           created_at: string | null
           customer_name: string
           employees: string | null
+          has_acronis_integration: boolean | null
           id: string
           industry: string | null
+          initial_assessment_score: number | null
           last_activity_at: string | null
           logo_url: string | null
           msp_user_id: string
@@ -1433,6 +1477,7 @@ export type Database = {
           subscription_plan: string
         }
         Insert: {
+          acronis_device_count?: number | null
           active_frameworks?: string[] | null
           compliance_score?: number | null
           contact_company_role?: string | null
@@ -1442,8 +1487,10 @@ export type Database = {
           created_at?: string | null
           customer_name: string
           employees?: string | null
+          has_acronis_integration?: boolean | null
           id?: string
           industry?: string | null
+          initial_assessment_score?: number | null
           last_activity_at?: string | null
           logo_url?: string | null
           msp_user_id: string
@@ -1453,6 +1500,7 @@ export type Database = {
           subscription_plan?: string
         }
         Update: {
+          acronis_device_count?: number | null
           active_frameworks?: string[] | null
           compliance_score?: number | null
           contact_company_role?: string | null
@@ -1462,8 +1510,10 @@ export type Database = {
           created_at?: string | null
           customer_name?: string
           employees?: string | null
+          has_acronis_integration?: boolean | null
           id?: string
           industry?: string | null
+          initial_assessment_score?: number | null
           last_activity_at?: string | null
           logo_url?: string | null
           msp_user_id?: string

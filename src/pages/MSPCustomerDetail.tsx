@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
+import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
+import { Wifi, Server } from "lucide-react";
 
 function getScoreColor(score: number) {
   if (score >= 80) return "text-green-600 dark:text-green-400";
@@ -123,6 +125,38 @@ export default function MSPCustomerDetail() {
               </div>
             </div>
           </Card>
+
+          {/* Assessment & Acronis row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <MSPAssessmentCard
+              customerId={customerId!}
+              assessmentScore={customer.initial_assessment_score}
+            />
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Server className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-foreground">Acronis-status</h3>
+              </div>
+              {customer.has_acronis_integration ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Wifi className="h-4 w-4 text-green-500" />
+                    <span className="text-sm text-foreground">Tilkoblet</span>
+                  </div>
+                  <p className="text-2xl font-bold text-foreground">
+                    {customer.acronis_device_count || 0}
+                    <span className="text-sm font-normal text-muted-foreground ml-1">enheter beskyttet</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Wifi className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+                  <p className="text-sm text-muted-foreground">Acronis ikke tilkoblet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Koble til for å importere enheter og backup-status</p>
+                </div>
+              )}
+            </Card>
+          </div>
 
           {/* Dashboard widgets */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
