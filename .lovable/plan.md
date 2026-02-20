@@ -1,103 +1,62 @@
 
 
-# ROI-kalkulator: Koble til lisensmodellen
+# Kunde-ROI-kalkulator for salgsmøter
 
-## Problemet
+## Oversikt
 
-ROI-kalkulatoren viser i dag full ARR-pris som om MSP beholder hele belopet. I virkeligheten far MSP kun en andel:
+Lage en ny side -- **Kunde-ROI** (`/msp-customer-roi`) -- som MSP-partneren kan vise til sluttkunden i et salgsmøte. Denne fokuserer på hva **kunden sparer** ved å bruke Mynder, i motsetning til partner-kalkulatoren som viser partnerens fortjeneste.
 
-- **20% provisjon** hvis de selger uten a kjope lisenser pa forhand
-- **50% provisjon** (= 50% rabatt pa innkjop) hvis de kjoper bulk (5+ lisenser)
+Salgsguiden oppdateres slik at steg 2 ("Book et møte") lenker til den nye kunde-ROI-kalkulatoren.
 
-Kalkulatoren ma vise MSPs faktiske fortjeneste basert pa lisensmodellen.
+## Ny side: Kunde-ROI-kalkulator
 
-## Ny beregningslogikk
+Siden har et rent, presentasjonsklart design uten sidebar-navigasjon (valgfritt å vise den), slik at den kan vises direkte til kunden.
 
-### Lisensniva og priser (fra mspLicenseUtils.ts)
+### Input-felter
+- **Antall systemer** (slider, default 10)
+- **Timer per måned brukt på manuell compliance** (slider, default 20)
+- **Timepris internt hos kunden** (input, default 850 kr)
+- **Antall standarder/rammeverk** (dropdown: 1-3, for GDPR, ISO 27001 osv.)
 
-| Tier | Pris/ar | Maks systemer |
-|------|---------|---------------|
-| Basis | 42 000 kr | 20 |
-| Premium | 76 000 kr | 50 |
-
-### Provisjonsmodell
-
-| Modell | MSP far | Beskrivelse |
-|--------|---------|-------------|
-| Standard (selg uten forhandskjop) | 20% av lisenpris | Lavere margin, ingen risiko |
-| Bulk (kjop pa forhand) | 50% rabatt = beholder 50% | Hoyere margin, betaler upfront |
-
-### Beregning
-
-```text
-// Velg tier og modell
-if bulk:
-  mspCostPerLicense = tierPrice * 0.50   // MSP betaler halv pris
-  mspRevenuePerLicense = tierPrice       // Kunden betaler full pris
-  mspMarginPerLicense = tierPrice * 0.50 // MSP beholder 50%
-else:
-  mspCostPerLicense = 0                  // MSP betaler ingenting
-  mspRevenuePerLicense = tierPrice * 0.20 // MSP far 20% provisjon
-  mspMarginPerLicense = tierPrice * 0.20
-
-// Oppstart (MSP beholder alt, minus egen tid)
-onboardingProfit = onboardingRevenue - (hours * hourlyRate)
-
-// Totalt
-profitYear1 = (mspMarginPerLicense * customers) + (onboardingProfit * customers)
-profitYear2 = mspMarginPerLicense * customers  // kun lisensmargin
+### Beregninger
+```
+manualCostYear = hoursPerMonth * hourlyRate * 12
+mynderCostYear = lisensvalg basert på antall systemer (Basis 42 000 / Premium 76 000)
+savingYear = manualCostYear - mynderCostYear
+savingPercent = (savingYear / manualCostYear) * 100
+timeFreedHours = hoursPerMonth * 0.8 * 12  // 80% automatisering
 ```
 
-## Endringer i MSPROICalculator.tsx
+### Resultat-visning
+- **Årlig besparelse** (stort tall, grønt)
+- **Timer frigjort per år** (viser tid som kan brukes på verdiskaping)
+- **Tilbakebetalt etter X måneder** (mynderCostYear / (manualCostYear / 12))
+- **3-års besparelse** (savingYear * 3)
+- Visuell sammenligning: "Manuelt" vs "Med Mynder" (to kolonner)
 
-### Input-felter (oppdatert)
+### PDF-eksport
+"Mynder -- Besparelsesanalyse for [Bedriftsnavn]" -- tilpasset for å dele med beslutningstaker hos kunden.
 
-1. **Lisensniva** -- dropdown: Basis / Premium (erstatter "Produkt per kunde")
-2. **Salgsmodell** -- dropdown: "Standard (20% provisjon)" / "Bulk (50% margin, forhandskjop)"
-3. **Antall kunder** -- slider (beholdes)
-4. **Gjennomsnittlig kundestorrelse** -- dropdown S/M/L (beholdes, for oppstartspris)
-5. **Din timepris** -- input (beholdes)
+### Ekstra input
+- **Bedriftsnavn** (tekstfelt, valgfritt) -- brukes i PDF-en for personalisering
 
-Fjerner: "Readiness-standarder" (forenkler, kan legges til senere)
+## Endringer i salgsguiden
 
-### Resultat-kort (oppdatert)
+Steg 2 oppdateres:
+- Beskrivelse endres til å nevne kunde-ROI-kalkulatoren
+- Knappen peker til `/msp-customer-roi` i stedet for `/msp-roi`
+- Tekst: "Vis kunden ROI-kalkulator"
 
-**Topprad:**
-- Din arlige lisensinntekt (provisjon/margin, ikke full ARR)
-- Oppstartsinntekt (ar 1)
-- Netto fortjeneste ar 1
+## Filer som endres/opprettes
 
-**Per kunde-kort:**
-- Kundens lisenpris (full pris)
-- Din andel (20% eller 50%)
-- Din kostnad (kun ved bulk: forhandskjop)
-- Oppstartsinntekt
-- Din oppstartskostnad (timer)
-- Margin per kunde ar 1
-- Margin per kunde ar 2+
+1. **Ny fil**: `src/pages/MSPCustomerROI.tsx` -- den kundevendte ROI-kalkulatoren
+2. **Endres**: `src/pages/MSPSalesGuide.tsx` -- steg 2 oppdateres med ny lenke
+3. **Endres**: `src/App.tsx` -- ny rute `/msp-customer-roi`
 
-**Portefolje-kort:**
-- Total lisensinntekt (din andel)
-- Total oppstartsinntekt
-- Total forhandskjop (kun bulk)
-- Total egen tid-kostnad
-- Netto fortjeneste ar 1
-- Netto fortjeneste ar 2+
+## Tekniske detaljer
 
-**Vekstscenario:** Beholdes med oppdatert logikk
-
-### Info-boks
-
-En liten forklaringsboks som viser forskjellen mellom de to modellene:
-- "Standard: Du far 20% provisjon uten risiko"
-- "Bulk: Kjop lisenser pa forhand med 50% rabatt -- hoyere margin per kunde"
-- Lenke til Lisenser-siden for a kjope
-
-### Importerer fra mspLicenseUtils.ts
-
-Bruker `LICENSE_TIERS` og `getDiscountPercent` fra eksisterende kode for a holde prisene synkronisert.
-
-## Filer som endres
-
-Kun `src/pages/MSPROICalculator.tsx` -- fullstendig omskriving av beregningslogikk og input-felter. Prisdata hentes fra `src/lib/mspLicenseUtils.ts` (ingen endringer der).
+- Bruker `LICENSE_TIERS` fra `mspLicenseUtils.ts` for lisenspriser
+- Kun lokal state, ingen backend
+- jsPDF for PDF-eksport
+- Siden inkluderer Sidebar som resten av appen (MSP ser den, kan eventuelt skjule sidebar når de presenterer)
 
