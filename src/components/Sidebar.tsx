@@ -32,7 +32,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,6 +145,7 @@ const SidebarContent = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
+  const partnerRef = useRef<HTMLDivElement>(null);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -213,6 +214,13 @@ const SidebarContent = () => {
     };
     fetchCompany();
   }, []);
+
+  // Auto-scroll to partner menu when on MSP route
+  useEffect(() => {
+    if (location.pathname.startsWith("/msp-") && partnerRef.current) {
+      partnerRef.current.scrollIntoView({ block: "nearest", behavior: "instant" });
+    }
+  }, [location.pathname]);
 
   // Check if any admin submenu item is active
   const isAdminActive = adminSubMenu.some(item => location.pathname === item.href);
@@ -388,7 +396,7 @@ const SidebarContent = () => {
         </div>
 
         {/* MSP Partner Menu */}
-        <div className="pt-1">
+        <div className="pt-1" ref={partnerRef}>
           <button 
             onClick={() => setPartnerOpen(!partnerOpen)}
             className={cn(
