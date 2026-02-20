@@ -1,101 +1,117 @@
 
 
-# Post-onboarding veiviser: "Hva gjor jeg na?"
+# MSP Rådgivnings-onboarding og Acronis-tilpasset dashboard
 
 ## Bakgrunn
 
-Etter at onboarding er fullfort (selskapsinfo, rammeverk, systemer, arbeidsomrader), forsvinner OnboardingProgressWidget og brukeren star igjen uten tydelig retning. Dashbordet viser widgets med tall og statuser, men ingen handlingsplan eller tidslinje.
+MSP-partnere som selger Mynder til sine kunder trenger en strukturert rådgivningsprosess -- ikke bare teknisk setup. Typiske spørsmål som "Har dere styregodkjent risikovurdering?" og "Har dere dokumentert backup-testing?" bør integreres i plattformen slik at onboarding blir en compliance-kartlegging, ikke bare en registrering.
 
-## Losning: "Compliance Roadmap" widget
+Dagens dashboard og onboarding mangler:
+- Kobling til Acronis-data (enheter som allerede er importert)
+- MSP-spesifikke rådgivningsspørsmål som gir verdi under onboarding
+- Et "steg 2" for kunder som har eller vurderer MSP-leverandør
 
-Erstatt OnboardingProgressWidget med en ny **PostOnboardingRoadmap**-widget som vises nar onboarding er ferdig. Denne gir brukeren en PECB-forankret handlingsplan med konkrete neste steg, tidshorisont og mestringsfølelse.
+## Hva skal bygges
 
-### PECB-rammeverkets anbefalte arshjul
+### 1. MSP Compliance Assessment -- nytt steg i kunderegistrering
 
-PECB (ISO Lead Implementer) definerer et kontinuerlig forbedringslop med klare milepaler:
+Utvid `AddMSPCustomerDialog` med et ekstra steg **etter** at basisinfo er fylt inn. Steget inneholder en rask compliance-kartlegging med 6-8 spørsmål MSP-partneren stiller kunden:
 
-| Periode | Aktivitet | Hva brukeren gjor i Mynder |
-|---------|-----------|---------------------------|
-| Maned 1-2 | Gap-analyse og scope | Fullfore compliance-sjekklisten per domene |
-| Maned 2-3 | Risikovurdering | Gjennomga og score risiko pa systemer |
-| Maned 3-4 | Policies og dokumentasjon | Laste opp/generere policyer, DPA-er |
-| Maned 4-6 | Kontrollimplementering | Lukke manuelle krav, sette opp leverandorstyring |
-| Maned 6-9 | Overvaking og opplaring | Mynder Me kurs, avviksrapportering |
-| Maned 9-12 | Internrevisjon | Gjennomga status, forberede ledelsesgjennomgang |
-| Arlig | Vedlikehold | Review-datoer, re-sertifisering |
+| Spørsmål | Svaralternativ | Påvirkning |
+|----------|---------------|------------|
+| Har dere styregodkjent risikovurdering? | Ja / Nei / Usikker | Prioriterer risikomodul |
+| Har dere dokumentert backup-testing? | Ja / Nei / Usikker | Kobles til Acronis-data |
+| Har dere behandlingsprotokoll (ROPA)? | Ja / Nei / Usikker | Prioriterer GDPR-sjekkliste |
+| Har dere hendelseshåndteringsrutine? | Ja / Nei / Usikker | Aktiverer avviksmodul |
+| Har dere databehandleravtaler med alle leverandører? | Ja / Nei / Usikker | Prioriterer leverandørstyring |
+| Er ansatte opplært i informasjonssikkerhet? | Ja / Nei / Usikker | Anbefaler Mynder Me-kurs |
 
-### Widget-design
+Svarene lagres i en ny `msp_customer_assessments`-tabell og brukes til å generere en tilpasset handlingsplan for kunden.
 
-Widgeten vises ovenfor resten av dashbordet (der OnboardingProgressWidget var) og inneholder:
+### 2. MSP Customer Detail -- utvidet med rådgivningsstatus
 
-1. **Navaerende fase** -- henter fra `certificationPhases.ts` basert pa compliance-score
-2. **Neste 3 prioriterte handlinger** -- dynamisk beregnet fra:
-   - Compliance-krav med status `not_started` og prioritet `critical`/`high`
-   - Systemer som mangler risikovurdering
-   - Leverandorer uten dokumenter
-   - Forfalt review-dato
-3. **Tidshorisont-indikator** -- "Du er i maned 2 av din compliance-reise"
-4. **Fremgangsbjelke** med PECB-fasene som steg (gjenbruk CertificationJourney-komponenten)
+Utvid `MSPCustomerDetail`-siden med:
+- **Compliance Assessment-kort**: Viser resultat av kartleggingen (antall "Ja" vs "Nei") med fargekoding
+- **Acronis-status**: Hvis Acronis er koblet til, vis antall beskyttede enheter og backup-status for denne kunden
+- **Anbefalt handlingsplan**: Automatisk generert basert på kartleggingssvar -- "Mangler backup-dokumentasjon", "Trenger hendelseshåndteringsrutine" etc.
 
-### Teknisk plan
+### 3. PostOnboardingRoadmapWidget -- MSP-aware
 
-**Ny fil: `src/components/widgets/PostOnboardingRoadmapWidget.tsx`**
-- Bruker `useComplianceRequirements({})` for a beregne total compliance-score
-- Bruker `CERTIFICATION_PHASES` og `getPhaseStatus` fra `certificationPhases.ts`
-- Henter data fra `assets`, `system_risk_assessments`, `systems` for a identifisere mangler
-- Beregner "neste handlinger" dynamisk basert pa hva som faktisk mangler
-- Viser `CertificationJourney` som stepper overst
-- Inkluderer en "Se arskalender"-knapp som ekspanderer en enkel tidslinje
+Hvis brukeren er registrert via en MSP-partner (sjekk `company_profile` for MSP-kobling), vis tilpassede handlinger i roadmap-widgeten:
+- "Koble til Acronis for å importere enheter" (hvis ikke allerede koblet)
+- "Gå gjennom risikovurdering med din IT-partner"
+- "Verifiser backup-rutiner" (koblet til Acronis-data)
 
-**Ny fil: `src/components/widgets/ComplianceCalendarSection.tsx`**
-- Collapsible arskalender-visning inni roadmap-widgeten
-- 4 kvartaler med forventede aktiviteter
-- Markerer navaerende kvartal
-- Kobler hver aktivitet til relevant side i Mynder (f.eks. klikk pa "Risikovurdering" gar til /tasks?view=readiness)
+### 4. Database-endringer
 
-**Endring: `src/components/widgets/OnboardingProgressWidget.tsx`**
-- Nar `isFullyComplete === true`, vis PostOnboardingRoadmapWidget i stedet for a returnere `null`
-
-**Endring: `src/pages/Index.tsx`**
-- Ingen endring nodvendig -- OnboardingProgressWidget rendres allerede pa linje 276
-
-### Dynamiske handlinger -- logikk
-
-Widgeten prioriterer handlinger i denne rekkefølgen:
+**Ny tabell: `msp_customer_assessments`**
 
 ```text
-1. Kritiske compliance-krav (manual, not_started, critical priority)
-2. Systemer uten risikovurdering
-3. Leverandorer uten dokumenter (vendor_documents count = 0)
-4. Systemer med forfalt review-dato
-5. Manglende DPA-er for databehandlere
-6. Kurs som ikke er gjennomfort (Mynder Me)
+id                  uuid (PK)
+msp_customer_id     uuid (FK -> msp_customers)
+question_key        text (f.eks. "risk_assessment_approved")
+answer              text ("yes" / "no" / "unsure")
+notes               text (valgfritt)
+assessed_by         text
+assessed_at         timestamptz
+created_at          timestamptz
 ```
 
-Hver handling vises som et kort med:
-- Ikon og tittel
-- Kort beskrivelse
-- Knapp som navigerer til riktig sted
-- Badge som viser PECB-fase (f.eks. "Implementering")
+RLS: Tilgang styres via `msp_user_id` gjennom join til `msp_customers`.
 
-### Mestringselement
+**Ny kolonne i `msp_customers`:**
+- `has_acronis_integration` boolean default false
+- `acronis_device_count` integer default 0
+- `initial_assessment_score` integer default 0 (prosent "ja"-svar)
 
-- Vis antall fullforte handlinger / total ("12 av 47 fullfort")
-- Vis en "streak"-indikator: "3 uker pa rad med aktivitet"
-- Nar brukeren fullforer en fase, vis en kort gratulasjon med konfetti (gjenbruk canvas-confetti)
-- Progressbar viser tydelig bevegelse fra forrige uke
+## Teknisk plan
 
-### Arskalender-innhold (CollapsibleSection)
+### Fil 1: Database-migrasjon
+- Opprett `msp_customer_assessments`-tabell med RLS
+- Legg til nye kolonner i `msp_customers`
+
+### Fil 2: `src/lib/mspAssessmentQuestions.ts` (ny)
+- Definerer spørsmålene som en konstant array med `key`, `question_no`, `question_en`, `category`, `impact_area`
+- Gjenbrukbar i dialog og i kundedetaljvisning
+
+### Fil 3: `src/components/msp/MSPAssessmentStep.tsx` (ny)
+- Komponent med 6-8 spørsmål, hvert med Ja/Nei/Usikker-knapper
+- Viser fremdrift (3 av 6 besvart)
+- Brukes som steg 2 i `AddMSPCustomerDialog`
+
+### Fil 4: `src/components/msp/AddMSPCustomerDialog.tsx` (endring)
+- Legg til steg-logikk: Steg 1 = basisinfo (eksisterende), Steg 2 = compliance-kartlegging
+- Etter steg 2, lagre svar til `msp_customer_assessments` og beregn `initial_assessment_score`
+
+### Fil 5: `src/components/msp/MSPAssessmentCard.tsx` (ny)
+- Viser kartleggingsresultat som et kort med prosent-score og liste over mangler
+- Brukes i `MSPCustomerDetail`
+
+### Fil 6: `src/pages/MSPCustomerDetail.tsx` (endring)
+- Legg til `MSPAssessmentCard` og Acronis-status i kundedetaljvisningen
+- Vis "Anbefalte handlinger" basert på kartleggingssvar
+
+### Fil 7: `src/components/widgets/PostOnboardingRoadmapWidget.tsx` (endring)
+- Sjekk om selskapet har MSP-partner via `company_profile`
+- Hvis ja, inkluder MSP-spesifikke handlinger (Acronis, backup-verifisering)
+
+## Brukerflyt for MSP-partner
 
 ```text
-Q1 (Jan-Mar): Gap-analyse, scope, roller
-Q2 (Apr-Jun): Risikovurdering, policy-utvikling, leverandoravtaler
-Q3 (Jul-Sep): Kontroller, opplaring, overvaking
-Q4 (Okt-Des): Internrevisjon, ledelsesgjennomgang, forbedring
+MSP-partner logger inn
+  -> Partneroversikt (/msp-dashboard)
+  -> Klikk "Legg til kunde"
+  -> Steg 1: Basisinfo (navn, org.nr, bransje, kontakt)
+  -> Steg 2: Compliance-kartlegging (6 spørsmål)
+  -> Kunde opprettes med assessment-score
+  -> Kundedetalj viser handlingsplan basert på svar
+  -> Hvis Acronis koblet: viser enheter og backup-status
 ```
 
-Hvert kvartal viser:
-- Sjekkliste med 3-4 aktiviteter
-- Antall fullforte vs totale
-- Lenker til relevante sider
+## Hva dette gjør for MSP-partneren
+
+- Onboarding blir en **rådgivningsprosess** der partneren stiller de riktige spørsmålene
+- Kartleggingen skaper umiddelbar verdi for kunden ("vi fant 4 av 6 mangler")
+- Resultatene gir partneren et konkret salgsargument for oppfølging
+- Acronis-data kobles til compliance-kontekst (backup-testing = ISO 27001 A.12.3)
 
