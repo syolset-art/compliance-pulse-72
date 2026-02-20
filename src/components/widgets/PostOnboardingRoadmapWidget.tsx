@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -13,6 +15,8 @@ import {
   ClipboardList,
   AlertTriangle,
   CheckCircle2,
+  Server,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
@@ -40,6 +44,19 @@ export function PostOnboardingRoadmapWidget() {
   const { stats, grouped } = useComplianceRequirements({});
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
 
+  // Check if company has MSP partner
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company-profile-msp-check"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("company_profile")
+        .select("is_msp_partner")
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+  const isMSPCustomer = companyProfile?.is_msp_partner === true;
   const completionPercent = stats.progressPercent;
 
   // Determine current phase
@@ -116,8 +133,35 @@ export function PostOnboardingRoadmapWidget() {
       });
     }
 
+    // 4. MSP-specific: Acronis and backup verification
+    if (isMSPCustomer && actions.length < 3) {
+      actions.push({
+        id: "acronis-connect",
+        title_no: "Koble til Acronis",
+        title_en: "Connect to Acronis",
+        description_no: "Importer enheter og backup-status fra Acronis",
+        description_en: "Import devices and backup status from Acronis",
+        route: "/assets",
+        icon: Server,
+        phase: "implementation",
+      });
+    }
+
+    if (isMSPCustomer && actions.length < 3) {
+      actions.push({
+        id: "verify-backup",
+        title_no: "Verifiser backup-rutiner",
+        title_en: "Verify backup routines",
+        description_no: "Gå gjennom backup-testing med din IT-partner",
+        description_en: "Review backup testing with your IT partner",
+        route: "/compliance-checklist",
+        icon: Shield,
+        phase: "implementation",
+      });
+    }
+
     return actions.slice(0, 3);
-  }, [grouped.incompleteManual, stats.completed, completionPercent]);
+  }, [grouped.incompleteManual, stats.completed, completionPercent, isMSPCustomer]);
 
   return (
     <Card className="mb-8 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-lg overflow-hidden">
