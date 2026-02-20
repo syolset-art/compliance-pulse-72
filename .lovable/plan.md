@@ -1,127 +1,78 @@
 
 
-# Dashboard 2.0 -- Compliance som spill
+# Acronis-tilkobling og MSP superadmin-tilgang i partnerdashbordet
 
-## Konsept
+## Hva skal bygges
 
-Et helt nytt dashbord som en separat side (`/dashboard-v2`) der compliance presenteres som et spill. Brukeren ser umiddelbart:
-1. **Er jeg trygg?** (ett stort "shield score" med farge)
-2. **Hva ma jeg gjore na?** (neste handling, ikke 15 widgets)
-3. **Mestringsfølelse** (XP, streak, niva)
+To nye funksjoner i partnerdashbordet:
 
-Dagens dashbord har 12+ widgets som krever scrolling og tolkning. Dashboard 2.0 har 3 soner som alle er synlige uten scroll.
+### 1. Acronis-tilkoblingsflyt
 
-## Design: Tre soner
+En steg-for-steg veiviser som lar MSP-partneren koble Acronis til en kunde. Flyten starter fra Acronis-kortet i kundedetaljvisningen (der det i dag star "Acronis ikke tilkoblet") og guider partneren gjennom:
 
-```text
-+---------------------------------------------------------------+
-|  SONE 1: COMPLIANCE SHIELD                                    |
-|  +-----------+  +------------------------------------------+  |
-|  |           |  |  "Du har kontroll"  /  "Trenger oppfolging" |
-|  |  SHIELD   |  |  Score: 67/100                             |
-|  |   67      |  |  Niva: Implementerer  (XP: 1240)           |
-|  |           |  |  Streak: 5 uker aktiv                      |
-|  +-----------+  +------------------------------------------+  |
-|                                                               |
-|  [Personvern: 72%] [Sikkerhet: 58%] [AI: 71%]  <- 3 piller   |
-+---------------------------------------------------------------+
-|  SONE 2: NESTE HANDLING (maks 3 kort)                         |
-|  +-------------------+ +-------------------+ +-----------+    |
-|  | ! Godkjenn risiko  | | Mangler 2 DPA-er | | Kurs X    |    |
-|  |   vurdering        | |                   | |           |    |
-|  |   +50 XP           | |   +30 XP          | | +20 XP    |    |
-|  |   [Gjor det ->]    | |   [Gjor det ->]   | | [Start]   |    |
-|  +-------------------+ +-------------------+ +-----------+    |
-+---------------------------------------------------------------+
-|  SONE 3: RISIKOBILDE + ARSHJUL (side-by-side)                 |
-|  +---------------------------+ +---------------------------+  |
-|  | Risikoradar               | | Arshjul                   |  |
-|  | [K:3] [H:5] [M:13] [L:15]| | Q1: ok  Q2: aktiv        |  |
-|  |                           | | Q3: --  Q4: --            |  |
-|  +---------------------------+ +---------------------------+  |
-+---------------------------------------------------------------+
-```
+- **Steg 1**: Tast inn Acronis tenant-ID og API-nokkel
+- **Steg 2**: Velg hvilken kunde/tenant i Acronis som skal kobles
+- **Steg 3**: Bekreft og importer -- viser antall enheter funnet
+- **Steg 4**: Suksess-bekreftelse med oppsummering
 
-## Gamification-elementer
+Nar tilkoblingen er fullfort, oppdateres `msp_customers`-tabellen med `has_acronis_integration = true` og `acronis_device_count` settes til antall enheter. Acronis-kortet viser deretter live-status.
 
-| Element | Hva det gjor | Data-kilde |
-|---------|-------------|------------|
-| **Compliance Shield Score** | Ett tall 0-100 basert pa vektet compliance-prosent per domene | `useComplianceRequirements` |
-| **Niva** | Maturity-level vist som spillniva (Initial -> Definert -> Implementert -> Malt -> Optimalisert) | `MATURITY_LEVELS` |
-| **XP** | Poeng basert pa fullforte krav (critical=50, high=30, medium=20, low=10) | Beregnet fra `requirement_status` |
-| **Streak** | Antall uker pa rad med minst 1 fullfort handling | Beregnet fra `completed_at` timestamps |
-| **Neste handling** | De 3 viktigste tingene a gjore akkurat na, med XP-belonning | Dynamisk fra `grouped.incompleteManual` |
+### 2. "Ga inn som kunde"-funksjon (superadmin-tilgang)
 
-## Mestringssprak
+En ny knapp i kundedetaljvisningen ("Ga inn i kundens portal") som lar MSP-partneren se kundens dashbord som om de var kunden selv. Dette er en simulert visning der:
 
-I stedet for teknisk compliance-sprak bruker vi:
+- Partneren ser kundens hoved-dashbord (Dashboard 2.0 eller standard)
+- Et tydelig banner viser "Du ser na [Kundenavn] sin portal som partner"
+- En "Ga tilbake"-knapp tar partneren tilbake til sin egen partneroversikt
+- Siden brukes til a vise kunden rundt og forklare compliance-status
 
-| Score | Melding | Farge |
-|-------|---------|-------|
-| 80-100 | "Du har kontroll" | Gronn shield |
-| 60-79 | "Pa god vei" | Bla shield |
-| 40-59 | "Trenger oppfolging" | Gul shield |
-| 0-39 | "Viktige mangler" | Rod shield |
+En ny rute `/msp-dashboard/:customerId/portal` viser dette.
 
 ## Teknisk plan
 
-### Ny fil: `src/pages/DashboardV2.tsx`
-- Hovedside med sidebar (gjenbruker `Sidebar`)
-- Tre soner i en enkel flex-layout uten scroll
-- Bruker `useComplianceRequirements` for all data
-- Beregner XP, streak, niva lokalt
+### Ny fil: `src/components/msp/AcronisConnectDialog.tsx`
+- Dialog med 4 steg (tenant-ID, velg kunde, bekreft, suksess)
+- Simulerer API-kall med demo-data (3-5 enheter importert)
+- Oppdaterer `msp_customers` via Supabase nar tilkoblingen bekreftes
+- Bruker eksisterende Dialog/Input/Button-komponenter
 
-### Ny fil: `src/components/dashboard-v2/ComplianceShield.tsx`
-- Stor animert shield-ikon med score i midten
-- SVG-basert sirkelprogress (ligner CriticalTasksWidget sin donut, men storre)
-- Fargeskala basert pa score
-- Viser niva-badge og XP-teller
-- Tre domene-piller under (personvern, sikkerhet, AI) med mini-progress
+### Ny fil: `src/pages/MSPCustomerPortal.tsx`
+- Viser kundens dashbord med et partner-banner overst
+- Banner inneholder kundenavn, "Du er i partnermodus", og en tilbake-knapp
+- Gjenbruker ComplianceShield, NextActionCards og RiskAndCalendarSection fra Dashboard 2.0
+- Henter kundedata fra `msp_customers` basert pa `customerId` parameter
 
-### Ny fil: `src/components/dashboard-v2/NextActionCards.tsx`
-- Maks 3 handlingskort, sortert etter prioritet og XP-verdi
-- Hvert kort har: ikon, tittel, kort beskrivelse, XP-belonning, handlingsknapp
-- Handlingsknappen navigerer til riktig side
-- Prioriteringslogikk fra PostOnboardingRoadmapWidget, men forenklet
-
-### Ny fil: `src/components/dashboard-v2/RiskAndCalendarSection.tsx`
-- To kolonner side-by-side
-- Venstre: Forenklet risikoradar (3 domener med fargekodede risikotall)
-- Hoyre: Kompakt arshjul (4 kvartaler, markerer aktivt kvartal)
+### Endring: `src/pages/MSPCustomerDetail.tsx`
+- Legg til en "Ga inn i kundens portal"-knapp i header-kortet (ved siden av compliance-score)
+- Erstatt det tomme Acronis-kortet med en "Koble til Acronis"-knapp som apner `AcronisConnectDialog`
+- Nar Acronis er tilkoblet, vis knapp for a synkronisere pa nytt
 
 ### Endring: `src/App.tsx`
-- Legg til route: `/dashboard-v2`
+- Legg til route: `/msp-dashboard/:customerId/portal` som rendrer `MSPCustomerPortal`
 
-### Endring: `src/components/Sidebar.tsx`
-- Legg til navigasjonslenke "Dashboard 2.0" under hovednavigasjon (midlertidig, for sammenligning)
+### Endring: `src/pages/MSPDashboard.tsx`
+- Legg til en ny tab "Integrasjoner" i partnerdashbordet med Acronis-status og tilkoblingsguide
+- Viser liste over kunder med/uten Acronis-tilkobling
 
-## XP-beregning
-
-```text
-xp = sum av fullforte krav * poeng per prioritet
-  critical = 50 XP
-  high     = 30 XP
-  medium   = 20 XP
-  low      = 10 XP
-```
-
-Beregnes fra `requirements.filter(r => r.status === 'completed')` som allerede finnes i `useComplianceRequirements`.
-
-## Streak-beregning
+## Brukerflyt: Acronis-tilkobling
 
 ```text
-Grupper completed_at etter uke (ISO week)
-Tell antall sammenhengende uker bakover fra na
+Kundedetalj -> Acronis-kort -> "Koble til" -> Dialog apnes
+  -> Steg 1: Tast inn tenant-ID (demo: "ACR-12345")
+  -> Steg 2: Vis funnet tenant med 4 enheter
+  -> Steg 3: Bekreft import
+  -> Steg 4: Suksess! "4 enheter importert"
+  -> Acronis-kortet viser na "Tilkoblet - 4 enheter beskyttet"
 ```
 
-Bruker `date-fns` (allerede installert) for ukeberegning.
+## Brukerflyt: Ga inn som kunde
 
-## Hvorfor dette fungerer
-
-- **Ett tall** (shield score) gir umiddelbar forstaelse av status
-- **Mestringssprak** ("Du har kontroll") i stedet for teknisk sjargong
-- **Maks 3 handlinger** fjerner beslutningsvegring
-- **XP og streak** gir motivasjon til a komme tilbake
-- **Alt synlig uten scroll** -- ingen informasjonsoverbelastning
-- **Separat side** betyr ingen risiko for eksisterende dashboard
+```text
+Kundedetalj -> "Ga inn i kundens portal" knapp
+  -> Navigerer til /msp-dashboard/:customerId/portal
+  -> Viser Dashboard 2.0 med partner-banner
+  -> Banner: "[Kundenavn] - Partnermodus | Tilbake til oversikt"
+  -> Partneren kan vise kunden rundt og forklare widgets
+  -> Klikk "Tilbake" -> Tilbake til kundedetaljvisningen
+```
 
