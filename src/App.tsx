@@ -41,6 +41,7 @@ import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
 import MSPROICalculator from "./pages/MSPROICalculator";
 import MSPSalesGuide from "./pages/MSPSalesGuide";
+import MSPCustomerROI from "./pages/MSPCustomerROI";
 import MynderMe from "./pages/MynderMe";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
@@ -93,6 +94,7 @@ const App = () => (
                   <Route path="/msp-invoices" element={<MSPInvoices />} />
                   <Route path="/msp-roi" element={<MSPROICalculator />} />
                   <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
+                  <Route path="/msp-customer-roi" element={<MSPCustomerROI />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
