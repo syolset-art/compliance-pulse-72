@@ -1,78 +1,85 @@
 
 
-# Acronis-tilkobling og MSP superadmin-tilgang i partnerdashbordet
+# Partner-meny med undermenyer, ROI-kalkulator og salgsguide
 
-## Hva skal bygges
+## Oversikt
 
-To nye funksjoner i partnerdashbordet:
+Endre "Partneroversikt" fra en enkel lenke til en utvidbar meny (som "Admin" og "Utviklere" allerede fungerer), med fire undermenypunkter. Samtidig opprettes to nye sider.
 
-### 1. Acronis-tilkoblingsflyt
-
-En steg-for-steg veiviser som lar MSP-partneren koble Acronis til en kunde. Flyten starter fra Acronis-kortet i kundedetaljvisningen (der det i dag star "Acronis ikke tilkoblet") og guider partneren gjennom:
-
-- **Steg 1**: Tast inn Acronis tenant-ID og API-nokkel
-- **Steg 2**: Velg hvilken kunde/tenant i Acronis som skal kobles
-- **Steg 3**: Bekreft og importer -- viser antall enheter funnet
-- **Steg 4**: Suksess-bekreftelse med oppsummering
-
-Nar tilkoblingen er fullfort, oppdateres `msp_customers`-tabellen med `has_acronis_integration = true` og `acronis_device_count` settes til antall enheter. Acronis-kortet viser deretter live-status.
-
-### 2. "Ga inn som kunde"-funksjon (superadmin-tilgang)
-
-En ny knapp i kundedetaljvisningen ("Ga inn i kundens portal") som lar MSP-partneren se kundens dashbord som om de var kunden selv. Dette er en simulert visning der:
-
-- Partneren ser kundens hoved-dashbord (Dashboard 2.0 eller standard)
-- Et tydelig banner viser "Du ser na [Kundenavn] sin portal som partner"
-- En "Ga tilbake"-knapp tar partneren tilbake til sin egen partneroversikt
-- Siden brukes til a vise kunden rundt og forklare compliance-status
-
-En ny rute `/msp-dashboard/:customerId/portal` viser dette.
-
-## Teknisk plan
-
-### Ny fil: `src/components/msp/AcronisConnectDialog.tsx`
-- Dialog med 4 steg (tenant-ID, velg kunde, bekreft, suksess)
-- Simulerer API-kall med demo-data (3-5 enheter importert)
-- Oppdaterer `msp_customers` via Supabase nar tilkoblingen bekreftes
-- Bruker eksisterende Dialog/Input/Button-komponenter
-
-### Ny fil: `src/pages/MSPCustomerPortal.tsx`
-- Viser kundens dashbord med et partner-banner overst
-- Banner inneholder kundenavn, "Du er i partnermodus", og en tilbake-knapp
-- Gjenbruker ComplianceShield, NextActionCards og RiskAndCalendarSection fra Dashboard 2.0
-- Henter kundedata fra `msp_customers` basert pa `customerId` parameter
-
-### Endring: `src/pages/MSPCustomerDetail.tsx`
-- Legg til en "Ga inn i kundens portal"-knapp i header-kortet (ved siden av compliance-score)
-- Erstatt det tomme Acronis-kortet med en "Koble til Acronis"-knapp som apner `AcronisConnectDialog`
-- Nar Acronis er tilkoblet, vis knapp for a synkronisere pa nytt
-
-### Endring: `src/App.tsx`
-- Legg til route: `/msp-dashboard/:customerId/portal` som rendrer `MSPCustomerPortal`
-
-### Endring: `src/pages/MSPDashboard.tsx`
-- Legg til en ny tab "Integrasjoner" i partnerdashbordet med Acronis-status og tilkoblingsguide
-- Viser liste over kunder med/uten Acronis-tilkobling
-
-## Brukerflyt: Acronis-tilkobling
+## Ny menystruktur i sidepanelet
 
 ```text
-Kundedetalj -> Acronis-kort -> "Koble til" -> Dialog apnes
-  -> Steg 1: Tast inn tenant-ID (demo: "ACR-12345")
-  -> Steg 2: Vis funnet tenant med 4 enheter
-  -> Steg 3: Bekreft import
-  -> Steg 4: Suksess! "4 enheter importert"
-  -> Acronis-kortet viser na "Tilkoblet - 4 enheter beskyttet"
+Partner (utvidbar)
+  +-- Kunder          -> /msp-dashboard (eksisterende, men uten tabs for lisenser/fakturaer)
+  +-- Lisenser        -> /msp-licenses (ny side, flytter MSPLicensesTab hit)
+  +-- Faktura         -> /msp-invoices (ny side, flytter MSPInvoicesTab hit)
+  +-- ROI-kalkulator  -> /msp-roi (ny side)
+  +-- Salgsguide      -> /msp-sales-guide (ny side)
 ```
 
-## Brukerflyt: Ga inn som kunde
+## Endringer
 
-```text
-Kundedetalj -> "Ga inn i kundens portal" knapp
-  -> Navigerer til /msp-dashboard/:customerId/portal
-  -> Viser Dashboard 2.0 med partner-banner
-  -> Banner: "[Kundenavn] - Partnermodus | Tilbake til oversikt"
-  -> Partneren kan vise kunden rundt og forklare widgets
-  -> Klikk "Tilbake" -> Tilbake til kundedetaljvisningen
-```
+### 1. Sidebar.tsx -- Partner som utvidbar meny
+
+Erstatter den enkle "Partneroversikt"-lenken med en utvidbar meny som bruker samme moenster som "Admin"-menyen (ChevronDown, submenu-items). Ikonet forblir Building2.
+
+### 2. MSPDashboard.tsx -- Forenklet til kun kunder
+
+Fjerner tabs for lisenser og fakturaer (disse flyttes til egne sider). Beholder kun kundelisten, metrikker og "Legg til kunde"-knappen. Fjerner "Fakturainnstillinger"-knappen fra headeren (den flyttes til Faktura-siden).
+
+### 3. Ny side: MSPLicenses.tsx (/msp-licenses)
+
+En enkel wrapper-side med Sidebar og MSPLicensesTab-komponenten. Samme layout som resten av appen.
+
+### 4. Ny side: MSPInvoices.tsx (/msp-invoices)
+
+En enkel wrapper-side med Sidebar og MSPInvoicesTab. Inkluderer lenke til fakturainnstillinger i headeren.
+
+### 5. Ny side: MSPROICalculator.tsx (/msp-roi)
+
+En interaktiv ROI-kalkulator tilpasset MSP-partnere. Partneren taster inn:
+
+- Antall kunder
+- Gjennomsnittlig timepris (NOK)
+- Timer brukt per kunde per maaned paa manuell compliance
+
+Kalkulatoren beregner og viser:
+
+- Tidsbesparelse med Mynder (basert paa 80% automatisering)
+- Kostnadsbesparelse per aar
+- Inntektspotensial (lisenskostnad * antall kunder - Mynders pris)
+- Sammenligning: manuelt vs. med Mynder
+
+I tillegg vises en "Eksporter som PDF"-knapp slik at partneren kan bruke dette i salgsmoeter.
+
+### 6. Ny side: MSPSalesGuide.tsx (/msp-sales-guide)
+
+En steg-for-steg salgsguide som viser MSP-partneren hvordan de selger Mynder til sine kunder. Innholdet er strukturert som en tidslinje/stepper:
+
+| Steg | Tittel | Beskrivelse |
+|------|--------|-------------|
+| 1 | Identifiser kunden | Finn kunder som mangler compliance-verktoy eller bruker manuelle prosesser |
+| 2 | Book et moete | Bruk ROI-kalkulatoren til aa vise besparelsen. Ta med konkrete tall |
+| 3 | Kjor en kartlegging | Bruk "Legg til kunde" med compliance-assessment for aa avdekke gap |
+| 4 | Presenter handlingsplan | Vis kartleggingsresultatet -- "4 av 6 omraader mangler" |
+| 5 | Aktiver Mynder | Tildel lisens, koble Acronis, sett opp kundens portal |
+| 6 | Lopende oppfolging | Ga inn i kundens portal for aa hjelpe med compliance-arbeidet |
+
+Hvert steg har en ikon, utfyllende tekst, og en handlingsknapp som navigerer til riktig sted i appen (f.eks. "Gaa til ROI-kalkulator", "Legg til kunde", "Kjop lisenser").
+
+### 7. App.tsx -- Nye ruter
+
+Legger til fire nye ruter:
+- `/msp-licenses` -> MSPLicenses
+- `/msp-invoices` -> MSPInvoices
+- `/msp-roi` -> MSPROICalculator
+- `/msp-sales-guide` -> MSPSalesGuide
+
+## Tekniske detaljer
+
+- ROI-kalkulatoren bruker kun lokal state (useState) for input-verdier og beregner alt paa klientsiden
+- Salgsguiden er statisk innhold med navigasjonslenker
+- Eksisterende MSPLicensesTab og MSPInvoicesTab gjenbrukes uten endringer -- de wrappes bare i nye sider
+- Sidebar-menyen holder seg aapen naa brukeren er paa en av partner-rutene (sjekker `location.pathname.startsWith("/msp-")`)
+- jsPDF (allerede installert) brukes for PDF-eksport av ROI-rapporten
 
