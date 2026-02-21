@@ -13,6 +13,11 @@ import { ActionPriorityWidget } from "@/components/widgets/ActionPriorityWidget"
 import { ComplianceSummaryCards } from "@/components/widgets/ComplianceSummaryCards";
 import { ComplianceCalendarSection } from "@/components/widgets/ComplianceCalendarSection";
 
+import { RecentActivityWidget } from "@/components/widgets/RecentActivityWidget";
+import { SupplyChainChangesWidget } from "@/components/widgets/SupplyChainChangesWidget";
+import { MonthlyTasksWidget } from "@/components/widgets/MonthlyTasksWidget";
+import { TrustProfileViewsWidget } from "@/components/widgets/TrustProfileViewsWidget";
+
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
@@ -119,6 +124,14 @@ const Index = () => {
       {/* SLA Widget */}
       <div className="mb-8">
         <SLAWidget />
+      </div>
+
+      {/* ── Mini-widgets 2x2 grid ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <RecentActivityWidget />
+        <SupplyChainChangesWidget />
+        <MonthlyTasksWidget />
+        <TrustProfileViewsWidget />
       </div>
 
       {/* ── SONE 3: Overblikk & årskalender ── */}
