@@ -1,62 +1,86 @@
 
 
-# Kunde-ROI-kalkulator for salgsmøter
+# Dashboard 1.0 -- Redesign for mestring og handlingskraft
 
-## Oversikt
+## Problem
 
-Lage en ny side -- **Kunde-ROI** (`/msp-customer-roi`) -- som MSP-partneren kan vise til sluttkunden i et salgsmøte. Denne fokuserer på hva **kunden sparer** ved å bruke Mynder, i motsetning til partner-kalkulatoren som viser partnerens fortjeneste.
+Dashboard 1.0 gir i dag en flat liste med widgets uten tydelig prioritering. Brukeren vet ikke:
+- "Er jeg ferdig med noe?"
+- "Hva skal jeg gjore na?"
+- "Hva gjores sjelden vs. arlig?"
+- "Hva er status pa tredjeparter, protokoller og oppgaver?"
 
-Salgsguiden oppdateres slik at steg 2 ("Book et møte") lenker til den nye kunde-ROI-kalkulatoren.
+Dashbordet mangler ogsa PostOnboardingRoadmapWidget etter at onboardingen er fullfort, og arskalenderen er gjemt bort.
 
-## Ny side: Kunde-ROI-kalkulator
+## Losning: Tre tydelige soner
 
-Siden har et rent, presentasjonsklart design uten sidebar-navigasjon (valgfritt å vise den), slik at den kan vises direkte til kunden.
+Restructurere Index.tsx til tre klare soner som folger PECB-livssyklusen og gir brukeren umiddelbar mestring.
 
-### Input-felter
-- **Antall systemer** (slider, default 10)
-- **Timer per måned brukt på manuell compliance** (slider, default 20)
-- **Timepris internt hos kunden** (input, default 850 kr)
-- **Antall standarder/rammeverk** (dropdown: 1-3, for GDPR, ISO 27001 osv.)
+### Sone 1: "Hva er status?" (topp)
+- **OnboardingProgressWidget** (hvis ikke ferdig) / **PostOnboardingRoadmapWidget** (etter onboarding)
+- **StatusOverviewWidget** -- domene-score (personvern, sikkerhet, AI)
+- Ny **ComplianceHealthBar** -- enkel visuell linje som viser total % + modenhetsniva
 
-### Beregninger
-```
-manualCostYear = hoursPerMonth * hourlyRate * 12
-mynderCostYear = lisensvalg basert på antall systemer (Basis 42 000 / Premium 76 000)
-savingYear = manualCostYear - mynderCostYear
-savingPercent = (savingYear / manualCostYear) * 100
-timeFreedHours = hoursPerMonth * 0.8 * 12  // 80% automatisering
-```
+### Sone 2: "Hva ma jeg gjore na?" (midten, storst fokus)
+Ny widget: **ActionPriorityWidget** som erstatter CriticalTasksWidget + UpcomingTasksWidget i en samlet visning:
+- **Kritisk na**: Apne hendelser, forfalte gjennomganger, ventende risikovurderinger (fra CriticalTasksWidget-data)
+- **Neste prioriterte handlinger**: Manuelt krevende compliance-krav med hoyest prioritet
+- **Kommende oppgaver**: Oppgaver med frist denne uken/maneden
 
-### Resultat-visning
-- **Årlig besparelse** (stort tall, grønt)
-- **Timer frigjort per år** (viser tid som kan brukes på verdiskaping)
-- **Tilbakebetalt etter X måneder** (mynderCostYear / (manualCostYear / 12))
-- **3-års besparelse** (savingYear * 3)
-- Visuell sammenligning: "Manuelt" vs "Med Mynder" (to kolonner)
+### Sone 3: "Overblikk og arskalender" (bunn)
+Fire sammendragskort i et grid:
 
-### PDF-eksport
-"Mynder -- Besparelsesanalyse for [Bedriftsnavn]" -- tilpasset for å dele med beslutningstaker hos kunden.
+1. **Tredjeparter** -- Leverandorer utenfor EU, manglende DPA, hoyrisikoleverandorer (fra ThirdPartyManagementWidget, men lenker til /assets)
+2. **Protokoller (ROPA)** -- Status pa behandlingsoversikt (fra ROPAStatusWidget, lenker til /processing-records)
+3. **Systemer og prosesser** -- Antall systemer, prosesser, SLA-oppnaelse for systems_processes (fra SLAWidget-data)
+4. **Organisasjon og roller** -- SLA-oppnaelse for organization_governance + roles_access, roller tildelt
 
-### Ekstra input
-- **Bedriftsnavn** (tekstfelt, valgfritt) -- brukes i PDF-en for personalisering
+Etter disse: **ComplianceCalendarSection** (arskalenderen) -- alltid synlig (ikke collapsible), med tydelig markering av hva som gjores sjelden (arlig audit), kvartalsvis (risikovurdering), og lopende (avvikshandtering).
 
-## Endringer i salgsguiden
+## PECB-forankring i arskalenderen
 
-Steg 2 oppdateres:
-- Beskrivelse endres til å nevne kunde-ROI-kalkulatoren
-- Knappen peker til `/msp-customer-roi` i stedet for `/msp-roi`
-- Tekst: "Vis kunden ROI-kalkulator"
+Oppdatert ComplianceCalendarSection med frekvensmerking:
 
-## Filer som endres/opprettes
+| Kvartal | Aktiviteter | Frekvens |
+|---------|-------------|----------|
+| Q1 | Gap-analyse, Scope-definisjon, Rollefordeling | Arlig |
+| Q2 | Risikovurdering, Policy-utvikling, Leverandoravtaler (DPA) | Arlig/Halvaarlig |
+| Q3 | Kontrollimplementering, Opplaering, Overvaking og avvik | Lopende |
+| Q4 | Internrevisjon, Ledelsesgjennomgang, Kontinuerlig forbedring | Arlig |
 
-1. **Ny fil**: `src/pages/MSPCustomerROI.tsx` -- den kundevendte ROI-kalkulatoren
-2. **Endres**: `src/pages/MSPSalesGuide.tsx` -- steg 2 oppdateres med ny lenke
-3. **Endres**: `src/App.tsx` -- ny rute `/msp-customer-roi`
+Hver aktivitet far en badge: "Arlig", "Kvartalsvis", "Lopende", "Sjelden"
+
+## Filer som endres
+
+1. **`src/pages/Index.tsx`** -- Omstrukturert layout med tre soner, fjerner redundante widgets, legger til PostOnboardingRoadmapWidget
+2. **Ny: `src/components/widgets/ActionPriorityWidget.tsx`** -- Samler kritiske handlinger, neste steg og kommende oppgaver i en widget
+3. **Ny: `src/components/widgets/ComplianceSummaryCards.tsx`** -- Fire sammendragskort (tredjeparter, protokoller, systemer, organisasjon)
+4. **`src/components/widgets/ComplianceCalendarSection.tsx`** -- Oppdatert med frekvensbadges, alltid apen, PECB-faser markert
+5. **`src/components/widgets/PostOnboardingRoadmapWidget.tsx`** -- Ingen endring, men brukes na mer fremtredende
 
 ## Tekniske detaljer
 
-- Bruker `LICENSE_TIERS` fra `mspLicenseUtils.ts` for lisenspriser
-- Kun lokal state, ingen backend
-- jsPDF for PDF-eksport
-- Siden inkluderer Sidebar som resten av appen (MSP ser den, kan eventuelt skjule sidebar når de presenterer)
+### ActionPriorityWidget
+- Henter data fra `system_incidents` (apne hendelser), `systems` (forfalte gjennomganger), compliance requirements (manuelle krav)
+- Viser maks 3 kritiske + 3 neste handlinger + 3 kommende oppgaver
+- Hver handling har ikon, tittel, badge (prioritet/fase), og lenke til riktig side
+
+### ComplianceSummaryCards
+- Henter data fra `assets` (leverandorer), `systems` (systemer), compliance requirements (SLA-kategorier)
+- Fire kort i 2x2 grid pa desktop, stacked pa mobil
+- Hvert kort viser: tall, kort status, lenke til detaljer
+
+### ComplianceCalendarSection endringer
+- Fjern `Collapsible` -- alltid synlig
+- Legg til `frequency` felt pa hver aktivitet: "arlig" | "kvartalsvis" | "lopende" | "sjelden"
+- Vis badge med farge per frekvens
+- Marker gjeldende kvartal tydeligere med fremhevet border og "Na"-badge
+- Legg til ISO-referanse per aktivitet (f.eks. "ISO 27001 9.2" for internrevisjon)
+
+### Index.tsx endringer
+- Fjern: InherentRiskWidget, ControlsWidget, TaskProgressWidget, SystemLibraryWidget, AIUsageOverviewWidget, AIActComplianceWidget, ActivityReportWidget, MyRegulationsWidget (disse finnes pa sine respektive sider)
+- Behold: OnboardingProgressWidget (som viser PostOnboardingRoadmapWidget nar ferdig)
+- Behold: DomainComplianceWidget (rolle-spesifikk topp-widget)
+- Legg til: ActionPriorityWidget, ComplianceSummaryCards, ComplianceCalendarSection
+- Forenklet desktop-layout uten resizable panels
 
