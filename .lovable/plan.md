@@ -1,86 +1,64 @@
 
 
-# Dashboard 1.0 -- Redesign for mestring og handlingskraft
+# Dashboard 1.0 -- Fire nye mini-widgets
 
-## Problem
+Legger til fire kompakte, intuitive widgets mellom ActionPriorityWidget og ComplianceSummaryCards pa dashbordet.
 
-Dashboard 1.0 gir i dag en flat liste med widgets uten tydelig prioritering. Brukeren vet ikke:
-- "Er jeg ferdig med noe?"
-- "Hva skal jeg gjore na?"
-- "Hva gjores sjelden vs. arlig?"
-- "Hva er status pa tredjeparter, protokoller og oppgaver?"
+## Nye widgets
 
-Dashbordet mangler ogsa PostOnboardingRoadmapWidget etter at onboardingen er fullfort, og arskalenderen er gjemt bort.
+### 1. RecentActivityWidget -- "Siste aktivitet"
+Viser hvem som sist var inne og hva de gjorde. Kompakt kort med avatar/initialer, navn, handling og tidspunkt. Henter fra `requirement_status` (sist oppdatert), `maturity_milestones` (sist oppnadd) og `system_incidents` (sist oppdatert). Viser de 3 siste hendelsene.
 
-## Losning: Tre tydelige soner
+### 2. SupplyChainChangesWidget -- "Endringer i leverandorkjeden"
+Viser nylige endringer blant leverandorer -- nye leverandorer lagt til, endret risikoniva, manglende DPA. Henter fra `assets` (vendor-typer) sortert pa `updated_at` DESC, viser de 3 siste endringene med ikon og tidspunkt.
 
-Restructurere Index.tsx til tre klare soner som folger PECB-livssyklusen og gir brukeren umiddelbar mestring.
+### 3. MonthlyTasksWidget -- "Manedens oppgaver"
+Viser hvor mange oppgaver som er utfort denne maneden vs. gjenstående. Enkel progress-bar med tall. Henter fra `requirement_status` og `tasks` der `updated_at` er innevarende maned. Viser "X av Y utfort" med en grønn hake eller advarselsikon.
 
-### Sone 1: "Hva er status?" (topp)
-- **OnboardingProgressWidget** (hvis ikke ferdig) / **PostOnboardingRoadmapWidget** (etter onboarding)
-- **StatusOverviewWidget** -- domene-score (personvern, sikkerhet, AI)
-- Ny **ComplianceHealthBar** -- enkel visuell linje som viser total % + modenhetsniva
+### 4. TrustProfileViewsWidget -- "Trust Profil visninger"
+Viser antall som har sett brukerens Trust Profil, med mulighet for a dele via "Mynder Trust Engine" (offisiell) eller utvalgte grupper. Krever en ny databasetabell `trust_profile_views` for a logge visninger. I forste versjon vises demo-data med et tall og en CTA for a dele profilen bredere.
 
-### Sone 2: "Hva ma jeg gjore na?" (midten, storst fokus)
-Ny widget: **ActionPriorityWidget** som erstatter CriticalTasksWidget + UpcomingTasksWidget i en samlet visning:
-- **Kritisk na**: Apne hendelser, forfalte gjennomganger, ventende risikovurderinger (fra CriticalTasksWidget-data)
-- **Neste prioriterte handlinger**: Manuelt krevende compliance-krav med hoyest prioritet
-- **Kommende oppgaver**: Oppgaver med frist denne uken/maneden
+## Layout
 
-### Sone 3: "Overblikk og arskalender" (bunn)
-Fire sammendragskort i et grid:
+Plasseres som et 2x2 grid (pa desktop) / stack (mobil) mellom SLAWidget og ComplianceSummaryCards:
 
-1. **Tredjeparter** -- Leverandorer utenfor EU, manglende DPA, hoyrisikoleverandorer (fra ThirdPartyManagementWidget, men lenker til /assets)
-2. **Protokoller (ROPA)** -- Status pa behandlingsoversikt (fra ROPAStatusWidget, lenker til /processing-records)
-3. **Systemer og prosesser** -- Antall systemer, prosesser, SLA-oppnaelse for systems_processes (fra SLAWidget-data)
-4. **Organisasjon og roller** -- SLA-oppnaelse for organization_governance + roles_access, roller tildelt
+```text
++-------------------------+-------------------------+
+| Siste aktivitet         | Leverandorkjede-endringer|
++-------------------------+-------------------------+
+| Manedens oppgaver       | Trust Profil visninger   |
++-------------------------+-------------------------+
+```
 
-Etter disse: **ComplianceCalendarSection** (arskalenderen) -- alltid synlig (ikke collapsible), med tydelig markering av hva som gjores sjelden (arlig audit), kvartalsvis (risikovurdering), og lopende (avvikshandtering).
+## Filer
 
-## PECB-forankring i arskalenderen
-
-Oppdatert ComplianceCalendarSection med frekvensmerking:
-
-| Kvartal | Aktiviteter | Frekvens |
-|---------|-------------|----------|
-| Q1 | Gap-analyse, Scope-definisjon, Rollefordeling | Arlig |
-| Q2 | Risikovurdering, Policy-utvikling, Leverandoravtaler (DPA) | Arlig/Halvaarlig |
-| Q3 | Kontrollimplementering, Opplaering, Overvaking og avvik | Lopende |
-| Q4 | Internrevisjon, Ledelsesgjennomgang, Kontinuerlig forbedring | Arlig |
-
-Hver aktivitet far en badge: "Arlig", "Kvartalsvis", "Lopende", "Sjelden"
-
-## Filer som endres
-
-1. **`src/pages/Index.tsx`** -- Omstrukturert layout med tre soner, fjerner redundante widgets, legger til PostOnboardingRoadmapWidget
-2. **Ny: `src/components/widgets/ActionPriorityWidget.tsx`** -- Samler kritiske handlinger, neste steg og kommende oppgaver i en widget
-3. **Ny: `src/components/widgets/ComplianceSummaryCards.tsx`** -- Fire sammendragskort (tredjeparter, protokoller, systemer, organisasjon)
-4. **`src/components/widgets/ComplianceCalendarSection.tsx`** -- Oppdatert med frekvensbadges, alltid apen, PECB-faser markert
-5. **`src/components/widgets/PostOnboardingRoadmapWidget.tsx`** -- Ingen endring, men brukes na mer fremtredende
+1. **Ny: `src/components/widgets/RecentActivityWidget.tsx`** -- Kompakt liste med 3 siste handlinger fra ulike tabeller
+2. **Ny: `src/components/widgets/SupplyChainChangesWidget.tsx`** -- Nylige leverandorendringer
+3. **Ny: `src/components/widgets/MonthlyTasksWidget.tsx`** -- Progresjon for innevarende maned
+4. **Ny: `src/components/widgets/TrustProfileViewsWidget.tsx`** -- Visninger + delings-CTA
+5. **Endret: `src/pages/Index.tsx`** -- Importerer og plasserer de fire widgetene i dashboardContent
 
 ## Tekniske detaljer
 
-### ActionPriorityWidget
-- Henter data fra `system_incidents` (apne hendelser), `systems` (forfalte gjennomganger), compliance requirements (manuelle krav)
-- Viser maks 3 kritiske + 3 neste handlinger + 3 kommende oppgaver
-- Hver handling har ikon, tittel, badge (prioritet/fase), og lenke til riktig side
+### RecentActivityWidget
+- Tre separate Supabase-sporringer: `requirement_status` (ORDER BY updated_at DESC LIMIT 3), `maturity_milestones` (ORDER BY achieved_at DESC LIMIT 3), `system_incidents` (ORDER BY last_updated DESC LIMIT 3)
+- Merger og sorterer pa tidspunkt, viser topp 3
+- Viser handling som "Fullforte krav", "Oppnadd milepael", "Oppdaterte hendelse" med relativ tid (date-fns formatDistanceToNow)
 
-### ComplianceSummaryCards
-- Henter data fra `assets` (leverandorer), `systems` (systemer), compliance requirements (SLA-kategorier)
-- Fire kort i 2x2 grid pa desktop, stacked pa mobil
-- Hvert kort viser: tall, kort status, lenke til detaljer
+### SupplyChainChangesWidget
+- Henter `assets` med `asset_type IN ('vendor','sub_processor')` ORDER BY `updated_at` DESC LIMIT 5
+- Sammenligner `created_at` vs `updated_at` for a skille mellom "Ny leverandor" og "Oppdatert"
+- Viser ikon, leverandornavn og tidspunkt
 
-### ComplianceCalendarSection endringer
-- Fjern `Collapsible` -- alltid synlig
-- Legg til `frequency` felt pa hver aktivitet: "arlig" | "kvartalsvis" | "lopende" | "sjelden"
-- Vis badge med farge per frekvens
-- Marker gjeldende kvartal tydeligere med fremhevet border og "Na"-badge
-- Legg til ISO-referanse per aktivitet (f.eks. "ISO 27001 9.2" for internrevisjon)
+### MonthlyTasksWidget
+- Henter `requirement_status` der `completed_at` er i innevarende maned (>= forste dag i mnd)
+- Teller fullforte vs. totalt antall krav
+- Viser progress bar og "X av Y utfort denne maneden"
+- Gronn checkmark hvis alle er utfort, oransje advarsel hvis under 50%
 
-### Index.tsx endringer
-- Fjern: InherentRiskWidget, ControlsWidget, TaskProgressWidget, SystemLibraryWidget, AIUsageOverviewWidget, AIActComplianceWidget, ActivityReportWidget, MyRegulationsWidget (disse finnes pa sine respektive sider)
-- Behold: OnboardingProgressWidget (som viser PostOnboardingRoadmapWidget nar ferdig)
-- Behold: DomainComplianceWidget (rolle-spesifikk topp-widget)
-- Legg til: ActionPriorityWidget, ComplianceSummaryCards, ComplianceCalendarSection
-- Forenklet desktop-layout uten resizable panels
+### TrustProfileViewsWidget
+- Henter `assets` med `asset_type = 'self'` for a sjekke `publish_mode`
+- I forste versjon: demo/mock visningsdata (antall visninger siste 30 dager)
+- Viser: visningsantall, publiseringsstatus, og en knapp "Del via Mynder Trust Engine" som lenker til asset-profilen
+- Senere: ny tabell `trust_profile_views` for ekte sporring
 
