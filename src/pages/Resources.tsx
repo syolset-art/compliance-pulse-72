@@ -112,7 +112,7 @@ const Resources = () => {
       case 'completed':
         return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
       case 'in_progress':
-        return <Loader2 className="h-5 w-5 text-primary animate-spin" />;
+        return <Circle className="h-5 w-5 text-primary fill-primary/20" />;
       default:
         return <Circle className="h-5 w-5 text-muted-foreground/40" />;
     }
