@@ -1,91 +1,96 @@
 
+# Ressurssenter 2.0 -- Visuelt dashboard med chat
 
-# Hjelp og support -- Redesign av Ressurssiden
+## Konsept
 
-## Oversikt
+Erstatter det tomme tre-kolonners oppsettet med et moderne, dashboard-aktig ressurssenter inspirert av ChatGPT/Notion AI. Siden har to soner: en ovre "dashboard"-sone med forslag og snarveier, og en nedre chat-sone som fyller resten av skjermen.
 
-Erstatter dagens statiske "Laeringssenter" med et dynamisk **"Hjelp og support"**-senter med en AI-drevet chat i sentrum. Brukeren kan stille sporsmaal, fa kontekstuell hjelp om Mynder, regulatorisk veiledning og support -- alt pa ett sted.
-
-## Layout: Tre kolonner pa desktop, stacked pa mobil
+## Layout
 
 ```text
-+---------------------+---------------------------+---------------------+
-|  Hurtiglenker (v)   |     Chat (sentrum)        |  Kunnskapsbase (h)  |
-|                     |                           |                     |
-|  Hvordan bruke      |  [Forhandsdefinerte       |  GDPR-artikler      |
-|    Mynder           |   kontekst-knapper]       |  NIS2-artikler      |
-|  Hvordan bruke      |                           |  ISO 27001          |
-|    Lara Soft        |  Chat-vindu med           |  AI Act             |
-|  ISO-sertifisering  |  kilde-indikator          |                     |
-|  Ofte stilte        |                           |  Kom i gang          |
-|    sporsmaal        |  [Skriv et sporsmaal...]  |  Demo-videoer       |
-|  Faglig opplaering  |                           |                     |
-+---------------------+---------------------------+---------------------+
+Desktop:
++---------------------------------------------------------------+
+|  Hjelp og support                                              |
+|  Hva kan vi hjelpe deg med?                                    |
++---------------------------------------------------------------+
+|                                                                |
+|  [Kom i gang]  [Lara AI]  [ISO-veien]  [GDPR]  [Ofte stilte]  |
+|   med Mynder    assistent   til 27001    guide    sporsmaal     |
+|                                                                |
++---------------------------------------------------------------+
+|  Kunnskapsbase (horizontal scroll cards)                       |
+|  [GDPR 6 art] [NIS2] [ISO 27001] [AI Act]                     |
++---------------------------------------------------------------+
+|                                                                |
+|  Chat (full bredde, kontekst-chips inne i chatten)             |
+|  Still et sporsmaal...                                         |
+|                                                                |
++---------------------------------------------------------------+
+
+Mobil:
++---------------------------+
+|  Hva kan vi hjelpe med?   |
++---------------------------+
+|  [Mynder] [Lara] [ISO]... |  <- horizontal scroll
++---------------------------+
+|                            |
+|  Chat (full hoyde)         |
+|                            |
++---------------------------+
 ```
 
-Pa mobil: Chat er primaer, hurtiglenker og kunnskapsbase tilgjengelig via faner.
+## Detaljerte endringer
 
-## Chatfunksjonalitet
+### 1. `src/pages/Resources.tsx` -- Fullstendig omskriving
 
-### Forhandsdefinerte kontekster (chips over chatten)
-- **Mynder-hjelp**: "Hvordan bruker jeg Mynder?" -- svar basert pa plattformkunnskap
-- **Lara Soft**: "Hvordan bruker jeg Lara?" -- AI-assistenten
-- **ISO-sertifisering**: Sporsmaal om ISO 27001-prosessen
-- **Ofte stilte sporsmaal**: Vanlige sporsmaal om compliance
-- **Faglig opplaering**: GDPR, NIS2, AI Act, etc.
+**Desktop-visning:**
+- Ovre sone: Stor, varm velkomsttekst ("Hva kan vi hjelpe deg med?")
+- Under: 5 handlingskort i et grid (2-3 kolonner). Hvert kort har ikon, tittel og kort beskrivelse. Klikk setter aktiv kontekst og scroller ned til chatten.
+- Kunnskapsbase-seksjon: Horisontalt scrollbare kort for GDPR, NIS2, ISO, AI Act med artikkelantall-badge
+- Chat-seksjon: Full bredde, integrert SupportChat-komponent (ingen sidepaneler)
 
-Nar brukeren klikker en kontekst-chip, sendes en forhandsdefinert system-prompt til chatten som setter konteksten.
+**Mobil-visning:**
+- Kompakt velkomst
+- Horisontale emne-knapper
+- Chat i full hoyde
 
-### Kilde-regulering (kostnadskontroll)
-- Hvert svar markeres med kilde: **"Mynder-data"** (gratis, intern), **"Faglig kilde"** (AI, koster credits)
-- For Mynder-spesifikke sporsmaal: Bruker innebygd kunnskap (ingen AI-kall)
-- For faglige sporsmaal (GDPR, NIS2 etc.): Bruker Lovable AI via chat-edge-function med en dedikert "support"-kontekst
-- Daglig/ukentlig grense pa AI-sporsmaal for gratisbrukere (UI-melding nar grensen naas)
+Fjerner det rigide 3-kolonners gridet og bruker en vertikal, sentrert layout som foler seg som en moderne app.
 
-### Kilde-badges pa svar
-Hvert AI-svar far en liten badge:
-- `Mynder` (blaa) -- svar fra intern kunnskapsbase
-- `AI-assistent` (lilla) -- svar generert av AI-modell
-- `Artikkel` (graa) -- lenke til en artikkel i kunnskapsbasen
+### 2. `src/components/support/SupportChat.tsx` -- Forbedret velkomst
 
-## Filer som endres
+- Fjerner de dupliserte kontekst-chipsene nar de allerede vises i dashboard-sonen over (desktop)
+- Beholder chips pa mobil der de er det eneste navigasjonsalternativet
+- Storre, mer innbydende tom-tilstand med foreslatte sporsmaal-bobler brukeren kan klikke pa
 
-1. **`src/pages/Resources.tsx`** -- Fullstendig omskrivning til nytt layout med chat, hurtiglenker og kunnskapsbase
-2. **`src/locales/nb.json`** -- Oppdater "Laeringssenter" til "Hjelp og support" + nye nokler
-3. **`src/locales/en.json`** -- Tilsvarende engelske oversettelser
-4. **`src/components/Sidebar.tsx`** -- Oppdater label fra "Laeringssenter" til "Hjelp og support", endre ikon fra BookOpen til HelpCircle
+### 3. `src/components/support/QuickLinksPanel.tsx` -- Ikke lenger brukt som separat panel
+
+Denne komponenten fjernes fra Resources-layouten. Logikken flyttes inn i nye handlingskort direkte i Resources.tsx.
+
+### 4. `src/components/support/KnowledgePanel.tsx` -- Beholdes som separat komponent
+
+Beholdes men rendres som horisontale kort i dashboardet i stedet for en smal kolonne.
 
 ## Tekniske detaljer
 
-### Resources.tsx -- Ny struktur
-- **Venstre panel**: Hurtiglenker som klikkbare kort med ikon. Klikk setter kontekst i chatten.
-- **Senter**: Chat-grensesnitt (forenklet versjon av ChatInterface-monsteret). Bruker `supabase.functions.invoke('chat')` med en `supportContext`-parameter som styrer system-prompt.
-- **Hoyre panel**: Eksisterende kunnskapsbase (GDPR-artikler, NIS2 etc.) beholdes men flyttes hit.
-
-### Chat-implementasjon
-- Gjenbruker streaming-logikken fra eksisterende `chat` edge function
-- Legger til en `supportContext` parameter som velger mellom ulike system-prompts:
-  - `mynder-help`: Statisk FAQ/hjelp om plattformen (kan besvares uten AI-kall)
-  - `regulatory`: GDPR/NIS2/ISO-sporsmaal (krever AI-kall)
-  - `faq`: Forhåandsdefinerte svar (ingen AI-kall)
-- For `mynder-help` og `faq`: Bygger svar fra en lokal kunnskapsbase (hardkodet i frontend) uten a kalle edge function -- null kostnad
-- For `regulatory`: Kaller edge function med tilpasset system-prompt for faglige sporsmaal
-
-### Lokale FAQ-svar (null kostnad)
-En map med vanlige sporsmaal og svar som haandteres i frontend uten AI-kall:
+### Handlingskort-data
 ```typescript
-const faqAnswers = {
-  "hvordan legge til system": "Ga til Eiendeler > Klikk 'Legg til'...",
-  "hva er ropa": "ROPA er en oversikt over...",
-  // etc.
-};
+const actionCards = [
+  { id: "mynder-help", icon: Compass, title: "Kom i gang med Mynder", desc: "Lar deg bruke plattformen", gradient: "from-blue-500/10 to-blue-600/5" },
+  { id: "lara", icon: Sparkles, title: "Lara AI-assistent", desc: "Spor Lara om hva som helst", gradient: "from-purple-500/10 to-pink-500/5" },
+  { id: "iso", icon: Award, title: "ISO 27001-veien", desc: "Steg-for-steg sertifisering", gradient: "from-amber-500/10 to-orange-500/5" },
+  { id: "regulatory", icon: BookOpen, title: "Faglig opplaering", desc: "GDPR, NIS2, AI Act", gradient: "from-emerald-500/10 to-green-500/5" },
+  { id: "faq", icon: MessageCircle, title: "Ofte stilte sporsmaal", desc: "Raske svar", gradient: "from-sky-500/10 to-cyan-500/5" },
+];
 ```
 
-### Sidebar-endring
-- Endre `BookOpen` ikon til `HelpCircle`
-- Endre `t("nav.resources")` -- som allerede mapper til "Laeringssenter" -- til "Hjelp og support" i nb.json
+### SupportChat forbedringer
+- Ny prop `showContextChips?: boolean` (default true) slik at Resources kan skjule dem pa desktop
+- Foreslatte sporsmaal i tom-tilstanden:
+  - "Hvordan legger jeg til en leverandor?"
+  - "Hva er forskjellen pa GDPR og NIS2?"
+  - "Hjelp meg med risikovurdering"
+- Klikk pa forslagene sender dem som melding
 
-### Lokalisering
-- `nb.json`: `nav.resources` -> "Hjelp og support", `resources.title` -> "Hjelp og support", `resources.subtitle` -> "Storsomaal, support og faglig hjelp"
-- `en.json`: Tilsvarende engelske verdier
-
+### Filer som endres
+1. **`src/pages/Resources.tsx`** -- Ny dashboard-layout med handlingskort + kunnskapskort + chat
+2. **`src/components/support/SupportChat.tsx`** -- Foreslatte sporsmaal i velkomst, valgfri chips-visning
