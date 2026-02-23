@@ -6,7 +6,7 @@ import { QuickLinksPanel } from "@/components/support/QuickLinksPanel";
 import { SupportChat } from "@/components/support/SupportChat";
 import { KnowledgePanel } from "@/components/support/KnowledgePanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Link2, BookOpen } from "lucide-react";
+import { MessageCircle, Link2, BookOpen, Sparkles } from "lucide-react";
 
 const Resources = () => {
   const { t } = useTranslation();
@@ -52,32 +52,39 @@ const Resources = () => {
     );
   }
 
-  // Desktop: 3-column layout
+  // Desktop: elegant 3-column layout
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-semibold text-foreground tracking-tight">{t("resources.title")}</h1>
-            <p className="text-muted-foreground mt-1">{t("resources.subtitle")}</p>
+          {/* Header with subtle accent */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground tracking-tight">{t("resources.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("resources.subtitle")}</p>
+              </div>
+            </div>
           </div>
 
           {/* 3-column grid */}
-          <div className="grid grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] gap-4 h-[calc(100vh-180px)]">
+          <div className="grid grid-cols-[220px_1fr_220px] gap-5 h-[calc(100vh-200px)]">
             {/* Left: Quick links */}
-            <div className="overflow-y-auto">
+            <div className="overflow-y-auto rounded-2xl border border-border/50 bg-card/50 p-4 shadow-sm">
               <QuickLinksPanel onSelectContext={setActiveContext} activeContext={activeContext} />
             </div>
 
             {/* Center: Chat */}
-            <div className="border border-border rounded-2xl bg-card shadow-sm overflow-hidden flex flex-col">
+            <div className="border border-border/50 rounded-2xl bg-card shadow-md overflow-hidden flex flex-col ring-1 ring-primary/5">
               <SupportChat activeContext={activeContext} onSelectContext={setActiveContext} />
             </div>
 
             {/* Right: Knowledge base */}
-            <div className="overflow-y-auto">
+            <div className="overflow-y-auto rounded-2xl border border-border/50 bg-card/50 p-4 shadow-sm">
               <KnowledgePanel />
             </div>
           </div>
