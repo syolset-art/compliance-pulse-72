@@ -68,6 +68,7 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
 ];
 
 const adminSubMenu = [
+  { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
 ];
