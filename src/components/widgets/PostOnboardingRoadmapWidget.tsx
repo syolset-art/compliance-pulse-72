@@ -173,13 +173,13 @@ export function PostOnboardingRoadmapWidget() {
               <Map className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
-                {isNorwegian ? "Din compliance-reise" : "Your compliance journey"}
+            <h3 className="text-lg font-semibold text-foreground">
+                {isNorwegian ? "Din compliance-prosess" : "Your compliance process"}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {isNorwegian
-                  ? `Fase: ${currentPhase.name_no}`
-                  : `Phase: ${currentPhase.name_en}`}
+                  ? `Modenhetsnivå: ${currentPhase.name_no}`
+                  : `Maturity level: ${currentPhase.name_en}`}
               </p>
             </div>
           </div>
@@ -188,7 +188,7 @@ export function PostOnboardingRoadmapWidget() {
         {/* Phase stepper */}
         <div className="px-6 pb-4">
           <div className="flex items-center gap-1 mb-2">
-            {CERTIFICATION_PHASES.map((phase, i) => {
+            {CERTIFICATION_PHASES.filter(p => !p.optional).map((phase) => {
               const status = getPhaseStatus(phase.id, completionPercent);
               return (
                 <div key={phase.id} className="flex items-center flex-1">
@@ -205,10 +205,28 @@ export function PostOnboardingRoadmapWidget() {
                 </div>
               );
             })}
+            {/* Optional phases - dimmed */}
+            {CERTIFICATION_PHASES.filter(p => p.optional).map((phase) => {
+              const status = getPhaseStatus(phase.id, completionPercent);
+              return (
+                <div key={phase.id} className="flex items-center flex-1 opacity-50">
+                  <div
+                    className={cn(
+                      "h-2 w-full rounded-full transition-colors border border-dashed border-muted-foreground/30",
+                      status === "completed"
+                        ? "bg-primary"
+                        : status === "in_progress"
+                        ? "bg-primary/40"
+                        : "bg-muted/50"
+                    )}
+                  />
+                </div>
+              );
+            })}
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground">
             {CERTIFICATION_PHASES.map((phase) => (
-              <span key={phase.id} className="text-center flex-1 truncate">
+              <span key={phase.id} className={cn("text-center flex-1 truncate", phase.optional && "opacity-50")}>
                 {isNorwegian ? phase.name_no : phase.name_en}
               </span>
             ))}
