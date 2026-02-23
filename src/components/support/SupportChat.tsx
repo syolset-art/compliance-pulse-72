@@ -34,6 +34,14 @@ const suggestedQuestions = [
   "Hvordan kommer jeg i gang med ISO 27001?",
 ];
 
+const phaseSuggestions: Record<string, string[]> = {
+  foundation: ["Hva bør være i scopet mitt?", "Hvordan gjør jeg en gap-analyse?", "Hvem bør ha hvilke roller?", "Hva er kontekstanalyse?"],
+  implementation: ["Hvordan skriver jeg en policy?", "Hjelp med risikovurdering", "Hva er risikobehandling?", "Hvordan setter jeg mål?"],
+  operation: ["Hvordan håndterer jeg avvik?", "Tips til awareness-trening", "Hvordan overvåker jeg kontroller?", "Hva bør dokumenteres?"],
+  audit: ["Hva innebærer en intern revisjon?", "Hvordan forbereder jeg ledelsesgjennomgang?", "Hva er korrigerende tiltak?"],
+  certification: ["Hva skjer i Stage 1?", "Hvor lang tid tar sertifisering?", "Hva koster ekstern revisjon?"],
+};
+
 export const SupportChat = ({ activeContext, onSelectContext, showContextChips = true }: SupportChatProps) => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -49,7 +57,24 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
   }, [messages]);
 
   useEffect(() => {
-    if (activeContext && activeContext !== "regulatory") {
+    if (!activeContext) return;
+
+    // Phase contexts
+    const phaseIds = ['foundation', 'implementation', 'operation', 'audit', 'certification'];
+    if (phaseIds.includes(activeContext)) {
+      const phaseNames: Record<string, string> = {
+        foundation: 'Fundament', implementation: 'Implementering', operation: 'Drift',
+        audit: 'Intern Audit', certification: 'Sertifisering',
+      };
+      setMessages([{
+        role: "assistant",
+        content: `**${phaseNames[activeContext]}**\n\nJeg kan hjelpe deg med denne fasen av compliance-prosessen. Still meg et spørsmål, eller velg et av forslagene under.`,
+        source: "ai",
+      }]);
+      return;
+    }
+
+    if (activeContext !== "regulatory") {
       const faqs = faqAnswers[activeContext];
       if (faqs && faqs.length > 0) {
         const contextName = contextPrompts[activeContext]?.split(".")[0] || activeContext;
@@ -59,7 +84,7 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
           source: "mynder",
         }]);
       }
-    } else if (activeContext === "regulatory") {
+    } else {
       setMessages([{
         role: "assistant",
         content: t("resources.chat.welcome"),
@@ -208,7 +233,7 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
               </div>
               {/* Suggested questions */}
               <div className="flex flex-wrap gap-2 justify-center">
-                {suggestedQuestions.map((q) => (
+                {(phaseSuggestions[activeContext || ''] || suggestedQuestions).map((q) => (
                   <button
                     key={q}
                     onClick={() => handleSend(q)}
