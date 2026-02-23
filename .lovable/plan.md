@@ -1,111 +1,156 @@
 
-
-# Compliance-prosessen som kontinuerlig forbedring
-
-## Problemet
-
-I dag bruker vi "reise" og "sertifisering" som hovedmetafor. Dette gir inntrykk av at compliance har en slutt. I virkeligheten er de fleste kunder i **drift-fasen** og trenger ikke intern audit eller sertifisering. Fasene mangler innhold -- brukeren kan ikke klikke seg inn og lese hva som faktisk skjer i hver fase.
+# Ressurssenter 2.0 -- Modenhetsdrevet kunnskapssenter
 
 ## Konsept
 
-Erstatter "reise"-metaforen med en **kontinuerlig modenhetsprosess** der fasene er interaktive og lesbare. De tre forste fasene (Fundament, Implementering, Drift) er kjernen. Audit og Sertifisering markeres som valgfrie tillegg.
+Ressurssiden transformeres fra et generisk "hjelp-dashboard" til et **modenhetsdrevet kunnskapssenter** der "Kom i gang" ikke er en knapp som scroller til chat, men en strukturert, lesbar gjennomgang av compliance-prosessen. Brukeren ser umiddelbart hvor virksomheten befinner seg, hva som skjer i hver fase, og hvordan Mynder hjelper dem videre.
+
+Siden har tre seksjoner:
+1. **Modenhetsoversikt** -- Visuell stepper med aktiv fase, koblet til samme data som dashbordet
+2. **Faseinnhold** -- Lesbar, utfyllbar visning av den valgte fasen (hva skjer, aktiviteter, Mynder-stotte, laeringsinnhold)
+3. **Chat** -- Kontekstuell chat som automatisk tilpasser seg valgt fase
 
 ```text
-+---------------------------------------------------------------------+
-|  Din compliance-modenhet              Modenhetsniva: Implementering  |
-+---------------------------------------------------------------------+
-|                                                                     |
-|  [Fundament]  [Implementering]  [Drift]  | [Intern Audit] [Sert.]  |
-|   Fullfort      Aktiv fase       Neste   |   Valgfritt     Valgfritt|
-|                                          |                          |
-+------------------------------------------+--------------------------+
-|                                                                     |
-|  Utvidet fase-panel (klikkbar):                                     |
-|  +-----------------------------------------------------------------+|
-|  | IMPLEMENTERING -- Aktiv fase                                    ||
-|  |                                                                 ||
-|  | Hva skjer i denne fasen?                                        ||
-|  | Du utvikler policies, gjennomforer risikovurdering og           ||
-|  | definerer kontrolltiltak for virksomheten.                      ||
-|  |                                                                 ||
-|  | Aktiviteter:                                                    ||
-|  | [x] Policy-utvikling                                            ||
-|  | [x] Risikovurdering                                             ||
-|  | [ ] Risikobehandling                                            ||
-|  | [ ] Malsetting                                                  ||
-|  |                                                                 ||
-|  | Les mer om denne fasen ->                                       ||
-|  +-----------------------------------------------------------------+|
-+---------------------------------------------------------------------+
+Desktop:
++-------------------------------------------------------------+
+|  Ressurssenter                                               |
+|  Din compliance-prosess -- Forstaa hvor du er og hva du      |
+|  skal gjore videre                                           |
++-------------------------------------------------------------+
+|                                                              |
+|  [Fundament] --> [Implementering] --> [Drift]                |
+|   Fullfort        AKTIV              Neste                   |
+|                                                              |
+|  (separator) [Intern Audit] [Sertifisering] -- Valgfritt     |
+|                                                              |
++-------------------------------------------------------------+
+|                                                              |
+|  IMPLEMENTERING -- Aktiv fase                                |
+|  +---------------------------------------------------------+ |
+|  | Hva skjer her?                                          | |
+|  | Du utvikler policies, gjennomforer risikovurdering...   | |
+|  |                                                         | |
+|  | Aktiviteter:                                            | |
+|  | [x] Policy-utvikling                                    | |
+|  | [ ] Risikovurdering                                     | |
+|  |                                                         | |
+|  | Hvordan Mynder hjelper deg:                              | |
+|  | - Compliance-sjekkliste: automatisk sporing av krav      | |
+|  | - Risikovurdering: bygg-inn i systemprofilene            | |
+|  | - Lara AI: hjelper deg skrive policies                   | |
+|  |                                                         | |
+|  | Les mer (utvidet laeringsinnhold)                        | |
+|  +---------------------------------------------------------+ |
+|                                                              |
+|  Andre faser (kollapsede kort du kan klikke pa)              |
+|  [Fundament - Fullfort] [Drift - Neste]                      |
+|                                                              |
++-------------------------------------------------------------+
+|  Kunnskapsbase                                               |
+|  [GDPR] [NIS2] [ISO 27001] [AI Act]                         |
++-------------------------------------------------------------+
+|  Chat med Lara  (kontekst = valgt fase)                      |
+|  "Sporr meg om implementeringsfasen..."                      |
++-------------------------------------------------------------+
 ```
 
-## Endringer
+## Detaljerte endringer
 
-### 1. `src/lib/certificationPhases.ts` -- Utvid datamodell
+### 1. `src/lib/certificationPhases.ts` -- Legg til Mynder-kobling
 
-- Legg til `optional: boolean` pa PhaseDefinition (true for audit og certification)
-- Legg til `learningContent_no` og `learningContent_en` -- lengre forklaringstekst for hver fase
-- Legg til `whatToExpect_no/en` -- "Hva skjer her?" kort forklaring
-- Endre kommentar fra "Certification Phases" til "Compliance Maturity Phases"
+Utvid `PhaseDefinition` med `mynderFeatures_no` og `mynderFeatures_en` -- en liste over konkrete Mynder-funksjoner som stotter hver fase, med tilhorende ruter:
 
-### 2. `src/components/iso-readiness/CertificationJourney.tsx` -- Gjor interaktiv
-
-- Gi nytt navn: `ComplianceMaturityStepper`
-- Klikk pa en fase apner et utvidet panel med:
-  - Fasebeskrivelse (whatToExpect)
-  - Aktivitetsliste med sjekkmerker basert pa fremdrift
-  - Lengre laeringsinhold (learningContent)
-- Audit og Sertifisering vises med "Valgfritt"-badge og separator
-- Erstatt spinner-ikon for aktiv fase med et mer moderne pulserende design
-
-### 3. `src/components/widgets/PostOnboardingRoadmapWidget.tsx` -- Oppdater sprak
-
-- Endre "Din compliance-reise" til "Din compliance-prosess"
-- Endre "Fase:" til "Modenhetsniva:"
-- Vis audit/sertifisering som dempet/valgfritt i stepperen
-
-### 4. `src/pages/Auth.tsx` -- Oppdater tekst
-
-- Endre "starte din compliance-reise" til "starte din compliance-prosess"
-
-### 5. Lokalisering (`nb.json` / `en.json`)
-
-- Oppdater `isoReadiness.journey.title` fra "Sertifiseringsreisen" til "Compliance-modenhet"
-- Legg til nye nokler for valgfritt-badge, fase-innhold og "Les mer"
-
-## Tekniske detaljer
-
-### Utvidet PhaseDefinition
 ```typescript
-export interface PhaseDefinition {
-  id: CertificationPhase;
-  name_no: string;
-  name_en: string;
-  description_no: string;
-  description_en: string;
-  percentageRange: [number, number];
-  activities_no: string[];
-  activities_en: string[];
-  optional: boolean;            // NY: true for audit og certification
-  whatToExpect_no: string;      // NY: kort forklaring
-  whatToExpect_en: string;
-  learningContent_no: string;   // NY: lengre innhold brukeren kan lese
-  learningContent_en: string;
+interface MynderFeature {
+  title: string;
+  description: string;
+  route: string;
 }
 ```
 
-### Interaktiv CertificationJourney (ny ComplianceMaturityStepper)
-- `useState` for `expandedPhase: CertificationPhase | null`
-- Klikk pa fase toggler expanded panel
-- Collapsible animasjon med Radix Collapsible
-- Audit og Certification rendres etter en visuell separator med "Valgfritt"-badge
-- Pa mobil: fase-kort stables vertikalt med fulle beskrivelser synlige
+Eksempler:
+- **Fundament**: Onboarding-veiviseren (/onboarding), Gap-analyse (/compliance-checklist), Roller og ansvar (/work-areas)
+- **Implementering**: Compliance-sjekkliste (/compliance-checklist), Risikovurdering (/tasks?view=readiness), Systemregistrering (/assets), Lara AI-assistent
+- **Drift**: Avvikshanding (/deviations), Leverandoradministrasjon (/assets), Rapporter (/reports), Kundekrav (/customer-requests)
+- **Intern Audit**: ISO Readiness (/tasks?view=readiness), Rapporter (/reports)
+- **Sertifisering**: Trust Profile, Rapporter (/reports)
+
+### 2. `src/pages/Resources.tsx` -- Fullstendig omskriving
+
+**Ny struktur:**
+
+**State**: `selectedPhase: CertificationPhase` (default = aktiv fase basert pa fremdrift, gjenbruker `useComplianceRequirements` fra dashbordet)
+
+**Seksjon 1 -- Velkomstheader:**
+- Tittel: "Ressurssenter"
+- Undertekst: "Forstaa din compliance-prosess og hva du skal gjore videre"
+- Modenhetsniva-badge som viser gjeldende fase
+
+**Seksjon 2 -- Fasestepper (horisontal):**
+- Gjenbruker data fra `CERTIFICATION_PHASES`
+- Klikk pa en fase setter `selectedPhase`
+- Visuelt identisk med dashbordets stepper (progresjonslinje), men storre og mer prominent
+- Valgfrie faser separert med "Valgfritt"-badge
+
+**Seksjon 3 -- Valgt fase (hoveddelen):**
+- Stor, lesbar seksjon med:
+  - Fasenavn og status-badge (Fullfort/Aktiv/Neste)
+  - "Hva skjer i denne fasen?" -- `whatToExpect_no/en`
+  - Aktiviteter med sjekkmerker (beregnet fra fremdrift)
+  - **NY: "Slik hjelper Mynder deg"** -- liste over plattformfunksjoner med lenker
+  - Utvidbart laeringsinnhold (`learningContent_no/en`) med ikon og "Les mer"-toggle
+- De andre fasene vises som kompakte klikkbare kort under
+
+**Seksjon 4 -- Kunnskapsbase:**
+- Horisontale kort (GDPR, NIS2, ISO, AI Act) -- beholder eksisterende data
+
+**Seksjon 5 -- Chat:**
+- Chatvindu med kontekst satt til valgt fase
+- Foreslatte sporsmaal tilpasses valgt fase
+
+**Mobil:**
+- Fasestepper som vertikale kort
+- Valgt fase vises utvidet
+- Chat i full bredde under
+
+### 3. `src/components/support/SupportChat.tsx` -- Fase-kontekst
+
+- Legg til en mapping fra `CertificationPhase` til kontekst-prompt og foreslatte sporsmaal
+- Nar `activeContext` matcher en fase-id, tilpasses chat-velkomsten og forslagene
 
 ### Filer som endres
-1. `src/lib/certificationPhases.ts` -- Utvid data, legg til optional-flagg og innhold
-2. `src/components/iso-readiness/CertificationJourney.tsx` -- Omskrives til ComplianceMaturityStepper med ekspanderbare faser
-3. `src/components/widgets/PostOnboardingRoadmapWidget.tsx` -- Oppdater sprak og vis valgfritt-markering
-4. `src/pages/Auth.tsx` -- Endre "reise" til "prosess"
-5. `src/locales/nb.json` -- Oppdater titler og nye nokler
-6. `src/locales/en.json` -- Tilsvarende engelske verdier
+1. **`src/lib/certificationPhases.ts`** -- Legg til `mynderFeatures_no/en` med ruter
+2. **`src/pages/Resources.tsx`** -- Full omskriving til modenhetsdrevet layout
+3. **`src/components/support/SupportChat.tsx`** -- Legg til fase-kontekst mapping
 
+## Tekniske detaljer
+
+### Ny type i certificationPhases.ts
+```typescript
+export interface MynderFeatureLink {
+  title_no: string;
+  title_en: string;
+  description_no: string;
+  description_en: string;
+  route: string;
+}
+
+// Legges til i PhaseDefinition:
+mynderFeatures: MynderFeatureLink[];
+```
+
+### Resources.tsx dataflyt
+- Importerer `CERTIFICATION_PHASES`, `getPhaseStatus`, `getMaturityLevel` fra certificationPhases
+- Bruker `useComplianceRequirements` for a hente fremdrift (samme som dashbordet)
+- `selectedPhase` state med default til gjeldende aktive fase
+- Rendrer fase-stepper, fase-detaljer, kunnskapskort og chat
+
+### SupportChat fase-mapping
+```typescript
+const phaseSuggestions: Record<string, string[]> = {
+  foundation: ["Hva bor vaere i scopet mitt?", "Hvordan gjor jeg en gap-analyse?"],
+  implementation: ["Hvordan skriver jeg en policy?", "Hjelp med risikovurdering"],
+  operation: ["Hvordan handterer jeg avvik?", "Tips til awareness-trening"],
+  // ...
+};
+```
