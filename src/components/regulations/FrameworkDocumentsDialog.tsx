@@ -45,6 +45,15 @@ const DOCUMENT_TYPES = [
   { value: "other", label: "Annet" },
 ];
 
+const DEMO_OWNERS = [
+  { value: "kari.nordmann", label: "Kari Nordmann – Compliance Officer" },
+  { value: "ola.hansen", label: "Ola Hansen – CISO" },
+  { value: "erik.berg", label: "Erik Berg – DPO / Personvernombud" },
+  { value: "lise.johansen", label: "Lise Johansen – Kvalitetsleder" },
+  { value: "thomas.dahl", label: "Thomas Dahl – IT-sjef" },
+  { value: "marte.svendsen", label: "Marte Svendsen – HR-leder" },
+];
+
 const getDocTypeLabel = (value: string) =>
   DOCUMENT_TYPES.find((t) => t.value === value)?.label ?? value;
 
@@ -245,15 +254,19 @@ export function FrameworkDocumentsDialog({
                 ))}
               </SelectContent>
             </Select>
-            <div className="relative">
-              <User className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Dokumenteier *"
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-                className="h-9 text-xs pl-8"
-              />
-            </div>
+            <Select value={owner} onValueChange={setOwner}>
+              <SelectTrigger className="h-9 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <SelectValue placeholder="Dokumenteier *" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {DEMO_OWNERS.map((o) => (
+                  <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Work area selection */}
@@ -382,7 +395,7 @@ export function FrameworkDocumentsDialog({
                       <div className="flex items-center gap-1 mt-1">
                         <User className="h-3 w-3 text-muted-foreground" />
                         <span className="text-[10px] text-muted-foreground">
-                          Eier: {doc.uploaded_by || meta?.owner}
+                          Eier: {DEMO_OWNERS.find(o => o.value === (doc.uploaded_by || meta?.owner))?.label || doc.uploaded_by || meta?.owner}
                         </span>
                       </div>
                     )}
