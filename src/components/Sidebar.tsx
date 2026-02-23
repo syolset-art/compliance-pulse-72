@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -339,7 +340,7 @@ const SidebarContent = () => {
           )}
         >
           <HelpCircle className="h-5 w-5" />
-          Ressurssenter <span className="text-xs text-muted-foreground">(kommer snart)</span>
+          Ressurssenter <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">Kommer</Badge>
         </Link>
 
         {/* Utviklere menu */}
@@ -388,7 +389,7 @@ const SidebarContent = () => {
           )}
         >
           <Users className="h-5 w-5" />
-          Mynder Me <span className="text-xs text-muted-foreground">(kommer)</span>
+          Mynder Me <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">Kommer</Badge>
         </Link>
 
         {/* Vendor Demo link */}
