@@ -36,4 +36,8 @@ export const contextPrompts: Record<string, string> = {
   "operation": "Brukeren er i driftsfasen. Hjelp med kontrollimplementering, dokumentasjon, awareness-trening og overvåking. Fokuser på kontinuerlig forbedring.",
   "audit": "Brukeren vurderer intern audit. Hjelp med internrevisjon, ledelsesgjennomgang og korrigerende tiltak. Forklar prosessen steg for steg.",
   "certification": "Brukeren vurderer sertifisering. Hjelp med Stage 1 og Stage 2 audit, sertifikatprosessen og vedlikehold. Vær ærlig om at dette er valgfritt.",
+  "gdpr": "Brukeren vil lære om GDPR. Gi faglige svar om personvern, rettigheter, behandlingsgrunnlag, ROPA, avviksvarsling og databehandleravtaler. Vær konkret og praktisk.",
+  "nis2": "Brukeren vil lære om NIS2-direktivet. Forklar cybersikkerhetskrav, meldeplikt, ledelsesansvar og leverandørkjedesikkerhet.",
+  "iso27001": "Brukeren vil lære om ISO 27001. Forklar ISMS, Annex A-kontroller, risikovurdering, sertifiseringsprosessen og kontinuerlig forbedring.",
+  "aiact": "Brukeren vil lære om EU AI Act. Forklar risikoklassifisering, forbudte systemer, krav til høyrisiko-AI, transparens og AI-register.",
 };

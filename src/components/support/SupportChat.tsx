@@ -40,6 +40,10 @@ const phaseSuggestions: Record<string, string[]> = {
   operation: ["Hvordan håndterer jeg avvik?", "Tips til awareness-trening", "Hvordan overvåker jeg kontroller?", "Hva bør dokumenteres?"],
   audit: ["Hva innebærer en intern revisjon?", "Hvordan forbereder jeg ledelsesgjennomgang?", "Hva er korrigerende tiltak?"],
   certification: ["Hva skjer i Stage 1?", "Hvor lang tid tar sertifisering?", "Hva koster ekstern revisjon?"],
+  gdpr: ["Hva er behandlingsgrunnlag?", "Når trenger jeg en DPIA?", "Hva er kravene til ROPA?", "Når må jeg varsle Datatilsynet?"],
+  nis2: ["Gjelder NIS2 for min virksomhet?", "Hva er ledelsens ansvar?", "Hvordan rapporterer jeg hendelser?"],
+  iso27001: ["Hva er forskjellen på ISO 27001 og 27002?", "Hva inneholder Annex A?", "Trenger jeg sertifisering?"],
+  aiact: ["Hva er risikoklassifiseringen?", "Hvilke AI-systemer er forbudt?", "Hva kreves for høyrisiko-AI?"],
 };
 
 export const SupportChat = ({ activeContext, onSelectContext, showContextChips = true }: SupportChatProps) => {
@@ -69,6 +73,19 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
       setMessages([{
         role: "assistant",
         content: `**${phaseNames[activeContext]}**\n\nJeg kan hjelpe deg med denne fasen av compliance-prosessen. Still meg et spørsmål, eller velg et av forslagene under.`,
+        source: "ai",
+      }]);
+      return;
+    }
+
+    // Regulatory contexts
+    const regulatoryIds: Record<string, string> = {
+      gdpr: 'GDPR', nis2: 'NIS2', iso27001: 'ISO 27001', aiact: 'AI Act',
+    };
+    if (regulatoryIds[activeContext]) {
+      setMessages([{
+        role: "assistant",
+        content: `**${regulatoryIds[activeContext]}**\n\nJeg kan hjelpe deg med spørsmål om ${regulatoryIds[activeContext]}. Still meg et spørsmål, eller velg et av forslagene under.`,
         source: "ai",
       }]);
       return;
