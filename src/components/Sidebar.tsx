@@ -17,7 +17,7 @@ import {
   CreditCard,
   FileCheck,
   FileBarChart,
-  BookOpen,
+  HelpCircle,
   LogOut,
   RotateCcw,
   FileQuestion,
@@ -350,7 +350,7 @@ const SidebarContent = () => {
               : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
           )}
         >
-          <BookOpen className="h-5 w-5" />
+          <HelpCircle className="h-5 w-5" />
           {t("nav.resources")}
         </Link>
 
@@ -536,7 +536,7 @@ const SidebarContent = () => {
                       { name: "Lisenser", href: "/msp-licenses", icon: CreditCard },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
                       { name: "ROI-kalkulator", href: "/msp-roi", icon: FileBarChart },
-                      { name: "Salgsguide", href: "/msp-sales-guide", icon: BookOpen },
+                      { name: "Salgsguide", href: "/msp-sales-guide", icon: FileText },
                     ].map((item) => {
                       const isActive = location.pathname === item.href;
                       return (
