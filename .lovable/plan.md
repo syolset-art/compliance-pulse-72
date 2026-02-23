@@ -1,156 +1,135 @@
 
-# Ressurssenter 2.0 -- Modenhetsdrevet kunnskapssenter
 
-## Konsept
+# Ressurssenter 2.0 -- Flersidig kunnskapssenter
 
-Ressurssiden transformeres fra et generisk "hjelp-dashboard" til et **modenhetsdrevet kunnskapssenter** der "Kom i gang" ikke er en knapp som scroller til chat, men en strukturert, lesbar gjennomgang av compliance-prosessen. Brukeren ser umiddelbart hvor virksomheten befinner seg, hva som skjer i hver fase, og hvordan Mynder hjelper dem videre.
+## Problem
 
-Siden har tre seksjoner:
-1. **Modenhetsoversikt** -- Visuell stepper med aktiv fase, koblet til samme data som dashbordet
-2. **Faseinnhold** -- Lesbar, utfyllbar visning av den valgte fasen (hva skjer, aktiviteter, Mynder-stotte, laeringsinnhold)
-3. **Chat** -- Kontekstuell chat som automatisk tilpasser seg valgt fase
+Ressurssiden er i dag kun koblet til modenhetsfaser. Brukeren mangler to viktige ting:
+1. **Faglig innhold** -- lesbart materiale om GDPR, NIS2, ISO 27001, AI Act
+2. **Ordliste** -- forklaring av begreper som brukes i Mynder og i compliance-verdenen (behandlingsprotokoll, arbeidsomrade, prosess, ROPA, etc.)
+
+## Ny struktur
+
+Ressurssiden far tre hovedseksjoner via faner (Tabs):
 
 ```text
-Desktop:
-+-------------------------------------------------------------+
-|  Ressurssenter                                               |
-|  Din compliance-prosess -- Forstaa hvor du er og hva du      |
-|  skal gjore videre                                           |
-+-------------------------------------------------------------+
-|                                                              |
-|  [Fundament] --> [Implementering] --> [Drift]                |
-|   Fullfort        AKTIV              Neste                   |
-|                                                              |
-|  (separator) [Intern Audit] [Sertifisering] -- Valgfritt     |
-|                                                              |
-+-------------------------------------------------------------+
-|                                                              |
-|  IMPLEMENTERING -- Aktiv fase                                |
-|  +---------------------------------------------------------+ |
-|  | Hva skjer her?                                          | |
-|  | Du utvikler policies, gjennomforer risikovurdering...   | |
-|  |                                                         | |
-|  | Aktiviteter:                                            | |
-|  | [x] Policy-utvikling                                    | |
-|  | [ ] Risikovurdering                                     | |
-|  |                                                         | |
-|  | Hvordan Mynder hjelper deg:                              | |
-|  | - Compliance-sjekkliste: automatisk sporing av krav      | |
-|  | - Risikovurdering: bygg-inn i systemprofilene            | |
-|  | - Lara AI: hjelper deg skrive policies                   | |
-|  |                                                         | |
-|  | Les mer (utvidet laeringsinnhold)                        | |
-|  +---------------------------------------------------------+ |
-|                                                              |
-|  Andre faser (kollapsede kort du kan klikke pa)              |
-|  [Fundament - Fullfort] [Drift - Neste]                      |
-|                                                              |
-+-------------------------------------------------------------+
-|  Kunnskapsbase                                               |
-|  [GDPR] [NIS2] [ISO 27001] [AI Act]                         |
-+-------------------------------------------------------------+
-|  Chat med Lara  (kontekst = valgt fase)                      |
-|  "Sporr meg om implementeringsfasen..."                      |
-+-------------------------------------------------------------+
++---------------------------------------------------------------+
+|  Ressurssenter                                                 |
+|  [Compliance-prosessen]  [Regelverk]  [Ordliste]               |
++---------------------------------------------------------------+
+
+Fane 1: Compliance-prosessen (eksisterende innhold)
+  - Modenhetsstepperen med faser, aktiviteter, Mynder-kobling
+  - Chat med Lara (kontekst = valgt fase)
+
+Fane 2: Regelverk
+  - GDPR, NIS2, ISO 27001, AI Act som utvidbare seksjoner
+  - Hver med kort intro + nøkkelpunkter + "Slik hjelper Mynder"
+  - Chat med Lara (kontekst = valgt regelverk)
+
+Fane 3: Ordliste
+  - Søkbar liste med begreper
+  - Gruppert etter kategori (Mynder-begreper, GDPR, Sikkerhet)
+  - Hvert begrep: tittel, kort forklaring, eventuell lenke
 ```
 
 ## Detaljerte endringer
 
-### 1. `src/lib/certificationPhases.ts` -- Legg til Mynder-kobling
+### 1. `src/lib/glossaryData.ts` -- NY FIL
 
-Utvid `PhaseDefinition` med `mynderFeatures_no` og `mynderFeatures_en` -- en liste over konkrete Mynder-funksjoner som stotter hver fase, med tilhorende ruter:
+Ordliste-data med begreper gruppert i kategorier:
+
+**Mynder-begreper:**
+- Arbeidsomrade -- En avdeling eller funksjon i organisasjonen (HR, IT, Salg). Brukes til a strukturere ansvar.
+- Prosess -- En behandlingsaktivitet som beskriver hvordan personopplysninger handteres. Koblet til arbeidsomrader og systemer.
+- System / Leverandor -- Et IT-system eller tjeneste som behandler data. Registreres med risikovurdering og dataflyt.
+- Trust Profil -- Virksomhetens selverklæring for compliance som kan deles med kunder.
+- Lara -- Mynders AI-assistent som hjelper med dokumentasjon og veiledning.
+- Avvik -- En hendelse der noe gikk galt eller ikke fulgte retningslinjene.
+
+**GDPR-begreper:**
+- Behandlingsprotokoll (ROPA) -- Oversikt over alle behandlingsaktiviteter. Krav i GDPR Art. 30.
+- Behandlingsgrunnlag -- Den lovlige grunnen til a behandle personopplysninger (samtykke, avtale, etc.).
+- Databehandler -- En tredjepart som behandler data pa vegne av virksomheten.
+- Behandlingsansvarlig -- Den som bestemmer formal og middel for behandlingen.
+- Personvernombud (DPO) -- Person med ansvar for a overvake personvern i virksomheten.
+- DPIA / Personvernkonsekvensvurdering -- Vurdering av risiko ved behandlingsaktiviteter med hoy risiko.
+- TIA (Transfer Impact Assessment) -- Vurdering av risiko ved overforing av data til tredjeland.
+
+**Sikkerhet og compliance:**
+- Gap-analyse -- Kartlegging av forskjell mellom navaerende status og krav.
+- Risikovurdering -- Systematisk identifisering og vurdering av trusler.
+- Kontroll -- Et tiltak som reduserer risiko (teknisk eller organisatorisk).
+- SLA (Service Level Agreement) -- Avtale om tjenesteniva med leverandor.
+- Intern audit -- Systematisk gjennomgang av styringssystemet.
+
+### 2. `src/lib/regulatoryArticles.ts` -- NY FIL
+
+Faglig innhold om regelverk, strukturert per regelverk med nøkkelpunkter:
 
 ```typescript
-interface MynderFeature {
+interface RegulatoryTopic {
+  id: string;
   title: string;
-  description: string;
-  route: string;
+  icon: string; // lucide icon name
+  color: string;
+  summary_no: string;  // 2-3 setningers intro
+  keyPoints_no: { title: string; description: string }[];
+  mynderHelp_no: { title: string; description: string; route: string }[];
 }
 ```
 
-Eksempler:
-- **Fundament**: Onboarding-veiviseren (/onboarding), Gap-analyse (/compliance-checklist), Roller og ansvar (/work-areas)
-- **Implementering**: Compliance-sjekkliste (/compliance-checklist), Risikovurdering (/tasks?view=readiness), Systemregistrering (/assets), Lara AI-assistent
-- **Drift**: Avvikshanding (/deviations), Leverandoradministrasjon (/assets), Rapporter (/reports), Kundekrav (/customer-requests)
-- **Intern Audit**: ISO Readiness (/tasks?view=readiness), Rapporter (/reports)
-- **Sertifisering**: Trust Profile, Rapporter (/reports)
+Innhold for:
+- **GDPR** -- Personvern, rettigheter, behandlingsgrunnlag, ROPA, avviksvarsling
+- **NIS2** -- Cybersikkerhet, meldeplikt, risikostyring, ledelsesansvar
+- **ISO 27001** -- ISMS, kontrollomrader, sertifiseringsprosess, kontinuerlig forbedring
+- **AI Act** -- Risikoklassifisering, forbudte systemer, krav til hoyrisiko-AI, transparens
 
-### 2. `src/pages/Resources.tsx` -- Fullstendig omskriving
+### 3. `src/pages/Resources.tsx` -- Omskriving med Tabs
 
-**Ny struktur:**
+**Ny layout med tre faner:**
 
-**State**: `selectedPhase: CertificationPhase` (default = aktiv fase basert pa fremdrift, gjenbruker `useComplianceRequirements` fra dashbordet)
+**Fane 1: "Compliance-prosessen"** (default)
+- Beholder eksisterende modenhetsstepperen og fasedetaljer
+- Chat med fase-kontekst i bunnen
 
-**Seksjon 1 -- Velkomstheader:**
-- Tittel: "Ressurssenter"
-- Undertekst: "Forstaa din compliance-prosess og hva du skal gjore videre"
-- Modenhetsniva-badge som viser gjeldende fase
+**Fane 2: "Regelverk"**
+- Fire kort (GDPR, NIS2, ISO 27001, AI Act) som kan utvides
+- Klikk pa et kort viser: intro, nøkkelpunkter, og "Slik hjelper Mynder"
+- Chat med regelverk-kontekst i bunnen
 
-**Seksjon 2 -- Fasestepper (horisontal):**
-- Gjenbruker data fra `CERTIFICATION_PHASES`
-- Klikk pa en fase setter `selectedPhase`
-- Visuelt identisk med dashbordets stepper (progresjonslinje), men storre og mer prominent
-- Valgfrie faser separert med "Valgfritt"-badge
+**Fane 3: "Ordliste"**
+- Sokefelt øverst
+- Begreper gruppert etter kategori med Accordion
+- Hvert begrep viser tittel og forklaring
+- Eventuell lenke til relevant side i Mynder
 
-**Seksjon 3 -- Valgt fase (hoveddelen):**
-- Stor, lesbar seksjon med:
-  - Fasenavn og status-badge (Fullfort/Aktiv/Neste)
-  - "Hva skjer i denne fasen?" -- `whatToExpect_no/en`
-  - Aktiviteter med sjekkmerker (beregnet fra fremdrift)
-  - **NY: "Slik hjelper Mynder deg"** -- liste over plattformfunksjoner med lenker
-  - Utvidbart laeringsinnhold (`learningContent_no/en`) med ikon og "Les mer"-toggle
-- De andre fasene vises som kompakte klikkbare kort under
+**Mobil:** Faner vises som horisontale scrollbare chips. Innholdet stables vertikalt.
 
-**Seksjon 4 -- Kunnskapsbase:**
-- Horisontale kort (GDPR, NIS2, ISO, AI Act) -- beholder eksisterende data
+### 4. `src/components/support/SupportChat.tsx` -- Utvid kontekstmapping
 
-**Seksjon 5 -- Chat:**
-- Chatvindu med kontekst satt til valgt fase
-- Foreslatte sporsmaal tilpasses valgt fase
+Legg til kontekstprompts for regelverk-emner:
+- `gdpr`: "Brukeren vil laere om GDPR. Gi faglige svar om personvern, rettigheter og behandlingsgrunnlag."
+- `nis2`: "Brukeren vil laere om NIS2. Forklar cybersikkerhetskrav, meldeplikt og ledelsesansvar."
+- `iso27001`: "Brukeren vil laere om ISO 27001. Forklar ISMS, kontroller og sertifiseringsprosessen."
+- `aiact`: "Brukeren vil laere om AI Act. Forklar risikoklassifisering og krav til AI-systemer."
 
-**Mobil:**
-- Fasestepper som vertikale kort
-- Valgt fase vises utvidet
-- Chat i full bredde under
+### 5. `src/lib/supportFaqData.ts` -- Utvid med regelverk-kontekster
 
-### 3. `src/components/support/SupportChat.tsx` -- Fase-kontekst
-
-- Legg til en mapping fra `CertificationPhase` til kontekst-prompt og foreslatte sporsmaal
-- Nar `activeContext` matcher en fase-id, tilpasses chat-velkomsten og forslagene
-
-### Filer som endres
-1. **`src/lib/certificationPhases.ts`** -- Legg til `mynderFeatures_no/en` med ruter
-2. **`src/pages/Resources.tsx`** -- Full omskriving til modenhetsdrevet layout
-3. **`src/components/support/SupportChat.tsx`** -- Legg til fase-kontekst mapping
+Legg til kontekstprompts for de nye regelverk-IDene og ordliste-kontekst.
 
 ## Tekniske detaljer
 
-### Ny type i certificationPhases.ts
-```typescript
-export interface MynderFeatureLink {
-  title_no: string;
-  title_en: string;
-  description_no: string;
-  description_en: string;
-  route: string;
-}
+### Tabs-implementasjon
+Bruker Radix Tabs (`@radix-ui/react-tabs`) som allerede er installert. Tre faner med `value` state for a kontrollere aktiv fane og tilpasse chat-konteksten.
 
-// Legges til i PhaseDefinition:
-mynderFeatures: MynderFeatureLink[];
-```
+### Ordliste-søk
+Enkel klientside-filtrering med `useState` for sokeord. Filtrer glossaryData basert pa om tittel eller beskrivelse inneholder sokeordet.
 
-### Resources.tsx dataflyt
-- Importerer `CERTIFICATION_PHASES`, `getPhaseStatus`, `getMaturityLevel` fra certificationPhases
-- Bruker `useComplianceRequirements` for a hente fremdrift (samme som dashbordet)
-- `selectedPhase` state med default til gjeldende aktive fase
-- Rendrer fase-stepper, fase-detaljer, kunnskapskort og chat
+### Filer som endres/opprettes
+1. **`src/lib/glossaryData.ts`** -- NY: Ordliste-data med ~20 begreper
+2. **`src/lib/regulatoryArticles.ts`** -- NY: Faglig innhold om GDPR, NIS2, ISO 27001, AI Act
+3. **`src/pages/Resources.tsx`** -- Omskrives med Tabs-layout (tre faner)
+4. **`src/lib/supportFaqData.ts`** -- Utvides med nye kontekstprompts
+5. **`src/components/support/SupportChat.tsx`** -- Utvides med regelverk-foreslatte sporsmaal
 
-### SupportChat fase-mapping
-```typescript
-const phaseSuggestions: Record<string, string[]> = {
-  foundation: ["Hva bor vaere i scopet mitt?", "Hvordan gjor jeg en gap-analyse?"],
-  implementation: ["Hvordan skriver jeg en policy?", "Hjelp med risikovurdering"],
-  operation: ["Hvordan handterer jeg avvik?", "Tips til awareness-trening"],
-  // ...
-};
-```
