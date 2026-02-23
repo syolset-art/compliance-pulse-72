@@ -16,7 +16,8 @@ import {
   Sparkles,
   Info,
   Plus,
-  Lightbulb
+  Lightbulb,
+  FileText
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { DomainSummarySection } from "@/components/regulations/DomainSummarySection";
+import { FrameworkDocumentsDialog } from "@/components/regulations/FrameworkDocumentsDialog";
 
 interface SelectedFramework {
   id: string;
@@ -68,6 +70,8 @@ const Regulations = () => {
   const [initializing, setInitializing] = useState(false);
   const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
+  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
+  const [docsDialogFramework, setDocsDialogFramework] = useState<{ id: string; name: string } | null>(null);
   
   // Refs for scrolling to category sections
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -106,6 +110,24 @@ const Regulations = () => {
 
     fetchData();
   }, [toast]);
+
+  // Fetch document counts per framework
+  const fetchDocCounts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("framework_documents")
+      .select("framework_id");
+    if (!error && data) {
+      const counts: Record<string, number> = {};
+      (data as any[]).forEach((d) => {
+        counts[d.framework_id] = (counts[d.framework_id] || 0) + 1;
+      });
+      setDocCounts(counts);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDocCounts();
+  }, [fetchDocCounts]);
 
   // Auto-initialize mandatory frameworks if missing
   useEffect(() => {
@@ -659,12 +681,33 @@ const Regulations = () => {
                                     </p>
                                   </div>
                                 </div>
-                                <Switch
-                                  checked={isActive}
-                                  onCheckedChange={() => toggleFramework(framework.id, isActive)}
-                                  disabled={isMandatory || updating === framework.id}
-                                  className="shrink-0 self-end sm:self-auto"
-                                />
+                                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                                  {isActive && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground px-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDocsDialogFramework({ id: framework.id, name: framework.name });
+                                      }}
+                                    >
+                                      <FileText className="h-3.5 w-3.5" />
+                                      {docCounts[framework.id] ? (
+                                        <Badge variant="action" className="text-[10px] px-1.5 py-0 h-4">
+                                          {docCounts[framework.id]}
+                                        </Badge>
+                                      ) : (
+                                        <span>Dokumenter</span>
+                                      )}
+                                    </Button>
+                                  )}
+                                  <Switch
+                                    checked={isActive}
+                                    onCheckedChange={() => toggleFramework(framework.id, isActive)}
+                                    disabled={isMandatory || updating === framework.id}
+                                  />
+                                </div>
                               </div>
                             );
                           })}
@@ -700,10 +743,20 @@ const Regulations = () => {
             framework={activatedFramework}
             onNavigate={(path) => navigate(path)}
             onOpenChat={(message) => {
-              // Navigate to dashboard and trigger chat
               navigate('/', { state: { openChat: true, chatMessage: message } });
             }}
           />
+
+          {/* Framework Documents Dialog */}
+          {docsDialogFramework && (
+            <FrameworkDocumentsDialog
+              open={!!docsDialogFramework}
+              onOpenChange={(open) => { if (!open) setDocsDialogFramework(null); }}
+              frameworkId={docsDialogFramework.id}
+              frameworkName={docsDialogFramework.name}
+              onCountChange={fetchDocCounts}
+            />
+          )}
         </div>
       </main>
     </div>
