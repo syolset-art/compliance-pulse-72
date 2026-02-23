@@ -177,12 +177,46 @@ const Resources = () => {
     </div>
   );
 
+  // Activity explanations and linked Mynder features per phase
+  const ACTIVITY_DETAILS: Record<string, { explanation_no: string; explanation_en: string; featureIndex?: number }[]> = {
+    foundation: [
+      { explanation_no: 'Kartlegg hvem dere er, hva dere gjør, og hvilke lover og standarder som gjelder for virksomheten. Mynder gjør dette automatisk basert på informasjonen du gir under oppsett.', explanation_en: 'Map who you are, what you do, and which laws and standards apply. Mynder does this automatically based on information you provide during setup.', featureIndex: 0 },
+      { explanation_no: 'Definer omfanget av styringssystemet — hvilke avdelinger, systemer og prosesser som skal dekkes. Du setter dette opp i onboarding-veiviseren.', explanation_en: 'Define the scope of your management system — which departments, systems and processes are covered. You set this up in the onboarding wizard.', featureIndex: 0 },
+      { explanation_no: 'Sammenlign nåværende praksis mot kravene for å finne hva som mangler. Mynder kjører denne analysen automatisk og viser deg en prioritert liste over gap.', explanation_en: 'Compare current practices against requirements to find what\'s missing. Mynder runs this analysis automatically and shows a prioritized gap list.', featureIndex: 1 },
+      { explanation_no: 'Tildel ansvar for compliance-arbeidet til riktige personer i organisasjonen. Definer arbeidsområder og koble dem til ansvarlige i Mynder.', explanation_en: 'Assign compliance responsibilities to the right people. Define work areas and link them to responsible persons in Mynder.', featureIndex: 2 },
+    ],
+    implementation: [
+      { explanation_no: 'Opprett retningslinjer og prosedyrer som beskriver hvordan virksomheten håndterer personvern, sikkerhet og AI. Lara AI kan hjelpe deg å skrive utkast.', explanation_en: 'Create policies and procedures describing how the organization handles privacy, security and AI. Lara AI can help draft them.', featureIndex: 3 },
+      { explanation_no: 'Identifiser og vurder trusler og sårbarheter for hvert system. Mynder har strukturerte risikovurderinger innebygd i hver systemprofil.', explanation_en: 'Identify and assess threats and vulnerabilities for each system. Mynder has structured risk assessments built into each system profile.', featureIndex: 1 },
+      { explanation_no: 'Velg tiltak for å redusere, akseptere, overføre eller unngå identifiserte risikoer. Dette dokumenteres direkte i systemprofilene.', explanation_en: 'Choose measures to reduce, accept, transfer or avoid identified risks. This is documented directly in system profiles.', featureIndex: 1 },
+      { explanation_no: 'Sett målbare mål for informasjonssikkerhet og personvern. Compliance-sjekklisten hjelper deg å spore fremdrift.', explanation_en: 'Set measurable objectives for information security and privacy. The compliance checklist helps track progress.', featureIndex: 0 },
+    ],
+    operation: [
+      { explanation_no: 'Sett de vedtatte kontrollene ut i praksis i hverdagen. Mynder hjelper deg å holde oversikt over status.', explanation_en: 'Put the adopted controls into daily practice. Mynder helps you track status.', featureIndex: 0 },
+      { explanation_no: 'Hold dokumentasjon oppdatert og tilgjengelig. Generer rapporter for ledelsen direkte fra Mynder.', explanation_en: 'Keep documentation updated and accessible. Generate management reports directly from Mynder.', featureIndex: 2 },
+      { explanation_no: 'Sørg for at ansatte forstår sitt ansvar og vet hvordan de skal handle ved hendelser.', explanation_en: 'Ensure employees understand their responsibilities and know how to act in incidents.' },
+      { explanation_no: 'Følg med på avvik, hendelser og endringer. Bruk avvikshåndteringen til å registrere og lukke avvik systematisk.', explanation_en: 'Monitor deviations, incidents and changes. Use deviation management to register and close deviations systematically.', featureIndex: 0 },
+    ],
+    audit: [
+      { explanation_no: 'En systematisk gjennomgang av styringssystemet for å verifisere at kontrollene fungerer. Bruk ISO Readiness for å sjekke beredskapen.', explanation_en: 'A systematic review of the management system to verify controls work. Use ISO Readiness to check preparedness.', featureIndex: 0 },
+      { explanation_no: 'Ledelsen gjennomgår resultatene og tar eierskap til forbedringer. Generer dokumentasjon fra rapportmodulen.', explanation_en: 'Management reviews results and takes ownership of improvements. Generate documentation from the reports module.', featureIndex: 1 },
+      { explanation_no: 'Iverksett tiltak for å lukke avvik funnet under revisjonen.', explanation_en: 'Implement measures to close non-conformities found during the audit.' },
+      { explanation_no: 'Bruk funnene til å forbedre styringssystemet kontinuerlig.', explanation_en: 'Use findings to continuously improve the management system.' },
+    ],
+    certification: [
+      { explanation_no: 'Ekstern revisor gjennomgår dokumentasjonen og vurderer om styringssystemet er tilstrekkelig beskrevet.', explanation_en: 'External auditor reviews documentation and assesses if the management system is sufficiently described.' },
+      { explanation_no: 'Ekstern revisor verifiserer at styringssystemet er implementert og fungerer i praksis.', explanation_en: 'External auditor verifies the management system is implemented and works in practice.' },
+      { explanation_no: 'Sertifikatet utstedes og gjelder i tre år med årlige oppfølginger. Del status via Trust Profil.', explanation_en: 'Certificate is issued and valid for three years with annual surveillance. Share status via Trust Profile.', featureIndex: 0 },
+      { explanation_no: 'Vedlikehold sertifiseringen med årlige oppfølgingsrevisjoner og kontinuerlig forbedring.', explanation_en: 'Maintain certification with annual surveillance audits and continuous improvement.' },
+    ],
+  };
+
   const PhaseDetail = ({ phase }: { phase: PhaseDefinition }) => {
     const status = getPhaseStatus(phase.id, progressPercent);
     const activities = lang === "en" ? phase.activities_en : phase.activities_no;
-    const whatToExpect = lang === "en" ? phase.whatToExpect_en : phase.whatToExpect_no;
     const learningContent = lang === "en" ? phase.learningContent_en : phase.learningContent_no;
     const features = phase.mynderFeatures || [];
+    const activityDetails = ACTIVITY_DETAILS[phase.id] || [];
 
     return (
       <Card variant="flat" className="border-primary/10">
@@ -203,50 +237,43 @@ const Resources = () => {
               </p>
             </div>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-primary" />
-              Hva skjer i denne fasen?
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{whatToExpect}</p>
-          </div>
+
+          {/* Combined activities + explanations + Mynder features */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Aktiviteter</h3>
-            <div className="grid gap-2">
-              {activities.map((activity, i) => {
-                const isCompleted = status === 'completed' || (status === 'in_progress' && i < Math.ceil(activities.length * (progressPercent / 100)));
-                return (
-                  <div key={i} className="flex items-center gap-3 text-sm">
-                    <Checkbox checked={isCompleted} disabled className="pointer-events-none" />
-                    <span className={isCompleted ? "text-foreground" : "text-muted-foreground"}>{activity}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          {features.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Slik hjelper Mynder deg
-              </h3>
-              <div className="grid gap-2">
-                {features.map((feature, i) => (
-                  <button
-                    key={i}
-                    onClick={() => navigate(feature.route)}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-left hover:bg-accent hover:border-primary/20 transition-all group"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground">{lang === "en" ? feature.title_en : feature.title_no}</p>
-                      <p className="text-xs text-muted-foreground truncate">{lang === "en" ? feature.description_en : feature.description_no}</p>
+            {activities.map((activity, i) => {
+              const isCompleted = status === 'completed' || (status === 'in_progress' && i < Math.ceil(activities.length * (progressPercent / 100)));
+              const detail = activityDetails[i];
+              const linkedFeature = detail?.featureIndex !== undefined ? features[detail.featureIndex] : undefined;
+              const explanation = detail ? (lang === "en" ? detail.explanation_en : detail.explanation_no) : undefined;
+
+              return (
+                <div key={i} className="rounded-xl border border-border/50 bg-card overflow-hidden">
+                  <div className="px-4 py-3 flex items-start gap-3">
+                    <Checkbox checked={isCompleted} disabled className="pointer-events-none mt-0.5" />
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <p className={`text-sm font-semibold ${isCompleted ? "text-foreground" : "text-foreground/80"}`}>{activity}</p>
+                      {explanation && (
+                        <p className="text-xs text-muted-foreground leading-relaxed">{explanation}</p>
+                      )}
                     </div>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary flex-shrink-0 transition-colors" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+                  </div>
+                  {linkedFeature && (
+                    <button
+                      onClick={() => navigate(linkedFeature.route)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 bg-primary/5 border-t border-primary/10 text-left hover:bg-primary/10 transition-colors group"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-primary">{lang === "en" ? linkedFeature.title_en : linkedFeature.title_no}</p>
+                      </div>
+                      <ExternalLink className="h-3 w-3 text-primary/50 group-hover:text-primary flex-shrink-0 transition-colors" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           <Collapsible open={learningOpen} onOpenChange={setLearningOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${learningOpen ? 'rotate-180' : ''}`} />
