@@ -25,6 +25,21 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+// Map tool routes to feature guide slugs
+const ROUTE_TO_GUIDE_SLUG: Record<string, string> = {
+  "/onboarding": "onboarding",
+  "/compliance-checklist": "compliance-checklist",
+  "/work-areas": "roles",
+  "/tasks?view=readiness": "iso-readiness",
+  "/assets": "system-registration",
+  "/resources": "lara-ai",
+  "/deviations": "deviation-management",
+  "/reports": "reports",
+  "/transparency": "trust-profile",
+  "/customer-requests": "customer-requests",
+};
+const getFeatureGuideSlug = (route: string): string | undefined => ROUTE_TO_GUIDE_SLUG[route];
+
 const PLATFORM_UPDATES = [
   { id: "sustainability", title: "Bærekraftsrapport", type: "ny" as const, route: "/sustainability", icon: Leaf },
   { id: "risk-update", title: "Forbedret risikovurdering", type: "oppdatert" as const, route: "/tasks?view=readiness", icon: Shield },
@@ -259,14 +274,19 @@ const Resources = () => {
                   </div>
                   {linkedFeature && (
                     <button
-                      onClick={() => navigate(linkedFeature.route)}
+                      onClick={() => {
+                        const guideSlug = getFeatureGuideSlug(linkedFeature.route);
+                        navigate(guideSlug ? `/resources/features/${guideSlug}` : linkedFeature.route);
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 bg-primary/5 border-t border-primary/10 text-left hover:bg-primary/10 transition-colors group"
                     >
                       <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-primary">{lang === "en" ? linkedFeature.title_en : linkedFeature.title_no}</p>
+                        <p className="text-xs font-medium text-primary">
+                          {lang === "en" ? `Learn how: ${linkedFeature.title_en}` : `Lær mer: ${linkedFeature.title_no}`}
+                        </p>
                       </div>
-                      <ExternalLink className="h-3 w-3 text-primary/50 group-hover:text-primary flex-shrink-0 transition-colors" />
+                      <ArrowRight className="h-3 w-3 text-primary/50 group-hover:text-primary flex-shrink-0 transition-colors" />
                     </button>
                   )}
                 </div>
