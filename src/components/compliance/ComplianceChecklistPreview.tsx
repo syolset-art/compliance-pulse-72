@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { 
   Shield, 
@@ -55,6 +56,8 @@ export function ComplianceChecklistPreview({
   onOpenChat,
   className
 }: ComplianceChecklistPreviewProps) {
+  const { i18n } = useTranslation();
+  const isNorwegian = i18n.language?.startsWith('nb') || i18n.language?.startsWith('no');
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -170,8 +173,8 @@ export function ComplianceChecklistPreview({
                   <RequirementCard
                     key={req.requirement_id}
                     requirementId={req.requirement_id}
-                    name={req.name}
-                    description={req.description}
+                    name={(isNorwegian && req.name_no) ? req.name_no : req.name}
+                    description={(isNorwegian && req.description_no) ? req.description_no : req.description}
                     status={req.status}
                     priority={req.priority}
                     agentCapability={req.agent_capability}
@@ -203,7 +206,7 @@ export function ComplianceChecklistPreview({
                   <RequirementCard
                     key={req.requirement_id}
                     requirementId={req.requirement_id}
-                    name={req.name}
+                    name={(isNorwegian && req.name_no) ? req.name_no : req.name}
                     status={req.status}
                     priority={req.priority}
                     agentCapability={req.agent_capability}
@@ -230,7 +233,7 @@ export function ComplianceChecklistPreview({
                   <RequirementCard
                     key={req.requirement_id}
                     requirementId={req.requirement_id}
-                    name={req.name}
+                    name={(isNorwegian && req.name_no) ? req.name_no : req.name}
                     status={req.status}
                     priority={req.priority}
                     agentCapability={req.agent_capability}
