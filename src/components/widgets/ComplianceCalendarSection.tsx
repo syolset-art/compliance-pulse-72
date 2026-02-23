@@ -56,7 +56,7 @@ const QUARTERS: { key: string; label_no: string; label_en: string; phase_no: str
     phase_en: "Operation & monitoring",
     activities: [
       { label_no: "Kontrollimplementering", label_en: "Control implementation", route: "/compliance-checklist", frequency: "ongoing", isoRef: "ISO 27001 Annex A" },
-      { label_no: "Leverandørgjennomgang", label_en: "Vendor review", route: "/assets", frequency: "biannual", isoRef: "GDPR Art. 28" },
+      { label_no: "Leverandørvurdering og kontroll", label_en: "Vendor assessment & control", route: "/assets", frequency: "biannual", isoRef: "GDPR Art. 28" },
       { label_no: "Avvikshåndtering og oppfølging", label_en: "Deviation handling & follow-up", route: "/deviations", frequency: "ongoing", isoRef: "ISO 27001 10.1" },
       { label_no: "Testing av beredskapsplan", label_en: "Incident response testing", route: "/deviations", frequency: "annual", isoRef: "ISO 27001 A.5.24" },
     ],
@@ -70,7 +70,7 @@ const QUARTERS: { key: string; label_no: string; label_en: string; phase_no: str
     activities: [
       { label_no: "Internrevisjon", label_en: "Internal audit", route: "/tasks?view=readiness", frequency: "annual", isoRef: "ISO 27001 9.2" },
       { label_no: "Ledelsesgjennomgang", label_en: "Management review", route: "/reports", frequency: "annual", isoRef: "ISO 27001 9.3" },
-      { label_no: "Leverandøravtaler (DPA)", label_en: "Vendor agreements (DPA)", route: "/assets", frequency: "annual", isoRef: "GDPR Art. 28" },
+      { label_no: "Oppdatering og reforhandling av DPA", label_en: "DPA update & renegotiation", route: "/assets", frequency: "annual", isoRef: "GDPR Art. 28" },
       { label_no: "Kontinuerlig forbedring", label_en: "Continuous improvement", route: "/tasks", frequency: "ongoing", isoRef: "ISO 27001 10.2" },
     ],
   },
