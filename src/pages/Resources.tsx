@@ -2,7 +2,6 @@ import { useState, useRef, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SupportChat } from "@/components/support/SupportChat";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,10 +21,9 @@ import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from "@/li
 import {
   ArrowRight, ChevronDown, CheckCircle2, Circle, Loader2,
   BookOpen, ExternalLink, Sparkles, Search, GraduationCap, BookOpenText,
-  Leaf, Shield, Bot, GitCompare, TrendingUp, MessageCircle,
+  Leaf, Shield, Bot, GitCompare, TrendingUp,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import laraButterfly from "@/assets/lara-butterfly.png";
 
 const PLATFORM_UPDATES = [
   { id: "sustainability", title: "Bærekraftsrapport", type: "ny" as const, route: "/sustainability", icon: Leaf },
@@ -53,8 +51,6 @@ const Resources = () => {
   const optionalPhases = CERTIFICATION_PHASES.filter(p => p.optional);
 
   const tabsRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
-
   const defaultPhase = useMemo(() => {
     for (const p of CERTIFICATION_PHASES) {
       const status = getPhaseStatus(p.id, progressPercent);
@@ -72,12 +68,7 @@ const Resources = () => {
   const [selectedRegulation, setSelectedRegulation] = useState<string | null>(null);
   const [glossarySearch, setGlossarySearch] = useState("");
 
-  // Chat context based on active tab
-  const chatContext = useMemo(() => {
-    if (maturityOpen) return selectedPhase;
-    if (activeTab === "regulations" && selectedRegulation) return selectedRegulation;
-    return "faq";
-  }, [maturityOpen, activeTab, selectedPhase, selectedRegulation]);
+
 
   const activePhase = CERTIFICATION_PHASES.find(p => p.id === selectedPhase)!;
 
@@ -478,21 +469,6 @@ const Resources = () => {
               <h3 className="text-base font-bold text-foreground">Ordliste</h3>
               <p className="text-sm text-muted-foreground mt-1">{GLOSSARY_TERMS.length} begreper forklart</p>
             </button>
-
-            {/* Lara chat card */}
-            <button
-              onClick={() => chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
-            >
-              <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-3">
-                  <img src={laraButterfly} alt="Lara" className="h-6 w-6" />
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <h3 className="text-base font-bold text-foreground">Spør Lara</h3>
-              <p className="text-sm text-muted-foreground mt-1">Få svar på compliance-spørsmål</p>
-            </button>
           </div>
 
           {/* Maturity collapsible section */}
@@ -532,22 +508,6 @@ const Resources = () => {
           </Tabs>
           </div>
 
-          {/* Chat */}
-          <div ref={chatRef} className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest px-1">Chat med Lara</h2>
-            <div className="rounded-2xl border border-border/50 bg-card shadow-md overflow-hidden ring-1 ring-primary/5" style={{ height: isMobile ? "400px" : "500px" }}>
-              <SupportChat
-                activeContext={chatContext}
-                onSelectContext={(id) => {
-                  if (['foundation', 'implementation', 'operation', 'audit', 'certification'].includes(id)) {
-                    setActiveTab("compliance");
-                    setSelectedPhase(id as CertificationPhase);
-                  }
-                }}
-                showContextChips={false}
-              />
-            </div>
-          </div>
 
         </div>
       </main>
