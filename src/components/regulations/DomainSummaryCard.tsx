@@ -116,7 +116,7 @@ export function DomainSummaryCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm text-foreground truncate">{name}</p>
-          <p className="text-xs text-muted-foreground">{activeCount} aktive</p>
+          <Badge variant="secondary" className="text-xs mt-1">Kommer snart</Badge>
         </div>
       </div>
     );
