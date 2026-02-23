@@ -644,7 +644,7 @@ export default function WorkAreas() {
           {/* Tabs Section */}
           {selectedWorkArea && (
             <Tabs defaultValue="assets" className="w-full" onValueChange={(v) => setActiveWorkAreaTab(v)} value={activeWorkAreaTab}>
-              <div className="flex items-end justify-between gap-2 mb-0">
+              <div className="flex items-center justify-between gap-2">
                 <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 flex-1 min-w-0">
                 <TabsList className="w-max sm:w-full justify-start border-b border-border rounded-none h-auto p-0 bg-transparent">
                   <TabsTrigger 
@@ -701,13 +701,15 @@ export default function WorkAreas() {
                   </TabsTrigger>
                 </TabsList>
                 </div>
-                {activeWorkAreaTab === "protocols" && (
-                  <Button size="sm" className="gap-1 shrink-0 mb-1">
-                    <Plus className="h-4 w-4" />
-                    <span className="hidden sm:inline">{t("myWorkAreas.addProtocol")}</span>
-                  </Button>
-                )}
               </div>
+              {activeWorkAreaTab === "protocols" && (
+                <div className="flex justify-end mt-3">
+                  <Button size="sm" className="gap-1">
+                    <Plus className="h-4 w-4" />
+                    {t("myWorkAreas.addProtocol")}
+                  </Button>
+                </div>
+              )}
 
               <TabsContent value="assets" className="mt-4">
                 {/* Asset summary dashboard */}
