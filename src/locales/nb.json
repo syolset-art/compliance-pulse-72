@@ -532,7 +532,8 @@
     "hasProtocol": "HAR PROTOKOLL",
     "newProtocol": "Ny protokoll",
     "comingSoon": "Kommer snart...",
-    "addAsset": "Legg til leverandør"
+    "addAsset": "Legg til leverandør",
+    "addProtocol": "Behandlingsaktivitet"
   },
   "assignAsset": {
     "title": "Legg til leverandør til {{workArea}}",

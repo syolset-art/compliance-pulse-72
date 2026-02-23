@@ -531,7 +531,8 @@
     "hasProtocol": "HAS PROTOCOL",
     "newProtocol": "New protocol",
     "comingSoon": "Coming soon...",
-    "addAsset": "Add vendor"
+    "addAsset": "Add vendor",
+    "addProtocol": "Processing activity"
   },
   "assignAsset": {
     "title": "Add vendor to {{workArea}}",

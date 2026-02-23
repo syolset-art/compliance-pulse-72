@@ -121,6 +121,7 @@ export default function WorkAreas() {
   const [isCompanyProfileDialogOpen, setIsCompanyProfileDialogOpen] = useState(false);
   const [isAssignAssetDialogOpen, setIsAssignAssetDialogOpen] = useState(false);
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
+  const [activeWorkAreaTab, setActiveWorkAreaTab] = useState("assets");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -642,8 +643,9 @@ export default function WorkAreas() {
 
           {/* Tabs Section */}
           {selectedWorkArea && (
-            <Tabs defaultValue="assets" className="w-full">
-              <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <Tabs defaultValue="assets" className="w-full" onValueChange={(v) => setActiveWorkAreaTab(v)} value={activeWorkAreaTab}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 flex-1 min-w-0">
                 <TabsList className="w-max sm:w-full justify-start border-b border-border rounded-none h-auto p-0 bg-transparent">
                   <TabsTrigger 
                     value="assets" 
@@ -698,6 +700,13 @@ export default function WorkAreas() {
                     <span className="hidden sm:inline">{t("myWorkAreas.tabs.settings")}</span>
                   </TabsTrigger>
                 </TabsList>
+                </div>
+                {activeWorkAreaTab === "protocols" && (
+                  <Button size="sm" className="gap-1 shrink-0">
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t("myWorkAreas.addProtocol")}</span>
+                  </Button>
+                )}
               </div>
 
               <TabsContent value="assets" className="mt-4">
