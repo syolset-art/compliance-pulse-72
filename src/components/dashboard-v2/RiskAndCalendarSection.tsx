@@ -11,23 +11,23 @@ interface RiskAndCalendarSectionProps {
 const QUARTERS = [
   {
     key: "q1", label_no: "Q1", label_en: "Q1",
-    activities_no: ["Gap-analyse", "Scope-definisjon", "Rollefordeling"],
-    activities_en: ["Gap analysis", "Scope definition", "Role assignment"],
+    activities_no: ["Gap-analyse", "Scope-definisjon", "Rollefordeling", "Behandlingsprotokoll"],
+    activities_en: ["Gap analysis", "Scope definition", "Role assignment", "Processing records"],
   },
   {
     key: "q2", label_no: "Q2", label_en: "Q2",
-    activities_no: ["Risikovurdering", "Policy-utvikling", "DPA-avtaler"],
-    activities_en: ["Risk assessment", "Policy development", "DPA agreements"],
+    activities_no: ["Risikovurdering", "Policy-utvikling", "DPIA ved behov", "Bevisstgjøringstesting"],
+    activities_en: ["Risk assessment", "Policy development", "DPIA when required", "Awareness testing"],
   },
   {
     key: "q3", label_no: "Q3", label_en: "Q3",
-    activities_no: ["Kontroller", "Opplæring", "Overvåking"],
-    activities_en: ["Controls", "Training", "Monitoring"],
+    activities_no: ["Kontroller", "Leverandørgjennomgang", "Avvikshåndtering", "Beredskapstest"],
+    activities_en: ["Controls", "Vendor review", "Deviation handling", "Incident response test"],
   },
   {
     key: "q4", label_no: "Q4", label_en: "Q4",
-    activities_no: ["Internrevisjon", "Ledelsesgjennomgang", "Forbedring"],
-    activities_en: ["Internal audit", "Management review", "Improvement"],
+    activities_no: ["Internrevisjon", "Ledelsesgjennomgang", "DPA-avtaler", "Forbedring"],
+    activities_en: ["Internal audit", "Management review", "DPA agreements", "Improvement"],
   },
 ];
 
