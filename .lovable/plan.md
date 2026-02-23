@@ -1,96 +1,111 @@
 
-# Ressurssenter 2.0 -- Visuelt dashboard med chat
+
+# Compliance-prosessen som kontinuerlig forbedring
+
+## Problemet
+
+I dag bruker vi "reise" og "sertifisering" som hovedmetafor. Dette gir inntrykk av at compliance har en slutt. I virkeligheten er de fleste kunder i **drift-fasen** og trenger ikke intern audit eller sertifisering. Fasene mangler innhold -- brukeren kan ikke klikke seg inn og lese hva som faktisk skjer i hver fase.
 
 ## Konsept
 
-Erstatter det tomme tre-kolonners oppsettet med et moderne, dashboard-aktig ressurssenter inspirert av ChatGPT/Notion AI. Siden har to soner: en ovre "dashboard"-sone med forslag og snarveier, og en nedre chat-sone som fyller resten av skjermen.
-
-## Layout
+Erstatter "reise"-metaforen med en **kontinuerlig modenhetsprosess** der fasene er interaktive og lesbare. De tre forste fasene (Fundament, Implementering, Drift) er kjernen. Audit og Sertifisering markeres som valgfrie tillegg.
 
 ```text
-Desktop:
-+---------------------------------------------------------------+
-|  Hjelp og support                                              |
-|  Hva kan vi hjelpe deg med?                                    |
-+---------------------------------------------------------------+
-|                                                                |
-|  [Kom i gang]  [Lara AI]  [ISO-veien]  [GDPR]  [Ofte stilte]  |
-|   med Mynder    assistent   til 27001    guide    sporsmaal     |
-|                                                                |
-+---------------------------------------------------------------+
-|  Kunnskapsbase (horizontal scroll cards)                       |
-|  [GDPR 6 art] [NIS2] [ISO 27001] [AI Act]                     |
-+---------------------------------------------------------------+
-|                                                                |
-|  Chat (full bredde, kontekst-chips inne i chatten)             |
-|  Still et sporsmaal...                                         |
-|                                                                |
-+---------------------------------------------------------------+
-
-Mobil:
-+---------------------------+
-|  Hva kan vi hjelpe med?   |
-+---------------------------+
-|  [Mynder] [Lara] [ISO]... |  <- horizontal scroll
-+---------------------------+
-|                            |
-|  Chat (full hoyde)         |
-|                            |
-+---------------------------+
++---------------------------------------------------------------------+
+|  Din compliance-modenhet              Modenhetsniva: Implementering  |
++---------------------------------------------------------------------+
+|                                                                     |
+|  [Fundament]  [Implementering]  [Drift]  | [Intern Audit] [Sert.]  |
+|   Fullfort      Aktiv fase       Neste   |   Valgfritt     Valgfritt|
+|                                          |                          |
++------------------------------------------+--------------------------+
+|                                                                     |
+|  Utvidet fase-panel (klikkbar):                                     |
+|  +-----------------------------------------------------------------+|
+|  | IMPLEMENTERING -- Aktiv fase                                    ||
+|  |                                                                 ||
+|  | Hva skjer i denne fasen?                                        ||
+|  | Du utvikler policies, gjennomforer risikovurdering og           ||
+|  | definerer kontrolltiltak for virksomheten.                      ||
+|  |                                                                 ||
+|  | Aktiviteter:                                                    ||
+|  | [x] Policy-utvikling                                            ||
+|  | [x] Risikovurdering                                             ||
+|  | [ ] Risikobehandling                                            ||
+|  | [ ] Malsetting                                                  ||
+|  |                                                                 ||
+|  | Les mer om denne fasen ->                                       ||
+|  +-----------------------------------------------------------------+|
++---------------------------------------------------------------------+
 ```
 
-## Detaljerte endringer
+## Endringer
 
-### 1. `src/pages/Resources.tsx` -- Fullstendig omskriving
+### 1. `src/lib/certificationPhases.ts` -- Utvid datamodell
 
-**Desktop-visning:**
-- Ovre sone: Stor, varm velkomsttekst ("Hva kan vi hjelpe deg med?")
-- Under: 5 handlingskort i et grid (2-3 kolonner). Hvert kort har ikon, tittel og kort beskrivelse. Klikk setter aktiv kontekst og scroller ned til chatten.
-- Kunnskapsbase-seksjon: Horisontalt scrollbare kort for GDPR, NIS2, ISO, AI Act med artikkelantall-badge
-- Chat-seksjon: Full bredde, integrert SupportChat-komponent (ingen sidepaneler)
+- Legg til `optional: boolean` pa PhaseDefinition (true for audit og certification)
+- Legg til `learningContent_no` og `learningContent_en` -- lengre forklaringstekst for hver fase
+- Legg til `whatToExpect_no/en` -- "Hva skjer her?" kort forklaring
+- Endre kommentar fra "Certification Phases" til "Compliance Maturity Phases"
 
-**Mobil-visning:**
-- Kompakt velkomst
-- Horisontale emne-knapper
-- Chat i full hoyde
+### 2. `src/components/iso-readiness/CertificationJourney.tsx` -- Gjor interaktiv
 
-Fjerner det rigide 3-kolonners gridet og bruker en vertikal, sentrert layout som foler seg som en moderne app.
+- Gi nytt navn: `ComplianceMaturityStepper`
+- Klikk pa en fase apner et utvidet panel med:
+  - Fasebeskrivelse (whatToExpect)
+  - Aktivitetsliste med sjekkmerker basert pa fremdrift
+  - Lengre laeringsinhold (learningContent)
+- Audit og Sertifisering vises med "Valgfritt"-badge og separator
+- Erstatt spinner-ikon for aktiv fase med et mer moderne pulserende design
 
-### 2. `src/components/support/SupportChat.tsx` -- Forbedret velkomst
+### 3. `src/components/widgets/PostOnboardingRoadmapWidget.tsx` -- Oppdater sprak
 
-- Fjerner de dupliserte kontekst-chipsene nar de allerede vises i dashboard-sonen over (desktop)
-- Beholder chips pa mobil der de er det eneste navigasjonsalternativet
-- Storre, mer innbydende tom-tilstand med foreslatte sporsmaal-bobler brukeren kan klikke pa
+- Endre "Din compliance-reise" til "Din compliance-prosess"
+- Endre "Fase:" til "Modenhetsniva:"
+- Vis audit/sertifisering som dempet/valgfritt i stepperen
 
-### 3. `src/components/support/QuickLinksPanel.tsx` -- Ikke lenger brukt som separat panel
+### 4. `src/pages/Auth.tsx` -- Oppdater tekst
 
-Denne komponenten fjernes fra Resources-layouten. Logikken flyttes inn i nye handlingskort direkte i Resources.tsx.
+- Endre "starte din compliance-reise" til "starte din compliance-prosess"
 
-### 4. `src/components/support/KnowledgePanel.tsx` -- Beholdes som separat komponent
+### 5. Lokalisering (`nb.json` / `en.json`)
 
-Beholdes men rendres som horisontale kort i dashboardet i stedet for en smal kolonne.
+- Oppdater `isoReadiness.journey.title` fra "Sertifiseringsreisen" til "Compliance-modenhet"
+- Legg til nye nokler for valgfritt-badge, fase-innhold og "Les mer"
 
 ## Tekniske detaljer
 
-### Handlingskort-data
+### Utvidet PhaseDefinition
 ```typescript
-const actionCards = [
-  { id: "mynder-help", icon: Compass, title: "Kom i gang med Mynder", desc: "Lar deg bruke plattformen", gradient: "from-blue-500/10 to-blue-600/5" },
-  { id: "lara", icon: Sparkles, title: "Lara AI-assistent", desc: "Spor Lara om hva som helst", gradient: "from-purple-500/10 to-pink-500/5" },
-  { id: "iso", icon: Award, title: "ISO 27001-veien", desc: "Steg-for-steg sertifisering", gradient: "from-amber-500/10 to-orange-500/5" },
-  { id: "regulatory", icon: BookOpen, title: "Faglig opplaering", desc: "GDPR, NIS2, AI Act", gradient: "from-emerald-500/10 to-green-500/5" },
-  { id: "faq", icon: MessageCircle, title: "Ofte stilte sporsmaal", desc: "Raske svar", gradient: "from-sky-500/10 to-cyan-500/5" },
-];
+export interface PhaseDefinition {
+  id: CertificationPhase;
+  name_no: string;
+  name_en: string;
+  description_no: string;
+  description_en: string;
+  percentageRange: [number, number];
+  activities_no: string[];
+  activities_en: string[];
+  optional: boolean;            // NY: true for audit og certification
+  whatToExpect_no: string;      // NY: kort forklaring
+  whatToExpect_en: string;
+  learningContent_no: string;   // NY: lengre innhold brukeren kan lese
+  learningContent_en: string;
+}
 ```
 
-### SupportChat forbedringer
-- Ny prop `showContextChips?: boolean` (default true) slik at Resources kan skjule dem pa desktop
-- Foreslatte sporsmaal i tom-tilstanden:
-  - "Hvordan legger jeg til en leverandor?"
-  - "Hva er forskjellen pa GDPR og NIS2?"
-  - "Hjelp meg med risikovurdering"
-- Klikk pa forslagene sender dem som melding
+### Interaktiv CertificationJourney (ny ComplianceMaturityStepper)
+- `useState` for `expandedPhase: CertificationPhase | null`
+- Klikk pa fase toggler expanded panel
+- Collapsible animasjon med Radix Collapsible
+- Audit og Certification rendres etter en visuell separator med "Valgfritt"-badge
+- Pa mobil: fase-kort stables vertikalt med fulle beskrivelser synlige
 
 ### Filer som endres
-1. **`src/pages/Resources.tsx`** -- Ny dashboard-layout med handlingskort + kunnskapskort + chat
-2. **`src/components/support/SupportChat.tsx`** -- Foreslatte sporsmaal i velkomst, valgfri chips-visning
+1. `src/lib/certificationPhases.ts` -- Utvid data, legg til optional-flagg og innhold
+2. `src/components/iso-readiness/CertificationJourney.tsx` -- Omskrives til ComplianceMaturityStepper med ekspanderbare faser
+3. `src/components/widgets/PostOnboardingRoadmapWidget.tsx` -- Oppdater sprak og vis valgfritt-markering
+4. `src/pages/Auth.tsx` -- Endre "reise" til "prosess"
+5. `src/locales/nb.json` -- Oppdater titler og nye nokler
+6. `src/locales/en.json` -- Tilsvarende engelske verdier
+
