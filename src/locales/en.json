@@ -16,7 +16,7 @@
     "menu": "Menu",
     "chat": "Chat",
     "switchOrganization": "Switch organization",
-    "resources": "Learning Center",
+    "resources": "Help & Support",
     "complianceChecklist": "Compliance Checklist",
     "companySettings": "Company settings",
     "subscriptions": "Subscriptions",
@@ -59,8 +59,35 @@
     }
   },
   "resources": {
-    "title": "Learning Center",
-    "subtitle": "Everything you need to master Mynder",
+    "title": "Help & Support",
+    "subtitle": "Questions, support, and professional guidance",
+    "chat": {
+      "placeholder": "Ask a question...",
+      "sourceMynder": "Mynder",
+      "sourceAI": "AI Assistant",
+      "sourceArticle": "Article",
+      "welcome": "Hi! I'm your support assistant. Ask me about Mynder, GDPR, NIS2, or other regulations.",
+      "contextMynderHelp": "Mynder Help",
+      "contextLara": "Lara Soft",
+      "contextISO": "ISO Certification",
+      "contextFAQ": "FAQ",
+      "contextTraining": "Professional Training",
+      "aiLimitReached": "You've reached your AI question limit. Upgrade to continue.",
+      "sending": "Sending..."
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "mynderHelp": "How to use Mynder",
+      "mynderHelpDesc": "Platform guidance",
+      "laraHelp": "How to use Lara",
+      "laraHelpDesc": "Your AI assistant",
+      "isoHelp": "ISO Certification",
+      "isoHelpDesc": "Path to ISO 27001",
+      "faqHelp": "Frequently Asked Questions",
+      "faqHelpDesc": "Common questions",
+      "trainingHelp": "Professional Training",
+      "trainingHelpDesc": "GDPR, NIS2, AI Act"
+    },
     "gettingStarted": {
       "title": "Getting Started",
       "subtitle": "Interactive training for new users",
