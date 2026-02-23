@@ -21,13 +21,13 @@ const QUARTERS = [
   },
   {
     key: "q3", label_no: "Q3", label_en: "Q3",
-    activities_no: ["Kontroller", "Leverandørgjennomgang", "Avvikshåndtering", "Beredskapstest"],
-    activities_en: ["Controls", "Vendor review", "Deviation handling", "Incident response test"],
+    activities_no: ["Kontroller", "Leverandørvurdering og kontroll", "Avvikshåndtering", "Beredskapstest"],
+    activities_en: ["Controls", "Vendor assessment & control", "Deviation handling", "Incident response test"],
   },
   {
     key: "q4", label_no: "Q4", label_en: "Q4",
-    activities_no: ["Internrevisjon", "Ledelsesgjennomgang", "DPA-avtaler", "Forbedring"],
-    activities_en: ["Internal audit", "Management review", "DPA agreements", "Improvement"],
+    activities_no: ["Internrevisjon", "Ledelsesgjennomgang", "Oppdatering/reforhandling DPA", "Forbedring"],
+    activities_en: ["Internal audit", "Management review", "DPA update & renegotiation", "Improvement"],
   },
 ];
 
