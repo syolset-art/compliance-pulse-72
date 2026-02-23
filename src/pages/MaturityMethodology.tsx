@@ -394,13 +394,20 @@ const MaturityMethodology = () => {
           {/* Section 4: Maturity levels */}
           <div className="space-y-5">
             <h2 className="text-xl font-bold text-foreground">
-              {lang === 'en' ? 'Maturity levels' : 'Modenhetsnivåer'}
+              {lang === 'en' ? 'Maturity levels (ISO/IEC 27001 & 33001)' : 'Modenhetsnivåer (ISO/IEC 27001 & 33001)'}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {lang === 'en'
-                ? 'Based on your progress through the phases, Mynder calculates which maturity level your organization is at. The levels are inspired by recognized maturity models used in ISO standards.'
-                : 'Basert på fremdriften din gjennom fasene beregner Mynder hvilket modenhetsnivå virksomheten din er på. Nivåene er inspirert av anerkjente modenhetsmodeller brukt i ISO-standarder.'}
-            </p>
+            <div className="space-y-4 text-sm text-foreground/90 leading-relaxed">
+              <p>
+                {lang === 'en'
+                  ? 'The maturity levels Mynder uses are based on the Capability Maturity Model (CMM) as described in ISO/IEC 33001 and used as a best practice in ISO/IEC 27001 implementations. This is not a model we have invented — it is an internationally recognized framework used by certification bodies, auditors and consultants worldwide.'
+                  : 'Modenhetsnivåene Mynder bruker er basert på Capability Maturity Model (CMM) slik det beskrives i ISO/IEC 33001 og brukes som beste praksis i ISO/IEC 27001-implementeringer. Dette er ikke en modell vi har funnet opp — det er et internasjonalt anerkjent rammeverk brukt av sertifiseringsorganer, revisorer og konsulenter over hele verden.'}
+              </p>
+              <p>
+                {lang === 'en'
+                  ? 'Each level describes how structured and repeatable your compliance practices are. Moving up means going from ad-hoc responses to a systematically managed and continuously improving management system.'
+                  : 'Hvert nivå beskriver hvor strukturert og repeterbart compliance-arbeidet ditt er. Å bevege seg oppover betyr å gå fra ad-hoc-tilnærminger til et systematisk styrt og kontinuerlig forbedret ledelsessystem.'}
+              </p>
+            </div>
 
             {/* Progress bar with levels */}
             <div className="space-y-3">
@@ -413,10 +420,18 @@ const MaturityMethodology = () => {
               <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-5 gap-2'}`}>
                 {MATURITY_LEVELS.map((m) => {
                   const isCurrent = currentMaturity === m.level;
+                  const levelDescriptions: Record<string, { no: string; en: string }> = {
+                    initial: { no: 'Prosesser er uformelle og reaktive. Lite dokumentasjon.', en: 'Processes are informal and reactive. Little documentation.' },
+                    defined: { no: 'Retningslinjer er definert og ansvar er tildelt.', en: 'Policies are defined and responsibilities assigned.' },
+                    implemented: { no: 'Kontroller er innført og aktivt brukt i praksis.', en: 'Controls are in place and actively used in practice.' },
+                    measured: { no: 'Dere måler effektiviteten og identifiserer forbedringer.', en: 'You measure effectiveness and identify improvements.' },
+                    optimized: { no: 'Kontinuerlig forbedring er innarbeidet i kulturen.', en: 'Continuous improvement is embedded in the culture.' },
+                  };
+                  const desc = levelDescriptions[m.level];
                   return (
                     <div
                       key={m.level}
-                      className={`rounded-xl border p-3 text-center transition-all ${
+                      className={`rounded-xl border p-3 transition-all ${
                         isCurrent
                           ? 'border-primary/30 bg-primary/5 ring-1 ring-primary/20'
                           : 'border-border/40 bg-card/50'
@@ -428,6 +443,9 @@ const MaturityMethodology = () => {
                       <p className="text-[10px] text-muted-foreground mt-0.5">
                         {m.range[0]}–{m.range[1]}%
                       </p>
+                      <p className="text-[10px] text-muted-foreground mt-1 leading-snug">
+                        {lang === 'en' ? desc.en : desc.no}
+                      </p>
                       {isCurrent && (
                         <Badge className="mt-1.5 bg-primary/15 text-primary border-primary/20 text-[9px] px-1.5">
                           {lang === 'en' ? 'You are here' : 'Du er her'}
@@ -437,6 +455,88 @@ const MaturityMethodology = () => {
                   );
                 })}
               </div>
+            </div>
+          </div>
+
+          {/* Section 5: Typical profiles */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'What\'s typical for your type of business?' : 'Hva er typisk for din type virksomhet?'}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {lang === 'en'
+                ? 'Different organizations have different starting points and goals. Here\'s what we typically see:'
+                : 'Ulike virksomheter har ulike utgangspunkt og mål. Her er hva vi typisk ser:'}
+            </p>
+
+            <div className="grid gap-4">
+              {/* Startup */}
+              <Card variant="flat" className="border-border/50">
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Startup</h3>
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">
+                        {lang === 'en' ? 'Typical: Initial → Defined' : 'Typisk: Initial → Definert'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {lang === 'en'
+                      ? 'Startups usually begin at the Initial level with few formal processes. The most important first step is establishing basic policies (privacy policy, security guidelines) and an overview of which systems handle personal data. Most startups reach the Defined level within weeks with Mynder — enough to answer customer due diligence questionnaires with confidence.'
+                      : 'Startups begynner som oftest på Initial-nivå med få formelle prosesser. Det viktigste første steget er å etablere grunnleggende retningslinjer (personvernerklæring, sikkerhetsinstruks) og en oversikt over hvilke systemer som behandler personopplysninger. De fleste startups når Definert-nivå innen noen uker med Mynder — nok til å svare på kunders due diligence-skjemaer med trygghet.'}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Scaleup */}
+              <Card variant="flat" className="border-border/50">
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                      <Award className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Scaleup</h3>
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">
+                        {lang === 'en' ? 'Typical: Defined → Implemented' : 'Typisk: Definert → Implementert'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {lang === 'en'
+                      ? 'Scaleups typically have some policies in place but struggle with consistent implementation across a growing team. The challenge shifts from "what do we need?" to "how do we ensure everyone follows it?". Focus areas include systematic risk assessments, vendor management and employee training. Reaching the Implemented level demonstrates to enterprise customers that your security practices are mature and reliable.'
+                      : 'Scaleups har typisk noen retningslinjer på plass, men sliter med konsekvent implementering på tvers av et voksende team. Utfordringen skifter fra «hva trenger vi?» til «hvordan sikrer vi at alle følger det?». Fokusområder er systematiske risikovurderinger, leverandørstyring og opplæring av ansatte. Å nå Implementert-nivå viser enterprise-kunder at sikkerhetspraksisen deres er moden og pålitelig.'}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Anbud / Public procurement */}
+              <Card variant="flat" className="border-border/50">
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                      <ClipboardList className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">
+                        {lang === 'en' ? 'Public procurement' : 'Anbud og offentlige anskaffelser'}
+                      </h3>
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">
+                        {lang === 'en' ? 'Typical: Implemented → Measured' : 'Typisk: Implementert → Målt'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {lang === 'en'
+                      ? 'Companies participating in public tenders often need to document a high level of compliance maturity. Procurement requirements typically demand evidence of systematic risk management, documented security controls and often ISO 27001 certification or equivalent. To compete effectively, aim for the Measured level or higher. Mynder\'s Trust Profile and reports module helps you generate the documentation buyers ask for — without starting from scratch each time.'
+                      : 'Virksomheter som deltar i offentlige anbud må ofte dokumentere et høyt modenhetsnivå. Anskaffelseskrav krever typisk bevis for systematisk risikostyring, dokumenterte sikkerhetskontroller og ofte ISO 27001-sertifisering eller tilsvarende. For å konkurrere effektivt bør dere sikte mot Målt-nivå eller høyere. Mynders Trust Profil og rapportmodul hjelper dere å generere dokumentasjonen innkjøpere etterspør — uten å starte fra bunnen av hver gang.'}
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
