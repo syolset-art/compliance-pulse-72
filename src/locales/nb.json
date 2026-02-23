@@ -931,7 +931,7 @@
   },
   "processingRecords": {
     "title": "Behandlingsprotokoll",
-    "subtitle": "Oversikt over alle behandlingsprotokoller i din organisasjon",
+    "subtitle": "Oversikt over organisasjonens behandlingsaktiviteter i henhold til GDPR art. 30",
     "downloadSummary": "Last ned oppsummering",
     "metrics": {
       "total": "Totalt antall",
