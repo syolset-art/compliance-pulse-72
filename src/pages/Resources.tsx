@@ -63,15 +63,6 @@ const Resources = () => {
     return 'foundation';
   }, [progressPercent]);
 
-  // Current active phase label for the landing card
-  const activePhaseLabel = useMemo(() => {
-    const phase = CERTIFICATION_PHASES.find(p => p.id === defaultPhase);
-    return phase ? (lang === "en" ? phase.name_en : phase.name_no) : "Grunnlag";
-  }, [defaultPhase, lang]);
-
-  const activePhaseStatus = useMemo(() => {
-    return getPhaseStatus(defaultPhase, progressPercent);
-  }, [defaultPhase, progressPercent]);
 
   // State
   const [activeTab, setActiveTab] = useState("compliance");
@@ -440,7 +431,7 @@ const Resources = () => {
 
           {/* Navigation Cards */}
           <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
-            {/* Maturity card */}
+            {/* Maturity info card */}
             <button
               onClick={() => { setActiveTab("compliance"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
               className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
@@ -451,10 +442,8 @@ const Resources = () => {
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
-              <h3 className="text-base font-bold text-foreground">Din modenhet</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                {activePhaseLabel} – {activePhaseStatus === 'completed' ? 'Fullført' : activePhaseStatus === 'in_progress' ? 'Pågår' : 'Ikke startet'}
-              </p>
+              <h3 className="text-base font-bold text-foreground">Slik beregner vi modenhet</h3>
+              <p className="text-sm text-muted-foreground mt-1">Forstå fasene i compliance-reisen</p>
             </button>
 
             {/* Regulations card */}
