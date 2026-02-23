@@ -257,7 +257,7 @@
     },
     "ropaGap": {
       "title": "ROPA-dekning",
-      "subtitle": "Behandlingsprotokoller",
+      "subtitle": "Behandlingsaktiviteter",
       "systemsWithRopa": "Systemer med ROPA",
       "completed": "Fullført",
       "missing": "mangler"
@@ -512,7 +512,7 @@
     "tabs": {
       "assets": "Leverandører",
       "systems": "Systemer",
-      "protocols": "Behandlingsprotokoller",
+      "protocols": "Behandlingsaktiviteter",
       "processes": "Prosesser",
       "users": "Brukere",
       "documents": "Dokumenter",
@@ -724,7 +724,7 @@
     "workAreas": "Arbeidsområder",
     "responsible": "Ansvarlig",
     "noWorkArea": "Ingen arbeidsområde tilknyttet",
-    "protocols": "Behandlingsprotokoller",
+    "protocols": "Behandlingsaktiviteter",
     "noProtocols": "Ingen protokoller tilknyttet",
     "processes": "Prosesser",
     "noProcesses": "Ingen prosesser registrert",
@@ -935,7 +935,7 @@
     "downloadSummary": "Last ned oppsummering",
     "metrics": {
       "total": "Totalt antall",
-      "totalSub": "Behandlingsprotokoller",
+      "totalSub": "Behandlingsaktiviteter",
       "highRisk": "Høy risiko",
       "highRiskSub": "Krever ekstra oppfølging",
       "thirdCountry": "Tredjeland",
