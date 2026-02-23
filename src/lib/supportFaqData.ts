@@ -31,4 +31,9 @@ export const contextPrompts: Record<string, string> = {
   "iso": "Brukeren har spørsmål om ISO 27001-sertifisering og prosessen.",
   "faq": "Brukeren har generelle spørsmål om Mynder, priser, sikkerhet eller deling.",
   "regulatory": "Brukeren trenger faglig veiledning om GDPR, NIS2, AI Act eller annet regelverk. Gi utfyllende, faglige svar.",
+  "foundation": "Brukeren er i fundamentfasen av compliance-prosessen. Hjelp med kontekstanalyse, scope-definisjon, gap-analyse og rollefordeling. Forklar grunnleggende konsepter.",
+  "implementation": "Brukeren er i implementeringsfasen. Hjelp med policy-utvikling, risikovurdering, risikobehandling og målsetting. Gi konkrete og praktiske råd.",
+  "operation": "Brukeren er i driftsfasen. Hjelp med kontrollimplementering, dokumentasjon, awareness-trening og overvåking. Fokuser på kontinuerlig forbedring.",
+  "audit": "Brukeren vurderer intern audit. Hjelp med internrevisjon, ledelsesgjennomgang og korrigerende tiltak. Forklar prosessen steg for steg.",
+  "certification": "Brukeren vurderer sertifisering. Hjelp med Stage 1 og Stage 2 audit, sertifikatprosessen og vedlikehold. Vær ærlig om at dette er valgfritt.",
 };

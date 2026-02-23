@@ -11,6 +11,15 @@ export type SLACategory = 'systems_processes' | 'organization_governance' | 'rol
 
 export type MaturityLevel = 'initial' | 'defined' | 'implemented' | 'measured' | 'optimized';
 
+export interface MynderFeatureLink {
+  title_no: string;
+  title_en: string;
+  description_no: string;
+  description_en: string;
+  route: string;
+  icon?: string;
+}
+
 export interface PhaseDefinition {
   id: CertificationPhase;
   name_no: string;
@@ -25,6 +34,7 @@ export interface PhaseDefinition {
   whatToExpect_en: string;
   learningContent_no: string;
   learningContent_en: string;
+  mynderFeatures: MynderFeatureLink[];
 }
 
 export const CERTIFICATION_PHASES: PhaseDefinition[] = [
@@ -42,6 +52,11 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     whatToExpect_en: 'In this phase you map the organization\'s context, define the scope of the management system, and conduct a gap analysis to identify deficiencies.',
     learningContent_no: 'Fundamentet er grunnmuren i din compliance-prosess. Her etablerer du forståelse for hvilke lovkrav og standarder som gjelder for din virksomhet, hvem som har ansvar, og hvor dere står i dag sammenlignet med kravene. En grundig gap-analyse gir dere et klart bilde av hva som må gjøres videre.',
     learningContent_en: 'The foundation is the bedrock of your compliance process. Here you establish an understanding of which legal requirements and standards apply to your organization, who is responsible, and where you stand today compared to the requirements. A thorough gap analysis gives you a clear picture of what needs to be done next.',
+    mynderFeatures: [
+      { title_no: 'Onboarding-veiviseren', title_en: 'Onboarding wizard', description_no: 'Guided oppsett av virksomhetens profil og scope', description_en: 'Guided setup of company profile and scope', route: '/onboarding' },
+      { title_no: 'Gap-analyse', title_en: 'Gap analysis', description_no: 'Automatisk identifisering av mangler mot kravene', description_en: 'Automatic identification of gaps against requirements', route: '/compliance-checklist' },
+      { title_no: 'Roller og ansvar', title_en: 'Roles and responsibilities', description_no: 'Definer arbeidsområder og tildel ansvar', description_en: 'Define work areas and assign responsibilities', route: '/work-areas' },
+    ],
   },
   {
     id: 'implementation',
@@ -57,6 +72,12 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     whatToExpect_en: 'You develop policies, conduct risk assessments, and define control measures tailored to your organization.',
     learningContent_no: 'Implementeringsfasen er der teori møter praksis. Du oppretter konkrete retningslinjer (policies), gjennomfører strukturerte risikovurderinger for å identifisere trusler, og bestemmer hvordan risiko skal behandles. Dette er også fasen der dere setter målbare mål for informasjonssikkerhet og personvern.',
     learningContent_en: 'The implementation phase is where theory meets practice. You create concrete policies, conduct structured risk assessments to identify threats, and determine how risks should be treated. This is also the phase where you set measurable goals for information security and privacy.',
+    mynderFeatures: [
+      { title_no: 'Compliance-sjekkliste', title_en: 'Compliance checklist', description_no: 'Automatisk sporing av krav og fremdrift', description_en: 'Automatic tracking of requirements and progress', route: '/compliance-checklist' },
+      { title_no: 'Risikovurdering', title_en: 'Risk assessment', description_no: 'Strukturert vurdering bygget inn i systemprofilene', description_en: 'Structured assessment built into system profiles', route: '/tasks?view=readiness' },
+      { title_no: 'Systemregistrering', title_en: 'System registration', description_no: 'Registrer og klassifiser alle systemer og leverandører', description_en: 'Register and classify all systems and vendors', route: '/assets' },
+      { title_no: 'Lara AI-assistent', title_en: 'Lara AI assistant', description_no: 'AI-hjelp til å skrive policies og dokumentasjon', description_en: 'AI help for writing policies and documentation', route: '/resources' },
+    ],
   },
   {
     id: 'operation',
@@ -72,6 +93,12 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     whatToExpect_en: 'In the operation phase you live and maintain your controls. Documentation is kept updated, employees are trained, and you monitor that everything works as intended.',
     learningContent_no: 'Drift er den kontinuerlige fasen der de fleste virksomheter befinner seg mesteparten av tiden. Her handler det om å sørge for at kontrollene som er etablert faktisk fungerer i hverdagen. Jevnlig opplæring, oppdatert dokumentasjon og aktiv overvåking er nøkkelen. Dette er ikke en \"ferdig\"-fase, men en pågående prosess for kontinuerlig forbedring.',
     learningContent_en: 'Operation is the continuous phase where most organizations spend most of their time. Here it\'s about ensuring that the controls you\'ve established actually work in day-to-day operations. Regular training, updated documentation, and active monitoring are key. This is not a \"done\" phase, but an ongoing process of continuous improvement.',
+    mynderFeatures: [
+      { title_no: 'Avvikshåndtering', title_en: 'Deviation management', description_no: 'Registrer, spor og lukk avvik systematisk', description_en: 'Register, track and close deviations systematically', route: '/deviations' },
+      { title_no: 'Leverandøradministrasjon', title_en: 'Vendor management', description_no: 'Oversikt og risikovurdering av tredjeparter', description_en: 'Overview and risk assessment of third parties', route: '/assets' },
+      { title_no: 'Rapporter', title_en: 'Reports', description_no: 'Generer compliance-rapporter for ledelsen', description_en: 'Generate compliance reports for management', route: '/reports' },
+      { title_no: 'Kundeforespørsler', title_en: 'Customer requests', description_no: 'Håndter innkommende compliance-krav fra kunder', description_en: 'Handle incoming compliance requests from customers', route: '/customer-requests' },
+    ],
   },
   {
     id: 'audit',
@@ -87,6 +114,10 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     whatToExpect_en: 'Internal audit is optional but recommended for organizations that want to verify their management system works effectively and identify improvement opportunities.',
     learningContent_no: 'En intern audit er en systematisk gjennomgang av styringssystemet utført av egne eller innleide ressurser. Formålet er å identifisere avvik, forbedringsmuligheter og bekrefte at kontrollene fungerer som tiltenkt. Ledelsesgjennomgang sikrer at ledelsen er informert og tar eierskap til compliance-prosessen.',
     learningContent_en: 'An internal audit is a systematic review of the management system performed by internal or contracted resources. The purpose is to identify non-conformities, improvement opportunities, and confirm that controls work as intended. Management review ensures that leadership is informed and takes ownership of the compliance process.',
+    mynderFeatures: [
+      { title_no: 'ISO Readiness', title_en: 'ISO Readiness', description_no: 'Sjekk beredskapen din for intern revisjon', description_en: 'Check your readiness for internal audit', route: '/tasks?view=readiness' },
+      { title_no: 'Rapporter', title_en: 'Reports', description_no: 'Dokumentasjon til ledelsesgjennomgang', description_en: 'Documentation for management review', route: '/reports' },
+    ],
   },
   {
     id: 'certification',
@@ -102,6 +133,10 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     whatToExpect_en: 'Formal certification is optional and requires external audit. Many organizations achieve good compliance without going through formal certification.',
     learningContent_no: 'Sertifisering innebærer en uavhengig ekstern revisjon i to steg: Stage 1 (dokumentasjonsgjennomgang) og Stage 2 (implementeringsrevisjon). Et sertifikat gjelder i tre år med årlige oppfølgingsrevisjoner. Sertifisering gir markedstillit og dokumenterer overfor kunder at dere tar sikkerhet på alvor — men det er ikke et krav for god compliance.',
     learningContent_en: 'Certification involves an independent external audit in two stages: Stage 1 (documentation review) and Stage 2 (implementation audit). A certificate is valid for three years with annual surveillance audits. Certification builds market trust and demonstrates to customers that you take security seriously — but it\'s not a requirement for good compliance.',
+    mynderFeatures: [
+      { title_no: 'Trust Profil', title_en: 'Trust Profile', description_no: 'Del compliance-status med kunder og partnere', description_en: 'Share compliance status with customers and partners', route: '/transparency' },
+      { title_no: 'Rapporter', title_en: 'Reports', description_no: 'Generer dokumentasjon for ekstern revisjon', description_en: 'Generate documentation for external audit', route: '/reports' },
+    ],
   }
 ];
 
