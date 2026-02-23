@@ -172,7 +172,7 @@ export default function Auth() {
               <CardDescription>
                 {activeTab === "login" 
                   ? "Logg inn for å fortsette til Mynder" 
-                  : "Opprett en konto for å starte din compliance-reise"}
+                  : "Opprett en konto for å starte din compliance-prosess"}
               </CardDescription>
             </CardHeader>
             
