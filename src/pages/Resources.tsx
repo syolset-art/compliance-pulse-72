@@ -65,18 +65,19 @@ const Resources = () => {
 
 
   // State
-  const [activeTab, setActiveTab] = useState("compliance");
+  const [activeTab, setActiveTab] = useState("regulations");
   const [selectedPhase, setSelectedPhase] = useState<CertificationPhase>(defaultPhase);
   const [learningOpen, setLearningOpen] = useState(false);
+  const [maturityOpen, setMaturityOpen] = useState(false);
   const [selectedRegulation, setSelectedRegulation] = useState<string | null>(null);
   const [glossarySearch, setGlossarySearch] = useState("");
 
   // Chat context based on active tab
   const chatContext = useMemo(() => {
-    if (activeTab === "compliance") return selectedPhase;
+    if (maturityOpen) return selectedPhase;
     if (activeTab === "regulations" && selectedRegulation) return selectedRegulation;
     return "faq";
-  }, [activeTab, selectedPhase, selectedRegulation]);
+  }, [maturityOpen, activeTab, selectedPhase, selectedRegulation]);
 
   const activePhase = CERTIFICATION_PHASES.find(p => p.id === selectedPhase)!;
 
@@ -433,14 +434,16 @@ const Resources = () => {
           <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
             {/* Maturity info card */}
             <button
-              onClick={() => { setActiveTab("compliance"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+              onClick={() => { setMaturityOpen(!maturityOpen); if (!maturityOpen) tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              className={`group text-left rounded-2xl border p-5 transition-all ${
+                maturityOpen ? "border-primary/20 bg-primary/5 shadow-md" : "border-border/50 bg-card hover:border-primary/20 hover:shadow-md"
+              }`}
             >
               <div className="flex items-start justify-between">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
                   <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                <ChevronDown className={`h-4 w-4 text-muted-foreground/40 transition-transform duration-200 ${maturityOpen ? 'rotate-180 text-primary' : ''}`} />
               </div>
               <h3 className="text-base font-bold text-foreground">Slik beregner vi modenhet</h3>
               <p className="text-sm text-muted-foreground mt-1">Forstå fasene i compliance-reisen</p>
@@ -492,14 +495,18 @@ const Resources = () => {
             </button>
           </div>
 
+          {/* Maturity collapsible section */}
+          {maturityOpen && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+              <PhaseStepper />
+              <PhaseDetail phase={activePhase} />
+            </div>
+          )}
+
           {/* Tabs */}
           <div ref={tabsRef}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className={`${isMobile ? 'w-full' : ''} bg-muted/50`}>
-              <TabsTrigger value="compliance" className="gap-1.5 text-xs sm:text-sm">
-                <GraduationCap className="h-4 w-4" />
-                Compliance-prosessen
-              </TabsTrigger>
               <TabsTrigger value="regulations" className="gap-1.5 text-xs sm:text-sm">
                 <BookOpenText className="h-4 w-4" />
                 Regelverk
@@ -510,38 +517,6 @@ const Resources = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Tab 1: Compliance journey */}
-            <TabsContent value="compliance" className="space-y-6 mt-6">
-              <PhaseStepper />
-              <PhaseDetail phase={activePhase} />
-              {/* Other phases as compact cards */}
-              {!isMobile && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                  {CERTIFICATION_PHASES.filter(p => p.id !== selectedPhase).map((phase) => {
-                    const status = getPhaseStatus(phase.id, progressPercent);
-                    return (
-                      <button
-                        key={phase.id}
-                        onClick={() => { setSelectedPhase(phase.id); setLearningOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className={`text-left rounded-xl border p-3 transition-all hover:border-primary/20 hover:shadow-sm ${
-                          phase.optional ? "border-dashed border-border/40 opacity-70 hover:opacity-100" : "border-border/50"
-                        } bg-card`}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          {getStatusIcon(status)}
-                          <p className="text-xs font-semibold text-foreground truncate">
-                            {lang === "en" ? phase.name_en : phase.name_no}
-                          </p>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground line-clamp-2">
-                          {lang === "en" ? phase.description_en : phase.description_no}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </TabsContent>
 
             {/* Tab 2: Regulations */}
             <TabsContent value="regulations" className="space-y-4 mt-6">
