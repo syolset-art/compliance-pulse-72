@@ -1,64 +1,91 @@
 
 
-# Dashboard 1.0 -- Fire nye mini-widgets
+# Hjelp og support -- Redesign av Ressurssiden
 
-Legger til fire kompakte, intuitive widgets mellom ActionPriorityWidget og ComplianceSummaryCards pa dashbordet.
+## Oversikt
 
-## Nye widgets
+Erstatter dagens statiske "Laeringssenter" med et dynamisk **"Hjelp og support"**-senter med en AI-drevet chat i sentrum. Brukeren kan stille sporsmaal, fa kontekstuell hjelp om Mynder, regulatorisk veiledning og support -- alt pa ett sted.
 
-### 1. RecentActivityWidget -- "Siste aktivitet"
-Viser hvem som sist var inne og hva de gjorde. Kompakt kort med avatar/initialer, navn, handling og tidspunkt. Henter fra `requirement_status` (sist oppdatert), `maturity_milestones` (sist oppnadd) og `system_incidents` (sist oppdatert). Viser de 3 siste hendelsene.
-
-### 2. SupplyChainChangesWidget -- "Endringer i leverandorkjeden"
-Viser nylige endringer blant leverandorer -- nye leverandorer lagt til, endret risikoniva, manglende DPA. Henter fra `assets` (vendor-typer) sortert pa `updated_at` DESC, viser de 3 siste endringene med ikon og tidspunkt.
-
-### 3. MonthlyTasksWidget -- "Manedens oppgaver"
-Viser hvor mange oppgaver som er utfort denne maneden vs. gjenstående. Enkel progress-bar med tall. Henter fra `requirement_status` og `tasks` der `updated_at` er innevarende maned. Viser "X av Y utfort" med en grønn hake eller advarselsikon.
-
-### 4. TrustProfileViewsWidget -- "Trust Profil visninger"
-Viser antall som har sett brukerens Trust Profil, med mulighet for a dele via "Mynder Trust Engine" (offisiell) eller utvalgte grupper. Krever en ny databasetabell `trust_profile_views` for a logge visninger. I forste versjon vises demo-data med et tall og en CTA for a dele profilen bredere.
-
-## Layout
-
-Plasseres som et 2x2 grid (pa desktop) / stack (mobil) mellom SLAWidget og ComplianceSummaryCards:
+## Layout: Tre kolonner pa desktop, stacked pa mobil
 
 ```text
-+-------------------------+-------------------------+
-| Siste aktivitet         | Leverandorkjede-endringer|
-+-------------------------+-------------------------+
-| Manedens oppgaver       | Trust Profil visninger   |
-+-------------------------+-------------------------+
++---------------------+---------------------------+---------------------+
+|  Hurtiglenker (v)   |     Chat (sentrum)        |  Kunnskapsbase (h)  |
+|                     |                           |                     |
+|  Hvordan bruke      |  [Forhandsdefinerte       |  GDPR-artikler      |
+|    Mynder           |   kontekst-knapper]       |  NIS2-artikler      |
+|  Hvordan bruke      |                           |  ISO 27001          |
+|    Lara Soft        |  Chat-vindu med           |  AI Act             |
+|  ISO-sertifisering  |  kilde-indikator          |                     |
+|  Ofte stilte        |                           |  Kom i gang          |
+|    sporsmaal        |  [Skriv et sporsmaal...]  |  Demo-videoer       |
+|  Faglig opplaering  |                           |                     |
++---------------------+---------------------------+---------------------+
 ```
 
-## Filer
+Pa mobil: Chat er primaer, hurtiglenker og kunnskapsbase tilgjengelig via faner.
 
-1. **Ny: `src/components/widgets/RecentActivityWidget.tsx`** -- Kompakt liste med 3 siste handlinger fra ulike tabeller
-2. **Ny: `src/components/widgets/SupplyChainChangesWidget.tsx`** -- Nylige leverandorendringer
-3. **Ny: `src/components/widgets/MonthlyTasksWidget.tsx`** -- Progresjon for innevarende maned
-4. **Ny: `src/components/widgets/TrustProfileViewsWidget.tsx`** -- Visninger + delings-CTA
-5. **Endret: `src/pages/Index.tsx`** -- Importerer og plasserer de fire widgetene i dashboardContent
+## Chatfunksjonalitet
+
+### Forhandsdefinerte kontekster (chips over chatten)
+- **Mynder-hjelp**: "Hvordan bruker jeg Mynder?" -- svar basert pa plattformkunnskap
+- **Lara Soft**: "Hvordan bruker jeg Lara?" -- AI-assistenten
+- **ISO-sertifisering**: Sporsmaal om ISO 27001-prosessen
+- **Ofte stilte sporsmaal**: Vanlige sporsmaal om compliance
+- **Faglig opplaering**: GDPR, NIS2, AI Act, etc.
+
+Nar brukeren klikker en kontekst-chip, sendes en forhandsdefinert system-prompt til chatten som setter konteksten.
+
+### Kilde-regulering (kostnadskontroll)
+- Hvert svar markeres med kilde: **"Mynder-data"** (gratis, intern), **"Faglig kilde"** (AI, koster credits)
+- For Mynder-spesifikke sporsmaal: Bruker innebygd kunnskap (ingen AI-kall)
+- For faglige sporsmaal (GDPR, NIS2 etc.): Bruker Lovable AI via chat-edge-function med en dedikert "support"-kontekst
+- Daglig/ukentlig grense pa AI-sporsmaal for gratisbrukere (UI-melding nar grensen naas)
+
+### Kilde-badges pa svar
+Hvert AI-svar far en liten badge:
+- `Mynder` (blaa) -- svar fra intern kunnskapsbase
+- `AI-assistent` (lilla) -- svar generert av AI-modell
+- `Artikkel` (graa) -- lenke til en artikkel i kunnskapsbasen
+
+## Filer som endres
+
+1. **`src/pages/Resources.tsx`** -- Fullstendig omskrivning til nytt layout med chat, hurtiglenker og kunnskapsbase
+2. **`src/locales/nb.json`** -- Oppdater "Laeringssenter" til "Hjelp og support" + nye nokler
+3. **`src/locales/en.json`** -- Tilsvarende engelske oversettelser
+4. **`src/components/Sidebar.tsx`** -- Oppdater label fra "Laeringssenter" til "Hjelp og support", endre ikon fra BookOpen til HelpCircle
 
 ## Tekniske detaljer
 
-### RecentActivityWidget
-- Tre separate Supabase-sporringer: `requirement_status` (ORDER BY updated_at DESC LIMIT 3), `maturity_milestones` (ORDER BY achieved_at DESC LIMIT 3), `system_incidents` (ORDER BY last_updated DESC LIMIT 3)
-- Merger og sorterer pa tidspunkt, viser topp 3
-- Viser handling som "Fullforte krav", "Oppnadd milepael", "Oppdaterte hendelse" med relativ tid (date-fns formatDistanceToNow)
+### Resources.tsx -- Ny struktur
+- **Venstre panel**: Hurtiglenker som klikkbare kort med ikon. Klikk setter kontekst i chatten.
+- **Senter**: Chat-grensesnitt (forenklet versjon av ChatInterface-monsteret). Bruker `supabase.functions.invoke('chat')` med en `supportContext`-parameter som styrer system-prompt.
+- **Hoyre panel**: Eksisterende kunnskapsbase (GDPR-artikler, NIS2 etc.) beholdes men flyttes hit.
 
-### SupplyChainChangesWidget
-- Henter `assets` med `asset_type IN ('vendor','sub_processor')` ORDER BY `updated_at` DESC LIMIT 5
-- Sammenligner `created_at` vs `updated_at` for a skille mellom "Ny leverandor" og "Oppdatert"
-- Viser ikon, leverandornavn og tidspunkt
+### Chat-implementasjon
+- Gjenbruker streaming-logikken fra eksisterende `chat` edge function
+- Legger til en `supportContext` parameter som velger mellom ulike system-prompts:
+  - `mynder-help`: Statisk FAQ/hjelp om plattformen (kan besvares uten AI-kall)
+  - `regulatory`: GDPR/NIS2/ISO-sporsmaal (krever AI-kall)
+  - `faq`: Forhåandsdefinerte svar (ingen AI-kall)
+- For `mynder-help` og `faq`: Bygger svar fra en lokal kunnskapsbase (hardkodet i frontend) uten a kalle edge function -- null kostnad
+- For `regulatory`: Kaller edge function med tilpasset system-prompt for faglige sporsmaal
 
-### MonthlyTasksWidget
-- Henter `requirement_status` der `completed_at` er i innevarende maned (>= forste dag i mnd)
-- Teller fullforte vs. totalt antall krav
-- Viser progress bar og "X av Y utfort denne maneden"
-- Gronn checkmark hvis alle er utfort, oransje advarsel hvis under 50%
+### Lokale FAQ-svar (null kostnad)
+En map med vanlige sporsmaal og svar som haandteres i frontend uten AI-kall:
+```typescript
+const faqAnswers = {
+  "hvordan legge til system": "Ga til Eiendeler > Klikk 'Legg til'...",
+  "hva er ropa": "ROPA er en oversikt over...",
+  // etc.
+};
+```
 
-### TrustProfileViewsWidget
-- Henter `assets` med `asset_type = 'self'` for a sjekke `publish_mode`
-- I forste versjon: demo/mock visningsdata (antall visninger siste 30 dager)
-- Viser: visningsantall, publiseringsstatus, og en knapp "Del via Mynder Trust Engine" som lenker til asset-profilen
-- Senere: ny tabell `trust_profile_views` for ekte sporring
+### Sidebar-endring
+- Endre `BookOpen` ikon til `HelpCircle`
+- Endre `t("nav.resources")` -- som allerede mapper til "Laeringssenter" -- til "Hjelp og support" i nb.json
+
+### Lokalisering
+- `nb.json`: `nav.resources` -> "Hjelp og support", `resources.title` -> "Hjelp og support", `resources.subtitle` -> "Storsomaal, support og faglig hjelp"
+- `en.json`: Tilsvarende engelske verdier
 
