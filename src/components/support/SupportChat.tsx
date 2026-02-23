@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -19,11 +19,11 @@ interface SupportChatProps {
 }
 
 const contextChips = [
-  { id: "mynder-help", labelKey: "resources.chat.contextMynderHelp" },
-  { id: "lara", labelKey: "resources.chat.contextLara" },
-  { id: "iso", labelKey: "resources.chat.contextISO" },
-  { id: "faq", labelKey: "resources.chat.contextFAQ" },
-  { id: "regulatory", labelKey: "resources.chat.contextTraining" },
+  { id: "mynder-help", labelKey: "resources.chat.contextMynderHelp", emoji: "🧭" },
+  { id: "lara", labelKey: "resources.chat.contextLara", emoji: "🦋" },
+  { id: "iso", labelKey: "resources.chat.contextISO", emoji: "🏅" },
+  { id: "faq", labelKey: "resources.chat.contextFAQ", emoji: "💬" },
+  { id: "regulatory", labelKey: "resources.chat.contextTraining", emoji: "📚" },
 ];
 
 export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps) => {
@@ -40,7 +40,6 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
     }
   }, [messages]);
 
-  // When context changes, show relevant FAQ
   useEffect(() => {
     if (activeContext && activeContext !== "regulatory") {
       const faqs = faqAnswers[activeContext];
@@ -67,9 +66,7 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
       for (const faq of category) {
         const keywords = faq.q.toLowerCase().split(/\s+/);
         const matchCount = keywords.filter(kw => kw.length > 3 && q.includes(kw)).length;
-        if (matchCount >= 2) {
-          return faq.a;
-        }
+        if (matchCount >= 2) return faq.a;
       }
     }
     return null;
@@ -77,10 +74,8 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
 
   const streamAIResponse = async (userMessages: Message[]) => {
     const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
-    
     const systemContext = activeContext ? contextPrompts[activeContext] || "" : "";
     const messagesForAI = userMessages.map(m => ({ role: m.role, content: m.content }));
-    
     if (systemContext) {
       messagesForAI.unshift({ role: "user" as const, content: `[Kontekst: ${systemContext}]` });
     }
@@ -94,9 +89,7 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
       body: JSON.stringify({ messages: messagesForAI, context: { currentRoute: "/resources", pageName: "Support" } }),
     });
 
-    if (resp.status === 429) {
-      return t("resources.chat.aiLimitReached");
-    }
+    if (resp.status === 429) return t("resources.chat.aiLimitReached");
     if (!resp.ok || !resp.body) throw new Error("Failed to start stream");
 
     const reader = resp.body.getReader();
@@ -108,7 +101,6 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
       const { done, value } = await reader.read();
       if (done) break;
       textBuffer += decoder.decode(value, { stream: true });
-
       let newlineIndex: number;
       while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
         let line = textBuffer.slice(0, newlineIndex);
@@ -133,35 +125,26 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
         } catch { /* partial JSON */ }
       }
     }
-
     return fullResponse;
   };
 
   const handleSend = async () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
-
     const userMsg: Message = { role: "user", content: trimmed };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
-
     try {
-      // Try local answer first (zero cost)
       const localAnswer = tryLocalAnswer(trimmed);
       if (localAnswer && activeContext !== "regulatory") {
         setMessages(prev => [...prev, { role: "assistant", content: localAnswer, source: "mynder" }]);
       } else {
-        // Use AI for regulatory or unmatched questions
         await streamAIResponse([...messages, userMsg]);
       }
     } catch (e) {
       console.error("Support chat error:", e);
-      setMessages(prev => [...prev, { 
-        role: "assistant", 
-        content: "Beklager, noe gikk galt. Prøv igjen om litt.", 
-        source: "mynder" 
-      }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Beklager, noe gikk galt. Prøv igjen om litt.", source: "mynder" }]);
     } finally {
       setIsLoading(false);
     }
@@ -182,17 +165,18 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
   return (
     <div className="flex flex-col h-full">
       {/* Context chips */}
-      <div className="flex flex-wrap gap-1.5 p-3 border-b border-border">
+      <div className="flex flex-wrap gap-1.5 p-3 border-b border-border/50">
         {contextChips.map((chip) => (
           <button
             key={chip.id}
             onClick={() => onSelectContext(chip.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
               activeContext === chip.id
                 ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground"
             }`}
           >
+            <span className="text-[11px]">{chip.emoji}</span>
             {t(chip.labelKey)}
           </button>
         ))}
@@ -201,22 +185,25 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-center">
-            <div>
-              <p className="text-muted-foreground text-sm">{t("resources.chat.welcome")}</p>
-              <p className="text-xs text-muted-foreground/60 mt-2">
+          <div className="flex items-center justify-center h-full text-center py-16">
+            <div className="space-y-3">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-foreground font-medium text-sm">{t("resources.chat.welcome")}</p>
+              <p className="text-xs text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
                 {t("resources.chat.placeholder")}
               </p>
             </div>
           </div>
         )}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted/70 text-foreground"
+                  : "bg-muted/50 text-foreground border border-border/40"
               }`}>
                 <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</div>
                 {msg.role === "assistant" && (
@@ -229,7 +216,7 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
           ))}
           {isLoading && messages[messages.length - 1]?.role === "user" && (
             <div className="flex justify-start">
-              <div className="bg-muted/70 rounded-2xl px-4 py-2.5">
+              <div className="bg-muted/50 border border-border/40 rounded-2xl px-4 py-2.5">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             </div>
@@ -238,7 +225,7 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border/50">
         <form
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           className="flex gap-2"
@@ -248,7 +235,7 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t("resources.chat.placeholder")}
-            className="flex-1"
+            className="flex-1 bg-muted/30 border-border/50"
             disabled={isLoading}
           />
           <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>

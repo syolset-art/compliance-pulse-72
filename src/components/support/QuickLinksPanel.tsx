@@ -7,43 +7,46 @@ interface QuickLinksPanelProps {
 }
 
 const quickLinks = [
-  { id: "mynder-help", icon: HelpCircle, titleKey: "resources.quickLinks.mynderHelp", descKey: "resources.quickLinks.mynderHelpDesc" },
-  { id: "lara", icon: Bot, titleKey: "resources.quickLinks.laraHelp", descKey: "resources.quickLinks.laraHelpDesc" },
-  { id: "iso", icon: Award, titleKey: "resources.quickLinks.isoHelp", descKey: "resources.quickLinks.isoHelpDesc" },
-  { id: "faq", icon: MessageCircle, titleKey: "resources.quickLinks.faqHelp", descKey: "resources.quickLinks.faqHelpDesc" },
-  { id: "regulatory", icon: GraduationCap, titleKey: "resources.quickLinks.trainingHelp", descKey: "resources.quickLinks.trainingHelpDesc" },
+  { id: "mynder-help", icon: HelpCircle, titleKey: "resources.quickLinks.mynderHelp", descKey: "resources.quickLinks.mynderHelpDesc", emoji: "🧭" },
+  { id: "lara", icon: Bot, titleKey: "resources.quickLinks.laraHelp", descKey: "resources.quickLinks.laraHelpDesc", emoji: "🦋" },
+  { id: "iso", icon: Award, titleKey: "resources.quickLinks.isoHelp", descKey: "resources.quickLinks.isoHelpDesc", emoji: "🏅" },
+  { id: "faq", icon: MessageCircle, titleKey: "resources.quickLinks.faqHelp", descKey: "resources.quickLinks.faqHelpDesc", emoji: "💬" },
+  { id: "regulatory", icon: GraduationCap, titleKey: "resources.quickLinks.trainingHelp", descKey: "resources.quickLinks.trainingHelpDesc", emoji: "📚" },
 ];
 
 export const QuickLinksPanel = ({ onSelectContext, activeContext }: QuickLinksPanelProps) => {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+    <div className="space-y-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1 mb-1">
         {t("resources.quickLinks.title")}
       </h3>
-      <div className="space-y-1">
-        {quickLinks.map((link) => (
-          <button
-            key={link.id}
-            onClick={() => onSelectContext(link.id)}
-            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left ${
-              activeContext === link.id
-                ? "bg-primary/10 text-primary shadow-sm"
-                : "text-foreground/70 hover:bg-accent/50 hover:text-foreground"
-            }`}
-          >
-            <div className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              activeContext === link.id ? "bg-primary/20" : "bg-muted"
-            }`}>
-              <link.icon className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium truncate">{t(link.titleKey)}</p>
-              <p className="text-xs text-muted-foreground truncate">{t(link.descKey)}</p>
-            </div>
-          </button>
-        ))}
+      <div className="space-y-1.5">
+        {quickLinks.map((link) => {
+          const isActive = activeContext === link.id;
+          return (
+            <button
+              key={link.id}
+              onClick={() => onSelectContext(link.id)}
+              className={`w-full group flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-200 text-left ${
+                isActive
+                  ? "bg-primary/10 text-primary ring-1 ring-primary/20 shadow-sm"
+                  : "text-foreground/70 hover:bg-accent/60 hover:text-foreground hover:shadow-sm"
+              }`}
+            >
+              <span className="text-lg flex-shrink-0">{link.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <p className={`font-medium text-[13px] leading-tight ${isActive ? "text-primary" : ""}`}>
+                  {t(link.titleKey)}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug line-clamp-1">
+                  {t(link.descKey)}
+                </p>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
