@@ -17,36 +17,37 @@ const Resources = () => {
     return (
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
-        <main className="flex-1 overflow-auto flex flex-col">
-          <div className="px-4 pt-6 pb-2">
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight">{t("resources.title")}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{t("resources.subtitle")}</p>
-          </div>
-          <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-            <TabsList className="mx-4 grid grid-cols-3">
-              <TabsTrigger value="chat" className="gap-1.5">
-                <MessageCircle className="h-4 w-4" />
-                Chat
-              </TabsTrigger>
-              <TabsTrigger value="links" className="gap-1.5">
-                <Link2 className="h-4 w-4" />
-                {t("resources.quickLinks.title")}
-              </TabsTrigger>
-              <TabsTrigger value="knowledge" className="gap-1.5">
-                <BookOpen className="h-4 w-4" />
-                {t("resources.knowledge.title")}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+        <main className="flex-1 overflow-auto">
+          <div className="px-4 pb-6 space-y-4">
+            {/* Quick topic cards — horizontal scroll */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+              {[
+                { id: "mynder-help", emoji: "🧭", label: "Mynder" },
+                { id: "lara", emoji: "🦋", label: "Lara" },
+                { id: "iso", emoji: "🏅", label: "ISO" },
+                { id: "faq", emoji: "💬", label: "FAQ" },
+                { id: "regulatory", emoji: "📚", label: t("resources.chat.contextTraining") },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveContext(item.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+                    activeContext === item.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-card border border-border/50 text-foreground/70 hover:bg-accent"
+                  }`}
+                >
+                  <span>{item.emoji}</span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Chat panel */}
+            <div className="rounded-2xl border border-border/50 bg-card shadow-sm overflow-hidden" style={{ height: "calc(100vh - 160px)" }}>
               <SupportChat activeContext={activeContext} onSelectContext={setActiveContext} />
-            </TabsContent>
-            <TabsContent value="links" className="p-4">
-              <QuickLinksPanel onSelectContext={(id) => { setActiveContext(id); }} activeContext={activeContext} />
-            </TabsContent>
-            <TabsContent value="knowledge" className="p-4">
-              <KnowledgePanel />
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </main>
       </div>
     );
