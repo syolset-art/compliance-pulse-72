@@ -22,8 +22,23 @@ import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from "@/li
 import {
   ArrowRight, ChevronDown, CheckCircle2, Circle, Loader2,
   BookOpen, ExternalLink, Sparkles, Search, GraduationCap, BookOpenText,
+  Leaf, Shield, Bot, GitCompare, TrendingUp, MessageCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import laraButterfly from "@/assets/lara-butterfly.png";
+
+const PLATFORM_UPDATES = [
+  { id: "sustainability", title: "Bærekraftsrapport", type: "ny" as const, route: "/sustainability", icon: Leaf },
+  { id: "risk-update", title: "Forbedret risikovurdering", type: "oppdatert" as const, route: "/tasks?view=readiness", icon: Shield },
+  { id: "ai-act", title: "AI Act-modul", type: "beta" as const, route: "/ai-registry", icon: Bot },
+  { id: "vendor-compare", title: "Leverandør-sammenligning", type: "ny" as const, route: "/assets", icon: GitCompare },
+];
+
+const UPDATE_TYPE_STYLES = {
+  ny: { label: "Ny", className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
+  oppdatert: { label: "Oppdatert", className: "bg-primary/15 text-primary border-primary/20" },
+  beta: { label: "Beta", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20" },
+};
 
 const Resources = () => {
   const { t, i18n } = useTranslation();
@@ -37,6 +52,9 @@ const Resources = () => {
   const corePhases = CERTIFICATION_PHASES.filter(p => !p.optional);
   const optionalPhases = CERTIFICATION_PHASES.filter(p => p.optional);
 
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
+
   const defaultPhase = useMemo(() => {
     for (const p of CERTIFICATION_PHASES) {
       const status = getPhaseStatus(p.id, progressPercent);
@@ -44,6 +62,16 @@ const Resources = () => {
     }
     return 'foundation';
   }, [progressPercent]);
+
+  // Current active phase label for the landing card
+  const activePhaseLabel = useMemo(() => {
+    const phase = CERTIFICATION_PHASES.find(p => p.id === defaultPhase);
+    return phase ? (lang === "en" ? phase.name_en : phase.name_no) : "Grunnlag";
+  }, [defaultPhase, lang]);
+
+  const activePhaseStatus = useMemo(() => {
+    return getPhaseStatus(defaultPhase, progressPercent);
+  }, [defaultPhase, progressPercent]);
 
   // State
   const [activeTab, setActiveTab] = useState("compliance");
@@ -388,7 +416,95 @@ const Resources = () => {
             </div>
           </div>
 
+          {/* Platform Updates */}
+          <div className="space-y-2">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Siste oppdateringer</h2>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {PLATFORM_UPDATES.map((update) => {
+                const style = UPDATE_TYPE_STYLES[update.type];
+                const Icon = update.icon;
+                return (
+                  <button
+                    key={update.id}
+                    onClick={() => navigate(update.route)}
+                    className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-card px-4 py-2.5 whitespace-nowrap hover:border-primary/20 hover:shadow-sm transition-all group flex-shrink-0"
+                  >
+                    <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-sm font-medium text-foreground">{update.title}</span>
+                    <Badge className={`text-[10px] px-1.5 py-0 ${style.className}`}>{style.label}</Badge>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Navigation Cards */}
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
+            {/* Maturity card */}
+            <button
+              onClick={() => { setActiveTab("compliance"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Din modenhet</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {activePhaseLabel} – {activePhaseStatus === 'completed' ? 'Fullført' : activePhaseStatus === 'in_progress' ? 'Pågår' : 'Ikke startet'}
+              </p>
+            </button>
+
+            {/* Regulations card */}
+            <button
+              onClick={() => { setActiveTab("regulations"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-3">
+                  <BookOpenText className="h-5 w-5 text-blue-500" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Regelverk</h3>
+              <p className="text-sm text-muted-foreground mt-1">GDPR, NIS2, ISO 27001 og AI Act</p>
+            </button>
+
+            {/* Glossary card */}
+            <button
+              onClick={() => { setActiveTab("glossary"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3">
+                  <BookOpen className="h-5 w-5 text-amber-500" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Ordliste</h3>
+              <p className="text-sm text-muted-foreground mt-1">{GLOSSARY_TERMS.length} begreper forklart</p>
+            </button>
+
+            {/* Lara chat card */}
+            <button
+              onClick={() => chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-3">
+                  <img src={laraButterfly} alt="Lara" className="h-6 w-6" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Spør Lara</h3>
+              <p className="text-sm text-muted-foreground mt-1">Få svar på compliance-spørsmål</p>
+            </button>
+          </div>
+
           {/* Tabs */}
+          <div ref={tabsRef}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className={`${isMobile ? 'w-full' : ''} bg-muted/50`}>
               <TabsTrigger value="compliance" className="gap-1.5 text-xs sm:text-sm">
@@ -450,9 +566,10 @@ const Resources = () => {
               <GlossaryTab />
             </TabsContent>
           </Tabs>
+          </div>
 
           {/* Chat */}
-          <div className="space-y-3">
+          <div ref={chatRef} className="space-y-3">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest px-1">Chat med Lara</h2>
             <div className="rounded-2xl border border-border/50 bg-card shadow-md overflow-hidden ring-1 ring-primary/5" style={{ height: isMobile ? "400px" : "500px" }}>
               <SupportChat
