@@ -13,6 +13,7 @@ import {
   ChevronRight,
   CheckCircle2,
   Lock,
+  Clock,
   Sparkles,
   Info,
   Plus,
@@ -587,13 +588,15 @@ const Regulations = () => {
               const activeInCategory = categoryFrameworks.filter(f => isFrameworkActive(f.id));
               const isExpanded = expandedCategories.has(category.id);
               const CategoryIcon = category.icon;
+              const isComingSoon = category.id === 'other';
 
-              if (activeInCategory.length === 0 && !showAvailable) return null;
+              if (activeInCategory.length === 0 && !showAvailable && !isComingSoon) return null;
 
               return (
                 <Card 
                   key={category.id} 
                   ref={(el) => { categoryRefs.current[category.id] = el; }}
+                  className={isComingSoon ? 'opacity-75' : ''}
                 >
                   <button
                     onClick={() => toggleCategory(category.id)}
@@ -606,14 +609,23 @@ const Regulations = () => {
                       <div className="text-left">
                         <h3 className="font-semibold text-foreground">{category.name}</h3>
                         <p className="text-xs text-muted-foreground">
-                          {getActiveCount(category.id)} av {categoryFrameworks.length} aktivert
+                          {isComingSoon
+                            ? `${categoryFrameworks.length} regelverk`
+                            : `${getActiveCount(category.id)} av ${categoryFrameworks.length} aktivert`}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge variant="secondary" className="text-xs">
-                        {getActiveCount(category.id)}
-                      </Badge>
+                      {isComingSoon ? (
+                        <Badge variant="secondary" className="text-xs gap-1">
+                          <Clock className="h-3 w-3" />
+                          Kommer snart
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">
+                          {getActiveCount(category.id)}
+                        </Badge>
+                      )}
                       {isExpanded ? (
                         <ChevronDown className="h-5 w-5 text-muted-foreground" />
                       ) : (
@@ -625,13 +637,55 @@ const Regulations = () => {
                   {isExpanded && (
                     <CardContent className="pt-0 pb-4">
                       <Separator className="mb-4" />
+
+                      {isComingSoon && (
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-dashed border-muted-foreground/30 mb-4">
+                          <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <p className="text-sm text-muted-foreground">
+                            Disse regelverkene er under utvikling og vil bli tilgjengelige i en kommende oppdatering. Du kan allerede se hvilke som planlegges.
+                          </p>
+                        </div>
+                      )}
+
                       <div className="space-y-3">
                         {categoryFrameworks
-                          .filter(f => isFrameworkActive(f.id) || showAvailable)
+                          .filter(f => isComingSoon || isFrameworkActive(f.id) || showAvailable)
                           .map(framework => {
                             const status = getFrameworkStatus(framework.id);
                             const isActive = isFrameworkActive(framework.id);
                             const isMandatory = status?.is_mandatory || framework.isMandatory;
+
+                            if (isComingSoon) {
+                              return (
+                                <div
+                                  key={framework.id}
+                                  className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-muted/20 border-border"
+                                >
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 bg-muted">
+                                      <Clock className="h-3 w-3 text-muted-foreground" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-medium text-sm text-muted-foreground">{framework.name}</span>
+                                        {isMandatory && (
+                                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-1">
+                                            <Lock className="h-2.5 w-2.5" />
+                                            Obligatorisk
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 sm:line-clamp-none">
+                                        {framework.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Badge variant="outline" className="text-[10px] text-muted-foreground shrink-0">
+                                    Kommer snart
+                                  </Badge>
+                                </div>
+                              );
+                            }
 
                             return (
                               <div 
