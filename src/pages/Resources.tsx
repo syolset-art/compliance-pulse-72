@@ -4,41 +4,17 @@ import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
-import {
-  CERTIFICATION_PHASES,
-  getPhaseStatus,
-  type CertificationPhase,
-  type PhaseDefinition,
-} from "@/lib/certificationPhases";
 import { REGULATORY_TOPICS, type RegulatoryTopic } from "@/lib/regulatoryArticles";
 import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from "@/lib/glossaryData";
 import {
-  ArrowRight, ChevronDown, CheckCircle2, Circle, Loader2,
-  BookOpen, ExternalLink, Sparkles, Search, GraduationCap, BookOpenText,
+  ArrowRight, ChevronDown,
+  BookOpen, ExternalLink, Sparkles, Search, BookOpenText,
   Leaf, Shield, Bot, GitCompare, TrendingUp,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Map tool routes to feature guide slugs
-const ROUTE_TO_GUIDE_SLUG: Record<string, string> = {
-  "/onboarding": "onboarding",
-  "/compliance-checklist": "compliance-checklist",
-  "/work-areas": "roles",
-  "/tasks?view=readiness": "iso-readiness",
-  "/assets": "system-registration",
-  "/resources": "lara-ai",
-  "/deviations": "deviation-management",
-  "/reports": "reports",
-  "/transparency": "trust-profile",
-  "/customer-requests": "customer-requests",
-};
-const getFeatureGuideSlug = (route: string): string | undefined => ROUTE_TO_GUIDE_SLUG[route];
 
 const PLATFORM_UPDATES = [
   { id: "sustainability", title: "Bærekraftsrapport", type: "ny" as const, route: "/sustainability", icon: Leaf },
@@ -59,33 +35,12 @@ const Resources = () => {
   const navigate = useNavigate();
   const lang = i18n.language?.startsWith("en") ? "en" : "no";
 
-  const { stats } = useComplianceRequirements();
-  const progressPercent = stats.progressPercent;
-
-  const corePhases = CERTIFICATION_PHASES.filter(p => !p.optional);
-  const optionalPhases = CERTIFICATION_PHASES.filter(p => p.optional);
-
   const tabsRef = useRef<HTMLDivElement>(null);
-  const defaultPhase = useMemo(() => {
-    for (const p of CERTIFICATION_PHASES) {
-      const status = getPhaseStatus(p.id, progressPercent);
-      if (status === 'in_progress') return p.id;
-    }
-    return 'foundation';
-  }, [progressPercent]);
-
 
   // State
   const [activeTab, setActiveTab] = useState("regulations");
-  const [selectedPhase, setSelectedPhase] = useState<CertificationPhase>(defaultPhase);
-  const [learningOpen, setLearningOpen] = useState(false);
-  const [maturityOpen, setMaturityOpen] = useState(false);
   const [selectedRegulation, setSelectedRegulation] = useState<string | null>(null);
   const [glossarySearch, setGlossarySearch] = useState("");
-
-
-
-  const activePhase = CERTIFICATION_PHASES.find(p => p.id === selectedPhase)!;
 
   // Glossary filtering
   const filteredTerms = useMemo(() => {
@@ -102,213 +57,6 @@ const Resources = () => {
     return groups;
   }, [filteredTerms]);
 
-  // --- Helpers ---
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">Fullført</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-primary/15 text-primary border-primary/20">Aktiv fase</Badge>;
-      default:
-        return <Badge variant="secondary" className="text-muted-foreground">Neste</Badge>;
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
-      case 'in_progress':
-        return <Circle className="h-5 w-5 text-primary fill-primary/20" />;
-      default:
-        return <Circle className="h-5 w-5 text-muted-foreground/40" />;
-    }
-  };
-
-  // --- Sub-components ---
-  const PhaseStepper = () => (
-    <div className="space-y-4">
-      <div className={`flex ${isMobile ? 'flex-col' : ''} gap-2`}>
-        {corePhases.map((phase, i) => {
-          const status = getPhaseStatus(phase.id, progressPercent);
-          const isSelected = selectedPhase === phase.id;
-          return (
-            <div key={phase.id} className={`flex ${isMobile ? '' : 'flex-1'} items-center gap-2`}>
-              <button
-                onClick={() => { setSelectedPhase(phase.id); setLearningOpen(false); }}
-                className={`flex-1 flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 ${
-                  isSelected
-                    ? "border-primary/30 bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                    : "border-border/50 bg-card hover:border-primary/20 hover:bg-accent/50"
-                }`}
-              >
-                {getStatusIcon(status)}
-                <div className="text-left min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {lang === "en" ? phase.name_en : phase.name_no}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {status === 'completed' ? 'Fullført' : status === 'in_progress' ? 'Pågår' : 'Ikke startet'}
-                  </p>
-                </div>
-              </button>
-              {!isMobile && i < corePhases.length - 1 && (
-                <ArrowRight className="h-4 w-4 text-muted-foreground/30 flex-shrink-0" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-border/50" />
-        <Badge variant="outline" className="text-[10px] text-muted-foreground border-dashed">Valgfritt</Badge>
-        <div className="flex-1 h-px bg-border/50" />
-      </div>
-      <div className={`flex ${isMobile ? 'flex-col' : ''} gap-2`}>
-        {optionalPhases.map((phase) => {
-          const status = getPhaseStatus(phase.id, progressPercent);
-          const isSelected = selectedPhase === phase.id;
-          return (
-            <button
-              key={phase.id}
-              onClick={() => { setSelectedPhase(phase.id); setLearningOpen(false); }}
-              className={`flex-1 flex items-center gap-3 rounded-xl border border-dashed p-3 transition-all duration-200 ${
-                isSelected
-                  ? "border-primary/30 bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                  : "border-border/40 bg-card/50 hover:border-primary/20 hover:bg-accent/50 opacity-70 hover:opacity-100"
-              }`}
-            >
-              {getStatusIcon(status)}
-              <div className="text-left min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {lang === "en" ? phase.name_en : phase.name_no}
-                </p>
-                <p className="text-[11px] text-muted-foreground">Valgfritt</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  // Activity explanations and linked Mynder features per phase
-  const ACTIVITY_DETAILS: Record<string, { explanation_no: string; explanation_en: string; featureIndex?: number }[]> = {
-    foundation: [
-      { explanation_no: 'Kartlegg hvem dere er, hva dere gjør, og hvilke lover og standarder som gjelder for virksomheten. Mynder gjør dette automatisk basert på informasjonen du gir under oppsett.', explanation_en: 'Map who you are, what you do, and which laws and standards apply. Mynder does this automatically based on information you provide during setup.', featureIndex: 0 },
-      { explanation_no: 'Definer omfanget av styringssystemet — hvilke avdelinger, systemer og prosesser som skal dekkes. Du setter dette opp i onboarding-veiviseren.', explanation_en: 'Define the scope of your management system — which departments, systems and processes are covered. You set this up in the onboarding wizard.', featureIndex: 0 },
-      { explanation_no: 'Sammenlign nåværende praksis mot kravene for å finne hva som mangler. Mynder kjører denne analysen automatisk og viser deg en prioritert liste over gap.', explanation_en: 'Compare current practices against requirements to find what\'s missing. Mynder runs this analysis automatically and shows a prioritized gap list.', featureIndex: 1 },
-      { explanation_no: 'Tildel ansvar for compliance-arbeidet til riktige personer i organisasjonen. Definer arbeidsområder og koble dem til ansvarlige i Mynder.', explanation_en: 'Assign compliance responsibilities to the right people. Define work areas and link them to responsible persons in Mynder.', featureIndex: 2 },
-    ],
-    implementation: [
-      { explanation_no: 'Opprett retningslinjer og prosedyrer for personvern, sikkerhet og AI. Du kan laste opp eksisterende dokumenter for analyse, eller bruke Lara AI til å generere utkast tilpasset din virksomhet.', explanation_en: 'Create policies and procedures for privacy, security and AI. You can upload existing documents for analysis, or use Lara AI to generate drafts tailored to your organization.', featureIndex: 3 },
-      { explanation_no: 'Identifiser og vurder trusler og sårbarheter for hvert system. Mynder har strukturerte risikovurderinger innebygd i hver systemprofil.', explanation_en: 'Identify and assess threats and vulnerabilities for each system. Mynder has structured risk assessments built into each system profile.', featureIndex: 1 },
-      { explanation_no: 'Velg tiltak for å redusere, akseptere, overføre eller unngå identifiserte risikoer. Dette dokumenteres direkte i systemprofilene.', explanation_en: 'Choose measures to reduce, accept, transfer or avoid identified risks. This is documented directly in system profiles.', featureIndex: 1 },
-      { explanation_no: 'Sett målbare mål for informasjonssikkerhet og personvern. Compliance-sjekklisten hjelper deg å spore fremdrift.', explanation_en: 'Set measurable objectives for information security and privacy. The compliance checklist helps track progress.', featureIndex: 0 },
-    ],
-    operation: [
-      { explanation_no: 'Sett de vedtatte kontrollene ut i praksis i hverdagen. Mynder hjelper deg å holde oversikt over status.', explanation_en: 'Put the adopted controls into daily practice. Mynder helps you track status.', featureIndex: 0 },
-      { explanation_no: 'Hold dokumentasjon oppdatert og tilgjengelig. Generer rapporter for ledelsen direkte fra Mynder.', explanation_en: 'Keep documentation updated and accessible. Generate management reports directly from Mynder.', featureIndex: 2 },
-      { explanation_no: 'Sørg for at ansatte forstår sitt ansvar og vet hvordan de skal handle ved hendelser.', explanation_en: 'Ensure employees understand their responsibilities and know how to act in incidents.' },
-      { explanation_no: 'Følg med på avvik, hendelser og endringer. Bruk avvikshåndteringen til å registrere og lukke avvik systematisk.', explanation_en: 'Monitor deviations, incidents and changes. Use deviation management to register and close deviations systematically.', featureIndex: 0 },
-    ],
-    audit: [
-      { explanation_no: 'En systematisk gjennomgang av styringssystemet for å verifisere at kontrollene fungerer. Bruk ISO Readiness for å sjekke beredskapen.', explanation_en: 'A systematic review of the management system to verify controls work. Use ISO Readiness to check preparedness.', featureIndex: 0 },
-      { explanation_no: 'Ledelsen gjennomgår resultatene og tar eierskap til forbedringer. Generer dokumentasjon fra rapportmodulen.', explanation_en: 'Management reviews results and takes ownership of improvements. Generate documentation from the reports module.', featureIndex: 1 },
-      { explanation_no: 'Iverksett tiltak for å lukke avvik funnet under revisjonen.', explanation_en: 'Implement measures to close non-conformities found during the audit.' },
-      { explanation_no: 'Bruk funnene til å forbedre styringssystemet kontinuerlig.', explanation_en: 'Use findings to continuously improve the management system.' },
-    ],
-    certification: [
-      { explanation_no: 'Ekstern revisor gjennomgår dokumentasjonen og vurderer om styringssystemet er tilstrekkelig beskrevet.', explanation_en: 'External auditor reviews documentation and assesses if the management system is sufficiently described.' },
-      { explanation_no: 'Ekstern revisor verifiserer at styringssystemet er implementert og fungerer i praksis.', explanation_en: 'External auditor verifies the management system is implemented and works in practice.' },
-      { explanation_no: 'Sertifikatet utstedes og gjelder i tre år med årlige oppfølginger. Del status via Trust Profil.', explanation_en: 'Certificate is issued and valid for three years with annual surveillance. Share status via Trust Profile.', featureIndex: 0 },
-      { explanation_no: 'Vedlikehold sertifiseringen med årlige oppfølgingsrevisjoner og kontinuerlig forbedring.', explanation_en: 'Maintain certification with annual surveillance audits and continuous improvement.' },
-    ],
-  };
-
-  const PhaseDetail = ({ phase }: { phase: PhaseDefinition }) => {
-    const status = getPhaseStatus(phase.id, progressPercent);
-    const activities = lang === "en" ? phase.activities_en : phase.activities_no;
-    const learningContent = lang === "en" ? phase.learningContent_en : phase.learningContent_no;
-    const features = phase.mynderFeatures || [];
-    const activityDetails = ACTIVITY_DETAILS[phase.id] || [];
-
-    return (
-      <Card variant="flat" className="border-primary/10">
-        <CardContent className="p-6 space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-xl font-bold text-foreground">
-                  {lang === "en" ? phase.name_en : phase.name_no}
-                </h2>
-                {getStatusBadge(status)}
-                {phase.optional && (
-                  <Badge variant="outline" className="text-[10px] border-dashed text-muted-foreground">Valgfritt</Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {lang === "en" ? phase.description_en : phase.description_no}
-              </p>
-            </div>
-          </div>
-
-          {/* Combined activities + explanations + Mynder features */}
-          <div className="space-y-3">
-            {activities.map((activity, i) => {
-              const isCompleted = status === 'completed' || (status === 'in_progress' && i < Math.ceil(activities.length * (progressPercent / 100)));
-              const detail = activityDetails[i];
-              const linkedFeature = detail?.featureIndex !== undefined ? features[detail.featureIndex] : undefined;
-              const explanation = detail ? (lang === "en" ? detail.explanation_en : detail.explanation_no) : undefined;
-
-              return (
-                <div key={i} className="rounded-xl border border-border/50 bg-card overflow-hidden">
-                  <div className="px-4 py-3 flex items-start gap-3">
-                    <Checkbox checked={isCompleted} disabled className="pointer-events-none mt-0.5" />
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <p className={`text-sm font-semibold ${isCompleted ? "text-foreground" : "text-foreground/80"}`}>{activity}</p>
-                      {explanation && (
-                        <p className="text-xs text-muted-foreground leading-relaxed">{explanation}</p>
-                      )}
-                    </div>
-                  </div>
-                  {linkedFeature && (
-                    <button
-                      onClick={() => {
-                        const guideSlug = getFeatureGuideSlug(linkedFeature.route);
-                        navigate(guideSlug ? `/resources/features/${guideSlug}` : linkedFeature.route);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 bg-primary/5 border-t border-primary/10 text-left hover:bg-primary/10 transition-colors group"
-                    >
-                      <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-primary">
-                          {lang === "en" ? `Learn how: ${linkedFeature.title_en}` : `Lær mer: ${linkedFeature.title_no}`}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-3 w-3 text-primary/50 group-hover:text-primary flex-shrink-0 transition-colors" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <Collapsible open={learningOpen} onOpenChange={setLearningOpen}>
-            <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
-              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${learningOpen ? 'rotate-180' : ''}`} />
-              Les mer om denne fasen
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-3">
-              <div className="rounded-lg bg-muted/30 border border-border/30 p-4">
-                <p className="text-sm text-foreground/80 leading-relaxed">{learningContent}</p>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </CardContent>
-      </Card>
-    );
-  };
 
   const RegulatoryCard = ({ topic }: { topic: RegulatoryTopic }) => {
     const isExpanded = selectedRegulation === topic.id;
@@ -472,16 +220,14 @@ const Resources = () => {
           <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
             {/* Maturity info card */}
             <button
-              onClick={() => { setMaturityOpen(!maturityOpen); if (!maturityOpen) tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-              className={`group text-left rounded-2xl border p-5 transition-all ${
-                maturityOpen ? "border-primary/20 bg-primary/5 shadow-md" : "border-border/50 bg-card hover:border-primary/20 hover:shadow-md"
-              }`}
+              onClick={() => navigate("/resources/maturity")}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
                   <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground/40 transition-transform duration-200 ${maturityOpen ? 'rotate-180 text-primary' : ''}`} />
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
               <h3 className="text-base font-bold text-foreground">Slik beregner vi modenhet</h3>
               <p className="text-sm text-muted-foreground mt-1">Forstå fasene i compliance-reisen</p>
@@ -517,14 +263,6 @@ const Resources = () => {
               <p className="text-sm text-muted-foreground mt-1">{GLOSSARY_TERMS.length} begreper forklart</p>
             </button>
           </div>
-
-          {/* Maturity collapsible section */}
-          {maturityOpen && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-              <PhaseStepper />
-              <PhaseDetail phase={activePhase} />
-            </div>
-          )}
 
           {/* Tabs */}
           <div ref={tabsRef}>

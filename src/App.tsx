@@ -46,6 +46,7 @@ import MynderMe from "./pages/MynderMe";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
+import MaturityMethodology from "./pages/MaturityMethodology";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,7 @@ const App = () => (
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
+                  <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
