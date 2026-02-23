@@ -16,6 +16,7 @@ interface Message {
 interface SupportChatProps {
   activeContext: string | null;
   onSelectContext: (id: string) => void;
+  showContextChips?: boolean;
 }
 
 const contextChips = [
@@ -26,7 +27,14 @@ const contextChips = [
   { id: "regulatory", labelKey: "resources.chat.contextTraining", emoji: "📚" },
 ];
 
-export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps) => {
+const suggestedQuestions = [
+  "Hvordan legger jeg til en leverandør?",
+  "Hva er forskjellen på GDPR og NIS2?",
+  "Hjelp meg med risikovurdering",
+  "Hvordan kommer jeg i gang med ISO 27001?",
+];
+
+export const SupportChat = ({ activeContext, onSelectContext, showContextChips = true }: SupportChatProps) => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -128,8 +136,8 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
     return fullResponse;
   };
 
-  const handleSend = async () => {
-    const trimmed = input.trim();
+  const handleSend = async (text?: string) => {
+    const trimmed = (text || input).trim();
     if (!trimmed || isLoading) return;
     const userMsg: Message = { role: "user", content: trimmed };
     setMessages(prev => [...prev, userMsg]);
@@ -164,36 +172,52 @@ export const SupportChat = ({ activeContext, onSelectContext }: SupportChatProps
 
   return (
     <div className="flex flex-col h-full">
-      {/* Context chips */}
-      <div className="flex flex-wrap gap-1.5 p-3 border-b border-border/50">
-        {contextChips.map((chip) => (
-          <button
-            key={chip.id}
-            onClick={() => onSelectContext(chip.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
-              activeContext === chip.id
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
-          >
-            <span className="text-[11px]">{chip.emoji}</span>
-            {t(chip.labelKey)}
-          </button>
-        ))}
-      </div>
+      {/* Context chips — only when explicitly shown */}
+      {showContextChips && (
+        <div className="flex flex-wrap gap-1.5 p-3 border-b border-border/50">
+          {contextChips.map((chip) => (
+            <button
+              key={chip.id}
+              onClick={() => onSelectContext(chip.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                activeContext === chip.id
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              <span className="text-[11px]">{chip.emoji}</span>
+              {t(chip.labelKey)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-center py-16">
-            <div className="space-y-3">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                <Sparkles className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-center h-full text-center py-12">
+            <div className="space-y-5 max-w-sm">
+              <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+                <Sparkles className="h-7 w-7 text-primary" />
               </div>
-              <p className="text-foreground font-medium text-sm">{t("resources.chat.welcome")}</p>
-              <p className="text-xs text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
-                {t("resources.chat.placeholder")}
-              </p>
+              <div>
+                <p className="text-foreground font-semibold text-base mb-1">Still et spørsmål</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Velg et tema over, eller prøv et av forslagene under.
+                </p>
+              </div>
+              {/* Suggested questions */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                {suggestedQuestions.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => handleSend(q)}
+                    className="px-3 py-2 rounded-xl text-xs font-medium bg-muted/60 text-foreground/80 border border-border/50 hover:bg-accent hover:border-primary/20 hover:text-foreground transition-all duration-200"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
