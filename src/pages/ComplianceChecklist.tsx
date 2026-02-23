@@ -92,7 +92,8 @@ const frameworkConfig = {
 type FrameworkId = keyof typeof frameworkConfig;
 
 export default function ComplianceChecklist() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNorwegian = i18n.language?.startsWith('nb') || i18n.language?.startsWith('no');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -152,9 +153,11 @@ export default function ComplianceChecklist() {
       // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matchesName = req.name.toLowerCase().includes(query);
+        const displayName = (isNorwegian && req.name_no) ? req.name_no : req.name;
+        const displayDesc = (isNorwegian && req.description_no) ? req.description_no : req.description;
+        const matchesName = displayName.toLowerCase().includes(query);
         const matchesId = req.requirement_id.toLowerCase().includes(query);
-        const matchesDesc = req.description?.toLowerCase().includes(query);
+        const matchesDesc = displayDesc?.toLowerCase().includes(query);
         if (!matchesName && !matchesId && !matchesDesc) return false;
       }
 
@@ -371,8 +374,8 @@ export default function ComplianceChecklist() {
                             <RequirementCard
                               key={req.requirement_id}
                               requirementId={req.requirement_id}
-                              name={req.name}
-                              description={req.description}
+                              name={(isNorwegian && req.name_no) ? req.name_no : req.name}
+                              description={(isNorwegian && req.description_no) ? req.description_no : req.description}
                               status={req.status}
                               priority={req.priority}
                               agentCapability={req.agent_capability}
