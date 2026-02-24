@@ -534,40 +534,74 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           <AIBadgeLegend />
         )}
 
-        {/* Lara suggestion on step 0 */}
-        {currentStep === 0 && (suggestions?.aiActNote || (systemAI?.totalWithAI && systemAI.totalWithAI > 0)) && (
+        {/* Lara suggestion on step 0 — only show when there's something useful */}
+        {currentStep === 0 && (
+          (systemAI && systemAI.totalWithAI > 0) || suggestions?.likelyAI
+        ) && (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="pt-4">
               <div className="flex items-start gap-3">
                 <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div className="space-y-3 flex-1">
-                  <p className="font-medium text-sm">Lara's vurdering</p>
-                  {suggestions?.aiActNote && (
-                    <p className="text-sm text-muted-foreground">{suggestions.aiActNote}</p>
-                  )}
-                  {systemAI && systemAI.totalWithAI > 0 && (
-                    <div className="p-3 bg-background/50 rounded-lg border border-primary/10">
+                  <p className="font-medium text-sm">Lara foreslår: Ja</p>
+
+                  {/* System-based detection — show each system with AI by name */}
+                  {systemAI && systemAI.systems.filter(s => s.hasAI).map((sys) => (
+                    <div key={sys.systemId} className="p-3 bg-background/50 rounded-lg border border-primary/10">
                       <div className="flex items-center gap-2 mb-2">
                         <Server className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">AI oppdaget i tilknyttet system</span>
+                        <span className="text-sm text-muted-foreground">
+                          Lara har oppdaget AI-bruk i{' '}
+                          <button
+                            type="button"
+                            className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`/systems/${sys.systemId}`, '_blank');
+                            }}
+                          >
+                            {sys.systemName}
+                          </button>
+                        </span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Systemet bruker {systemAI.suggestedFeatures.length} AI-funksjon(er):
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {systemAI.suggestedFeatures.slice(0, 5).map((feature, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">{feature}</Badge>
-                        ))}
-                        {systemAI.suggestedFeatures.length > 5 && (
-                          <Badge variant="outline" className="text-xs">+{systemAI.suggestedFeatures.length - 5} flere</Badge>
-                        )}
-                      </div>
+                      {sys.aiFeatures.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {sys.aiFeatures.slice(0, 5).map((feature, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">{feature}</Badge>
+                          ))}
+                          {sys.aiFeatures.length > 5 && (
+                            <Badge variant="outline" className="text-xs">+{sys.aiFeatures.length - 5} flere</Badge>
+                          )}
+                        </div>
+                      )}
                     </div>
+                  ))}
+
+                  {/* Process-analysis based detection (only when no system detection) */}
+                  {suggestions?.likelyAI && !(systemAI && systemAI.totalWithAI > 0) && suggestions.aiActNote && (
+                    <p className="text-sm text-muted-foreground">{suggestions.aiActNote}</p>
                   )}
-                  <div className="flex flex-wrap gap-2">
-                    {suggestions?.likelyAI && <Badge variant="secondary">Sannsynlig AI-bruk</Badge>}
-                    {systemAI && systemAI.totalWithAI > 0 && <Badge variant="default">System bruker AI</Badge>}
-                  </div>
+
+                  {/* Use suggestion button */}
+                  {hasAI !== true && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        setHasAI(true);
+                        // Pre-fill purpose from system data if available
+                        const firstSystemWithAI = systemAI?.systems.find(s => s.hasAI);
+                        if (firstSystemWithAI?.purposeDescription && !aiPurpose) {
+                          setAiPurpose(firstSystemWithAI.purposeDescription);
+                        }
+                      }}
+                    >
+                      <Sparkles className="h-3.5 w-3.5 mr-1" />
+                      Bruk Laras forslag
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
