@@ -1,54 +1,68 @@
 
 
-# Realistisk bruksomfang basert på prosesstype
+# Endre siste steg til "KI-avhengighet"
 
-## Problemet
-Frekvensvalget "Daglig / Ukentlig / Månedlig / Sjelden" passer ikke alle prosesser. En onboarding-prosess med AI-genererte videoer brukes kanskje bare 1-2 ganger i året - da er selv "Sjelden" misvisende. Systemet bør foreslå realistisk frekvens og omfang basert på hva prosessen faktisk handler om.
+## Konsept
+Siste steg handler ikke lenger om bruksomfang (frekvens, antall), men om a forstaa **konsekvensen om AI-en slutter a fungere**. Navnet endres til "KI-avhengighet" og innholdet struktureres rundt tre dimensjoner som bygger pa det brukeren allerede har oppgitt.
 
-## Endringer
+## Ny struktur for Steg 6
 
-### 1. Utvid frekvensalternativene
-Legg til "Hendelsesbasert" som et femte alternativ. Mange prosesser utløses av en hendelse (ny ansatt, ny kunde, avvik) i stedet for å kjøre på fast frekvens. Med dette alternativet vises et ekstra felt: "Estimert antall ganger per år" (f.eks. 2-5 for onboarding).
+### Tre dimensjoner presentert pedagogisk
 
-Nye alternativer:
-- Daglig
-- Ukentlig
-- Månedlig
-- Noen ganger i året
-- Hendelsesbasert (med tallfelt for antall per år)
+Steget viser tre kort/seksjoner, hver med en kontekstuell forklaring og et enkelt valg:
 
-### 2. Intelligent forvalg av frekvens
-Basert på prosessnavnet og AI-funksjonene foreslås en realistisk frekvens automatisk:
-- Prosesser med "onboarding", "ansettelse", "rekruttering" -> "Noen ganger i året"
-- Prosesser med "kundeservice", "support", "chat" -> "Daglig"
-- Prosesser med "rapport", "revisjon", "audit" -> "Månedlig" eller "Noen ganger i året"
-- Prosesser med "analyse", "overvåking" -> "Daglig" eller "Ukentlig"
+**1. Omfang** (skala/berorte personer)
+- Teksten refererer til de berorte gruppene brukeren valgte i steg 5 (f.eks. "Du har oppgitt at ansatte og kunder berores")
+- Brukeren oppgir estimert antall berorte per gang/maned i et enkelt tallfelt
+- Hjelpetekst med realistisk forslag basert pa prosessnavn (beholder `suggestFrequency`-logikken for kontekst)
 
-### 3. Kontekstuell hjelpetekst under frekvensvalg
-Vis en kort setning som forklarer hva systemet tror er riktig, f.eks.:
-> "Onboarding skjer typisk ved nyansettelser - kanskje 1-5 ganger i året for de fleste bedrifter."
+**2. Integrasjon** (hvor stor del av prosessen er AI-drevet)
+- Tre valg:
+  - **Supplement** - AI er et hjelpemiddel, prosessen fungerer uten
+  - **Delvis integrert** - AI handterer vesentlige deler, men kan erstattes manuelt
+  - **Kjernekomponent** - AI er selve motoren i prosessen
+- Kontekstuell tekst basert pa valgte funksjoner, f.eks. "Du har registrert 3 AI-funksjoner i denne prosessen"
 
-Brukeren kan selvsagt velge noe annet.
+**3. Kritikalitet ved bortfall** (hva skjer om AI-en feiler)
+- Tre valg:
+  - **Ikke avhengig** - Prosessen kan kjore uten AI uten merkbar konsekvens
+  - **Delvis avhengig** - Prosessen pavirkes, men kan gjennomfores manuelt med mer tid/ressurser
+  - **Kritisk avhengig** - Prosessen stopper eller gir vesentlig forringet kvalitet uten AI
+- Tekstfelt for a beskrive konsekvensen ved bortfall (f.eks. "Manuell onboarding tar 3x lengre tid")
+- Lara-forslag basert pa risikoniva og integrasjonsvalg
 
-### 4. Fjern oppsummeringsboksen
-Fjern "Oppsummering fra tidligere steg"-kortet (linje 984-1016) som ble bedt fjernet i forrige melding.
-
-### 5. Realistiske standardverdier for berørte/beslutninger
-Når frekvens er "Noen ganger i året" eller "Hendelsesbasert", foreslå lave tall i placeholder-teksten (f.eks. "1-5" i stedet for "0") slik at brukeren ser realistiske forventninger.
+### Automatisk foreslatt avhengighetsgrad
+Basert pa kombinasjonen av integrasjon + antall funksjoner + risikoniva foreslaar Lara en samlet avhengighetsgrad. Brukeren kan overstyre.
 
 ## Teknisk plan
 
 ### Fil: `src/components/process/ProcessAIDialog.tsx`
 
-1. **Nytt frekvensalternativ**: Endre frekvens-arrayet fra 4 til 5 valg. Legg til `{ value: "yearly", label: "Noen ganger i året" }` og `{ value: "event_based", label: "Hendelsesbasert" }`. Fjern "Sjelden" (erstattes av de to nye).
+1. **STEPS-array (linje 80)**: Endre `{ id: 'usage', title: 'Bruksomfang', icon: Users }` til `{ id: 'dependency', title: 'KI-avhengighet', icon: AlertTriangle }` (AlertTriangle allerede importert eller bruker Shield).
 
-2. **Ny hjelpefunksjon `suggestFrequency()`**: Tar inn `processName` (fra props/context) og returnerer foreslått frekvens + hjelpetekst. Enkel keyword-matching mot prosessnavnet.
+2. **Nye state-variabler** (legges til ved eksisterende state-deklarasjoner):
+   - `aiIntegrationLevel`: `'supplement' | 'partial' | 'core'` (default: `''`)
+   - `aiDependencyLevel`: `'not_dependent' | 'partially_dependent' | 'critically_dependent'` (default: `''`)
+   - `failureConsequence`: `string` (fritekst, default: `''`)
+   - Behold `estimatedAffectedPersons` for omfang
 
-3. **Betinget felt for hendelsesbasert**: Når `usageFrequency === "event_based"` vises et ekstra tallfelt: "Estimert antall ganger per år".
+3. **Erstatt hele Step 6 UI (linje 966-1139)** med tre kort:
 
-4. **Fjern oppsummeringsboks**: Slett linje 984-1016 (Card med "Oppsummering fra tidligere steg").
+   **Kort 1 - Omfang**: Kompakt - viser berorte grupper fra steg 5 + tallfelt for antall berorte. Beholder realistisk placeholder-logikk.
 
-5. **Dynamiske placeholder-verdier**: Sett placeholder på tallfelter basert på valgt frekvens (daglig: "100-500", månedlig: "10-50", yearly/event: "1-10").
+   **Kort 2 - Integrasjon**: Tre valgknapper (supplement/delvis/kjerne) med korte forklaringer. Kontekstuell tekst viser antall valgte funksjoner.
 
-Ingen nye filer. Ingen databaseendringer.
+   **Kort 3 - Kritikalitet ved bortfall**: Tre valgknapper (ikke/delvis/kritisk avhengig) + textarea for a beskrive konsekvens. Lara-ikon med foreslatt tekst basert pa kontekst.
+
+4. **Samlet avhengighetsindikator**: Nederst vises en oppsummerende badge/kort som kombinerer de tre dimensjonene til en samlet avhengighetsgrad (lav/moderat/hoy). Beregnes automatisk.
+
+5. **Oppdater `saveMutation`**: Lagre de nye feltene (`ai_integration_level`, `ai_dependency_level`, `failure_consequence`) i `process_ai_usage`-tabellen. Fjern/behold de gamle numeriske feltene som valgfrie.
+
+6. **Fjern gammel kode**: Frekvensvalg, overstyringsprosent og det meste av den gamle "Bruksomfang"-UI-en fjernes. Estimert berorte beholdes.
+
+### Database
+Tre nye kolonner i `process_ai_usage`:
+- `ai_integration_level TEXT` (supplement/partial/core)
+- `ai_dependency_level TEXT` (not_dependent/partially_dependent/critically_dependent)
+- `failure_consequence TEXT` (fritekst)
 
