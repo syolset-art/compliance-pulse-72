@@ -1,68 +1,58 @@
 
 
-# Endre siste steg til "KI-avhengighet"
+# Forbedre "Identifikasjon"-steget i AI-bruk dokumentasjon
 
-## Konsept
-Siste steg handler ikke lenger om bruksomfang (frekvens, antall), men om a forstaa **konsekvensen om AI-en slutter a fungere**. Navnet endres til "KI-avhengighet" og innholdet struktureres rundt tre dimensjoner som bygger pa det brukeren allerede har oppgitt.
+## Problem
+Lara sin vurderingsboks i steg 1 er forvirrende:
+- Viser "AI oppdaget i tilknyttet system" sammen med "Systemer bruker 0 AI-funksjoner" -- motstridig
+- Sier ikke hvilket system det gjelder
+- Brukeren kan ikke klikke seg inn pa systemet for a se Trust Profilen
+- Vurderingen vises uavhengig av om brukeren har svart pa hovedsporsmalet
 
-## Ny struktur for Steg 6
+## Losning
 
-### Tre dimensjoner presentert pedagogisk
+### 1. Flytt og omstrukurer Lara-kortet
+Lara sin vurdering vises som et forslag -- ikke som en fasit. Strukturen blir:
 
-Steget viser tre kort/seksjoner, hver med en kontekstuell forklaring og et enkelt valg:
+- **Forstesporsmal beholdes overst**: "Bruker denne prosessen AI?" (Ja/Nei)
+- **Lara-forslag under sporsmalet**: Vises kun nar Lara faktisk har funnet noe relevant (enten fra systemdata eller prosessanalyse)
+- Forslaget presenteres som: "Lara foreslaar: Ja, basert pa [kilde]" med en "Bruk forslag"-knapp
 
-**1. Omfang** (skala/berorte personer)
-- Teksten refererer til de berorte gruppene brukeren valgte i steg 5 (f.eks. "Du har oppgitt at ansatte og kunder berores")
-- Brukeren oppgir estimert antall berorte per gang/maned i et enkelt tallfelt
-- Hjelpetekst med realistisk forslag basert pa prosessnavn (beholder `suggestFrequency`-logikken for kontekst)
+### 2. Vis systemnavnet med lenke
+Nar AI er oppdaget i et tilknyttet system:
+- Vis systemnavnet eksplisitt (f.eks. "Microsoft 365")
+- Gjor navnet klikkbart -- apner systemets Trust Profile (`/systems/{id}`)
+- Vis AI-funksjonene fra det systemet under navnet
+- Fjern de motstriende badge-ene ("System bruker AI" + "0 AI-funksjoner")
 
-**2. Integrasjon** (hvor stor del av prosessen er AI-drevet)
-- Tre valg:
-  - **Supplement** - AI er et hjelpemiddel, prosessen fungerer uten
-  - **Delvis integrert** - AI handterer vesentlige deler, men kan erstattes manuelt
-  - **Kjernekomponent** - AI er selve motoren i prosessen
-- Kontekstuell tekst basert pa valgte funksjoner, f.eks. "Du har registrert 3 AI-funksjoner i denne prosessen"
-
-**3. Kritikalitet ved bortfall** (hva skjer om AI-en feiler)
-- Tre valg:
-  - **Ikke avhengig** - Prosessen kan kjore uten AI uten merkbar konsekvens
-  - **Delvis avhengig** - Prosessen pavirkes, men kan gjennomfores manuelt med mer tid/ressurser
-  - **Kritisk avhengig** - Prosessen stopper eller gir vesentlig forringet kvalitet uten AI
-- Tekstfelt for a beskrive konsekvensen ved bortfall (f.eks. "Manuell onboarding tar 3x lengre tid")
-- Lara-forslag basert pa risikoniva og integrasjonsvalg
-
-### Automatisk foreslatt avhengighetsgrad
-Basert pa kombinasjonen av integrasjon + antall funksjoner + risikoniva foreslaar Lara en samlet avhengighetsgrad. Brukeren kan overstyre.
+### 3. Rydd opp i badge-logikken
+Fjern alle badges som kan motsi hverandre. Erstatt med en enkel, tydelig melding:
+- Enten: "Lara har oppdaget AI-bruk i [Systemnavn]" (med funksjonsliste)
+- Eller: "Basert pa prosesstypen er det sannsynlig at AI brukes" (fra prosessanalyse)
+- Aldri begge i en forvirrende kombinasjon
 
 ## Teknisk plan
 
 ### Fil: `src/components/process/ProcessAIDialog.tsx`
 
-1. **STEPS-array (linje 80)**: Endre `{ id: 'usage', title: 'Bruksomfang', icon: Users }` til `{ id: 'dependency', title: 'KI-avhengighet', icon: AlertTriangle }` (AlertTriangle allerede importert eller bruker Shield).
+**Linje 537-575 (Lara-kortet)**: Erstatt helt med ny struktur:
 
-2. **Nye state-variabler** (legges til ved eksisterende state-deklarasjoner):
-   - `aiIntegrationLevel`: `'supplement' | 'partial' | 'core'` (default: `''`)
-   - `aiDependencyLevel`: `'not_dependent' | 'partially_dependent' | 'critically_dependent'` (default: `''`)
-   - `failureConsequence`: `string` (fritekst, default: `''`)
-   - Behold `estimatedAffectedPersons` for omfang
+1. Sjekk `systemAI?.systems` for a finne systemer med `hasAI === true` -- bruk systemnavnet
+2. Bruk `linkedSystems` for a finne system-ID-en for lenking
+3. Vis en kompakt Card med:
+   - Systemnavn som klikkbar lenke (bruker `useNavigate` til `/systems/{id}`)
+   - AI-funksjoner fra det systemet (ikke "0 funksjoner")
+   - "Bruk Lara sitt forslag"-knapp som setter `hasAI = true`
+4. Nar prosessanalyse (ikke system) er kilden: Vis `suggestions.aiActNote` med "Sannsynlig AI-bruk"-indikator
+5. Fjern de to motstridende Badge-komponentene (linje 568-569)
 
-3. **Erstatt hele Step 6 UI (linje 966-1139)** med tre kort:
+**Linje 538 (betingelse)**: Stram opp betingelsen -- vis kun nar det faktisk er noe nyttig:
+- `systemAI?.totalWithAI > 0` (system med AI funnet) ELLER
+- `suggestions?.likelyAI` (prosessbasert vurdering sier sannsynlig)
+- Ikke vis nar `suggestions?.aiActNote` finnes men `likelyAI` er false
 
-   **Kort 1 - Omfang**: Kompakt - viser berorte grupper fra steg 5 + tallfelt for antall berorte. Beholder realistisk placeholder-logikk.
+**Ny: "Bruk forslag"-knapp**: Nar brukeren klikker, settes `hasAI = true` og `aiPurpose` fylles med systemets beskrivelse. Brukeren slipper a velge manuelt.
 
-   **Kort 2 - Integrasjon**: Tre valgknapper (supplement/delvis/kjerne) med korte forklaringer. Kontekstuell tekst viser antall valgte funksjoner.
+**Systemlenke**: `onClick` bruker `window.open` eller `navigate` til `/systems/${systemId}` i ny fane for a ikke miste wizard-state.
 
-   **Kort 3 - Kritikalitet ved bortfall**: Tre valgknapper (ikke/delvis/kritisk avhengig) + textarea for a beskrive konsekvens. Lara-ikon med foreslatt tekst basert pa kontekst.
-
-4. **Samlet avhengighetsindikator**: Nederst vises en oppsummerende badge/kort som kombinerer de tre dimensjonene til en samlet avhengighetsgrad (lav/moderat/hoy). Beregnes automatisk.
-
-5. **Oppdater `saveMutation`**: Lagre de nye feltene (`ai_integration_level`, `ai_dependency_level`, `failure_consequence`) i `process_ai_usage`-tabellen. Fjern/behold de gamle numeriske feltene som valgfrie.
-
-6. **Fjern gammel kode**: Frekvensvalg, overstyringsprosent og det meste av den gamle "Bruksomfang"-UI-en fjernes. Estimert berorte beholdes.
-
-### Database
-Tre nye kolonner i `process_ai_usage`:
-- `ai_integration_level TEXT` (supplement/partial/core)
-- `ai_dependency_level TEXT` (not_dependent/partially_dependent/critically_dependent)
-- `failure_consequence TEXT` (fritekst)
-
+Ingen nye filer. Ingen databaseendringer.
