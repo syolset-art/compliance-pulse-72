@@ -1,48 +1,60 @@
 
+# Redesign av KI-bruk dokumentasjon veiviseren
 
-## Egen underside for "Slik beregner vi modenhet"
+## Problem
+Veiviseren for KI-bruk dokumentasjon (ProcessAIDialog) er for tung og uoversiktlig:
+- Pyramiden tar for mye plass og gir ikke nok kontekst til brukeren
+- Det er uklart hvorfor man fyller ut hvert steg og hva som allerede er kjent
+- For mange steg som føles frakoblet fra hverandre
+- Resultatet (klassifiseringen) er ikke tydelig fremhevet
 
-### Hva skal gjores
+## Designendringer
 
-Opprette en dedikert underside `/resources/maturity` som forklarer modenhetsmodellen med en pedagogisk og lettfattelig innledning. Kortet "Slik beregner vi modenhet" pa Ressurssenteret endres fra a apne en kollapsbar seksjon til a navigere til denne nye undersiden.
+### 1. Fremhev resultatet -- risikoklassifiseringen
+- Flytt risikoklassifiserings-resultatet til toppen av steg 4 som et stort, tydelig resultat-kort med farge og ikon
+- Vis en kontekstlinje: "Basert på X AI-funksjoner du har registrert, foreslår vi:"
+- La brukeren enkelt overstyre ved a klikke en annen risiko, men gjor pyramiden til en kompakt forklaring/referanse -- ikke hovedfokus
 
-### Innhold pa undersiden
+### 2. Gjor pyramiden til en forklaring, ikke interaksjon
+- Bytt ut den store interaktive pyramiden med en kompakt horisontal risiko-indikator (4 fargede segmenter) der valgt risiko er markert
+- Legg pyramide-forklaringen i en "Les mer"-kollapserbar seksjon med eksempler
+- Spar plass og la resultatet snakke for seg
 
-Siden folger samme layout som FeatureGuide-sidene (maks bredde, tilbake-knapp, Sidebar).
+### 3. Kontekstuell sammenheng mellom steg
+- Legg til en kort oppsummering ovenfor hvert steg som viser hva som allerede er besvart:
+  - Steg 3 (Sjekkliste): "Du har registrert X AI-funksjoner. Bekreft at disse kravene er oppfylt."
+  - Steg 4 (Risiko): "Basert pa funksjonene og sjekklisten foreslår vi denne klassifiseringen."
+  - Steg 5 (Transparens): "For [risikoniva] krever AI Act folgende tiltak."
+  - Steg 6 (Bruksomfang): "Siste steg: hvor mye brukes AI i praksis?"
 
-**Seksjon 1 -- Innledning (klartsprak)**
-- Overskrift: "Slik beregner vi modenhet"
-- En varm, pedagogisk innledning som forklarer:
-  - Hva compliance-modenhet betyr i praksis (ikke bare et tall, men et bilde pa hvor godt rustet virksomheten er)
-  - At Mynder bruker PDCA-rammeverket (Plan-Do-Check-Act) som grunnlag
-  - Hva PDCA er: en internasjonalt anerkjent metode for kontinuerlig forbedring, brukt i ISO-standarder
-  - At prosessen ikke er lineaer -- man jobber syklisk og forbedrer seg over tid
+### 4. Forenkling av Transparens-steget (steg 5)
+- Fjern den store "manuell vurdering"-advarselen og erstatt med en kort kontekstuell setning
+- Vis kun relevante felter basert pa valgt risikoniva (minimal risiko = ingen transparenskrav, skip felter)
+- Gjor "Trenger menneskelig oversikt"-checkbox til en enkel toggle med kompakt beskrivelse
 
-**Seksjon 2 -- PDCA-rammeverket forklart**
-- Visuell fremstilling av PDCA-syklusen med fire kort (Plan, Do, Check, Act) med enkel forklaring av hver
-- Kobling til Mynders fem faser: hvordan Fundament og Implementering tilsvarer "Plan", Drift tilsvarer "Do", Intern Audit tilsvarer "Check", og Sertifisering/forbedring tilsvarer "Act"
+### 5. Stepper-forbedring
+- Gjor stepperen mer kompakt -- vis kun ikon + kort tittel
+- Vis gron hake for fullforte steg med en tydeligere visuell progresjon
 
-**Seksjon 3 -- De fem fasene (gjenbruk av eksisterende stepper og fasedetaljer)**
-- PhaseStepper-komponenten med fasenavn og status
-- PhaseDetail for valgt fase med aktiviteter, forklaringer og Mynder-funksjonslenker
-- Samme interaktive opplevelse som i dag, men pa egen side
+## Teknisk plan
 
-**Seksjon 4 -- Modenhetsniva**
-- Visuell fremstilling av de fem modenhetsnivaaene (Initial, Definert, Implementert, Maalt, Optimalisert) med prosentintervall
-- Markering av brukerens navaerende niva
+### Filer som endres:
 
-### Tekniske endringer
+**`src/components/process/ProcessAIDialog.tsx`** (hovedendringer):
+- Steg 4 (Risikoklassifisering, linje 670-781): Redesign layout
+  - Flytt resultat-kort til toppen med stor farge/ikon
+  - Erstatt `<AIRiskPyramid>` med kompakt horisontal risiko-velger
+  - Legg til kontekstlinje som refererer til valgte funksjoner
+  - Gjor pyramiden til en kollapserbar "Slik fungerer EU AI Act risikoniva"-seksjon
+- Steg 5 (Transparens, linje 784-893): Forenkle
+  - Erstatt stor advarselskort med kort inline-tekst
+  - Skjul transparensfelter for "minimal" risiko
+  - Kompaktere layout
+- Alle steg: Legg til kontekstuell oppsummering av tidligere svar
+- Stepper (linje 396-409): Mer kompakt design med haker
 
-| Fil | Endring |
-|-----|---------|
-| `src/pages/MaturityMethodology.tsx` | Ny side med pedagogisk innhold, PDCA-forklaring, PhaseStepper og PhaseDetail |
-| `src/App.tsx` | Ny route: `/resources/maturity` |
-| `src/pages/Resources.tsx` | Endre "Slik beregner vi modenhet"-kortet fra collapsible-toggle til `navigate("/resources/maturity")`. Fjerne collapsible-seksjonen og tilhorende state (`maturityOpen`, `selectedPhase`, `learningOpen`, `defaultPhase`) samt sub-komponentene `PhaseStepper` og `PhaseDetail` |
+**`src/components/process/AIRiskPyramid.tsx`**:
+- Legg til ny eksport: `AIRiskSelector` -- en kompakt horisontal risiko-velger med 4 fargede knapper
+- Behold pyramiden som valgfri "forklaring"-komponent
 
-### Design
-
-- Folger eksisterende FeatureGuide-monster: Sidebar + maks-bredde innholdsomrade + tilbake-knapp
-- All tekst pa norsk og engelsk (med `lang`-bryter som resten av appen)
-- PDCA-syklusen vises som fire kort i et 2x2-grid med ikon og korttekst
-- Modenhetsnivaaene vises som en horisontal progressjonslinje med markorer
-
+Ingen nye filer eller avhengigheter trengs.
