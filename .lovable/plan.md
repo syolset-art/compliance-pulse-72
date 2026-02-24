@@ -1,60 +1,33 @@
 
 
-# Kontekstuell tilpasning av "Hvem pavirkes"-sporsmalet
+# Forbedring av sjekklisten i AI-bruk veiviseren
 
-## Problemet
-Sporsmalet "Hvem pavirkes av AI-beslutninger?" vises alltid med samme ordlyd, uavhengig av hva brukeren har svart i tidligere steg. Hvis AI-funksjonene som er valgt (f.eks. "Personalisert opplaering", "Automatisk oppgavetildeling") ikke innebarer beslutninger som pavirker folk direkte, er ordlyden misvisende og forvirrende.
+## Endringer
 
-## Losning
-Tilpass sporsmalet dynamisk basert pa valgte AI-funksjoner og kontekst fra tidligere steg:
+### 1. Fjern "AI Act" fra tittelen
+Endre overskriften fra "AI Act sjekkliste" til bare "Sjekkliste" med en mer relevant undertekst.
 
-### Logikk
-1. **Sjekk om valgte funksjoner antyder beslutninger** -- bruk et sett med nøkkelord (screening, rangering, vurdering, score, filtrering, avslag) for å avgjore om AI tar "beslutninger"
-2. **Tilpass ordlyd**:
-   - Hvis beslutnings-funksjoner: "Hvem pavirkes av AI-beslutningene?" (som na)
-   - Hvis kun stotte/analyse-funksjoner: "Hvem bruker eller berores av AI-funksjonene?"
-   - Hvis ingen funksjoner valgt: Skjul seksjonen helt
-3. **Legg til kontekstuell undertekst** som refererer til de valgte funksjonene, f.eks.: "Du har valgt Personalisert opplaering og Automatisk oppgavetildeling. Hvem bruker disse?"
+### 2. Omformuler sporsmalene til pastandsform
+Sjekklistepunktene er i dag formulert som sporsmål ("Brukes AI-generert innhold i opplaeringen?"). Disse endres til pastandsform som brukeren bekrefter ("AI-generert innhold brukes i opplaeringen"). Dette gjor det mer naturlig a huke av.
+
+Endringen gjores i `src/lib/processAISuggestions.ts` der alle `suggestedChecks` er definert.
+
+### 3. Mulighet for a legge til systemreferanse per sjekkpunkt
+Nar brukeren huker av et punkt, vises en kompakt linje under der brukeren kan velge hvilket/hvilke system(er) som er relevante. Systemene hentes fra prosessens tilknyttede systemer (via `systemId` og evt. flere). Denne informasjonen er relevant fordi en prosess kan bruke flere systemer, og det er viktig a dokumentere hvilke systemer som faktisk bruker AI pa dette punktet.
+
+Feltet vises kun nar sjekkpunktet er avhuket -- ingen ekstra informasjon nar det ikke er relevant.
 
 ## Teknisk plan
 
+### Fil: `src/lib/processAISuggestions.ts`
+- Endre alle `suggestedChecks`-strenger fra sporsmalsform til pastandsform:
+  - "Brukes AI-generert innhold i opplaering?" -> "AI-generert innhold brukes i opplaeringen"
+  - "Er det automatiserte systemer som tildeler oppgaver?" -> "Automatiserte systemer tildeler oppgaver"
+  - Tilsvarende for alle andre prosesstyper og generiske sjekker
+
 ### Fil: `src/components/process/ProcessAIDialog.tsx`
-
-**Endring 1** -- Legg til en hjelpefunksjon (rundt linje 380) som bestemmer ordlyd basert pa valgte funksjoner:
-
-```typescript
-const DECISION_KEYWORDS = ['screening', 'rangering', 'vurdering', 'score',
-  'filtrering', 'avslag', 'beslutning', 'godkjenning', 'kredittscore'];
-
-const getAffectedPersonsContext = () => {
-  const selectedNames = aiFeatures.filter(f => f.selected).map(f => f.name.toLowerCase());
-  const hasDecisionFeatures = selectedNames.some(name =>
-    DECISION_KEYWORDS.some(kw => name.includes(kw))
-  );
-  const featureList = aiFeatures.filter(f => f.selected).map(f => f.name).join(', ');
-
-  if (hasDecisionFeatures) {
-    return {
-      label: 'Hvem pavirkes av AI-beslutningene?',
-      hint: `Basert pa ${featureList} -- hvem kan bli direkte pavirket av disse beslutningene?`,
-    };
-  }
-  return {
-    label: 'Hvem bruker eller berores av AI-funksjonene?',
-    hint: `Du bruker ${featureList}. Velg hvem som bruker eller berores av dette.`,
-  };
-};
-```
-
-**Endring 2** -- Oppdater "Affected persons"-seksjonen (linje 728-749) til a bruke den dynamiske konteksten:
-
-- Erstatt hardkodet label med `getAffectedPersonsContext().label`
-- Legg til en liten muted undertekst med `getAffectedPersonsContext().hint` som viser sammenhengen
-- Skjul hele seksjonen dersom ingen AI-funksjoner er valgt (`selectedFeaturesCount === 0`)
-
-**Endring 3** -- I Steg 6 (Bruksomfang, linje 867-938):
-
-- "Estimert AI-beslutninger per maned" (linje 897): Endre label dynamisk pa samme mate -- hvis ingen beslutningsfunksjoner, bruk "Estimert AI-behandlinger per maned"
-- "Hvor ofte overstyres AI-anbefalingen?" (linje 919): Vis kun dersom beslutnings-funksjoner er valgt, ellers skjul
-
-Kun en fil endres: `src/components/process/ProcessAIDialog.tsx`.
+- **Tittelendring** (linje 651): Endre "AI Act sjekkliste" til "Sjekkliste"
+- **ChecklistItem-interface** (linje 67-71): Utvid med `systems?: string[]` for a lagre tilknyttede systemer per punkt
+- **Systemhenting**: Legg til en query som henter systemer tilknyttet prosessen (via `systemId` og eventuelt flere via work area)
+- **UI per sjekkpunkt** (linje 655-670): Nar et punkt er avhuket, vis en kompakt rad med system-badges som kan velges/fravelges. Kun synlig nar `item.checked === true`
+- **Lagring** (linje 234): Sikre at `compliance_checklist` inkluderer system-referansene i dataene som lagres
