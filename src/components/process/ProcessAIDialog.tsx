@@ -68,6 +68,7 @@ interface ChecklistItem {
   id: string;
   question: string;
   checked: boolean;
+  systems?: string[];
 }
 
 const STEPS = [
@@ -153,6 +154,36 @@ export const ProcessAIDialog = ({
       return data;
     },
     enabled: open,
+  });
+
+  // Fetch systems linked to this process (via systemId and work area)
+  const { data: linkedSystems } = useQuery({
+    queryKey: ["process-linked-systems", systemId, workAreaId],
+    queryFn: async () => {
+      let allSystems: { id: string; name: string }[] = [];
+      
+      if (systemId) {
+        const { data } = await supabase
+          .from("systems")
+          .select("id, name")
+          .eq("id", systemId);
+        if (data) allSystems = [...allSystems, ...data];
+      }
+      
+      if (workAreaId) {
+        const { data } = await supabase
+          .from("systems")
+          .select("id, name")
+          .eq("work_area_id", workAreaId);
+        if (data) {
+          const existingIds = new Set(allSystems.map(s => s.id));
+          allSystems = [...allSystems, ...data.filter(s => !existingIds.has(s.id))];
+        }
+      }
+      
+      return allSystems;
+    },
+    enabled: open && !!(systemId || workAreaId),
   });
 
   useEffect(() => {
@@ -363,7 +394,18 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   };
 
   const toggleChecklistItem = (itemId: string) => {
-    setChecklist(checklist.map(c => c.id === itemId ? { ...c, checked: !c.checked } : c));
+    setChecklist(checklist.map(c => c.id === itemId ? { ...c, checked: !c.checked, systems: !c.checked ? c.systems : undefined } : c));
+  };
+
+  const toggleChecklistSystem = (itemId: string, systemId: string) => {
+    setChecklist(checklist.map(c => {
+      if (c.id !== itemId) return c;
+      const current = c.systems || [];
+      const updated = current.includes(systemId)
+        ? current.filter(s => s !== systemId)
+        : [...current, systemId];
+      return { ...c, systems: updated.length > 0 ? updated : undefined };
+    }));
   };
 
   const toggleAffectedPerson = (person: string) => {
@@ -648,24 +690,42 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               </StepContextSummary>
 
               <div>
-                <Label className="text-base font-medium">AI Act sjekkliste</Label>
-                <p className="text-sm text-muted-foreground mt-1">Bekreft at følgende krav er oppfylt</p>
+                <Label className="text-base font-medium">Sjekkliste</Label>
+                <p className="text-sm text-muted-foreground mt-1">Bekreft at følgende punkter stemmer for denne prosessen</p>
               </div>
 
               <div className="space-y-2">
                 {checklist.map((item) => {
                   const isAISuggested = isFieldAutoFilled('compliance_checklist', item.question);
                   return (
-                    <Label
-                      key={item.id}
-                      className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                        item.checked ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'hover:bg-muted/50'
-                      } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}`}
-                    >
-                      <Checkbox checked={item.checked} onCheckedChange={() => toggleChecklistItem(item.id)} className="mt-0.5" />
-                      <span className="text-sm flex-1">{item.question}</span>
-                      {isAISuggested && <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />}
-                    </Label>
+                    <div key={item.id} className="space-y-0">
+                      <Label
+                        className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                          item.checked ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'hover:bg-muted/50'
+                        } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}
+                        ${item.checked && linkedSystems && linkedSystems.length > 0 ? 'rounded-b-none' : ''}`}
+                      >
+                        <Checkbox checked={item.checked} onCheckedChange={() => toggleChecklistItem(item.id)} className="mt-0.5" />
+                        <span className="text-sm flex-1">{item.question}</span>
+                        {isAISuggested && <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />}
+                      </Label>
+                      {item.checked && linkedSystems && linkedSystems.length > 0 && (
+                        <div className="flex items-center gap-2 px-3 py-2 border border-t-0 rounded-b-lg bg-muted/30 flex-wrap">
+                          <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground shrink-0">System:</span>
+                          {linkedSystems.map((sys) => (
+                            <Badge
+                              key={sys.id}
+                              variant={item.systems?.includes(sys.id) ? 'default' : 'outline'}
+                              className="text-xs cursor-pointer"
+                              onClick={() => toggleChecklistSystem(item.id, sys.id)}
+                            >
+                              {sys.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
