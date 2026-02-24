@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { 
   Plus, 
   Edit2, 
@@ -20,6 +22,8 @@ import {
   Info,
   Filter,
   Loader2,
+  Sparkles,
+  Brain,
 } from "lucide-react";
 import { RiskMatrixVisual, getRiskLevelLabel, getRiskLevelColor } from "../RiskMatrixVisual";
 import { EditRiskScenarioDialog } from "@/components/dialogs/EditRiskScenarioDialog";
@@ -71,6 +75,7 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
   const [viewMode, setViewMode] = useState("simple");
   const [frameworkFilter, setFrameworkFilter] = useState<string>("all");
   const [editingScenario, setEditingScenario] = useState<RiskScenario | null>(null);
+  const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
   const [successDialog, setSuccessDialog] = useState<{
     open: boolean;
     previousLevel: string;
@@ -86,6 +91,102 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
   });
 
   const queryClient = useQueryClient();
+
+  // Fetch AI usage data for risk classification
+  const { data: aiUsage } = useQuery({
+    queryKey: ["process-ai-usage-risk", processId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("process_ai_usage")
+        .select("risk_category, risk_justification, ai_features, has_ai")
+        .eq("process_id", processId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch process info for Lara prompt
+  const { data: processInfo } = useQuery({
+    queryKey: ["process-info-risk", processId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("system_processes")
+        .select("name, description")
+        .eq("id", processId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const RISK_LABELS: Record<string, string> = {
+    unacceptable: "Uakseptabel risiko",
+    high: "Høy risiko",
+    limited: "Begrenset risiko",
+    minimal: "Minimal risiko",
+  };
+
+  const generateRiskJustification = async () => {
+    if (!aiUsage?.risk_category) {
+      toast.error("Ingen AI-risikoklassifisering funnet");
+      return;
+    }
+    setIsGeneratingJustification(true);
+    try {
+      const features = Array.isArray(aiUsage.ai_features) ? aiUsage.ai_features : [];
+      const riskLabel = RISK_LABELS[aiUsage.risk_category] || aiUsage.risk_category;
+
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          messages: [{
+            role: "user",
+            content: `Du er en compliance-rådgiver som hjelper med EU AI Act dokumentasjon. Skriv en kort og presis begrunnelse (2-4 setninger) for hvorfor AI-bruken i prosessen "${processInfo?.name || 'denne prosessen'}" er klassifisert som "${riskLabel}" risikonivå under EU AI Act.
+
+Kontekst:
+- Prosess: ${processInfo?.name || 'Ukjent'}${processInfo?.description ? ` - ${processInfo.description}` : ''}
+- AI-funksjoner i bruk: ${features.length > 0 ? features.join(', ') : 'Ikke spesifisert'}
+- Valgt risikonivå: ${riskLabel}
+
+Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i AI Act der det er naturlig.`
+          }]
+        }
+      });
+
+      if (error) throw error;
+
+      let justification = '';
+      if (typeof data === 'string') {
+        const lines = data.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line.slice(6).trim() !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              const content = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content;
+              if (content) justification += content;
+            } catch { /* skip */ }
+          }
+        }
+        justification = justification || data;
+      } else if (data?.choices?.[0]?.message?.content) {
+        justification = data.choices[0].message.content;
+      }
+
+      // Save to database
+      await supabase
+        .from("process_ai_usage")
+        .update({ risk_justification: justification })
+        .eq("process_id", processId);
+
+      queryClient.invalidateQueries({ queryKey: ["process-ai-usage-risk", processId] });
+      toast.success("Lara har foreslått en begrunnelse");
+    } catch (e) {
+      console.error("Failed to generate justification:", e);
+      toast.error("Kunne ikke generere forslag. Prøv igjen.");
+    } finally {
+      setIsGeneratingJustification(false);
+    }
+  };
 
   // Fetch scenarios from database
   const { data: scenarios = [], isLoading } = useQuery({
@@ -266,6 +367,45 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
           </Button>
         </div>
       </div>
+
+      {/* AI Risk Classification */}
+      {(aiUsage?.has_ai || aiUsage?.risk_category) && (
+        <Card className="border border-border">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-medium">AI-risikoklassifisering</Label>
+                {aiUsage.risk_category && (
+                  <Badge variant="outline" className="text-xs">
+                    {RISK_LABELS[aiUsage.risk_category] || aiUsage.risk_category}
+                  </Badge>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generateRiskJustification}
+                disabled={isGeneratingJustification || !aiUsage.risk_category}
+                className="gap-1.5 text-xs h-7"
+              >
+                <Sparkles className={`h-3.5 w-3.5 ${isGeneratingJustification ? 'animate-spin' : ''}`} />
+                {isGeneratingJustification ? 'Genererer...' : 'Foreslå med Lara'}
+              </Button>
+            </div>
+            {aiUsage.risk_justification ? (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {aiUsage.risk_justification}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">
+                Ingen begrunnelse lagt til ennå. Klikk «Foreslå med Lara» for å generere en.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Risk Summary */}
       <div className="grid grid-cols-4 gap-4">
