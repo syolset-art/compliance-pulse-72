@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -113,6 +114,7 @@ export const ProcessAIDialog = ({
   const [humanOversightLevel, setHumanOversightLevel] = useState("none");
   const [humanOversightDescription, setHumanOversightDescription] = useState("");
   const [affectedPersons, setAffectedPersons] = useState<string[]>([]);
+  const [affectedPersonsOther, setAffectedPersonsOther] = useState("");
   const [automatedDecisions, setAutomatedDecisions] = useState(false);
   const [decisionImpact, setDecisionImpact] = useState("");
   const [usageFrequency, setUsageFrequency] = useState("");
@@ -164,7 +166,14 @@ export const ProcessAIDialog = ({
       setHumanOversightRequired(existingData.human_oversight_required || false);
       setHumanOversightLevel(existingData.human_oversight_level || "none");
       setHumanOversightDescription(existingData.human_oversight_description || "");
-      setAffectedPersons(existingData.affected_persons || []);
+      const loadedPersons = existingData.affected_persons || [];
+      const otherEntry = loadedPersons.find((p: string) => p.startsWith('Andre: '));
+      if (otherEntry) {
+        setAffectedPersons(loadedPersons.map((p: string) => p.startsWith('Andre: ') ? 'Andre' : p));
+        setAffectedPersonsOther(otherEntry.replace('Andre: ', ''));
+      } else {
+        setAffectedPersons(loadedPersons);
+      }
       setAutomatedDecisions(existingData.automated_decisions || false);
       setDecisionImpact(existingData.decision_impact || "");
       const rawFeatures = existingData.ai_features;
@@ -219,7 +228,7 @@ export const ProcessAIDialog = ({
         human_oversight_required: humanOversightRequired,
         human_oversight_level: humanOversightLevel,
         human_oversight_description: humanOversightDescription,
-        affected_persons: affectedPersons,
+        affected_persons: affectedPersons.map(p => p === 'Andre' && affectedPersonsOther ? `Andre: ${affectedPersonsOther}` : p),
         automated_decisions: automatedDecisions,
         decision_impact: decisionImpact,
         compliance_checklist: checklist as unknown as null,
@@ -333,6 +342,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     setHumanOversightLevel("none");
     setHumanOversightDescription("");
     setAffectedPersons([]);
+    setAffectedPersonsOther("");
     setAutomatedDecisions(false);
     setDecisionImpact("");
     setUsageFrequency("");
@@ -764,7 +774,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                     {getAffectedPersonsContext().hint}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {['Ansatte', 'Kunder', 'Leverandører', 'Publikum', 'Kandidater'].map((person) => (
+                    {['Ansatte', 'Kunder', 'Leverandører', 'Publikum', 'Kandidater', 'Andre'].map((person) => (
                       <Badge
                         key={person}
                         variant={affectedPersons.includes(person) ? 'default' : 'outline'}
@@ -775,6 +785,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                       </Badge>
                     ))}
                   </div>
+                  {affectedPersons.includes('Andre') && (
+                    <Input
+                      value={affectedPersonsOther}
+                      onChange={(e) => setAffectedPersonsOther(e.target.value)}
+                      placeholder="Spesifiser hvem andre som berøres..."
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               )}
             </div>
