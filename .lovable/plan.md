@@ -1,58 +1,46 @@
 
 
-# Forbedre "Identifikasjon"-steget i AI-bruk dokumentasjon
+# Legg til "Hjelp fra Lara" for formålsbeskrivelse i Steg 1
 
-## Problem
-Lara sin vurderingsboks i steg 1 er forvirrende:
-- Viser "AI oppdaget i tilknyttet system" sammen med "Systemer bruker 0 AI-funksjoner" -- motstridig
-- Sier ikke hvilket system det gjelder
-- Brukeren kan ikke klikke seg inn pa systemet for a se Trust Profilen
-- Vurderingen vises uavhengig av om brukeren har svart pa hovedsporsmalet
+## Konsept
+Brukeren skal kunne be Lara om hjelp til å skrive eller forbedre formålsbeskrivelsen for AI-bruk i prosessen. En knapp ved siden av textarea-feltet lar brukeren enten generere en beskrivelse fra scratch (basert på prosessnavn, valgte systemer og funksjoner) eller forbedre en eksisterende tekst.
 
-## Losning
+## Brukeropplevelse
 
-### 1. Flytt og omstrukurer Lara-kortet
-Lara sin vurdering vises som et forslag -- ikke som en fasit. Strukturen blir:
+Når `hasAI === true` og formålsfeltet vises:
 
-- **Forstesporsmal beholdes overst**: "Bruker denne prosessen AI?" (Ja/Nei)
-- **Lara-forslag under sporsmalet**: Vises kun nar Lara faktisk har funnet noe relevant (enten fra systemdata eller prosessanalyse)
-- Forslaget presenteres som: "Lara foreslaar: Ja, basert pa [kilde]" med en "Bruk forslag"-knapp
-
-### 2. Vis systemnavnet med lenke
-Nar AI er oppdaget i et tilknyttet system:
-- Vis systemnavnet eksplisitt (f.eks. "Microsoft 365")
-- Gjor navnet klikkbart -- apner systemets Trust Profile (`/systems/{id}`)
-- Vis AI-funksjonene fra det systemet under navnet
-- Fjern de motstriende badge-ene ("System bruker AI" + "0 AI-funksjoner")
-
-### 3. Rydd opp i badge-logikken
-Fjern alle badges som kan motsi hverandre. Erstatt med en enkel, tydelig melding:
-- Enten: "Lara har oppdaget AI-bruk i [Systemnavn]" (med funksjonsliste)
-- Eller: "Basert pa prosesstypen er det sannsynlig at AI brukes" (fra prosessanalyse)
-- Aldri begge i en forvirrende kombinasjon
+1. **Tom textarea**: Knappen sier "Foreslå med Lara" og genererer en formålsbeskrivelse basert på kontekst (prosessnavn, tilknyttede systemer, oppdagede AI-funksjoner)
+2. **Utfylt textarea**: Knappen sier "Forbedre med Lara" og sender den eksisterende teksten til Lara for omformulering/forbedring
+3. **Laster**: Knappen viser spinner og er deaktivert mens AI-kallet kjører
+4. **Resultat**: Teksten settes inn i textarea, brukeren kan redigere videre
 
 ## Teknisk plan
 
+### Ny edge function: `supabase/functions/suggest-ai-purpose/index.ts`
+
+En dedikert edge function som bruker Lovable AI Gateway (ikke streaming) for å generere formålsbeskrivelser:
+
+- Input: `processName`, `existingPurpose` (valgfri), `systemNames` (valgfri), `aiFeatures` (valgfri)
+- System-prompt instruerer modellen til å skrive en kort, presis norsk formålsbeskrivelse (2-4 setninger) tilpasset compliance-dokumentasjon
+- Hvis `existingPurpose` finnes: forbedre/omformuler den
+- Hvis tom: generer fra kontekst
+- Bruker `google/gemini-2.5-flash` for rask respons
+- Returnerer `{ purpose: string }` (ikke streaming, vanlig JSON)
+
 ### Fil: `src/components/process/ProcessAIDialog.tsx`
 
-**Linje 537-575 (Lara-kortet)**: Erstatt helt med ny struktur:
+1. **Ny state**: `isGeneratingPurpose: boolean` (default: false)
 
-1. Sjekk `systemAI?.systems` for a finne systemer med `hasAI === true` -- bruk systemnavnet
-2. Bruk `linkedSystems` for a finne system-ID-en for lenking
-3. Vis en kompakt Card med:
-   - Systemnavn som klikkbar lenke (bruker `useNavigate` til `/systems/{id}`)
-   - AI-funksjoner fra det systemet (ikke "0 funksjoner")
-   - "Bruk Lara sitt forslag"-knapp som setter `hasAI = true`
-4. Nar prosessanalyse (ikke system) er kilden: Vis `suggestions.aiActNote` med "Sannsynlig AI-bruk"-indikator
-5. Fjern de to motstridende Badge-komponentene (linje 568-569)
+2. **Ny funksjon `handleSuggestPurpose()`**:
+   - Setter `isGeneratingPurpose = true`
+   - Kaller `supabase.functions.invoke('suggest-ai-purpose', { body: { processName, existingPurpose: aiPurpose, systemNames, aiFeatures } })`
+   - Setter `setAiPurpose(data.purpose)` ved suksess
+   - Viser toast ved feil
+   - Setter `isGeneratingPurpose = false`
 
-**Linje 538 (betingelse)**: Stram opp betingelsen -- vis kun nar det faktisk er noe nyttig:
-- `systemAI?.totalWithAI > 0` (system med AI funnet) ELLER
-- `suggestions?.likelyAI` (prosessbasert vurdering sier sannsynlig)
-- Ikke vis nar `suggestions?.aiActNote` finnes men `likelyAI` er false
+3. **UI under textarea** (linje 674-675):
+   - En kompakt knapp med Sparkles-ikon: "Foreslå med Lara" (tom) / "Forbedre med Lara" (utfylt)
+   - Plasseres rett under textarea, høyrejustert
+   - Liten tekst under: "Lara bruker prosessnavnet og tilknyttede systemer som kontekst"
 
-**Ny: "Bruk forslag"-knapp**: Nar brukeren klikker, settes `hasAI = true` og `aiPurpose` fylles med systemets beskrivelse. Brukeren slipper a velge manuelt.
-
-**Systemlenke**: `onClick` bruker `window.open` eller `navigate` til `/systems/${systemId}` i ny fane for a ikke miste wizard-state.
-
-Ingen nye filer. Ingen databaseendringer.
+Ingen databaseendringer.
