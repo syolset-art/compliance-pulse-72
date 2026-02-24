@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
-import { AlertTriangle, ShieldAlert, Eye, CheckCircle2, Info } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Eye, CheckCircle2, Info, ChevronDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useTranslation } from "react-i18next";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
 interface RiskLevel {
   id: string;
@@ -14,24 +15,12 @@ interface RiskLevel {
   icon: React.ReactNode;
 }
 
-interface AIRiskPyramidProps {
-  selectedRisk?: string | null;
-  onSelectRisk?: (risk: string) => void;
-  interactive?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  showLabels?: boolean;
-}
-
-const RISK_LEVELS: RiskLevel[] = [
+export const RISK_LEVELS: RiskLevel[] = [
   {
     id: "unacceptable",
     label: "Uakseptabel risiko",
     description: "Forbudt bruk av AI som truer grunnleggende rettigheter",
-    examples: [
-      "Sosial scoring av borgere",
-      "Manipulerende AI-systemer",
-      "Biometrisk masseovervåking"
-    ],
+    examples: ["Sosial scoring av borgere", "Manipulerende AI-systemer", "Biometrisk masseovervåking"],
     color: "text-white",
     bgColor: "bg-red-600",
     borderColor: "border-red-700",
@@ -41,12 +30,7 @@ const RISK_LEVELS: RiskLevel[] = [
     id: "high",
     label: "Høy risiko",
     description: "Krever streng regulering og samsvarsvurdering",
-    examples: [
-      "Rekruttering og HR-beslutninger",
-      "Kredittscoring",
-      "Medisinsk diagnostikk",
-      "Kritisk infrastruktur"
-    ],
+    examples: ["Rekruttering og HR-beslutninger", "Kredittscoring", "Medisinsk diagnostikk", "Kritisk infrastruktur"],
     color: "text-white",
     bgColor: "bg-orange-500",
     borderColor: "border-orange-600",
@@ -56,12 +40,7 @@ const RISK_LEVELS: RiskLevel[] = [
     id: "limited",
     label: "Begrenset risiko",
     description: "Krever transparens og informasjonsplikt",
-    examples: [
-      "Chatboter",
-      "Emosjonsgenkjenning",
-      "AI-generert innhold",
-      "Deepfakes"
-    ],
+    examples: ["Chatboter", "Emosjonsgenkjenning", "AI-generert innhold", "Deepfakes"],
     color: "text-yellow-900",
     bgColor: "bg-yellow-400",
     borderColor: "border-yellow-500",
@@ -71,18 +50,106 @@ const RISK_LEVELS: RiskLevel[] = [
     id: "minimal",
     label: "Minimal risiko",
     description: "Ingen spesifikke krav, frivillige retningslinjer",
-    examples: [
-      "Spamfiltre",
-      "Spillbasert AI",
-      "Inventarstyring",
-      "Anbefalingssystemer"
-    ],
+    examples: ["Spamfiltre", "Spillbasert AI", "Inventarstyring", "Anbefalingssystemer"],
     color: "text-green-900",
     bgColor: "bg-green-400",
     borderColor: "border-green-500",
     icon: <CheckCircle2 className="h-4 w-4" />
   }
 ];
+
+// ── Compact horizontal risk selector (primary interaction) ──
+interface AIRiskSelectorProps {
+  selectedRisk?: string | null;
+  onSelectRisk?: (risk: string) => void;
+  interactive?: boolean;
+}
+
+export const AIRiskSelector = ({
+  selectedRisk,
+  onSelectRisk,
+  interactive = true,
+}: AIRiskSelectorProps) => {
+  return (
+    <TooltipProvider>
+      <div className="flex gap-1.5 w-full">
+        {RISK_LEVELS.map((level) => {
+          const isSelected = selectedRisk === level.id;
+          return (
+            <Tooltip key={level.id} delayDuration={200}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => interactive && onSelectRisk?.(level.id)}
+                  disabled={!interactive}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-md text-xs font-medium transition-all border-2",
+                    level.bgColor, level.color, level.borderColor,
+                    interactive && "cursor-pointer hover:scale-[1.03] hover:shadow-md",
+                    !interactive && "cursor-default",
+                    isSelected && "ring-2 ring-offset-2 ring-primary scale-[1.03] shadow-md",
+                    !isSelected && interactive && "opacity-50 hover:opacity-80"
+                  )}
+                >
+                  {level.icon}
+                  <span className="hidden sm:inline whitespace-nowrap">{level.label.split(' ')[0]}</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[220px]">
+                <p className="font-semibold">{level.label}</p>
+                <p className="text-xs text-muted-foreground">{level.description}</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
+    </TooltipProvider>
+  );
+};
+
+// ── Collapsible pyramid explanation ──
+export const AIRiskPyramidExplainer = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full">
+        <Info className="h-3.5 w-3.5" />
+        <span>Slik fungerer EU AI Act risikonivåene</span>
+        <ChevronDown className={cn("h-3.5 w-3.5 ml-auto transition-transform", open && "rotate-180")} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-3">
+        <div className="space-y-2">
+          {RISK_LEVELS.map((level) => (
+            <div key={level.id} className="flex items-start gap-3 p-2.5 rounded-md border bg-muted/30">
+              <div className={cn("p-1 rounded", level.bgColor, level.color, "shrink-0 mt-0.5")}>
+                {level.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{level.label}</p>
+                <p className="text-xs text-muted-foreground">{level.description}</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {level.examples.map((ex, i) => (
+                    <span key={i} className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{ex}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+// ── Original pyramid (kept for backward compat) ──
+interface AIRiskPyramidProps {
+  selectedRisk?: string | null;
+  onSelectRisk?: (risk: string) => void;
+  interactive?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  showLabels?: boolean;
+}
 
 export const AIRiskPyramid = ({ 
   selectedRisk, 
@@ -91,8 +158,6 @@ export const AIRiskPyramid = ({
   size = 'md',
   showLabels = true
 }: AIRiskPyramidProps) => {
-  const { t } = useTranslation();
-
   const sizeClasses = {
     sm: { pyramid: 'max-w-[200px]', text: 'text-[10px]', padding: 'py-1.5 px-2' },
     md: { pyramid: 'max-w-[280px]', text: 'text-xs', padding: 'py-2 px-3' },
@@ -101,17 +166,15 @@ export const AIRiskPyramid = ({
 
   const currentSize = sizeClasses[size];
 
-  // Calculate widths for pyramid effect (top to bottom: narrow to wide)
   const getWidth = (index: number) => {
-    const baseWidth = 40; // Top level starts at 40%
-    const increment = 20; // Each level adds 20%
+    const baseWidth = 40;
+    const increment = 20;
     return `${baseWidth + (index * increment)}%`;
   };
 
   return (
     <TooltipProvider>
       <div className={cn("flex flex-col items-center gap-1", currentSize.pyramid, "mx-auto")}>
-        {/* EU AI Act label */}
         <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
           <Info className="h-3.5 w-3.5" />
           <span className={cn("font-medium", currentSize.text)}>EU AI Act Risikopyramide</span>
@@ -132,9 +195,7 @@ export const AIRiskPyramid = ({
                   className={cn(
                     "relative transition-all duration-200 rounded-sm",
                     currentSize.padding,
-                    level.bgColor,
-                    level.color,
-                    level.borderColor,
+                    level.bgColor, level.color, level.borderColor,
                     "border-2",
                     interactive && "cursor-pointer hover:scale-105 hover:shadow-lg",
                     !interactive && "cursor-default",
@@ -150,8 +211,6 @@ export const AIRiskPyramid = ({
                       </span>
                     )}
                   </div>
-
-                  {/* Selection indicator */}
                   {isSelected && (
                     <div className="absolute -right-1 -top-1 bg-primary text-primary-foreground rounded-full p-0.5">
                       <CheckCircle2 className="h-3 w-3" />
@@ -183,7 +242,6 @@ export const AIRiskPyramid = ({
           );
         })}
 
-        {/* Legend for selection */}
         {interactive && (
           <p className={cn("text-muted-foreground mt-2 text-center", currentSize.text)}>
             Klikk for å velge risikonivå
@@ -215,8 +273,7 @@ export const AIRiskPyramidInline = ({
                   disabled={!interactive}
                   className={cn(
                     "p-1.5 rounded transition-all",
-                    level.bgColor,
-                    level.color,
+                    level.bgColor, level.color,
                     interactive && "cursor-pointer hover:scale-110",
                     !interactive && "cursor-default",
                     isSelected && "ring-2 ring-offset-1 ring-primary scale-110",
