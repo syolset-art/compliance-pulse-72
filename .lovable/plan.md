@@ -1,60 +1,60 @@
 
-# Redesign av KI-bruk dokumentasjon veiviseren
 
-## Problem
-Veiviseren for KI-bruk dokumentasjon (ProcessAIDialog) er for tung og uoversiktlig:
-- Pyramiden tar for mye plass og gir ikke nok kontekst til brukeren
-- Det er uklart hvorfor man fyller ut hvert steg og hva som allerede er kjent
-- For mange steg som føles frakoblet fra hverandre
-- Resultatet (klassifiseringen) er ikke tydelig fremhevet
+# Kontekstuell tilpasning av "Hvem pavirkes"-sporsmalet
 
-## Designendringer
+## Problemet
+Sporsmalet "Hvem pavirkes av AI-beslutninger?" vises alltid med samme ordlyd, uavhengig av hva brukeren har svart i tidligere steg. Hvis AI-funksjonene som er valgt (f.eks. "Personalisert opplaering", "Automatisk oppgavetildeling") ikke innebarer beslutninger som pavirker folk direkte, er ordlyden misvisende og forvirrende.
 
-### 1. Fremhev resultatet -- risikoklassifiseringen
-- Flytt risikoklassifiserings-resultatet til toppen av steg 4 som et stort, tydelig resultat-kort med farge og ikon
-- Vis en kontekstlinje: "Basert på X AI-funksjoner du har registrert, foreslår vi:"
-- La brukeren enkelt overstyre ved a klikke en annen risiko, men gjor pyramiden til en kompakt forklaring/referanse -- ikke hovedfokus
+## Losning
+Tilpass sporsmalet dynamisk basert pa valgte AI-funksjoner og kontekst fra tidligere steg:
 
-### 2. Gjor pyramiden til en forklaring, ikke interaksjon
-- Bytt ut den store interaktive pyramiden med en kompakt horisontal risiko-indikator (4 fargede segmenter) der valgt risiko er markert
-- Legg pyramide-forklaringen i en "Les mer"-kollapserbar seksjon med eksempler
-- Spar plass og la resultatet snakke for seg
-
-### 3. Kontekstuell sammenheng mellom steg
-- Legg til en kort oppsummering ovenfor hvert steg som viser hva som allerede er besvart:
-  - Steg 3 (Sjekkliste): "Du har registrert X AI-funksjoner. Bekreft at disse kravene er oppfylt."
-  - Steg 4 (Risiko): "Basert pa funksjonene og sjekklisten foreslår vi denne klassifiseringen."
-  - Steg 5 (Transparens): "For [risikoniva] krever AI Act folgende tiltak."
-  - Steg 6 (Bruksomfang): "Siste steg: hvor mye brukes AI i praksis?"
-
-### 4. Forenkling av Transparens-steget (steg 5)
-- Fjern den store "manuell vurdering"-advarselen og erstatt med en kort kontekstuell setning
-- Vis kun relevante felter basert pa valgt risikoniva (minimal risiko = ingen transparenskrav, skip felter)
-- Gjor "Trenger menneskelig oversikt"-checkbox til en enkel toggle med kompakt beskrivelse
-
-### 5. Stepper-forbedring
-- Gjor stepperen mer kompakt -- vis kun ikon + kort tittel
-- Vis gron hake for fullforte steg med en tydeligere visuell progresjon
+### Logikk
+1. **Sjekk om valgte funksjoner antyder beslutninger** -- bruk et sett med nøkkelord (screening, rangering, vurdering, score, filtrering, avslag) for å avgjore om AI tar "beslutninger"
+2. **Tilpass ordlyd**:
+   - Hvis beslutnings-funksjoner: "Hvem pavirkes av AI-beslutningene?" (som na)
+   - Hvis kun stotte/analyse-funksjoner: "Hvem bruker eller berores av AI-funksjonene?"
+   - Hvis ingen funksjoner valgt: Skjul seksjonen helt
+3. **Legg til kontekstuell undertekst** som refererer til de valgte funksjonene, f.eks.: "Du har valgt Personalisert opplaering og Automatisk oppgavetildeling. Hvem bruker disse?"
 
 ## Teknisk plan
 
-### Filer som endres:
+### Fil: `src/components/process/ProcessAIDialog.tsx`
 
-**`src/components/process/ProcessAIDialog.tsx`** (hovedendringer):
-- Steg 4 (Risikoklassifisering, linje 670-781): Redesign layout
-  - Flytt resultat-kort til toppen med stor farge/ikon
-  - Erstatt `<AIRiskPyramid>` med kompakt horisontal risiko-velger
-  - Legg til kontekstlinje som refererer til valgte funksjoner
-  - Gjor pyramiden til en kollapserbar "Slik fungerer EU AI Act risikoniva"-seksjon
-- Steg 5 (Transparens, linje 784-893): Forenkle
-  - Erstatt stor advarselskort med kort inline-tekst
-  - Skjul transparensfelter for "minimal" risiko
-  - Kompaktere layout
-- Alle steg: Legg til kontekstuell oppsummering av tidligere svar
-- Stepper (linje 396-409): Mer kompakt design med haker
+**Endring 1** -- Legg til en hjelpefunksjon (rundt linje 380) som bestemmer ordlyd basert pa valgte funksjoner:
 
-**`src/components/process/AIRiskPyramid.tsx`**:
-- Legg til ny eksport: `AIRiskSelector` -- en kompakt horisontal risiko-velger med 4 fargede knapper
-- Behold pyramiden som valgfri "forklaring"-komponent
+```typescript
+const DECISION_KEYWORDS = ['screening', 'rangering', 'vurdering', 'score',
+  'filtrering', 'avslag', 'beslutning', 'godkjenning', 'kredittscore'];
 
-Ingen nye filer eller avhengigheter trengs.
+const getAffectedPersonsContext = () => {
+  const selectedNames = aiFeatures.filter(f => f.selected).map(f => f.name.toLowerCase());
+  const hasDecisionFeatures = selectedNames.some(name =>
+    DECISION_KEYWORDS.some(kw => name.includes(kw))
+  );
+  const featureList = aiFeatures.filter(f => f.selected).map(f => f.name).join(', ');
+
+  if (hasDecisionFeatures) {
+    return {
+      label: 'Hvem pavirkes av AI-beslutningene?',
+      hint: `Basert pa ${featureList} -- hvem kan bli direkte pavirket av disse beslutningene?`,
+    };
+  }
+  return {
+    label: 'Hvem bruker eller berores av AI-funksjonene?',
+    hint: `Du bruker ${featureList}. Velg hvem som bruker eller berores av dette.`,
+  };
+};
+```
+
+**Endring 2** -- Oppdater "Affected persons"-seksjonen (linje 728-749) til a bruke den dynamiske konteksten:
+
+- Erstatt hardkodet label med `getAffectedPersonsContext().label`
+- Legg til en liten muted undertekst med `getAffectedPersonsContext().hint` som viser sammenhengen
+- Skjul hele seksjonen dersom ingen AI-funksjoner er valgt (`selectedFeaturesCount === 0`)
+
+**Endring 3** -- I Steg 6 (Bruksomfang, linje 867-938):
+
+- "Estimert AI-beslutninger per maned" (linje 897): Endre label dynamisk pa samme mate -- hvis ingen beslutningsfunksjoner, bruk "Estimert AI-behandlinger per maned"
+- "Hvor ofte overstyres AI-anbefalingen?" (linje 919): Vis kun dersom beslutnings-funksjoner er valgt, ellers skjul
+
+Kun en fil endres: `src/components/process/ProcessAIDialog.tsx`.
