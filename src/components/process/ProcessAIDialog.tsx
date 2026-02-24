@@ -109,6 +109,7 @@ export const ProcessAIDialog = ({
   const [riskCategory, setRiskCategory] = useState<string>("");
   const [riskJustification, setRiskJustification] = useState("");
   const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
+  const [isGeneratingPurpose, setIsGeneratingPurpose] = useState(false);
   const [transparencyStatus, setTransparencyStatus] = useState("not_required");
   const [transparencyDescription, setTransparencyDescription] = useState("");
   const [humanOversightRequired, setHumanOversightRequired] = useState(false);
@@ -394,6 +395,38 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     setFailureConsequence("");
   };
 
+  const handleSuggestPurpose = async () => {
+    setIsGeneratingPurpose(true);
+    try {
+      const systemNames = systemAI?.systems
+        ?.filter(s => s.hasAI)
+        .map(s => s.systemName) || [];
+      const selectedFeatureNames = aiFeatures
+        .filter(f => f.selected)
+        .map(f => f.name);
+
+      const { data, error } = await supabase.functions.invoke('suggest-ai-purpose', {
+        body: {
+          processName,
+          existingPurpose: aiPurpose || undefined,
+          systemNames: systemNames.length > 0 ? systemNames : undefined,
+          aiFeatures: selectedFeatureNames.length > 0 ? selectedFeatureNames : undefined,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.purpose) {
+        setAiPurpose(data.purpose);
+        toast.success(aiPurpose ? 'Formålet ble forbedret av Lara' : 'Lara foreslo en formålsbeskrivelse');
+      }
+    } catch (e) {
+      console.error('suggest-ai-purpose error:', e);
+      toast.error('Kunne ikke generere forslag. Prøv igjen.');
+    } finally {
+      setIsGeneratingPurpose(false);
+    }
+  };
+
   const addCustomFeature = () => {
     if (customFeature.trim()) {
       setAiFeatures([...aiFeatures, { id: `custom-${Date.now()}`, name: customFeature.trim(), selected: true }]);
@@ -672,6 +705,31 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                     rows={3}
                     className={isFieldAutoFilled('ai_purpose') ? 'border-purple-300 dark:border-purple-700' : ''}
                   />
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-muted-foreground">
+                      Lara bruker prosessnavnet og tilknyttede systemer som kontekst
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSuggestPurpose}
+                      disabled={isGeneratingPurpose}
+                      className="gap-1.5 text-xs shrink-0"
+                    >
+                      {isGeneratingPurpose ? (
+                        <>
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Genererer...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {aiPurpose.trim() ? 'Forbedre med Lara' : 'Foreslå med Lara'}
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </AIFieldWrapper>
               )}
 
