@@ -685,9 +685,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {/* Step 3: Checklist */}
           {currentStep === 2 && hasAI && (
             <div className="space-y-4">
-              <StepContextSummary>
-                Du har registrert {selectedFeaturesCount} AI-funksjon{selectedFeaturesCount !== 1 ? 'er' : ''}. Bekreft at disse kravene er oppfylt.
-              </StepContextSummary>
 
               <div>
                 <Label className="text-base font-medium">Sjekkliste</Label>
@@ -739,9 +736,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {/* Step 4: Risk Classification — REDESIGNED */}
           {currentStep === 3 && hasAI && (
             <div className="space-y-5">
-              <StepContextSummary>
-                Basert på {selectedFeaturesCount} AI-funksjon{selectedFeaturesCount !== 1 ? 'er' : ''} og sjekklisten ({checkedChecklistCount}/{checklist.length} oppfylt), foreslår vi denne klassifiseringen.
-              </StepContextSummary>
 
               {/* ── Result card: prominent risk classification ── */}
               {riskCategory && selectedRiskLevel && (
@@ -861,9 +855,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {/* Step 5: Transparency & Oversight — SIMPLIFIED */}
           {currentStep === 4 && hasAI && (
             <div className="space-y-5">
-              <StepContextSummary>
-                For {selectedRiskLevel?.label?.toLowerCase() || 'dette risikonivået'} krever AI Act følgende tiltak.
-              </StepContextSummary>
 
               {/* Minimal risk: no requirements */}
               {riskCategory === 'minimal' ? (
@@ -975,9 +966,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {/* Step 6: Usage Scope */}
           {currentStep === 5 && hasAI && (
             <div className="space-y-6">
-              <StepContextSummary>
-                Siste steg: Beskriv hvor mye AI brukes i praksis.
-              </StepContextSummary>
 
               <div className="space-y-3">
                 <Label className="text-base font-medium">Hvor ofte brukes AI i denne prosessen?</Label>
