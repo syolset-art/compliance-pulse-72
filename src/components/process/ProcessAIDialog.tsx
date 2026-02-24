@@ -77,7 +77,7 @@ const STEPS = [
   { id: 'checklist', title: 'Sjekkliste', icon: FileText },
   { id: 'risk', title: 'Risiko', icon: Shield },
   { id: 'transparency', title: 'Transparens', icon: Eye },
-  { id: 'usage', title: 'Bruksomfang', icon: Users },
+  { id: 'dependency', title: 'KI-avhengighet', icon: AlertTriangle },
 ];
 
 // ── Context summary helper ──
@@ -122,6 +122,9 @@ export const ProcessAIDialog = ({
   const [estimatedMonthlyDecisions, setEstimatedMonthlyDecisions] = useState<number>(0);
   const [estimatedAffectedPersons, setEstimatedAffectedPersons] = useState<number>(0);
   const [overrideRate, setOverrideRate] = useState("");
+  const [aiIntegrationLevel, setAiIntegrationLevel] = useState<string>("");
+  const [aiDependencyLevel, setAiDependencyLevel] = useState<string>("");
+  const [failureConsequence, setFailureConsequence] = useState("");
 
   const [suggestions, setSuggestions] = useState<ProcessAISuggestion | null>(null);
   const { data: systemAI } = useSystemAIFeatures(systemId || null);
@@ -214,6 +217,9 @@ export const ProcessAIDialog = ({
       setAiFeatures(features.map((f, i) => ({ id: `feature-${i}`, name: f, selected: true })));
       const checklistData = existingData.compliance_checklist as unknown as ChecklistItem[] || [];
       setChecklist(Array.isArray(checklistData) ? checklistData : []);
+      setAiIntegrationLevel((existingData as any).ai_integration_level || "");
+      setAiDependencyLevel((existingData as any).ai_dependency_level || "");
+      setFailureConsequence((existingData as any).failure_consequence || "");
     }
   }, [existingData]);
 
@@ -269,6 +275,9 @@ export const ProcessAIDialog = ({
         estimated_monthly_decisions: estimatedMonthlyDecisions || 0,
         estimated_affected_persons: estimatedAffectedPersons || 0,
         override_rate: overrideRate || null,
+        ai_integration_level: aiIntegrationLevel || null,
+        ai_dependency_level: aiDependencyLevel || null,
+        failure_consequence: failureConsequence || null,
       };
       if (existingData) {
         const { error } = await supabase.from("process_ai_usage").update(payload).eq("id", existingData.id);
@@ -380,6 +389,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     setEstimatedMonthlyDecisions(0);
     setEstimatedAffectedPersons(0);
     setOverrideRate("");
+    setAiIntegrationLevel("");
+    setAiDependencyLevel("");
+    setFailureConsequence("");
   };
 
   const addCustomFeature = () => {
@@ -468,7 +480,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     if (index === 2) return checklist.length > 0 && checkedChecklistCount > 0;
     if (index === 3) return !!riskCategory;
     if (index === 4) return true; // optional
-    if (index === 5) return !!usageFrequency;
+    if (index === 5) return !!aiDependencyLevel;
     return false;
   };
 
@@ -963,177 +975,178 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
             </div>
           )}
 
-          {/* Step 6: Usage Scope */}
+          {/* Step 6: KI-avhengighet */}
           {currentStep === 5 && hasAI && (() => {
             const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
-            const featurePreview = selectedFeatureNames.length > 3
-              ? selectedFeatureNames.slice(0, 3).join(', ') + ` (+${selectedFeatureNames.length - 3})`
-              : selectedFeatureNames.join(', ');
-            const decisionFeatureNames = selectedFeatureNames.filter(name => {
-              const lower = name.toLowerCase();
-              return ['screening', 'rangering', 'scoring', 'vurdering', 'klassifisering',
-                'filtrering', 'avslag', 'beslutning', 'godkjenning', 'kredittscore'].some(k => lower.includes(k));
-            });
             const affectedLabels = affectedPersons.map(p => p === 'Andre' && affectedPersonsOther ? affectedPersonsOther : p);
-            const affectedPreview = affectedLabels.join(' og ').toLowerCase();
+            const affectedPreview = affectedLabels.length > 0 ? affectedLabels.join(' og ').toLowerCase() : '';
 
-            // Intelligent frequency suggestion based on process name
-            const suggestFrequency = (): { value: string; helpText: string } => {
-              const name = processName.toLowerCase();
-              if (['onboarding', 'ansettelse', 'rekruttering', 'oppsigelse', 'offboarding'].some(k => name.includes(k))) {
-                return { value: 'yearly', helpText: 'Onboarding skjer typisk ved nyansettelser – kanskje 1–5 ganger i året for de fleste bedrifter.' };
-              }
-              if (['kundeservice', 'support', 'chat', 'helpdesk'].some(k => name.includes(k))) {
-                return { value: 'daily', helpText: 'Kundeservice-prosesser kjører vanligvis daglig.' };
-              }
-              if (['rapport', 'revisjon', 'audit', 'rapportering'].some(k => name.includes(k))) {
-                return { value: 'monthly', helpText: 'Rapporter og revisjoner kjøres typisk månedlig eller kvartalsvis.' };
-              }
-              if (['analyse', 'overvåking', 'monitoring', 'deteksjon'].some(k => name.includes(k))) {
-                return { value: 'daily', helpText: 'Analyse og overvåking kjører vanligvis kontinuerlig eller daglig.' };
-              }
-              if (['faktura', 'lønn', 'regnskap'].some(k => name.includes(k))) {
-                return { value: 'monthly', helpText: 'Fakturering og lønn kjøres typisk månedlig.' };
-              }
-              return { value: '', helpText: '' };
+            // Suggest dependency based on integration + features + risk
+            const suggestDependency = (): string => {
+              if (aiIntegrationLevel === 'core' || (selectedFeatureNames.length >= 3 && riskCategory === 'high')) return 'critically_dependent';
+              if (aiIntegrationLevel === 'partial' || selectedFeatureNames.length >= 2) return 'partially_dependent';
+              return 'not_dependent';
             };
 
-            const suggestion = suggestFrequency();
-            const effectiveFrequency = usageFrequency || suggestion.value;
+            const suggestedDependency = suggestDependency();
 
-            // Dynamic placeholders based on frequency
-            const getPlaceholder = (type: 'decisions' | 'persons') => {
-              if (effectiveFrequency === 'daily') return type === 'decisions' ? '100–500' : '50–200';
-              if (effectiveFrequency === 'weekly') return type === 'decisions' ? '20–100' : '10–50';
-              if (effectiveFrequency === 'monthly') return type === 'decisions' ? '5–30' : '5–20';
-              if (effectiveFrequency === 'yearly' || effectiveFrequency === 'event_based') return type === 'decisions' ? '1–10' : '1–5';
-              return '0';
+            // Overall dependency grade
+            const getOverallGrade = () => {
+              const integrationScore = aiIntegrationLevel === 'core' ? 3 : aiIntegrationLevel === 'partial' ? 2 : 1;
+              const dependencyScore = aiDependencyLevel === 'critically_dependent' ? 3 : aiDependencyLevel === 'partially_dependent' ? 2 : 1;
+              const avg = (integrationScore + dependencyScore) / 2;
+              if (avg >= 2.5) return { label: 'Høy avhengighet', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' };
+              if (avg >= 1.5) return { label: 'Moderat avhengighet', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800' };
+              return { label: 'Lav avhengighet', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' };
             };
 
-            const FREQUENCY_OPTIONS = [
-              { value: "daily", label: "Daglig" },
-              { value: "weekly", label: "Ukentlig" },
-              { value: "monthly", label: "Månedlig" },
-              { value: "yearly", label: "Noen ganger i året" },
-              { value: "event_based", label: "Hendelsesbasert" },
+            const INTEGRATION_LEVELS = [
+              { id: 'supplement', label: 'Supplement', desc: 'AI er et hjelpemiddel, prosessen fungerer uten', icon: '🔧' },
+              { id: 'partial', label: 'Delvis integrert', desc: 'AI håndterer vesentlige deler, men kan erstattes manuelt', icon: '⚙️' },
+              { id: 'core', label: 'Kjernekomponent', desc: 'AI er selve motoren i prosessen', icon: '🧠' },
+            ];
+
+            const DEPENDENCY_LEVELS = [
+              { id: 'not_dependent', label: 'Ikke avhengig', desc: 'Prosessen kan kjøre uten AI uten merkbar konsekvens', icon: '✅' },
+              { id: 'partially_dependent', label: 'Delvis avhengig', desc: 'Prosessen påvirkes, men kan gjennomføres manuelt med mer tid/ressurser', icon: '⚠️' },
+              { id: 'critically_dependent', label: 'Kritisk avhengig', desc: 'Prosessen stopper eller gir vesentlig forringet kvalitet uten AI', icon: '🔴' },
             ];
 
             return (
             <div className="space-y-6">
 
-              <div className="space-y-3">
-                <Label className="text-base font-medium">
-                  {selectedFeatureNames.length > 0
-                    ? `Hvor ofte brukes ${featurePreview}?`
-                    : 'Hvor ofte brukes AI i denne prosessen?'}
-                </Label>
-                {suggestion.helpText && !usageFrequency && (
-                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
-                    {suggestion.helpText}
-                  </p>
-                )}
-                <div className="grid grid-cols-5 gap-2">
-                  {FREQUENCY_OPTIONS.map((freq) => (
-                    <Button
-                      key={freq.value}
-                      variant={effectiveFrequency === freq.value ? "default" : "outline"}
-                      className={`w-full text-xs ${!usageFrequency && suggestion.value === freq.value ? 'ring-2 ring-primary/30' : ''}`}
-                      onClick={() => setUsageFrequency(freq.value)}
-                    >
-                      {freq.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              <StepContextSummary>
+                Her vurderer vi hva som skjer om AI-en i denne prosessen slutter å fungere. 
+                Basert på det du har oppgitt hjelper vi deg å forstå avhengigheten.
+              </StepContextSummary>
 
-              {effectiveFrequency === 'event_based' && (
-                <div className="space-y-2">
-                  <Label>Estimert antall ganger per år</Label>
-                  <Input
-                    type="number"
-                    value={estimatedMonthlyDecisions || ""}
-                    onChange={(e) => setEstimatedMonthlyDecisions(parseInt(e.target.value) || 0)}
-                    placeholder="f.eks. 2–5"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Hvor mange ganger i året utløses denne prosessen typisk?
-                  </p>
-                </div>
-              )}
-
-              {effectiveFrequency !== 'event_based' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>{hasDecisionFeatures ? 'Estimert AI-beslutninger per måned' : 'Estimert AI-behandlinger per måned'}</Label>
-                    <Input
-                      type="number"
-                      value={estimatedMonthlyDecisions || ""}
-                      onChange={(e) => setEstimatedMonthlyDecisions(parseInt(e.target.value) || 0)}
-                      placeholder={getPlaceholder('decisions')}
-                    />
+              {/* Card 1: Omfang */}
+              <Card variant="flat">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">1. Omfang</Label>
                   </div>
-                  <div className="space-y-2">
-                    <Label>
-                      {affectedPreview
-                        ? `Estimert berørte ${affectedPreview} per måned`
-                        : 'Estimert berørte personer per måned'}
-                    </Label>
+                  {affectedPreview && (
+                    <p className="text-xs text-muted-foreground">
+                      Du har oppgitt at <span className="font-medium text-foreground">{affectedPreview}</span> berøres av AI-bruken.
+                    </p>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Estimert antall berørte per gang</Label>
                     <Input
                       type="number"
                       value={estimatedAffectedPersons || ""}
                       onChange={(e) => setEstimatedAffectedPersons(parseInt(e.target.value) || 0)}
-                      placeholder={getPlaceholder('persons')}
+                      placeholder="f.eks. 1–5"
                     />
                   </div>
-                </div>
-              )}
+                </CardContent>
+              </Card>
 
-              {effectiveFrequency === 'event_based' && (
-                <div className="space-y-2">
-                  <Label>
-                    {affectedPreview
-                      ? `Estimert berørte ${affectedPreview} per hendelse`
-                      : 'Estimert berørte personer per hendelse'}
-                  </Label>
-                  <Input
-                    type="number"
-                    value={estimatedAffectedPersons || ""}
-                    onChange={(e) => setEstimatedAffectedPersons(parseInt(e.target.value) || 0)}
-                    placeholder="1–5"
-                  />
-                </div>
-              )}
-
-              {hasDecisionFeatures && (
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">
-                    {decisionFeatureNames.length > 0
-                      ? `Hvor ofte overstyres anbefalinger fra ${decisionFeatureNames.join(' og ')}?`
-                      : 'Hvor ofte overstyres AI-anbefalingen?'}
-                  </Label>
-                  <p className="text-xs text-muted-foreground -mt-1">
-                    Menneskelig overstyring er viktig for dokumentasjon av tilsyn under AI Act.
-                  </p>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { value: "never", label: "Aldri (0-10%)" },
-                      { value: "rarely", label: "Sjelden (10-30%)" },
-                      { value: "often", label: "Ofte (30-60%)" },
-                      { value: "always", label: "Alltid (60%+)" },
-                    ].map((rate) => (
-                      <Button
-                        key={rate.value}
-                        variant={overrideRate === rate.value ? "default" : "outline"}
-                        className="w-full text-xs"
-                        onClick={() => setOverrideRate(rate.value)}
+              {/* Card 2: Integrasjon */}
+              <Card variant="flat">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Server className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">2. Integrasjon</Label>
+                  </div>
+                  {selectedFeatureNames.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Du har registrert <span className="font-medium text-foreground">{selectedFeatureNames.length} AI-funksjon{selectedFeatureNames.length > 1 ? 'er' : ''}</span> i denne prosessen.
+                      Hvor stor del av prosessen er AI-drevet?
+                    </p>
+                  )}
+                  <div className="space-y-2">
+                    {INTEGRATION_LEVELS.map((level) => (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => setAiIntegrationLevel(level.id)}
+                        className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                          aiIntegrationLevel === level.id
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                            : 'hover:bg-muted/50'
+                        }`}
                       >
-                        {rate.label}
-                      </Button>
+                        <span className="text-lg mt-0.5">{level.icon}</span>
+                        <div>
+                          <p className="text-sm font-medium">{level.label}</p>
+                          <p className="text-xs text-muted-foreground">{level.desc}</p>
+                        </div>
+                      </button>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Card 3: Kritikalitet ved bortfall */}
+              <Card variant="flat">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">3. Kritikalitet ved bortfall</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Hva skjer om AI-en i denne prosessen slutter å fungere?
+                  </p>
+                  {!aiDependencyLevel && suggestedDependency && (
+                    <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
+                      <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                      <p className="text-xs text-muted-foreground">
+                        Basert på {selectedFeatureNames.length} funksjoner og integrasjonsnivå foreslår Lara: <button type="button" className="font-medium text-primary hover:underline" onClick={() => setAiDependencyLevel(suggestedDependency)}>{DEPENDENCY_LEVELS.find(d => d.id === suggestedDependency)?.label}</button>
+                      </p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    {DEPENDENCY_LEVELS.map((level) => (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => setAiDependencyLevel(level.id)}
+                        className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                          aiDependencyLevel === level.id
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                            : 'hover:bg-muted/50'
+                        }`}
+                      >
+                        <span className="text-lg mt-0.5">{level.icon}</span>
+                        <div>
+                          <p className="text-sm font-medium">{level.label}</p>
+                          <p className="text-xs text-muted-foreground">{level.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  {aiDependencyLevel && aiDependencyLevel !== 'not_dependent' && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Beskriv konsekvensen ved bortfall</Label>
+                      <Textarea
+                        value={failureConsequence}
+                        onChange={(e) => setFailureConsequence(e.target.value)}
+                        placeholder="f.eks. Manuell onboarding tar 3x lengre tid og gir inkonsistent kvalitet"
+                        rows={2}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Overall dependency indicator */}
+              {aiIntegrationLevel && aiDependencyLevel && (
+                <div className={`p-3 rounded-lg border ${getOverallGrade().bg}`}>
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    <span className={`text-sm font-semibold ${getOverallGrade().color}`}>
+                      Samlet: {getOverallGrade().label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Beregnet fra integrasjonsnivå og kritikalitet ved bortfall.
+                  </p>
                 </div>
               )}
+
             </div>
             );
           })()}

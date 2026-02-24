@@ -1776,7 +1776,9 @@ export type Database = {
       process_ai_usage: {
         Row: {
           affected_persons: string[] | null
+          ai_dependency_level: string | null
           ai_features: Json | null
+          ai_integration_level: string | null
           ai_purpose: string | null
           ai_system_id: string | null
           assessed_by: string | null
@@ -1787,6 +1789,7 @@ export type Database = {
           decision_impact: string | null
           estimated_affected_persons: number | null
           estimated_monthly_decisions: number | null
+          failure_consequence: string | null
           has_ai: boolean
           human_oversight_description: string | null
           human_oversight_level: string | null
@@ -1806,7 +1809,9 @@ export type Database = {
         }
         Insert: {
           affected_persons?: string[] | null
+          ai_dependency_level?: string | null
           ai_features?: Json | null
+          ai_integration_level?: string | null
           ai_purpose?: string | null
           ai_system_id?: string | null
           assessed_by?: string | null
@@ -1817,6 +1822,7 @@ export type Database = {
           decision_impact?: string | null
           estimated_affected_persons?: number | null
           estimated_monthly_decisions?: number | null
+          failure_consequence?: string | null
           has_ai?: boolean
           human_oversight_description?: string | null
           human_oversight_level?: string | null
@@ -1836,7 +1842,9 @@ export type Database = {
         }
         Update: {
           affected_persons?: string[] | null
+          ai_dependency_level?: string | null
           ai_features?: Json | null
+          ai_integration_level?: string | null
           ai_purpose?: string | null
           ai_system_id?: string | null
           assessed_by?: string | null
@@ -1847,6 +1855,7 @@ export type Database = {
           decision_impact?: string | null
           estimated_affected_persons?: number | null
           estimated_monthly_decisions?: number | null
+          failure_consequence?: string | null
           has_ai?: boolean
           human_oversight_description?: string | null
           human_oversight_level?: string | null
