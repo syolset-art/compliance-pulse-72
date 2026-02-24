@@ -339,11 +339,13 @@ export const ProcessAIDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
-            AI-bruk dokumentasjon
+          <DialogTitle className="text-lg font-semibold">
+            {processName}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{processName}</p>
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <Bot className="h-3.5 w-3.5" />
+            AI-bruk dokumentasjon
+          </p>
         </DialogHeader>
 
         {/* ── Compact stepper ── */}
