@@ -47,6 +47,8 @@ import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
+import TrustCenterSaaS from "./pages/TrustCenterSaaS";
+import TrustCenterShared from "./pages/TrustCenterShared";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +105,8 @@ const App = () => (
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
+                  <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
+                  <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
