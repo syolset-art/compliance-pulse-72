@@ -23,7 +23,10 @@ import {
   RotateCcw,
   FileQuestion,
   Play,
-  Code2
+  Code2,
+  Globe,
+  Share2,
+  Layers
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -63,7 +66,6 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
   // Hidden for now – not deleted
   // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
   // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
   // { name: "nav.transparency", href: "/transparency", icon: FileText },
 ];
@@ -74,10 +76,16 @@ const adminSubMenu = [
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
 ];
 
-const SelfTrustProfileLink = () => {
+const TrustCenterMenu = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [selfAssetId, setSelfAssetId] = useState<string | null>(null);
+  const [open, setOpen] = useState(() => 
+    location.pathname.startsWith("/assets/") || 
+    location.pathname === "/customer-requests" ||
+    location.pathname === "/trust-center"
+  );
 
   useEffect(() => {
     const fetchOrCreateSelf = async () => {
@@ -90,7 +98,6 @@ const SelfTrustProfileLink = () => {
       if (data) {
         setSelfAssetId(data.id);
       } else {
-        // Auto-create self asset from company profile if missing
         const { data: profile } = await supabase
           .from("company_profile")
           .select("name")
@@ -115,24 +122,57 @@ const SelfTrustProfileLink = () => {
     fetchOrCreateSelf();
   }, []);
 
-  if (!selfAssetId) return null;
+  const trustCenterItems = [
+    { name: "Vår Trust Profil", href: selfAssetId ? `/assets/${selfAssetId}` : null, icon: Shield },
+    { name: "SaaS / Product", href: "/trust-center/saas", icon: Layers },
+    { name: "Shared Profiles", href: "/trust-center/shared", icon: Share2 },
+    { name: "Forespørsler", href: "/customer-requests", icon: FileQuestion },
+  ];
 
-  const href = `/assets/${selfAssetId}`;
-  const isActive = location.pathname === href;
+  const isActive = trustCenterItems.some(item => item.href && location.pathname === item.href);
 
   return (
-    <Link
-      to={href}
-      className={cn(
-        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-        isActive
-          ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+    <div className="pt-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+          isActive
+            ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <Globe className="h-5 w-5" />
+          Trust Center
+        </div>
+        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="ml-4 mt-1 space-y-1">
+          {trustCenterItems.map((item) => {
+            if (!item.href) return null;
+            const itemActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  itemActive
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
       )}
-    >
-      <Shield className="h-5 w-5" />
-      {t("nav.trustProfile")}
-    </Link>
+    </div>
   );
 };
 
@@ -327,7 +367,7 @@ const SidebarContent = () => {
           )}
         </div>
 
-        <SelfTrustProfileLink />
+        <TrustCenterMenu />
 
         {/* Resources link */}
         <Link
