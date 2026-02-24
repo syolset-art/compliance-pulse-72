@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.mynder-me-api]
 verify_jwt = false
+
+[functions.suggest-ai-purpose]
+verify_jwt = false
