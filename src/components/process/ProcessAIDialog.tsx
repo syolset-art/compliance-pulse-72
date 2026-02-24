@@ -976,44 +976,50 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
             });
             const affectedLabels = affectedPersons.map(p => p === 'Andre' && affectedPersonsOther ? affectedPersonsOther : p);
             const affectedPreview = affectedLabels.join(' og ').toLowerCase();
-            const riskLabel = riskCategory ? (RISK_LEVELS.find(r => r.id === riskCategory)?.label || riskCategory) : null;
+
+            // Intelligent frequency suggestion based on process name
+            const suggestFrequency = (): { value: string; helpText: string } => {
+              const name = processName.toLowerCase();
+              if (['onboarding', 'ansettelse', 'rekruttering', 'oppsigelse', 'offboarding'].some(k => name.includes(k))) {
+                return { value: 'yearly', helpText: 'Onboarding skjer typisk ved nyansettelser – kanskje 1–5 ganger i året for de fleste bedrifter.' };
+              }
+              if (['kundeservice', 'support', 'chat', 'helpdesk'].some(k => name.includes(k))) {
+                return { value: 'daily', helpText: 'Kundeservice-prosesser kjører vanligvis daglig.' };
+              }
+              if (['rapport', 'revisjon', 'audit', 'rapportering'].some(k => name.includes(k))) {
+                return { value: 'monthly', helpText: 'Rapporter og revisjoner kjøres typisk månedlig eller kvartalsvis.' };
+              }
+              if (['analyse', 'overvåking', 'monitoring', 'deteksjon'].some(k => name.includes(k))) {
+                return { value: 'daily', helpText: 'Analyse og overvåking kjører vanligvis kontinuerlig eller daglig.' };
+              }
+              if (['faktura', 'lønn', 'regnskap'].some(k => name.includes(k))) {
+                return { value: 'monthly', helpText: 'Fakturering og lønn kjøres typisk månedlig.' };
+              }
+              return { value: '', helpText: '' };
+            };
+
+            const suggestion = suggestFrequency();
+            const effectiveFrequency = usageFrequency || suggestion.value;
+
+            // Dynamic placeholders based on frequency
+            const getPlaceholder = (type: 'decisions' | 'persons') => {
+              if (effectiveFrequency === 'daily') return type === 'decisions' ? '100–500' : '50–200';
+              if (effectiveFrequency === 'weekly') return type === 'decisions' ? '20–100' : '10–50';
+              if (effectiveFrequency === 'monthly') return type === 'decisions' ? '5–30' : '5–20';
+              if (effectiveFrequency === 'yearly' || effectiveFrequency === 'event_based') return type === 'decisions' ? '1–10' : '1–5';
+              return '0';
+            };
+
+            const FREQUENCY_OPTIONS = [
+              { value: "daily", label: "Daglig" },
+              { value: "weekly", label: "Ukentlig" },
+              { value: "monthly", label: "Månedlig" },
+              { value: "yearly", label: "Noen ganger i året" },
+              { value: "event_based", label: "Hendelsesbasert" },
+            ];
 
             return (
             <div className="space-y-6">
-
-              {/* Contextual summary from previous steps */}
-              {(riskLabel || selectedFeatureNames.length > 0 || affectedLabels.length > 0) && (
-                <Card variant="flat" className="bg-muted/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-                      <div className="space-y-1.5 text-sm">
-                        <p className="font-medium text-foreground">Oppsummering fra tidligere steg</p>
-                        {riskLabel && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Risikonivå:</span>
-                            <Badge variant={riskCategory === 'high' || riskCategory === 'unacceptable' ? 'destructive' : riskCategory === 'limited' ? 'warning' : 'secondary'} className="text-xs">
-                              {riskLabel}
-                            </Badge>
-                          </div>
-                        )}
-                        {selectedFeatureNames.length > 0 && (
-                          <div className="flex items-start gap-2">
-                            <span className="text-muted-foreground shrink-0">AI-funksjoner:</span>
-                            <span className="text-foreground">{featurePreview}</span>
-                          </div>
-                        )}
-                        {affectedLabels.length > 0 && (
-                          <div className="flex items-start gap-2">
-                            <span className="text-muted-foreground shrink-0">Berørte:</span>
-                            <span className="text-foreground">{affectedLabels.join(', ')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               <div className="space-y-3">
                 <Label className="text-base font-medium">
@@ -1021,17 +1027,18 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                     ? `Hvor ofte brukes ${featurePreview}?`
                     : 'Hvor ofte brukes AI i denne prosessen?'}
                 </Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: "daily", label: "Daglig" },
-                    { value: "weekly", label: "Ukentlig" },
-                    { value: "monthly", label: "Månedlig" },
-                    { value: "rarely", label: "Sjelden" },
-                  ].map((freq) => (
+                {suggestion.helpText && !usageFrequency && (
+                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
+                    {suggestion.helpText}
+                  </p>
+                )}
+                <div className="grid grid-cols-5 gap-2">
+                  {FREQUENCY_OPTIONS.map((freq) => (
                     <Button
                       key={freq.value}
-                      variant={usageFrequency === freq.value ? "default" : "outline"}
-                      className="w-full"
+                      variant={effectiveFrequency === freq.value ? "default" : "outline"}
+                      className={`w-full text-xs ${!usageFrequency && suggestion.value === freq.value ? 'ring-2 ring-primary/30' : ''}`}
                       onClick={() => setUsageFrequency(freq.value)}
                     >
                       {freq.label}
@@ -1040,32 +1047,63 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {effectiveFrequency === 'event_based' && (
                 <div className="space-y-2">
-                  <Label>{hasDecisionFeatures ? 'Estimert AI-beslutninger per måned' : 'Estimert AI-behandlinger per måned'}</Label>
-                  <input
+                  <Label>Estimert antall ganger per år</Label>
+                  <Input
                     type="number"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={estimatedMonthlyDecisions || ""}
                     onChange={(e) => setEstimatedMonthlyDecisions(parseInt(e.target.value) || 0)}
-                    placeholder="0"
+                    placeholder="f.eks. 2–5"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Hvor mange ganger i året utløses denne prosessen typisk?
+                  </p>
                 </div>
+              )}
+
+              {effectiveFrequency !== 'event_based' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{hasDecisionFeatures ? 'Estimert AI-beslutninger per måned' : 'Estimert AI-behandlinger per måned'}</Label>
+                    <Input
+                      type="number"
+                      value={estimatedMonthlyDecisions || ""}
+                      onChange={(e) => setEstimatedMonthlyDecisions(parseInt(e.target.value) || 0)}
+                      placeholder={getPlaceholder('decisions')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>
+                      {affectedPreview
+                        ? `Estimert berørte ${affectedPreview} per måned`
+                        : 'Estimert berørte personer per måned'}
+                    </Label>
+                    <Input
+                      type="number"
+                      value={estimatedAffectedPersons || ""}
+                      onChange={(e) => setEstimatedAffectedPersons(parseInt(e.target.value) || 0)}
+                      placeholder={getPlaceholder('persons')}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {effectiveFrequency === 'event_based' && (
                 <div className="space-y-2">
                   <Label>
                     {affectedPreview
-                      ? `Estimert berørte ${affectedPreview} per måned`
-                      : 'Estimert berørte personer per måned'}
+                      ? `Estimert berørte ${affectedPreview} per hendelse`
+                      : 'Estimert berørte personer per hendelse'}
                   </Label>
-                  <input
+                  <Input
                     type="number"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={estimatedAffectedPersons || ""}
                     onChange={(e) => setEstimatedAffectedPersons(parseInt(e.target.value) || 0)}
-                    placeholder="0"
+                    placeholder="1–5"
                   />
                 </div>
-              </div>
+              )}
 
               {hasDecisionFeatures && (
                 <div className="space-y-3">
