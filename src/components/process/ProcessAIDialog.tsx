@@ -964,11 +964,63 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           )}
 
           {/* Step 6: Usage Scope */}
-          {currentStep === 5 && hasAI && (
+          {currentStep === 5 && hasAI && (() => {
+            const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
+            const featurePreview = selectedFeatureNames.length > 3
+              ? selectedFeatureNames.slice(0, 3).join(', ') + ` (+${selectedFeatureNames.length - 3})`
+              : selectedFeatureNames.join(', ');
+            const decisionFeatureNames = selectedFeatureNames.filter(name => {
+              const lower = name.toLowerCase();
+              return ['screening', 'rangering', 'scoring', 'vurdering', 'klassifisering',
+                'filtrering', 'avslag', 'beslutning', 'godkjenning', 'kredittscore'].some(k => lower.includes(k));
+            });
+            const affectedLabels = affectedPersons.map(p => p === 'Andre' && affectedPersonsOther ? affectedPersonsOther : p);
+            const affectedPreview = affectedLabels.join(' og ').toLowerCase();
+            const riskLabel = riskCategory ? (RISK_LEVELS.find(r => r.id === riskCategory)?.label || riskCategory) : null;
+
+            return (
             <div className="space-y-6">
 
+              {/* Contextual summary from previous steps */}
+              {(riskLabel || selectedFeatureNames.length > 0 || affectedLabels.length > 0) && (
+                <Card variant="flat" className="bg-muted/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Sparkles className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                      <div className="space-y-1.5 text-sm">
+                        <p className="font-medium text-foreground">Oppsummering fra tidligere steg</p>
+                        {riskLabel && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">Risikonivå:</span>
+                            <Badge variant={riskCategory === 'high' || riskCategory === 'unacceptable' ? 'destructive' : riskCategory === 'limited' ? 'warning' : 'secondary'} className="text-xs">
+                              {riskLabel}
+                            </Badge>
+                          </div>
+                        )}
+                        {selectedFeatureNames.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-muted-foreground shrink-0">AI-funksjoner:</span>
+                            <span className="text-foreground">{featurePreview}</span>
+                          </div>
+                        )}
+                        {affectedLabels.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-muted-foreground shrink-0">Berørte:</span>
+                            <span className="text-foreground">{affectedLabels.join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <div className="space-y-3">
-                <Label className="text-base font-medium">Hvor ofte brukes AI i denne prosessen?</Label>
+                <Label className="text-base font-medium">
+                  {selectedFeatureNames.length > 0
+                    ? `Hvor ofte brukes ${featurePreview}?`
+                    : 'Hvor ofte brukes AI i denne prosessen?'}
+                </Label>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { value: "daily", label: "Daglig" },
@@ -1000,7 +1052,11 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Estimert berørte personer per måned</Label>
+                  <Label>
+                    {affectedPreview
+                      ? `Estimert berørte ${affectedPreview} per måned`
+                      : 'Estimert berørte personer per måned'}
+                  </Label>
                   <input
                     type="number"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -1013,7 +1069,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
 
               {hasDecisionFeatures && (
                 <div className="space-y-3">
-                  <Label className="text-base font-medium">Hvor ofte overstyres AI-anbefalingen?</Label>
+                  <Label className="text-base font-medium">
+                    {decisionFeatureNames.length > 0
+                      ? `Hvor ofte overstyres anbefalinger fra ${decisionFeatureNames.join(' og ')}?`
+                      : 'Hvor ofte overstyres AI-anbefalingen?'}
+                  </Label>
+                  <p className="text-xs text-muted-foreground -mt-1">
+                    Menneskelig overstyring er viktig for dokumentasjon av tilsyn under AI Act.
+                  </p>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { value: "never", label: "Aldri (0-10%)" },
@@ -1034,7 +1097,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* No AI selected */}
           {currentStep > 0 && !hasAI && (
