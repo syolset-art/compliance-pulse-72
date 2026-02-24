@@ -1,33 +1,39 @@
 
 
-# Forbedring av sjekklisten i AI-bruk veiviseren
+# Tilpass siste steg i veiviseren til kontekst
 
-## Endringer
+## Problem
+Siste steg ("Bruksomfang") er generisk og uavhengig av det brukeren har fylt inn i tidligere steg. Sporsmalene om frekvens, antall behandlinger/beslutninger og berorte personer mangler sammenheng med valgte AI-funksjoner, risikoniva og berorte grupper.
 
-### 1. Fjern "AI Act" fra tittelen
-Endre overskriften fra "AI Act sjekkliste" til bare "Sjekkliste" med en mer relevant undertekst.
+## Endringer i `src/components/process/ProcessAIDialog.tsx`
 
-### 2. Omformuler sporsmalene til pastandsform
-Sjekklistepunktene er i dag formulert som sporsmål ("Brukes AI-generert innhold i opplaeringen?"). Disse endres til pastandsform som brukeren bekrefter ("AI-generert innhold brukes i opplaeringen"). Dette gjor det mer naturlig a huke av.
+### 1. Kontekstuell intro basert pa tidligere svar
+Legg til en kort oppsummering overst i steg 6 som viser:
+- Valgt risikoniva (f.eks. "Minimal risiko")
+- Antall valgte AI-funksjoner (f.eks. "Personalisert opplaering, Automatisk oppgavetildeling")
+- Berorte grupper (f.eks. "Ansatte, Kunder")
 
-Endringen gjores i `src/lib/processAISuggestions.ts` der alle `suggestedChecks` er definert.
+Dette gir brukeren en kvittering og skaper sammenheng.
 
-### 3. Mulighet for a legge til systemreferanse per sjekkpunkt
-Nar brukeren huker av et punkt, vises en kompakt linje under der brukeren kan velge hvilket/hvilke system(er) som er relevante. Systemene hentes fra prosessens tilknyttede systemer (via `systemId` og evt. flere). Denne informasjonen er relevant fordi en prosess kan bruke flere systemer, og det er viktig a dokumentere hvilke systemer som faktisk bruker AI pa dette punktet.
+### 2. Tilpass sporsmalstekstene til konteksten
+- Frekvens-sporsmalet: Endre fra den generiske "Hvor ofte brukes AI i denne prosessen?" til noe som inkluderer funksjonene, f.eks. "Hvor ofte brukes *Personalisert opplaering* og *Automatisk oppgavetildeling*?"
+- "Berørte personer per maned": Forhands-navngi de valgte gruppene, f.eks. "Hvor mange *ansatte og kunder* berores per maned?"
+- "AI-beslutninger/behandlinger per maned": Behold eksisterende logikk som allerede tilpasser label basert pa `hasDecisionFeatures`.
 
-Feltet vises kun nar sjekkpunktet er avhuket -- ingen ekstra informasjon nar det ikke er relevant.
+### 3. Vis overstyringssporsmalet mer kontekstuelt
+Sporsmalet "Hvor ofte overstyres AI-anbefalingen?" vises i dag bare nar `hasDecisionFeatures` er true. Legg til en kort forklarende tekst som nevner de spesifikke beslutningsfunksjonene, f.eks. "Hvor ofte overstyres anbefalinger fra *CV-screening* og *Kandidatrangering*?"
 
 ## Teknisk plan
 
-### Fil: `src/lib/processAISuggestions.ts`
-- Endre alle `suggestedChecks`-strenger fra sporsmalsform til pastandsform:
-  - "Brukes AI-generert innhold i opplaering?" -> "AI-generert innhold brukes i opplaeringen"
-  - "Er det automatiserte systemer som tildeler oppgaver?" -> "Automatiserte systemer tildeler oppgaver"
-  - Tilsvarende for alle andre prosesstyper og generiske sjekker
+### Fil: `src/components/process/ProcessAIDialog.tsx` (steg 6, linje 966-1037)
 
-### Fil: `src/components/process/ProcessAIDialog.tsx`
-- **Tittelendring** (linje 651): Endre "AI Act sjekkliste" til "Sjekkliste"
-- **ChecklistItem-interface** (linje 67-71): Utvid med `systems?: string[]` for a lagre tilknyttede systemer per punkt
-- **Systemhenting**: Legg til en query som henter systemer tilknyttet prosessen (via `systemId` og eventuelt flere via work area)
-- **UI per sjekkpunkt** (linje 655-670): Nar et punkt er avhuket, vis en kompakt rad med system-badges som kan velges/fravelges. Kun synlig nar `item.checked === true`
-- **Lagring** (linje 234): Sikre at `compliance_checklist` inkluderer system-referansene i dataene som lagres
+1. **Kontekstboks** (ny, overst i steget): En kompakt oppsummering med ikon som viser risikoniva-badge, liste over valgte funksjoner, og berorte grupper. Bruker eksisterende data fra `riskCategory`, `aiFeatures`, og `affectedPersons` state.
+
+2. **Dynamisk frekvenslabel** (linje 971): Bytt ut hardkodet "Hvor ofte brukes AI i denne prosessen?" med en dynamisk streng som inkluderer de forste 2-3 valgte funksjonsnavnene.
+
+3. **Dynamisk berort-label** (linje 1003): Endre "Estimert berorte personer per maned" til a inkludere de valgte gruppene fra `affectedPersons`, f.eks. "Estimert berorte ansatte og kunder per maned".
+
+4. **Dynamisk overstyrings-label** (linje 1016): Tilsvarende - inkluder de spesifikke beslutningsfunksjonene i sporsmalsteksten.
+
+Ingen nye filer, ingen databaseendringer. Kun UI-tilpasninger i ett eksisterende steg.
+
