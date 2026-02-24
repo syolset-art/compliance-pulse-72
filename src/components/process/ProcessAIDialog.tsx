@@ -382,6 +382,31 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   const checkedChecklistCount = checklist.filter(c => c.checked).length;
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
+  // ── Decision-keyword detection for contextual labels ──
+  const DECISION_KEYWORDS = ['screening', 'rangering', 'vurdering', 'score',
+    'filtrering', 'avslag', 'beslutning', 'godkjenning', 'kredittscore'];
+
+  const hasDecisionFeatures = useMemo(() => {
+    const selectedNames = aiFeatures.filter(f => f.selected).map(f => f.name.toLowerCase());
+    return selectedNames.some(name =>
+      DECISION_KEYWORDS.some(kw => name.includes(kw))
+    );
+  }, [aiFeatures]);
+
+  const getAffectedPersonsContext = () => {
+    const featureList = aiFeatures.filter(f => f.selected).map(f => f.name).join(', ');
+    if (hasDecisionFeatures) {
+      return {
+        label: 'Hvem påvirkes av AI-beslutningene?',
+        hint: `Basert på ${featureList} — hvem kan bli direkte påvirket av disse beslutningene?`,
+      };
+    }
+    return {
+      label: 'Hvem bruker eller berøres av AI-funksjonene?',
+      hint: `Du bruker ${featureList}. Velg hvem som bruker eller berøres av dette.`,
+    };
+  };
+
   const selectedRiskLevel = RISK_LEVELS.find(l => l.id === riskCategory);
 
   // Determine if step is "complete"
@@ -725,28 +750,33 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               </div>
 
-              {/* Affected persons */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4" />
-                    Hvem påvirkes av AI-beslutninger?
-                  </Label>
-                  {affectedPersons.length === 0 && <AIGeneratedBadge variant="requires-input" size="sm" />}
+              {/* Affected persons — contextual */}
+              {selectedFeaturesCount > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 text-sm">
+                      <Users className="h-4 w-4" />
+                      {getAffectedPersonsContext().label}
+                    </Label>
+                    {affectedPersons.length === 0 && <AIGeneratedBadge variant="requires-input" size="sm" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground -mt-1">
+                    {getAffectedPersonsContext().hint}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Ansatte', 'Kunder', 'Leverandører', 'Publikum', 'Kandidater'].map((person) => (
+                      <Badge
+                        key={person}
+                        variant={affectedPersons.includes(person) ? 'default' : 'outline'}
+                        className="cursor-pointer transition-all"
+                        onClick={() => toggleAffectedPerson(person)}
+                      >
+                        {person}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {['Ansatte', 'Kunder', 'Leverandører', 'Publikum', 'Kandidater'].map((person) => (
-                    <Badge
-                      key={person}
-                      variant={affectedPersons.includes(person) ? 'default' : 'outline'}
-                      className="cursor-pointer transition-all"
-                      onClick={() => toggleAffectedPerson(person)}
-                    >
-                      {person}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -894,7 +924,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Estimert AI-beslutninger per måned</Label>
+                  <Label>{hasDecisionFeatures ? 'Estimert AI-beslutninger per måned' : 'Estimert AI-behandlinger per måned'}</Label>
                   <input
                     type="number"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -915,26 +945,28 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label className="text-base font-medium">Hvor ofte overstyres AI-anbefalingen?</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: "never", label: "Aldri (0-10%)" },
-                    { value: "rarely", label: "Sjelden (10-30%)" },
-                    { value: "often", label: "Ofte (30-60%)" },
-                    { value: "always", label: "Alltid (60%+)" },
-                  ].map((rate) => (
-                    <Button
-                      key={rate.value}
-                      variant={overrideRate === rate.value ? "default" : "outline"}
-                      className="w-full text-xs"
-                      onClick={() => setOverrideRate(rate.value)}
-                    >
-                      {rate.label}
-                    </Button>
-                  ))}
+              {hasDecisionFeatures && (
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Hvor ofte overstyres AI-anbefalingen?</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { value: "never", label: "Aldri (0-10%)" },
+                      { value: "rarely", label: "Sjelden (10-30%)" },
+                      { value: "often", label: "Ofte (30-60%)" },
+                      { value: "always", label: "Alltid (60%+)" },
+                    ].map((rate) => (
+                      <Button
+                        key={rate.value}
+                        variant={overrideRate === rate.value ? "default" : "outline"}
+                        className="w-full text-xs"
+                        onClick={() => setOverrideRate(rate.value)}
+                      >
+                        {rate.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
