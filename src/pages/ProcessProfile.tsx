@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { ProcessCard } from "@/components/process/ProcessCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ProcessProfile = () => {
@@ -73,15 +73,24 @@ const ProcessProfile = () => {
       <Sidebar />
       <main className="flex-1 p-6 lg:p-8 overflow-auto">
         <div className="max-w-5xl mx-auto">
-          {/* Back button */}
-          <Button 
-            variant="ghost" 
-            className="mb-4"
-            onClick={() => navigate(-1)}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Tilbake
-          </Button>
+          {/* Navigation bar */}
+          <div className="flex items-center justify-between mb-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(-1)}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Tilbake
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => workAreaId ? navigate('/work-areas') : navigate(-1)}
+              className="rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
 
           {/* Process Card */}
           <ProcessCard 
