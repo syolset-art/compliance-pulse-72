@@ -106,6 +106,7 @@ export const ProcessAIDialog = ({
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [riskCategory, setRiskCategory] = useState<string>("");
   const [riskJustification, setRiskJustification] = useState("");
+  const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
   const [transparencyStatus, setTransparencyStatus] = useState("not_required");
   const [transparencyDescription, setTransparencyDescription] = useState("");
   const [humanOversightRequired, setHumanOversightRequired] = useState(false);
@@ -257,6 +258,65 @@ export const ProcessAIDialog = ({
     if (ratio === 1) return "compliant";
     if (ratio >= 0.5) return "partial";
     return "non_compliant";
+  };
+
+  const generateRiskJustification = async () => {
+    if (!riskCategory) {
+      toast.error("Velg et risikonivå først");
+      return;
+    }
+    setIsGeneratingJustification(true);
+    try {
+      const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
+      const riskLabel = RISK_LEVELS.find(r => r.id === riskCategory)?.label || riskCategory;
+      
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          messages: [
+            {
+              role: "user",
+              content: `Du er en compliance-rådgiver som hjelper med EU AI Act dokumentasjon. Skriv en kort og presis begrunnelse (2-4 setninger) for hvorfor AI-bruken i prosessen "${processName}" er klassifisert som "${riskLabel}" risikonivå under EU AI Act.
+
+Kontekst:
+- Prosess: ${processName}${processDescription ? ` - ${processDescription}` : ''}
+- AI-funksjoner i bruk: ${selectedFeatureNames.length > 0 ? selectedFeatureNames.join(', ') : 'Ikke spesifisert'}
+- Valgt risikonivå: ${riskLabel}
+- Berørte personer: ${affectedPersons.length > 0 ? affectedPersons.join(', ') : 'Ikke spesifisert'}
+
+Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i AI Act der det er naturlig.`
+            }
+          ]
+        }
+      });
+
+      if (error) throw error;
+      
+      // Handle both streaming and non-streaming responses
+      if (typeof data === 'string') {
+        // Parse SSE response
+        const lines = data.split('\n');
+        let fullText = '';
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line.slice(6).trim() !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              const content = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content;
+              if (content) fullText += content;
+            } catch { /* skip */ }
+          }
+        }
+        setRiskJustification(fullText || data);
+      } else if (data?.choices?.[0]?.message?.content) {
+        setRiskJustification(data.choices[0].message.content);
+      }
+      
+      toast.success("Lara har foreslått en begrunnelse");
+    } catch (e) {
+      console.error("Failed to generate justification:", e);
+      toast.error("Kunne ikke generere forslag. Prøv igjen.");
+    } finally {
+      setIsGeneratingJustification(false);
+    }
   };
 
   const resetForm = () => {
@@ -635,21 +695,35 @@ export const ProcessAIDialog = ({
               <AIRiskPyramidExplainer />
 
               {/* Risk justification */}
-              <AIFieldWrapper isAIGenerated={false} label="Begrunnelse for klassifisering">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Begrunnelse for klassifisering</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateRiskJustification}
+                    disabled={isGeneratingJustification || !riskCategory}
+                    className="gap-1.5 text-xs h-7"
+                  >
+                    <Sparkles className={`h-3.5 w-3.5 ${isGeneratingJustification ? 'animate-spin' : ''}`} />
+                    {isGeneratingJustification ? 'Genererer...' : 'Foreslå med Lara'}
+                  </Button>
+                </div>
                 <div className="relative">
                   <Textarea
                     value={riskJustification}
                     onChange={(e) => setRiskJustification(e.target.value)}
                     placeholder="Forklar hvorfor denne risikoklassifiseringen er valgt..."
-                    rows={2}
+                    rows={3}
                   />
-                  {!riskJustification && (
+                  {!riskJustification && !isGeneratingJustification && (
                     <div className="absolute top-2 right-2">
                       <AIGeneratedBadge variant="requires-input" size="sm" />
                     </div>
                   )}
                 </div>
-              </AIFieldWrapper>
+              </div>
 
               {/* Affected persons */}
               <div className="space-y-2">
