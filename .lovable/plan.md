@@ -1,39 +1,54 @@
 
 
-# Tilpass siste steg i veiviseren til kontekst
+# Realistisk bruksomfang basert på prosesstype
 
-## Problem
-Siste steg ("Bruksomfang") er generisk og uavhengig av det brukeren har fylt inn i tidligere steg. Sporsmalene om frekvens, antall behandlinger/beslutninger og berorte personer mangler sammenheng med valgte AI-funksjoner, risikoniva og berorte grupper.
+## Problemet
+Frekvensvalget "Daglig / Ukentlig / Månedlig / Sjelden" passer ikke alle prosesser. En onboarding-prosess med AI-genererte videoer brukes kanskje bare 1-2 ganger i året - da er selv "Sjelden" misvisende. Systemet bør foreslå realistisk frekvens og omfang basert på hva prosessen faktisk handler om.
 
-## Endringer i `src/components/process/ProcessAIDialog.tsx`
+## Endringer
 
-### 1. Kontekstuell intro basert pa tidligere svar
-Legg til en kort oppsummering overst i steg 6 som viser:
-- Valgt risikoniva (f.eks. "Minimal risiko")
-- Antall valgte AI-funksjoner (f.eks. "Personalisert opplaering, Automatisk oppgavetildeling")
-- Berorte grupper (f.eks. "Ansatte, Kunder")
+### 1. Utvid frekvensalternativene
+Legg til "Hendelsesbasert" som et femte alternativ. Mange prosesser utløses av en hendelse (ny ansatt, ny kunde, avvik) i stedet for å kjøre på fast frekvens. Med dette alternativet vises et ekstra felt: "Estimert antall ganger per år" (f.eks. 2-5 for onboarding).
 
-Dette gir brukeren en kvittering og skaper sammenheng.
+Nye alternativer:
+- Daglig
+- Ukentlig
+- Månedlig
+- Noen ganger i året
+- Hendelsesbasert (med tallfelt for antall per år)
 
-### 2. Tilpass sporsmalstekstene til konteksten
-- Frekvens-sporsmalet: Endre fra den generiske "Hvor ofte brukes AI i denne prosessen?" til noe som inkluderer funksjonene, f.eks. "Hvor ofte brukes *Personalisert opplaering* og *Automatisk oppgavetildeling*?"
-- "Berørte personer per maned": Forhands-navngi de valgte gruppene, f.eks. "Hvor mange *ansatte og kunder* berores per maned?"
-- "AI-beslutninger/behandlinger per maned": Behold eksisterende logikk som allerede tilpasser label basert pa `hasDecisionFeatures`.
+### 2. Intelligent forvalg av frekvens
+Basert på prosessnavnet og AI-funksjonene foreslås en realistisk frekvens automatisk:
+- Prosesser med "onboarding", "ansettelse", "rekruttering" -> "Noen ganger i året"
+- Prosesser med "kundeservice", "support", "chat" -> "Daglig"
+- Prosesser med "rapport", "revisjon", "audit" -> "Månedlig" eller "Noen ganger i året"
+- Prosesser med "analyse", "overvåking" -> "Daglig" eller "Ukentlig"
 
-### 3. Vis overstyringssporsmalet mer kontekstuelt
-Sporsmalet "Hvor ofte overstyres AI-anbefalingen?" vises i dag bare nar `hasDecisionFeatures` er true. Legg til en kort forklarende tekst som nevner de spesifikke beslutningsfunksjonene, f.eks. "Hvor ofte overstyres anbefalinger fra *CV-screening* og *Kandidatrangering*?"
+### 3. Kontekstuell hjelpetekst under frekvensvalg
+Vis en kort setning som forklarer hva systemet tror er riktig, f.eks.:
+> "Onboarding skjer typisk ved nyansettelser - kanskje 1-5 ganger i året for de fleste bedrifter."
+
+Brukeren kan selvsagt velge noe annet.
+
+### 4. Fjern oppsummeringsboksen
+Fjern "Oppsummering fra tidligere steg"-kortet (linje 984-1016) som ble bedt fjernet i forrige melding.
+
+### 5. Realistiske standardverdier for berørte/beslutninger
+Når frekvens er "Noen ganger i året" eller "Hendelsesbasert", foreslå lave tall i placeholder-teksten (f.eks. "1-5" i stedet for "0") slik at brukeren ser realistiske forventninger.
 
 ## Teknisk plan
 
-### Fil: `src/components/process/ProcessAIDialog.tsx` (steg 6, linje 966-1037)
+### Fil: `src/components/process/ProcessAIDialog.tsx`
 
-1. **Kontekstboks** (ny, overst i steget): En kompakt oppsummering med ikon som viser risikoniva-badge, liste over valgte funksjoner, og berorte grupper. Bruker eksisterende data fra `riskCategory`, `aiFeatures`, og `affectedPersons` state.
+1. **Nytt frekvensalternativ**: Endre frekvens-arrayet fra 4 til 5 valg. Legg til `{ value: "yearly", label: "Noen ganger i året" }` og `{ value: "event_based", label: "Hendelsesbasert" }`. Fjern "Sjelden" (erstattes av de to nye).
 
-2. **Dynamisk frekvenslabel** (linje 971): Bytt ut hardkodet "Hvor ofte brukes AI i denne prosessen?" med en dynamisk streng som inkluderer de forste 2-3 valgte funksjonsnavnene.
+2. **Ny hjelpefunksjon `suggestFrequency()`**: Tar inn `processName` (fra props/context) og returnerer foreslått frekvens + hjelpetekst. Enkel keyword-matching mot prosessnavnet.
 
-3. **Dynamisk berort-label** (linje 1003): Endre "Estimert berorte personer per maned" til a inkludere de valgte gruppene fra `affectedPersons`, f.eks. "Estimert berorte ansatte og kunder per maned".
+3. **Betinget felt for hendelsesbasert**: Når `usageFrequency === "event_based"` vises et ekstra tallfelt: "Estimert antall ganger per år".
 
-4. **Dynamisk overstyrings-label** (linje 1016): Tilsvarende - inkluder de spesifikke beslutningsfunksjonene i sporsmalsteksten.
+4. **Fjern oppsummeringsboks**: Slett linje 984-1016 (Card med "Oppsummering fra tidligere steg").
 
-Ingen nye filer, ingen databaseendringer. Kun UI-tilpasninger i ett eksisterende steg.
+5. **Dynamiske placeholder-verdier**: Sett placeholder på tallfelter basert på valgt frekvens (daglig: "100-500", månedlig: "10-50", yearly/event: "1-10").
+
+Ingen nye filer. Ingen databaseendringer.
 
