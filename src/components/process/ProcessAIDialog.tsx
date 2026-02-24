@@ -110,6 +110,7 @@ export const ProcessAIDialog = ({
   const [riskJustification, setRiskJustification] = useState("");
   const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
   const [isGeneratingPurpose, setIsGeneratingPurpose] = useState(false);
+  const [isGeneratingFeatures, setIsGeneratingFeatures] = useState(false);
   const [transparencyStatus, setTransparencyStatus] = useState("not_required");
   const [transparencyDescription, setTransparencyDescription] = useState("");
   const [humanOversightRequired, setHumanOversightRequired] = useState(false);
@@ -427,6 +428,45 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     }
   };
 
+  const handleSuggestFeatures = async () => {
+    setIsGeneratingFeatures(true);
+    try {
+      const systemNames = linkedSystems?.map(s => s.name) || [];
+      const { data, error } = await supabase.functions.invoke('suggest-ai-features', {
+        body: {
+          processName,
+          purpose: aiPurpose || undefined,
+          systemNames: systemNames.length > 0 ? systemNames : undefined,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.features && Array.isArray(data.features)) {
+        const existingNames = new Set(aiFeatures.map(f => f.name.toLowerCase()));
+        const newFeatures = data.features
+          .filter((f: string) => !existingNames.has(f.toLowerCase()))
+          .map((f: string, i: number) => ({
+            id: `ai-suggested-${Date.now()}-${i}`,
+            name: f,
+            selected: true,
+          }));
+        if (newFeatures.length > 0) {
+          setAiFeatures(prev => [...prev, ...newFeatures]);
+          toast.success(`Lara foreslo ${newFeatures.length} AI-funksjoner`);
+        } else {
+          toast.info('Ingen nye forslag – alle er allerede i listen');
+        }
+      } else {
+        toast.error('Ingen forslag mottatt. Legg til manuelt nedenfor.');
+      }
+    } catch (e) {
+      console.error('suggest-ai-features error:', e);
+      toast.error('Kunne ikke generere forslag. Legg til manuelt nedenfor.');
+    } finally {
+      setIsGeneratingFeatures(false);
+    }
+  };
+
   const addCustomFeature = () => {
     if (customFeature.trim()) {
       setAiFeatures([...aiFeatures, { id: `custom-${Date.now()}`, name: customFeature.trim(), selected: true }]);
@@ -463,7 +503,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
 
   const canProceed = () => {
     if (currentStep === 0) return hasAI !== null;
-    if (currentStep === 1) return !hasAI || aiFeatures.some(f => f.selected);
+    if (currentStep === 1) return true;
     return true;
   };
 
@@ -749,6 +789,34 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 <Label className="text-base font-medium">Velg AI-funksjoner som brukes</Label>
                 <p className="text-sm text-muted-foreground mt-1">Marker alle AI-funksjoner som er aktive i denne prosessen</p>
               </div>
+
+              {/* Suggest AI features button */}
+              <Button
+                type="button"
+                variant={aiFeatures.length === 0 ? "default" : "outline"}
+                onClick={handleSuggestFeatures}
+                disabled={isGeneratingFeatures}
+                className="w-full gap-2"
+              >
+                {isGeneratingFeatures ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Genererer forslag...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Foreslå AI-funksjoner
+                  </>
+                )}
+              </Button>
+
+              {aiFeatures.length === 0 && !isGeneratingFeatures && (
+                <div className="text-center py-4 text-sm text-muted-foreground">
+                  <p>Ingen AI-funksjoner lagt til ennå.</p>
+                  <p className="text-xs mt-1">Bruk knappen over for å få forslag, eller legg til manuelt nedenfor.</p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 {aiFeatures.map((feature) => {
