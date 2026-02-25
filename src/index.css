@@ -18,7 +18,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 220 16% 22%;
+    --primary: 270 45% 35%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
@@ -41,18 +41,18 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 220 16% 22%;
+    --ring: 270 45% 35%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 220 14% 96%;
     --sidebar-foreground: 220 13% 18%;
-    --sidebar-primary: 220 13% 18%;
+    --sidebar-primary: 270 45% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 91%;
     --sidebar-accent-foreground: 220 13% 18%;
     --sidebar-border: 220 13% 87%;
-    --sidebar-ring: 220 16% 22%;
+    --sidebar-ring: 270 45% 35%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(220 14% 91%) 100%);
   }
@@ -67,7 +67,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 220 14% 75%;
+    --primary: 270 40% 70%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 12%;
@@ -90,7 +90,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --border: 0 0% 20%;
     --input: 0 0% 15%;
-    --ring: 220 14% 75%;
+    --ring: 270 40% 70%;
     
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 100%;
@@ -99,7 +99,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 220 14% 75%;
+    --sidebar-ring: 270 40% 70%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(0 0% 7%) 0%, hsl(0 0% 15%) 100%);
   }

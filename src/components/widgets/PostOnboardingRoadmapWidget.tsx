@@ -27,7 +27,7 @@ import {
   type CertificationPhase,
 } from "@/lib/certificationPhases";
 import { getVisiblePhases, getGovernanceLevelDef, type GovernanceLevel } from "@/lib/governanceLevelEngine";
-import { ComplianceCalendarSection } from "./ComplianceCalendarSection";
+
 
 interface NextAction {
   id: string;
@@ -295,11 +295,6 @@ export function PostOnboardingRoadmapWidget() {
               );
             })}
           </div>
-        </div>
-
-        {/* Calendar section */}
-        <div className="px-6 pb-6">
-          <ComplianceCalendarSection />
         </div>
       </CardContent>
     </Card>
