@@ -1,60 +1,39 @@
 
 
-# Legg til "Geografisk scope" og "Risikoprofil" i onboarding
+# Plan: Design-forenkling + navigasjonsendringer
 
-## Oversikt
-Legger til to nye sporsmal i onboardingen, etter "Size & Maturity"-steget og for "Key Persons"-steget. Begge onboarding-komponentene (full og kompakt) oppdateres, og to nye kolonner legges til i `company_profile`-tabellen.
+## Tre endringer
 
-## Databaseendringer
+### 1. Årshjul som eget menypunkt i sidebaren
+Legger til "Årshjul" som eget menypunkt i `Sidebar.tsx` (med `CalendarDays`-ikon), som peker til en ny rute `/compliance-calendar`. Oppretter en enkel `ComplianceCalendar.tsx`-side som viser `ComplianceCalendarSection`-komponenten. Fjerner årshjulet fra dashbordet (`Index.tsx`) og fra `PostOnboardingRoadmapWidget`.
 
-Ny migrasjon som legger til:
-- `geographic_scope TEXT` (nullable) - verdier: `"eos_only"` eller `"outside_eos"`
-- `sensitive_data TEXT` (nullable) - verdier: `"yes"`, `"no"`, `"unsure"`
+### 2. Behandlingsprotokoll (ROPA) flyttes under Rapporter
+Fjerner "ROPA" (`/protocols`) fra hovednavigasjonen i `Sidebar.tsx`. Ruten beholdes, men navigasjonen til den skjer via Rapporter-siden. Legger til en klikk-handler på ROPA-rapportkortet i `Reports.tsx` som navigerer til `/protocols`.
 
-## UI-endringer
+### 3. Design-forenkling: Mindre blått, renere uttrykk
 
-### CompanyOnboarding.tsx (fullversjon)
+**`src/index.css`** — Justerer fargepaletten:
+- `--primary` endres fra ren blå (211 100% 50%) til en dempet, mørkere nyanse (220 16% 22%) i lys modus — nær grafitt/mørk nøytral
+- `--accent` endres fra blå-tint til en subtil varm grå
+- `--ring` dempes tilsvarende
+- Resultatet: Knapper, badges og aktive states blir nøytrale/mørke i stedet for knallblått
 
-**Ny steg-type:** Utvid `Step`-typen med `"risk-profile"` etter `"size"`:
-```
-"company" → "industry" → "size" → "risk-profile" → "key-persons" → "use-cases" → "team-size" → "complete"
-```
+**`src/components/Sidebar.tsx`** — Fjerner den blå pulserende prikken (`animate-ping bg-primary`) på "highlight"-elementer. Erstatter med en diskret "Ny"-badge i nøytral farge.
 
-**Nytt steg "risk-profile"** viser to sporsmalsgrupper i ett steg:
-
-1. **Geografisk scope** - RadioGroup med to valg:
-   - "Kun Norge/EOS" 
-   - "Ogsa utenfor EU/EOS"
-
-2. **Risikoprofil** - RadioGroup med fire valg:
-   - "Ja"
-   - "Nei"
-   - "Vet ikke"
-   - "Usikker"
-
-**Oppdater navigasjon:**
-- `handleNext`: `size` → `risk-profile`, `risk-profile` → `key-persons`
-- `handleBack`: `risk-profile` → `size`, `key-persons` → `risk-profile`
-- `getStepNumber`: Totalt 7 steg (opp fra 6)
-- Progressbar oppdateres til 7 steg
-
-**Oppdater formData og handleSubmit:**
-- Legg til `geographic_scope` og `sensitive_data` i formData-state
-- Inkluder disse i upsert-kallet til `company_profile`
-
-### CompactCompanyOnboarding.tsx (kompaktversjon)
-
-Legg til de to sporsmalene som en ny seksjon mellom bedriftsdetaljer og nøkkelpersoner, med samme RadioGroup-baserte UI men i kompakt stil.
-
-**Oppdater formData og handleSubmit** tilsvarende.
-
-### EditCompanyProfileDialog.tsx
-
-Legg til de to nye feltene i redigeringsdialogen slik at de kan endres i etterkant.
+**Widgets** — Ingen strukturelle endringer, men fargene vil automatisk følge den nye `--primary`-verdien.
 
 ## Filer som endres
-- Database: Ny migrasjon (2 kolonner)
-- `src/components/onboarding/CompanyOnboarding.tsx` - Nytt steg, oppdatert navigasjon
-- `src/components/onboarding/CompactCompanyOnboarding.tsx` - Nye felt i kompaktvisning
-- `src/components/dialogs/EditCompanyProfileDialog.tsx` - Nye felt i redigeringsdialog
+
+| Fil | Endring |
+|---|---|
+| `src/index.css` | Ny fargepalett: dempet primary, accent, ring |
+| `src/components/Sidebar.tsx` | +Årshjul-lenke, -ROPA fra nav, -blå pulsering |
+| `src/pages/Index.tsx` | Fjern `ComplianceCalendarSection` fra dashbordet |
+| `src/pages/ComplianceCalendar.tsx` | Ny side for årshjulet |
+| `src/pages/Reports.tsx` | ROPA-kort navigerer til `/protocols` |
+| `src/App.tsx` | Ny rute `/compliance-calendar` |
+
+## Visuelt resultat
+
+Dashbordet blir renere og kortere (årshjulet er borte). Sidebaren får et nytt "Årshjul"-punkt. Farger går fra "blått overalt" til en profesjonell, nøytral palett der kun statusfarger (grønn, gul, rød) gir farge. Helhetsinntrykket: Apple-aktig, rolig, "less is more".
 
