@@ -16,6 +16,13 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  COMPANY_CATEGORIES,
+  GOVERNANCE_LEVELS,
+  calculateGovernanceLevel,
+  categoryToMaturity,
+  type GovernanceLevel,
+} from "@/lib/governanceLevelEngine";
 
 interface CompanyProfile {
   id: string;
@@ -26,6 +33,7 @@ interface CompanyProfile {
   maturity: string | null;
   geographic_scope: string | null;
   sensitive_data: string | null;
+  governance_level?: string | null;
 }
 
 interface EditCompanyProfileDialogProps {
@@ -41,21 +49,6 @@ const industries = [
   { id: "finans", name: "Finans", icon: Landmark },
   { id: "saas", name: "Tech / SaaS", icon: Code },
   { id: "offentlig", name: "Offentlig sektor", icon: Building },
-];
-
-const employeeRanges = [
-  "1-10",
-  "11-50",
-  "51-200",
-  "201-500",
-  "500-1000",
-  "1000+",
-];
-
-const maturityLevels = [
-  { id: "beginner", name: "Nybegynner", description: "Nettopp begynt med compliance" },
-  { id: "intermediate", name: "Underveis", description: "Noen rutiner på plass" },
-  { id: "advanced", name: "Avansert", description: "Modne prosesser og systemer" },
 ];
 
 export function EditCompanyProfileDialog({ 
@@ -75,6 +68,7 @@ export function EditCompanyProfileDialog({
     maturity: "intermediate",
     geographic_scope: "",
     sensitive_data: "",
+    governance_level: "foundation" as string,
   });
 
   useEffect(() => {
@@ -87,6 +81,7 @@ export function EditCompanyProfileDialog({
         maturity: companyProfile.maturity || "intermediate",
         geographic_scope: (companyProfile as any).geographic_scope || "",
         sensitive_data: (companyProfile as any).sensitive_data || "",
+        governance_level: (companyProfile as any).governance_level || "foundation",
       });
     }
   }, [companyProfile, open]);
@@ -194,50 +189,63 @@ export function EditCompanyProfileDialog({
             </div>
           </div>
 
-          {/* Employees */}
+          {/* Company Category */}
           <div className="space-y-3">
-            <Label>Antall ansatte</Label>
-            <div className="flex flex-wrap gap-2">
-              {employeeRanges.map((range) => (
-                <button
-                  key={range}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, employees: range })}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg border text-sm font-medium transition-all",
-                    formData.employees === range
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border hover:border-primary/50"
-                  )}
-                >
-                  {range}
-                </button>
-              ))}
+            <Label>Virksomhetstype</Label>
+            <div className="grid gap-2">
+              {COMPANY_CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isSelected = formData.employees === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      const maturity = categoryToMaturity(cat.id);
+                      const level = calculateGovernanceLevel(cat.id);
+                      setFormData({ ...formData, employees: cat.id, maturity, governance_level: level });
+                    }}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", isSelected ? "text-primary" : "text-muted-foreground")} />
+                    <div className="flex-1">
+                      <span className="font-medium text-sm">{cat.name_no}</span>
+                      <p className="text-xs text-muted-foreground">{cat.description_no}</p>
+                    </div>
+                    {isSelected && <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Maturity */}
+          {/* Governance Level */}
           <div className="space-y-3">
-            <Label>Modenhetsnivå</Label>
+            <Label>Governance-nivå</Label>
             <RadioGroup 
-              value={formData.maturity} 
-              onValueChange={(value) => setFormData({ ...formData, maturity: value })}
+              value={formData.governance_level} 
+              onValueChange={(value) => setFormData({ ...formData, governance_level: value })}
               className="space-y-2"
             >
-              {maturityLevels.map((level) => (
+              {GOVERNANCE_LEVELS.map((level) => (
                 <label
                   key={level.id}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
-                    formData.maturity === level.id
+                    formData.governance_level === level.id
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50"
                   )}
                 >
                   <RadioGroupItem value={level.id} />
                   <div>
-                    <p className="font-medium text-sm">{level.name}</p>
-                    <p className="text-xs text-muted-foreground">{level.description}</p>
+                    <p className="font-medium text-sm">{level.name_no}</p>
+                    <p className="text-xs text-muted-foreground">{level.description_no}</p>
                   </div>
                 </label>
               ))}

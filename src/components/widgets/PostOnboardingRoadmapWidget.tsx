@@ -25,6 +25,7 @@ import {
   getPhaseStatus,
   type CertificationPhase,
 } from "@/lib/certificationPhases";
+import { getVisiblePhases, type GovernanceLevel } from "@/lib/governanceLevelEngine";
 import { ComplianceCalendarSection } from "./ComplianceCalendarSection";
 
 interface NextAction {
@@ -44,30 +45,33 @@ export function PostOnboardingRoadmapWidget() {
   const { stats, grouped } = useComplianceRequirements({});
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
 
-  // Check if company has MSP partner
+  // Fetch company profile including governance_level
   const { data: companyProfile } = useQuery({
-    queryKey: ["company-profile-msp-check"],
+    queryKey: ["company-profile-governance"],
     queryFn: async () => {
       const { data } = await supabase
         .from("company_profile")
-        .select("is_msp_partner")
+        .select("is_msp_partner, governance_level")
         .limit(1)
         .maybeSingle();
-      return data;
+      return data as { is_msp_partner: boolean; governance_level: string | null } | null;
     },
   });
   const isMSPCustomer = companyProfile?.is_msp_partner === true;
+  const govLevel = (companyProfile?.governance_level || null) as GovernanceLevel | null;
+  const visiblePhaseIds = useMemo(() => getVisiblePhases(govLevel), [govLevel]);
+  const filteredPhases = useMemo(() => CERTIFICATION_PHASES.filter(p => visiblePhaseIds.includes(p.id)), [visiblePhaseIds]);
   const completionPercent = stats.progressPercent;
 
-  // Determine current phase
+  // Determine current phase based on visible phases
   const currentPhase = useMemo(() => {
-    for (const phase of CERTIFICATION_PHASES) {
+    for (const phase of filteredPhases) {
       const status = getPhaseStatus(phase.id, completionPercent);
       if (status === "in_progress") return phase;
       if (status === "not_started") return phase;
     }
-    return CERTIFICATION_PHASES[CERTIFICATION_PHASES.length - 1];
-  }, [completionPercent]);
+    return filteredPhases[filteredPhases.length - 1];
+  }, [completionPercent, filteredPhases]);
 
   // Build dynamic next actions
   const nextActions = useMemo((): NextAction[] => {
@@ -188,31 +192,14 @@ export function PostOnboardingRoadmapWidget() {
         {/* Phase stepper */}
         <div className="px-6 pb-4">
           <div className="flex items-center gap-1 mb-2">
-            {CERTIFICATION_PHASES.filter(p => !p.optional).map((phase) => {
+            {filteredPhases.map((phase) => {
               const status = getPhaseStatus(phase.id, completionPercent);
               return (
                 <div key={phase.id} className="flex items-center flex-1">
                   <div
                     className={cn(
                       "h-2 w-full rounded-full transition-colors",
-                      status === "completed"
-                        ? "bg-primary"
-                        : status === "in_progress"
-                        ? "bg-primary/40"
-                        : "bg-muted/50"
-                    )}
-                  />
-                </div>
-              );
-            })}
-            {/* Optional phases - dimmed */}
-            {CERTIFICATION_PHASES.filter(p => p.optional).map((phase) => {
-              const status = getPhaseStatus(phase.id, completionPercent);
-              return (
-                <div key={phase.id} className="flex items-center flex-1 opacity-50">
-                  <div
-                    className={cn(
-                      "h-2 w-full rounded-full transition-colors border border-dashed border-muted-foreground/30",
+                      phase.optional ? "border border-dashed border-muted-foreground/30" : "",
                       status === "completed"
                         ? "bg-primary"
                         : status === "in_progress"
@@ -225,7 +212,7 @@ export function PostOnboardingRoadmapWidget() {
             })}
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground">
-            {CERTIFICATION_PHASES.map((phase) => (
+            {filteredPhases.map((phase) => (
               <span key={phase.id} className={cn("text-center flex-1 truncate", phase.optional && "opacity-50")}>
                 {isNorwegian ? phase.name_no : phase.name_en}
               </span>

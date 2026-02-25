@@ -130,7 +130,9 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
   // Based on company size
   const largeCompany = context.employees === "201-500" || 
                        context.employees === "500-1000" || 
-                       context.employees === "1000+";
+                       context.employees === "1000+" ||
+                       context.employees === "established" ||
+                       context.employees === "regulated";
   
   const mediumTeam = context.team_size === "middels" || context.team_size === "stort";
   

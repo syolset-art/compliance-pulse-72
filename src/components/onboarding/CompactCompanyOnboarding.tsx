@@ -49,12 +49,8 @@ const mapIndustry = (naeringsbeskrivelse?: string): string => {
 
 const mapEmployeeRange = (antall?: number): string => {
   if (!antall || antall === 0) return "";
-  if (antall <= 10) return "1-10";
-  if (antall <= 50) return "11-50";
-  if (antall <= 200) return "51-200";
-  if (antall <= 500) return "201-500";
-  if (antall <= 1000) return "501-1000";
-  return "1000+";
+  if (antall < 50) return "startup";
+  return "established";
 };
 
 export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardingProps) => {
