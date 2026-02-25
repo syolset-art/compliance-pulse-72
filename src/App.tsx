@@ -49,6 +49,7 @@ import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
 import TrustCenterSaaS from "./pages/TrustCenterSaaS";
 import TrustCenterShared from "./pages/TrustCenterShared";
+import ComplianceCalendar from "./pages/ComplianceCalendar";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => (
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
+                  <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>

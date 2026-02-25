@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AIActReportDialog } from "@/components/reports/AIActReportDialog";
+import { useNavigate } from "react-router-dom";
 
 interface ReportCardProps {
   title: string;
@@ -101,6 +102,7 @@ const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, 
 
 const Reports = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const gdprReports = [
     {
@@ -110,7 +112,8 @@ const Reports = () => {
       status: 'ready' as const,
       lastGenerated: "10. jan 2026",
       nextDue: "10. apr 2026",
-      standard: ["GDPR Art. 30"]
+      standard: ["GDPR Art. 30"],
+      onClick: () => navigate("/protocols"),
     },
     {
       title: "DPIA - Konsekvensanalyse",
@@ -382,8 +385,8 @@ const Reports = () => {
 
             <TabsContent value="gdpr" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gdprReports.map((report, index) => (
-                  <ReportCard key={index} {...report} />
+              {gdprReports.map((report, index) => (
+                  <ReportCard key={index} {...report} onClick={report.onClick} />
                 ))}
               </div>
             </TabsContent>
