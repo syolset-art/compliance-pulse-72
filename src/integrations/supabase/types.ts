@@ -579,6 +579,7 @@ export type Database = {
           dpo_email: string | null
           dpo_name: string | null
           employees: string | null
+          geographic_scope: string | null
           id: string
           industry: string
           initial_maturity: string | null
@@ -587,6 +588,7 @@ export type Database = {
           maturity_calculated_at: string | null
           name: string
           org_number: string | null
+          sensitive_data: string | null
           team_size: string | null
           updated_at: string | null
           use_cases: string[] | null
@@ -603,6 +605,7 @@ export type Database = {
           dpo_email?: string | null
           dpo_name?: string | null
           employees?: string | null
+          geographic_scope?: string | null
           id?: string
           industry: string
           initial_maturity?: string | null
@@ -611,6 +614,7 @@ export type Database = {
           maturity_calculated_at?: string | null
           name: string
           org_number?: string | null
+          sensitive_data?: string | null
           team_size?: string | null
           updated_at?: string | null
           use_cases?: string[] | null
@@ -627,6 +631,7 @@ export type Database = {
           dpo_email?: string | null
           dpo_name?: string | null
           employees?: string | null
+          geographic_scope?: string | null
           id?: string
           industry?: string
           initial_maturity?: string | null
@@ -635,6 +640,7 @@ export type Database = {
           maturity_calculated_at?: string | null
           name?: string
           org_number?: string | null
+          sensitive_data?: string | null
           team_size?: string | null
           updated_at?: string | null
           use_cases?: string[] | null
