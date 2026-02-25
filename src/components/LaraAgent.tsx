@@ -79,6 +79,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
     isFullyComplete,
     isLoading,
     refetch,
+    notifyChange,
     resetOnboarding
   } = useOnboardingProgress();
 
@@ -127,11 +128,13 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
   const handleCompanyFormComplete = () => {
     setShowCompanyForm(false);
     refetch();
+    notifyChange();
   };
 
   const handleFrameworkFormComplete = () => {
     setShowFrameworkForm(false);
     refetch();
+    notifyChange();
   };
 
   const getStepIcon = (iconName: string) => {

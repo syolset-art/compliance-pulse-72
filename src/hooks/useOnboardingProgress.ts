@@ -67,7 +67,30 @@ export const useOnboardingProgress = () => {
 
   useEffect(() => {
     fetchProgress();
+
+    // Refetch when tab regains focus
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") fetchProgress();
+    };
+    const handleFocus = () => fetchProgress();
+    // Refetch when any instance signals a change (custom event)
+    const handleOnboardingChange = () => fetchProgress();
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("onboarding-progress-changed", handleOnboardingChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("onboarding-progress-changed", handleOnboardingChange);
+    };
   }, [fetchProgress]);
+
+  // Helper to notify all hook instances of a change
+  const notifyChange = useCallback(() => {
+    window.dispatchEvent(new Event("onboarding-progress-changed"));
+  }, []);
 
   const steps: OnboardingStep[] = [
     {
@@ -134,6 +157,7 @@ export const useOnboardingProgress = () => {
     isFullyComplete,
     isLoading,
     refetch: fetchProgress,
+    notifyChange,
     resetOnboarding
   };
 };
