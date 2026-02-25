@@ -11,7 +11,7 @@ import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
 import { ActionPriorityWidget } from "@/components/widgets/ActionPriorityWidget";
 import { ComplianceSummaryCards } from "@/components/widgets/ComplianceSummaryCards";
-import { ComplianceCalendarSection } from "@/components/widgets/ComplianceCalendarSection";
+
 
 import { RecentActivityWidget } from "@/components/widgets/RecentActivityWidget";
 import { SupplyChainChangesWidget } from "@/components/widgets/SupplyChainChangesWidget";
@@ -139,9 +139,6 @@ const Index = () => {
         <ComplianceSummaryCards />
       </div>
 
-      <div className="mb-8">
-        <ComplianceCalendarSection />
-      </div>
     </>
   );
 

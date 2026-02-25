@@ -26,7 +26,8 @@ import {
   Code2,
   Globe,
   Share2,
-  Layers
+  Layers,
+  CalendarDays
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -58,16 +59,12 @@ import {
 const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
-  { name: "nav.protocols", href: "/protocols", icon: FileText },
   { name: "nav.assets", href: "/assets", icon: Package },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  // Hidden for now – not deleted
-  // { name: "nav.complianceChecklist", href: "/compliance-checklist", icon: FileCheck, highlight: true },
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  // { name: "nav.sustainability", href: "/sustainability", icon: Leaf },
-  // { name: "nav.transparency", href: "/transparency", icon: FileText },
+  { name: "nav.complianceCalendar", href: "/compliance-calendar", icon: CalendarDays },
 ];
 
 const adminSubMenu = [
@@ -292,10 +289,7 @@ const SidebarContent = () => {
               <item.icon className="h-5 w-5" />
               {t(item.name)}
               {item.highlight && (
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                </span>
+                <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
               )}
             </Link>
           );
@@ -314,10 +308,7 @@ const SidebarContent = () => {
           >
             <Shield className="h-5 w-5" />
             {t("quality.title", "Kvalitetssystem")}
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-            </span>
+            <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
           </Link>
         )}
 
@@ -355,10 +346,7 @@ const SidebarContent = () => {
                     <item.icon className="h-4 w-4" />
                     {t(item.name)}
                     {item.highlight && (
-                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-                      </span>
+                      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
                     )}
                   </Link>
                 );

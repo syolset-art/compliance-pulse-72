@@ -18,7 +18,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 211 100% 50%;
+    --primary: 220 16% 22%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
@@ -27,8 +27,8 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    --accent: 211 100% 95%;
-    --accent-foreground: 211 100% 35%;
+    --accent: 220 10% 94%;
+    --accent-foreground: 220 16% 22%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -41,7 +41,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 211 100% 50%;
+    --ring: 220 16% 22%;
 
     --radius: 0.75rem;
 
@@ -52,7 +52,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --sidebar-accent: 220 14% 91%;
     --sidebar-accent-foreground: 220 13% 18%;
     --sidebar-border: 220 13% 87%;
-    --sidebar-ring: 211 100% 50%;
+    --sidebar-ring: 220 16% 22%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(220 14% 91%) 100%);
   }
@@ -67,7 +67,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 211 100% 60%;
+    --primary: 220 14% 75%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 12%;
@@ -76,8 +76,8 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 64%;
 
-    --accent: 211 80% 20%;
-    --accent-foreground: 211 100% 70%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 90%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -90,7 +90,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --border: 0 0% 20%;
     --input: 0 0% 15%;
-    --ring: 211 100% 60%;
+    --ring: 220 14% 75%;
     
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 100%;
@@ -99,7 +99,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 211 100% 60%;
+    --sidebar-ring: 220 14% 75%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(0 0% 7%) 0%, hsl(0 0% 15%) 100%);
   }
