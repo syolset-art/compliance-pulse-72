@@ -1,58 +1,60 @@
 
 
-# Fiks AI-funksjoner i veiviseren (Steg 2)
+# Legg til "Geografisk scope" og "Risikoprofil" i onboarding
 
-## Problem
-1. Gamle/ugyldige AI-funksjoner (som "Fisk") kan fortsatt vises fra databasen
-2. Hvis brukeren fjerner alle funksjoner, kan de ikke gå videre (Steg 2 krever minst en valgt funksjon)
-3. Det finnes ingen AI-basert generering av funksjonsforslag relatert til formalet
-4. Brukeren har ingen enkel vei videre hvis AI ikke klarer a generere forslag
+## Oversikt
+Legger til to nye sporsmal i onboardingen, etter "Size & Maturity"-steget og for "Key Persons"-steget. Begge onboarding-komponentene (full og kompakt) oppdateres, og to nye kolonner legges til i `company_profile`-tabellen.
 
-## Losning
+## Databaseendringer
 
-### 1. Ny edge function: `supabase/functions/suggest-ai-features/index.ts`
+Ny migrasjon som legger til:
+- `geographic_scope TEXT` (nullable) - verdier: `"eos_only"` eller `"outside_eos"`
+- `sensitive_data TEXT` (nullable) - verdier: `"yes"`, `"no"`, `"unsure"`
 
-Genererer relevante AI-funksjoner basert pa prosessnavn, formal og kontekst:
+## UI-endringer
 
-- Input: `processName`, `purpose`, `systemNames` (valgfri)
-- Returnerer: `{ features: string[] }` (4-6 forslag)
-- Bruker `google/gemini-2.5-flash` via Lovable AI Gateway
-- Systemprompten instruerer modellen til a foreslaa konkrete, norske AI-funksjoner relevante for prosessen
-- Handterer 429/402-feil korrekt
+### CompanyOnboarding.tsx (fullversjon)
 
-### 2. Endringer i `src/components/process/ProcessAIDialog.tsx`
-
-**Ny state og funksjon:**
-- `isGeneratingFeatures: boolean`
-- `handleSuggestFeatures()` som kaller edge-funksjonen og legger til forslag i listen (uten a fjerne eksisterende)
-
-**Endre `canProceed` (linje 466):**
-Fjern kravet om at minst en funksjon maa vaere valgt for a ga videre. Brukeren kan velge a ikke ha noen funksjoner og heller legge til manuelt senere.
-
-Ny logikk:
+**Ny steg-type:** Utvid `Step`-typen med `"risk-profile"` etter `"size"`:
 ```
-if (currentStep === 1) return true; // alltid tillat videre
+"company" → "industry" → "size" → "risk-profile" → "key-persons" → "use-cases" → "team-size" → "complete"
 ```
 
-**Legg til "Foresla med Lara"-knapp i Steg 2 (Funksjoner):**
-- Plasseres over listen med funksjoner, som en CTA-knapp
-- Vises alltid, men er spesielt prominent nar listen er tom
-- Knappen sier "Foresla AI-funksjoner" med Sparkles-ikon
-- Ved klikk: kaller edge-funksjonen med prosessnavn + formal som kontekst
-- Nye forslag legges til listen som valgte (selected: true)
-- Duplikater filtreres bort
+**Nytt steg "risk-profile"** viser to sporsmalsgrupper i ett steg:
 
-**Tom-tilstand:**
-- Nar det ikke finnes funksjoner og AI-generering feiler, vis tydelig melding:
-  "Ingen AI-funksjoner funnet. Legg til manuelt nedenfor."
-- Det manuelle input-feltet (som allerede finnes) forblir tilgjengelig
+1. **Geografisk scope** - RadioGroup med to valg:
+   - "Kun Norge/EOS" 
+   - "Ogsa utenfor EU/EOS"
 
-### 3. Registrere ny edge function
+2. **Risikoprofil** - RadioGroup med fire valg:
+   - "Ja"
+   - "Nei"
+   - "Vet ikke"
+   - "Usikker"
 
-Oppdatere `supabase/config.toml` med den nye funksjonen.
+**Oppdater navigasjon:**
+- `handleNext`: `size` → `risk-profile`, `risk-profile` → `key-persons`
+- `handleBack`: `risk-profile` → `size`, `key-persons` → `risk-profile`
+- `getStepNumber`: Totalt 7 steg (opp fra 6)
+- Progressbar oppdateres til 7 steg
+
+**Oppdater formData og handleSubmit:**
+- Legg til `geographic_scope` og `sensitive_data` i formData-state
+- Inkluder disse i upsert-kallet til `company_profile`
+
+### CompactCompanyOnboarding.tsx (kompaktversjon)
+
+Legg til de to sporsmalene som en ny seksjon mellom bedriftsdetaljer og nøkkelpersoner, med samme RadioGroup-baserte UI men i kompakt stil.
+
+**Oppdater formData og handleSubmit** tilsvarende.
+
+### EditCompanyProfileDialog.tsx
+
+Legg til de to nye feltene i redigeringsdialogen slik at de kan endres i etterkant.
 
 ## Filer som endres
-- `supabase/functions/suggest-ai-features/index.ts` (ny)
-- `supabase/config.toml` (registrering)
-- `src/components/process/ProcessAIDialog.tsx` (ny knapp, oppdatert canProceed, ny state/funksjon)
+- Database: Ny migrasjon (2 kolonner)
+- `src/components/onboarding/CompanyOnboarding.tsx` - Nytt steg, oppdatert navigasjon
+- `src/components/onboarding/CompactCompanyOnboarding.tsx` - Nye felt i kompaktvisning
+- `src/components/dialogs/EditCompanyProfileDialog.tsx` - Nye felt i redigeringsdialog
 
