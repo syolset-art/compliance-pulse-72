@@ -40,12 +40,15 @@ const industryOptions = [
 ];
 
 const employeeOptions = [
+  { value: "startup", label: "Oppstart / Vekstfase" },
+  { value: "established", label: "Etablert virksomhet" },
+  { value: "regulated", label: "Regulert / Kritisk aktør" },
+  // Legacy values for backwards compatibility
   { value: "1-10", label: "1-10 ansatte" },
   { value: "11-50", label: "11-50 ansatte" },
   { value: "51-200", label: "51-200 ansatte" },
   { value: "201-500", label: "201-500 ansatte" },
   { value: "500-1000", label: "500-1000 ansatte" },
-  { value: "501-1000", label: "501-1000 ansatte" },
   { value: "1000+", label: "Over 1000 ansatte" },
 ];
 

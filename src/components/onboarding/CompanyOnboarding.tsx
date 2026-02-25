@@ -29,6 +29,13 @@ import { cn } from "@/lib/utils";
 import { suggestRolesForCompany, useCaseOptions, teamSizeOptions } from "@/lib/rolesSuggestions";
 import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
 import { KeyPersonnelSection, validateKeyPersonnel, type KeyPersonnelData } from "./KeyPersonnelSection";
+import { GovernanceSnapshot } from "./GovernanceSnapshot";
+import {
+  COMPANY_CATEGORIES,
+  calculateGovernanceLevel,
+  categoryToMaturity,
+  type GovernanceLevel,
+} from "@/lib/governanceLevelEngine";
 
 interface CompanyOnboardingProps {
   onComplete: () => void;
@@ -42,21 +49,6 @@ const industries = [
   { id: "offentlig", name: "Offentlig sektor", icon: Building, description: "Kommune, stat og offentlige etater" },
 ];
 
-const employeeRanges = [
-  "1-10",
-  "11-50",
-  "51-200",
-  "201-500",
-  "500-1000",
-  "1000+",
-];
-
-const maturityLevels = [
-  { id: "beginner", name: "Nybegynner", description: "Vi har nettopp begynt å jobbe med compliance" },
-  { id: "intermediate", name: "Underveis", description: "Vi har noen rutiner på plass" },
-  { id: "advanced", name: "Avansert", description: "Vi har modne prosesser og systemer" },
-];
-
 const useCaseIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "personvern": Shield,
   "sikkerhet": Shield,
@@ -65,7 +57,7 @@ const useCaseIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "risikostyring": AlertTriangle,
 };
 
-type Step = "company" | "industry" | "size" | "risk-profile" | "key-persons" | "use-cases" | "team-size" | "complete";
+type Step = "company" | "industry" | "size" | "risk-profile" | "key-persons" | "use-cases" | "team-size" | "governance-snapshot" | "complete";
 
 export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const [step, setStep] = useState<Step>("company");
@@ -76,7 +68,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     name: "",
     org_number: "",
     industry: "",
-    employees: "",
+    employees: "",       // now stores category ID: startup/established/regulated
     maturity: "intermediate",
     use_cases: [] as string[],
     team_size: "",
@@ -84,6 +76,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     geographic_scope: "",
     sensitive_data: "",
   });
+
+  const [governanceLevel, setGovernanceLevel] = useState<GovernanceLevel>("foundation");
 
   const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
     compliance_officer: "",
@@ -103,15 +97,16 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       .toLowerCase();
   };
 
-  const validateDomain = (domain: string): boolean => {
-    if (!domain) return true;
-    const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/;
-    return pattern.test(domain);
-  };
-
   const handleDomainChange = (value: string) => {
     const cleaned = cleanDomain(value);
     setFormData(prev => ({ ...prev, domain: cleaned }));
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    const maturity = categoryToMaturity(categoryId);
+    const level = calculateGovernanceLevel(categoryId);
+    setFormData(prev => ({ ...prev, employees: categoryId, maturity }));
+    setGovernanceLevel(level);
   };
 
   const handleNext = () => {
@@ -128,6 +123,10 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       }
       setStep("size");
     } else if (step === "size") {
+      if (!formData.employees) {
+        toast({ title: "Feil", description: "Vennligst velg virksomhetstype", variant: "destructive" });
+        return;
+      }
       setStep("risk-profile");
     } else if (step === "risk-profile") {
       setStep("key-persons");
@@ -149,6 +148,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         toast({ title: "Feil", description: "Vennligst velg teamstørrelse", variant: "destructive" });
         return;
       }
+      setStep("governance-snapshot");
+    } else if (step === "governance-snapshot") {
       handleSubmit();
     }
   };
@@ -160,6 +161,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     else if (step === "key-persons") setStep("risk-profile");
     else if (step === "use-cases") setStep("key-persons");
     else if (step === "team-size") setStep("use-cases");
+    else if (step === "governance-snapshot") setStep("team-size");
   };
 
   const toggleUseCase = (useCaseId: string) => {
@@ -180,6 +182,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           ...formData,
           geographic_scope: formData.geographic_scope || null,
           sensitive_data: formData.sensitive_data || null,
+          governance_level: governanceLevel,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
@@ -245,9 +248,12 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       case "key-persons": return 5;
       case "use-cases": return 6;
       case "team-size": return 7;
-      case "complete": return 7;
+      case "governance-snapshot": return 8;
+      case "complete": return 8;
     }
   };
+
+  const totalSteps = 8;
 
   const suggestedRolesPreview = suggestRolesForCompany({
     industry: formData.industry,
@@ -264,12 +270,12 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         {/* Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av 7</span>
+            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av {totalSteps}</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div 
               className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${(getStepNumber() / 7) * 100}%` }}
+              style={{ width: `${(getStepNumber() / totalSteps) * 100}%` }}
             />
           </div>
         </div>
@@ -358,53 +364,38 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           </Card>
         )}
 
-        {/* Step: Size & Maturity */}
+        {/* Step: Company Category (replaces size & maturity) */}
         {step === "size" && (
           <Card className="p-8">
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold mb-2">Litt mer om dere</h1>
-              <p className="text-muted-foreground">Dette hjelper oss å tilpasse anbefalingene våre</p>
+              <h1 className="text-2xl font-bold mb-2">Hvilken type virksomhet er dere?</h1>
+              <p className="text-muted-foreground">Vi tilpasser omfanget av compliance-arbeidet basert på dette</p>
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <Label>Antall ansatte</Label>
-                <div className="flex flex-wrap gap-2">
-                  {employeeRanges.map((range) => (
-                    <button
-                      key={range}
-                      onClick={() => setFormData({ ...formData, employees: range })}
-                      className={cn(
-                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
-                        formData.employees === range ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50"
-                      )}
-                    >
-                      {range}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Modenhetsnivå for compliance</Label>
-                <RadioGroup value={formData.maturity} onValueChange={(value) => setFormData({ ...formData, maturity: value })}>
-                  {maturityLevels.map((level) => (
-                    <label
-                      key={level.id}
-                      className={cn(
-                        "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
-                        formData.maturity === level.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                      )}
-                    >
-                      <RadioGroupItem value={level.id} />
-                      <div>
-                        <p className="font-medium">{level.name}</p>
-                        <p className="text-sm text-muted-foreground">{level.description}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </div>
+            <div className="grid gap-3">
+              {COMPANY_CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isSelected = formData.employees === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategorySelect(cat.id)}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border text-left transition-all",
+                      isSelected ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", isSelected ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{cat.name_no}</p>
+                      <p className="text-sm text-muted-foreground">{cat.description_no}</p>
+                    </div>
+                    {isSelected && <CheckCircle2 className="h-5 w-5 text-primary" />}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="mt-8 flex justify-between">
@@ -479,7 +470,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
               <h1 className="text-2xl font-bold mb-2">Hvem har nøkkelrollene?</h1>
               <p className="text-muted-foreground">
                 {formData.industry && formData.employees
-                  ? `Basert på at dere er i ${industryLabel.toLowerCase()}-sektoren med ${formData.employees} ansatte, er følgende roller relevante`
+                  ? `Basert på at dere er i ${industryLabel.toLowerCase()}-sektoren, er følgende roller relevante`
                   : "Vi bruker dette til å tildele ansvar og tilpasse plattformen"}
               </p>
             </div>
@@ -592,6 +583,35 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
                 </div>
               </div>
             )}
+
+            <div className="mt-8 flex justify-between">
+              <Button variant="ghost" onClick={handleBack}>Tilbake</Button>
+              <Button onClick={handleNext} size="lg" className="gap-2">
+                Neste <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Step: Governance Snapshot */}
+        {step === "governance-snapshot" && (
+          <Card className="p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Ditt Governance-nivå</h1>
+              <p className="text-muted-foreground">
+                Vi anbefaler et nivå basert på virksomhetstypen. Du kan endre dette senere.
+              </p>
+            </div>
+
+            <GovernanceSnapshot
+              category={formData.employees}
+              industry={formData.industry}
+              governanceLevel={governanceLevel}
+              onChangeLevel={setGovernanceLevel}
+            />
 
             <div className="mt-8 flex justify-between">
               <Button variant="ghost" onClick={handleBack}>Tilbake</Button>

@@ -11,10 +11,14 @@ export interface KeyRole {
 
 const parseEmployeeCount = (employees: string): number => {
   if (!employees) return 0;
+  // New category IDs
+  if (employees === "startup") return 25;
+  if (employees === "established") return 100;
+  if (employees === "regulated") return 200;
+  // Legacy numeric ranges
   const match = employees.match(/(\d+)/);
   if (!match) return 0;
   const num = parseInt(match[1], 10);
-  // For ranges like "201-500", use the lower bound
   if (employees === "1000+") return 1000;
   return num;
 };

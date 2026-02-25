@@ -580,6 +580,7 @@ export type Database = {
           dpo_name: string | null
           employees: string | null
           geographic_scope: string | null
+          governance_level: string | null
           id: string
           industry: string
           initial_maturity: string | null
@@ -606,6 +607,7 @@ export type Database = {
           dpo_name?: string | null
           employees?: string | null
           geographic_scope?: string | null
+          governance_level?: string | null
           id?: string
           industry: string
           initial_maturity?: string | null
@@ -632,6 +634,7 @@ export type Database = {
           dpo_name?: string | null
           employees?: string | null
           geographic_scope?: string | null
+          governance_level?: string | null
           id?: string
           industry?: string
           initial_maturity?: string | null
