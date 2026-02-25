@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Server,
   Shield,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
@@ -25,7 +26,7 @@ import {
   getPhaseStatus,
   type CertificationPhase,
 } from "@/lib/certificationPhases";
-import { getVisiblePhases, type GovernanceLevel } from "@/lib/governanceLevelEngine";
+import { getVisiblePhases, getGovernanceLevelDef, type GovernanceLevel } from "@/lib/governanceLevelEngine";
 import { ComplianceCalendarSection } from "./ComplianceCalendarSection";
 
 interface NextAction {
@@ -59,6 +60,7 @@ export function PostOnboardingRoadmapWidget() {
   });
   const isMSPCustomer = companyProfile?.is_msp_partner === true;
   const govLevel = (companyProfile?.governance_level || null) as GovernanceLevel | null;
+  const govLevelDef = getGovernanceLevelDef(govLevel);
   const visiblePhaseIds = useMemo(() => getVisiblePhases(govLevel), [govLevel]);
   const filteredPhases = useMemo(() => CERTIFICATION_PHASES.filter(p => visiblePhaseIds.includes(p.id)), [visiblePhaseIds]);
   const completionPercent = stats.progressPercent;
@@ -188,6 +190,28 @@ export function PostOnboardingRoadmapWidget() {
             </div>
           </div>
         </div>
+
+        {/* Governance Level Banner */}
+        {govLevelDef && (
+          <div className="px-6 pb-4">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/15">
+              <div className="p-1.5 rounded-md bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">
+                  {isNorwegian ? govLevelDef.name_no : govLevelDef.name_en}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {isNorwegian ? govLevelDef.description_no : govLevelDef.description_en}
+                </p>
+              </div>
+              <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
+                {isNorwegian ? "Ditt nivå" : "Your level"}
+              </Badge>
+            </div>
+          </div>
+        )}
 
         {/* Phase stepper */}
         <div className="px-6 pb-4">

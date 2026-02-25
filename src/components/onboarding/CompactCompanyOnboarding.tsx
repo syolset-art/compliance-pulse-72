@@ -11,6 +11,7 @@ import { Loader2, Search, Check, Building2, ChevronRight, Globe, Info } from "lu
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { KeyPersonnelSection, validateKeyPersonnel, type KeyPersonnelData } from "./KeyPersonnelSection";
+import { calculateGovernanceLevel, categoryToMaturity } from "@/lib/governanceLevelEngine";
 
 interface CompactCompanyOnboardingProps {
   onComplete: () => void;
@@ -173,6 +174,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
 
     setIsLoading(true);
     try {
+      const govLevel = formData.employees ? calculateGovernanceLevel(formData.employees) : "foundation";
+      const maturity = formData.employees ? categoryToMaturity(formData.employees) : "beginner";
       const { error } = await supabase
         .from("company_profile")
         .insert({
@@ -180,6 +183,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           org_number: formData.orgNumber || null,
           industry: formData.industry,
           employees: formData.employees || null,
+          maturity,
+          governance_level: govLevel,
           domain: formData.domain || null,
           geographic_scope: formData.geographic_scope || null,
           sensitive_data: formData.sensitive_data || null,
