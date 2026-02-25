@@ -24,6 +24,8 @@ interface CompanyProfile {
   industry: string;
   employees: string | null;
   maturity: string | null;
+  geographic_scope: string | null;
+  sensitive_data: string | null;
 }
 
 interface EditCompanyProfileDialogProps {
@@ -71,6 +73,8 @@ export function EditCompanyProfileDialog({
     industry: "",
     employees: "",
     maturity: "intermediate",
+    geographic_scope: "",
+    sensitive_data: "",
   });
 
   useEffect(() => {
@@ -81,6 +85,8 @@ export function EditCompanyProfileDialog({
         industry: companyProfile.industry || "",
         employees: companyProfile.employees || "",
         maturity: companyProfile.maturity || "intermediate",
+        geographic_scope: (companyProfile as any).geographic_scope || "",
+        sensitive_data: (companyProfile as any).sensitive_data || "",
       });
     }
   }, [companyProfile, open]);
@@ -233,6 +239,47 @@ export function EditCompanyProfileDialog({
                     <p className="font-medium text-sm">{level.name}</p>
                     <p className="text-xs text-muted-foreground">{level.description}</p>
                   </div>
+                </label>
+              ))}
+            </RadioGroup>
+          </div>
+
+          {/* Geographic Scope */}
+          <div className="space-y-3">
+            <Label>Geografisk scope</Label>
+            <RadioGroup 
+              value={formData.geographic_scope} 
+              onValueChange={(value) => setFormData({ ...formData, geographic_scope: value })}
+              className="space-y-2"
+            >
+              <label className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "eos_only" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                <RadioGroupItem value="eos_only" />
+                <span className="font-medium text-sm">Kun Norge/EØS</span>
+              </label>
+              <label className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "outside_eos" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                <RadioGroupItem value="outside_eos" />
+                <span className="font-medium text-sm">Også utenfor EU/EØS</span>
+              </label>
+            </RadioGroup>
+          </div>
+
+          {/* Sensitive Data */}
+          <div className="space-y-3">
+            <Label>Behandler dere sensitive personopplysninger (ikke HR)?</Label>
+            <RadioGroup 
+              value={formData.sensitive_data} 
+              onValueChange={(value) => setFormData({ ...formData, sensitive_data: value })}
+              className="space-y-2"
+            >
+              {[
+                { value: "yes", label: "Ja" },
+                { value: "no", label: "Nei" },
+                { value: "unsure", label: "Vet ikke" },
+                { value: "unsure_alt", label: "Usikker" },
+              ].map((opt) => (
+                <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                  <RadioGroupItem value={opt.value} />
+                  <span className="font-medium text-sm">{opt.label}</span>
                 </label>
               ))}
             </RadioGroup>

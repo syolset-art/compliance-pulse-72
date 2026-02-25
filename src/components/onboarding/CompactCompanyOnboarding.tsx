@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { createDefaultWorkAreas } from "@/hooks/useAutoCreateWorkAreas";
 import { seedDemoInbox, seedDemoDocuments } from "@/lib/demoSeedInbox";
 import { Loader2, Search, Check, Building2, ChevronRight, Globe, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { KeyPersonnelSection, validateKeyPersonnel, type KeyPersonnelData } from "./KeyPersonnelSection";
 
@@ -68,7 +70,9 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     industry: "",
     employees: "",
     kommune: "",
-    domain: ""
+    domain: "",
+    geographic_scope: "",
+    sensitive_data: "",
   });
   const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
     compliance_officer: "",
@@ -144,7 +148,9 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       industry: mapIndustry(company.naeringskode1?.beskrivelse),
       employees: mapEmployeeRange(company.antallAnsatte),
       kommune: company.forretningsadresse?.kommune || "",
-      domain: ""
+      domain: "",
+      geographic_scope: "",
+      sensitive_data: "",
     });
     setCompanyFound(true);
     setSearchResults([]);
@@ -179,6 +185,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           industry: formData.industry,
           employees: formData.employees || null,
           domain: formData.domain || null,
+          geographic_scope: formData.geographic_scope || null,
+          sensitive_data: formData.sensitive_data || null,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
@@ -223,7 +231,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     setHasSearched(false);
     setSearchResults([]);
     setCompanyName("");
-    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "" });
+    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "", geographic_scope: "", sensitive_data: "" });
     setKeyPersonnel({ compliance_officer: "", compliance_officer_email: "", dpo_name: "", dpo_email: "", ciso_name: "", ciso_email: "" });
   };
 
@@ -333,6 +341,39 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                 <p className="text-sm font-medium">{formData.kommune}</p>
               </div>
             )}
+          </div>
+
+          {/* Geographic Scope & Risk Profile */}
+          <div className="p-4 rounded-xl bg-muted/50 border border-border space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Geografisk scope</Label>
+              <RadioGroup value={formData.geographic_scope} onValueChange={(value) => setFormData(prev => ({ ...prev, geographic_scope: value }))} className="space-y-1">
+                <label className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.geographic_scope === "eos_only" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                  <RadioGroupItem value="eos_only" />
+                  <span>Kun Norge/EØS</span>
+                </label>
+                <label className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.geographic_scope === "outside_eos" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                  <RadioGroupItem value="outside_eos" />
+                  <span>Også utenfor EU/EØS</span>
+                </label>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Sensitive personopplysninger (ikke HR)?</Label>
+              <RadioGroup value={formData.sensitive_data} onValueChange={(value) => setFormData(prev => ({ ...prev, sensitive_data: value }))} className="grid grid-cols-2 gap-1">
+                {[
+                  { value: "yes", label: "Ja" },
+                  { value: "no", label: "Nei" },
+                  { value: "unsure", label: "Vet ikke" },
+                  { value: "unsure_alt", label: "Usikker" },
+                ].map((opt) => (
+                  <label key={opt.value} className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value={opt.value} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
           </div>
 
           {/* Key Personnel Section */}

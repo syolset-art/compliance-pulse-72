@@ -65,7 +65,7 @@ const useCaseIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "risikostyring": AlertTriangle,
 };
 
-type Step = "company" | "industry" | "size" | "key-persons" | "use-cases" | "team-size" | "complete";
+type Step = "company" | "industry" | "size" | "risk-profile" | "key-persons" | "use-cases" | "team-size" | "complete";
 
 export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const [step, setStep] = useState<Step>("company");
@@ -81,6 +81,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     use_cases: [] as string[],
     team_size: "",
     domain: "",
+    geographic_scope: "",
+    sensitive_data: "",
   });
 
   const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
@@ -126,6 +128,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       }
       setStep("size");
     } else if (step === "size") {
+      setStep("risk-profile");
+    } else if (step === "risk-profile") {
       setStep("key-persons");
     } else if (step === "key-persons") {
       const personnelError = validateKeyPersonnel(formData.industry, formData.employees, keyPersonnel);
@@ -152,7 +156,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const handleBack = () => {
     if (step === "industry") setStep("company");
     else if (step === "size") setStep("industry");
-    else if (step === "key-persons") setStep("size");
+    else if (step === "risk-profile") setStep("size");
+    else if (step === "key-persons") setStep("risk-profile");
     else if (step === "use-cases") setStep("key-persons");
     else if (step === "team-size") setStep("use-cases");
   };
@@ -173,6 +178,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         .from("company_profile" as any)
         .upsert([{
           ...formData,
+          geographic_scope: formData.geographic_scope || null,
+          sensitive_data: formData.sensitive_data || null,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
@@ -234,10 +241,11 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       case "company": return 1;
       case "industry": return 2;
       case "size": return 3;
-      case "key-persons": return 4;
-      case "use-cases": return 5;
-      case "team-size": return 6;
-      case "complete": return 6;
+      case "risk-profile": return 4;
+      case "key-persons": return 5;
+      case "use-cases": return 6;
+      case "team-size": return 7;
+      case "complete": return 7;
     }
   };
 
@@ -256,12 +264,12 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         {/* Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av 6</span>
+            <span className="text-sm text-muted-foreground">Steg {getStepNumber()} av 7</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div 
               className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${(getStepNumber() / 6) * 100}%` }}
+              style={{ width: `${(getStepNumber() / 7) * 100}%` }}
             />
           </div>
         </div>
@@ -393,6 +401,59 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
                         <p className="font-medium">{level.name}</p>
                         <p className="text-sm text-muted-foreground">{level.description}</p>
                       </div>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-between">
+              <Button variant="ghost" onClick={handleBack}>Tilbake</Button>
+              <Button onClick={handleNext} size="lg" className="gap-2">
+                Neste <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Step: Risk Profile */}
+        {step === "risk-profile" && (
+          <Card className="p-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <Globe className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Geografisk scope og risikoprofil</h1>
+              <p className="text-muted-foreground">Hjelper oss å tilpasse regulatoriske krav</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Opererer dere kun i Norge/EØS, eller også utenfor EU/EØS?</Label>
+                <RadioGroup value={formData.geographic_scope} onValueChange={(value) => setFormData({ ...formData, geographic_scope: value })}>
+                  <label className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "eos_only" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="eos_only" />
+                    <span className="font-medium">Kun Norge/EØS</span>
+                  </label>
+                  <label className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "outside_eos" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="outside_eos" />
+                    <span className="font-medium">Også utenfor EU/EØS</span>
+                  </label>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Behandler dere sensitive personopplysninger som del av tjenestene deres (ikke HR)?</Label>
+                <RadioGroup value={formData.sensitive_data} onValueChange={(value) => setFormData({ ...formData, sensitive_data: value })}>
+                  {[
+                    { value: "yes", label: "Ja" },
+                    { value: "no", label: "Nei" },
+                    { value: "unsure", label: "Vet ikke" },
+                    { value: "unsure_alt", label: "Usikker" },
+                  ].map((opt) => (
+                    <label key={opt.value} className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                      <RadioGroupItem value={opt.value} />
+                      <span className="font-medium">{opt.label}</span>
                     </label>
                   ))}
                 </RadioGroup>

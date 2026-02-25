@@ -77,6 +77,8 @@ interface CompanyProfile {
   industry: string;
   employees: string | null;
   maturity: string | null;
+  geographic_scope: string | null;
+  sensitive_data: string | null;
 }
 
 interface Asset {
