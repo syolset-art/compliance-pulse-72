@@ -1,39 +1,26 @@
 
 
-# Plan: Design-forenkling + navigasjonsendringer
+# Plan: Koble dashbord-widget til CertificationJourney-komponenten
 
-## Tre endringer
+## Problemet
+Dashbordets `PostOnboardingRoadmapWidget` bruker en forenklet stepper (tynne fargebarer) som ikke kommuniserer fase-status tydelig. Oppgavesidens `CertificationJourney`-komponent viser derimot hver fase med "Fullført"-badge, "Aktiv"-indikator, beskrivelse og ekspanderbare aktiviteter — mye mer informativt.
 
-### 1. Årshjul som eget menypunkt i sidebaren
-Legger til "Årshjul" som eget menypunkt i `Sidebar.tsx` (med `CalendarDays`-ikon), som peker til en ny rute `/compliance-calendar`. Oppretter en enkel `ComplianceCalendar.tsx`-side som viser `ComplianceCalendarSection`-komponenten. Fjerner årshjulet fra dashbordet (`Index.tsx`) og fra `PostOnboardingRoadmapWidget`.
+## Løsning
+Erstatte den forenklede phase-stepperen i `PostOnboardingRoadmapWidget` med den eksisterende `CertificationJourney`-komponenten som allerede brukes på Oppgavesiden. Denne viser:
+- Grønt sjekkmerke + "Fullført"-badge for ferdige faser (f.eks. Fundament)
+- Lilla pulserende prikk + "Aktiv"-badge for pågående faser
+- Grått sirkel-ikon for ikke-startede faser
+- Ekspanderbar detaljvisning med aktiviteter og læring
+- "Valgfritt"-separator for Audit og Sertifisering
 
-### 2. Behandlingsprotokoll (ROPA) flyttes under Rapporter
-Fjerner "ROPA" (`/protocols`) fra hovednavigasjonen i `Sidebar.tsx`. Ruten beholdes, men navigasjonen til den skjer via Rapporter-siden. Legger til en klikk-handler på ROPA-rapportkortet i `Reports.tsx` som navigerer til `/protocols`.
-
-### 3. Design-forenkling: Mindre blått, renere uttrykk
-
-**`src/index.css`** — Justerer fargepaletten:
-- `--primary` endres fra ren blå (211 100% 50%) til en dempet, mørkere nyanse (220 16% 22%) i lys modus — nær grafitt/mørk nøytral
-- `--accent` endres fra blå-tint til en subtil varm grå
-- `--ring` dempes tilsvarende
-- Resultatet: Knapper, badges og aktive states blir nøytrale/mørke i stedet for knallblått
-
-**`src/components/Sidebar.tsx`** — Fjerner den blå pulserende prikken (`animate-ping bg-primary`) på "highlight"-elementer. Erstatter med en diskret "Ny"-badge i nøytral farge.
-
-**Widgets** — Ingen strukturelle endringer, men fargene vil automatisk følge den nye `--primary`-verdien.
-
-## Filer som endres
+## Tekniske endringer
 
 | Fil | Endring |
 |---|---|
-| `src/index.css` | Ny fargepalett: dempet primary, accent, ring |
-| `src/components/Sidebar.tsx` | +Årshjul-lenke, -ROPA fra nav, -blå pulsering |
-| `src/pages/Index.tsx` | Fjern `ComplianceCalendarSection` fra dashbordet |
-| `src/pages/ComplianceCalendar.tsx` | Ny side for årshjulet |
-| `src/pages/Reports.tsx` | ROPA-kort navigerer til `/protocols` |
-| `src/App.tsx` | Ny rute `/compliance-calendar` |
+| `src/components/widgets/PostOnboardingRoadmapWidget.tsx` | Fjern den manuelle phase-stepperen (linje 216-245). Importer og bruk `CertificationJourney` med `completedPercent`. Fjern ubrukte imports (`cn` fra stepper-logikk). |
+
+Selve `CertificationJourney`-komponenten trenger ingen endring — den tar allerede `completedPercent` som prop og beregner status per fase. Governance-level-banneret og "Neste prioriterte handlinger" beholdes som de er.
 
 ## Visuelt resultat
-
-Dashbordet blir renere og kortere (årshjulet er borte). Sidebaren får et nytt "Årshjul"-punkt. Farger går fra "blått overalt" til en profesjonell, nøytral palett der kun statusfarger (grønn, gul, rød) gir farge. Helhetsinntrykket: Apple-aktig, rolig, "less is more".
+Dashbordet vil vise nøyaktig samme faseoversikt som på Oppgavesiden (bildet brukeren viste): "Fundament ✅ Fullført", "Implementering ● Aktiv", osv. med mulighet til å klikke og se detaljer.
 
