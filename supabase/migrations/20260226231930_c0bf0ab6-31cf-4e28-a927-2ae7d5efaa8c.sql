@@ -1,0 +1,1 @@
+ALTER TABLE public.company_profile ADD COLUMN goal_12_months text;

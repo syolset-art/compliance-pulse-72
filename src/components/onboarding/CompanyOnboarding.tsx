@@ -23,7 +23,8 @@ import {
   AlertTriangle,
   Users,
   Globe,
-  Info
+  Info,
+  Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { suggestRolesForCompany, useCaseOptions, teamSizeOptions } from "@/lib/rolesSuggestions";
@@ -57,7 +58,7 @@ const useCaseIcons: Record<string, React.ComponentType<{ className?: string }>> 
   "risikostyring": AlertTriangle,
 };
 
-type Step = "company" | "industry" | "size" | "risk-profile" | "key-persons" | "use-cases" | "team-size" | "governance-snapshot" | "complete";
+type Step = "company" | "industry" | "size" | "key-persons" | "use-cases" | "team-size" | "governance-snapshot" | "complete";
 
 export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const [step, setStep] = useState<Step>("company");
@@ -75,6 +76,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     domain: "",
     geographic_scope: "",
     sensitive_data: "",
+    goal_12_months: "",
   });
 
   const [governanceLevel, setGovernanceLevel] = useState<GovernanceLevel>("foundation");
@@ -127,8 +129,6 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         toast({ title: "Feil", description: "Vennligst velg virksomhetstype", variant: "destructive" });
         return;
       }
-      setStep("risk-profile");
-    } else if (step === "risk-profile") {
       setStep("key-persons");
     } else if (step === "key-persons") {
       const personnelError = validateKeyPersonnel(formData.industry, formData.employees, keyPersonnel);
@@ -157,8 +157,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
   const handleBack = () => {
     if (step === "industry") setStep("company");
     else if (step === "size") setStep("industry");
-    else if (step === "risk-profile") setStep("size");
-    else if (step === "key-persons") setStep("risk-profile");
+    else if (step === "key-persons") setStep("size");
     else if (step === "use-cases") setStep("key-persons");
     else if (step === "team-size") setStep("use-cases");
     else if (step === "governance-snapshot") setStep("team-size");
@@ -182,6 +181,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           ...formData,
           geographic_scope: formData.geographic_scope || null,
           sensitive_data: formData.sensitive_data || null,
+          goal_12_months: formData.goal_12_months || null,
           governance_level: governanceLevel,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
@@ -244,16 +244,15 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
       case "company": return 1;
       case "industry": return 2;
       case "size": return 3;
-      case "risk-profile": return 4;
-      case "key-persons": return 5;
-      case "use-cases": return 6;
-      case "team-size": return 7;
-      case "governance-snapshot": return 8;
-      case "complete": return 8;
+      case "key-persons": return 4;
+      case "use-cases": return 5;
+      case "team-size": return 6;
+      case "governance-snapshot": return 7;
+      case "complete": return 7;
     }
   };
 
-  const totalSteps = 8;
+  const totalSteps = 7;
 
   const suggestedRolesPreview = suggestRolesForCompany({
     industry: formData.industry,
@@ -407,59 +406,6 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           </Card>
         )}
 
-        {/* Step: Risk Profile */}
-        {step === "risk-profile" && (
-          <Card className="p-8">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <Globe className="h-8 w-8 text-primary" />
-              </div>
-              <h1 className="text-2xl font-bold mb-2">Geografisk scope og risikoprofil</h1>
-              <p className="text-muted-foreground">Hjelper oss å tilpasse regulatoriske krav</p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Opererer dere kun i Norge/EØS, eller også utenfor EU/EØS?</Label>
-                <RadioGroup value={formData.geographic_scope} onValueChange={(value) => setFormData({ ...formData, geographic_scope: value })}>
-                  <label className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "eos_only" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
-                    <RadioGroupItem value="eos_only" />
-                    <span className="font-medium">Kun Norge/EØS</span>
-                  </label>
-                  <label className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "outside_eos" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
-                    <RadioGroupItem value="outside_eos" />
-                    <span className="font-medium">Også utenfor EU/EØS</span>
-                  </label>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Behandler dere sensitive personopplysninger som del av tjenestene deres (ikke HR)?</Label>
-                <RadioGroup value={formData.sensitive_data} onValueChange={(value) => setFormData({ ...formData, sensitive_data: value })}>
-                  {[
-                    { value: "yes", label: "Ja" },
-                    { value: "no", label: "Nei" },
-                    { value: "unsure", label: "Vet ikke" },
-                    { value: "unsure_alt", label: "Usikker" },
-                  ].map((opt) => (
-                    <label key={opt.value} className={cn("flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
-                      <RadioGroupItem value={opt.value} />
-                      <span className="font-medium">{opt.label}</span>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-between">
-              <Button variant="ghost" onClick={handleBack}>Tilbake</Button>
-              <Button onClick={handleNext} size="lg" className="gap-2">
-                Neste <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </Card>
-        )}
-
         {/* Step: Key Persons */}
         {step === "key-persons" && (
           <Card className="p-8">
@@ -593,7 +539,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           </Card>
         )}
 
-        {/* Step: Governance Snapshot */}
+        {/* Step: Governance Snapshot + Mål og prioriteringer */}
         {step === "governance-snapshot" && (
           <Card className="p-8">
             <div className="text-center mb-8">
@@ -612,6 +558,64 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
               governanceLevel={governanceLevel}
               onChangeLevel={setGovernanceLevel}
             />
+
+            {/* Mål og prioriteringer */}
+            <div className="mt-8 pt-6 border-t border-border space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Mål og prioriteringer</h2>
+              </div>
+
+              {/* Geografisk scope */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Opererer dere kun i Norge/EØS, eller også utenfor EU/EØS?</Label>
+                <RadioGroup value={formData.geographic_scope} onValueChange={(value) => setFormData({ ...formData, geographic_scope: value })}>
+                  <label className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "eos_only" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="eos_only" />
+                    <span className="font-medium text-sm">Kun Norge/EØS</span>
+                  </label>
+                  <label className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.geographic_scope === "outside_eos" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="outside_eos" />
+                    <span className="font-medium text-sm">Også utenfor EU/EØS</span>
+                  </label>
+                </RadioGroup>
+              </div>
+
+              {/* Sensitive personopplysninger */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Behandler dere sensitive personopplysninger (ikke HR)?</Label>
+                <RadioGroup value={formData.sensitive_data} onValueChange={(value) => setFormData({ ...formData, sensitive_data: value })}>
+                  {[
+                    { value: "yes", label: "Ja" },
+                    { value: "no", label: "Nei" },
+                    { value: "unsure", label: "Vet ikke" },
+                    { value: "unsure_alt", label: "Usikker" },
+                  ].map((opt) => (
+                    <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                      <RadioGroupItem value={opt.value} />
+                      <span className="font-medium text-sm">{opt.label}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* 12-månedersmål */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Hva ønsker dere å oppnå de neste 12 månedene?</Label>
+                <RadioGroup value={formData.goal_12_months} onValueChange={(value) => setFormData({ ...formData, goal_12_months: value })}>
+                  {[
+                    { value: "basic_control", label: "Få grunnleggende kontroll og dokumentasjon" },
+                    { value: "structured_governance", label: "Strukturere governance og leverandørstyring" },
+                    { value: "prepare_certification", label: "Forberede sertifisering" },
+                  ].map((opt) => (
+                    <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.goal_12_months === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                      <RadioGroupItem value={opt.value} />
+                      <span className="font-medium text-sm">{opt.label}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+            </div>
 
             <div className="mt-8 flex justify-between">
               <Button variant="ghost" onClick={handleBack}>Tilbake</Button>
