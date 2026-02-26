@@ -27,6 +27,7 @@ import {
   type CertificationPhase,
 } from "@/lib/certificationPhases";
 import { getVisiblePhases, getGovernanceLevelDef, type GovernanceLevel } from "@/lib/governanceLevelEngine";
+import { CertificationJourney } from "@/components/iso-readiness/CertificationJourney";
 
 
 interface NextAction {
@@ -213,35 +214,9 @@ export function PostOnboardingRoadmapWidget() {
           </div>
         )}
 
-        {/* Phase stepper */}
+        {/* Certification Journey – same component as Tasks page */}
         <div className="px-6 pb-4">
-          <div className="flex items-center gap-1 mb-2">
-            {filteredPhases.map((phase) => {
-              const status = getPhaseStatus(phase.id, completionPercent);
-              return (
-                <div key={phase.id} className="flex items-center flex-1">
-                  <div
-                    className={cn(
-                      "h-2 w-full rounded-full transition-colors",
-                      phase.optional ? "border border-dashed border-muted-foreground/30" : "",
-                      status === "completed"
-                        ? "bg-primary"
-                        : status === "in_progress"
-                        ? "bg-primary/40"
-                        : "bg-muted/50"
-                    )}
-                  />
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-[10px] text-muted-foreground">
-            {filteredPhases.map((phase) => (
-              <span key={phase.id} className={cn("text-center flex-1 truncate", phase.optional && "opacity-50")}>
-                {isNorwegian ? phase.name_no : phase.name_en}
-              </span>
-            ))}
-          </div>
+          <CertificationJourney completedPercent={completionPercent} />
         </div>
 
         {/* Progress summary */}
