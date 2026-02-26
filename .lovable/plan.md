@@ -1,26 +1,33 @@
 
 
-# Plan: Koble dashbord-widget til CertificationJourney-komponenten
+# Plan: Flytt scope-spørsmål til siste steg + legg til 12-månedersmål
 
-## Problemet
-Dashbordets `PostOnboardingRoadmapWidget` bruker en forenklet stepper (tynne fargebarer) som ikke kommuniserer fase-status tydelig. Oppgavesidens `CertificationJourney`-komponent viser derimot hver fase med "Fullført"-badge, "Aktiv"-indikator, beskrivelse og ekspanderbare aktiviteter — mye mer informativt.
+## Endringer
 
-## Løsning
-Erstatte den forenklede phase-stepperen i `PostOnboardingRoadmapWidget` med den eksisterende `CertificationJourney`-komponenten som allerede brukes på Oppgavesiden. Denne viser:
-- Grønt sjekkmerke + "Fullført"-badge for ferdige faser (f.eks. Fundament)
-- Lilla pulserende prikk + "Aktiv"-badge for pågående faser
-- Grått sirkel-ikon for ikke-startede faser
-- Ekspanderbar detaljvisning med aktiviteter og læring
-- "Valgfritt"-separator for Audit og Sertifisering
+### 1. Ny databasekolonne
+Legge til `goal_12_months` (text, nullable) i `company_profile`-tabellen for å lagre svaret på det nye spørsmålet.
 
-## Tekniske endringer
+### 2. Fjern "risk-profile"-steget (steg 4), flytt innholdet til "governance-snapshot" (siste steg)
+- Fjern `risk-profile` fra Step-typen og all navigasjonslogikk (handleNext, handleBack, getStepNumber)
+- Totalsteg reduseres fra 8 til 7
+- Steg-rekkefølgen blir: company → industry → size → key-persons → use-cases → team-size → governance-snapshot → complete
+
+### 3. Utvid "governance-snapshot"-steget
+Under GovernanceSnapshot-komponenten, legg til en ny seksjon **"Mål og prioriteringer"** som inneholder:
+- Geografisk scope (flyttes fra risk-profile)
+- Sensitive personopplysninger (flyttes fra risk-profile)
+- **Nytt spørsmål**: "Hva ønsker dere å oppnå de neste 12 månedene?" med tre radio-valg:
+  - Få grunnleggende kontroll og dokumentasjon
+  - Strukturere governance og leverandørstyring
+  - Forberede sertifisering
+
+### 4. Lagre det nye feltet
+Oppdater `handleSubmit` til å inkludere `goal_12_months` i upsert til `company_profile`.
+
+## Filer som endres
 
 | Fil | Endring |
 |---|---|
-| `src/components/widgets/PostOnboardingRoadmapWidget.tsx` | Fjern den manuelle phase-stepperen (linje 216-245). Importer og bruk `CertificationJourney` med `completedPercent`. Fjern ubrukte imports (`cn` fra stepper-logikk). |
-
-Selve `CertificationJourney`-komponenten trenger ingen endring — den tar allerede `completedPercent` som prop og beregner status per fase. Governance-level-banneret og "Neste prioriterte handlinger" beholdes som de er.
-
-## Visuelt resultat
-Dashbordet vil vise nøyaktig samme faseoversikt som på Oppgavesiden (bildet brukeren viste): "Fundament ✅ Fullført", "Implementering ● Aktiv", osv. med mulighet til å klikke og se detaljer.
+| `company_profile` (migration) | Legg til `goal_12_months text` |
+| `src/components/onboarding/CompanyOnboarding.tsx` | Fjern risk-profile-steg, flytt scope-spørsmål + nytt mål-spørsmål til governance-snapshot, oppdater navigasjon |
 
