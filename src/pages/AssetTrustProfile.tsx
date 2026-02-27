@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -7,7 +8,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
@@ -103,6 +105,30 @@ const AssetTrustProfile = () => {
   const isSelf = asset?.asset_type === 'self';
   const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark'];
 
+  const [activeTab, setActiveTab] = useState("validation");
+
+  // Primary tabs (always visible) and overflow tabs (in dropdown)
+  const primaryTabDefs = [
+    { value: 'validation', label: t("trustProfile.tabs.validation"), show: enabledTabs.includes('validation') },
+    { value: 'usage', label: t("trustProfile.tabs.usage"), show: enabledTabs.includes('usage') },
+    { value: 'dataHandling', label: t("trustProfile.tabs.dataHandling"), show: enabledTabs.includes('dataHandling') },
+    { value: 'riskManagement', label: t("trustProfile.tabs.riskManagement"), show: enabledTabs.includes('riskManagement') },
+    { value: 'incidents', label: t("trustProfile.tabs.incidents"), show: enabledTabs.includes('incidents') },
+    { value: 'relations', label: t("trustProfile.tabs.relations"), show: enabledTabs.includes('relations') },
+    { value: 'certificates', label: t("trustProfile.tabs.certificates"), show: enabledTabs.includes('certificates') },
+    { value: 'documents', label: t("trustProfile.tabs.documents"), show: enabledTabs.includes('documents') },
+  ].filter(t => t.show);
+
+  const overflowTabDefs = [
+    { value: 'inbox', label: 'Innboks', show: true, badge: inboxCount },
+    { value: 'analysis', label: t("trustProfile.tabs.analysis"), show: enabledTabs.includes('analysis') },
+    { value: 'benchmark', label: t("trustProfile.tabs.benchmark"), show: enabledTabs.includes('benchmark') },
+    { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: isSelf },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: isSelf },
+  ].filter(t => t.show);
+
+  const activeOverflowTab = overflowTabDefs.find(t => t.value === activeTab);
+
   if (isLoading) {
     return (
       <SidebarProvider>
@@ -167,79 +193,56 @@ const AssetTrustProfile = () => {
             )}
 
             {/* Tabs section */}
-            <Tabs defaultValue="validation" className="w-full min-w-0">
-              <div className="relative">
-                <div className="-mx-4 md:mx-0 px-4 md:px-0 pb-1 scrollbar-none" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                  <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5" style={{ width: 'max-content', minWidth: '100%' }}>
-                    {enabledTabs.includes('validation') && (
-                      <TabsTrigger value="validation" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.validation")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('usage') && (
-                      <TabsTrigger value="usage" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.usage")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('dataHandling') && (
-                      <TabsTrigger value="dataHandling" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.dataHandling")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('riskManagement') && (
-                      <TabsTrigger value="riskManagement" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.riskManagement")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('incidents') && (
-                      <TabsTrigger value="incidents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.incidents")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('relations') && (
-                      <TabsTrigger value="relations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.relations")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('certificates') && (
-                      <TabsTrigger value="certificates" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.certificates")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('documents') && (
-                      <TabsTrigger value="documents" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.documents")}
-                      </TabsTrigger>
-                    )}
-                    <TabsTrigger value="inbox" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg relative whitespace-nowrap flex-none">
-                      Innboks
-                      {inboxCount > 0 && (
-                        <Badge className="ml-1.5 h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">{inboxCount}</Badge>
-                      )}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+              <div className="flex items-center gap-1">
+                <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 flex-1 min-w-0 overflow-hidden">
+                  {primaryTabDefs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none"
+                    >
+                      {tab.label}
                     </TabsTrigger>
-                    {enabledTabs.includes('analysis') && (
-                      <TabsTrigger value="analysis" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.analysis")}
-                      </TabsTrigger>
-                    )}
-                    {enabledTabs.includes('benchmark') && (
-                      <TabsTrigger value="benchmark" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {t("trustProfile.tabs.benchmark")}
-                      </TabsTrigger>
-                    )}
-                    {isSelf && (
-                      <TabsTrigger value="security-services" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {isNb ? "Sikkerhetstjenester" : "Security Services"}
-                      </TabsTrigger>
-                    )}
-                    {isSelf && (
-                      <TabsTrigger value="requests" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
-                        {isNb ? "Forespørsler" : "Requests"}
-                      </TabsTrigger>
-                    )}
-                  </TabsList>
-                </div>
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none lg:hidden" />
+                  ))}
+                </TabsList>
+
+                {/* Overflow dropdown for additional tabs */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant={activeOverflowTab ? "default" : "outline"}
+                      size="sm"
+                      className="h-9 gap-1.5 shrink-0 text-xs"
+                    >
+                      {activeOverflowTab ? activeOverflowTab.label : (
+                        <>
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="hidden sm:inline">{isNb ? "Mer" : "More"}</span>
+                        </>
+                      )}
+                      {!activeOverflowTab && inboxCount > 0 && (
+                        <Badge className="h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">{inboxCount}</Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[180px]">
+                    {overflowTabDefs.map((tab) => (
+                      <DropdownMenuItem
+                        key={tab.value}
+                        onClick={() => setActiveTab(tab.value)}
+                        className={activeTab === tab.value ? "bg-accent font-medium" : ""}
+                      >
+                        <span className="flex-1">{tab.label}</span>
+                        {'badge' in tab && (tab as any).badge > 0 && (
+                          <Badge className="ml-2 h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">
+                            {(tab as any).badge}
+                          </Badge>
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <TabsContent value="validation" className="mt-6">
