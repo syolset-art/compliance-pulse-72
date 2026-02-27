@@ -50,6 +50,14 @@ export const MSP_PARTNER_DIRECTORY: MSPPartnerInfo[] = [
     website: "https://crayon.com",
     specialties: ["network", "compliance", "awareness"],
   },
+  {
+    id: "hult-it",
+    name: "Hult IT AS",
+    description: "Norsk IT-partner med fokus på drift, sikkerhet og compliance for små og mellomstore bedrifter. Tilbyr helhetlige managed services.",
+    contactEmail: "post@hultit.no",
+    website: "https://hultit.no",
+    specialties: ["endpoint", "backup", "network", "compliance"],
+  },
 ];
 
 export interface SecurityServiceCategory {
