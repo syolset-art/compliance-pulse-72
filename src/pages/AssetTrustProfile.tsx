@@ -23,6 +23,7 @@ import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
 import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
 import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
+import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -227,6 +228,11 @@ const AssetTrustProfile = () => {
                       </TabsTrigger>
                     )}
                     {isSelf && (
+                      <TabsTrigger value="security-services" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
+                        {isNb ? "Sikkerhetstjenester" : "Security Services"}
+                      </TabsTrigger>
+                    )}
+                    {isSelf && (
                       <TabsTrigger value="requests" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap flex-none">
                         {isNb ? "Forespørsler" : "Requests"}
                       </TabsTrigger>
@@ -280,6 +286,11 @@ const AssetTrustProfile = () => {
                 <BenchmarkTab assetId={asset.id} assetCategory={asset.category || undefined} />
               </TabsContent>
 
+              {isSelf && (
+                <TabsContent value="security-services" className="mt-6">
+                  <SecurityServicesSection isSelfProfile={true} />
+                </TabsContent>
+              )}
               {isSelf && (
                 <TabsContent value="requests" className="mt-6">
                   <CustomerRequestsTab />
