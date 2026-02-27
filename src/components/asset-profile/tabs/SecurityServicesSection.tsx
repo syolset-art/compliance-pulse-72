@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog, ShoppingCart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   SECURITY_SERVICE_CATALOG,
   evaluateServiceCoverage,
@@ -40,27 +41,19 @@ function AcronisModuleCard({
 
   return (
     <div className={cn(
-      "rounded-md border p-3 flex items-center gap-3 transition-all",
+      "rounded-md border px-3 py-2 flex items-center gap-3 transition-all",
       active
         ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
         : "border-border bg-background/50 hover:border-primary/30"
     )}>
-      <CloudCog className={cn("h-5 w-5 shrink-0", active ? "text-green-600 dark:text-green-400" : "text-muted-foreground")} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-xs font-medium text-foreground">{module.name}</p>
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{module.acronisPackage}</Badge>
-          {module.priceIndicator === "included" ? (
-            <Badge variant="default" className="text-[10px] px-1.5 py-0">Inkludert</Badge>
-          ) : (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Tillegg</Badge>
-          )}
-        </div>
-        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{module.description}</p>
+      <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : "text-muted-foreground")} />
+      <div className="flex-1 min-w-0 flex items-center gap-2">
+        <p className="text-xs font-medium text-foreground truncate">{module.name}</p>
+        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
       </div>
       <div className="shrink-0">
         {active ? (
-          <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-xs gap-1">
+          <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
             <CheckCircle className="h-3 w-3" /> Aktiv
           </Badge>
         ) : (
@@ -84,28 +77,25 @@ function MSPProductCard({
 }) {
   return (
     <div className={cn(
-      "rounded-md border p-3 transition-all",
+      "rounded-md border px-3 py-2 flex items-center gap-3 transition-all",
       isActivated
         ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
         : "border-border/60 bg-background/50 hover:border-primary/30"
     )}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-xs font-medium text-foreground">{product.name}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">{product.vendor}</p>
-          <p className="text-[11px] text-muted-foreground mt-1">{product.description}</p>
-        </div>
-        <div className="shrink-0 mt-0.5">
-          {isActivated ? (
-            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
-              <CheckCircle className="h-3 w-3" /> Bestilt
-            </Badge>
-          ) : (
-            <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onActivate}>
-              <ShoppingCart className="h-3 w-3" /> Aktiver
-            </Button>
-          )}
-        </div>
+      <div className="flex-1 min-w-0 flex items-center gap-2">
+        <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
+        <span className="text-[10px] text-muted-foreground shrink-0">{product.vendor}</span>
+      </div>
+      <div className="shrink-0">
+        {isActivated ? (
+          <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+            <CheckCircle className="h-3 w-3" /> Bestilt
+          </Badge>
+        ) : (
+          <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onActivate}>
+            <ShoppingCart className="h-3 w-3" /> Aktiver
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -179,97 +169,101 @@ function ServiceDetailCard({
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-4">
-          {/* Acronis modules */}
+        <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+          {/* Level 1: Actionable items */}
           {service.acronisModules.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <CloudCog className="h-3.5 w-3.5 text-primary" />
-                <p className="text-xs font-medium text-foreground">Tilgjengelige Acronis-løsninger</p>
-              </div>
-              <div className="space-y-2">
-                {service.acronisModules.map((mod) => (
-                  <AcronisModuleCard
-                    key={mod.id}
-                    module={mod}
-                    isActivated={activatedIds.includes(mod.id)}
-                    onActivate={() => onOpenDialog({ type: "acronis", product: mod }, service)}
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Acronis</p>
+              {service.acronisModules.map((mod) => (
+                <AcronisModuleCard
+                  key={mod.id}
+                  module={mod}
+                  isActivated={activatedIds.includes(mod.id)}
+                  onActivate={() => onOpenDialog({ type: "acronis", product: mod }, service)}
+                />
+              ))}
+            </div>
+          )}
+
+          {service.mspProducts.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Andre løsninger</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {service.mspProducts.map((product) => (
+                  <MSPProductCard
+                    key={product.id}
+                    product={product}
+                    isActivated={activatedIds.includes(product.id)}
+                    onActivate={() => onOpenDialog({ type: "msp-product", product }, service)}
                   />
                 ))}
               </div>
             </div>
           )}
 
-          {/* MSP Recommendation */}
-          <div className="flex gap-3">
-            <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-medium text-foreground mb-1">Anbefaling fra MSP</p>
-              <p className="text-xs text-muted-foreground">{service.mspRecommendation}</p>
-            </div>
-          </div>
-
-          {/* ISO Controls */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium text-muted-foreground">ISO 27001:</span>
-            {service.linkedControls.map((ctrl) => (
-              <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
-            ))}
-          </div>
-
-          {/* Recommended products — now with activate buttons */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <Package className="h-3.5 w-3.5 text-primary" />
-              <p className="text-xs font-medium text-foreground">Andre anbefalte løsninger</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {service.mspProducts.map((product) => (
-                <MSPProductCard
-                  key={product.id}
-                  product={product}
-                  isActivated={activatedIds.includes(product.id)}
-                  onActivate={() => onOpenDialog({ type: "msp-product", product }, service)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Implementation steps */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <ListChecks className="h-3.5 w-3.5 text-primary" />
-              <p className="text-xs font-medium text-foreground">Implementeringssteg</p>
-            </div>
-            <ol className="space-y-1.5">
-              {service.implementationSteps.map((step, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className={cn(
-                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                    status === "covered"
-                      ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    {status === "covered" ? "✓" : i + 1}
-                  </span>
-                  <span className={cn(
-                    "text-xs",
-                    status === "covered" ? "text-muted-foreground line-through" : "text-foreground"
-                  )}>
-                    {step}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
           {/* CTA for missing/unknown */}
           {status !== "covered" && (
-            <Button size="sm" className="w-full gap-2 mt-2">
+            <Button size="sm" className="w-full gap-2">
               <Shield className="h-4 w-4" />
               Kontakt MSP-partner for implementering
             </Button>
           )}
+
+          {/* Level 2: Details collapsible */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors pt-1">
+                <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>&]:rotate-180" />
+                Vis detaljer
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-3">
+              {/* MSP Recommendation */}
+              <div className="flex gap-3">
+                <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-medium text-foreground mb-0.5">Anbefaling fra MSP</p>
+                  <p className="text-xs text-muted-foreground">{service.mspRecommendation}</p>
+                </div>
+              </div>
+
+              {/* ISO Controls */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-medium text-muted-foreground">ISO 27001:</span>
+                {service.linkedControls.map((ctrl) => (
+                  <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
+                ))}
+              </div>
+
+              {/* Implementation steps */}
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <ListChecks className="h-3.5 w-3.5 text-primary" />
+                  <p className="text-xs font-medium text-foreground">Implementeringssteg</p>
+                </div>
+                <ol className="space-y-1.5">
+                  {service.implementationSteps.map((step, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                        status === "covered"
+                          ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
+                          : "bg-muted text-muted-foreground"
+                      )}>
+                        {status === "covered" ? "✓" : i + 1}
+                      </span>
+                      <span className={cn(
+                        "text-xs",
+                        status === "covered" ? "text-muted-foreground line-through" : "text-foreground"
+                      )}>
+                        {step}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       )}
     </div>
