@@ -16,6 +16,13 @@ export interface MSPProduct {
   description: string;
 }
 
+export interface MSPPartnerInfo {
+  name: string;
+  description: string;
+  contactEmail?: string;
+  website?: string;
+}
+
 export interface SecurityServiceCategory {
   id: string;
   name: string;
@@ -30,6 +37,7 @@ export interface SecurityServiceCategory {
   mspProducts: MSPProduct[];
   implementationSteps: string[];
   acronisModules: AcronisModule[];
+  mspPartner?: MSPPartnerInfo;
 }
 
 export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
@@ -215,6 +223,12 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       { id: "mdr-service", name: "MDR Service", acronisPackage: "Acronis Partner", priceIndicator: "addon", description: "Managed Detection & Response – 24/7 overvåking og hendelseshåndtering levert av MSP via Acronis", isActive: false },
       { id: "xdr", name: "XDR", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Extended Detection & Response – korrelerer trusler på tvers av endepunkter, e-post og sky", isActive: false },
     ],
+    mspPartner: {
+      name: "7 Security",
+      description: "Autorisert MSP-partner for Managed Detection & Response. 7 Security leverer døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler.",
+      contactEmail: "mdr@7security.no",
+      website: "https://7security.no",
+    },
   },
   {
     id: "compliance",

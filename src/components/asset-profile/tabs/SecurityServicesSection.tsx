@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Shield, CheckCircle, XCircle, HelpCircle, Lock,
   ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog, ShoppingCart,
+  Award, ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -170,6 +171,32 @@ function ServiceDetailCard({
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+          {/* Partner banner */}
+          {service.mspPartner && (
+            <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
+              <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+                <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{service.mspPartner.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{service.mspPartner.description}</p>
+                {service.mspPartner.website && (
+                  <a
+                    href={service.mspPartner.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                  >
+                    Besøk {service.mspPartner.name} <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+              <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] shrink-0">
+                MSP-partner
+              </Badge>
+            </div>
+          )}
+
           {/* Level 1: Actionable items */}
           {service.acronisModules.length > 0 && (
             <div className="space-y-1.5">
