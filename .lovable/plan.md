@@ -1,35 +1,34 @@
 
 
-## Plan: Gjør alle anbefalte løsninger aktiverbare med tydelig MSP-prosessmelding
+## Plan: Forenkle expanded-visningen i sikkerhetstjenester (Less is More)
 
 ### Problem
-Kun Acronis-moduler kan aktiveres i dag. De andre anbefalte løsningene (mspProducts) har ingen aktiveringsknappe. Brukeren får heller ingen tydelig forklaring på hva som skjer etter aktivering — at MSP-partneren mottar forespørselen og setter i gang.
+Når en bruker utvider et sikkerhetstjeneste-kort (f.eks. "Backup & Restore"), vises alt innhold samtidig: Acronis-moduler, MSP-anbefaling, ISO-kontroller, andre produkter, implementeringssteg, og CTA. Dette skaper visuell støy.
 
-### Endringer
+### Løsning
+Omstrukturere expanded-visningen til et **to-nivå hierarki**: Vis kun det viktigste (tilgjengelige løsninger med aktiveringsknapper) som standard. Alt annet pakkes inn i en diskret "Vis detaljer"-collapsible.
 
-#### 1. Ny komponent: `ActivateServiceDialog.tsx` (erstatter `ActivateAcronisServiceDialog.tsx`)
-- Generalisert dialog som håndterer aktivering av **alle** løsninger — både Acronis-moduler og MSP-produkter
-- Ny prop `productType: "acronis" | "msp-product"` og `product: AcronisModule | MSPProduct`
-- Etter aktivering: vis en **vennlig bekreftelses-visning** inne i dialogen (ikke bare toast):
-  - Grønn sjekkikon og melding: "Forespørselen din er sendt!"
-  - Forklaring: "Din MSP-partner har mottatt forespørselen og vil kontakte deg innen 1–3 virkedager for å sette opp [tjenestenavn]. Du trenger ikke gjøre noe mer nå."
-  - Knapp: "Lukk" som lukker dialogen
-- Fortsatt vise ISO-kontroller og estimert oppsett-tid
+### Endringer i `SecurityServicesSection.tsx`
 
-#### 2. Oppdater `SecurityServicesSection.tsx`
-- Gi hvert `mspProduct`-kort en **"Aktiver"**-knapp
-- Track aktiverte MSP-produkter i lokal state (`activatedProductIds: string[]`)
-- Aktiverte MSP-produkter viser "Bestilt ✓" badge i stedet for Aktiver-knapp
-- Åpne den nye generaliserte dialogen for både Acronis og mspProducts
+**Ny expanded-layout for `ServiceDetailCard`:**
 
-#### 3. Oppdater `securityServiceCatalog.ts`
-- Legg til unik `id` på hvert `MSPProduct` (trengs for state-tracking)
+1. **Alltid synlig** (nivå 1 — det brukeren trenger for å handle):
+   - Acronis-moduler med aktiveringsknapper (komprimert: kun navn + status/knapp, skjul description by default)
+   - Andre anbefalte løsninger med aktiveringsknapper (komprimert)
+   - CTA-knapp for missing/unknown
 
-### Filer
+2. **Skjult bak "Vis detaljer"** (nivå 2 — for de som vil lære mer):
+   - MSP-anbefaling
+   - ISO 27001-kontroller
+   - Implementeringssteg
+
+**Forenkling av kortene:**
+- `AcronisModuleCard`: Skjul `description` og `priceIndicator`-badge. Vis kun navn + pakke + status/knapp på én linje.
+- `MSPProductCard`: Skjul `description`. Vis kun navn + leverandør + status/knapp.
+
+### Fil som endres
 
 | Fil | Endring |
 |---|---|
-| `src/lib/securityServiceCatalog.ts` | Legg til `id` på `MSPProduct` |
-| `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx` | Omskrive til generalisert dialog med bekreftelses-steg |
-| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Aktiver-knapper på mspProducts, track state, prosessmelding |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Forenkle expanded-innhold, legg sekundær info i collapsible |
 
