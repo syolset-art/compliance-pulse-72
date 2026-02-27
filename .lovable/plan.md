@@ -1,65 +1,48 @@
 
 
-# Plan: Sikkerhetstjenester koblet til compliance-krav og Trust Profile
+## Plan: Koble sikkerhetstjenester til Acronis-løsninger med aktiveringsflyt
 
-## Konsept
+### Konsept
+Utvide hver sikkerhetstjenestekategori med konkrete **Acronis Cyber Protect Cloud-moduler** (pakker) som kunden kan aktivere direkte fra Trust Profile-visningen. Kunden ser hvilke Acronis-tjenester som er tilgjengelige per kategori, kan velge å aktivere dem selv, eller be MSP-partneren om hjelp.
 
-Opprette en **Security Service Catalog** — en definert liste over sikkerhetstjenestekategorier (Backup & Restore, Endepunktsikkerhet, E-postsikkerhet, Nettverk- og skysikkerhet, Sikkerhetskultur, SOC-tjeneste, Compliance) som kobles til ISO 27001-kontroller og compliance-krav. Denne koblingen synliggjøres på tre steder:
+### Endringer
 
-```text
-1. Trust Profile (ny fane/seksjon "Sikkerhetstjenester")
-   → Viser hvilke tjenestekategorier som er dekket/mangler
-   → Premium feature for MSP-kundens sluttbruker
+#### 1. Utvide `src/lib/securityServiceCatalog.ts`
+- Legg til ny `acronisModules[]` per kategori med konkrete Acronis-pakker:
+  - **Backup**: `Advanced Backup`, `Disaster Recovery`
+  - **Endpoint**: `Advanced Security + EDR`, `Advanced Management`
+  - **Email**: `Advanced Email Security` (Perception Point)
+  - **Network**: `Advanced Monitoring` (via Acronis)
+  - **Awareness**: `Security Awareness Training` (Acronis-modul)
+  - **SOC**: `MDR Service`, `XDR` (Acronis-partnertilbud)
+  - **Compliance**: `Data Loss Prevention`, `Advanced File Sync & Share`
+- Hver modul har: `id`, `name`, `acronisPackage`, `priceIndicator` (inkludert/tillegg), `description`, `isActive` (demo-flagg)
 
-2. MSP Customer Detail
-   → Partner ser gap-analyse: hvilke tjenester kunden trenger
-   → Direkte kobling til kartleggingsresultater
+#### 2. Oppdater `SecurityServicesSection.tsx` — ny "Acronis-løsninger"-seksjon per tjenestekort
+- Innenfor expanded-visningen: ny seksjon **"Tilgjengelige Acronis-løsninger"**
+- Hver modul vises som kort med:
+  - Navn + Acronis-pakkenavn
+  - Status: "Aktiv" (grønn) / "Tilgjengelig" (blå) / "Ikke inkludert" (grå)
+  - **"Aktiver"**-knapp som åpner en bekreftelsesdialog
+  - **"Be MSP om hjelp"**-knapp for de som ikke vil gjøre det selv
+- Aktivering oppdaterer lokal state (demo) og viser suksess-toast
 
-3. Dashboard-widget "Sikkerhetsdekning"
-   → Visuell oversikt over dekning per kategori
-   → Fargekodede kort (grønn/gul/rød)
-```
+#### 3. Ny komponent: `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx`
+- Bekreftelses-dialog med:
+  - Hvilken tjeneste og Acronis-modul som aktiveres
+  - ISO-kontroller som dekkes
+  - Estimert oppsett-tid
+  - To valg: "Aktiver selv" (demo) eller "Send forespørsel til MSP"
+  - Ved aktivering: oppdater katalogen lokalt, vis konfetti/suksess
 
-## Tekniske endringer
-
-### 1. Ny fil: `src/lib/securityServiceCatalog.ts`
-Definerer 7 tjenestekategorier med:
-- `id`, `name`, `color` (matcher bildet)
-- `linkedControls[]` — ISO 27001 requirement_ids (f.eks. Backup → A.12.3, A.8.13)
-- `linkedAssessmentKeys[]` — kobling til MSP assessment questions
-- `description`, `icon`
-
-### 2. Ny komponent: `src/components/msp/SecurityServiceGapCard.tsx`
-- Viser 7 tjenestekategorier som fargekodede kort
-- Kryssjekker med kundens assessment-svar og asset-data
-- Status per kategori: "Dekket" / "Mangler" / "Ukjent"
-- Plasseres på MSP Customer Detail-siden
-
-### 3. Ny komponent: `src/components/widgets/SecurityCoverageWidget.tsx`
-- Dashboard-widget med kompakt visning av dekning
-- 7 mini-kort med fargekoding fra bildet
-- Teller: "4/7 dekket" med progress bar
-- Klikk navigerer til Trust Profile eller MSP-detalj
-
-### 4. Ny seksjon i Trust Profile: `src/components/asset-profile/tabs/SecurityServicesSection.tsx`
-- Vises som Premium-seksjon i Trust Profile (self-type)
-- Viser hvilke sikkerhetstjenester som er aktive
-- MSP-kundens sluttbruker ser anbefalinger basert på compliance-gap
-
-### 5. Oppdater `src/lib/dashboardLayouts.ts`
-- Legg til `security-coverage` widget i `ALL_WIDGETS`
-- Vis for `sikkerhetsansvarlig` og `compliance_ansvarlig`
+#### 4. Oppdater demo-logikk i `evaluateServiceCoverage`
+- Tjenester med aktive Acronis-moduler markeres automatisk som "covered"
 
 ### Filer som endres/opprettes
 
 | Fil | Endring |
 |---|---|
-| `src/lib/securityServiceCatalog.ts` | Ny — 7 kategorier med ISO-kobling |
-| `src/components/msp/SecurityServiceGapCard.tsx` | Ny — gap-analyse for MSP-kunder |
-| `src/components/widgets/SecurityCoverageWidget.tsx` | Ny — dashboard-widget |
-| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Ny — Trust Profile premium-seksjon |
-| `src/lib/dashboardLayouts.ts` | Legg til widget-config |
-| `src/pages/MSPCustomerDetail.tsx` | Legg til SecurityServiceGapCard |
-
-Ingen databaseendringer nødvendig — all data utledes fra eksisterende assessment-svar og asset-metadata.
+| `src/lib/securityServiceCatalog.ts` | Legg til `acronisModules[]` per kategori |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Vis Acronis-moduler i expanded, aktiveringsknapper |
+| `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx` | Ny — bekreftelsesdialog for aktivering |
 
