@@ -574,6 +574,7 @@ export type Database = {
           ciso_name: string | null
           compliance_officer: string | null
           compliance_officer_email: string | null
+          compliance_organization: string | null
           created_at: string | null
           domain: string | null
           dpo_email: string | null
@@ -581,6 +582,7 @@ export type Database = {
           employees: string | null
           estimated_systems_count: string | null
           estimated_vendors_count: string | null
+          external_partner_admin: boolean | null
           geographic_scope: string | null
           goal_12_months: string | null
           governance_level: string | null
@@ -604,6 +606,7 @@ export type Database = {
           ciso_name?: string | null
           compliance_officer?: string | null
           compliance_officer_email?: string | null
+          compliance_organization?: string | null
           created_at?: string | null
           domain?: string | null
           dpo_email?: string | null
@@ -611,6 +614,7 @@ export type Database = {
           employees?: string | null
           estimated_systems_count?: string | null
           estimated_vendors_count?: string | null
+          external_partner_admin?: boolean | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
@@ -634,6 +638,7 @@ export type Database = {
           ciso_name?: string | null
           compliance_officer?: string | null
           compliance_officer_email?: string | null
+          compliance_organization?: string | null
           created_at?: string | null
           domain?: string | null
           dpo_email?: string | null
@@ -641,6 +646,7 @@ export type Database = {
           employees?: string | null
           estimated_systems_count?: string | null
           estimated_vendors_count?: string | null
+          external_partner_admin?: boolean | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
