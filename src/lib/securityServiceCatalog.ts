@@ -10,6 +10,7 @@ export interface AcronisModule {
 }
 
 export interface MSPProduct {
+  id: string;
   name: string;
   vendor: string;
   description: string;
@@ -44,8 +45,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: ["backup_testing_documented"],
     mspRecommendation: "Implementer automatisert backup med jevnlig testing av gjenoppretting. MSP bør tilby overvåket backup med varsling ved feil.",
     mspProducts: [
-      { name: "Acronis Cyber Protect Cloud", vendor: "Acronis", description: "Backup, disaster recovery og cybersikkerhet i én løsning" },
-      { name: "Veeam Backup & Replication", vendor: "Veeam", description: "Enterprise-grade backup for sky og on-premise" },
+      { id: "msp-acronis-backup", name: "Acronis Cyber Protect Cloud", vendor: "Acronis", description: "Backup, disaster recovery og cybersikkerhet i én løsning" },
+      { id: "msp-veeam-backup", name: "Veeam Backup & Replication", vendor: "Veeam", description: "Enterprise-grade backup for sky og on-premise" },
     ],
     implementationSteps: [
       "Kartlegg kritiske data og systemer",
@@ -71,8 +72,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: [],
     mspRecommendation: "Alle endepunkter bør ha EDR (Endpoint Detection & Response) med sentralisert administrasjon. MSP overvåker og responderer på trusler.",
     mspProducts: [
-      { name: "SentinelOne Singularity", vendor: "SentinelOne", description: "AI-drevet EDR med automatisert respons" },
-      { name: "Microsoft Defender for Endpoint", vendor: "Microsoft", description: "Integrert sikkerhet for Windows-miljøer" },
+      { id: "msp-sentinelone", name: "SentinelOne Singularity", vendor: "SentinelOne", description: "AI-drevet EDR med automatisert respons" },
+      { id: "msp-defender-endpoint", name: "Microsoft Defender for Endpoint", vendor: "Microsoft", description: "Integrert sikkerhet for Windows-miljøer" },
     ],
     implementationSteps: [
       "Installer EDR-agent på alle enheter",
@@ -98,8 +99,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: [],
     mspRecommendation: "E-post er den vanligste angrepsvektoren. Implementer avansert e-postfiltrering med anti-phishing og sandboxing.",
     mspProducts: [
-      { name: "Proofpoint Email Protection", vendor: "Proofpoint", description: "Avansert beskyttelse mot phishing og BEC" },
-      { name: "Microsoft Defender for Office 365", vendor: "Microsoft", description: "E-postsikkerhet integrert i M365" },
+      { id: "msp-proofpoint", name: "Proofpoint Email Protection", vendor: "Proofpoint", description: "Avansert beskyttelse mot phishing og BEC" },
+      { id: "msp-defender-o365", name: "Microsoft Defender for Office 365", vendor: "Microsoft", description: "E-postsikkerhet integrert i M365" },
     ],
     implementationSteps: [
       "Aktiver SPF, DKIM og DMARC for domenet",
@@ -124,8 +125,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: [],
     mspRecommendation: "Sikre nettverket med next-gen brannmur, segmentering og VPN. Skyressurser bør ha Zero Trust-tilgang.",
     mspProducts: [
-      { name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur med SD-WAN" },
-      { name: "Cloudflare Zero Trust", vendor: "Cloudflare", description: "Zero Trust nettverkstilgang uten VPN" },
+      { id: "msp-fortigate", name: "Fortinet FortiGate", vendor: "Fortinet", description: "Next-gen brannmur med SD-WAN" },
+      { id: "msp-cloudflare-zt", name: "Cloudflare Zero Trust", vendor: "Cloudflare", description: "Zero Trust nettverkstilgang uten VPN" },
     ],
     implementationSteps: [
       "Kartlegg nettverksarkitektur og segmenter",
@@ -150,8 +151,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: ["security_training"],
     mspRecommendation: "Menneskelige feil er den største risikoen. Regelmessig opplæring og simulert phishing reduserer risikoen dramatisk.",
     mspProducts: [
-      { name: "KnowBe4 Security Awareness", vendor: "KnowBe4", description: "Verdens største plattform for sikkerhetsopplæring" },
-      { name: "Mynder Me – Mikrokurs", vendor: "Mynder", description: "Korte, målrettede sikkerhetskurs for ansatte" },
+      { id: "msp-knowbe4", name: "KnowBe4 Security Awareness", vendor: "KnowBe4", description: "Verdens største plattform for sikkerhetsopplæring" },
+      { id: "msp-mynder-mikrokurs", name: "Mynder Me – Mikrokurs", vendor: "Mynder", description: "Korte, målrettede sikkerhetskurs for ansatte" },
     ],
     implementationSteps: [
       "Gjennomfør baseline phishing-test",
@@ -176,8 +177,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: ["incident_handling"],
     mspRecommendation: "24/7 overvåking via SOC sikrer rask deteksjon og respons. MSP tilbyr dette som en managed service.",
     mspProducts: [
-      { name: "Arctic Wolf MDR", vendor: "Arctic Wolf", description: "Managed Detection & Response med 24/7 SOC" },
-      { name: "Heimdal Threat Hunting", vendor: "Heimdal", description: "Proaktiv trusseljakt og hendelsesrespons" },
+      { id: "msp-arctic-wolf", name: "Arctic Wolf MDR", vendor: "Arctic Wolf", description: "Managed Detection & Response med 24/7 SOC" },
+      { id: "msp-heimdal", name: "Heimdal Threat Hunting", vendor: "Heimdal", description: "Proaktiv trusseljakt og hendelsesrespons" },
     ],
     implementationSteps: [
       "Koble loggkilder til SIEM/SOC-plattform",
@@ -203,8 +204,8 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     linkedAssessmentKeys: ["risk_assessment_approved", "processing_records", "dpa_with_vendors"],
     mspRecommendation: "Compliance er fundamentet for alle sikkerhetstjenester. Mynder-plattformen automatiserer compliance-arbeidet.",
     mspProducts: [
-      { name: "Mynder Compliance Platform", vendor: "Mynder", description: "Helhetlig compliance-plattform med AI-støtte" },
-      { name: "Mynder Trust Profile", vendor: "Mynder", description: "Automatisert tillitsprofil for kunder og leverandører" },
+      { id: "msp-mynder-compliance", name: "Mynder Compliance Platform", vendor: "Mynder", description: "Helhetlig compliance-plattform med AI-støtte" },
+      { id: "msp-mynder-trust", name: "Mynder Trust Profile", vendor: "Mynder", description: "Automatisert tillitsprofil for kunder og leverandører" },
     ],
     implementationSteps: [
       "Gjennomfør innledende kartlegging via Mynder",
