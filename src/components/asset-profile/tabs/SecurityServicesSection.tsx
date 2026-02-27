@@ -377,19 +377,6 @@ function ServiceDetailCard({
             </div>
           )}
 
-          {/* CTA for missing/unknown */}
-          {status !== "covered" && effectivePartner && (
-            <Button size="sm" className="w-full gap-2">
-              <Shield className="h-4 w-4" />
-              Kontakt {effectivePartner.name} for implementering
-            </Button>
-          )}
-          {status !== "covered" && !effectivePartner && (
-            <Button size="sm" className="w-full gap-2">
-              <Shield className="h-4 w-4" />
-              Kontakt MSP-partner for implementering
-            </Button>
-          )}
 
           {/* Level 2: Details collapsible */}
           <Collapsible>
