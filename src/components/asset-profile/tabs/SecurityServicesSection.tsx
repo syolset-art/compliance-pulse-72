@@ -1,11 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, CheckCircle, XCircle, HelpCircle, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import {
+  Shield, CheckCircle, XCircle, HelpCircle, Lock,
+  ChevronDown, ChevronUp, Package, ListChecks, Lightbulb,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SECURITY_SERVICE_CATALOG,
   evaluateServiceCoverage,
-  ServiceCoverageStatus,
+  ServiceCoverageResult,
 } from "@/lib/securityServiceCatalog";
 
 interface SecurityServicesSectionProps {
@@ -13,88 +19,197 @@ interface SecurityServicesSectionProps {
   assessmentResponses?: Record<string, string> | null;
 }
 
-export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
-  const results = evaluateServiceCoverage(assessmentResponses || null);
-  const covered = results.filter((r) => r.status === "covered").length;
-  const total = SECURITY_SERVICE_CATALOG.length;
+function ServiceDetailCard({ result }: { result: ServiceCoverageResult }) {
+  const [expanded, setExpanded] = useState(false);
+  const { service, status, reason } = result;
+  const Icon = service.icon;
+  const StatusIcon =
+    status === "covered" ? CheckCircle :
+    status === "missing" ? XCircle : HelpCircle;
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Sikkerhetstjenester</CardTitle>
+    <div
+      className={cn(
+        "rounded-lg border transition-all",
+        status === "covered" && "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/30",
+        status === "missing" && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/30",
+        status === "unknown" && "border-muted bg-muted/30"
+      )}
+    >
+      {/* Header - always visible */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-4 flex items-center gap-3 text-left"
+      >
+        <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center text-white shrink-0", service.color)}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm text-foreground">{service.name}</p>
+          <p className="text-xs text-muted-foreground">{service.description}</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge
+            variant={status === "covered" ? "default" : status === "missing" ? "destructive" : "outline"}
+            className="text-xs"
+          >
+            {status === "covered" ? "Implementert" : status === "missing" ? "Mangler" : "Ikke kartlagt"}
+          </Badge>
+          <StatusIcon className={cn(
+            "h-5 w-5",
+            status === "covered" && "text-green-600 dark:text-green-400",
+            status === "missing" && "text-red-600 dark:text-red-400",
+            status === "unknown" && "text-muted-foreground"
+          )} />
+          {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
+      </button>
+
+      {/* Expandable detail */}
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-4">
+          {/* MSP Recommendation */}
+          <div className="flex gap-3">
+            <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-medium text-foreground mb-1">Anbefaling fra MSP</p>
+              <p className="text-xs text-muted-foreground">{service.mspRecommendation}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{covered}/{total} dekket</Badge>
-            {!isSelfProfile && (
-              <Badge variant="outline" className="gap-1 text-xs">
-                <Lock className="h-3 w-3" />
-                Premium
+
+          {/* ISO Controls */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-muted-foreground">ISO 27001:</span>
+            {service.linkedControls.map((ctrl) => (
+              <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">
+                {ctrl}
               </Badge>
-            )}
+            ))}
           </div>
+
+          {/* Recommended products */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Package className="h-3.5 w-3.5 text-primary" />
+              <p className="text-xs font-medium text-foreground">Anbefalte løsninger</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {service.mspProducts.map((product) => (
+                <div key={product.name} className="rounded-md border border-border/60 bg-background/50 p-3">
+                  <p className="text-xs font-medium text-foreground">{product.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{product.vendor}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">{product.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Implementation steps */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <ListChecks className="h-3.5 w-3.5 text-primary" />
+              <p className="text-xs font-medium text-foreground">Implementeringssteg</p>
+            </div>
+            <ol className="space-y-1.5">
+              {service.implementationSteps.map((step, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                    status === "covered"
+                      ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
+                      : "bg-muted text-muted-foreground"
+                  )}>
+                    {status === "covered" ? "✓" : i + 1}
+                  </span>
+                  <span className={cn(
+                    "text-xs",
+                    status === "covered" ? "text-muted-foreground line-through" : "text-foreground"
+                  )}>
+                    {step}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {/* CTA for missing/unknown */}
+          {status !== "covered" && (
+            <Button size="sm" className="w-full gap-2 mt-2">
+              <Shield className="h-4 w-4" />
+              Kontakt MSP-partner for implementering
+            </Button>
+          )}
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          {isSelfProfile
-            ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav"
-            : "Se hvilke sikkerhetstjenester som dekker relevante ISO 27001-kontroller"}
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {results.map(({ service, status, reason }) => {
-            const Icon = service.icon;
-            const StatusIcon =
-              status === "covered" ? CheckCircle :
-              status === "missing" ? XCircle : HelpCircle;
+      )}
+    </div>
+  );
+}
 
-            return (
-              <div
-                key={service.id}
-                className={cn(
-                  "rounded-lg border p-4 flex flex-col gap-2",
-                  status === "covered" && "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/30",
-                  status === "missing" && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/30",
-                  status === "unknown" && "border-muted bg-muted/30"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center text-white", service.color)}>
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-foreground">{service.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{service.description}</p>
-                  </div>
-                  <StatusIcon className={cn(
-                    "h-5 w-5 shrink-0",
-                    status === "covered" && "text-green-600 dark:text-green-400",
-                    status === "missing" && "text-red-600 dark:text-red-400",
-                    status === "unknown" && "text-muted-foreground"
-                  )} />
-                </div>
+export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
+  const results = evaluateServiceCoverage(assessmentResponses || null, isSelfProfile);
+  const covered = results.filter((r) => r.status === "covered").length;
+  const missing = results.filter((r) => r.status === "missing").length;
+  const total = SECURITY_SERVICE_CATALOG.length;
+  const pct = Math.round((covered / total) * 100);
 
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={status === "covered" ? "default" : status === "missing" ? "destructive" : "outline"} className="text-xs">
-                    {status === "covered" ? "Dekket" : status === "missing" ? "Mangler" : "Ukjent"}
-                  </Badge>
-                  {service.linkedControls.slice(0, 2).map((ctrl) => (
-                    <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">
-                      {ctrl}
-                    </Badge>
-                  ))}
-                </div>
-
-                {status === "missing" && reason && (
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">{reason}</p>
-                )}
+  return (
+    <div className="space-y-6">
+      {/* Summary card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Sikkerhetstjenester</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              {!isSelfProfile && (
+                <Badge variant="outline" className="gap-1 text-xs">
+                  <Lock className="h-3 w-3" />
+                  Premium
+                </Badge>
+              )}
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isSelfProfile
+              ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav. Klikk på en tjeneste for detaljer og anbefalinger."
+              : "Se hvilke sikkerhetstjenester som dekker relevante ISO 27001-kontroller"}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-6 mb-4">
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-sm font-medium text-foreground">Sikkerhetsdekning</span>
+                <span className="text-sm font-bold text-foreground">{covered}/{total} tjenester</span>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              <Progress value={pct} className="h-2.5" />
+            </div>
+          </div>
+          <div className="flex gap-4 text-xs">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-muted-foreground">{covered} implementert</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+              <span className="text-muted-foreground">{missing} mangler</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">{total - covered - missing} ikke kartlagt</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Service cards */}
+      <div className="space-y-3">
+        {results.map((result) => (
+          <ServiceDetailCard key={result.service.id} result={result} />
+        ))}
+      </div>
+    </div>
   );
 }
