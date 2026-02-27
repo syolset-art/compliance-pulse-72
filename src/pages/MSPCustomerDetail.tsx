@@ -13,6 +13,7 @@ import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
 import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
+import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
 
 function getScoreColor(score: number) {
   if (score >= 80) return "text-green-600 dark:text-green-400";
@@ -177,6 +178,9 @@ export default function MSPCustomerDetail() {
               )}
             </Card>
           </div>
+
+          {/* Security service gap analysis */}
+          <SecurityServiceGapCard assessmentResponses={customer.assessment_responses || null} />
 
           {/* Dashboard widgets */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
