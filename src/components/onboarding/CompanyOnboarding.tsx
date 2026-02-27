@@ -77,6 +77,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     geographic_scope: "",
     sensitive_data: "",
     goal_12_months: "",
+    estimated_systems_count: "",
+    estimated_vendors_count: "",
   });
 
   const [governanceLevel, setGovernanceLevel] = useState<GovernanceLevel>("foundation");
@@ -182,6 +184,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           geographic_scope: formData.geographic_scope || null,
           sensitive_data: formData.sensitive_data || null,
           goal_12_months: formData.goal_12_months || null,
+          estimated_systems_count: formData.estimated_systems_count || null,
+          estimated_vendors_count: formData.estimated_vendors_count || null,
           governance_level: governanceLevel,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
@@ -592,6 +596,44 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
                     { value: "unsure_alt", label: "Usikker" },
                   ].map((opt) => (
                     <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                      <RadioGroupItem value={opt.value} />
+                      <span className="font-medium text-sm">{opt.label}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Estimert antall systemer */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Omtrent hvor mange IT-systemer bruker dere?</Label>
+                <RadioGroup value={formData.estimated_systems_count} onValueChange={(value) => setFormData({ ...formData, estimated_systems_count: value })}>
+                  {[
+                    { value: "1-20", label: "1–20" },
+                    { value: "21-50", label: "21–50" },
+                    { value: "51-100", label: "51–100" },
+                    { value: "over_100", label: "Over 100" },
+                    { value: "unknown", label: "Vet ikke" },
+                  ].map((opt) => (
+                    <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.estimated_systems_count === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                      <RadioGroupItem value={opt.value} />
+                      <span className="font-medium text-sm">{opt.label}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Estimert antall leverandører */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Omtrent hvor mange leverandører har dere?</Label>
+                <RadioGroup value={formData.estimated_vendors_count} onValueChange={(value) => setFormData({ ...formData, estimated_vendors_count: value })}>
+                  {[
+                    { value: "1-5", label: "1–5" },
+                    { value: "6-20", label: "6–20" },
+                    { value: "21-50", label: "21–50" },
+                    { value: "over_50", label: "Over 50" },
+                    { value: "unknown", label: "Vet ikke" },
+                  ].map((opt) => (
+                    <label key={opt.value} className={cn("flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all", formData.estimated_vendors_count === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
                       <RadioGroupItem value={opt.value} />
                       <span className="font-medium text-sm">{opt.label}</span>
                     </label>

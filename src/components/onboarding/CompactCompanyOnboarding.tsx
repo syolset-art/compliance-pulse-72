@@ -70,6 +70,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     domain: "",
     geographic_scope: "",
     sensitive_data: "",
+    estimated_systems_count: "",
+    estimated_vendors_count: "",
   });
   const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
     compliance_officer: "",
@@ -148,6 +150,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       domain: "",
       geographic_scope: "",
       sensitive_data: "",
+      estimated_systems_count: "",
+      estimated_vendors_count: "",
     });
     setCompanyFound(true);
     setSearchResults([]);
@@ -186,8 +190,10 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
           maturity,
           governance_level: govLevel,
           domain: formData.domain || null,
-          geographic_scope: formData.geographic_scope || null,
-          sensitive_data: formData.sensitive_data || null,
+           geographic_scope: formData.geographic_scope || null,
+           sensitive_data: formData.sensitive_data || null,
+           estimated_systems_count: formData.estimated_systems_count || null,
+           estimated_vendors_count: formData.estimated_vendors_count || null,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
@@ -232,7 +238,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     setHasSearched(false);
     setSearchResults([]);
     setCompanyName("");
-    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "", geographic_scope: "", sensitive_data: "" });
+    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "", geographic_scope: "", sensitive_data: "", estimated_systems_count: "", estimated_vendors_count: "" });
     setKeyPersonnel({ compliance_officer: "", compliance_officer_email: "", dpo_name: "", dpo_email: "", ciso_name: "", ciso_email: "" });
   };
 
@@ -369,6 +375,44 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                   { value: "unsure_alt", label: "Usikker" },
                 ].map((opt) => (
                   <label key={opt.value} className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.sensitive_data === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value={opt.value} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
+
+          {/* Estimert antall systemer og leverandører */}
+          <div className="p-4 rounded-xl bg-muted/50 border border-border space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Omtrent hvor mange IT-systemer bruker dere?</Label>
+              <RadioGroup value={formData.estimated_systems_count} onValueChange={(value) => setFormData(prev => ({ ...prev, estimated_systems_count: value }))} className="grid grid-cols-2 gap-1">
+                {[
+                  { value: "1-20", label: "1–20" },
+                  { value: "21-50", label: "21–50" },
+                  { value: "51-100", label: "51–100" },
+                  { value: "over_100", label: "Over 100" },
+                  { value: "unknown", label: "Vet ikke" },
+                ].map((opt) => (
+                  <label key={opt.value} className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.estimated_systems_count === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value={opt.value} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Omtrent hvor mange leverandører har dere?</Label>
+              <RadioGroup value={formData.estimated_vendors_count} onValueChange={(value) => setFormData(prev => ({ ...prev, estimated_vendors_count: value }))} className="grid grid-cols-2 gap-1">
+                {[
+                  { value: "1-5", label: "1–5" },
+                  { value: "6-20", label: "6–20" },
+                  { value: "21-50", label: "21–50" },
+                  { value: "over_50", label: "Over 50" },
+                  { value: "unknown", label: "Vet ikke" },
+                ].map((opt) => (
+                  <label key={opt.value} className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.estimated_vendors_count === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
                     <RadioGroupItem value={opt.value} />
                     <span>{opt.label}</span>
                   </label>
