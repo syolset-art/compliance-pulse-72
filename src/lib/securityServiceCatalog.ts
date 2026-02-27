@@ -1,5 +1,14 @@
 import { Shield, HardDrive, Mail, Globe, Users, Eye, FileCheck, LucideIcon } from "lucide-react";
 
+export interface AcronisModule {
+  id: string;
+  name: string;
+  acronisPackage: string;
+  priceIndicator: "included" | "addon";
+  description: string;
+  isActive: boolean;
+}
+
 export interface MSPProduct {
   name: string;
   vendor: string;
@@ -19,6 +28,7 @@ export interface SecurityServiceCategory {
   mspRecommendation: string;
   mspProducts: MSPProduct[];
   implementationSteps: string[];
+  acronisModules: AcronisModule[];
 }
 
 export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
@@ -44,6 +54,10 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Planlegg kvartalsvis gjenopprettingstest",
       "Dokumenter backup-policy i henhold til ISO 27001",
     ],
+    acronisModules: [
+      { id: "adv-backup", name: "Advanced Backup", acronisPackage: "Cyber Protect Cloud", priceIndicator: "included", description: "Automatisert backup med cloud-lagring, inkrementell backup og rask gjenoppretting", isActive: true },
+      { id: "disaster-recovery", name: "Disaster Recovery", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Failover til sky-infrastruktur med minimal nedetid ved katastrofer", isActive: false },
+    ],
   },
   {
     id: "endpoint",
@@ -66,6 +80,10 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Sett opp automatisk respons-policy",
       "Aktiver disk-kryptering (BitLocker/FileVault)",
       "Implementer patch management-rutiner",
+    ],
+    acronisModules: [
+      { id: "adv-security-edr", name: "Advanced Security + EDR", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Endepunktbeskyttelse med AI-drevet deteksjon, automatisk respons og trusselanalyse", isActive: false },
+      { id: "adv-management", name: "Advanced Management", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Sentralisert patching, software-inventar og remote management av alle enheter", isActive: false },
     ],
   },
   {
@@ -90,6 +108,9 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Konfigurer varsling ved mistenkelige vedlegg",
       "Gjennomfør phishing-simulering kvartalsvis",
     ],
+    acronisModules: [
+      { id: "adv-email-security", name: "Advanced Email Security", acronisPackage: "Perception Point", priceIndicator: "addon", description: "E-postbeskyttelse med anti-phishing, anti-malware og BEC-deteksjon via Perception Point", isActive: false },
+    ],
   },
   {
     id: "network",
@@ -112,6 +133,9 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Sett opp VPN eller Zero Trust for fjerntilgang",
       "Aktiver nettverksovervåking og logging",
       "Gjennomfør årlig penetrasjonstest",
+    ],
+    acronisModules: [
+      { id: "adv-monitoring", name: "Advanced Monitoring", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Overvåking av nettverksenheter, servere og tjenester med varsling og dashboards", isActive: false },
     ],
   },
   {
@@ -136,6 +160,9 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Planlegg månedlige phishing-simuleringer",
       "Mål fremgang og rapporter til ledelsen",
     ],
+    acronisModules: [
+      { id: "security-awareness", name: "Security Awareness Training", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Automatiserte phishing-simuleringer og sikkerhetskurs for alle ansatte", isActive: true },
+    ],
   },
   {
     id: "soc",
@@ -158,6 +185,10 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Sett opp 24/7 varsling for kritiske hendelser",
       "Etabler incident response-plan",
       "Gjennomfør årlig tabletop-øvelse",
+    ],
+    acronisModules: [
+      { id: "mdr-service", name: "MDR Service", acronisPackage: "Acronis Partner", priceIndicator: "addon", description: "Managed Detection & Response – 24/7 overvåking og hendelseshåndtering levert av MSP via Acronis", isActive: false },
+      { id: "xdr", name: "XDR", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Extended Detection & Response – korrelerer trusler på tvers av endepunkter, e-post og sky", isActive: false },
     ],
   },
   {
@@ -182,6 +213,10 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Signer databehandleravtaler med alle leverandører",
       "Sett opp årshjul for løpende compliance-arbeid",
     ],
+    acronisModules: [
+      { id: "dlp", name: "Data Loss Prevention", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Forhindrer uautorisert deling av sensitiv data via e-post, USB og skylagring", isActive: true },
+      { id: "adv-file-sync", name: "Advanced File Sync & Share", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Sikker fildeling og synkronisering med kryptering og tilgangskontroll", isActive: false },
+    ],
   },
 ];
 
@@ -193,22 +228,29 @@ export interface ServiceCoverageResult {
   reason?: string;
 }
 
-// Demo: simulate that some services are already implemented for self-profiles
 const DEMO_IMPLEMENTED_SERVICES = ["backup", "compliance", "awareness"];
 
 export function evaluateServiceCoverage(
   assessmentResponses: Record<string, string> | null,
-  useDemoData?: boolean
+  useDemoData?: boolean,
+  activatedModuleIds?: string[]
 ): ServiceCoverageResult[] {
   return SECURITY_SERVICE_CATALOG.map((service) => {
-    // In demo mode, mark some services as covered
+    // Check if any Acronis modules for this service are active (either demo default or user-activated)
+    const hasActiveAcronis = service.acronisModules.some(
+      (m) => m.isActive || activatedModuleIds?.includes(m.id)
+    );
+
+    if (hasActiveAcronis) {
+      return { service, status: "covered" as const, reason: "Dekket via Acronis-tjeneste" };
+    }
+
     if (useDemoData && DEMO_IMPLEMENTED_SERVICES.includes(service.id)) {
       return { service, status: "covered" as const, reason: "Implementert via MSP-partner" };
     }
 
     if (!assessmentResponses || service.linkedAssessmentKeys.length === 0) {
       if (useDemoData) {
-        // For demo: mark services without assessment keys as unknown
         return { service, status: "unknown" as const, reason: "Ikke kartlagt ennå" };
       }
       return { service, status: "unknown" as const, reason: "Ingen kartlegging tilgjengelig" };
