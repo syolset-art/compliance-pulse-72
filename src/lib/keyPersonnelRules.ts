@@ -13,6 +13,7 @@ const parseEmployeeCount = (employees: string): number => {
   if (!employees) return 0;
   // New category IDs
   if (employees === "startup") return 25;
+  if (employees === "scaleup") return 75;
   if (employees === "established") return 100;
   if (employees === "regulated") return 200;
   // Legacy numeric ranges

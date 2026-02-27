@@ -72,6 +72,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     sensitive_data: "",
     estimated_systems_count: "",
     estimated_vendors_count: "",
+    compliance_organization: "",
+    external_partner_admin: false,
   });
   const [keyPersonnel, setKeyPersonnel] = useState<KeyPersonnelData>({
     compliance_officer: "",
@@ -152,6 +154,8 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
       sensitive_data: "",
       estimated_systems_count: "",
       estimated_vendors_count: "",
+      compliance_organization: "",
+      external_partner_admin: false,
     });
     setCompanyFound(true);
     setSearchResults([]);
@@ -194,8 +198,10 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
            sensitive_data: formData.sensitive_data || null,
            estimated_systems_count: formData.estimated_systems_count || null,
            estimated_vendors_count: formData.estimated_vendors_count || null,
-          compliance_officer: keyPersonnel.compliance_officer || null,
-          compliance_officer_email: keyPersonnel.compliance_officer_email || null,
+           compliance_organization: formData.compliance_organization || null,
+           external_partner_admin: formData.compliance_organization === "internal_external" || formData.compliance_organization === "external" ? formData.external_partner_admin : null,
+           compliance_officer: keyPersonnel.compliance_officer || null,
+           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
           dpo_email: keyPersonnel.dpo_email || null,
           ciso_name: keyPersonnel.ciso_name || null,
@@ -238,7 +244,7 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
     setHasSearched(false);
     setSearchResults([]);
     setCompanyName("");
-    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "", geographic_scope: "", sensitive_data: "", estimated_systems_count: "", estimated_vendors_count: "" });
+    setFormData({ name: "", orgNumber: "", industry: "", employees: "", kommune: "", domain: "", geographic_scope: "", sensitive_data: "", estimated_systems_count: "", estimated_vendors_count: "", compliance_organization: "", external_partner_admin: false });
     setKeyPersonnel({ compliance_officer: "", compliance_officer_email: "", dpo_name: "", dpo_email: "", ciso_name: "", ciso_email: "" });
   };
 
@@ -419,6 +425,47 @@ export const CompactCompanyOnboarding = ({ onComplete }: CompactCompanyOnboardin
                 ))}
               </RadioGroup>
             </div>
+          </div>
+
+          {/* Compliance Organization */}
+          <div className="p-4 rounded-xl bg-muted/50 border border-border space-y-3">
+            <Label className="text-sm font-semibold">Organisering av compliance</Label>
+            <RadioGroup
+              value={formData.compliance_organization}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, compliance_organization: value }))}
+              className="space-y-1"
+            >
+              {[
+                { value: "internal", label: "Håndteres internt" },
+                { value: "internal_external", label: "Internt med ekstern bistand" },
+                { value: "external", label: "Primært ekstern partner" },
+              ].map((opt) => (
+                <label key={opt.value} className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm", formData.compliance_organization === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                  <RadioGroupItem value={opt.value} />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </RadioGroup>
+
+            {(formData.compliance_organization === "internal_external" || formData.compliance_organization === "external") && (
+              <div className="space-y-2 pt-2 border-t border-border">
+                <Label className="text-sm font-semibold">Skal ekstern partner ha admin-tilgang?</Label>
+                <RadioGroup
+                  value={formData.external_partner_admin ? "yes" : "no"}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, external_partner_admin: value === "yes" }))}
+                  className="flex gap-2"
+                >
+                  <label className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm flex-1 justify-center", formData.external_partner_admin ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="yes" />
+                    <span>Ja</span>
+                  </label>
+                  <label className={cn("flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all text-sm flex-1 justify-center", !formData.external_partner_admin ? "border-primary bg-primary/5" : "border-border hover:border-primary/50")}>
+                    <RadioGroupItem value="no" />
+                    <span>Nei</span>
+                  </label>
+                </RadioGroup>
+              </div>
+            )}
           </div>
 
           {/* Key Personnel Section */}

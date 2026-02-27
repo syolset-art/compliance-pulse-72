@@ -69,7 +69,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     name: "",
     org_number: "",
     industry: "",
-    employees: "",       // now stores category ID: startup/established/regulated
+    employees: "",       // now stores category ID: startup/scaleup/established/regulated
     maturity: "intermediate",
     use_cases: [] as string[],
     team_size: "",
@@ -79,6 +79,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
     goal_12_months: "",
     estimated_systems_count: "",
     estimated_vendors_count: "",
+    compliance_organization: "",
+    external_partner_admin: false,
   });
 
   const [governanceLevel, setGovernanceLevel] = useState<GovernanceLevel>("foundation");
@@ -187,6 +189,8 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           estimated_systems_count: formData.estimated_systems_count || null,
           estimated_vendors_count: formData.estimated_vendors_count || null,
           governance_level: governanceLevel,
+          compliance_organization: formData.compliance_organization || null,
+          external_partner_admin: formData.compliance_organization === "internal_external" || formData.compliance_organization === "external" ? formData.external_partner_admin : null,
           compliance_officer: keyPersonnel.compliance_officer || null,
           compliance_officer_email: keyPersonnel.compliance_officer_email || null,
           dpo_name: keyPersonnel.dpo_name || null,
@@ -410,21 +414,76 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
           </Card>
         )}
 
-        {/* Step: Key Persons */}
+        {/* Step: Key Persons — renamed "Tilgang og organisering" */}
         {step === "key-persons" && (
           <Card className="p-8">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                 <Users className="h-8 w-8 text-primary" />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Hvem har nøkkelrollene?</h1>
+              <h1 className="text-2xl font-bold mb-2">Tilgang og organisering</h1>
               <p className="text-muted-foreground">
-                {formData.industry && formData.employees
-                  ? `Basert på at dere er i ${industryLabel.toLowerCase()}-sektoren, er følgende roller relevante`
-                  : "Vi bruker dette til å tildele ansvar og tilpasse plattformen"}
+                Hvordan organiserer dere compliance-arbeidet, og hvem har nøkkelrollene?
               </p>
             </div>
 
+            {/* Compliance organization */}
+            <div className="space-y-3 mb-6">
+              <Label className="text-sm font-medium">Organisering av compliance</Label>
+              <RadioGroup
+                value={formData.compliance_organization}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, compliance_organization: value }))}
+                className="space-y-2"
+              >
+                {[
+                  { value: "internal", label: "Håndteres internt" },
+                  { value: "internal_external", label: "Internt med ekstern bistand" },
+                  { value: "external", label: "Primært ekstern partner" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all text-sm",
+                      formData.compliance_organization === opt.value
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.value} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {/* External partner admin access — conditional */}
+            {(formData.compliance_organization === "internal_external" || formData.compliance_organization === "external") && (
+              <div className="space-y-3 mb-6 p-4 rounded-lg border border-border bg-muted/50">
+                <Label className="text-sm font-medium">Skal ekstern partner ha admin-tilgang?</Label>
+                <RadioGroup
+                  value={formData.external_partner_admin ? "yes" : "no"}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, external_partner_admin: value === "yes" }))}
+                  className="flex gap-4"
+                >
+                  <label className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all text-sm flex-1 justify-center",
+                    formData.external_partner_admin ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"
+                  )}>
+                    <RadioGroupItem value="yes" />
+                    <span>Ja</span>
+                  </label>
+                  <label className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all text-sm flex-1 justify-center",
+                    !formData.external_partner_admin ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"
+                  )}>
+                    <RadioGroupItem value="no" />
+                    <span>Nei</span>
+                  </label>
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Key Personnel */}
             <KeyPersonnelSection
               industry={formData.industry}
               employees={formData.employees}

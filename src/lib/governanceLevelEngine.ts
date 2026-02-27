@@ -1,9 +1,9 @@
-import { Rocket, Building2, ShieldCheck } from "lucide-react";
+import { Rocket, TrendingUp, Building2, ShieldCheck } from "lucide-react";
 import type { CertificationPhase } from "./certificationPhases";
 
 export type GovernanceLevel = "foundation" | "structured" | "certification_ready";
 
-export type CompanyCategory = "startup" | "established" | "regulated";
+export type CompanyCategory = "startup" | "scaleup" | "established" | "regulated";
 
 export interface CompanyCategoryDefinition {
   id: CompanyCategory;
@@ -17,11 +17,19 @@ export interface CompanyCategoryDefinition {
 export const COMPANY_CATEGORIES: CompanyCategoryDefinition[] = [
   {
     id: "startup",
-    name_no: "Oppstart / Vekstfase",
-    name_en: "Startup / Growth phase",
-    description_no: "Ung virksomhet som bygger struktur. Typisk under 50 ansatte.",
-    description_en: "Young business building structure. Typically under 50 employees.",
+    name_no: "Oppstart",
+    name_en: "Startup",
+    description_no: "Tidlig fase, bygger struktur. Typisk under 20 ansatte.",
+    description_en: "Early stage, building structure. Typically under 20 employees.",
     icon: Rocket,
+  },
+  {
+    id: "scaleup",
+    name_no: "Scaleup / Vekstfase",
+    name_en: "Scaleup / Growth phase",
+    description_no: "Voksende virksomhet som trenger skalerbar compliance.",
+    description_en: "Growing business that needs scalable compliance.",
+    icon: TrendingUp,
   },
   {
     id: "established",
@@ -79,13 +87,13 @@ export const GOVERNANCE_LEVELS: GovernanceLevelDefinition[] = [
 
 export function calculateGovernanceLevel(category: string): GovernanceLevel {
   if (category === "regulated") return "certification_ready";
-  if (category === "established") return "structured";
+  if (category === "established" || category === "scaleup") return "structured";
   return "foundation";
 }
 
 export function categoryToMaturity(category: string): string {
   if (category === "regulated") return "advanced";
-  if (category === "established") return "intermediate";
+  if (category === "established" || category === "scaleup") return "intermediate";
   return "beginner";
 }
 
@@ -109,6 +117,7 @@ export function mapEmployeeCountToCategory(count: number): CompanyCategory {
 export function categoryToEmployeeWeight(value: string): number {
   switch (value) {
     case "startup": return 25;
+    case "scaleup": return 75;
     case "established": return 100;
     case "regulated": return 200;
     // Legacy fallbacks
