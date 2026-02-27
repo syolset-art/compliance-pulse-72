@@ -6,10 +6,11 @@ import { Progress } from "@/components/ui/progress";
 import {
   Shield, CheckCircle, XCircle, HelpCircle, Lock,
   ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog, ShoppingCart,
-  Award, ExternalLink,
+  Award, ExternalLink, RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   SECURITY_SERVICE_CATALOG,
   evaluateServiceCoverage,
@@ -17,6 +18,8 @@ import {
   AcronisModule,
   MSPProduct,
   SecurityServiceCategory,
+  MSP_PARTNER_DIRECTORY,
+  MSPPartnerInfo,
 } from "@/lib/securityServiceCatalog";
 import { ActivateServiceDialog } from "./ActivateAcronisServiceDialog";
 
@@ -27,6 +30,43 @@ type ActivatableProduct =
 interface SecurityServicesSectionProps {
   isSelfProfile?: boolean;
   assessmentResponses?: Record<string, string> | null;
+}
+
+function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerInfo; isOverride?: boolean; onReset?: () => void }) {
+  return (
+    <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
+      <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+        <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground">{partner.name}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{partner.description}</p>
+        <div className="flex items-center gap-3 mt-1">
+          {partner.website && (
+            <a
+              href={partner.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              Besøk {partner.name} <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+          {isOverride && onReset && (
+            <button
+              onClick={onReset}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <RefreshCw className="h-3 w-3" /> Tilbakestill til standard
+            </button>
+          )}
+        </div>
+      </div>
+      <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] shrink-0">
+        {isOverride ? "Valgt for tjeneste" : "MSP-partner"}
+      </Badge>
+    </div>
+  );
 }
 
 function AcronisModuleCard({
@@ -106,12 +146,23 @@ function ServiceDetailCard({
   result,
   activatedIds,
   onOpenDialog,
+  effectivePartner,
+  globalPartnerId,
+  serviceOverrideId,
+  onSetOverride,
+  onClearOverride,
 }: {
   result: ServiceCoverageResult;
   activatedIds: string[];
   onOpenDialog: (item: ActivatableProduct, service: SecurityServiceCategory) => void;
+  effectivePartner: MSPPartnerInfo | null;
+  globalPartnerId: string | null;
+  serviceOverrideId: string | undefined;
+  onSetOverride: (serviceId: string, partnerId: string) => void;
+  onClearOverride: (serviceId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [showOverrideSelect, setShowOverrideSelect] = useState(false);
   const { service, status } = result;
   const Icon = service.icon;
   const StatusIcon =
@@ -125,6 +176,8 @@ function ServiceDetailCard({
     (p) => activatedIds.includes(p.id)
   ).length;
   const totalActivated = activeAcronisCount + activatedProductCount;
+
+  const isOverride = !!serviceOverrideId;
 
   return (
     <div
@@ -172,28 +225,52 @@ function ServiceDetailCard({
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
           {/* Partner banner */}
-          {service.mspPartner && (
-            <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
-              <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
-                <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground">{service.mspPartner.name}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{service.mspPartner.description}</p>
-                {service.mspPartner.website && (
-                  <a
-                    href={service.mspPartner.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
-                  >
-                    Besøk {service.mspPartner.name} <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
-              </div>
-              <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] shrink-0">
-                MSP-partner
-              </Badge>
+          {effectivePartner && (
+            <PartnerBanner
+              partner={effectivePartner}
+              isOverride={isOverride}
+              onReset={isOverride ? () => onClearOverride(service.id) : undefined}
+            />
+          )}
+
+          {/* Override partner link */}
+          {globalPartnerId && !showOverrideSelect && !serviceOverrideId && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowOverrideSelect(true); }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <RefreshCw className="h-3 w-3" /> Bruk annen partner for denne tjenesten
+            </button>
+          )}
+
+          {/* Override select */}
+          {showOverrideSelect && (
+            <div className="flex items-center gap-2">
+              <Select
+                onValueChange={(val) => {
+                  onSetOverride(service.id, val);
+                  setShowOverrideSelect(false);
+                }}
+              >
+                <SelectTrigger className="h-8 text-xs w-56">
+                  <SelectValue placeholder="Velg partner..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {MSP_PARTNER_DIRECTORY.filter((p) => p.id !== globalPartnerId).map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      <span className="flex items-center gap-2">
+                        {p.name}
+                        {p.specialties.includes(service.id) && (
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 ml-1">Anbefalt</Badge>
+                        )}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowOverrideSelect(false)}>
+                Avbryt
+              </Button>
             </div>
           )}
 
@@ -229,7 +306,13 @@ function ServiceDetailCard({
           )}
 
           {/* CTA for missing/unknown */}
-          {status !== "covered" && (
+          {status !== "covered" && effectivePartner && (
+            <Button size="sm" className="w-full gap-2">
+              <Shield className="h-4 w-4" />
+              Kontakt {effectivePartner.name} for implementering
+            </Button>
+          )}
+          {status !== "covered" && !effectivePartner && (
             <Button size="sm" className="w-full gap-2">
               <Shield className="h-4 w-4" />
               Kontakt MSP-partner for implementering
@@ -302,6 +385,8 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
   const [dialogItem, setDialogItem] = useState<ActivatableProduct | null>(null);
   const [dialogService, setDialogService] = useState<SecurityServiceCategory | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
+  const [servicePartnerOverrides, setServicePartnerOverrides] = useState<Record<string, string>>({});
 
   const results = evaluateServiceCoverage(assessmentResponses || null, isSelfProfile, activatedIds);
   const covered = results.filter((r) => r.status === "covered").length;
@@ -314,6 +399,14 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
     (sum, s) => sum + s.acronisModules.filter((m) => m.isActive || activatedIds.includes(m.id)).length, 0
   );
 
+  const selectedPartner = MSP_PARTNER_DIRECTORY.find((p) => p.id === selectedPartnerId) || null;
+
+  const getEffectivePartner = (serviceId: string): MSPPartnerInfo | null => {
+    const overrideId = servicePartnerOverrides[serviceId];
+    if (overrideId) return MSP_PARTNER_DIRECTORY.find((p) => p.id === overrideId) || null;
+    return selectedPartner;
+  };
+
   const handleOpenDialog = (item: ActivatableProduct, service: SecurityServiceCategory) => {
     setDialogItem(item);
     setDialogService(service);
@@ -322,6 +415,18 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
 
   const handleActivate = (id: string) => {
     setActivatedIds((prev) => [...prev, id]);
+  };
+
+  const handleSetOverride = (serviceId: string, partnerId: string) => {
+    setServicePartnerOverrides((prev) => ({ ...prev, [serviceId]: partnerId }));
+  };
+
+  const handleClearOverride = (serviceId: string) => {
+    setServicePartnerOverrides((prev) => {
+      const next = { ...prev };
+      delete next[serviceId];
+      return next;
+    });
   };
 
   return (
@@ -351,6 +456,32 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Global partner selector */}
+            {isSelfProfile && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-sm font-medium text-foreground">MSP-partner</span>
+                </div>
+                <Select
+                  value={selectedPartnerId || ""}
+                  onValueChange={(val) => setSelectedPartnerId(val || null)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Velg din MSP-partner..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MSP_PARTNER_DIRECTORY.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedPartner && (
+                  <p className="text-xs text-muted-foreground">{selectedPartner.description}</p>
+                )}
+              </div>
+            )}
+
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-sm font-medium text-foreground">Sikkerhetsdekning</span>
@@ -388,6 +519,11 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
             result={result}
             activatedIds={activatedIds}
             onOpenDialog={handleOpenDialog}
+            effectivePartner={getEffectivePartner(result.service.id)}
+            globalPartnerId={selectedPartnerId}
+            serviceOverrideId={servicePartnerOverrides[result.service.id]}
+            onSetOverride={handleSetOverride}
+            onClearOverride={handleClearOverride}
           />
         ))}
       </div>

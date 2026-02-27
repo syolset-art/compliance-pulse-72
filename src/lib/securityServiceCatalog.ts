@@ -17,11 +17,40 @@ export interface MSPProduct {
 }
 
 export interface MSPPartnerInfo {
+  id: string;
   name: string;
   description: string;
   contactEmail?: string;
   website?: string;
+  specialties: string[];
 }
+
+export const MSP_PARTNER_DIRECTORY: MSPPartnerInfo[] = [
+  {
+    id: "7security",
+    name: "7 Security",
+    description: "Autorisert MSP-partner for Managed Detection & Response. Leverer døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler.",
+    contactEmail: "mdr@7security.no",
+    website: "https://7security.no",
+    specialties: ["mdr", "soc", "endpoint"],
+  },
+  {
+    id: "atea-security",
+    name: "Atea Security",
+    description: "Nordens ledende IT-infrastrukturpartner med dedikert sikkerhetsteam. Tilbyr helhetlige sikkerhetsløsninger fra endepunkt til sky.",
+    contactEmail: "security@atea.no",
+    website: "https://atea.no",
+    specialties: ["endpoint", "network", "backup", "email"],
+  },
+  {
+    id: "crayon-cyber",
+    name: "Crayon Cyber",
+    description: "Spesialisert på skysikkerhet og compliance-rådgivning. Hjelper virksomheter med å sikre sin digitale transformasjon.",
+    contactEmail: "cyber@crayon.com",
+    website: "https://crayon.com",
+    specialties: ["network", "compliance", "awareness"],
+  },
+];
 
 export interface SecurityServiceCategory {
   id: string;
@@ -37,7 +66,6 @@ export interface SecurityServiceCategory {
   mspProducts: MSPProduct[];
   implementationSteps: string[];
   acronisModules: AcronisModule[];
-  mspPartner?: MSPPartnerInfo;
 }
 
 export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
@@ -223,12 +251,6 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       { id: "mdr-service", name: "MDR Service", acronisPackage: "Acronis Partner", priceIndicator: "addon", description: "Managed Detection & Response – 24/7 overvåking og hendelseshåndtering levert av MSP via Acronis", isActive: false },
       { id: "xdr", name: "XDR", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Extended Detection & Response – korrelerer trusler på tvers av endepunkter, e-post og sky", isActive: false },
     ],
-    mspPartner: {
-      name: "7 Security",
-      description: "Autorisert MSP-partner for Managed Detection & Response. 7 Security leverer døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler.",
-      contactEmail: "mdr@7security.no",
-      website: "https://7security.no",
-    },
   },
   {
     id: "compliance",
