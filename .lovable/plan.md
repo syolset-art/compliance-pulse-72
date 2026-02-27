@@ -1,48 +1,35 @@
 
 
-## Plan: Koble sikkerhetstjenester til Acronis-løsninger med aktiveringsflyt
+## Plan: Gjør alle anbefalte løsninger aktiverbare med tydelig MSP-prosessmelding
 
-### Konsept
-Utvide hver sikkerhetstjenestekategori med konkrete **Acronis Cyber Protect Cloud-moduler** (pakker) som kunden kan aktivere direkte fra Trust Profile-visningen. Kunden ser hvilke Acronis-tjenester som er tilgjengelige per kategori, kan velge å aktivere dem selv, eller be MSP-partneren om hjelp.
+### Problem
+Kun Acronis-moduler kan aktiveres i dag. De andre anbefalte løsningene (mspProducts) har ingen aktiveringsknappe. Brukeren får heller ingen tydelig forklaring på hva som skjer etter aktivering — at MSP-partneren mottar forespørselen og setter i gang.
 
 ### Endringer
 
-#### 1. Utvide `src/lib/securityServiceCatalog.ts`
-- Legg til ny `acronisModules[]` per kategori med konkrete Acronis-pakker:
-  - **Backup**: `Advanced Backup`, `Disaster Recovery`
-  - **Endpoint**: `Advanced Security + EDR`, `Advanced Management`
-  - **Email**: `Advanced Email Security` (Perception Point)
-  - **Network**: `Advanced Monitoring` (via Acronis)
-  - **Awareness**: `Security Awareness Training` (Acronis-modul)
-  - **SOC**: `MDR Service`, `XDR` (Acronis-partnertilbud)
-  - **Compliance**: `Data Loss Prevention`, `Advanced File Sync & Share`
-- Hver modul har: `id`, `name`, `acronisPackage`, `priceIndicator` (inkludert/tillegg), `description`, `isActive` (demo-flagg)
+#### 1. Ny komponent: `ActivateServiceDialog.tsx` (erstatter `ActivateAcronisServiceDialog.tsx`)
+- Generalisert dialog som håndterer aktivering av **alle** løsninger — både Acronis-moduler og MSP-produkter
+- Ny prop `productType: "acronis" | "msp-product"` og `product: AcronisModule | MSPProduct`
+- Etter aktivering: vis en **vennlig bekreftelses-visning** inne i dialogen (ikke bare toast):
+  - Grønn sjekkikon og melding: "Forespørselen din er sendt!"
+  - Forklaring: "Din MSP-partner har mottatt forespørselen og vil kontakte deg innen 1–3 virkedager for å sette opp [tjenestenavn]. Du trenger ikke gjøre noe mer nå."
+  - Knapp: "Lukk" som lukker dialogen
+- Fortsatt vise ISO-kontroller og estimert oppsett-tid
 
-#### 2. Oppdater `SecurityServicesSection.tsx` — ny "Acronis-løsninger"-seksjon per tjenestekort
-- Innenfor expanded-visningen: ny seksjon **"Tilgjengelige Acronis-løsninger"**
-- Hver modul vises som kort med:
-  - Navn + Acronis-pakkenavn
-  - Status: "Aktiv" (grønn) / "Tilgjengelig" (blå) / "Ikke inkludert" (grå)
-  - **"Aktiver"**-knapp som åpner en bekreftelsesdialog
-  - **"Be MSP om hjelp"**-knapp for de som ikke vil gjøre det selv
-- Aktivering oppdaterer lokal state (demo) og viser suksess-toast
+#### 2. Oppdater `SecurityServicesSection.tsx`
+- Gi hvert `mspProduct`-kort en **"Aktiver"**-knapp
+- Track aktiverte MSP-produkter i lokal state (`activatedProductIds: string[]`)
+- Aktiverte MSP-produkter viser "Bestilt ✓" badge i stedet for Aktiver-knapp
+- Åpne den nye generaliserte dialogen for både Acronis og mspProducts
 
-#### 3. Ny komponent: `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx`
-- Bekreftelses-dialog med:
-  - Hvilken tjeneste og Acronis-modul som aktiveres
-  - ISO-kontroller som dekkes
-  - Estimert oppsett-tid
-  - To valg: "Aktiver selv" (demo) eller "Send forespørsel til MSP"
-  - Ved aktivering: oppdater katalogen lokalt, vis konfetti/suksess
+#### 3. Oppdater `securityServiceCatalog.ts`
+- Legg til unik `id` på hvert `MSPProduct` (trengs for state-tracking)
 
-#### 4. Oppdater demo-logikk i `evaluateServiceCoverage`
-- Tjenester med aktive Acronis-moduler markeres automatisk som "covered"
-
-### Filer som endres/opprettes
+### Filer
 
 | Fil | Endring |
 |---|---|
-| `src/lib/securityServiceCatalog.ts` | Legg til `acronisModules[]` per kategori |
-| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Vis Acronis-moduler i expanded, aktiveringsknapper |
-| `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx` | Ny — bekreftelsesdialog for aktivering |
+| `src/lib/securityServiceCatalog.ts` | Legg til `id` på `MSPProduct` |
+| `src/components/asset-profile/tabs/ActivateAcronisServiceDialog.tsx` | Omskrive til generalisert dialog med bekreftelses-steg |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Aktiver-knapper på mspProducts, track state, prosessmelding |
 
