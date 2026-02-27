@@ -4,8 +4,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Clock, CheckCircle, Zap, Send, PartyPopper } from "lucide-react";
-import type { AcronisModule, MSPProduct, SecurityServiceCategory } from "@/lib/securityServiceCatalog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Shield, Clock, CheckCircle, Zap, PartyPopper, UserCheck, Building2, Mail } from "lucide-react";
+import type { AcronisModule, MSPProduct, SecurityServiceCategory, MSPPartnerInfo } from "@/lib/securityServiceCatalog";
 
 type ActivatableProduct =
   | { type: "acronis"; product: AcronisModule }
@@ -16,28 +18,40 @@ interface ActivateServiceDialogProps {
   onOpenChange: (open: boolean) => void;
   item: ActivatableProduct | null;
   service: SecurityServiceCategory | null;
-  onActivate: (id: string) => void;
+  effectivePartner: MSPPartnerInfo | null;
+  onActivate: (id: string, activatedBy: string) => void;
 }
 
+const ACTIVATED_BY_OPTIONS = [
+  { value: "self", label: "Jeg aktiverte selv", icon: UserCheck, description: "Du har selv satt opp eller bestilt tjenesten" },
+  { value: "msp", label: "MSP-partner aktiverte", icon: Building2, description: "Partneren din har aktivert tjenesten via Acronis eller annet" },
+  { value: "agreed", label: "Allerede avtalt via e-post/annet", icon: Mail, description: "Dere har avtalt aktivering utenfor plattformen" },
+];
+
 export function ActivateServiceDialog({
-  open, onOpenChange, item, service, onActivate,
+  open, onOpenChange, item, service, effectivePartner, onActivate,
 }: ActivateServiceDialogProps) {
   const [confirmed, setConfirmed] = useState(false);
+  const [activatedBy, setActivatedBy] = useState("self");
 
   if (!item || !service) return null;
 
   const productName = item.product.name;
+  const partnerName = effectivePartner?.name || "MSP-partner";
+
+  const selectedOption = ACTIVATED_BY_OPTIONS.find(o => o.value === activatedBy)!;
+  const displayActivatedBy = activatedBy === "msp" ? partnerName : activatedBy === "self" ? "deg" : "avtale";
 
   const handleActivate = () => {
-    const id = item.type === "acronis" ? item.product.id : item.product.id;
-    onActivate(id);
+    const id = item.product.id;
+    const byLabel = activatedBy === "msp" ? partnerName : activatedBy === "self" ? "deg" : "avtale (e-post/annet)";
+    onActivate(id, byLabel);
     setConfirmed(true);
   };
 
   const handleClose = () => {
     onOpenChange(false);
-    // Reset confirmed state after dialog close animation
-    setTimeout(() => setConfirmed(false), 300);
+    setTimeout(() => { setConfirmed(false); setActivatedBy("self"); }, 300);
   };
 
   if (confirmed) {
@@ -50,29 +64,20 @@ export function ActivateServiceDialog({
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground flex items-center justify-center gap-2">
-                Forespørselen din er sendt! <PartyPopper className="h-5 w-5 text-amber-500" />
+                Tjenesten er aktivert! <PartyPopper className="h-5 w-5 text-amber-500" />
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-                Din MSP-partner har mottatt forespørselen om å sette opp <strong className="text-foreground">{productName}</strong> for din organisasjon.
+                <strong className="text-foreground">{productName}</strong> er nå registrert som aktiv for din organisasjon.
               </p>
             </div>
 
             <div className="rounded-lg border border-border bg-muted/30 p-4 w-full text-left space-y-3">
               <div className="flex items-start gap-3">
-                <Send className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <selectedOption.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-medium text-foreground">Hva skjer nå?</p>
+                  <p className="text-xs font-medium text-foreground">Aktivert av {displayActivatedBy}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    MSP-partneren din vil kontakte deg innen <strong>1–3 virkedager</strong> for å planlegge og gjennomføre oppsettet.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-medium text-foreground">Du trenger ikke gjøre noe mer</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Partneren håndterer hele oppsettet. Du vil bli varslet når tjenesten er aktiv.
+                    Denne tjenesten vil nå vises som aktiv i din sikkerhetsoversikt og dekke relevante ISO 27001-kontroller.
                   </p>
                 </div>
               </div>
@@ -80,7 +85,7 @@ export function ActivateServiceDialog({
 
             {/* ISO controls covered */}
             <div className="w-full text-left">
-              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">ISO 27001-kontroller som vil dekkes</p>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">ISO 27001-kontroller som nå dekkes</p>
               <div className="flex gap-1.5 flex-wrap">
                 {service.linkedControls.map((ctrl) => (
                   <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
@@ -106,7 +111,7 @@ export function ActivateServiceDialog({
             Aktiver {productName}
           </DialogTitle>
           <DialogDescription>
-            {item.type === "acronis" ? item.product.description : item.product.description}
+            Registrer denne tjenesten som aktiv for din organisasjon.
           </DialogDescription>
         </DialogHeader>
 
@@ -139,6 +144,32 @@ export function ActivateServiceDialog({
             </div>
           </div>
 
+          {/* Who activated */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">Hvem aktiverte tjenesten?</p>
+            <RadioGroup value={activatedBy} onValueChange={setActivatedBy} className="space-y-2">
+              {ACTIVATED_BY_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
+                    activatedBy === opt.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <RadioGroupItem value={opt.value} className="mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                      <opt.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                      {opt.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
+                  </div>
+                </label>
+              ))}
+            </RadioGroup>
+          </div>
+
           {/* ISO controls */}
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">ISO 27001-kontroller som dekkes</p>
@@ -148,31 +179,12 @@ export function ActivateServiceDialog({
               ))}
             </div>
           </div>
-
-          {/* Process explanation */}
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
-            <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
-              <Send className="h-3.5 w-3.5 text-primary" />
-              Slik fungerer det
-            </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Når du aktiverer denne tjenesten, sender vi en forespørsel til din MSP-partner. 
-              De vil kontakte deg innen <strong>1–3 virkedager</strong> for å planlegge og sette opp løsningen. 
-              Du trenger ikke gjøre noe mer etter dette.
-            </p>
-          </div>
-
-          {/* Estimated setup */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5" />
-            <span>Estimert oppsett: 1–3 virkedager</span>
-          </div>
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-col">
           <Button onClick={handleActivate} className="w-full gap-2">
             <Zap className="h-4 w-4" />
-            Send forespørsel til MSP-partner
+            Aktiver tjeneste
           </Button>
           <Button onClick={handleClose} variant="ghost" className="w-full text-xs text-muted-foreground">
             Avbryt

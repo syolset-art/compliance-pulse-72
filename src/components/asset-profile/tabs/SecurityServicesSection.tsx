@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Shield, CheckCircle, XCircle, HelpCircle, Lock,
   ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog, ShoppingCart,
-  Award, ExternalLink, RefreshCw, Clock, Send,
+  Award, ExternalLink, RefreshCw, Clock, Send, FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -23,10 +23,17 @@ import {
 } from "@/lib/securityServiceCatalog";
 import { ActivateServiceDialog } from "./ActivateAcronisServiceDialog";
 import { RequestQuoteDialog } from "./RequestQuoteDialog";
+import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 
 type ActivatableProduct =
   | { type: "acronis"; product: AcronisModule }
   | { type: "msp-product"; product: MSPProduct };
+
+interface ActivatedServiceInfo {
+  activatedBy: string;
+  activatedAt: Date;
+}
 
 interface SecurityServicesSectionProps {
   isSelfProfile?: boolean;
@@ -70,100 +77,141 @@ function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerIn
   );
 }
 
+function ActivationInfo({ info }: { info: ActivatedServiceInfo }) {
+  return (
+    <p className="text-[10px] text-muted-foreground mt-0.5">
+      Aktivert av {info.activatedBy} — {format(info.activatedAt, "d. MMM yyyy", { locale: nb })}
+    </p>
+  );
+}
+
 function AcronisModuleCard({
   module,
-  isActivated,
+  activationInfo,
   isQuoteRequested,
   onRequestQuote,
+  onActivate,
 }: {
   module: AcronisModule;
-  isActivated: boolean;
+  activationInfo: ActivatedServiceInfo | null;
   isQuoteRequested: boolean;
   onRequestQuote: () => void;
+  onActivate: () => void;
 }) {
-  const active = module.isActive || isActivated;
+  const active = module.isActive || !!activationInfo;
 
   return (
     <div className={cn(
-      "rounded-md border px-3 py-2 flex items-center gap-3 transition-all",
+      "rounded-md border px-3 py-2 transition-all",
       active
         ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
         : isQuoteRequested
         ? "border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20"
         : "border-border bg-background/50 hover:border-primary/30"
     )}>
-      <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : isQuoteRequested ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")} />
-      <div className="flex-1 min-w-0 flex items-center gap-2">
-        <p className="text-xs font-medium text-foreground truncate">{module.name}</p>
-        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
+      <div className="flex items-center gap-3">
+        <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : isQuoteRequested ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")} />
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="text-xs font-medium text-foreground truncate">{module.name}</p>
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
+        </div>
+        <div className="shrink-0 flex items-center gap-1.5">
+          {active ? (
+            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+              <CheckCircle className="h-3 w-3" /> Aktiv
+            </Badge>
+          ) : (
+            <>
+              {isQuoteRequested && (
+                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
+                  <Clock className="h-3 w-3" /> Tilbud forespurt
+                </Badge>
+              )}
+              <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
+                <FileText className="h-3 w-3" /> Be om tilbud
+              </Button>
+              <Button size="sm" className="gap-1 text-xs h-7" onClick={onActivate}>
+                <Zap className="h-3 w-3" /> Aktiver
+              </Button>
+            </>
+          )}
+        </div>
       </div>
-      <div className="shrink-0">
-        {active ? (
-          <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
-            <CheckCircle className="h-3 w-3" /> Aktiv
-          </Badge>
-        ) : isQuoteRequested ? (
-          <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
-            <Clock className="h-3 w-3" /> Tilbud forespurt
-          </Badge>
-        ) : (
-          <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
-            <Send className="h-3 w-3" /> Be om tilbud
-          </Button>
-        )}
-      </div>
+      {active && activationInfo && (
+        <div className="ml-7">
+          <ActivationInfo info={activationInfo} />
+        </div>
+      )}
     </div>
   );
 }
 
 function MSPProductCard({
   product,
-  isActivated,
+  activationInfo,
   isQuoteRequested,
   onRequestQuote,
+  onActivate,
 }: {
   product: MSPProduct;
-  isActivated: boolean;
+  activationInfo: ActivatedServiceInfo | null;
   isQuoteRequested: boolean;
   onRequestQuote: () => void;
+  onActivate: () => void;
 }) {
+  const isActivated = !!activationInfo;
+
   return (
     <div className={cn(
-      "rounded-md border px-3 py-2 flex items-center gap-3 transition-all",
+      "rounded-md border px-3 py-2 transition-all",
       isActivated
         ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
         : isQuoteRequested
         ? "border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20"
         : "border-border/60 bg-background/50 hover:border-primary/30"
     )}>
-      <div className="flex-1 min-w-0 flex items-center gap-2">
-        <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
-        <span className="text-[10px] text-muted-foreground shrink-0">{product.vendor}</span>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
+          <span className="text-[10px] text-muted-foreground shrink-0">{product.vendor}</span>
+        </div>
+        <div className="shrink-0 flex items-center gap-1.5">
+          {isActivated ? (
+            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+              <CheckCircle className="h-3 w-3" /> Aktiv
+            </Badge>
+          ) : (
+            <>
+              {isQuoteRequested && (
+                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
+                  <Clock className="h-3 w-3" /> Tilbud forespurt
+                </Badge>
+              )}
+              <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
+                <FileText className="h-3 w-3" /> Be om tilbud
+              </Button>
+              <Button size="sm" className="gap-1 text-xs h-7" onClick={onActivate}>
+                <Zap className="h-3 w-3" /> Aktiver
+              </Button>
+            </>
+          )}
+        </div>
       </div>
-      <div className="shrink-0">
-        {isActivated ? (
-          <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
-            <CheckCircle className="h-3 w-3" /> Aktiv
-          </Badge>
-        ) : isQuoteRequested ? (
-          <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
-            <Clock className="h-3 w-3" /> Tilbud forespurt
-          </Badge>
-        ) : (
-          <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
-            <Send className="h-3 w-3" /> Be om tilbud
-          </Button>
-        )}
-      </div>
+      {isActivated && activationInfo && (
+        <div className="ml-0 mt-1">
+          <ActivationInfo info={activationInfo} />
+        </div>
+      )}
     </div>
   );
 }
 
 function ServiceDetailCard({
   result,
-  activatedIds,
+  activatedServices,
   quoteRequestedIds,
-  onOpenDialog,
+  onOpenQuoteDialog,
+  onOpenActivateDialog,
   effectivePartner,
   globalPartnerId,
   serviceOverrideId,
@@ -171,9 +219,10 @@ function ServiceDetailCard({
   onClearOverride,
 }: {
   result: ServiceCoverageResult;
-  activatedIds: string[];
+  activatedServices: Record<string, ActivatedServiceInfo>;
   quoteRequestedIds: string[];
-  onOpenDialog: (item: ActivatableProduct, service: SecurityServiceCategory) => void;
+  onOpenQuoteDialog: (item: ActivatableProduct, service: SecurityServiceCategory) => void;
+  onOpenActivateDialog: (item: ActivatableProduct, service: SecurityServiceCategory) => void;
   effectivePartner: MSPPartnerInfo | null;
   globalPartnerId: string | null;
   serviceOverrideId: string | undefined;
@@ -189,10 +238,10 @@ function ServiceDetailCard({
     status === "missing" ? XCircle : HelpCircle;
 
   const activeAcronisCount = service.acronisModules.filter(
-    (m) => m.isActive || activatedIds.includes(m.id)
+    (m) => m.isActive || !!activatedServices[m.id]
   ).length;
   const activatedProductCount = service.mspProducts.filter(
-    (p) => activatedIds.includes(p.id)
+    (p) => !!activatedServices[p.id]
   ).length;
   const totalActivated = activeAcronisCount + activatedProductCount;
 
@@ -301,9 +350,10 @@ function ServiceDetailCard({
                 <AcronisModuleCard
                   key={mod.id}
                   module={mod}
-                  isActivated={activatedIds.includes(mod.id)}
+                  activationInfo={activatedServices[mod.id] || null}
                   isQuoteRequested={quoteRequestedIds.includes(mod.id)}
-                  onRequestQuote={() => onOpenDialog({ type: "acronis", product: mod }, service)}
+                  onRequestQuote={() => onOpenQuoteDialog({ type: "acronis", product: mod }, service)}
+                  onActivate={() => onOpenActivateDialog({ type: "acronis", product: mod }, service)}
                 />
               ))}
             </div>
@@ -317,9 +367,10 @@ function ServiceDetailCard({
                   <MSPProductCard
                     key={product.id}
                     product={product}
-                    isActivated={activatedIds.includes(product.id)}
+                    activationInfo={activatedServices[product.id] || null}
                     isQuoteRequested={quoteRequestedIds.includes(product.id)}
-                    onRequestQuote={() => onOpenDialog({ type: "msp-product", product }, service)}
+                    onRequestQuote={() => onOpenQuoteDialog({ type: "msp-product", product }, service)}
+                    onActivate={() => onOpenActivateDialog({ type: "msp-product", product }, service)}
                   />
                 ))}
               </div>
@@ -402,14 +453,22 @@ function ServiceDetailCard({
 }
 
 export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
-  const [activatedIds, setActivatedIds] = useState<string[]>([]);
+  const [activatedServices, setActivatedServices] = useState<Record<string, ActivatedServiceInfo>>({});
   const [quoteRequestedIds, setQuoteRequestedIds] = useState<string[]>([]);
-  const [dialogItem, setDialogItem] = useState<ActivatableProduct | null>(null);
-  const [dialogService, setDialogService] = useState<SecurityServiceCategory | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  // Separate dialog state for quote vs activate
+  const [quoteDialogItem, setQuoteDialogItem] = useState<ActivatableProduct | null>(null);
+  const [quoteDialogService, setQuoteDialogService] = useState<SecurityServiceCategory | null>(null);
+  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+  
+  const [activateDialogItem, setActivateDialogItem] = useState<ActivatableProduct | null>(null);
+  const [activateDialogService, setActivateDialogService] = useState<SecurityServiceCategory | null>(null);
+  const [activateDialogOpen, setActivateDialogOpen] = useState(false);
+
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [servicePartnerOverrides, setServicePartnerOverrides] = useState<Record<string, string>>({});
 
+  const activatedIds = Object.keys(activatedServices);
   const results = evaluateServiceCoverage(assessmentResponses || null, isSelfProfile, activatedIds);
   const covered = results.filter((r) => r.status === "covered").length;
   const missing = results.filter((r) => r.status === "missing").length;
@@ -418,7 +477,7 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
 
   const totalAcronisModules = SECURITY_SERVICE_CATALOG.reduce((sum, s) => sum + s.acronisModules.length, 0);
   const activeAcronisModules = SECURITY_SERVICE_CATALOG.reduce(
-    (sum, s) => sum + s.acronisModules.filter((m) => m.isActive || activatedIds.includes(m.id)).length, 0
+    (sum, s) => sum + s.acronisModules.filter((m) => m.isActive || !!activatedServices[m.id]).length, 0
   );
 
   const selectedPartner = MSP_PARTNER_DIRECTORY.find((p) => p.id === selectedPartnerId) || null;
@@ -429,14 +488,27 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
     return selectedPartner;
   };
 
-  const handleOpenDialog = (item: ActivatableProduct, service: SecurityServiceCategory) => {
-    setDialogItem(item);
-    setDialogService(service);
-    setDialogOpen(true);
+  const handleOpenQuoteDialog = (item: ActivatableProduct, service: SecurityServiceCategory) => {
+    setQuoteDialogItem(item);
+    setQuoteDialogService(service);
+    setQuoteDialogOpen(true);
+  };
+
+  const handleOpenActivateDialog = (item: ActivatableProduct, service: SecurityServiceCategory) => {
+    setActivateDialogItem(item);
+    setActivateDialogService(service);
+    setActivateDialogOpen(true);
   };
 
   const handleQuoteRequested = (id: string) => {
     setQuoteRequestedIds((prev) => [...prev, id]);
+  };
+
+  const handleActivate = (id: string, activatedBy: string) => {
+    setActivatedServices((prev) => ({
+      ...prev,
+      [id]: { activatedBy, activatedAt: new Date() },
+    }));
   };
 
   const handleSetOverride = (serviceId: string, partnerId: string) => {
@@ -539,9 +611,10 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
           <ServiceDetailCard
             key={result.service.id}
             result={result}
-            activatedIds={activatedIds}
+            activatedServices={activatedServices}
             quoteRequestedIds={quoteRequestedIds}
-            onOpenDialog={handleOpenDialog}
+            onOpenQuoteDialog={handleOpenQuoteDialog}
+            onOpenActivateDialog={handleOpenActivateDialog}
             effectivePartner={getEffectivePartner(result.service.id)}
             globalPartnerId={selectedPartnerId}
             serviceOverrideId={servicePartnerOverrides[result.service.id]}
@@ -553,12 +626,22 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
 
       {/* Quote request dialog */}
       <RequestQuoteDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        item={dialogItem}
-        service={dialogService}
-        effectivePartner={dialogService ? getEffectivePartner(dialogService.id) : null}
+        open={quoteDialogOpen}
+        onOpenChange={setQuoteDialogOpen}
+        item={quoteDialogItem}
+        service={quoteDialogService}
+        effectivePartner={quoteDialogService ? getEffectivePartner(quoteDialogService.id) : null}
         onQuoteRequested={handleQuoteRequested}
+      />
+
+      {/* Activate service dialog */}
+      <ActivateServiceDialog
+        open={activateDialogOpen}
+        onOpenChange={setActivateDialogOpen}
+        item={activateDialogItem}
+        service={activateDialogService}
+        effectivePartner={activateDialogService ? getEffectivePartner(activateDialogService.id) : null}
+        onActivate={handleActivate}
       />
     </div>
   );
