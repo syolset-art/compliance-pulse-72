@@ -1,35 +1,28 @@
 
 
-## Plan: Legg til dedikert MDR-kategori (Managed Detection & Response)
+## Plan: MSP-partnervelger på overordnet nivå med mulighet for unntak per tjeneste
 
-### Endring
+### Konsept
+En **partnervelger øverst** i Sikkerhetstjenester-seksjonen der kunden velger sin standard MSP-partner. Denne gjelder alle tjenester, men per tjeneste kan kunden **overstyre** med en annen partner (f.eks. 7 Security for MDR, en annen for Backup).
 
-Legge til en ny sikkerhetstjenestekategori **"MDR – Managed Detection & Response"** i `securityServiceCatalog.ts`, inspirert av 7 Security sin beskrivelse. Denne skilles fra den eksisterende SOC-kategorien for å gi MDR en tydelig, egen plass.
+### Endringer
 
-### Endringer i `src/lib/securityServiceCatalog.ts`
+#### 1. `src/lib/securityServiceCatalog.ts`
+- Legg til en ny konstant `MSP_PARTNER_DIRECTORY`: en liste over tilgjengelige MSP-partnere med `id`, `name`, `description`, `website`, `contactEmail`, og `specialties: string[]` (f.eks. `["mdr", "soc"]`)
+- Inkluder 7 Security og 2–3 demo-partnere (f.eks. "Atea Security", "Crayon Cyber")
+- Fjern `mspPartner` fra den enkelte `SecurityServiceCategory` — erstattes av den nye modellen
 
-Ny kategori i `SECURITY_SERVICE_CATALOG`:
+#### 2. `src/components/asset-profile/tabs/SecurityServicesSection.tsx`
+- **Ny state**: `selectedPartnerId: string | null` (overordnet partner) og `servicePartnerOverrides: Record<string, string>` (unntak per tjeneste-ID)
+- **Overordnet partnervelger** i summary-kortet: en kompakt Select-komponent med partnernavn. Viser kort beskrivelse av valgt partner under.
+- **Per tjeneste (unntak)**: I expanded-visningen, en diskret lenke "Bruk annen partner for denne tjenesten" som åpner en liten Select. Viser kun hvis overordnet partner er valgt. Partnere med matching `specialties` markeres som "Anbefalt".
+- Partnerbanneret i expanded-visningen viser den **effektive partneren** (overstyrte > overordnet) i stedet for hardkodet `service.mspPartner`.
+- CTA-knappen "Kontakt MSP-partner" viser partnerens navn.
 
-| Felt | Verdi |
-|---|---|
-| `id` | `"mdr"` |
-| `name` | `"MDR – Managed Detection & Response"` |
-| `description` | Kort norsk tekst basert på 7 Security: "Døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler — teknologi møter ansvar" |
-| `icon` | `ShieldAlert` (eller `ScanEye` fra lucide) |
-| `color` | `bg-rose-600` (distinkt fra SOC sin `bg-red-500`) |
-| `linkedControls` | `["A.5.24", "A.5.25", "A.5.26", "A.8.15", "A.8.16"]` |
-| `mspRecommendation` | Tekst om at MDR gir proaktiv trusselhåndtering 24/7, ikke bare varsler |
-| `mspProducts` | `7 Security MDR` (7 Security), `Arctic Wolf MDR` (flyttes fra SOC) |
-| `acronisModules` | `MDR Service` og `XDR` (flyttes fra SOC-kategorien) |
-| `implementationSteps` | 5 steg for MDR-onboarding |
-
-Oppdatere **SOC-kategorien** til å fokusere på SIEM/logging og fjerne MDR/XDR-modulene som flyttes til ny kategori.
-
-Legg også `"mdr"` til `DEMO_IMPLEMENTED_SERVICES` slik at den vises som "Implementert" i demo-modus.
-
-### Filer som endres
+### Filer
 
 | Fil | Endring |
 |---|---|
-| `src/lib/securityServiceCatalog.ts` | Ny MDR-kategori, flytt MDR/XDR-moduler fra SOC |
+| `src/lib/securityServiceCatalog.ts` | Legg til `MSP_PARTNER_DIRECTORY`, fjern `mspPartner` fra kategorier |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Partnervelger i summary-kort, unntak per tjeneste, dynamisk partnerbanner |
 
