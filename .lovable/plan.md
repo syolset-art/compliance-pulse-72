@@ -1,50 +1,65 @@
 
 
-# Plan: Syntetiske demo-data for MSP-kunder og lisenser
+# Plan: Sikkerhetstjenester koblet til compliance-krav og Trust Profile
 
-## Problem
-MSP Dashboard (/msp-dashboard) og Lisenser (/msp-licenses) viser tomme lister for nye brukere/demoer. Det gir ingen verdi i en demo-kontekst.
+## Konsept
 
-## Losning
-Opprett en ny fil `src/lib/demoSeedMSP.ts` med syntetiske kunder, lisenskjop og lisenser. Legg til en "Last inn demo-data"-knapp pa bade MSP Dashboard og MSP Licenses-sidene (samme monster som eksisterende demo-seeding pa Assets og Lara Inbox).
+Opprette en **Security Service Catalog** — en definert liste over sikkerhetstjenestekategorier (Backup & Restore, Endepunktsikkerhet, E-postsikkerhet, Nettverk- og skysikkerhet, Sikkerhetskultur, SOC-tjeneste, Compliance) som kobles til ISO 27001-kontroller og compliance-krav. Denne koblingen synliggjøres på tre steder:
 
-## Tekniske detaljer
+```text
+1. Trust Profile (ny fane/seksjon "Sikkerhetstjenester")
+   → Viser hvilke tjenestekategorier som er dekket/mangler
+   → Premium feature for MSP-kundens sluttbruker
 
-### 1. Ny fil: `src/lib/demoSeedMSP.ts`
+2. MSP Customer Detail
+   → Partner ser gap-analyse: hvilke tjenester kunden trenger
+   → Direkte kobling til kartleggingsresultater
 
-Inneholder:
-- **9 syntetiske MSP-kunder** med norske bedriftsnavn, bransjespredning, varierende compliance-score (35-92%), statuser (active/onboarding/inactive), og abonnement (Basis/Premium)
-- **2 lisenskjop** (ett med 5 lisenser, ett med 3 lisenser) med korrekte priser fra `mspLicenseUtils`
-- **8 individuelle lisenser** - noen tildelt kunder, noen tilgjengelige
-- **2 fakturaer** knyttet til kjopene
-- `seedDemoMSP()` funksjon som sjekker om data allerede finnes, og setter inn alt i riktig rekkefolge (purchase -> licenses -> customers -> invoices)
-- `deleteDemoMSP()` funksjon for a rydde opp
+3. Dashboard-widget "Sikkerhetsdekning"
+   → Visuell oversikt over dekning per kategori
+   → Fargekodede kort (grønn/gul/rød)
+```
 
-### 2. Oppdater `src/pages/MSPDashboard.tsx`
-- Legg til DropdownMenu med "Last inn demo-kunder" og "Slett demo-data" (identisk monster som Assets-siden)
+## Tekniske endringer
 
-### 3. Oppdater `src/pages/MSPLicenses.tsx`
-- Legg til tilsvarende DropdownMenu med "Last inn demo-lisenser"
+### 1. Ny fil: `src/lib/securityServiceCatalog.ts`
+Definerer 7 tjenestekategorier med:
+- `id`, `name`, `color` (matcher bildet)
+- `linkedControls[]` — ISO 27001 requirement_ids (f.eks. Backup → A.12.3, A.8.13)
+- `linkedAssessmentKeys[]` — kobling til MSP assessment questions
+- `description`, `icon`
 
-### Demo-kunder (eksempel):
+### 2. Ny komponent: `src/components/msp/SecurityServiceGapCard.tsx`
+- Viser 7 tjenestekategorier som fargekodede kort
+- Kryssjekker med kundens assessment-svar og asset-data
+- Status per kategori: "Dekket" / "Mangler" / "Ukjent"
+- Plasseres på MSP Customer Detail-siden
 
-| Kunde | Bransje | Ansatte | Score | Status | Plan |
-|---|---|---|---|---|---|
-| Bergen Energi AS | Energi | 51-200 | 78% | active | Premium |
-| Fjordtech Solutions | Teknologi | 11-50 | 92% | active | Basis |
-| Vest Helse Klinikk | Helse | 11-50 | 65% | active | Premium |
-| Kystbygg Entreprenor | Bygg og anlegg | 201-500 | 45% | onboarding | Basis |
-| NordFinans Radgivning | Finans | 1-10 | 88% | active | Premium |
-| Stavanger Logistikk | Transport | 51-200 | 52% | active | Basis |
-| Larvik Handel AS | Handel | 11-50 | 35% | inactive | Basis |
-| Digitale Losninger Nord | Teknologi | 51-200 | 85% | active | Premium |
-| Tromso Utdanning | Utdanning | 201-500 | 71% | onboarding | Basis |
+### 3. Ny komponent: `src/components/widgets/SecurityCoverageWidget.tsx`
+- Dashboard-widget med kompakt visning av dekning
+- 7 mini-kort med fargekoding fra bildet
+- Teller: "4/7 dekket" med progress bar
+- Klikk navigerer til Trust Profile eller MSP-detalj
 
-### Filer som endres
+### 4. Ny seksjon i Trust Profile: `src/components/asset-profile/tabs/SecurityServicesSection.tsx`
+- Vises som Premium-seksjon i Trust Profile (self-type)
+- Viser hvilke sikkerhetstjenester som er aktive
+- MSP-kundens sluttbruker ser anbefalinger basert på compliance-gap
+
+### 5. Oppdater `src/lib/dashboardLayouts.ts`
+- Legg til `security-coverage` widget i `ALL_WIDGETS`
+- Vis for `sikkerhetsansvarlig` og `compliance_ansvarlig`
+
+### Filer som endres/opprettes
 
 | Fil | Endring |
 |---|---|
-| `src/lib/demoSeedMSP.ts` | Ny fil med seed/delete-funksjoner |
-| `src/pages/MSPDashboard.tsx` | DropdownMenu for demo-data |
-| `src/pages/MSPLicenses.tsx` | DropdownMenu for demo-data |
+| `src/lib/securityServiceCatalog.ts` | Ny — 7 kategorier med ISO-kobling |
+| `src/components/msp/SecurityServiceGapCard.tsx` | Ny — gap-analyse for MSP-kunder |
+| `src/components/widgets/SecurityCoverageWidget.tsx` | Ny — dashboard-widget |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Ny — Trust Profile premium-seksjon |
+| `src/lib/dashboardLayouts.ts` | Legg til widget-config |
+| `src/pages/MSPCustomerDetail.tsx` | Legg til SecurityServiceGapCard |
+
+Ingen databaseendringer nødvendig — all data utledes fra eksisterende assessment-svar og asset-metadata.
 
