@@ -1,34 +1,35 @@
 
 
-## Plan: Forenkle expanded-visningen i sikkerhetstjenester (Less is More)
+## Plan: Legg til dedikert MDR-kategori (Managed Detection & Response)
 
-### Problem
-Når en bruker utvider et sikkerhetstjeneste-kort (f.eks. "Backup & Restore"), vises alt innhold samtidig: Acronis-moduler, MSP-anbefaling, ISO-kontroller, andre produkter, implementeringssteg, og CTA. Dette skaper visuell støy.
+### Endring
 
-### Løsning
-Omstrukturere expanded-visningen til et **to-nivå hierarki**: Vis kun det viktigste (tilgjengelige løsninger med aktiveringsknapper) som standard. Alt annet pakkes inn i en diskret "Vis detaljer"-collapsible.
+Legge til en ny sikkerhetstjenestekategori **"MDR – Managed Detection & Response"** i `securityServiceCatalog.ts`, inspirert av 7 Security sin beskrivelse. Denne skilles fra den eksisterende SOC-kategorien for å gi MDR en tydelig, egen plass.
 
-### Endringer i `SecurityServicesSection.tsx`
+### Endringer i `src/lib/securityServiceCatalog.ts`
 
-**Ny expanded-layout for `ServiceDetailCard`:**
+Ny kategori i `SECURITY_SERVICE_CATALOG`:
 
-1. **Alltid synlig** (nivå 1 — det brukeren trenger for å handle):
-   - Acronis-moduler med aktiveringsknapper (komprimert: kun navn + status/knapp, skjul description by default)
-   - Andre anbefalte løsninger med aktiveringsknapper (komprimert)
-   - CTA-knapp for missing/unknown
+| Felt | Verdi |
+|---|---|
+| `id` | `"mdr"` |
+| `name` | `"MDR – Managed Detection & Response"` |
+| `description` | Kort norsk tekst basert på 7 Security: "Døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler — teknologi møter ansvar" |
+| `icon` | `ShieldAlert` (eller `ScanEye` fra lucide) |
+| `color` | `bg-rose-600` (distinkt fra SOC sin `bg-red-500`) |
+| `linkedControls` | `["A.5.24", "A.5.25", "A.5.26", "A.8.15", "A.8.16"]` |
+| `mspRecommendation` | Tekst om at MDR gir proaktiv trusselhåndtering 24/7, ikke bare varsler |
+| `mspProducts` | `7 Security MDR` (7 Security), `Arctic Wolf MDR` (flyttes fra SOC) |
+| `acronisModules` | `MDR Service` og `XDR` (flyttes fra SOC-kategorien) |
+| `implementationSteps` | 5 steg for MDR-onboarding |
 
-2. **Skjult bak "Vis detaljer"** (nivå 2 — for de som vil lære mer):
-   - MSP-anbefaling
-   - ISO 27001-kontroller
-   - Implementeringssteg
+Oppdatere **SOC-kategorien** til å fokusere på SIEM/logging og fjerne MDR/XDR-modulene som flyttes til ny kategori.
 
-**Forenkling av kortene:**
-- `AcronisModuleCard`: Skjul `description` og `priceIndicator`-badge. Vis kun navn + pakke + status/knapp på én linje.
-- `MSPProductCard`: Skjul `description`. Vis kun navn + leverandør + status/knapp.
+Legg også `"mdr"` til `DEMO_IMPLEMENTED_SERVICES` slik at den vises som "Implementert" i demo-modus.
 
-### Fil som endres
+### Filer som endres
 
 | Fil | Endring |
 |---|---|
-| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Forenkle expanded-innhold, legg sekundær info i collapsible |
+| `src/lib/securityServiceCatalog.ts` | Ny MDR-kategori, flytt MDR/XDR-moduler fra SOC |
 
