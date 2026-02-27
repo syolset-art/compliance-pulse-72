@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Shield, CheckCircle, XCircle, HelpCircle, Lock,
-  ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog,
+  ChevronDown, ChevronUp, Package, ListChecks, Lightbulb, Zap, CloudCog, ShoppingCart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -13,9 +13,14 @@ import {
   evaluateServiceCoverage,
   ServiceCoverageResult,
   AcronisModule,
+  MSPProduct,
   SecurityServiceCategory,
 } from "@/lib/securityServiceCatalog";
-import { ActivateAcronisServiceDialog } from "./ActivateAcronisServiceDialog";
+import { ActivateServiceDialog } from "./ActivateAcronisServiceDialog";
+
+type ActivatableProduct =
+  | { type: "acronis"; product: AcronisModule }
+  | { type: "msp-product"; product: MSPProduct };
 
 interface SecurityServicesSectionProps {
   isSelfProfile?: boolean;
@@ -68,14 +73,52 @@ function AcronisModuleCard({
   );
 }
 
+function MSPProductCard({
+  product,
+  isActivated,
+  onActivate,
+}: {
+  product: MSPProduct;
+  isActivated: boolean;
+  onActivate: () => void;
+}) {
+  return (
+    <div className={cn(
+      "rounded-md border p-3 transition-all",
+      isActivated
+        ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
+        : "border-border/60 bg-background/50 hover:border-primary/30"
+    )}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-foreground">{product.name}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{product.vendor}</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{product.description}</p>
+        </div>
+        <div className="shrink-0 mt-0.5">
+          {isActivated ? (
+            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+              <CheckCircle className="h-3 w-3" /> Bestilt
+            </Badge>
+          ) : (
+            <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onActivate}>
+              <ShoppingCart className="h-3 w-3" /> Aktiver
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ServiceDetailCard({
   result,
-  activatedModuleIds,
-  onOpenActivateDialog,
+  activatedIds,
+  onOpenDialog,
 }: {
   result: ServiceCoverageResult;
-  activatedModuleIds: string[];
-  onOpenActivateDialog: (module: AcronisModule, service: SecurityServiceCategory) => void;
+  activatedIds: string[];
+  onOpenDialog: (item: ActivatableProduct, service: SecurityServiceCategory) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const { service, status } = result;
@@ -84,9 +127,13 @@ function ServiceDetailCard({
     status === "covered" ? CheckCircle :
     status === "missing" ? XCircle : HelpCircle;
 
-  const activeCount = service.acronisModules.filter(
-    (m) => m.isActive || activatedModuleIds.includes(m.id)
+  const activeAcronisCount = service.acronisModules.filter(
+    (m) => m.isActive || activatedIds.includes(m.id)
   ).length;
+  const activatedProductCount = service.mspProducts.filter(
+    (p) => activatedIds.includes(p.id)
+  ).length;
+  const totalActivated = activeAcronisCount + activatedProductCount;
 
   return (
     <div
@@ -109,10 +156,10 @@ function ServiceDetailCard({
           <p className="text-xs text-muted-foreground">{service.description}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {activeCount > 0 && (
-            <Badge variant="outline" className="text-[10px] gap-1">
-              <CloudCog className="h-3 w-3" />
-              {activeCount}/{service.acronisModules.length}
+          {totalActivated > 0 && (
+            <Badge variant="outline" className="text-[10px] gap-1 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+              <CheckCircle className="h-3 w-3" />
+              {totalActivated} aktive
             </Badge>
           )}
           <Badge
@@ -133,7 +180,7 @@ function ServiceDetailCard({
 
       {expanded && (
         <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-4">
-          {/* Acronis modules — primary section */}
+          {/* Acronis modules */}
           {service.acronisModules.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
@@ -145,8 +192,8 @@ function ServiceDetailCard({
                   <AcronisModuleCard
                     key={mod.id}
                     module={mod}
-                    isActivated={activatedModuleIds.includes(mod.id)}
-                    onActivate={() => onOpenActivateDialog(mod, service)}
+                    isActivated={activatedIds.includes(mod.id)}
+                    onActivate={() => onOpenDialog({ type: "acronis", product: mod }, service)}
                   />
                 ))}
               </div>
@@ -170,7 +217,7 @@ function ServiceDetailCard({
             ))}
           </div>
 
-          {/* Recommended products */}
+          {/* Recommended products — now with activate buttons */}
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <Package className="h-3.5 w-3.5 text-primary" />
@@ -178,11 +225,12 @@ function ServiceDetailCard({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {service.mspProducts.map((product) => (
-                <div key={product.name} className="rounded-md border border-border/60 bg-background/50 p-3">
-                  <p className="text-xs font-medium text-foreground">{product.name}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{product.vendor}</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">{product.description}</p>
-                </div>
+                <MSPProductCard
+                  key={product.id}
+                  product={product}
+                  isActivated={activatedIds.includes(product.id)}
+                  onActivate={() => onOpenDialog({ type: "msp-product", product }, service)}
+                />
               ))}
             </div>
           </div>
@@ -229,12 +277,12 @@ function ServiceDetailCard({
 }
 
 export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
-  const [activatedModuleIds, setActivatedModuleIds] = useState<string[]>([]);
-  const [dialogModule, setDialogModule] = useState<AcronisModule | null>(null);
+  const [activatedIds, setActivatedIds] = useState<string[]>([]);
+  const [dialogItem, setDialogItem] = useState<ActivatableProduct | null>(null);
   const [dialogService, setDialogService] = useState<SecurityServiceCategory | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const results = evaluateServiceCoverage(assessmentResponses || null, isSelfProfile, activatedModuleIds);
+  const results = evaluateServiceCoverage(assessmentResponses || null, isSelfProfile, activatedIds);
   const covered = results.filter((r) => r.status === "covered").length;
   const missing = results.filter((r) => r.status === "missing").length;
   const total = SECURITY_SERVICE_CATALOG.length;
@@ -242,17 +290,17 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
 
   const totalAcronisModules = SECURITY_SERVICE_CATALOG.reduce((sum, s) => sum + s.acronisModules.length, 0);
   const activeAcronisModules = SECURITY_SERVICE_CATALOG.reduce(
-    (sum, s) => sum + s.acronisModules.filter((m) => m.isActive || activatedModuleIds.includes(m.id)).length, 0
+    (sum, s) => sum + s.acronisModules.filter((m) => m.isActive || activatedIds.includes(m.id)).length, 0
   );
 
-  const handleOpenActivateDialog = (module: AcronisModule, service: SecurityServiceCategory) => {
-    setDialogModule(module);
+  const handleOpenDialog = (item: ActivatableProduct, service: SecurityServiceCategory) => {
+    setDialogItem(item);
     setDialogService(service);
     setDialogOpen(true);
   };
 
-  const handleActivateModule = (moduleId: string) => {
-    setActivatedModuleIds((prev) => [...prev, moduleId]);
+  const handleActivate = (id: string) => {
+    setActivatedIds((prev) => [...prev, id]);
   };
 
   return (
@@ -276,7 +324,7 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {isSelfProfile
-              ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav. Aktiver Acronis-løsninger direkte eller be MSP-partneren om hjelp."
+              ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav. Aktiver løsninger direkte — din MSP-partner håndterer oppsettet."
               : "Se hvilke sikkerhetstjenester som dekker relevante ISO 27001-kontroller"}
           </p>
         </CardHeader>
@@ -317,19 +365,19 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
           <ServiceDetailCard
             key={result.service.id}
             result={result}
-            activatedModuleIds={activatedModuleIds}
-            onOpenActivateDialog={handleOpenActivateDialog}
+            activatedIds={activatedIds}
+            onOpenDialog={handleOpenDialog}
           />
         ))}
       </div>
 
       {/* Activation dialog */}
-      <ActivateAcronisServiceDialog
+      <ActivateServiceDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        module={dialogModule}
+        item={dialogItem}
         service={dialogService}
-        onActivate={handleActivateModule}
+        onActivate={handleActivate}
       />
     </div>
   );
