@@ -1,41 +1,36 @@
 
 
-# Plan: Legg til estimert antall systemer og leverandører
+# Plan: Flytt compliance-organisering til nøkkelperson-steget
 
-## Endringer
+## Endring
+Steget "key-persons" omdøpes til **"Tilgang og organisering"** og utvides med:
 
-### 1. Database: 2 nye kolonner i `company_profile`
-- `estimated_systems_count` (text, nullable)
-- `estimated_vendors_count` (text, nullable)
+1. **Organisering av compliance** (radio):
+   - Håndteres internt
+   - Internt med ekstern bistand
+   - Primært ekstern partner
 
-### 2. UI: Legg til i "Mål og prioriteringer" (governance-snapshot)
-Plasseres **før** 12-månedersmål-spørsmålet i `CompanyOnboarding.tsx`.
+2. **Ekstern partner admin-tilgang** (Ja/Nei) — vises kun ved "ekstern bistand" eller "primært ekstern"
 
-**"Omtrent hvor mange IT-systemer bruker dere?"**
-- 1–20
-- 21–50
-- 51–100
-- Over 100
-- Vet ikke
+3. **Nøkkelpersoner** (eksisterende KeyPersonnelSection — Compliance-ansvarlig påkrevd, DPO/CISO dynamisk)
 
-**"Omtrent hvor mange leverandører har dere?"**
-- 1–5
-- 6–20
-- 21–50
-- Over 50
-- Vet ikke
+## Database
+Ny migrasjon: legg til `compliance_organization` (text, nullable) og `external_partner_admin` (boolean, nullable) i `company_profile`.
 
-### 3. Compact-onboarding
-Legg til samme spørsmål i `CompactCompanyOnboarding.tsx` i scope-seksjonen.
-
-### 4. Oppdater formData og handleSubmit
-Inkluder de to nye feltene i state og i upsert-kallet til databasen.
-
-### Filer som endres
+## Filer som endres
 
 | Fil | Endring |
 |---|---|
 | Migrasjon | 2 nye kolonner |
-| `CompanyOnboarding.tsx` | formData + 2 spørsmål i governance-snapshot + submit |
-| `CompactCompanyOnboarding.tsx` | formData + 2 spørsmål + submit |
+| `CompanyOnboarding.tsx` | Utvid formData + legg til compliance-org UI i key-persons-steget + oppdater submit |
+| `CompactCompanyOnboarding.tsx` | Samme spørsmål i compact-flyten |
+| `governanceLevelEngine.ts` | Legg til `"scaleup"` kategori |
+
+## Steg-tittel
+```text
+Steg 4: Tilgang og organisering
+  → Organisering av compliance (3 valg)
+  → Ekstern partner admin-tilgang? (betinget)
+  → Nøkkelpersoner (Compliance-ansvarlig obligatorisk, DPO/CISO dynamisk)
+```
 
