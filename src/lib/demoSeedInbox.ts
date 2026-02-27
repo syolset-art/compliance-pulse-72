@@ -73,6 +73,35 @@ export async function seedDemoInbox() {
   }
 }
 
+const SECURITY_SERVICE_QUOTES = [
+  { type: "quote-mdr", subject: "Tilbud: Managed Detection & Response (MDR)", vendor: "7 Security" },
+  { type: "quote-backup", subject: "Tilbud: Acronis Cyber Protect – Backup", vendor: "Hult IT AS" },
+  { type: "quote-endpoint", subject: "Tilbud: Endepunktbeskyttelse – Advanced Security", vendor: "Hult IT AS" },
+  { type: "quote-email", subject: "Tilbud: E-postsikkerhet – Advanced Email Security", vendor: "Atea Security" },
+];
+
+export async function seedDemoSecurityQuotes(selfAssetId: string) {
+  const items = SECURITY_SERVICE_QUOTES.map((quote) => {
+    const slug = quote.vendor.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return {
+      matched_asset_id: selfAssetId,
+      matched_document_type: quote.type,
+      subject: `${quote.subject} – ${quote.vendor}`,
+      file_name: `Tilbud_${quote.type.replace("quote-", "")}_${slug}.pdf`,
+      sender_name: `Tilbudsavdeling – ${quote.vendor}`,
+      sender_email: `tilbud@${slug}.no`,
+      confidence_score: 0.98,
+      status: "new",
+      received_at: randomDaysAgo(0, 3),
+    };
+  });
+
+  const { error } = await supabase.from("lara_inbox").insert(items);
+  if (error) {
+    console.error("Failed to seed security quotes:", error);
+  }
+}
+
 function daysAgo(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
