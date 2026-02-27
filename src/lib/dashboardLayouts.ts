@@ -58,6 +58,9 @@ export const ALL_WIDGETS: WidgetConfig[] = [
   { id: 'system-library', component: 'SystemLibraryWidget', size: 'medium', priority: 8, showInRoles: ['sikkerhetsansvarlig', 'compliance_ansvarlig'] },
   { id: 'systems-in-use', component: 'SystemsInUseWidget', size: 'small', priority: 9, showInRoles: ['sikkerhetsansvarlig'] },
   
+  // Security coverage
+  { id: 'security-coverage', component: 'SecurityCoverageWidget', size: 'large', priority: 5, showInRoles: ['sikkerhetsansvarlig', 'compliance_ansvarlig'] },
+
   // Other widgets
   { id: 'new-features', component: 'NewFeaturesWidget', size: 'small', priority: 10, showInRoles: ['daglig_leder', 'compliance_ansvarlig'] },
 ];
