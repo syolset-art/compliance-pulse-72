@@ -579,6 +579,8 @@ export type Database = {
           dpo_email: string | null
           dpo_name: string | null
           employees: string | null
+          estimated_systems_count: string | null
+          estimated_vendors_count: string | null
           geographic_scope: string | null
           goal_12_months: string | null
           governance_level: string | null
@@ -607,6 +609,8 @@ export type Database = {
           dpo_email?: string | null
           dpo_name?: string | null
           employees?: string | null
+          estimated_systems_count?: string | null
+          estimated_vendors_count?: string | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
@@ -635,6 +639,8 @@ export type Database = {
           dpo_email?: string | null
           dpo_name?: string | null
           employees?: string | null
+          estimated_systems_count?: string | null
+          estimated_vendors_count?: string | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
