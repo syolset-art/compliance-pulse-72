@@ -1,4 +1,4 @@
-import { Shield, HardDrive, Mail, Globe, Users, Eye, FileCheck, LucideIcon } from "lucide-react";
+import { Shield, HardDrive, Mail, Globe, Users, Eye, FileCheck, ShieldAlert, LucideIcon } from "lucide-react";
 
 export interface AcronisModule {
   id: string;
@@ -187,6 +187,30 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
       "Etabler incident response-plan",
       "Gjennomfør årlig tabletop-øvelse",
     ],
+    acronisModules: [],
+  },
+  {
+    id: "mdr",
+    name: "MDR – Managed Detection & Response",
+    nameEn: "MDR – Managed Detection & Response",
+    description: "Døgnkontinuerlig overvåking, analyse og håndtering av sikkerhetstrusler — teknologi møter ansvar",
+    color: "bg-rose-600",
+    textColor: "text-rose-700 dark:text-rose-300",
+    icon: ShieldAlert,
+    linkedControls: ["A.5.24", "A.5.25", "A.5.26", "A.8.15", "A.8.16"],
+    linkedAssessmentKeys: ["incident_handling"],
+    mspRecommendation: "MDR gir proaktiv trusselhåndtering 24/7 — det handler ikke om å samle varsler, men om å handle når noe skjer. Raskt, strukturert og med fokus på din virksomhet.",
+    mspProducts: [
+      { id: "msp-7security-mdr", name: "7 Security MDR", vendor: "7 Security", description: "Managed Detection & Response med døgnkontinuerlig overvåking og håndtering" },
+      { id: "msp-arctic-wolf", name: "Arctic Wolf MDR", vendor: "Arctic Wolf", description: "Managed Detection & Response med 24/7 SOC" },
+    ],
+    implementationSteps: [
+      "Kartlegg kritiske systemer og datakilder for overvåking",
+      "Koble loggkilder og endepunkter til MDR-plattformen",
+      "Definer eskaleringsrutiner og kontaktpersoner",
+      "Gjennomfør onboarding og baselining av normaltilstand",
+      "Aktiver døgnkontinuerlig overvåking og responsavtale",
+    ],
     acronisModules: [
       { id: "mdr-service", name: "MDR Service", acronisPackage: "Acronis Partner", priceIndicator: "addon", description: "Managed Detection & Response – 24/7 overvåking og hendelseshåndtering levert av MSP via Acronis", isActive: false },
       { id: "xdr", name: "XDR", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Extended Detection & Response – korrelerer trusler på tvers av endepunkter, e-post og sky", isActive: false },
@@ -229,7 +253,7 @@ export interface ServiceCoverageResult {
   reason?: string;
 }
 
-const DEMO_IMPLEMENTED_SERVICES = ["backup", "compliance", "awareness"];
+const DEMO_IMPLEMENTED_SERVICES = ["backup", "compliance", "awareness", "mdr"];
 
 export function evaluateServiceCoverage(
   assessmentResponses: Record<string, string> | null,
