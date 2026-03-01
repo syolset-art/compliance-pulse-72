@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
-import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
-import { SLAWidget } from "@/components/widgets/SLAWidget";
 import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
 import { ExecutiveSummaryWidget } from "@/components/widgets/ExecutiveSummaryWidget";
 import { GDPRHealthWidget } from "@/components/widgets/GDPRHealthWidget";
@@ -11,12 +9,8 @@ import { AIGovernanceWidget } from "@/components/widgets/AIGovernanceWidget";
 import { OnboardingProgressWidget } from "@/components/widgets/OnboardingProgressWidget";
 import { ActionPriorityWidget } from "@/components/widgets/ActionPriorityWidget";
 import { ComplianceSummaryCards } from "@/components/widgets/ComplianceSummaryCards";
-
-
 import { RecentActivityWidget } from "@/components/widgets/RecentActivityWidget";
-import { SupplyChainChangesWidget } from "@/components/widgets/SupplyChainChangesWidget";
 import { MonthlyTasksWidget } from "@/components/widgets/MonthlyTasksWidget";
-import { TrustProfileViewsWidget } from "@/components/widgets/TrustProfileViewsWidget";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
@@ -112,31 +106,20 @@ const Index = () => {
       {activeView === 'ai_governance' && <AIGovernanceWidget />}
       {(activeView === 'compliance_ansvarlig' || activeView === 'all') && <DomainComplianceWidget />}
 
+      {/* ── SONE 2: Strategisk oversikt ── */}
       <div className="mt-8 mb-8">
-        <StatusOverviewWidget />
+        <ComplianceSummaryCards />
       </div>
 
-      {/* ── SONE 2: Hva må jeg gjøre nå? ── */}
+      {/* ── SONE 3: Hva må jeg gjøre nå? ── */}
       <div className="mb-8">
         <ActionPriorityWidget />
       </div>
 
-      {/* SLA Widget */}
-      <div className="mb-8">
-        <SLAWidget />
-      </div>
-
-      {/* ── Mini-widgets 2x2 grid ── */}
+      {/* ── Mini-widgets 1x2 grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <RecentActivityWidget />
-        <SupplyChainChangesWidget />
         <MonthlyTasksWidget />
-        <TrustProfileViewsWidget />
-      </div>
-
-      {/* ── SONE 3: Overblikk & årskalender ── */}
-      <div className="mb-8">
-        <ComplianceSummaryCards />
       </div>
 
     </>
