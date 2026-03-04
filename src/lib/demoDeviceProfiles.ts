@@ -22,6 +22,9 @@ const demoDevices = [
       backup: "OneDrive",
       last_patch_date: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10),
       serial_number: "SN-2024-FIN-001",
+      llm_usage: [
+        { name: "Copilot", provider: "Microsoft", accessLevel: "managed", sensitiveDataRisk: "low" },
+      ],
     },
   },
   {
@@ -68,6 +71,10 @@ const demoDevices = [
       backup: "Time Machine + iCloud",
       last_patch_date: new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10),
       serial_number: "SN-2024-DEV-003",
+      llm_usage: [
+        { name: "ChatGPT", provider: "OpenAI", accessLevel: "unrestricted", sensitiveDataRisk: "high" },
+        { name: "GitHub Copilot", provider: "Microsoft", accessLevel: "managed", sensitiveDataRisk: "medium" },
+      ],
     },
   },
   {
@@ -91,6 +98,10 @@ const demoDevices = [
       backup: null,
       last_patch_date: null,
       serial_number: "SN-2024-SALG-004",
+      llm_usage: [
+        { name: "ChatGPT", provider: "OpenAI", accessLevel: "unrestricted", sensitiveDataRisk: "high" },
+        { name: "Gemini", provider: "Google", accessLevel: "unrestricted", sensitiveDataRisk: "high" },
+      ],
     },
   },
   {
@@ -160,6 +171,9 @@ const demoDevices = [
       backup: "iCloud",
       last_patch_date: new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10),
       serial_number: "SN-2024-MOB-001",
+      llm_usage: [
+        { name: "ChatGPT", provider: "OpenAI", accessLevel: "unrestricted", sensitiveDataRisk: "high" },
+      ],
     },
   },
   {

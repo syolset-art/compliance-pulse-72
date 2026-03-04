@@ -2,7 +2,14 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, AlertTriangle, Shield, Info } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Shield, Info, BrainCircuit, ShieldAlert, ShieldCheck } from "lucide-react";
+
+interface LLMUsageEntry {
+  name: string;
+  provider: string;
+  accessLevel: "unrestricted" | "managed" | "blocked";
+  sensitiveDataRisk: "high" | "medium" | "low";
+}
 
 interface CheckItem {
   id: string;
@@ -88,12 +95,38 @@ const ISO_CHECKS: CheckItem[] = [
     check: (_m, a) => a.lifecycle_status && a.lifecycle_status !== "unknown" ? "pass" : "fail",
     recommendation: "Sett livssyklusstatus til aktiv, planlagt utfaset eller avhendet.",
   },
+  {
+    id: "llm_secured",
+    label: "LLM-tilgang sikret",
+    isoRef: "A.8.11 / A.8.12",
+    description: "Enheter med tilgang til språkmodeller (LLM) skal ha DLP-kontroll for å forhindre deling av sensitiv informasjon.",
+    check: (m) => {
+      const llm = m.llm_usage as LLMUsageEntry[] | undefined;
+      if (!llm || llm.length === 0) return "pass"; // no LLM = no risk
+      const hasUnrestricted = llm.some((l) => l.accessLevel === "unrestricted");
+      if (hasUnrestricted) return "fail";
+      return "pass";
+    },
+    recommendation: "Aktiver AI/LLM DLP-tjeneste via sikkerhetstjenestekatalogen (Leverandører → Sikkerhetstjenester).",
+  },
 ];
 
 const statusIcon = (s: "pass" | "fail" | "warn") => {
   if (s === "pass") return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
   if (s === "warn") return <AlertTriangle className="h-5 w-5 text-amber-500" />;
   return <XCircle className="h-5 w-5 text-destructive" />;
+};
+
+const accessLevelConfig: Record<string, { label: string; color: string; icon: typeof ShieldCheck }> = {
+  managed: { label: "Administrert (DLP)", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300", icon: ShieldCheck },
+  unrestricted: { label: "Ubegrenset", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300", icon: ShieldAlert },
+  blocked: { label: "Blokkert", color: "bg-muted text-muted-foreground", icon: Shield },
+};
+
+const riskColors: Record<string, string> = {
+  high: "destructive",
+  medium: "warning",
+  low: "secondary",
 };
 
 interface Props {
@@ -109,6 +142,8 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
       result: c.check(metadata || {}, asset || {}),
     }));
   }, [metadata, asset]);
+
+  const llmUsage = (metadata?.llm_usage || []) as LLMUsageEntry[];
 
   const passCount = results.filter((r) => r.result === "pass").length;
   const score = Math.round((passCount / results.length) * 100);
@@ -143,6 +178,57 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
           </div>
         </CardContent>
       </Card>
+
+      {/* LLM Usage Section */}
+      {llmUsage.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BrainCircuit className="h-5 w-5 text-fuchsia-500" />
+              Språkmodeller i bruk
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {llmUsage.map((llm, idx) => {
+              const config = accessLevelConfig[llm.accessLevel] || accessLevelConfig.unrestricted;
+              const IconComp = config.icon;
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center gap-3 rounded-lg border p-3"
+                >
+                  <div className={`rounded-full p-1.5 ${config.color}`}>
+                    <IconComp className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm">{llm.name}</span>
+                      <span className="text-xs text-muted-foreground">{llm.provider}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${config.color}`}>
+                        {config.label}
+                      </span>
+                      <Badge variant={riskColors[llm.sensitiveDataRisk] as any} className="text-[10px]">
+                        Risiko: {llm.sensitiveDataRisk === "high" ? "Høy" : llm.sensitiveDataRisk === "medium" ? "Middels" : "Lav"}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {llmUsage.some((l) => l.accessLevel === "unrestricted") && (
+              <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+                <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>
+                  Enheten har ubegrenset tilgang til språkmodeller uten DLP-beskyttelse.
+                  Sensitiv informasjon kan deles med tredjeparter. Aktiver <strong>AI/LLM-sikkerhet</strong> via sikkerhetstjenestekatalogen.
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Checklist */}
       <Card>
