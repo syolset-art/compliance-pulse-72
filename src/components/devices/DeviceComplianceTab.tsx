@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, AlertTriangle, Shield, Info, BrainCircuit, ShieldAlert, ShieldCheck } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Shield, Info, BrainCircuit, ShieldAlert, ShieldCheck, ShieldPlus } from "lucide-react";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 interface LLMUsageEntry {
   name: string;
@@ -136,14 +137,29 @@ interface Props {
 }
 
 export function DeviceComplianceTab({ metadata, asset }: Props) {
-  const results = useMemo(() => {
-    return ISO_CHECKS.map((c) => ({
-      ...c,
-      result: c.check(metadata || {}, asset || {}),
-    }));
-  }, [metadata, asset]);
+  const { isServiceActive } = useActivatedServices();
+  const dlpActive = isServiceActive("adv-dlp-ai");
 
-  const llmUsage = (metadata?.llm_usage || []) as LLMUsageEntry[];
+  const results = useMemo(() => {
+    return ISO_CHECKS.map((c) => {
+      let result = c.check(metadata || {}, asset || {});
+      // Override LLM check when DLP service is globally activated
+      if (c.id === "llm_secured" && dlpActive) {
+        result = "pass";
+      }
+      return { ...c, result };
+    });
+  }, [metadata, asset, dlpActive]);
+
+  const rawLlmUsage = (metadata?.llm_usage || []) as LLMUsageEntry[];
+
+  // When DLP is active, visually override unrestricted → managed
+  const llmUsage: LLMUsageEntry[] = useMemo(() => {
+    if (!dlpActive) return rawLlmUsage;
+    return rawLlmUsage.map((l) =>
+      l.accessLevel === "unrestricted" ? { ...l, accessLevel: "managed" } : l
+    );
+  }, [rawLlmUsage, dlpActive]);
 
   const passCount = results.filter((r) => r.result === "pass").length;
   const score = Math.round((passCount / results.length) * 100);
@@ -189,6 +205,14 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {dlpActive && (
+              <div className="flex items-start gap-2 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg px-3 py-2">
+                <ShieldPlus className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>
+                  <strong>Acronis Advanced DLP for AI</strong> er aktivert — all LLM-trafikk overvåkes og sensitiv informasjon blokkeres automatisk.
+                </span>
+              </div>
+            )}
             {llmUsage.map((llm, idx) => {
               const config = accessLevelConfig[llm.accessLevel] || accessLevelConfig.unrestricted;
               const IconComp = config.icon;
@@ -217,7 +241,7 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
                 </div>
               );
             })}
-            {llmUsage.some((l) => l.accessLevel === "unrestricted") && (
+            {!dlpActive && llmUsage.some((l) => l.accessLevel === "unrestricted") && (
               <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
                 <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>

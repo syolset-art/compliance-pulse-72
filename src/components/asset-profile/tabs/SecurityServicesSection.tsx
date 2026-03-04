@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import { ActivateServiceDialog } from "./ActivateAcronisServiceDialog";
 import { RequestQuoteDialog } from "./RequestQuoteDialog";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 type ActivatableProduct =
   | { type: "acronis"; product: AcronisModule }
@@ -440,7 +441,14 @@ function ServiceDetailCard({
 }
 
 export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
-  const [activatedServices, setActivatedServices] = useState<Record<string, ActivatedServiceInfo>>({});
+  const { activateService: globalActivate, activatedServices: globalActivated } = useActivatedServices();
+  const [activatedServices, setActivatedServices] = useState<Record<string, ActivatedServiceInfo>>(() => {
+    const seeded: Record<string, ActivatedServiceInfo> = {};
+    for (const [id, entry] of Object.entries(globalActivated)) {
+      seeded[id] = { activatedBy: entry.activatedBy, activatedAt: new Date(entry.activatedAt) };
+    }
+    return seeded;
+  });
   const [quoteRequestedIds, setQuoteRequestedIds] = useState<string[]>([]);
   
   // Separate dialog state for quote vs activate
@@ -496,6 +504,8 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
       ...prev,
       [id]: { activatedBy, activatedAt: new Date() },
     }));
+    // Persist globally so DeviceComplianceTab can read it
+    globalActivate(id, activatedBy);
   };
 
   const handleSetOverride = (serviceId: string, partnerId: string) => {
