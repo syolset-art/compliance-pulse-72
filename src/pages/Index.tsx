@@ -81,51 +81,53 @@ const Index = () => {
   const dashboardContent = (
     <>
       {/* Premium Header */}
-      <div className="mb-10">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-xs sm:text-sm font-medium text-muted-foreground tracking-wide uppercase mb-2">
+            <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase mb-1">
               {t("dashboard.welcomeBack")}
             </p>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               {companyName || t("dashboard.title")}
             </h1>
           </div>
         </div>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+        <p className="text-sm text-muted-foreground max-w-2xl">
           {activeView !== 'all' ? t(`dashboardViews.${activeView}.description`) : t("dashboard.subtitle")}
         </p>
       </div>
 
-      {/* ── SONE 1: Status ── */}
-      <OnboardingProgressWidget />
+      {/* ── SONE 1: Status + NIS2 side by side ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="lg:col-span-2">
+          <OnboardingProgressWidget />
+        </div>
+        <NIS2OverviewWidget />
+      </div>
 
-      {/* Role-specific primary widget */}
-      {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
-      {activeView === 'personvernombud' && <GDPRHealthWidget />}
-      {activeView === 'sikkerhetsansvarlig' && <SecurityPostureWidget />}
-      {activeView === 'ai_governance' && <AIGovernanceWidget />}
-      {(activeView === 'compliance_ansvarlig' || activeView === 'all') && <DomainComplianceWidget />}
-
-      {/* ── SONE 2: Strategisk oversikt ── */}
-      <div className="mt-8 mb-8">
-        <ComplianceSummaryCards />
+      {/* ── Role-specific + Compliance summary ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div>
+          {activeView === 'daglig_leder' && <ExecutiveSummaryWidget />}
+          {activeView === 'personvernombud' && <GDPRHealthWidget />}
+          {activeView === 'sikkerhetsansvarlig' && <SecurityPostureWidget />}
+          {activeView === 'ai_governance' && <AIGovernanceWidget />}
+          {(activeView === 'compliance_ansvarlig' || activeView === 'all') && <DomainComplianceWidget />}
+        </div>
+        <div>
+          <ComplianceSummaryCards />
+        </div>
       </div>
 
       {/* ── SONE 3: Hva må jeg gjøre nå? ── */}
-      <div className="mb-8">
+      <div className="mb-6">
         <ActionPriorityWidget />
       </div>
 
       {/* ── Mini-widgets 1x2 grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <RecentActivityWidget />
         <MonthlyTasksWidget />
-      </div>
-
-      {/* ── NIS2 oversikt ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <NIS2OverviewWidget />
       </div>
 
     </>
