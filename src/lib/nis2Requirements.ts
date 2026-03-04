@@ -1,4 +1,5 @@
 export type NIS2Status = "pass" | "fail" | "partial" | "not_assessed";
+export type NIS2AgentCapability = "ai_ready" | "activatable" | "hybrid" | "manual";
 
 export interface NIS2Requirement {
   id: string;
@@ -8,6 +9,10 @@ export interface NIS2Requirement {
   recommendation: string;
   documentTypes: string[];
   autoCheck: (metadata: Record<string, any>) => NIS2Status | null;
+  agentCapability: NIS2AgentCapability;
+  agentAction: string;
+  activatableServiceId?: string;
+  activatableServiceLabel?: string;
 }
 
 export interface NIS2AssessmentEntry {
@@ -36,7 +41,9 @@ export const nis2Requirements: NIS2Requirement[] = [
     recommendation:
       "Gjennomfør en formell risikovurdering for denne enheten. Dokumenter identifiserte risikoer, sannsynlighet og konsekvens, og definer tiltak.",
     documentTypes: ["Risikovurdering", "Trusselvurdering", "ROS-analyse"],
-    autoCheck: () => null, // Krever manuell vurdering
+    autoCheck: () => null,
+    agentCapability: "hybrid",
+    agentAction: "Lara kan generere et risikorapport-utkast basert på virksomhetens metadata og registrerte systemer.",
   },
   {
     id: "incident_handling",
@@ -48,6 +55,10 @@ export const nis2Requirements: NIS2Requirement[] = [
       "Etabler en hendelseshåndteringsprosedyre som dekker deteksjon, varsling (innen 24/72 timer), analyse og gjenoppretting.",
     documentTypes: ["Hendelseshåndteringsplan", "Varslingsprosedyre", "Responsplan"],
     autoCheck: () => null,
+    agentCapability: "activatable",
+    agentAction: "Aktiver SOC/MDR-tjeneste for døgnkontinuerlig overvåking og hendelseshåndtering.",
+    activatableServiceId: "mdr-service",
+    activatableServiceLabel: "MDR – Managed Detection & Response",
   },
   {
     id: "business_continuity",
@@ -63,6 +74,10 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (m.backup === "ingen") return "fail";
       return null;
     },
+    agentCapability: "ai_ready",
+    agentAction: "Lara verifiserer automatisk backup-status og kan aktivere backup-tjeneste.",
+    activatableServiceId: "adv-backup",
+    activatableServiceLabel: "Advanced Backup",
   },
   {
     id: "supply_chain",
@@ -74,6 +89,8 @@ export const nis2Requirements: NIS2Requirement[] = [
       "Dokumenter leverandørvurderinger for denne enhetens programvare og tjenesteleverandører. Vurder sikkerhetsrisiko i leverandørkjeden.",
     documentTypes: ["Leverandørvurdering", "SLA-avtale", "Sikkerhetskrav til leverandører"],
     autoCheck: () => null,
+    agentCapability: "manual",
+    agentAction: "Krever manuell leverandørvurdering. Lara kan gi veiledning og maler.",
   },
   {
     id: "procurement_security",
@@ -85,6 +102,8 @@ export const nis2Requirements: NIS2Requirement[] = [
       "Sørg for at sikkerhetskrav er definert ved innkjøp av utstyr, og at sårbarhetshåndtering er en del av vedlikeholdsrutinen.",
     documentTypes: ["Anskaffelsespolicy", "Sårbarhetshåndteringsprosedyre"],
     autoCheck: () => null,
+    agentCapability: "manual",
+    agentAction: "Krever intern policy og prosedyrer. Lara kan foreslå maler for anskaffelsespolicy.",
   },
   {
     id: "vulnerability_management",
@@ -102,6 +121,10 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (days <= 60) return "partial";
       return "fail";
     },
+    agentCapability: "activatable",
+    agentAction: "Aktiver Patch Management-modul for automatisert sårbarhetshåndtering.",
+    activatableServiceId: "adv-management",
+    activatableServiceLabel: "Advanced Management (Patch Management)",
   },
   {
     id: "cyber_hygiene",
@@ -113,6 +136,10 @@ export const nis2Requirements: NIS2Requirement[] = [
       "Gjennomfør sikkerhetsopplæring for brukere av denne enheten. Dokumenter gjennomførte kurs og bevissthetskampanjer.",
     documentTypes: ["Opplæringslogg", "Sikkerhetspolicy for ansatte", "Bevissthetsprogram"],
     autoCheck: () => null,
+    agentCapability: "activatable",
+    agentAction: "Aktiver Security Awareness Training for automatiserte phishing-simuleringer og kurs.",
+    activatableServiceId: "security-awareness",
+    activatableServiceLabel: "Security Awareness Training",
   },
   {
     id: "encryption",
@@ -128,6 +155,8 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (m.encryption === null || m.encryption === undefined) return "fail";
       return "fail";
     },
+    agentCapability: "ai_ready",
+    agentAction: "Lara verifiserer automatisk krypteringsstatus basert på enhetens metadata.",
   },
   {
     id: "access_control",
@@ -142,6 +171,10 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (m.mdm) return "pass";
       return "fail";
     },
+    agentCapability: "activatable",
+    agentAction: "Aktiver MDM-modul for sentralisert enhetsstyring og tilgangskontroll.",
+    activatableServiceId: "adv-management",
+    activatableServiceLabel: "Advanced Management (MDM)",
   },
   {
     id: "mfa",
@@ -157,6 +190,8 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (m.nis2_mfa_enabled === false || m.mfa_enabled === false) return "fail";
       return null;
     },
+    agentCapability: "hybrid",
+    agentAction: "Lara verifiserer MFA-status automatisk, men aktivering må gjøres manuelt i AD/IdP.",
   },
 ];
 
@@ -189,4 +224,22 @@ export function computeNIS2Summary(
   const percent = Math.round(((pass + partial * 0.5) / total) * 100);
 
   return { pass, partial, fail, notAssessed, total, percent, autoCheckedCount };
+}
+
+export function computeNIS2AgentBreakdown(requirements: NIS2Requirement[]) {
+  let aiReady = 0;
+  let activatable = 0;
+  let hybrid = 0;
+  let manual = 0;
+
+  for (const req of requirements) {
+    switch (req.agentCapability) {
+      case "ai_ready": aiReady++; break;
+      case "activatable": activatable++; break;
+      case "hybrid": hybrid++; break;
+      case "manual": manual++; break;
+    }
+  }
+
+  return { aiReady, activatable, hybrid, manual };
 }
