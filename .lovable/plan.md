@@ -1,55 +1,43 @@
 
 
-## Plan: LLM-bruk på enheter + Acronis DLP for AI-tjeneste
+## Plan: Speile LLM-sikkerhetstjeneste-aktivering i enhetsvisningen
 
-### Del 1: Vis LLM-bruk i enhetens Trust Profile
+### Problem
+Aktivering av "AI/LLM-sikkerhet" i sikkerhetstjenestekatalogen er lokal state i `SecurityServicesSection` og reflekteres ikke i enhetenes compliance-sjekkliste eller LLM-bruksoversikt. Brukeropplevelsen brytes — man aktiverer en tjeneste, men enhetene viser fortsatt "ubegrenset" og "fail".
 
-Legge til en ny seksjon i `DeviceComplianceTab` som viser hvilke språkmodeller/AI-tjenester enheten har tilgang til. Dataene lagres i enhetens `metadata.llm_usage`-felt.
+### Løsning
+Introdusere en delt state-mekanisme som lar DeviceComplianceTab vite om LLM-sikkerhetstjenesten er aktivert, og oppdatere visningen deretter.
 
-**Struktur for `metadata.llm_usage`:**
-```json
-[
-  { "name": "ChatGPT", "provider": "OpenAI", "accessLevel": "unrestricted", "sensitiveDataRisk": "high" },
-  { "name": "Copilot", "provider": "Microsoft", "accessLevel": "managed", "sensitiveDataRisk": "medium" }
-]
-```
+### Implementering
 
-**UI i DeviceComplianceTab:** Ny seksjon "Språkmodeller i bruk" med kort per LLM som viser navn, leverandør, tilgangsnivå og risikovurdering for sensitiv data. Fargekoding: rød (ubegrenset), gul (delvis styrt), grønn (administrert via DLP).
+**1. Ny hook: `src/hooks/useActivatedServices.ts`**
+- Global state (via React context eller enkel localStorage-basert hook) som holder styr på hvilke sikkerhetstjenester som er aktivert
+- Eksporterer `activatedServiceIds` og `activateService(id)`/`isServiceActive(id)`
+- `SecurityServicesSection` skriver til denne når bruker aktiverer en tjeneste
+- `DeviceComplianceTab` leser fra denne for å sjekke om `adv-dlp-ai` er aktiv
 
-### Del 2: Oppdater demo-enheter med LLM-data
+**2. Oppdater `DeviceComplianceTab`**
+- Importer `useActivatedServices`
+- Når `adv-dlp-ai` er aktiv: 
+  - LLM-brukskortene viser `accessLevel: "managed"` i stedet for `"unrestricted"` (visuelt override)
+  - ISO-kontrollpunktet "LLM-tilgang sikret" endres til "pass"
+  - Vis en liten badge/info som sier "Beskyttet av Acronis Advanced DLP for AI"
+- Compliance-scoren øker automatisk
 
-Legge til `llm_usage` i metadata for relevante demo-enheter:
-- DESK-FIN-01: Copilot (managed)
-- LAPTOP-DEV-03: ChatGPT (unrestricted), GitHub Copilot (managed)
-- LAPTOP-SALG-04: ChatGPT (unrestricted), Gemini (unrestricted)
-- MOB-CEO-01: ChatGPT (unrestricted)
+**3. Oppdater `SecurityServicesSection`**
+- Når bruker aktiverer en tjeneste via `handleActivate`, skriv også til `useActivatedServices`
 
-### Del 3: Ny sikkerhetstjeneste — "AI/LLM-sikkerhet" i katalogen
-
-Legge til en ny kategori i `SECURITY_SERVICE_CATALOG`:
-
-| Felt | Verdi |
-|------|-------|
-| id | `llm-security` |
-| name | AI / LLM-sikkerhet |
-| description | Kontroll og beskyttelse mot deling av sensitiv informasjon via språkmodeller |
-| linkedControls | A.8.11 (Data masking), A.8.12 (DLP), A.5.34 (Privacy) |
-| acronisModules | **Advanced DLP for AI** — forhindrer sensitiv data fra å sendes til LLM-tjenester |
-
-Tjenesten lar brukeren:
-1. Lese hva tjenesten innebærer (beskyttelse mot datalekkasje via LLM)
-2. Aktivere sikkerhetsnivå (blokkér, advar, logg) som påvirker enhetene
-3. Se hvilke enheter som bruker LLM uten beskyttelse
-
-### Del 4: Nytt ISO-kontrollpunkt i DeviceComplianceTab
-
-Legge til kontrollpunkt "LLM-tilgang sikret" (A.8.11/A.8.12) som sjekker om enheter med LLM-bruk har `accessLevel !== "unrestricted"`.
+**4. Visuell flyt i DeviceComplianceTab ved aktivert LLM-sikkerhet**
+- LLM-kort som var røde (unrestricted) → grønne (managed via DLP)
+- Advarselsbanner forsvinner
+- Ny info-linje: "DLP for AI aktivert — all LLM-trafikk overvåkes"
+- Kontrollpunktet "LLM-tilgang sikret" → grønt hakmerke
 
 ### Filer
 
 | Fil | Endring |
 |-----|---------|
-| `src/lib/demoDeviceProfiles.ts` | Legg til `llm_usage` i metadata for 4 enheter |
-| `src/lib/securityServiceCatalog.ts` | Ny kategori `llm-security` med Acronis DLP-modul |
-| `src/components/devices/DeviceComplianceTab.tsx` | Ny seksjon "Språkmodeller i bruk" + nytt kontrollpunkt |
+| `src/hooks/useActivatedServices.ts` | Ny — delt state for aktiverte sikkerhetstjenester |
+| `src/components/devices/DeviceComplianceTab.tsx` | Les fra useActivatedServices, override LLM-visning |
+| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Skriv til useActivatedServices ved aktivering |
 
