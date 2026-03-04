@@ -11,6 +11,7 @@ import { ActionPriorityWidget } from "@/components/widgets/ActionPriorityWidget"
 import { ComplianceSummaryCards } from "@/components/widgets/ComplianceSummaryCards";
 import { RecentActivityWidget } from "@/components/widgets/RecentActivityWidget";
 import { MonthlyTasksWidget } from "@/components/widgets/MonthlyTasksWidget";
+import { NIS2OverviewWidget } from "@/components/widgets/NIS2OverviewWidget";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
@@ -120,6 +121,11 @@ const Index = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <RecentActivityWidget />
         <MonthlyTasksWidget />
+      </div>
+
+      {/* ── NIS2 oversikt ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <NIS2OverviewWidget />
       </div>
 
     </>
