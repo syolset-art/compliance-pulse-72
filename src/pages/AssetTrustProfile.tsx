@@ -27,6 +27,7 @@ import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
 import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
 import { DeviceComplianceTab } from "@/components/devices/DeviceComplianceTab";
+import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -106,7 +107,7 @@ const AssetTrustProfile = () => {
   const isSelf = asset?.asset_type === 'self';
   const isHardware = asset?.asset_type === 'hardware';
   const enabledTabs = isHardware
-    ? ['compliance', 'riskManagement', 'incidents', 'documents']
+    ? ['compliance', 'nis2', 'riskManagement', 'incidents', 'documents']
     : (template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark']);
 
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
@@ -114,6 +115,7 @@ const AssetTrustProfile = () => {
   // Primary tabs (always visible) and overflow tabs (in dropdown)
   const primaryTabDefs = [
     { value: 'compliance', label: 'ISO 27001 Samsvar', show: enabledTabs.includes('compliance') },
+    { value: 'nis2', label: 'NIS2 Vurdering', show: enabledTabs.includes('nis2') },
     { value: 'validation', label: t("trustProfile.tabs.validation"), show: enabledTabs.includes('validation') },
     { value: 'usage', label: t("trustProfile.tabs.usage"), show: enabledTabs.includes('usage') },
     { value: 'dataHandling', label: t("trustProfile.tabs.dataHandling"), show: enabledTabs.includes('dataHandling') },
@@ -256,6 +258,14 @@ const AssetTrustProfile = () => {
                     assetId={asset.id}
                     metadata={(asset.metadata as Record<string, any>) || {}}
                     asset={asset}
+                  />
+                </TabsContent>
+              )}
+              {isHardware && (
+                <TabsContent value="nis2" className="mt-6">
+                  <NIS2AssessmentTab
+                    assetId={asset.id}
+                    metadata={(asset.metadata as Record<string, any>) || {}}
                   />
                 </TabsContent>
               )}
