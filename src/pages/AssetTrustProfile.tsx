@@ -108,6 +108,8 @@ const AssetTrustProfile = () => {
   const isHardware = asset?.asset_type === 'hardware';
   const enabledTabs = isHardware
     ? ['compliance', 'nis2', 'riskManagement', 'incidents', 'documents']
+    : isSelf
+    ? ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'nis2', 'analysis', 'benchmark']
     : (template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark']);
 
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
@@ -115,7 +117,7 @@ const AssetTrustProfile = () => {
   // Primary tabs (always visible) and overflow tabs (in dropdown)
   const primaryTabDefs = [
     { value: 'compliance', label: 'ISO 27001 Samsvar', show: enabledTabs.includes('compliance') },
-    { value: 'nis2', label: 'NIS2 Vurdering', show: enabledTabs.includes('nis2') },
+    { value: 'nis2', label: 'NIS2 Vurdering', show: enabledTabs.includes('nis2') && isHardware },
     { value: 'validation', label: t("trustProfile.tabs.validation"), show: enabledTabs.includes('validation') },
     { value: 'usage', label: t("trustProfile.tabs.usage"), show: enabledTabs.includes('usage') },
     { value: 'dataHandling', label: t("trustProfile.tabs.dataHandling"), show: enabledTabs.includes('dataHandling') },
@@ -128,6 +130,7 @@ const AssetTrustProfile = () => {
 
   const overflowTabDefs = [
     { value: 'inbox', label: 'Innboks', show: true, badge: inboxCount },
+    { value: 'nis2', label: 'NIS2 Vurdering', show: enabledTabs.includes('nis2') && isSelf },
     { value: 'analysis', label: t("trustProfile.tabs.analysis"), show: enabledTabs.includes('analysis') },
     { value: 'benchmark', label: t("trustProfile.tabs.benchmark"), show: enabledTabs.includes('benchmark') },
     { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: isSelf },
@@ -262,6 +265,15 @@ const AssetTrustProfile = () => {
                 </TabsContent>
               )}
               {isHardware && (
+                <TabsContent value="nis2" className="mt-6">
+                  <NIS2AssessmentTab
+                    assetId={asset.id}
+                    metadata={(asset.metadata as Record<string, any>) || {}}
+                  />
+                </TabsContent>
+              )}
+
+              {isSelf && (
                 <TabsContent value="nis2" className="mt-6">
                   <NIS2AssessmentTab
                     assetId={asset.id}
