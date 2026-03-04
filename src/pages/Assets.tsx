@@ -18,6 +18,7 @@ import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab
 import { DeviceListTab } from "@/components/devices/DeviceListTab";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
+import { seedDemoDevices, deleteDemoDevices } from "@/lib/demoDeviceProfiles";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function Assets() {
@@ -51,6 +52,32 @@ export default function Assets() {
       toast.success(`${count} demo-leverandører ble fjernet`);
     } catch (e: any) {
       toast.error(e.message || "Kunne ikke fjerne demo-data");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSeedDevices = async () => {
+    setIsSeeding(true);
+    try {
+      const count = await seedDemoDevices();
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success(`${count} demo-enheter ble lastet inn`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke laste inn demo-enheter");
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  const handleDeleteDevices = async () => {
+    setIsDeleting(true);
+    try {
+      const count = await deleteDemoDevices();
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success(`${count} demo-enheter ble fjernet`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke fjerne demo-enheter");
     } finally {
       setIsDeleting(false);
     }
@@ -157,10 +184,18 @@ export default function Assets() {
                   Last inn demo-leverandører
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDeleteDemo} disabled={isDeleting} className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Fjern demo-leverandører
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                   <Trash2 className="h-4 w-4 mr-2" />
+                   Fjern demo-leverandører
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={handleSeedDevices} disabled={isSeeding}>
+                   <Database className="h-4 w-4 mr-2" />
+                   Last inn demo-enheter
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={handleDeleteDevices} disabled={isDeleting} className="text-destructive">
+                   <Trash2 className="h-4 w-4 mr-2" />
+                   Fjern demo-enheter
+                 </DropdownMenuItem>
+               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 

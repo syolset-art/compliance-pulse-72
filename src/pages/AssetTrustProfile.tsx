@@ -26,6 +26,7 @@ import { AnalysisTab } from "@/components/asset-profile/tabs/AnalysisTab";
 import { BenchmarkTab } from "@/components/asset-profile/tabs/BenchmarkTab";
 import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
+import { DeviceComplianceTab } from "@/components/devices/DeviceComplianceTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,12 +104,16 @@ const AssetTrustProfile = () => {
   });
 
   const isSelf = asset?.asset_type === 'self';
-  const enabledTabs = template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark'];
+  const isHardware = asset?.asset_type === 'hardware';
+  const enabledTabs = isHardware
+    ? ['compliance', 'riskManagement', 'incidents', 'documents']
+    : (template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark']);
 
-  const [activeTab, setActiveTab] = useState("validation");
+  const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
 
   // Primary tabs (always visible) and overflow tabs (in dropdown)
   const primaryTabDefs = [
+    { value: 'compliance', label: 'ISO 27001 Samsvar', show: enabledTabs.includes('compliance') },
     { value: 'validation', label: t("trustProfile.tabs.validation"), show: enabledTabs.includes('validation') },
     { value: 'usage', label: t("trustProfile.tabs.usage"), show: enabledTabs.includes('usage') },
     { value: 'dataHandling', label: t("trustProfile.tabs.dataHandling"), show: enabledTabs.includes('dataHandling') },
@@ -244,6 +249,16 @@ const AssetTrustProfile = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+
+              {isHardware && (
+                <TabsContent value="compliance" className="mt-6">
+                  <DeviceComplianceTab
+                    assetId={asset.id}
+                    metadata={(asset.metadata as Record<string, any>) || {}}
+                    asset={asset}
+                  />
+                </TabsContent>
+              )}
 
               <TabsContent value="validation" className="mt-6">
                 <ValidationTab assetId={asset.id} />
