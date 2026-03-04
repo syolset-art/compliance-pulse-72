@@ -5,13 +5,20 @@ const STORAGE_KEY = "mynder-activated-services";
 type ActivatedEntry = { activatedBy: string; activatedAt: string };
 type ActivatedMap = Record<string, ActivatedEntry>;
 
-// Simple external store backed by localStorage so every component
-// that calls the hook re-renders when a service is activated — even
-// across different parts of the component tree.
-
 let listeners: Array<() => void> = [];
+let cachedSnapshot: ActivatedMap = readFromStorage();
+
+function readFromStorage(): ActivatedMap {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ActivatedMap) : {};
+  } catch {
+    return {};
+  }
+}
 
 function emitChange() {
+  cachedSnapshot = readFromStorage();
   listeners.forEach((l) => l());
 }
 
@@ -23,16 +30,11 @@ function subscribe(listener: () => void) {
 }
 
 function getSnapshot(): ActivatedMap {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ActivatedMap) : {};
-  } catch {
-    return {};
-  }
+  return cachedSnapshot;
 }
 
 function activateServiceInStore(id: string, activatedBy: string) {
-  const current = getSnapshot();
+  const current = cachedSnapshot;
   const updated: ActivatedMap = {
     ...current,
     [id]: { activatedBy, activatedAt: new Date().toISOString() },
