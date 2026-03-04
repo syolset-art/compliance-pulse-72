@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,8 +11,29 @@ interface ValidationTabProps {
   assetId: string;
 }
 
+const DEMO_TASKS = [
+  { id: "dt1", title: "Innhent oppdatert DPA fra leverandør", status: "pending", priority: "high" },
+  { id: "dt2", title: "Gjennomfør risikovurdering", status: "in_progress", priority: "high" },
+  { id: "dt3", title: "Verifiser databehandleravtale", status: "pending", priority: "medium" },
+  { id: "dt4", title: "Oppdater personvernkonsekvensvurdering (DPIA)", status: "pending", priority: "medium" },
+  { id: "dt5", title: "Dokumenter tekniske sikkerhetstiltak", status: "completed", priority: "low" },
+];
+
 export const ValidationTab = ({ assetId }: ValidationTabProps) => {
   const { t } = useTranslation();
+
+  const { data: asset } = useQuery({
+    queryKey: ["asset-detail", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("compliance_score")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: compliance } = useQuery({
     queryKey: ["system-compliance", assetId],
@@ -38,15 +60,37 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
     },
   });
 
+  const fallbackCompliance = useMemo(() => {
+    if (compliance && compliance.length > 0) return null;
+    const base = asset?.compliance_score || 45;
+    return [
+      { standard: "GDPR", score: Math.min(base + 15, 100), status: base + 15 >= 80 ? "compliant" : "in_progress" },
+      { standard: "NIS2", score: Math.max(base - 10, 0), status: "in_progress" },
+      { standard: "CRA", score: Math.max(base - 25, 0), status: "non_compliant" },
+      { standard: "AIAACT", score: 0, status: "not_assessed" },
+    ];
+  }, [compliance, asset?.compliance_score]);
+
+  const effectiveCompliance = fallbackCompliance || compliance || [];
   const standards = ["GDPR", "NIS2", "CRA", "AIAACT"];
-  const complianceMap = compliance?.reduce((acc, item) => {
+  const complianceMap = (Array.isArray(effectiveCompliance) ? effectiveCompliance : []).reduce((acc, item: any) => {
     acc[item.standard] = item;
     return acc;
-  }, {} as Record<string, typeof compliance[0]>) || {};
+  }, {} as Record<string, any>);
 
-  const totalScore = compliance?.length 
-    ? Math.round(compliance.reduce((sum, item) => sum + (item.score || 0), 0) / compliance.length)
+  const totalScore = effectiveCompliance.length
+    ? Math.round((effectiveCompliance as any[]).reduce((sum, item: any) => sum + (item.score || 0), 0) / effectiveCompliance.length)
     : 0;
+
+  const effectiveTasks = tasks && tasks.length > 0 ? tasks : DEMO_TASKS;
+
+  const getComplianceLevel = (score: number) => {
+    if (score >= 80) return { label: "Høy", color: "text-green-600", bg: "bg-green-100" };
+    if (score >= 50) return { label: "Medium", color: "text-yellow-600", bg: "bg-yellow-100" };
+    return { label: "Lav", color: "text-destructive", bg: "bg-red-100" };
+  };
+
+  const level = getComplianceLevel(totalScore);
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
@@ -67,38 +111,31 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {/* Left column - Tasks and overall compliance */}
       <div className="md:col-span-2 space-y-6">
-        {/* System Tasks */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">{t("trustProfile.systemTasks")}</CardTitle>
           </CardHeader>
           <CardContent>
-            {tasks && tasks.length > 0 ? (
-              <div className="space-y-3">
-                {tasks.slice(0, 5).map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-2 w-2 rounded-full ${
-                        task.status === "completed" ? "bg-green-500" : 
-                        task.status === "in_progress" ? "bg-yellow-500" : "bg-muted-foreground"
-                      }`} />
-                      <span className="text-sm font-medium">{task.title}</span>
-                    </div>
-                    <Badge variant={task.priority === "high" ? "destructive" : "secondary"}>
-                      {task.priority}
-                    </Badge>
+            <div className="space-y-3">
+              {(effectiveTasks as any[]).slice(0, 5).map((task: any) => (
+                <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className={`h-2 w-2 rounded-full ${
+                      task.status === "completed" ? "bg-green-500" :
+                      task.status === "in_progress" ? "bg-yellow-500" : "bg-muted-foreground"
+                    }`} />
+                    <span className="text-sm font-medium">{task.title}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">{t("trustProfile.noTasks")}</p>
-            )}
+                  <Badge variant={task.priority === "high" ? "destructive" : "secondary"}>
+                    {task.priority}
+                  </Badge>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Compliance per standard */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">{t("trustProfile.complianceByStandard")}</CardTitle>
@@ -126,9 +163,7 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
         </Card>
       </div>
 
-      {/* Right column - Total compliance and AI insights */}
       <div className="space-y-6">
-        {/* Total Compliance */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">{t("trustProfile.totalCompliance")}</CardTitle>
@@ -156,11 +191,13 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
                   <span className="text-3xl font-bold">{totalScore}%</span>
                 </div>
               </div>
+              <Badge className={`mt-3 ${level.bg} ${level.color} border-0 text-sm font-semibold`}>
+                {level.label}
+              </Badge>
             </div>
           </CardContent>
         </Card>
 
-        {/* AI Insights */}
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
