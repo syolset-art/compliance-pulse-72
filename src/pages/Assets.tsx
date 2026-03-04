@@ -15,6 +15,7 @@ import { VendorListTab } from "@/components/vendor-dashboard/VendorListTab";
 import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
+import { DeviceListTab } from "@/components/devices/DeviceListTab";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -114,6 +115,7 @@ export default function Assets() {
 
   // Filter vendor-type assets
   const vendors = useMemo(() => assets.filter(a => a.asset_type === "vendor"), [assets]);
+  const devices = useMemo(() => assets.filter(a => a.asset_type === "hardware"), [assets]);
 
   const handleDiscoverAI = () => {
     openChatWithMessage(t("vendorDashboard.discoverAI", "Discover with AI"));
@@ -166,6 +168,14 @@ export default function Assets() {
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="all">{t("vendorDashboard.tabs.all")}</TabsTrigger>
+              <TabsTrigger value="devices">
+                Enheter
+                {devices.length > 0 && (
+                  <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                    {devices.length}
+                  </span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="overview">{t("vendorDashboard.tabs.needsAction", "Krever handling")}</TabsTrigger>
               <TabsTrigger value="map">{t("vendorDashboard.tabs.map")}</TabsTrigger>
               <TabsTrigger value="supplyChain">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
@@ -180,6 +190,10 @@ export default function Assets() {
                 onDiscoverAI={handleDiscoverAI}
                 onDelete={(id) => deleteAsset.mutate(id)}
               />
+            </TabsContent>
+
+            <TabsContent value="devices">
+              <DeviceListTab devices={devices} />
             </TabsContent>
 
             <TabsContent value="all">
