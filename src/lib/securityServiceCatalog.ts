@@ -1,4 +1,4 @@
-import { Shield, HardDrive, Mail, Globe, Users, Eye, FileCheck, ShieldAlert, LucideIcon } from "lucide-react";
+import { Shield, HardDrive, Mail, Globe, Users, Eye, FileCheck, ShieldAlert, BrainCircuit, LucideIcon } from "lucide-react";
 
 export interface AcronisModule {
   id: string;
@@ -285,6 +285,32 @@ export const SECURITY_SERVICE_CATALOG: SecurityServiceCategory[] = [
     acronisModules: [
       { id: "dlp", name: "Data Loss Prevention", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Forhindrer uautorisert deling av sensitiv data via e-post, USB og skylagring", isActive: true },
       { id: "adv-file-sync", name: "Advanced File Sync & Share", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Sikker fildeling og synkronisering med kryptering og tilgangskontroll", isActive: false },
+    ],
+  },
+  {
+    id: "llm-security",
+    name: "AI / LLM-sikkerhet",
+    nameEn: "AI / LLM Security",
+    description: "Kontroll og beskyttelse mot deling av sensitiv informasjon via språkmodeller (ChatGPT, Copilot, Gemini m.fl.)",
+    color: "bg-fuchsia-500",
+    textColor: "text-fuchsia-700 dark:text-fuchsia-300",
+    icon: BrainCircuit,
+    linkedControls: ["A.8.11", "A.8.12", "A.5.34"],
+    linkedAssessmentKeys: [],
+    mspRecommendation: "Språkmodeller brukes i økende grad på arbeidsstasjoner og mobiler. Uten DLP-kontroll risikerer virksomheten at sensitiv informasjon deles med tredjeparter. Implementer DLP for AI som blokkerer, advarer eller logger sensitiv data sendt til LLM-tjenester.",
+    mspProducts: [
+      { id: "msp-acronis-dlp-ai", name: "Acronis Advanced DLP for AI", vendor: "Acronis", description: "Forhindrer sensitiv data fra å sendes til LLM-tjenester som ChatGPT, Copilot og Gemini" },
+      { id: "msp-nightfall-ai", name: "Nightfall AI DLP", vendor: "Nightfall", description: "Cloud-native DLP som overvåker og blokkerer sensitiv data i AI-verktøy" },
+    ],
+    implementationSteps: [
+      "Kartlegg hvilke LLM-tjenester som brukes på tvers av enheter",
+      "Klassifiser sensitive datatyper (personnummer, helseopplysninger, forretningshemmeligheter)",
+      "Konfigurer DLP-policy: blokkér, advar eller logg ved deling av sensitiv data",
+      "Rull ut DLP-agent på alle endepunkter med LLM-tilgang",
+      "Overvåk og rapporter brudd kvartalsvis til ledelsen",
+    ],
+    acronisModules: [
+      { id: "adv-dlp-ai", name: "Advanced DLP for AI", acronisPackage: "Cyber Protect Cloud", priceIndicator: "addon", description: "Data Loss Prevention spesielt rettet mot AI/LLM-tjenester — blokkerer, advarer eller logger forsøk på å dele sensitiv informasjon med språkmodeller", isActive: false },
     ],
   },
 ];
