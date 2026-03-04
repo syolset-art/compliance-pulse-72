@@ -1,43 +1,70 @@
 
 
-## Plan: Speile LLM-sikkerhetstjeneste-aktivering i enhetsvisningen
+## Plan: NIS2-vurdering med proaktiv AI-analyse, dokumentopplasting og notater
 
-### Problem
-Aktivering av "AI/LLM-sikkerhet" i sikkerhetstjenestekatalogen er lokal state i `SecurityServicesSection` og reflekteres ikke i enhetenes compliance-sjekkliste eller LLM-bruksoversikt. Brukeropplevelsen brytes — man aktiverer en tjeneste, men enhetene viser fortsatt "ubegrenset" og "fail".
+### Oversikt
+Ny fane "NIS2 Vurdering" i hardware-enhetens profil som automatisk analyserer eksisterende metadata for å gi en umiddelbar statusoversikt. Brukeren kan laste opp dokumenter og legge til notater per kravpunkt, og ser alltid total fremdrift.
 
-### Løsning
-Introdusere en delt state-mekanisme som lar DeviceComplianceTab vite om LLM-sikkerhetstjenesten er aktivert, og oppdatere visningen deretter.
+### Del 1: NIS2-kravsdefinisjon
+**Ny fil: `src/lib/nis2Requirements.ts`**
 
-### Implementering
+10 krav basert på NIS2 Art. 21(2)(a-j). Hvert krav har:
+- `id`, `label`, `articleRef`, `description`, `recommendation`
+- `autoCheck(metadata)` — funksjon som sjekker enhetens metadata og returnerer `pass`/`fail`/`partial` automatisk (AI-proaktiv del)
+- `documentTypes` — foreslåtte dokumenttyper som kan lastes opp som evidens
 
-**1. Ny hook: `src/hooks/useActivatedServices.ts`**
-- Global state (via React context eller enkel localStorage-basert hook) som holder styr på hvilke sikkerhetstjenester som er aktivert
-- Eksporterer `activatedServiceIds` og `activateService(id)`/`isServiceActive(id)`
-- `SecurityServicesSection` skriver til denne når bruker aktiverer en tjeneste
-- `DeviceComplianceTab` leser fra denne for å sjekke om `adv-dlp-ai` er aktiv
+Eksempel auto-sjekker:
+- Kryptering (Art. 21h) → sjekker `metadata.encryption`
+- Sårbarhetshåndtering (Art. 21f) → sjekker `metadata.last_patch_date < 30d`
+- Backup (Art. 21c) → sjekker `metadata.backup`
+- Tilgangskontroll (Art. 21i) → sjekker `metadata.mdm`
+- MFA (Art. 21j) → sjekker `metadata.mfa_enabled`
 
-**2. Oppdater `DeviceComplianceTab`**
-- Importer `useActivatedServices`
-- Når `adv-dlp-ai` er aktiv: 
-  - LLM-brukskortene viser `accessLevel: "managed"` i stedet for `"unrestricted"` (visuelt override)
-  - ISO-kontrollpunktet "LLM-tilgang sikret" endres til "pass"
-  - Vis en liten badge/info som sier "Beskyttet av Acronis Advanced DLP for AI"
-- Compliance-scoren øker automatisk
+Krav uten automatisk sjekk (risikoanalyse, hendelseshåndtering, opplæring, forsyningskjede, anskaffelsessikkerhet) starter som "Ikke vurdert" men kan bekreftes manuelt eller via dokumentopplasting.
 
-**3. Oppdater `SecurityServicesSection`**
-- Når bruker aktiverer en tjeneste via `handleActivate`, skriv også til `useActivatedServices`
+### Del 2: NIS2AssessmentTab-komponent
+**Ny fil: `src/components/devices/NIS2AssessmentTab.tsx`**
 
-**4. Visuell flyt i DeviceComplianceTab ved aktivert LLM-sikkerhet**
-- LLM-kort som var røde (unrestricted) → grønne (managed via DLP)
-- Advarselsbanner forsvinner
-- Ny info-linje: "DLP for AI aktivert — all LLM-trafikk overvåkes"
-- Kontrollpunktet "LLM-tilgang sikret" → grønt hakmerke
+**Layout:**
+
+1. **Sammendrag-kort øverst:**
+   - Sirkulær fremdriftsindikator med prosent
+   - "X av 10 krav oppfylt" + "Y delvis" + "Z gjenstår"
+   - Lara-badge: "Lara har automatisk vurdert 5 av 10 krav basert på enhetens data"
+
+2. **Kravliste (hvert krav er et ekspanderbart kort):**
+   - Venstre: statusikon (grønn/gul/rød)
+   - Midt: kravtittel + artikkelref + kort beskrivelse
+   - Høyre: toggle "Oppfylt" / "Ikke oppfylt" / "Delvis"
+   - Hvis auto-sjekket av Lara: liten badge "Automatisk vurdert"
+   
+   **Ekspandert innhold:**
+   - Detaljert beskrivelse og anbefaling
+   - **Notater-felt:** Textarea for fritekstnotater (lagres i localStorage per asset+krav)
+   - **Dokumenter-seksjon:** Knapp "Last opp dokument" som åpner filopplasting. Viser allerede opplastede filer med navn og dato. Dokumenter lagres i `documents` storage bucket under `nis2/{assetId}/{requirementId}/`
+   - Tidsstempel for siste endring
+
+3. **Fremdriftslinje nederst** som alltid viser total NIS2-compliance i prosent
+
+### Del 3: State-håndtering
+- Kravstatus og notater lagres i enhetens `metadata.nis2_assessment`-objekt via Supabase update
+- Struktur: `{ [requirementId]: { status: "pass"|"fail"|"partial"|"not_assessed", notes: string, updatedAt: string, autoChecked: boolean } }`
+- Dokumenter lagres i storage bucket, filoversikt hentes via `supabase.storage.from('documents').list()`
+
+### Del 4: Koble inn i AssetTrustProfile
+- Legg til `'nis2'` i hardware-enhetens `enabledTabs`
+- Ny fane-definisjon i `primaryTabDefs` for hardware
+- `TabsContent` rendrer `NIS2AssessmentTab`
+
+### Del 5: Demo-data
+Oppdater 2 enheter i `demoDeviceProfiles.ts` med ferdig `nis2_assessment`-data for å vise variasjon.
 
 ### Filer
 
 | Fil | Endring |
 |-----|---------|
-| `src/hooks/useActivatedServices.ts` | Ny — delt state for aktiverte sikkerhetstjenester |
-| `src/components/devices/DeviceComplianceTab.tsx` | Les fra useActivatedServices, override LLM-visning |
-| `src/components/asset-profile/tabs/SecurityServicesSection.tsx` | Skriv til useActivatedServices ved aktivering |
+| `src/lib/nis2Requirements.ts` | Ny — 10 NIS2-krav med auto-sjekk |
+| `src/components/devices/NIS2AssessmentTab.tsx` | Ny — komplett vurderingskomponent |
+| `src/lib/demoDeviceProfiles.ts` | Legg til `nis2_assessment` for 2 enheter |
+| `src/pages/AssetTrustProfile.tsx` | Ny fane i hardware-tabs |
 
