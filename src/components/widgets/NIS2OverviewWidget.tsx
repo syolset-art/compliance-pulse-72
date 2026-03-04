@@ -32,8 +32,9 @@ export function NIS2OverviewWidget() {
           data.map((d) => {
             const meta = (d.metadata as Record<string, any>) || {};
             const assessment: NIS2AssessmentMap = meta.nis2_assessment || {};
-            const hasAssessment = Object.keys(assessment).length > 0;
             const summary = computeNIS2Summary(nis2Requirements, assessment, meta);
+            // Consider assessed if there's saved data OR auto-checks produced results
+            const hasAssessment = Object.keys(assessment).length > 0 || summary.autoCheckedCount > 0;
             return { id: d.id, name: d.name, percent: summary.percent, hasAssessment };
           })
         );
