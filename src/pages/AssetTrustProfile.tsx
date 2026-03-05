@@ -8,8 +8,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Building2, Server } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
@@ -28,6 +29,7 @@ import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerReq
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
 import { DeviceComplianceTab } from "@/components/devices/DeviceComplianceTab";
 import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
+import { OrganizationServicesPanel } from "@/components/asset-profile/OrganizationServicesPanel";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,6 +115,7 @@ const AssetTrustProfile = () => {
     : (template?.enabled_tabs || ['validation', 'usage', 'dataHandling', 'riskManagement', 'incidents', 'relations', 'certificates', 'documents', 'analysis', 'benchmark']);
 
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
+  const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
 
   // Primary tabs (always visible) and overflow tabs (in dropdown)
   const primaryTabDefs = [
@@ -202,7 +205,46 @@ const AssetTrustProfile = () => {
               />
             )}
 
-            {/* Tabs section */}
+            {/* Organization-level navigation for self-type */}
+            {isSelf && (
+              <div className="flex items-center gap-1 border-b border-border pb-0">
+                <button
+                  onClick={() => setOrgSection("trust-profile")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px",
+                    orgSection === "trust-profile"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Building2 className="h-4 w-4" />
+                  Trust Profile
+                </button>
+                <button
+                  onClick={() => setOrgSection("services")}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px",
+                    orgSection === "services"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Server className="h-4 w-4" />
+                  Services
+                </button>
+              </div>
+            )}
+
+            {/* Services panel for self-type */}
+            {isSelf && orgSection === "services" && (
+              <OrganizationServicesPanel
+                organizationName={asset.name}
+                assetId={asset.id}
+              />
+            )}
+
+            {/* Tabs section - show when not in services view */}
+            {(!isSelf || orgSection === "trust-profile") && (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
               <div className="flex items-center gap-1">
                 <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 flex-1 min-w-0 overflow-hidden">
@@ -337,6 +379,7 @@ const AssetTrustProfile = () => {
                 </TabsContent>
               )}
             </Tabs>
+            )}
           </div>
         </main>
       </div>
