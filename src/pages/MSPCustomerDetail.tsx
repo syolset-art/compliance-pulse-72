@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Mail, User, Wifi, Server, Eye, RefreshCw } from "lucide-react";
+import { ArrowLeft, Mail, User, Wifi, Server, Eye, RefreshCw, ShieldCheck, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
@@ -181,6 +181,62 @@ export default function MSPCustomerDetail() {
 
           {/* Security service gap analysis */}
           <SecurityServiceGapCard assessmentResponses={customer.assessment_responses || null} />
+
+          {/* Trust Profile & NIS2 cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-foreground">Trust Profile</h3>
+              </div>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Se kundens compliance-status, dokumenter og sertifikater samlet i Trust Profile.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-2xl font-bold", getScoreColor(customer.compliance_score || 0))}>
+                    {customer.compliance_score || 0}%
+                  </span>
+                  <span className="text-sm text-muted-foreground">samsvar</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Se full Trust Profile
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-foreground">NIS2-vurdering</h3>
+              </div>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Start eller se status på NIS2-kartlegging for kundens enheter og systemer.
+                </p>
+                <Badge variant={customer.active_frameworks?.includes("NIS2") ? "default" : "outline"}>
+                  {customer.active_frameworks?.includes("NIS2") ? "NIS2 aktivert" : "Ikke startet"}
+                </Badge>
+                <div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => navigate(`/msp-dashboard/${customerId}/nis2`)}
+                  >
+                    <Shield className="h-4 w-4" />
+                    {customer.active_frameworks?.includes("NIS2") ? "Se NIS2-vurdering" : "Start NIS2-vurdering"}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
 
           {/* Dashboard widgets */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

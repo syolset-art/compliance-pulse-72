@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { nb } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { Shield, ShieldCheck } from "lucide-react";
 
 interface MSPCustomer {
   id: string;
@@ -117,9 +119,37 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
         </div>
       </div>
 
+      {/* Quick actions */}
+      <div className="flex gap-2 mt-3 pt-3 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 gap-1.5 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/msp-dashboard/${customer.id}/trust-profile`);
+          }}
+        >
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Se Trust Profile
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 gap-1.5 text-xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/msp-dashboard/${customer.id}/nis2`);
+          }}
+        >
+          <Shield className="h-3.5 w-3.5" />
+          NIS2-vurdering
+        </Button>
+      </div>
+
       {/* Footer */}
       {customer.last_activity_at && (
-        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t">
+        <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
           Siste aktivitet: {formatDistanceToNow(new Date(customer.last_activity_at), { addSuffix: true, locale: nb })}
         </p>
       )}
