@@ -663,8 +663,8 @@ export default function WorkAreas() {
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
                   >
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">{t("myWorkAreas.tabs.protocols")}</span>
-                    <span className="sm:hidden">Prot</span>
+                    <span className="hidden sm:inline">Behandlingsaktiviteter</span>
+                    <span className="sm:hidden">Beh.</span>
                     <Badge variant="secondary" className="ml-1 text-xs">28</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
@@ -706,9 +706,9 @@ export default function WorkAreas() {
               </div>
               {activeWorkAreaTab === "protocols" && (
                 <div className="flex justify-end mt-3">
-                  <Button size="sm" className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    {t("myWorkAreas.addProtocol")}
+                  <Button size="sm" className="gap-1" onClick={() => navigate("/reports")}>
+                    <FileText className="h-4 w-4" />
+                    Start rapport
                   </Button>
                 </div>
               )}
@@ -847,8 +847,18 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="protocols" className="mt-4">
-                <Card className="p-8 text-center text-muted-foreground">
-                  {t("myWorkAreas.comingSoon")}
+                <Card className="p-6">
+                  <div className="text-center py-6">
+                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">Behandlingsaktiviteter</h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                      Oversikt over organisasjonens behandlingsaktiviteter i henhold til GDPR art. 30. Generer en rapport for å dokumentere alle aktiviteter.
+                    </p>
+                    <Button className="gap-2" onClick={() => navigate("/reports")}>
+                      <FileText className="h-4 w-4" />
+                      Lag behandlingsprotokoll
+                    </Button>
+                  </div>
                 </Card>
               </TabsContent>
 
