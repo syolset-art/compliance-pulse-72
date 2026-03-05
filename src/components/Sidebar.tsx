@@ -371,6 +371,21 @@ const SidebarContent = () => {
           Ressurssenter <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">Kommer</Badge>
         </Link>
 
+        {/* Salg & Demo section */}
+        <Link
+          to="/demo-library"
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all mt-2",
+            location.pathname === "/demo-library"
+              ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+          )}
+        >
+          <Play className="h-5 w-5" />
+          Demo-bibliotek
+          <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
+        </Link>
+
         {/* Utviklere menu */}
         <div className="pt-1">
           <button 
