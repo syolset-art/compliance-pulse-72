@@ -1,53 +1,69 @@
 
 
-## Plan: Add Trust Profile and NIS2 Assessment access to MSP Partner Dashboard
+## Plan: Demo Library for Sales and Advisors
 
 ### Problem
-Partners on the MSP dashboard cannot view a customer's Trust Profile or start a NIS2 assessment directly. They must navigate deep into the customer portal to find these features.
+Sales and advisors need an easy way to run predefined demos of key platform features (e.g., creating a processing activity, showing Lara's AI process suggestions). The existing demo infrastructure (DemoHighlight, DemoAgentPanel, DemoSyncContext, useDemoController) provides building blocks but lacks a curated library of ready-to-run demos and a dedicated entry point.
 
 ### Approach
-Add two quick-action buttons to the `MSPCustomerCard` and enhance the `MSPCustomerDetail` page with a dedicated Trust Profile section and NIS2 assessment launcher.
+Build a **Demo Library page** (`/demo-library`) accessible from the sidebar, containing a catalog of pre-built demos organized by category. Each demo is a scripted sequence that navigates to the right page and runs a guided walkthrough using the existing `DemoHighlight` system. Add new demo scenarios for the two requested flows plus more.
 
 ### Changes
 
-**1. `src/components/msp/MSPCustomerCard.tsx`**
-- Add two icon buttons at the bottom of each card: "Se Trust Profile" and "Start NIS2-vurdering"
-- "Se Trust Profile" navigates to `/assets/{assetId}` — we'll need to look up or link the customer's self-asset. For demo purposes, navigate to a route like `/msp-dashboard/{customerId}/trust-profile`
-- "Start NIS2-vurdering" navigates to `/msp-dashboard/{customerId}/nis2`
-- Use `stopPropagation` so clicking these buttons doesn't trigger the card's main onClick
+**1. New page: `src/pages/DemoLibrary.tsx`**
+- Grid of demo cards grouped by category (Onboarding, Compliance, AI-funksjoner, Leverandørhåndtering)
+- Each card shows title, description, estimated time, difficulty
+- Clicking a card navigates to the relevant page and starts the demo
+- "Selgermodus" toggle at top that hides demo-irrelevant UI elements and shows a banner
+- Search/filter by category
 
-**2. `src/pages/MSPCustomerDetail.tsx`**
-- Add a "Trust Profile" card in the dashboard grid with a summary of the customer's compliance level and a "Se full Trust Profile" button
-- Add a "NIS2-vurdering" card showing a quick status (assessed/not assessed) with a "Start vurdering" button
-- Both link to new sub-routes
+**2. Update `src/components/DemoHighlight.tsx`**
+- Add new demo scenarios:
+  - `create-processing-activity`: Navigate to `/protocols`, open add dialog, walk through fields
+  - `lara-ai-process-suggestions`: Navigate to `/work-areas`, select an area, show AI suggestion flow
+  - `vendor-trust-profile`: Navigate to vendor trust profile flow
+  - `nis2-assessment`: Navigate to NIS2 assessment
+  - `compliance-checklist`: Walk through the compliance checklist
+- Each scenario has proper `selector` targets and `instruction` text in Norwegian
 
-**3. New page: `src/pages/MSPCustomerTrustProfile.tsx`**
-- A wrapper page that shows the customer's Trust Profile (reusing the `AssetTrustProfile` components) with the partner banner at top
-- Queries `assets` table for the customer's "self" asset (matching by `customer_name` or a linked field), or shows a fallback demo view
-- Includes a back button to the MSP customer detail
+**3. Update `src/hooks/usePageContext.ts`**
+- Add demo scenarios for `/protocols` and `/work-areas` pages matching the new scenarios
 
-**4. New page: `src/pages/MSPCustomerNIS2.tsx`**
-- A wrapper page that embeds the `NIS2AssessmentTab` component for the customer's hardware assets
-- Shows a list of the customer's devices with their NIS2 status
-- Partner can select a device and run the NIS2 assessment inline
-- For demo purposes, uses the existing assets from the database or generates fallback demo data
+**4. New component: `src/components/demo/DemoLauncherBar.tsx`**
+- A floating bar shown when a demo is about to start, with "Start demo" confirmation, preview of steps, and a "Tilbake til bibliotek" button
 
-**5. `src/App.tsx`**
-- Add routes: `/msp-dashboard/:customerId/trust-profile` and `/msp-dashboard/:customerId/nis2`
+**5. Update `src/components/Sidebar.tsx`**
+- Add "Demo-bibliotek" link under Utviklere section (or a new "Salg & Demo" section) with a Play icon
 
-### Technical detail
+**6. Update `src/App.tsx`**
+- Add route `/demo-library` → `DemoLibrary`
 
-Since `msp_customers` and `assets` are not directly linked via FK, we'll match by name (`customer_name` ↔ `name` in assets where `asset_type` = 'vendor' or 'self'). If no match is found, we show a "No Trust Profile found" state with an option to create one.
+### New Demo Scenarios
 
-For the NIS2 page, we query `assets` where `asset_type = 'hardware'` and filter by a name/org match to the customer. In demo mode, we can show all hardware assets as a fallback.
+| ID | Title | Category | Steps |
+|----|-------|----------|-------|
+| `create-processing-activity` | Opprett behandlingsaktivitet | Compliance | Navigate → Open dialog → Fill purpose, legal basis, data types → Save |
+| `lara-ai-suggestions` | Lara foreslår prosesser | AI-funksjoner | Navigate to work area → Click "AI-forslag" → Show suggestions → Accept |
+| `vendor-assessment` | Leverandørvurdering | Leverandører | Open vendor → Start assessment → Fill checklist |
+| `nis2-partner-assessment` | NIS2-vurdering (Partner) | Partner | Navigate MSP → Select customer → Run NIS2 |
+| `dashboard-overview` | Dashboard-gjennomgang | Onboarding | Walk through widgets and their purpose |
+
+### Technical Detail
+
+Each demo scenario uses `data-demo` attributes on target elements. For demos requiring navigation, the `startDemo` function will:
+1. Use `navigate()` from react-router to go to the target page
+2. Wait 500ms for render
+3. Start the `DemoHighlight` sequence
+
+The demo library page stores demo metadata in a constant array, no database needed.
 
 ### Files
 
 | File | Change |
 |------|--------|
-| `src/components/msp/MSPCustomerCard.tsx` | Add Trust Profile and NIS2 quick-action buttons |
-| `src/pages/MSPCustomerDetail.tsx` | Add Trust Profile summary card and NIS2 status card |
-| `src/pages/MSPCustomerTrustProfile.tsx` | New - partner Trust Profile viewer with banner |
-| `src/pages/MSPCustomerNIS2.tsx` | New - partner NIS2 assessment launcher |
-| `src/App.tsx` | Add two new routes |
+| `src/pages/DemoLibrary.tsx` | New - demo catalog page |
+| `src/components/DemoHighlight.tsx` | Add 5 new demo scenarios |
+| `src/hooks/usePageContext.ts` | Add scenarios for protocols and work-areas |
+| `src/components/Sidebar.tsx` | Add demo library nav link |
+| `src/App.tsx` | Add `/demo-library` route |
 
