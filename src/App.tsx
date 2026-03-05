@@ -50,6 +50,8 @@ import MaturityMethodology from "./pages/MaturityMethodology";
 import TrustCenterSaaS from "./pages/TrustCenterSaaS";
 import TrustCenterShared from "./pages/TrustCenterShared";
 import ComplianceCalendar from "./pages/ComplianceCalendar";
+import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
+import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +96,8 @@ const App = () => (
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
+                  <Route path="/msp-dashboard/:customerId/trust-profile" element={<MSPCustomerTrustProfile />} />
+                  <Route path="/msp-dashboard/:customerId/nis2" element={<MSPCustomerNIS2 />} />
                   <Route path="/msp-dashboard/:customerId/portal" element={<MSPCustomerPortal />} />
                   <Route path="/msp-licenses" element={<MSPLicenses />} />
                   <Route path="/msp-invoices" element={<MSPInvoices />} />
