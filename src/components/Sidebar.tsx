@@ -120,10 +120,12 @@ const TrustCenterMenu = () => {
   }, []);
 
   const trustCenterItems = [
-    { name: "Vår Trust Profil", href: selfAssetId ? `/assets/${selfAssetId}` : null, icon: Shield },
-    { name: "SaaS / Product", href: "/trust-center/saas", icon: Layers },
-    { name: "Shared Profiles", href: "/trust-center/shared", icon: Share2 },
-    { name: "Forespørsler", href: "/customer-requests", icon: FileQuestion },
+    { name: "Organization Trust Profile", href: selfAssetId ? `/assets/${selfAssetId}` : null, icon: Shield },
+    { name: "Products & Services", href: "/trust-center/products", icon: Layers },
+    { name: "Compliance Status", href: "/trust-center/compliance", icon: FileCheck },
+    { name: "Policies", href: "/trust-center/policies", icon: FileText },
+    { name: "Certifications", href: "/trust-center/certifications", icon: Scale },
+    { name: "Contact & Requests", href: "/customer-requests", icon: FileQuestion },
   ];
 
   const isActive = trustCenterItems.some(item => item.href && location.pathname === item.href);

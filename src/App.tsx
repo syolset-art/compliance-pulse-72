@@ -49,6 +49,10 @@ import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
 import TrustCenterSaaS from "./pages/TrustCenterSaaS";
 import TrustCenterShared from "./pages/TrustCenterShared";
+import TrustCenterCompliance from "./pages/TrustCenterCompliance";
+import TrustCenterPolicies from "./pages/TrustCenterPolicies";
+import TrustCenterCertifications from "./pages/TrustCenterCertifications";
+import TrustCenterProducts from "./pages/TrustCenterProducts";
 import ComplianceCalendar from "./pages/ComplianceCalendar";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
 import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
@@ -113,6 +117,10 @@ const App = () => (
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
+                  <Route path="/trust-center/products" element={<TrustCenterProducts />} />
+                  <Route path="/trust-center/compliance" element={<TrustCenterCompliance />} />
+                  <Route path="/trust-center/policies" element={<TrustCenterPolicies />} />
+                  <Route path="/trust-center/certifications" element={<TrustCenterCertifications />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
                   <Route path="/demo-library" element={<DemoLibrary />} />
                   <Route path="*" element={<NotFound />} />
