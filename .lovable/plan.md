@@ -1,58 +1,53 @@
 
 
-## Plan: Seed dummy compliance data for Hult IT Trust Profile
+## Plan: Add Trust Profile and NIS2 Assessment access to MSP Partner Dashboard
 
 ### Problem
-The ValidationTab for asset `d812a623-b786-4a63-8cb7-64b8981dc41b` shows 0% on all standards because there are no rows in `system_compliance` for this asset.
+Partners on the MSP dashboard cannot view a customer's Trust Profile or start a NIS2 assessment directly. They must navigate deep into the customer portal to find these features.
 
 ### Approach
-Since the `system_compliance` table has a FK to `systems` (not `assets`), we cannot insert data referencing an asset ID directly. Instead, we should make the ValidationTab use **hardcoded demo/fallback data** when no real compliance data exists, seeded directly in the component logic based on the asset's own `compliance_score`.
-
-Alternatively, we can update the demo seeding logic to insert `system_compliance` rows. But the FK constraint to `systems` will block inserts with an asset UUID.
-
-**Best approach**: Update the `ValidationTab` component to compute compliance levels from the asset's own `compliance_score` field when no `system_compliance` rows exist. This makes the Total Compliance ring reflect the asset's actual score, and distributes realistic per-standard scores.
+Add two quick-action buttons to the `MSPCustomerCard` and enhance the `MSPCustomerDetail` page with a dedicated Trust Profile section and NIS2 assessment launcher.
 
 ### Changes
 
-**File: `src/components/asset-profile/tabs/ValidationTab.tsx`**
+**1. `src/components/msp/MSPCustomerCard.tsx`**
+- Add two icon buttons at the bottom of each card: "Se Trust Profile" and "Start NIS2-vurdering"
+- "Se Trust Profile" navigates to `/assets/{assetId}` — we'll need to look up or link the customer's self-asset. For demo purposes, navigate to a route like `/msp-dashboard/{customerId}/trust-profile`
+- "Start NIS2-vurdering" navigates to `/msp-dashboard/{customerId}/nis2`
+- Use `stopPropagation` so clicking these buttons doesn't trigger the card's main onClick
 
-1. Accept the asset's `compliance_score` as a prop (or fetch it from `assets` table).
-2. When `system_compliance` returns empty, generate fallback data per standard based on the asset's compliance score:
-   - GDPR: score + small offset
-   - NIS2: score - offset (lower)
-   - CRA: not assessed (0) for non-software vendors
-   - AIAACT: minimal
-3. Show a label like "Lav", "Medium", "Høy" next to the total score ring based on thresholds (< 50 = Lav, 50-79 = Medium, >= 80 = Høy).
-4. Add demo tasks relevant to a vendor with medium compliance (e.g., "Innhent oppdatert DPA", "Gjennomfør risikovurdering").
+**2. `src/pages/MSPCustomerDetail.tsx`**
+- Add a "Trust Profile" card in the dashboard grid with a summary of the customer's compliance level and a "Se full Trust Profile" button
+- Add a "NIS2-vurdering" card showing a quick status (assessed/not assessed) with a "Start vurdering" button
+- Both link to new sub-routes
 
-**File: `src/lib/demoVendorProfiles.ts`** (optional)
+**3. New page: `src/pages/MSPCustomerTrustProfile.tsx`**
+- A wrapper page that shows the customer's Trust Profile (reusing the `AssetTrustProfile` components) with the partner banner at top
+- Queries `assets` table for the customer's "self" asset (matching by `customer_name` or a linked field), or shows a fallback demo view
+- Includes a back button to the MSP customer detail
 
-Add "Hult IT AS" to the demo vendor profiles with a medium compliance score (~55) if it doesn't already exist as an asset.
+**4. New page: `src/pages/MSPCustomerNIS2.tsx`**
+- A wrapper page that embeds the `NIS2AssessmentTab` component for the customer's hardware assets
+- Shows a list of the customer's devices with their NIS2 status
+- Partner can select a device and run the NIS2 assessment inline
+- For demo purposes, uses the existing assets from the database or generates fallback demo data
+
+**5. `src/App.tsx`**
+- Add routes: `/msp-dashboard/:customerId/trust-profile` and `/msp-dashboard/:customerId/nis2`
 
 ### Technical detail
 
-The fallback compliance generation in `ValidationTab`:
-```typescript
-const fallbackCompliance = useMemo(() => {
-  if (compliance && compliance.length > 0) return null;
-  const base = assetComplianceScore || 45;
-  return [
-    { standard: "GDPR", score: Math.min(base + 15, 100), status: base + 15 >= 80 ? "compliant" : "in_progress" },
-    { standard: "NIS2", score: Math.max(base - 10, 0), status: "in_progress" },
-    { standard: "CRA", score: Math.max(base - 25, 0), status: "non_compliant" },
-    { standard: "AIAACT", score: 0, status: "not_assessed" },
-  ];
-}, [compliance, assetComplianceScore]);
-```
+Since `msp_customers` and `assets` are not directly linked via FK, we'll match by name (`customer_name` ↔ `name` in assets where `asset_type` = 'vendor' or 'self'). If no match is found, we show a "No Trust Profile found" state with an option to create one.
 
-The compliance level label next to the ring:
-- `< 50` → "Lav" (red)
-- `50-79` → "Medium" (yellow)  
-- `>= 80` → "Høy" (green)
+For the NIS2 page, we query `assets` where `asset_type = 'hardware'` and filter by a name/org match to the customer. In demo mode, we can show all hardware assets as a fallback.
 
 ### Files
 
 | File | Change |
 |------|--------|
-| `src/components/asset-profile/tabs/ValidationTab.tsx` | Add fallback compliance data, compliance level label, demo tasks |
+| `src/components/msp/MSPCustomerCard.tsx` | Add Trust Profile and NIS2 quick-action buttons |
+| `src/pages/MSPCustomerDetail.tsx` | Add Trust Profile summary card and NIS2 status card |
+| `src/pages/MSPCustomerTrustProfile.tsx` | New - partner Trust Profile viewer with banner |
+| `src/pages/MSPCustomerNIS2.tsx` | New - partner NIS2 assessment launcher |
+| `src/App.tsx` | Add two new routes |
 
