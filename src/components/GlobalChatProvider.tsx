@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatPanel } from "./ChatPanel";
 import { LaraAgent } from "./LaraAgent";
+import { DemoLauncherBar } from "./demo/DemoLauncherBar";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { autoAssignAssetsToWorkAreas } from "@/hooks/useAutoAssignAssets";
 import { toast } from "sonner";
@@ -151,6 +152,9 @@ export function GlobalChatProvider({ children }: GlobalChatProviderProps) {
             onAssetAdded={handleAssetAdded}
             assetTypeTemplates={assetTypeTemplates}
           />
+
+          {/* Demo launcher bar - picks up pending demos from sessionStorage */}
+          <DemoLauncherBar />
         </>
       )}
     </GlobalChatContext.Provider>

@@ -52,6 +52,7 @@ import TrustCenterShared from "./pages/TrustCenterShared";
 import ComplianceCalendar from "./pages/ComplianceCalendar";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
 import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
+import DemoLibrary from "./pages/DemoLibrary";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +114,7 @@ const App = () => (
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
+                  <Route path="/demo-library" element={<DemoLibrary />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>

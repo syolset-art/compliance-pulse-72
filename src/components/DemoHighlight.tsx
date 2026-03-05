@@ -406,7 +406,202 @@ export const DEMO_SCENARIOS: Record<string, DemoScenario> = {
         action: "observe"
       }
     ]
-  }
+  },
+  // --- New demo scenarios ---
+  "dashboard-overview": {
+    id: "dashboard-overview",
+    title: "Dashboard-gjennomgang",
+    description: "En rask gjennomgang av hovedoversikten",
+    steps: [
+      {
+        instruction: "Velkommen til Mynder! Dette er dashbordet ditt – en samlet oversikt over compliance-status, oppgaver og risiko for hele organisasjonen.",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='compliance-section']",
+        instruction: "Her ser du compliance-status for de ulike rammeverkene dere har aktivert, for eksempel GDPR, ISO 27001 og NIS2.",
+        position: "bottom",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='sidebar']",
+        instruction: "Sidemenyen gir rask tilgang til alle funksjoner: eiendeler, arbeidsområder, oppgaver, rapporter og mer.",
+        position: "right",
+        action: "observe"
+      },
+      {
+        instruction: "Fra dashbordet kan du også se kritiske oppgaver, kommende frister og Lara sine AI-anbefalinger.",
+        action: "observe"
+      },
+      {
+        instruction: "Det var en rask introduksjon! Prøv å utforske de ulike modulene eller spør Lara om hjelp.",
+        action: "observe"
+      }
+    ]
+  },
+  "create-processing-activity": {
+    id: "create-processing-activity",
+    title: "Opprett behandlingsaktivitet",
+    description: "Opprett en ny behandlingsaktivitet (ROPA)",
+    steps: [
+      {
+        instruction: "Jeg skal vise deg hvordan du oppretter en ny behandlingsaktivitet. Dette er en sentral del av GDPR-dokumentasjonen – Record of Processing Activities (ROPA).",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='add-protocol-button']",
+        instruction: "Klikk på '+ Ny protokoll' for å åpne veiviseren for ny behandlingsaktivitet.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        instruction: "Fyll inn formålet med behandlingen – for eksempel 'Kundeadministrasjon' eller 'Nyhetsbrev'. AI-en foreslår automatisk basert på bransjen din.",
+        action: "observe"
+      },
+      {
+        instruction: "Velg rettslig grunnlag (f.eks. samtykke, berettiget interesse eller avtale) og angi hvilke datatyper som behandles.",
+        action: "observe"
+      },
+      {
+        instruction: "Til slutt knytter du behandlingen til et arbeidsområde og ansvarlig person. Klikk 'Lagre' for å fullføre.",
+        action: "observe"
+      },
+      {
+        instruction: "Flott! Behandlingsaktiviteten er nå registrert og vil vises i din ROPA-oversikt. Lara overvåker den løpende for compliance-avvik.",
+        action: "observe"
+      }
+    ]
+  },
+  "lara-ai-suggestions": {
+    id: "lara-ai-suggestions",
+    title: "Lara foreslår prosesser",
+    description: "Se hvordan AI-agenten Lara genererer forslag til prosesser",
+    steps: [
+      {
+        instruction: "Nå skal jeg vise deg en av de kraftigste funksjonene i Mynder: Lara kan automatisk foreslå prosesser og behandlingsaktiviteter basert på informasjon om arbeidsområdet ditt.",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='work-area-card']",
+        instruction: "Velg et arbeidsområde – for eksempel 'HR & Personal' eller 'Salg & Marked'. Lara analyserer bransje, størrelse og systemer for å gi relevante forslag.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        selector: "[data-demo='ai-suggest-button']",
+        instruction: "Klikk på 'AI-forslag' knappen for å la Lara generere prosessforslag. Hun analyserer nå arbeidsområdet og finner relevante prosesser.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        instruction: "Lara har generert forslag! Hvert forslag inneholder prosessnavn, beskrivelse, tilknyttede systemer og estimert risikonivå. Du kan godta, avvise eller redigere hvert forslag.",
+        action: "observe"
+      },
+      {
+        instruction: "Klikk 'Godta alle' for å legge forslagene til som prosesser, eller gå gjennom dem en for en. Forslagene blir automatisk knyttet til riktig arbeidsområde.",
+        action: "observe"
+      },
+      {
+        instruction: "Fantastisk! Lara har nå spart deg for timer med manuelt arbeid. Prosessene er registrert og klare for videre dokumentasjon.",
+        action: "observe"
+      }
+    ]
+  },
+  "vendor-assessment": {
+    id: "vendor-assessment",
+    title: "Leverandørvurdering",
+    description: "Gjennomfør en komplett leverandørvurdering",
+    steps: [
+      {
+        instruction: "La meg vise deg hvordan du gjennomfører en leverandørvurdering. Dette er viktig for tredjepartshåndtering og compliance.",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='add-asset-button']",
+        instruction: "Start med å legge til en leverandør via '+ Ny eiendel' og velg 'Leverandør' som type.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        instruction: "Fyll inn leverandørens navn – Mynder henter automatisk informasjon fra Brønnøysundregistrene og offentlige kilder.",
+        action: "observe"
+      },
+      {
+        instruction: "Åpne leverandørens Trust Profile for å se compliance-score, sertifiseringer og risikovurdering. Du kan også sende en forespørsel om dokumentasjon direkte.",
+        action: "observe"
+      },
+      {
+        instruction: "Bruk sjekklisten for å vurdere GDPR-etterlevelse, sikkerhetstiltak og datahåndtering. Resultatene lagres og oppdaterer compliance-scoren.",
+        action: "observe"
+      },
+      {
+        instruction: "Nå vet du hvordan du vurderer leverandører i Mynder. Alle vurderinger er sporbare og klare for revisjon.",
+        action: "observe"
+      }
+    ]
+  },
+  "nis2-partner-assessment": {
+    id: "nis2-partner-assessment",
+    title: "NIS2-vurdering (Partner)",
+    description: "NIS2-vurdering via partner-dashbordet",
+    steps: [
+      {
+        instruction: "Denne demoen viser hvordan en partner (MSP) kan gjennomføre en NIS2-vurdering for en av sine kunder direkte fra partner-dashbordet.",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='msp-customer-card']",
+        instruction: "Velg en kunde fra partner-dashbordet. Du ser kundens overordnede status med compliance-score og aktive tjenester.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        instruction: "Fra kundedetaljsiden kan du klikke 'NIS2-vurdering' for å starte en vurdering av kundens enheter og infrastruktur.",
+        action: "observe"
+      },
+      {
+        instruction: "Velg enhetene som skal vurderes og gå gjennom NIS2-kravene punkt for punkt. Resultatene lagres på kundens profil.",
+        action: "observe"
+      },
+      {
+        instruction: "Etter vurderingen får kunden en NIS2-rapport med gap-analyse og anbefalte tiltak. Partneren kan følge opp med tjenester.",
+        action: "observe"
+      },
+      {
+        instruction: "Utmerket! Du har nå sett hele flyten for NIS2-vurdering fra partner-perspektivet.",
+        action: "observe"
+      }
+    ]
+  },
+  "compliance-checklist": {
+    id: "compliance-checklist",
+    title: "Compliance-sjekkliste",
+    description: "Gå gjennom compliance-kravene med AI-assistanse",
+    steps: [
+      {
+        instruction: "Compliance-sjekklisten gir deg en strukturert gjennomgang av alle krav innenfor dine aktiverte rammeverk.",
+        action: "observe"
+      },
+      {
+        selector: "[data-demo='framework-select']",
+        instruction: "Velg hvilket rammeverk du vil gjennomgå – for eksempel GDPR, ISO 27001 eller NIS2.",
+        position: "bottom",
+        action: "click"
+      },
+      {
+        instruction: "Hvert krav viser status (oppfylt, delvis, ikke startet), prioritet og hvem som er ansvarlig. Klikk for å se detaljer.",
+        action: "observe"
+      },
+      {
+        instruction: "Lara kan hjelpe med hvert krav – hun foreslår tiltak, kobler til eksisterende dokumentasjon og vurderer om kravet allerede er dekket.",
+        action: "observe"
+      },
+      {
+        instruction: "Nå har du oversikt over hvordan compliance-sjekklisten fungerer. Den oppdateres automatisk når du gjør endringer i systemet.",
+        action: "observe"
+      }
+    ]
+  },
 };
 
 // Helper hook for managing demo state
