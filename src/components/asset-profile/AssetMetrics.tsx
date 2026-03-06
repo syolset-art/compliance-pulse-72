@@ -191,10 +191,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   };
 
   const getGovernanceLevelLabel = () => {
-    const level = companyProfile?.governance_level as GovernanceLevel | null;
-    const def = GOVERNANCE_LEVELS.find((g) => g.id === level);
-    if (!def) return isNb ? "Ikke satt" : "Not set";
-    return isNb ? def.name_no.replace(/Nivå \d – /, "") : def.name_en.replace(/Level \d – /, "");
+    return isNb ? "Etablert" : "Established";
   };
 
   const getScopeLabel = () => {
