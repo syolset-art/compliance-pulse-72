@@ -179,15 +179,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   });
 
   const getMaturityLabel = () => {
-    const phase = companyProfile?.maturity;
-    if (!phase) return isNb ? "Ikke satt" : "Not set";
-    // Map maturity values to phase names
-    const maturityMap: Record<string, string> = {
-      beginner: isNb ? "Fundament" : "Foundation",
-      intermediate: isNb ? "Implementering" : "Implementation",
-      advanced: isNb ? "Drift" : "Operational",
-    };
-    return maturityMap[phase] || phase;
+    return isNb ? "Drift" : "Operational";
   };
 
   const getGovernanceLevelLabel = () => {
