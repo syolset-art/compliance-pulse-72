@@ -73,7 +73,7 @@ export const GOVERNANCE_LEVELS: GovernanceLevelDefinition[] = [
     name_en: "Level 2 – Structured",
     description_no: "Drift med avvikshåndtering, rapporter og leverandørvurdering.",
     description_en: "Operations with deviation handling, reports and vendor assessment.",
-    visiblePhases: ["foundation", "implementation", "operation"],
+    visiblePhases: ["foundation", "implementation", "operation", "audit"],
   },
   {
     id: "certification_ready",
