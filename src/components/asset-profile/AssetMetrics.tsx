@@ -6,7 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send, TrendingUp } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send, TrendingUp, ShieldCheck, Layers, Target, Clock } from "lucide-react";
+import { CERTIFICATION_PHASES } from "@/lib/certificationPhases";
+import { GOVERNANCE_LEVELS, type GovernanceLevel } from "@/lib/governanceLevelEngine";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
 interface AssetMetricsProps {
@@ -140,8 +142,164 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     { icon: ListTodo, label: t("trustProfile.tasks"), value: String(tasksCount), valueClass: "text-foreground", bgClass: "" },
   ];
 
+  const isSelf = asset.asset_type === "self";
+
+  // Fetch company profile for Trust Profile summary
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company_profile_trust_summary"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("governance_level, maturity, employees, updated_at")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: isSelf,
+  });
+
+  // Fetch asset counts for scope
+  const { data: assetCounts } = useQuery({
+    queryKey: ["asset_type_counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("asset_type")
+        .neq("asset_type", "self");
+      if (error) return { systems: 0, vendors: 0, hardware: 0 };
+      const items = data || [];
+      return {
+        systems: items.filter((a: any) => a.asset_type === "system").length,
+        vendors: items.filter((a: any) => a.asset_type === "vendor").length,
+        hardware: items.filter((a: any) => a.asset_type === "hardware").length,
+      };
+    },
+    enabled: isSelf,
+  });
+
+  const getMaturityLabel = () => {
+    const phase = companyProfile?.maturity;
+    if (!phase) return isNb ? "Ikke satt" : "Not set";
+    // Map maturity values to phase names
+    const maturityMap: Record<string, string> = {
+      beginner: isNb ? "Fundament" : "Foundation",
+      intermediate: isNb ? "Implementering" : "Implementation",
+      advanced: isNb ? "Drift" : "Operational",
+    };
+    return maturityMap[phase] || phase;
+  };
+
+  const getGovernanceLevelLabel = () => {
+    const level = companyProfile?.governance_level as GovernanceLevel | null;
+    const def = GOVERNANCE_LEVELS.find((g) => g.id === level);
+    if (!def) return isNb ? "Ikke satt" : "Not set";
+    return isNb ? def.name_no.replace(/Nivå \d – /, "") : def.name_en.replace(/Level \d – /, "");
+  };
+
+  const getScopeLabel = () => {
+    if (!assetCounts) return "–";
+    const parts: string[] = [];
+    if (assetCounts.systems > 0) parts.push(`${assetCounts.systems} ${isNb ? "systemer" : "systems"}`);
+    if (assetCounts.vendors > 0) parts.push(`${assetCounts.vendors} ${isNb ? "leverandører" : "vendors"}`);
+    if (assetCounts.hardware > 0) parts.push(`${assetCounts.hardware} ${isNb ? "enheter" : "devices"}`);
+    return parts.join(", ") || (isNb ? "Ingen registrert" : "None registered");
+  };
+
+  const getLastUpdated = () => {
+    const date = companyProfile?.updated_at || asset.next_review_date;
+    if (!date) return "–";
+    return new Date(date).toLocaleDateString(isNb ? "nb-NO" : "en-US", { month: "long", year: "numeric" });
+  };
+
   return (
     <div className="space-y-3">
+      {/* Trust Profile Summary — only for self */}
+      {isSelf && (
+        <Card className="p-5 bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Trust Score */}
+            <div className="flex flex-col items-center text-center col-span-2 md:col-span-1">
+              <div className="relative h-20 w-20 mb-2">
+                <svg className="h-20 w-20 -rotate-90" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                  <circle
+                    cx="40" cy="40" r="34" fill="none"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(complianceScore / 100) * 213.6} 213.6`}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl font-bold text-foreground">{complianceScore}</span>
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Trust Score</span>
+            </div>
+
+            {/* Foundation Status */}
+            <div className="flex flex-col gap-1.5 justify-center">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Layers className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    {isNb ? "Grunnlagsstatus" : "Foundation Status"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{getGovernanceLevelLabel()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Compliance Maturity */}
+            <div className="flex flex-col gap-1.5 justify-center">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="h-4 w-4 text-success" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    {isNb ? "Samsvarsmodenhet" : "Compliance Maturity"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{getMaturityLabel()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Scope */}
+            <div className="flex flex-col gap-1.5 justify-center">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
+                  <Target className="h-4 w-4 text-accent-foreground" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    {isNb ? "Omfang" : "Scope"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{getScopeLabel()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Last Updated */}
+            <div className="flex flex-col gap-1.5 justify-center">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    {isNb ? "Sist oppdatert" : "Last Updated"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{getLastUpdated()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
       {expiredCount > 0 && asset.asset_type !== "self" && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
           <div className="flex items-center gap-2">
