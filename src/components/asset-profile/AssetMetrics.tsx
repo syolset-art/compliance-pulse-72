@@ -200,87 +200,20 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     <div className="space-y-3">
       {/* Trust Profile Summary — only for self */}
       {isSelf && (
-        <Card className="p-5 bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {/* Trust Score */}
-            <div className="flex flex-col items-center text-center col-span-2 md:col-span-1">
-              <div className="relative h-20 w-20 mb-2">
-                <svg className="h-20 w-20 -rotate-90" viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
-                  <circle
-                    cx="40" cy="40" r="34" fill="none"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray={`${(complianceScore / 100) * 213.6} 213.6`}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-foreground">{complianceScore}</span>
-                </div>
+        <Card className="p-5">
+          <div className="space-y-2.5">
+            {[
+              { label: "Trust Score", value: String(complianceScore) },
+              { label: isNb ? "Grunnlagsstatus" : "Foundation Status", value: getGovernanceLevelLabel() },
+              { label: isNb ? "Samsvarsmodenhet" : "Compliance Maturity", value: getMaturityLabel() },
+              { label: isNb ? "Omfang" : "Scope", value: getScopeLabel() },
+              { label: isNb ? "Sist oppdatert" : "Last Updated", value: getLastUpdated() },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                <span className="text-sm text-muted-foreground">{row.label}</span>
+                <span className="text-sm font-semibold text-foreground">{row.value}</span>
               </div>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Trust Score</span>
-            </div>
-
-            {/* Foundation Status */}
-            <div className="flex flex-col gap-1.5 justify-center">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Layers className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    {isNb ? "Grunnlagsstatus" : "Foundation Status"}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{getGovernanceLevelLabel()}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Compliance Maturity */}
-            <div className="flex flex-col gap-1.5 justify-center">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="h-4 w-4 text-success" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    {isNb ? "Samsvarsmodenhet" : "Compliance Maturity"}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{getMaturityLabel()}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Scope */}
-            <div className="flex flex-col gap-1.5 justify-center">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
-                  <Target className="h-4 w-4 text-accent-foreground" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    {isNb ? "Omfang" : "Scope"}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{getScopeLabel()}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Last Updated */}
-            <div className="flex flex-col gap-1.5 justify-center">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                    {isNb ? "Sist oppdatert" : "Last Updated"}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{getLastUpdated()}</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </Card>
       )}

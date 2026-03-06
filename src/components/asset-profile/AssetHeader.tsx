@@ -268,12 +268,6 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
-            {asset.asset_type === 'self' && (
-              <Badge className="bg-success/15 text-success border-success/30 text-[10px] shrink-0 gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                {isNb ? "Verifisert av organisasjonen" : "Verified by organisation"}
-              </Badge>
-            )}
             {isMspPartner && (
               <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
                 <Award className="h-3 w-3" />
@@ -285,32 +279,39 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
                 {template?.display_name || asset.asset_type}
               </Badge>
             )}
-            <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
-              {getStatusLabel(asset.lifecycle_status)}
-            </Badge>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-            {asset.vendor && (
-              <p className="text-sm text-muted-foreground">{asset.vendor}</p>
-            )}
             {!isSelf && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs gap-1.5 w-fit"
-                onClick={() => setRequestDialogOpen(true)}
-              >
-                <Send className="h-3 w-3" />
-                {isNb ? "Be om oppdatering" : "Request update"}
-              </Button>
+              <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
+                {getStatusLabel(asset.lifecycle_status)}
+              </Badge>
             )}
           </div>
 
-          {asset.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {asset.description}
+          {isSelf ? (
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {isNb ? "Digital Trust Profile og samsvarsoversikt" : "Digital Trust Profile and compliance overview"}
             </p>
+          ) : (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                {asset.vendor && (
+                  <p className="text-sm text-muted-foreground">{asset.vendor}</p>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs gap-1.5 w-fit"
+                  onClick={() => setRequestDialogOpen(true)}
+                >
+                  <Send className="h-3 w-3" />
+                  {isNb ? "Be om oppdatering" : "Request update"}
+                </Button>
+              </div>
+              {asset.description && (
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  {asset.description}
+                </p>
+              )}
+            </>
           )}
 
           {asset.url && (
