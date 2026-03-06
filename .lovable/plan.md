@@ -1,69 +1,54 @@
 
 
-## Plan: Demo Library for Sales and Advisors
+## Plan: Oppdater fokusområder til ny 4-delt struktur
 
-### Problem
-Sales and advisors need an easy way to run predefined demos of key platform features (e.g., creating a processing activity, showing Lara's AI process suggestions). The existing demo infrastructure (DemoHighlight, DemoAgentPanel, DemoSyncContext, useDemoController) provides building blocks but lacks a curated library of ready-to-run demos and a dedicated entry point.
+### Nåværende situasjon
+Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
 
-### Approach
-Build a **Demo Library page** (`/demo-library`) accessible from the sidebar, containing a catalog of pre-built demos organized by category. Each demo is a scripted sequence that navigates to the right page and runs a guided walkthrough using the existing `DemoHighlight` system. Add new demo scenarios for the two requested flows plus more.
+### Nye fokusområder
+Erstatte de 3 kategoriene med 4 nye:
 
-### Changes
+| ID | Navn (NO) | Beskrivelse |
+|----|-----------|-------------|
+| `governance` | Governance | Styring, ansvar og risikostyring |
+| `operations` | Operations | Systemer, prosesser og drift |
+| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
+| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
 
-**1. New page: `src/pages/DemoLibrary.tsx`**
-- Grid of demo cards grouped by category (Onboarding, Compliance, AI-funksjoner, Leverandørhåndtering)
-- Each card shows title, description, estimated time, difficulty
-- Clicking a card navigates to the relevant page and starts the demo
-- "Selgermodus" toggle at top that hides demo-irrelevant UI elements and shows a banner
-- Search/filter by category
+### Filer som endres
 
-**2. Update `src/components/DemoHighlight.tsx`**
-- Add new demo scenarios:
-  - `create-processing-activity`: Navigate to `/protocols`, open add dialog, walk through fields
-  - `lara-ai-process-suggestions`: Navigate to `/work-areas`, select an area, show AI suggestion flow
-  - `vendor-trust-profile`: Navigate to vendor trust profile flow
-  - `nis2-assessment`: Navigate to NIS2 assessment
-  - `compliance-checklist`: Walk through the compliance checklist
-- Each scenario has proper `selector` targets and `instruction` text in Norwegian
+**1. `src/lib/certificationPhases.ts`**
+- Endre `SLACategory` type fra 3 til 4 verdier
+- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
 
-**3. Update `src/hooks/usePageContext.ts`**
-- Add demo scenarios for `/protocols` and `/work-areas` pages matching the new scenarios
+**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
+- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
+  - `organization_governance` → `governance`
+  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
+  - `roles_access` → `identity_access`
+- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
 
-**4. New component: `src/components/demo/DemoLauncherBar.tsx`**
-- A floating bar shown when a demo is about to start, with "Start demo" confirmation, preview of steps, and a "Tilbake til bibliotek" button
+**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
+- Utvide fra 3 til 4 kort med nye ikoner og farger
+- Oppdatere `MOCK_TRENDS` med 4 verdier
 
-**5. Update `src/components/Sidebar.tsx`**
-- Add "Demo-bibliotek" link under Utviklere section (or a new "Salg & Demo" section) with a Play icon
+**4. `src/components/widgets/SLAWidget.tsx`**
+- Oppdatere `SLA_CATEGORIES` array til 4 verdier
 
-**6. Update `src/App.tsx`**
-- Add route `/demo-library` → `DemoLibrary`
+**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
+- Oppdatere `slaByCat` referanser til nye kategorier
 
-### New Demo Scenarios
+**6. `src/locales/en.json` og `src/locales/nb.json`**
+- Legge til oversettelser for de 4 nye kategorinavnene
 
-| ID | Title | Category | Steps |
-|----|-------|----------|-------|
-| `create-processing-activity` | Opprett behandlingsaktivitet | Compliance | Navigate → Open dialog → Fill purpose, legal basis, data types → Save |
-| `lara-ai-suggestions` | Lara foreslår prosesser | AI-funksjoner | Navigate to work area → Click "AI-forslag" → Show suggestions → Accept |
-| `vendor-assessment` | Leverandørvurdering | Leverandører | Open vendor → Start assessment → Fill checklist |
-| `nis2-partner-assessment` | NIS2-vurdering (Partner) | Partner | Navigate MSP → Select customer → Run NIS2 |
-| `dashboard-overview` | Dashboard-gjennomgang | Onboarding | Walk through widgets and their purpose |
+### Mapping-logikk (forenklet)
+- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
+- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
+- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
+- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
 
-### Technical Detail
+### Teknisk detalj
+`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
 
-Each demo scenario uses `data-demo` attributes on target elements. For demos requiring navigation, the `startDemo` function will:
-1. Use `navigate()` from react-router to go to the target page
-2. Wait 500ms for render
-3. Start the `DemoHighlight` sequence
-
-The demo library page stores demo metadata in a constant array, no database needed.
-
-### Files
-
-| File | Change |
-|------|--------|
-| `src/pages/DemoLibrary.tsx` | New - demo catalog page |
-| `src/components/DemoHighlight.tsx` | Add 5 new demo scenarios |
-| `src/hooks/usePageContext.ts` | Add scenarios for protocols and work-areas |
-| `src/components/Sidebar.tsx` | Add demo library nav link |
-| `src/App.tsx` | Add `/demo-library` route |
+Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
 
