@@ -327,66 +327,55 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-border my-4" />
-
-      {/* Owner and Manager row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Owner */}
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <Users className="h-4 w-4 text-muted-foreground" />
+      {/* Owner and Manager row — hidden for self/published profiles */}
+      {!isSelf && (
+        <>
+          <div className="border-t border-border my-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                  {t("trustProfile.owner")}
+                </p>
+                <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
+                  <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                    <SelectValue placeholder={t("trustProfile.selectOwner")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
+                    {workAreas.map((area: any) => (
+                      <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                  {t("trustProfile.systemManager")}
+                </p>
+                <Select value={asset.asset_manager || ""} onValueChange={handleManagerChange}>
+                  <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                    <SelectValue placeholder={t("trustProfile.assignManager")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {peopleList.map((person) => (
+                      <SelectItem key={person} value={person}>{person}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-              {t("trustProfile.owner")}
-            </p>
-            <Select
-              value={asset.work_area_id || "none"}
-              onValueChange={handleOwnerChange}
-            >
-              <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                <SelectValue placeholder={t("trustProfile.selectOwner")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                {workAreas.map((area: any) => (
-                  <SelectItem key={area.id} value={area.id}>
-                    {area.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Asset Manager */}
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <User className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-              {t("trustProfile.systemManager")}
-            </p>
-            <Select
-              value={asset.asset_manager || ""}
-              onValueChange={handleManagerChange}
-            >
-              <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                <SelectValue placeholder={t("trustProfile.assignManager")} />
-              </SelectTrigger>
-              <SelectContent>
-                {peopleList.map((person) => (
-                  <SelectItem key={person} value={person}>
-                    {person}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
       <RequestUpdateDialog
         open={requestDialogOpen}
         onOpenChange={setRequestDialogOpen}
