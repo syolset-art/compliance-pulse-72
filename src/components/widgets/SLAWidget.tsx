@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import type { SLACategory } from "@/lib/certificationPhases";
 
-const SLA_CATEGORIES: SLACategory[] = ['systems_processes', 'organization_governance', 'roles_access'];
+const SLA_CATEGORIES: SLACategory[] = ['governance', 'operations', 'identity_access', 'supplier_ecosystem'];
 
 export function SLAWidget() {
   const { t } = useTranslation();
@@ -37,7 +37,7 @@ export function SLAWidget() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {slaData.map((item) => (
             <Card key={item.key} className="bg-muted/30 border-border">
               <CardContent className="p-3 sm:p-4">

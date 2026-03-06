@@ -90,7 +90,7 @@ export function ComplianceSummaryCards() {
       key: "protocols",
       icon: FileText,
       title: isNorwegian ? "Protokoller (ROPA)" : "Protocols (ROPA)",
-      metric: `${slaByCat("third_party_management")}%`,
+      metric: `${slaByCat("supplier_ecosystem")}%`,
       metricLabel: isNorwegian ? "tredjepartsstyring" : "third party mgmt",
       alerts: [],
       route: "/processing-records",
@@ -104,7 +104,7 @@ export function ComplianceSummaryCards() {
       metric: systemsData?.total ?? 0,
       metricLabel: isNorwegian ? "systemer" : "systems",
       alerts: [
-        `SLA: ${slaByCat("systems_processes")}%`
+        `SLA: ${slaByCat("operations")}%`
       ],
       route: "/systems",
       color: "text-emerald-600 dark:text-emerald-400",
@@ -117,7 +117,7 @@ export function ComplianceSummaryCards() {
       metric: orgData?.workAreas ?? 0,
       metricLabel: isNorwegian ? "arbeidsområder" : "work areas",
       alerts: [
-        `SLA: ${slaByCat("organization_governance")}%`
+        `SLA: ${slaByCat("governance")}%`
       ],
       route: "/work-areas",
       color: "text-amber-600 dark:text-amber-400",

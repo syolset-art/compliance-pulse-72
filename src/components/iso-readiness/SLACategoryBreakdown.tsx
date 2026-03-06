@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { Shield, Server, KeyRound, Link2 } from "lucide-react";
 import type { RequirementWithStatus } from "@/hooks/useComplianceRequirements";
 import type { SLACategory } from "@/lib/certificationPhases";
 
@@ -14,19 +15,34 @@ interface SLAData {
   completed: number;
   total: number;
   percentage: number;
-  trend: number; // mock trend
+  trend: number;
 }
 
 const MOCK_TRENDS: Record<SLACategory, number> = {
-  systems_processes: 23,
-  organization_governance: -15,
-  roles_access: -5,
+  governance: 12,
+  operations: 23,
+  identity_access: -5,
+  supplier_ecosystem: -15,
+};
+
+const CATEGORY_ICONS: Record<SLACategory, React.ReactNode> = {
+  governance: <Shield className="h-4 w-4" />,
+  operations: <Server className="h-4 w-4" />,
+  identity_access: <KeyRound className="h-4 w-4" />,
+  supplier_ecosystem: <Link2 className="h-4 w-4" />,
+};
+
+const CATEGORY_COLORS: Record<SLACategory, string> = {
+  governance: "text-blue-600 dark:text-blue-400",
+  operations: "text-emerald-600 dark:text-emerald-400",
+  identity_access: "text-amber-600 dark:text-amber-400",
+  supplier_ecosystem: "text-purple-600 dark:text-purple-400",
 };
 
 export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps) {
   const { t } = useTranslation();
 
-  const categories: SLAData[] = (['systems_processes', 'organization_governance', 'roles_access'] as SLACategory[]).map(cat => {
+  const categories: SLAData[] = (['governance', 'operations', 'identity_access', 'supplier_ecosystem'] as SLACategory[]).map(cat => {
     const reqs = requirements.filter(r => r.sla_category === cat);
     const completed = reqs.filter(r => r.status === 'completed').length;
     const total = reqs.length;
@@ -39,20 +55,19 @@ export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps
     };
   });
 
-  const categoryKeys: Record<SLACategory, string> = {
-    systems_processes: 'isoReadiness.slaCategories.systems_processes',
-    organization_governance: 'isoReadiness.slaCategories.organization_governance',
-    roles_access: 'isoReadiness.slaCategories.roles_access',
-  };
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
       {categories.map((item) => (
         <Card key={item.category} className="bg-muted/30 border-border">
           <CardContent className="p-3 sm:p-4">
-            <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
-              {t(categoryKeys[item.category])}
-            </p>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={CATEGORY_COLORS[item.category]}>
+                {CATEGORY_ICONS[item.category]}
+              </span>
+              <p className="text-xs sm:text-sm font-medium text-foreground">
+                {t(`isoReadiness.slaCategories.${item.category}`)}
+              </p>
+            </div>
             <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 mb-2">
               <span className="text-2xl sm:text-3xl font-bold text-foreground">
                 {item.percentage}%

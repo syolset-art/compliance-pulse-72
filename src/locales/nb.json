@@ -1312,9 +1312,15 @@
       "certification": "Sertifisering"
     },
     "slaCategories": {
-      "systems_processes": "Systemer og prosesser",
-      "organization_governance": "Organisasjon og styring",
-      "roles_access": "Roller og tilgang"
+      "title": "Fokusområder",
+      "governance": "Governance",
+      "governance_desc": "Styring, ansvar og risikostyring",
+      "operations": "Operations",
+      "operations_desc": "Systemer, prosesser og drift",
+      "identity_access": "Identity & Access",
+      "identity_access_desc": "Brukere, roller og tilgangskontroll",
+      "supplier_ecosystem": "Supplier & Ecosystem",
+      "supplier_ecosystem_desc": "Leverandører og tredjepartsrisiko"
     },
     "maturityLevel": "Nivå",
     "maturity": {
