@@ -187,12 +187,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   };
 
   const getScopeLabel = () => {
-    if (!assetCounts) return "–";
-    const parts: string[] = [];
-    if (assetCounts.systems > 0) parts.push(`${assetCounts.systems} ${isNb ? "systemer" : "systems"}`);
-    if (assetCounts.vendors > 0) parts.push(`${assetCounts.vendors} ${isNb ? "leverandører" : "vendors"}`);
-    if (assetCounts.hardware > 0) parts.push(`${assetCounts.hardware} ${isNb ? "enheter" : "devices"}`);
-    return parts.join(", ") || (isNb ? "Ingen registrert" : "None registered");
+    return isNb ? "Kjernesystemer og leverandører inkludert" : "Core systems and suppliers included";
   };
 
   const getLastUpdated = () => {
