@@ -1311,9 +1311,15 @@
       "certification": "Certification"
     },
     "slaCategories": {
-      "systems_processes": "Systems & processes",
-      "organization_governance": "Organization & governance",
-      "roles_access": "Roles & access"
+      "title": "Focus Areas",
+      "governance": "Governance",
+      "governance_desc": "Management, responsibility and risk management",
+      "operations": "Operations",
+      "operations_desc": "Systems, processes and operations",
+      "identity_access": "Identity & Access",
+      "identity_access_desc": "Users, roles and access control",
+      "supplier_ecosystem": "Supplier & Ecosystem",
+      "supplier_ecosystem_desc": "Vendors and third-party risk"
     },
     "maturityLevel": "Level",
     "maturity": {

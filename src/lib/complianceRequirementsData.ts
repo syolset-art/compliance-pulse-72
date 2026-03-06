@@ -37,7 +37,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Retningslinjer for informasjonssikkerhet og tematiske retningslinjer skal defineres, godkjennes av ledelsen, publiseres, kommuniseres til og bekreftes av relevant personell og relevante interessenter.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 1
   },
@@ -51,7 +51,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Roller og ansvar for informasjonssikkerhet skal defineres og tildeles i henhold til organisasjonens behov.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'assisted',
     sort_order: 2
   },
@@ -65,7 +65,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Motstridende plikter og motstridende ansvarsområder skal adskilles.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'assisted',
     sort_order: 3
   },
@@ -79,7 +79,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Ledelsen skal kreve at alt personell anvender informasjonssikkerhet i samsvar med den etablerte informasjonssikkerhetspolicyen.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 4
   },
@@ -93,7 +93,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal etablere og vedlikeholde kontakt med relevante myndigheter.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 5
   },
@@ -107,7 +107,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal etablere og vedlikeholde kontakt med spesielle interessegrupper eller andre spesialistfora for sikkerhet.',
     priority: 'low',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 6
   },
@@ -121,7 +121,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjon relatert til informasjonssikkerhetstrusler skal samles inn og analyseres for å produsere trusseletterretning.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 7
   },
@@ -135,7 +135,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonssikkerhet skal integreres i prosjektledelse.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 8
   },
@@ -149,7 +149,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'En oversikt over informasjon og andre tilknyttede eiendeler, inkludert eiere, skal utvikles og vedlikeholdes.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 9
   },
@@ -163,7 +163,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for akseptabel bruk av informasjon og andre tilknyttede eiendeler skal identifiseres, dokumenteres og implementeres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 10
   },
@@ -177,7 +177,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Personell og andre interessenter skal returnere alle organisasjonens eiendeler i deres besittelse ved endring eller avslutning av deres ansettelse, kontrakt eller avtale.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'assisted',
     sort_order: 11
   },
@@ -191,7 +191,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjon skal klassifiseres i henhold til organisasjonens informasjonssikkerhetsbehov basert på konfidensialitet, integritet, tilgjengelighet og relevante krav fra interessenter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 12
   },
@@ -205,7 +205,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Et passende sett med prosedyrer for merking av informasjon skal utvikles og implementeres i samsvar med informasjonsklassifiseringsskjemaet som er vedtatt av organisasjonen.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 13
   },
@@ -219,7 +219,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler, prosedyrer eller avtaler for informasjonsoverføring skal være på plass for alle typer overføringsfasiliteter innenfor organisasjonen og mellom organisasjonen og andre parter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 14
   },
@@ -233,7 +233,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for å kontrollere fysisk og logisk tilgang til informasjon og andre tilknyttede eiendeler skal etableres og implementeres basert på forretnings- og informasjonssikkerhetskrav.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 15
   },
@@ -247,7 +247,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Hele livssyklusen til identiteter skal administreres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 16
   },
@@ -261,7 +261,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tildeling og administrasjon av autentiseringsinformasjon skal kontrolleres av en administrasjonsprosess, inkludert rådgivning til personell om hensiktsmessig håndtering av autentiseringsinformasjon.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 17
   },
@@ -275,7 +275,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tilgangsrettigheter til informasjon og andre tilknyttede eiendeler skal tildeles, gjennomgås, endres og fjernes i samsvar med organisasjonens tematiske policy og regler for tilgangskontroll.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 18
   },
@@ -289,7 +289,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser og prosedyrer skal defineres og implementeres for å håndtere informasjonssikkerhetsrisikoer forbundet med bruk av leverandørers produkter eller tjenester.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'full',
     sort_order: 19
   },
@@ -303,7 +303,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Relevante informasjonssikkerhetskrav skal etableres og avtales med hver leverandør basert på typen leverandørforhold.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'assisted',
     sort_order: 20
   },
@@ -317,7 +317,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser og prosedyrer skal defineres og implementeres for å håndtere informasjonssikkerhetsrisikoer forbundet med leverandørkjeden for IKT-produkter og -tjenester.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'full',
     sort_order: 21
   },
@@ -331,7 +331,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal regelmessig overvåke, gjennomgå, evaluere og administrere endringer i leverandørers informasjonssikkerhetspraksis og tjenesteleveranse.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'full',
     sort_order: 22
   },
@@ -345,7 +345,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser for anskaffelse, bruk, administrasjon og avslutning av skytjenester skal etableres i samsvar med organisasjonens informasjonssikkerhetskrav.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'full',
     sort_order: 23
   },
@@ -359,7 +359,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal planlegge og forberede seg på håndtering av informasjonssikkerhetshendelser ved å definere, etablere og kommunisere prosesser, roller og ansvar for hendelseshåndtering.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 24
   },
@@ -373,7 +373,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal vurdere informasjonssikkerhetshendelser og beslutte om de skal kategoriseres som informasjonssikkerhetsincidenter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 25
   },
@@ -387,7 +387,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonssikkerhetshendelser skal håndteres i samsvar med dokumenterte prosedyrer.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 26
   },
@@ -401,7 +401,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Kunnskap fra informasjonssikkerhetshendelser skal brukes til å styrke og forbedre informasjonssikkerhetskontrollene.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 27
   },
@@ -415,7 +415,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal etablere og implementere prosedyrer for identifikasjon, innsamling, anskaffelse og bevaring av bevis relatert til informasjonssikkerhetshendelser.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 28
   },
@@ -429,7 +429,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal planlegge hvordan informasjonssikkerhet skal opprettholdes på et passende nivå under forstyrrelser.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 29
   },
@@ -443,7 +443,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'IKT-beredskap skal planlegges, implementeres, vedlikeholdes og testes basert på forretningskontinuitetsmål og IKT-kontinuitetskrav.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 30
   },
@@ -457,7 +457,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Juridiske, lovpålagte, regulatoriske og kontraktsmessige krav som er relevante for informasjonssikkerhet, og organisasjonens tilnærming til å oppfylle disse kravene, skal identifiseres, dokumenteres og holdes oppdatert.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 31
   },
@@ -471,7 +471,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal implementere passende prosedyrer for å beskytte immaterielle rettigheter.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 32
   },
@@ -485,7 +485,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Arkiver skal beskyttes mot tap, ødeleggelse, forfalskning, uautorisert tilgang og uautorisert utgivelse.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 33
   },
@@ -499,7 +499,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal identifisere og oppfylle krav angående bevaring av personvern og beskyttelse av personopplysninger i henhold til gjeldende lover, forskrifter og kontraktsmessige krav.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 34
   },
@@ -513,7 +513,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonens tilnærming til å administrere informasjonssikkerhet og implementeringen av denne skal gjennomgås uavhengig med planlagte intervaller eller når betydelige endringer skjer.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 35
   },
@@ -527,7 +527,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Samsvar med organisasjonens informasjonssikkerhetspolicy, tematiske policyer, regler og standarder skal gjennomgås regelmessig.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 36
   },
@@ -541,7 +541,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Driftsprosedyrer for informasjonsbehandlingsfasiliteter skal dokumenteres og gjøres tilgjengelige for personell som trenger dem.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 37
   },
@@ -557,7 +557,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Bakgrunnsverifiseringskontroller på alle kandidater som skal bli personell, skal gjennomføres før de begynner i organisasjonen og på løpende basis.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'manual',
     sort_order: 38
   },
@@ -571,7 +571,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Ansettelseskontraktsavtaler skal angi personellets og organisasjonens ansvar for informasjonssikkerhet.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'assisted',
     sort_order: 39
   },
@@ -585,7 +585,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Personell i organisasjonen og relevante interessenter skal motta passende bevissthet, utdanning og opplæring i informasjonssikkerhet og regelmessige oppdateringer av organisasjonens informasjonssikkerhetspolicy.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'manual',
     sort_order: 40
   },
@@ -599,7 +599,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'En disiplinærprosess skal formaliseres og kommuniseres for å iverksette tiltak mot personell og andre relevante interessenter som har begått et brudd på informasjonssikkerhetspolicyen.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 41
   },
@@ -613,7 +613,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonssikkerhetsansvar og -plikter som forblir gyldige etter opphør eller endring av ansettelse, skal defineres, håndheves og kommuniseres til relevant personell og andre interessenter.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'assisted',
     sort_order: 42
   },
@@ -627,7 +627,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Taushetserklæringer eller konfidensialitetsavtaler som reflekterer organisasjonens behov for beskyttelse av informasjon, skal identifiseres, dokumenteres, regelmessig gjennomgås og signeres av personell og andre relevante interessenter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 43
   },
@@ -641,7 +641,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetstiltak skal implementeres når personell arbeider eksternt for å beskytte informasjon som er tilgang til, behandlet eller lagret utenfor organisasjonens lokaler.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 44
   },
@@ -655,7 +655,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal sørge for en mekanisme for personell til å rapportere observerte eller mistenkte informasjonssikkerhetshendelser gjennom passende kanaler i tide.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 45
   },
@@ -671,7 +671,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetsperimetere skal defineres og brukes for å beskytte områder som inneholder informasjon og andre tilknyttede eiendeler.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 46
   },
@@ -685,7 +685,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikre områder skal beskyttes av passende adgangskontroller og adgangspunkter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'manual',
     sort_order: 47
   },
@@ -699,7 +699,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Fysisk sikkerhet for kontorer, rom og fasiliteter skal utformes og implementeres.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 48
   },
@@ -713,7 +713,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Lokaler skal overvåkes kontinuerlig for uautorisert fysisk tilgang.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 49
   },
@@ -727,7 +727,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Beskyttelse mot fysiske og miljømessige trusler, som naturkatastrofer og andre tilsiktede eller utilsiktede fysiske trusler mot infrastruktur, skal utformes og implementeres.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 50
   },
@@ -741,7 +741,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetstiltak for arbeid i sikre områder skal utformes og implementeres.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 51
   },
@@ -755,7 +755,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for ryddig skrivebord for papirer og flyttbare lagringsmedier og regler for tom skjerm for informasjonsbehandlingsfasiliteter skal defineres og håndheves på passende måte.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 52
   },
@@ -769,7 +769,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Utstyr skal plasseres sikkert og beskyttes.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 53
   },
@@ -783,7 +783,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Eiendeler utenfor lokaler skal beskyttes.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 54
   },
@@ -797,7 +797,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Lagringsmedier skal administreres gjennom hele livssyklusen for anskaffelse, bruk, transport og avhending i samsvar med organisasjonens klassifiseringsskjema og håndteringskrav.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 55
   },
@@ -811,7 +811,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonsbehandlingsfasiliteter skal beskyttes mot strømbrudd og andre forstyrrelser forårsaket av feil i støttefunksjoner.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 56
   },
@@ -825,7 +825,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Kabler som fører strøm, data eller støtter informasjonstjenester, skal beskyttes mot avlytting, interferens eller skade.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 57
   },
@@ -839,7 +839,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Utstyr skal vedlikeholdes korrekt for å sikre tilgjengelighet, integritet og konfidensialitet av informasjon.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 58
   },
@@ -853,7 +853,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Utstyr som inneholder lagringsmedier, skal verifiseres for å sikre at eventuelle sensitive data og lisensiert programvare er fjernet eller sikkert overskrevet før avhending eller gjenbruk.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 59
   },
@@ -869,7 +869,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjon som er lagret på, behandlet av eller tilgjengelig via brukerendepunktsenheter, skal beskyttes.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 60
   },
@@ -883,7 +883,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tildeling og bruk av privilegerte tilgangsrettigheter skal begrenses og administreres.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 61
   },
@@ -897,7 +897,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tilgang til informasjon og andre tilknyttede eiendeler skal begrenses i samsvar med den etablerte tematiske policyen for tilgangskontroll.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 62
   },
@@ -911,7 +911,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Lese- og skrivetilgang til kildekode, utviklingsverktøy og programvarebiblioteker skal administreres på passende måte.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 63
   },
@@ -925,7 +925,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikker autentiseringsteknologier og -prosedyrer skal implementeres basert på informasjonstilgangsbegrensninger og den tematiske policyen for tilgangskontroll.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'identity_access',
     agent_capability: 'full',
     sort_order: 64
   },
@@ -939,7 +939,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Bruken av ressurser skal overvåkes og justeres i tråd med nåværende og forventede kapasitetskrav.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 65
   },
@@ -953,7 +953,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Beskyttelse mot skadelig programvare skal implementeres og støttes av passende brukerbevissthet.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 66
   },
@@ -967,7 +967,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjon om tekniske sårbarheter i informasjonssystemer i bruk skal innhentes, organisasjonens eksponering for slike sårbarheter skal evalueres, og passende tiltak skal iverksettes.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 67
   },
@@ -981,7 +981,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Konfigurasjoner, inkludert sikkerhetskonfigurasjoner, av maskinvare, programvare, tjenester og nettverk skal etableres, dokumenteres, implementeres, overvåkes og gjennomgås.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 68
   },
@@ -995,7 +995,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjon som er lagret i informasjonssystemer, enheter eller andre lagringsmedier, skal slettes når den ikke lenger er nødvendig.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 69
   },
@@ -1009,7 +1009,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Datamaskering skal brukes i samsvar med organisasjonens tematiske policy for tilgangskontroll og andre relaterte tematiske policyer, og forretningskrav, med hensyn til gjeldende lovgivning.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 70
   },
@@ -1023,7 +1023,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tiltak for forebygging av datalekkasje skal anvendes på systemer, nettverk og andre enheter som behandler, lagrer eller overfører sensitiv informasjon.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 71
   },
@@ -1037,7 +1037,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetskopier av informasjon, programvare og systemer skal vedlikeholdes og testes regelmessig i samsvar med den avtalte tematiske policyen for sikkerhetskopiering.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 72
   },
@@ -1051,7 +1051,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonsbehandlingsfasiliteter skal implementeres med tilstrekkelig redundans for å oppfylle tilgjengelighetskrav.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 73
   },
@@ -1065,7 +1065,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Logger som registrerer aktiviteter, unntak, feil og andre relevante hendelser, skal produseres, lagres, beskyttes og analyseres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 74
   },
@@ -1079,7 +1079,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Nettverk, systemer og applikasjoner skal overvåkes for unormal atferd, og passende tiltak skal iverksettes for å evaluere potensielle informasjonssikkerhetshendelser.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 75
   },
@@ -1093,7 +1093,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Klokkene til informasjonsbehandlingssystemer som brukes av organisasjonen, skal synkroniseres til godkjente tidskilder.',
     priority: 'low',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 76
   },
@@ -1107,7 +1107,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Bruken av verktøyprogrammer som kan være i stand til å overstyre system- og applikasjonskontroller, skal begrenses og kontrolleres nøye.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 77
   },
@@ -1121,7 +1121,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosedyrer og tiltak skal implementeres for å sikkert administrere programvareinstallasjon på operasjonelle systemer.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 78
   },
@@ -1135,7 +1135,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Nettverk og nettverksenheter skal sikres, administreres og kontrolleres for å beskytte informasjon i systemer og applikasjoner.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 79
   },
@@ -1149,7 +1149,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetsmekanismer, tjenestenivåer og tjenestekrav for nettverkstjenester skal identifiseres, implementeres og overvåkes.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 80
   },
@@ -1163,7 +1163,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Grupper av informasjonstjenester, brukere og informasjonssystemer skal segregeres i organisasjonens nettverk.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 81
   },
@@ -1177,7 +1177,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tilgang til eksterne nettsteder skal administreres for å redusere eksponering for skadelig innhold.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 82
   },
@@ -1191,7 +1191,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for effektiv bruk av kryptografi, inkludert administrasjon av kryptografiske nøkler, skal defineres og implementeres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 83
   },
@@ -1205,7 +1205,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for sikker utvikling av programvare og systemer skal etableres og anvendes.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 84
   },
@@ -1219,7 +1219,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonssikkerhetskrav skal identifiseres, spesifiseres og godkjennes ved utvikling eller anskaffelse av applikasjoner.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 85
   },
@@ -1233,7 +1233,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prinsipper for ingeniørarbeid med sikre systemer skal etableres, dokumenteres, vedlikeholdes og anvendes på alle utviklingsaktiviteter for informasjonssystemer.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 86
   },
@@ -1247,7 +1247,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikre kodingsprinsipper skal anvendes på programvareutvikling.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 87
   },
@@ -1261,7 +1261,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikkerhetstestingsprosesser skal defineres og implementeres i utviklingslivssyklusen.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 88
   },
@@ -1275,7 +1275,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal styre, overvåke og gjennomgå aktiviteter relatert til utkontraktert systemutvikling.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'assisted',
     sort_order: 89
   },
@@ -1289,7 +1289,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Utviklings-, test- og produksjonsmiljøer skal separeres og sikres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 90
   },
@@ -1303,7 +1303,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Endringer i informasjonsbehandlingsfasiliteter og informasjonssystemer skal være underlagt prosedyrer for endringsstyring.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 91
   },
@@ -1317,7 +1317,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Testinformasjon skal velges, beskyttes og administreres på passende måte.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 92
   },
@@ -1331,7 +1331,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Revisjonstester og andre forsikringsaktiviteter som involverer vurdering av operasjonelle systemer, skal planlegges og avtales mellom testeren og passende ledelse.',
     priority: 'low',
     domain: 'security',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 93
   }
@@ -1352,7 +1352,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Vedlikehold oversikt over alle behandlingsaktiviteter for personopplysninger, inkludert formål, datakategorier, mottakere, overføringer og oppbevaringsperioder.',
     priority: 'critical',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 1
   },
@@ -1366,7 +1366,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Dokumenter det lovlige grunnlaget for hver behandlingsaktivitet (samtykke, kontrakt, rettslig forpliktelse, vitale interesser, offentlig oppgave, berettigede interesser).',
     priority: 'critical',
     domain: 'privacy',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 2
   },
@@ -1380,7 +1380,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Implementer mekanismer for å innhente, registrere og administrere gyldig samtykke for databehandling der samtykke er det lovlige grunnlaget.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'manual',
     sort_order: 3
   },
@@ -1394,7 +1394,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Etabler prosedyrer for å håndtere forespørsler om registrertes rettigheter: innsyn, retting, sletting, begrensning, dataportabilitet og innsigelse.',
     priority: 'critical',
     domain: 'privacy',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 4
   },
@@ -1408,7 +1408,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Vurder og dokumenter passende sikkerhetstiltak for internasjonale dataoverføringer utenfor EU/EØS.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'full',
     sort_order: 5
   },
@@ -1422,7 +1422,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Gjennomfør DPIA for behandling som sannsynligvis vil medføre høy risiko for enkeltpersoners rettigheter og friheter.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 6
   },
@@ -1436,7 +1436,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Gi klare, tilgjengelige personvernerklæringer som forklarer hvordan personopplysninger samles inn, brukes og beskyttes.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'full',
     sort_order: 7
   },
@@ -1450,7 +1450,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Sørg for at databehandleravtaler er på plass med alle databehandlere som behandler personopplysninger på dine vegne.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'supplier_ecosystem',
     agent_capability: 'assisted',
     sort_order: 8
   },
@@ -1464,7 +1464,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Etabler prosedyrer for å oppdage, undersøke og rapportere brudd på personopplysningssikkerheten innen 72 timer til tilsynsmyndigheter.',
     priority: 'critical',
     domain: 'privacy',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 9
   },
@@ -1478,7 +1478,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Utnevn et personvernombud hvis påkrevd, eller dokumenter beslutningen om å ikke utnevne et med begrunnelse.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'roles_access',
+    sla_category: 'identity_access',
     agent_capability: 'manual',
     sort_order: 10
   },
@@ -1492,7 +1492,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Implementer passende tekniske og organisatoriske tiltak for å sikre et sikkerhetsnivå som er passende i forhold til risikoen.',
     priority: 'critical',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 11
   },
@@ -1506,7 +1506,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Integrer databeskyttelse i behandlingsaktiviteter og forretningspraksis fra designstadiet.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 12
   }
@@ -1527,7 +1527,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Klassifiser alle AI-systemer etter risikonivå (uakseptabel, høy, begrenset, minimal) og dokumenter begrunnelse for hver klassifisering.',
     priority: 'critical',
     domain: 'ai',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 1
   },
@@ -1541,7 +1541,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Vedlikehold omfattende teknisk dokumentasjon for høyrisiko AI-systemer, inkludert informasjon om design, utvikling og testing.',
     priority: 'high',
     domain: 'ai',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 2
   },
@@ -1555,7 +1555,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Sørg for at AI-systemer er utformet for å gjøre det mulig for brukere å forstå deres operasjon og tolke resultater på riktig måte.',
     priority: 'critical',
     domain: 'ai',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'full',
     sort_order: 3
   },
@@ -1569,7 +1569,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Design høyrisiko AI-systemer slik at de effektivt kan overvåkes av fysiske personer, inkludert mulighet for å gripe inn eller stoppe operasjonen.',
     priority: 'critical',
     domain: 'ai',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 4
   },
@@ -1583,7 +1583,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Gjennomfør vurderinger av høyrisiko AI-systemers innvirkning på grunnleggende rettigheter før implementering.',
     priority: 'high',
     domain: 'ai',
-    sla_category: 'systems_processes',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 5
   },
@@ -1597,7 +1597,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Registrer høyrisiko AI-systemer i EU-databasen før de markedsføres eller tas i bruk.',
     priority: 'high',
     domain: 'ai',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'assisted',
     sort_order: 6
   },
@@ -1611,7 +1611,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Fullfør samsvarsvurderingsprosedyrer for høyrisiko AI-systemer før de markedsføres.',
     priority: 'critical',
     domain: 'ai',
-    sla_category: 'organization_governance',
+    sla_category: 'governance',
     agent_capability: 'manual',
     sort_order: 7
   },
@@ -1625,7 +1625,7 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Etabler et system for overvåking etter markedsføring for å samle inn, dokumentere og analysere data om AI-systemets ytelse.',
     priority: 'high',
     domain: 'ai',
-    sla_category: 'systems_processes',
+    sla_category: 'operations',
     agent_capability: 'assisted',
     sort_order: 8
   }
