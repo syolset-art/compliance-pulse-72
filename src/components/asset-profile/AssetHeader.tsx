@@ -29,7 +29,8 @@ import {
   Send,
   Camera,
   Loader2,
-  Award
+  Award,
+  CheckCircle2
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
@@ -267,6 +268,12 @@ export function AssetHeader({ asset, template }: AssetHeaderProps) {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
+            {asset.asset_type === 'self' && (
+              <Badge className="bg-success/15 text-success border-success/30 text-[10px] shrink-0 gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                {isNb ? "Verifisert av organisasjonen" : "Verified by organisation"}
+              </Badge>
+            )}
             {isMspPartner && (
               <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
                 <Award className="h-3 w-3" />
