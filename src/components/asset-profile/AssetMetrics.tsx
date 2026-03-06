@@ -198,51 +198,53 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
 
   return (
     <div className="space-y-3">
-      {/* Trust Profile Summary — only for self */}
+      {/* Trust Profile Summary + Security Domains side by side */}
       {isSelf && (
-        <Card className="p-5">
-          <div className="space-y-2.5">
-            {[
-              { label: "Trust Score", value: String(complianceScore) },
-              { label: isNb ? "Grunnlagsstatus" : "Foundation Status", value: getGovernanceLevelLabel() },
-              { label: isNb ? "Samsvarsmodenhet" : "Compliance Maturity", value: getMaturityLabel() },
-              { label: isNb ? "Omfang" : "Scope", value: getScopeLabel() },
-              { label: isNb ? "Sist oppdatert" : "Last Updated", value: getLastUpdated() },
-            ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
-                <span className="text-sm text-muted-foreground">{row.label}</span>
-                <span className="text-sm font-semibold text-foreground">{row.value}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              {isNb ? "Sammendrag" : "Summary"}
+            </h3>
+            <div className="space-y-1">
+              {[
+                { label: "Trust Score", value: `${complianceScore}%` },
+                { label: isNb ? "Grunnlagsstatus" : "Foundation Status", value: getGovernanceLevelLabel() },
+                { label: isNb ? "Samsvarsmodenhet" : "Compliance Maturity", value: getMaturityLabel() },
+                { label: isNb ? "Omfang" : "Scope", value: getScopeLabel() },
+                { label: isNb ? "Sist oppdatert" : "Last Updated", value: getLastUpdated() },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <span className="text-sm text-muted-foreground">{row.label}</span>
+                  <span className="text-sm font-semibold text-foreground">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
 
-      {/* Security Domains — only for self */}
-      {isSelf && (
-        <Card className="p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            {isNb ? "Sikkerhetsdomener" : "Security Domains"}
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { key: "governance", icon: Shield, label: "Governance", labelNb: "Governance", desc: isNb ? "Styring, ansvar og risikostyring" : "Governance, responsibility & risk", color: "text-primary", bg: "bg-primary/10" },
-              { key: "operations", icon: Layers, label: "Operations", labelNb: "Operations", desc: isNb ? "Systemer, prosesser og drift" : "Systems, processes & operations", color: "text-success", bg: "bg-success/10" },
-              { key: "identity_access", icon: ShieldCheck, label: "Identity & Access", labelNb: "Identity & Access", desc: isNb ? "Brukere, roller og tilgangskontroll" : "Users, roles & access control", color: "text-warning", bg: "bg-warning/10" },
-              { key: "supplier_ecosystem", icon: Target, label: "Supplier & Ecosystem", labelNb: "Supplier & Ecosystem", desc: isNb ? "Leverandører og tredjepartsrisiko" : "Vendors & third-party risk", color: "text-accent-foreground", bg: "bg-accent/20" },
-            ].map((domain) => (
-              <div key={domain.key} className="flex items-start gap-2.5 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors">
-                <div className={`h-8 w-8 rounded-lg ${domain.bg} flex items-center justify-center shrink-0`}>
-                  <domain.icon className={`h-4 w-4 ${domain.color}`} />
+          <Card className="p-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              {isNb ? "Sikkerhetsdomener" : "Security Domains"}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { key: "governance", icon: Shield, label: "Governance", desc: isNb ? "Styring, ansvar og risikostyring" : "Governance, responsibility & risk", color: "text-primary", bg: "bg-primary/10" },
+                { key: "operations", icon: Layers, label: "Operations", desc: isNb ? "Systemer, prosesser og drift" : "Systems, processes & operations", color: "text-success", bg: "bg-success/10" },
+                { key: "identity_access", icon: ShieldCheck, label: "Identity & Access", desc: isNb ? "Brukere, roller og tilgangskontroll" : "Users, roles & access control", color: "text-warning", bg: "bg-warning/10" },
+                { key: "supplier_ecosystem", icon: Target, label: "Supplier & Ecosystem", desc: isNb ? "Leverandører og tredjepartsrisiko" : "Vendors & third-party risk", color: "text-accent-foreground", bg: "bg-accent/20" },
+              ].map((domain) => (
+                <div key={domain.key} className="flex items-start gap-2.5 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors">
+                  <div className={`h-8 w-8 rounded-lg ${domain.bg} flex items-center justify-center shrink-0`}>
+                    <domain.icon className={`h-4 w-4 ${domain.color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{domain.label}</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{domain.desc}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{isNb ? domain.labelNb : domain.label}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{domain.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        </div>
       )}
 
       {expiredCount > 0 && asset.asset_type !== "self" && (
