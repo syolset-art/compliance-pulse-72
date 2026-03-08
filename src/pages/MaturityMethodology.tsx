@@ -33,11 +33,6 @@ const MaturityMethodology = () => {
       <main className="flex-1 overflow-auto">
         <div className="max-w-2xl mx-auto px-6 py-10 space-y-10">
 
-          {/* Back */}
-          <Button variant="ghost" onClick={() => navigate("/resources")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            {t("Tilbake til Ressurssenter", "Back to Resource Centre")}
-          </Button>
 
           {/* Hero */}
           <div className="space-y-3">
