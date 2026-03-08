@@ -233,7 +233,7 @@ export function TrustControlsPanel({
         </div>
       </Card>
 
-      {/* ━━━ SCOPE & COVERAGE + SECURITY OVERVIEW ━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ SCOPE & COVERAGE + CONTROL DOMAINS ━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Scope & Coverage */}
         <Card className="p-5 space-y-3">
