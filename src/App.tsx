@@ -28,7 +28,7 @@ import ProcessProfile from "./pages/ProcessProfile";
 import Deviations from "./pages/Deviations";
 import NotFound from "./pages/NotFound";
 import Resources from "./pages/Resources";
-import ComplianceChecklist from "./pages/ComplianceChecklist";
+
 import QualityDashboard from "./pages/QualityDashboard";
 import LaraInbox from "./pages/LaraInbox";
 import CustomerRequests from "./pages/CustomerRequests";
