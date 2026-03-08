@@ -199,7 +199,8 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       progressPercent,
       isAiHandling,
       evidenceNotes,
-      completedBy
+      completedBy,
+      maturityLevel
     }: {
       requirementDbId: string;
       status?: RequirementStatus;
@@ -207,6 +208,7 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       isAiHandling?: boolean;
       evidenceNotes?: string;
       completedBy?: string;
+      maturityLevel?: number;
     }) => {
       const updates: Record<string, unknown> = {};
       
@@ -215,9 +217,13 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       if (isAiHandling !== undefined) updates.is_ai_handling = isAiHandling;
       if (evidenceNotes !== undefined) updates.evidence_notes = evidenceNotes;
       if (completedBy !== undefined) updates.completed_by = completedBy;
+      if (maturityLevel !== undefined) updates.maturity_level = maturityLevel;
       
       if (status === 'completed') {
         updates.completed_at = new Date().toISOString();
+        if (maturityLevel === undefined) updates.maturity_level = 4;
+      } else if (status === 'in_progress' && maturityLevel === undefined) {
+        updates.maturity_level = 2;
       }
 
       // Check if status record exists
