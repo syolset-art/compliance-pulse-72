@@ -256,11 +256,11 @@ const MaturityMethodology = () => {
           </div>
 
           {/* Your current status */}
-          <Card variant="flat" className="border-primary/15 bg-primary/5">
+          <Card variant="flat" className="border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-blue-500/5">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   <div>
                     <p className="text-sm font-semibold text-foreground">
                       {t("Din nåværende modenhet", "Your current maturity")}
@@ -273,14 +273,16 @@ const MaturityMethodology = () => {
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-primary/15 text-primary border-primary/20 text-lg font-bold px-3 py-1">
-                  {progressPercent}%
-                </Badge>
+                <div className="relative flex items-center justify-center">
+                  <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
+                  </div>
+                </div>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-3 text-primary hover:text-primary/80"
+                className="w-full mt-3 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
                 onClick={() => navigate("/compliance-checklist")}
               >
                 {t("Se alle kontroller →", "View all controls →")}
