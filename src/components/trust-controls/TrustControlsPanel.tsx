@@ -345,8 +345,16 @@ export function TrustControlsPanel({
     return Math.round(((impl + partial * 0.5) / controls.length) * 100);
   };
 
-  // Coverage
-  const totalMapped = processesCount + systemsCount + vendorsCount + docsCount;
+  // Scope data
+  const s = {
+    systemsMapped: scope.systemsMapped ?? 0,
+    devicesMapped: scope.devicesMapped ?? 0,
+    applicationsMapped: scope.applicationsMapped ?? 0,
+    processesMaped: scope.processesMaped ?? 0,
+    vendorsMapped: scope.vendorsMapped ?? 0,
+    subProcessorsMapped: scope.subProcessorsMapped ?? 0,
+  };
+  const totalMapped = s.systemsMapped + s.devicesMapped + s.applicationsMapped + s.processesMaped + s.vendorsMapped + s.subProcessorsMapped + docsCount;
   const coveragePercent = Math.min(100, Math.round((totalMapped / Math.max(totalMapped, 10)) * 100));
 
   const [showRiskDetails, setShowRiskDetails] = useState(false);
