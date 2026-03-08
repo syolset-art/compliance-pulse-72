@@ -47,6 +47,7 @@ import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
+import MynderControls from "./pages/MynderControls";
 import TrustCenterSaaS from "./pages/TrustCenterSaaS";
 import TrustCenterShared from "./pages/TrustCenterShared";
 import TrustCenterCompliance from "./pages/TrustCenterCompliance";
