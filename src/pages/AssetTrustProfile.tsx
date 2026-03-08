@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -93,6 +93,14 @@ const AssetTrustProfile = () => {
 
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
+  const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
+
+  const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
+    setTrustMetrics(prev => {
+      if (prev && prev.trustScore === metrics.trustScore && prev.confidenceScore === metrics.confidenceScore) return prev;
+      return metrics;
+    });
+  }, []);
 
   // Tab definitions following the new structure
   const primaryTabDefs = [
@@ -168,12 +176,13 @@ const AssetTrustProfile = () => {
             {/* ═══ TRUST SNAPSHOT ═══════════════════════════════════════ */}
 
             {/* Entity Header */}
-            <AssetHeader asset={asset} template={template} />
+            <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
 
-            {/* Trust Metrics + Scope + Security + Risk + Controls */}
+            {/* Security Areas + Scope (side by side on desktop) */}
             <AssetMetrics
               asset={asset}
               tasksCount={tasks?.length || 0}
+              onTrustMetrics={handleTrustMetrics}
             />
 
             {/* Publishing for self-type */}

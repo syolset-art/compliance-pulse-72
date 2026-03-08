@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Send } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
@@ -30,9 +29,10 @@ interface AssetMetricsProps {
     metadata?: any;
   };
   tasksCount: number;
+  onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
 }
 
-export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
+export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetricsProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
@@ -74,9 +74,6 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
       return (data || []).length;
     },
   });
-
-  // Fetch scope counts
-  const isSelf = asset.asset_type === "self";
 
   const { data: scopeData } = useQuery({
     queryKey: ["scope-counts"],
@@ -121,11 +118,12 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         </div>
       )}
 
-      {/* Trust Snapshot Panel */}
+      {/* Trust Snapshot Panel — Security Areas + Scope side by side */}
       <TrustControlsPanel
         asset={asset}
         docsCount={docsCount}
         relationsCount={relationsCount}
+        onTrustMetrics={onTrustMetrics}
         scope={{
           systemsMapped: scopeData?.systemsMapped || 0,
           devicesMapped: scopeData?.devicesMapped || 0,
