@@ -488,23 +488,99 @@ export function TrustControlsPanel({
         )}
       </Card>
 
-      {/* ━━━ 4. COVERAGE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <Card className="p-5">
-        <h2 className="text-sm font-semibold mb-4">{isNb ? "Dekning" : "Coverage"}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { icon: Network, label: isNb ? "Prosesser" : "Processes", value: processesCount },
-            { icon: Server, label: isNb ? "Systemer" : "Systems", value: systemsCount },
-            { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: vendorsCount },
-            { icon: FileText, label: isNb ? "Dokumenter" : "Documents", value: docsCount },
-          ].map((item) => (
-            <div key={item.label} className="flex flex-col items-center gap-1.5 p-3 rounded-lg border border-border" role="group" aria-label={`${item.value} ${item.label}`}>
-              <item.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="text-xl font-bold text-foreground">{item.value}</span>
-              <span className="text-[10px] text-muted-foreground font-medium">{item.label}</span>
-            </div>
-          ))}
+      {/* ━━━ 4. SCOPE MODEL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold">{isNb ? "Omfang" : "Scope"}</h2>
+          <div className="flex items-center gap-2" role="group" aria-label={`Coverage ${coveragePercent}%`}>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <span className="text-sm font-bold text-foreground">{coveragePercent}%</span>
+            <span className="text-xs text-muted-foreground">{isNb ? "dekning" : "coverage"}</span>
+          </div>
         </div>
+
+        <Progress value={coveragePercent} className="h-2" aria-label={`Coverage ${coveragePercent}%`} />
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* Assets */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isNb ? "Eiendeler" : "Assets"}</h3>
+            <div className="space-y-1">
+              {[
+                { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
+                { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
+                { icon: AppWindow, label: isNb ? "Applikasjoner" : "Applications", value: s.applicationsMapped },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                    <span className="text-muted-foreground">{item.label}</span>
+                  </div>
+                  <span className="font-semibold" aria-label={`${item.value} ${item.label}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Processes */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isNb ? "Prosesser" : "Processes"}</h3>
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <Network className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <span className="text-muted-foreground">{isNb ? "Kartlagt" : "Mapped"}</span>
+              </div>
+              <span className="font-semibold" aria-label={`${s.processesMaped} processes`}>{s.processesMaped}</span>
+            </div>
+          </div>
+
+          {/* Third Parties */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isNb ? "Tredjeparter" : "Third Parties"}</h3>
+            <div className="space-y-1">
+              {[
+                { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
+                { icon: GitBranch, label: isNb ? "Underleverandører" : "Sub-processors", value: s.subProcessorsMapped },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                    <span className="text-muted-foreground">{item.label}</span>
+                  </div>
+                  <span className="font-semibold" aria-label={`${item.value} ${item.label}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Framework Coverage */}
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{isNb ? "Rammeverk" : "Framework Coverage"}</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                { area: "governance" as ControlArea, label: "Governance", labelNb: "Styring" },
+                { area: "risk_compliance" as ControlArea, label: "Operations", labelNb: "Drift" },
+                { area: "security_posture" as ControlArea, label: "Identity & Access", labelNb: "Identitet" },
+                { area: "supplier_governance" as ControlArea, label: "Supplier", labelNb: "Leverandør" },
+              ]).map(({ area, label, labelNb: nb }) => {
+                const score = areaScore(area);
+                const variant = score >= 75 ? "action" : score >= 40 ? "warning" : score > 0 ? "destructive" : "secondary";
+                return (
+                  <Badge key={area} variant={variant as any} className="text-[10px] gap-1" aria-label={`${label} ${score}%`}>
+                    {isNb ? nb : label}
+                    <span className="font-bold">{score}%</span>
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed border-t border-border pt-3">
+          {isNb
+            ? "Dekning viser hvor mye av organisasjonens systemer, leverandører og prosesser som er inkludert i Trust Profile-vurderingen."
+            : "Coverage indicates how much of the organization's systems, vendors and processes are included in the Trust Profile assessment."}
+        </p>
       </Card>
 
       {/* ━━━ 5. KEY RISKS (top 3) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
