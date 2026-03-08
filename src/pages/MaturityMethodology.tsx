@@ -452,7 +452,7 @@ const MaturityMethodology = () => {
                       )}
                     </p>
                     <div className="rounded-lg bg-muted/30 border border-border/30 px-3 py-2 space-y-1">
-                      <p className="text-xs font-mono text-foreground/80">
+                       <p className="text-sm font-mono text-foreground/80">
                         {t(
                           "skår = Σ(skår_per_kontroll × vekt) / Σ(vekt)",
                           "score = Σ(score_per_control × weight) / Σ(weight)"
