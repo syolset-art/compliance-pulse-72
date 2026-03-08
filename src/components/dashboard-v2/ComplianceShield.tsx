@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Zap, Flame, TrendingUp } from "lucide-react";
+import { Zap, Flame, TrendingUp, Shield, SlidersHorizontal, FileCheck, ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import type { ScoreResult } from "@/lib/scoringEngine";
 
 interface ComplianceShieldProps {
