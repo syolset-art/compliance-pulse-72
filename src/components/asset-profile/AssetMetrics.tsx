@@ -75,24 +75,25 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     },
   });
 
-  // Fetch coverage counts
+  // Fetch scope counts
   const isSelf = asset.asset_type === "self";
 
-  const { data: coverageCounts } = useQuery({
-    queryKey: ["coverage-counts"],
+  const { data: scopeData } = useQuery({
+    queryKey: ["scope-counts"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
         .select("asset_type")
         .neq("asset_type", "self");
-      if (error) return { systems: 0, vendors: 0 };
+      if (error) return { systemsMapped: 0, devicesMapped: 0, applicationsMapped: 0, vendorsMapped: 0 };
       const items = data || [];
       return {
-        systems: items.filter((a: any) => a.asset_type === "system").length,
-        vendors: items.filter((a: any) => a.asset_type === "vendor").length,
+        systemsMapped: items.filter((a: any) => a.asset_type === "system").length,
+        devicesMapped: items.filter((a: any) => a.asset_type === "hardware").length,
+        applicationsMapped: 0,
+        vendorsMapped: items.filter((a: any) => a.asset_type === "vendor").length,
       };
     },
-    enabled: isSelf,
   });
 
   return (
@@ -125,9 +126,14 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         asset={asset}
         docsCount={docsCount}
         relationsCount={relationsCount}
-        systemsCount={coverageCounts?.systems || 0}
-        vendorsCount={coverageCounts?.vendors || 0}
-        processesCount={0}
+        scope={{
+          systemsMapped: scopeData?.systemsMapped || 0,
+          devicesMapped: scopeData?.devicesMapped || 0,
+          applicationsMapped: scopeData?.applicationsMapped || 0,
+          vendorsMapped: scopeData?.vendorsMapped || 0,
+          processesMaped: 0,
+          subProcessorsMapped: 0,
+        }}
       />
 
       <RequestUpdateDialog
