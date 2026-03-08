@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock, Bot, User, Building2,
   ShieldCheck, ChevronDown, ChevronRight, Zap, ListTodo, Lightbulb, TriangleAlert,
-  Layers, Target, Clock, FileText, Network, Server, Eye,
+  Layers, Target, Clock, FileText, Network, Server, Eye, Monitor, HardDrive, AppWindow, GitBranch, BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
