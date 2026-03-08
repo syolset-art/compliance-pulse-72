@@ -401,6 +401,22 @@ export function TrustControlsPanel({
             <p className="text-lg font-semibold text-foreground">{lastUpdated}</p>
           </div>
         </div>
+
+        {/* Comparison metrics strip */}
+        <div className="border-t border-border pt-4 mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3" role="list" aria-label={isNb ? "Sammenlignbare nøkkeltall" : "Comparison metrics"}>
+          {[
+            { label: "Trust Score", value: `${trustScore}%`, icon: TrendingUp },
+            { label: isNb ? "Dekning" : "Coverage", value: `${coveragePercent}%`, icon: BarChart3 },
+            { label: isNb ? "Datakvalitet" : "Data Quality", value: `${confidenceScore}%`, icon: ShieldCheck },
+            { label: isNb ? "Høy risiko" : "High Risks", value: String(highRisks), icon: TriangleAlert },
+          ].map((m) => (
+            <div key={m.label} className="flex items-center gap-2 text-xs" role="listitem">
+              <m.icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
+              <span className="text-muted-foreground">{m.label}:</span>
+              <span className="font-semibold text-foreground">{m.value}</span>
+            </div>
+          ))}
+        </div>
       </Card>
 
       {/* ━━━ 2. SECURITY OVERVIEW ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
