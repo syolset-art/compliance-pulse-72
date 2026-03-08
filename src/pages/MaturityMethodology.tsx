@@ -222,29 +222,29 @@ const MaturityMethodology = () => {
             </p>
             <div className="space-y-1.5">
               {[
-                { level: 0, no: "Ikke startet", en: "Not started", color: "bg-muted-foreground/20", desc_no: "Ingen praksis eller dokumentasjon", desc_en: "No practice or documentation" },
-                { level: 1, no: "Planlagt", en: "Planned", color: "bg-amber-400/30", desc_no: "Kravet er forstått og eier er utpekt", desc_en: "Requirement understood, owner assigned" },
-                { level: 2, no: "Dokumentert", en: "Documented", color: "bg-amber-500/50", desc_no: "Policy eller prosedyre finnes", desc_en: "Policy or procedure exists" },
-                { level: 3, no: "Implementert", en: "Implemented", color: "bg-primary/60", desc_no: "Gjennomføres i praksis, ikke bare på papir", desc_en: "Carried out in practice, not just on paper" },
-                { level: 4, no: "Verifisert", en: "Verified", color: "bg-primary", desc_no: "Evidens finnes og er nylig oppdatert", desc_en: "Evidence exists and is recently updated" },
+                { level: 0, no: "Ikke startet", en: "Not started", color: "bg-gray-200 dark:bg-gray-700", textColor: "text-gray-700 dark:text-gray-200", barColor: "bg-gray-300 dark:bg-gray-600", desc_no: "Ingen praksis eller dokumentasjon", desc_en: "No practice or documentation" },
+                { level: 1, no: "Planlagt", en: "Planned", color: "bg-amber-300 dark:bg-amber-700", textColor: "text-amber-900 dark:text-amber-100", barColor: "bg-amber-400", desc_no: "Kravet er forstått og eier er utpekt", desc_en: "Requirement understood, owner assigned" },
+                { level: 2, no: "Dokumentert", en: "Documented", color: "bg-amber-500", textColor: "text-white", barColor: "bg-amber-500", desc_no: "Policy eller prosedyre finnes", desc_en: "Policy or procedure exists" },
+                { level: 3, no: "Implementert", en: "Implemented", color: "bg-blue-500", textColor: "text-white", barColor: "bg-blue-500", desc_no: "Gjennomføres i praksis, ikke bare på papir", desc_en: "Carried out in practice, not just on paper" },
+                { level: 4, no: "Verifisert", en: "Verified", color: "bg-emerald-500", textColor: "text-white", barColor: "bg-emerald-500", desc_no: "Evidens finnes og er nylig oppdatert", desc_en: "Evidence exists and is recently updated" },
               ].map((item) => (
                 <div key={item.level} className="flex items-center gap-3 rounded-lg border border-border/40 bg-card p-3">
-                  <div className={`h-8 w-8 rounded-lg ${item.color} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-xs font-bold text-foreground">{item.level}</span>
+                  <div className={`h-9 w-9 rounded-lg ${item.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                    <span className={`text-sm font-bold ${item.textColor}`}>{item.level}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">{t(item.no, item.en)}</p>
                     <p className="text-sm text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
                   </div>
                   <div className="hidden sm:block">
-                    <div className="w-20 h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                      <div className={`h-full rounded-full ${item.color}`} style={{ width: `${(item.level / 4) * 100}%` }} />
+                    <div className="w-24 h-2 rounded-full bg-muted/50 overflow-hidden">
+                      <div className={`h-full rounded-full ${item.barColor} transition-all`} style={{ width: `${(item.level / 4) * 100}%` }} />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
+            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
               <p className="text-base text-foreground">
                 <span className="font-semibold">{t("Eksempel:", "Example:")}</span>{" "}
                 {t(
