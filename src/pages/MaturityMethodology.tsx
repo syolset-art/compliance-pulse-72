@@ -458,7 +458,7 @@ const MaturityMethodology = () => {
                           "score = Σ(score_per_control × weight) / Σ(weight)"
                         )}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {t(
                           "Standardvekt = 1. Valgfri vekting 1–3 basert på kritikalitet.",
                           "Default weight = 1. Optional weighting 1–3 based on criticality."
