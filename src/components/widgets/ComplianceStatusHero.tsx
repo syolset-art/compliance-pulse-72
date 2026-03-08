@@ -175,7 +175,10 @@ export function ComplianceStatusHero({ companyName }: Props) {
             </div>
 
             {nextStage ? (
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <button
+                onClick={() => navigate(`/compliance?stage=${nextStage.key}`)}
+                className="w-full text-left rounded-lg border border-primary/20 bg-primary/5 p-3 hover:bg-primary/10 hover:border-primary/40 transition-all group cursor-pointer"
+              >
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-xs font-semibold text-primary uppercase tracking-wider">
                     Next milestone
@@ -184,8 +187,11 @@ export function ComplianceStatusHero({ companyName }: Props) {
                 </div>
                 <p className="text-sm font-medium text-foreground">{nextStage.label}</p>
                 <p className="text-xs text-muted-foreground mb-2">{nextStage.description}</p>
-                <Progress value={stageProgress} className="h-1.5" />
-              </div>
+                <Progress value={stageProgress} className="h-1.5 mb-2" />
+                <span className="text-xs font-medium text-primary flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Se hva som gjenstår <ArrowRight className="h-3 w-3" />
+                </span>
+              </button>
             ) : (
               <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
                 <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
