@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Layers, Monitor, Share2, Workflow } from "lucide-react";
+import { Layers, Monitor, Share2, Workflow, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const COVERAGE_ITEMS = [
   { label: "Processes mapped", count: 5, icon: Workflow },
@@ -11,6 +13,8 @@ const COVERAGE_ITEMS = [
 const COVERAGE_PERCENT = 18;
 
 export function CoverageWidget() {
+  const navigate = useNavigate();
+
   return (
     <Card>
       <CardContent className="p-5">
@@ -31,7 +35,7 @@ export function CoverageWidget() {
           ))}
         </div>
 
-        <div className="rounded-lg border border-border bg-muted/50 p-3">
+        <div className="rounded-lg border border-border bg-muted/50 p-3 mb-3">
           <div className="flex items-center justify-between mb-1.5">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
               Overall coverage
@@ -40,6 +44,16 @@ export function CoverageWidget() {
           </div>
           <Progress value={COVERAGE_PERCENT} className="h-1.5" />
         </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-1.5 text-xs"
+          onClick={() => navigate("/assets")}
+        >
+          Map more assets
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       </CardContent>
     </Card>
   );
