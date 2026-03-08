@@ -49,6 +49,7 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
           status,
           progress_percent,
           is_ai_handling,
+          maturity_level,
           completed_at,
           completed_by,
           evidence_notes,
