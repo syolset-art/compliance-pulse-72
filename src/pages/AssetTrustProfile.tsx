@@ -100,9 +100,9 @@ const AssetTrustProfile = () => {
     { value: 'compliance', label: isNb ? 'ISO 27001 Samsvar' : 'ISO 27001 Compliance', show: isHardware },
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isHardware },
     // Standard tabs
-    { value: 'validation', label: isNb ? 'Validering' : 'Validation', show: !isHardware },
+    { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: !isHardware },
     { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: !isHardware },
-    { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk', show: true },
+    { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
     { value: 'incidents', label: isNb ? 'Avvik og hendelser' : 'Deviations & Incidents', show: true },
     { value: 'relations', label: isNb ? 'Relasjoner' : 'Relations', show: !isHardware },
     { value: 'documents', label: isNb ? 'Dokumenter' : 'Documents', show: true },
@@ -114,6 +114,9 @@ const AssetTrustProfile = () => {
     { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: isSelf },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: isSelf },
   ].filter(t => t.show);
+
+  // Overflow button label
+  const moreLabel = isNb ? "Mer" : "More";
 
   const activeOverflowTab = overflowTabDefs.find(t => t.value === activeTab);
 
