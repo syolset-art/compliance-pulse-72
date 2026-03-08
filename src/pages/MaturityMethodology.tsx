@@ -260,7 +260,7 @@ const MaturityMethodology = () => {
 
           {/* Deep-dive sections — accordion */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Vil du vite mer?", "Want to learn more?")}
             </h2>
             <p className="text-sm text-muted-foreground">
