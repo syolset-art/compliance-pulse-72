@@ -153,8 +153,8 @@ const MaturityMethodology = () => {
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {t(
-                        `Basert på ${stats.assessed} av ${stats.total} kontroller vurdert`,
-                        `Based on ${stats.assessed} of ${stats.total} controls assessed`
+                        `Basert på ${stats.completed + stats.inProgress} av ${stats.total} kontroller vurdert`,
+                        `Based on ${stats.completed + stats.inProgress} of ${stats.total} controls assessed`
                       )}
                     </p>
                   </div>
