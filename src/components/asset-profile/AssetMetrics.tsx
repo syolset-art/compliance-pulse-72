@@ -248,45 +248,12 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         </div>
       )}
 
-      {/* Compliance Score — prominent card with checklist */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">{isNb ? "Samsvar" : "Compliance"}</span>
-          </div>
-          <span className={`text-2xl font-bold ${complianceColor}`}>{complianceScore}%</span>
-        </div>
-        <Progress value={complianceScore} className="h-2 mb-3" />
-        <TooltipProvider>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5">
-            {COMPLIANCE_CRITERIA.map((c) => {
-              const done = fulfilled.includes(c.key);
-              return (
-                <Tooltip key={c.key}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] transition-colors ${
-                        done ? "bg-success/10 text-success" : "bg-muted/50 text-muted-foreground"
-                      }`}
-                    >
-                      <CheckCircle2
-                        className={`h-3 w-3 shrink-0 ${done ? "text-success" : "text-muted-foreground/30"}`}
-                      />
-                      <span className="truncate">{isNb ? c.labelNb : c.labelEn}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {done
-                      ? `✓ ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`
-                      : `${isNb ? "Mangler" : "Missing"}: ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </div>
-        </TooltipProvider>
-      </Card>
+      {/* Trust Controls Panel */}
+      <TrustControlsPanel
+        asset={asset}
+        docsCount={docsCount}
+        relationsCount={relationsCount}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {smallMetrics.map((m) => (
