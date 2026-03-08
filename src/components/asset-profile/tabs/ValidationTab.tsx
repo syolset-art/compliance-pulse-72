@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertCircle, Clock, Bot } from "lucide-react";
+import { ControlsSummaryCard } from "@/components/trust-controls/ControlsSummaryCard";
 
 interface ValidationTabProps {
   assetId: string;
