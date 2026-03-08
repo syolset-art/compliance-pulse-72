@@ -95,7 +95,7 @@ const DEMO_PEOPLE: Record<string, string[]> = {
 
 const DEFAULT_PEOPLE = ["Jan Olsen", "Kari Nordmann", "Erik Hansen", "Tore Berg", "Lise Andersen"];
 
-export function AssetHeader({ asset, template }: AssetHeaderProps) {
+export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps) {
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
