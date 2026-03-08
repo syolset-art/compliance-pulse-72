@@ -51,14 +51,21 @@ interface AssetLike {
   updated_at?: string | null;
 }
 
+interface ScopeData {
+  systemsMapped: number;
+  devicesMapped: number;
+  applicationsMapped: number;
+  processesMaped: number;
+  vendorsMapped: number;
+  subProcessorsMapped: number;
+}
+
 interface TrustControlsPanelProps {
   asset: AssetLike;
   docsCount: number;
   relationsCount: number;
   overrideType?: string;
-  processesCount?: number;
-  systemsCount?: number;
-  vendorsCount?: number;
+  scope?: Partial<ScopeData>;
 }
 
 // ── Control evaluation ───────────────────────────────────────────────
