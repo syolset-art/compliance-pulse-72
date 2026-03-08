@@ -101,6 +101,12 @@ const MaturityMethodology = () => {
                 );
               })}
             </div>
+            <button
+              onClick={() => navigate("/resources/controls")}
+              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mt-1"
+            >
+              {t("Les mer om Mynder Controls →", "Read more about Mynder Controls →")}
+            </button>
           </div>
 
           {/* How the model works — colored vertical pipeline */}
