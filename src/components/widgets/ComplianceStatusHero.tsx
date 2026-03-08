@@ -126,7 +126,7 @@ export function ComplianceStatusHero({ companyName }: Props) {
               variant="link"
               size="sm"
               className="text-xs text-primary p-0 h-auto"
-              onClick={() => navigate("/resources?tab=methodology")}
+              onClick={() => navigate("/controls")}
             >
               View maturity details <ArrowRight className="h-3 w-3 ml-1 inline" />
             </Button>

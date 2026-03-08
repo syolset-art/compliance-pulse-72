@@ -55,6 +55,7 @@ import TrustCenterPolicies from "./pages/TrustCenterPolicies";
 import TrustCenterCertifications from "./pages/TrustCenterCertifications";
 import TrustCenterProducts from "./pages/TrustCenterProducts";
 import ComplianceCalendar from "./pages/ComplianceCalendar";
+import ComplianceChecklist from "./pages/ComplianceChecklist";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
 import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 import DemoLibrary from "./pages/DemoLibrary";
@@ -93,7 +94,10 @@ const App = () => (
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
-                  <Route path="/compliance-checklist" element={<MynderControls />} />
+                  <Route path="/compliance" element={<ComplianceChecklist />} />
+                  <Route path="/controls" element={<MynderControls />} />
+                  <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
+                  <Route path="/resources/controls" element={<MynderControls />} />
                   <Route path="/quality" element={<QualityDashboard />} />
                   <Route path="/lara-inbox" element={<LaraInbox />} />
                   <Route path="/customer-requests" element={<CustomerRequests />} />
