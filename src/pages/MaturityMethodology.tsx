@@ -98,7 +98,7 @@ const MaturityMethodology = () => {
 
           {/* How the model works — visual flow */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+             <h2 className="text-xl font-bold text-foreground">
               {t("Slik henger det sammen", "How the model works")}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
