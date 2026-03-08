@@ -12,6 +12,7 @@ import {
   ArrowLeft, Shield, Target, BarChart3, Eye,
   Layers, Scale, TrendingUp, AlertTriangle,
   Building2, Workflow, Monitor, FileCheck, ChevronDown,
+  Bot, Users, UserCheck, Share2, ShieldCheck, Fingerprint,
 } from "lucide-react";
 
 const MaturityMethodology = () => {
