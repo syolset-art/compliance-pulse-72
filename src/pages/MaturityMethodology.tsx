@@ -309,7 +309,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">Trust Score</span>
+                    <span className="text-base font-semibold text-left">Trust Score</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
