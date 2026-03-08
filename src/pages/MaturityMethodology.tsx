@@ -53,7 +53,7 @@ const MaturityMethodology = () => {
 
           {/* The Big Idea — 3 simple cards */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Kort oppsummert", "In a nutshell")}
             </h2>
             <div className="grid gap-3">
@@ -88,7 +88,7 @@ const MaturityMethodology = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t(item.desc_no, item.desc_en)}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t(item.desc_no, item.desc_en)}</p>
                     </div>
                   </div>
                 );
@@ -98,10 +98,10 @@ const MaturityMethodology = () => {
 
           {/* How the model works — visual flow */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+             <h2 className="text-xl font-bold text-foreground">
               {t("Slik henger det sammen", "How the model works")}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {t(
                 "Mynder bygger opp et bilde av virksomheten din steg for steg. Her ser du hvordan alt henger sammen — fra organisasjonen din helt ned til modenhetsscoren.",
                 "Mynder builds a picture of your organization step by step. Here's how everything connects — from your organization all the way to the maturity score."
@@ -156,7 +156,7 @@ const MaturityMethodology = () => {
                       </div>
                       <div className="pt-0.5">
                         <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
+                        <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
                       </div>
                     </div>
                     {idx < arr.length - 1 && (
@@ -169,7 +169,7 @@ const MaturityMethodology = () => {
               })}
             </div>
             <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 <span className="font-semibold text-foreground">{t("Kort sagt:", "In short:")}</span>{" "}
                 {t(
                   "Organisasjon → prosesser → systemer → risiko → kontroller → samsvarsscore.",
@@ -181,10 +181,10 @@ const MaturityMethodology = () => {
 
           {/* 0-4 Scale — visual and clear */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Modenhetsskalaen (0–4)", "The maturity scale (0–4)")}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {t(
                 "Hver kontroll vurderes på denne skalaen. Jo høyere nivå, desto bedre er kontrollen forankret i virksomheten.",
                 "Each control is assessed on this scale. The higher the level, the better the control is embedded in your organization."
@@ -204,7 +204,7 @@ const MaturityMethodology = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">{t(item.no, item.en)}</p>
-                    <p className="text-[11px] text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
+                    <p className="text-sm text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
                   </div>
                   <div className="hidden sm:block">
                     <div className="w-20 h-1.5 rounded-full bg-muted/50 overflow-hidden">
@@ -215,7 +215,7 @@ const MaturityMethodology = () => {
               ))}
             </div>
             <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
-              <p className="text-sm text-foreground">
+              <p className="text-base text-foreground">
                 <span className="font-semibold">{t("Eksempel:", "Example:")}</span>{" "}
                 {t(
                   "En kontroll på nivå 3 gir 75 % (3/4). Nivå 4 gir 100 %.",
@@ -235,7 +235,7 @@ const MaturityMethodology = () => {
                     <p className="text-sm font-semibold text-foreground">
                       {t("Din nåværende modenhet", "Your current maturity")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-sm text-muted-foreground mt-0.5">
                       {t(
                         `Basert på ${stats.completed + stats.inProgress} av ${stats.total} kontroller vurdert`,
                         `Based on ${stats.completed + stats.inProgress} of ${stats.total} controls assessed`
@@ -260,10 +260,10 @@ const MaturityMethodology = () => {
 
           {/* Deep-dive sections — accordion */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Vil du vite mer?", "Want to learn more?")}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {t(
                 "Utforsk detaljene i modellen vår nedenfor.",
                 "Explore the details of our model below."
@@ -338,8 +338,8 @@ const MaturityMethodology = () => {
                         { label: t("Lav", "Low"), w: 1 },
                       ].map((r) => (
                         <div key={r.label} className="text-center rounded-lg border border-border/40 bg-muted/20 p-2">
-                          <p className="text-xs font-semibold text-foreground">{r.label}</p>
-                          <p className="text-[10px] text-muted-foreground">{t("Vekt", "Weight")} {r.w}</p>
+                          <p className="text-sm font-semibold text-foreground">{r.label}</p>
+                          <p className="text-xs text-muted-foreground">{t("Vekt", "Weight")} {r.w}</p>
                         </div>
                       ))}
                     </div>
@@ -348,7 +348,7 @@ const MaturityMethodology = () => {
                       <p>• {t("Pågående håndtering = 50 % påvirkning", "In progress = 50% impact")}</p>
                       <p>• {t("Ikke startet = 100 % påvirkning", "Not started = 100% impact")}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground italic">
+                    <p className="text-sm text-muted-foreground italic">
                       {t(
                         "Skåren inverteres: lav risiko gir høy skår. Uten dokumenterte risikoer brukes en nøytral skår på 50.",
                         "Score is inverted: low risk = high score. Without documented risks, a neutral score of 50 is used."
@@ -384,8 +384,8 @@ const MaturityMethodology = () => {
                         { no: "Supplier & Ecosystem", en: "Supplier & Ecosystem", desc_no: "Leverandøroversikt, DPA, leverandørrisikovurdering, underleverandørkontroll", desc_en: "Vendor inventory, DPA, vendor risk assessment, subprocessor oversight" },
                       ].map((d) => (
                         <div key={d.en} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                          <p className="text-xs font-bold text-foreground">{t(d.no, d.en)}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{t(d.desc_no, d.desc_en)}</p>
+                          <p className="text-sm font-bold text-foreground">{t(d.no, d.en)}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t(d.desc_no, d.desc_en)}</p>
                         </div>
                       ))}
                     </div>
@@ -452,13 +452,13 @@ const MaturityMethodology = () => {
                       )}
                     </p>
                     <div className="rounded-lg bg-muted/30 border border-border/30 px-3 py-2 space-y-1">
-                      <p className="text-xs font-mono text-foreground/80">
+                       <p className="text-sm font-mono text-foreground/80">
                         {t(
                           "skår = Σ(skår_per_kontroll × vekt) / Σ(vekt)",
                           "score = Σ(score_per_control × weight) / Σ(weight)"
                         )}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {t(
                           "Standardvekt = 1. Valgfri vekting 1–3 basert på kritikalitet.",
                           "Default weight = 1. Optional weighting 1–3 based on criticality."
@@ -474,10 +474,10 @@ const MaturityMethodology = () => {
 
           {/* Legal disclaimer — compact */}
           <div className="rounded-xl border border-border/50 bg-muted/20 p-5 space-y-2">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-base font-semibold text-foreground">
               {t("Viktig å vite", "Important to know")}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {t(
                 "Mynder måler implementeringsmodenhet i styringssystemet — ikke juridisk etterlevelse. Dette samsvarer med ISO 27001 (ISMS), ISO 27701 (PIMS) og ISO 42001 (AIMS): vi måler om praksis, styring og kontroll er på plass og kan dokumenteres.",
                 "Mynder measures implementation maturity of your management system — not legal compliance. This aligns with ISO 27001 (ISMS), ISO 27701 (PIMS) and ISO 42001 (AIMS): we measure whether practice, governance and control are in place and can be documented."
