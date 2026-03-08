@@ -8,8 +8,7 @@ import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidge
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
-import { ComplianceMaturityWidget } from "@/components/widgets/ComplianceMaturityWidget";
-import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
+import { ComplianceStatusHero } from "@/components/widgets/ComplianceStatusHero";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
@@ -17,13 +16,10 @@ import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { QualityModuleActivationWizard } from "@/components/quality/QualityModuleActivationWizard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Shield } from "lucide-react";
 
 const Index = () => {
   const isMobile = useIsMobile();
-  const { stats } = useComplianceRequirements({});
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -71,11 +67,11 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const score = stats.progressPercent;
+  
 
   const dashboardContent = (
     <>
-      {/* 1. Trust & Compliance Overview */}
+      {/* 1. Trust & Compliance Overview — hero with score + maturity */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <Shield className="h-6 w-6 text-primary" />
@@ -86,18 +82,7 @@ const Index = () => {
         <p className="text-sm text-muted-foreground max-w-2xl mb-4">
           A real-time overview of your organization's security, privacy and compliance.
         </p>
-        {/* Mini score bar */}
-        <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card">
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-sm font-medium text-foreground">
-                {companyName || "Organization"} — overall compliance
-              </span>
-              <Badge variant="outline" className="text-xs">{score}%</Badge>
-            </div>
-            <Progress value={score} className="h-2" />
-          </div>
-        </div>
+        <ComplianceStatusHero companyName={companyName} />
       </div>
 
       {/* 2. AI Activity */}
@@ -122,10 +107,9 @@ const Index = () => {
         <EnvironmentOverviewWidget />
       </div>
 
-      {/* 8. NIS2 readiness + 9. Compliance maturity — side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      {/* 8. NIS2 readiness */}
+      <div className="mb-6">
         <NIS2ReadinessWidget />
-        <ComplianceMaturityWidget />
       </div>
     </>
   );
