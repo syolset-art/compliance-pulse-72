@@ -204,7 +204,7 @@ const MaturityMethodology = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">{t(item.no, item.en)}</p>
-                    <p className="text-[11px] text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
+                    <p className="text-sm text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
                   </div>
                   <div className="hidden sm:block">
                     <div className="w-20 h-1.5 rounded-full bg-muted/50 overflow-hidden">
