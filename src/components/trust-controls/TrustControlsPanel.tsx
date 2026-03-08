@@ -246,7 +246,7 @@ function FlippableDataQuality({ confidenceLevel, confidenceScore, confidenceColo
   );
 }
 
-
+function ControlRow({ control, isNb }: { control: EvaluatedControl; isNb: boolean }) {
   const cfg = STATUS_CONFIG[control.status];
   const Icon = cfg.icon;
   return (
