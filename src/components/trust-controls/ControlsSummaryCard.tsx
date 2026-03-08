@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { type ControlArea } from "@/lib/trustControlDefinitions";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
