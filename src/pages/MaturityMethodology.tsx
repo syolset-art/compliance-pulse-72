@@ -348,7 +348,7 @@ const MaturityMethodology = () => {
                       <p>• {t("Pågående håndtering = 50 % påvirkning", "In progress = 50% impact")}</p>
                       <p>• {t("Ikke startet = 100 % påvirkning", "Not started = 100% impact")}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground italic">
+                    <p className="text-sm text-muted-foreground italic">
                       {t(
                         "Skåren inverteres: lav risiko gir høy skår. Uten dokumenterte risikoer brukes en nøytral skår på 50.",
                         "Score is inverted: low risk = high score. Without documented risks, a neutral score of 50 is used."
