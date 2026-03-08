@@ -449,42 +449,52 @@ const MaturityMethodology = () => {
             </div>
           </div>
 
-          {/* Your current status — split into two metrics */}
-          <Card variant="flat" className="border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-blue-500/5">
+          {/* Security & compliance status */}
+          <Card variant="flat" className="border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5">
             <CardContent className="p-5 space-y-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <Shield className="h-5 w-5 text-primary" />
                 <p className="text-sm font-semibold text-foreground">
-                  {t("Din nåværende modenhet", "Your current maturity")}
+                  {t("Sikkerhets- og compliance-status", "Security & compliance status")}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 {/* Security Maturity */}
                 <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-background/50 p-4">
-                  <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
-                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
+                  <div className="h-14 w-14 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                    <span className="text-base font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security Maturity")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {t(
-                        `${stats.completed + stats.inProgress} av ${stats.total} kontroller`,
-                        `${stats.completed + stats.inProgress} of ${stats.total} controls`
-                      )}
+                    <p className="text-xs font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security maturity")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                      {t("Basert på implementerte kontroller.", "Based on implemented controls.")}
                     </p>
                   </div>
                 </div>
 
                 {/* Coverage */}
                 <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-background/50 p-4">
-                  <div className="h-16 w-16 rounded-full border-4 border-blue-500/30 flex items-center justify-center bg-blue-500/10">
-                    <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{Math.round((stats.total > 0 ? ((stats.completed + stats.inProgress) / stats.total) : 0) * 100)}%</span>
+                  <div className="h-14 w-14 rounded-full border-4 border-blue-500/30 flex items-center justify-center bg-blue-500/10">
+                    <span className="text-base font-bold text-blue-700 dark:text-blue-300">{Math.round((stats.total > 0 ? ((stats.completed + stats.inProgress) / stats.total) : 0) * 100)}%</span>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-foreground">{t("Dekningsgrad", "Coverage")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {t("Systemer, leverandører og prosesser kartlagt", "Systems, vendors and processes mapped")}
+                    <p className="text-xs font-semibold text-foreground">{t("Dekningsgrad", "Coverage")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                      {t("Systemer, leverandører og prosesser kartlagt.", "Systems, vendors and processes mapped.")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Risk Exposure */}
+                <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-background/50 p-4">
+                  <div className="h-14 w-14 rounded-full border-4 border-amber-500/30 flex items-center justify-center bg-amber-500/10">
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-300">{t("Middels", "Medium")}</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-semibold text-foreground">{t("Risikoeksponering", "Risk exposure")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                      {t("Basert på identifiserte risikoer på tvers av prosesser.", "Based on identified risks across processes.")}
                     </p>
                   </div>
                 </div>
@@ -493,10 +503,10 @@ const MaturityMethodology = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
+                className="w-full text-primary hover:text-primary/80"
                 onClick={() => navigate("/resources/controls")}
               >
-                {t("Se alle kontroller →", "View all controls →")}
+                {t("Se statusdetaljer →", "View status details →")}
               </Button>
             </CardContent>
           </Card>
