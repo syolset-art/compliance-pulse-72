@@ -64,6 +64,8 @@ const MaturityMethodology = () => {
                   title_en: "We measure controls",
                   desc_no: "Hvert krav eller kontroll i ditt scope vurderes på en skala fra 0 til 4.",
                   desc_en: "Each requirement or control in your scope is assessed on a scale from 0 to 4.",
+                  iconColor: "text-indigo-600 dark:text-indigo-400",
+                  bgColor: "bg-indigo-500/10",
                 },
                 {
                   icon: BarChart3,
@@ -71,6 +73,8 @@ const MaturityMethodology = () => {
                   title_en: "The score is an average",
                   desc_no: "Din prosentskår er gjennomsnittet av alle kontroller som gjelder for deg.",
                   desc_en: "Your percentage score is the average of all controls that apply to you.",
+                  iconColor: "text-emerald-600 dark:text-emerald-400",
+                  bgColor: "bg-emerald-500/10",
                 },
                 {
                   icon: Eye,
@@ -78,13 +82,15 @@ const MaturityMethodology = () => {
                   title_en: "Only what's relevant counts",
                   desc_no: "Kontroller som ikke er relevante for din virksomhet utelates automatisk.",
                   desc_en: "Controls not relevant to your business are automatically excluded.",
+                  iconColor: "text-amber-600 dark:text-amber-400",
+                  bgColor: "bg-amber-500/10",
                 },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
                   <div key={item.title_en} className="flex items-start gap-4 rounded-xl border border-border/50 bg-card p-4">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Icon className="h-5 w-5 text-primary" />
+                    <div className={`h-10 w-10 rounded-xl ${item.bgColor} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`h-5 w-5 ${item.iconColor}`} />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
@@ -96,7 +102,7 @@ const MaturityMethodology = () => {
             </div>
           </div>
 
-          {/* How the model works — visual flow */}
+          {/* How the model works — colored vertical pipeline */}
           <div className="space-y-4">
              <h2 className="text-xl font-bold text-foreground">
               {t("Slik henger det sammen", "How the model works")}
@@ -107,68 +113,92 @@ const MaturityMethodology = () => {
                 "Mynder builds a picture of your organization step by step. Here's how everything connects — from your organization all the way to the maturity score."
               )}
             </p>
-            <div className="space-y-0">
+            <div className="relative ml-1">
+              {/* Gradient connecting line */}
+              <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gradient-to-b from-indigo-500 via-cyan-500 to-emerald-500 rounded-full" />
+
               {[
                 {
                   icon: Building2,
+                  step: 1,
                   title_no: "Arbeidsområder",
                   title_en: "Workspaces",
                   desc_no: "Representerer deler av organisasjonen som eier systemer og leverandører — for eksempel HR, IT eller Økonomi.",
                   desc_en: "Represent parts of your organization that own systems and vendors — for example HR, IT or Finance.",
+                  nodeColor: "bg-indigo-500",
+                  borderColor: "border-l-indigo-500",
+                  iconColor: "text-indigo-600 dark:text-indigo-400",
+                  bgColor: "bg-indigo-500/5",
                 },
                 {
                   icon: Workflow,
+                  step: 2,
                   title_no: "Prosesser",
                   title_en: "Processes",
                   desc_no: "Viser hvordan systemer og leverandører faktisk brukes i praksis, for eksempel «Rekruttering» eller «Fakturering».",
                   desc_en: "Show how systems and vendors are actually used in practice, for example 'Recruitment' or 'Invoicing'.",
+                  nodeColor: "bg-blue-500",
+                  borderColor: "border-l-blue-500",
+                  iconColor: "text-blue-600 dark:text-blue-400",
+                  bgColor: "bg-blue-500/5",
                 },
                 {
                   icon: Monitor,
+                  step: 3,
                   title_no: "Systemer, leverandører og assets",
                   title_en: "Systems, vendors & assets",
                   desc_no: "Alle ressurser får automatisk en Trust Profile — et levende bilde av samsvar, risiko og dokumentasjon.",
                   desc_en: "All resources automatically get a Trust Profile — a living picture of compliance, risk and documentation.",
+                  nodeColor: "bg-cyan-500",
+                  borderColor: "border-l-cyan-500",
+                  iconColor: "text-cyan-600 dark:text-cyan-400",
+                  bgColor: "bg-cyan-500/5",
                 },
                 {
                   icon: AlertTriangle,
+                  step: 4,
                   title_no: "Risiko og kontroller",
                   title_en: "Risk & controls",
                   desc_no: "Risikovurdering gjøres på prosessnivå. Kontroller og dokumentasjon knyttes til Trust Profiles.",
                   desc_en: "Risk assessments are done at the process level. Controls and documentation are linked to Trust Profiles.",
+                  nodeColor: "bg-amber-500",
+                  borderColor: "border-l-amber-500",
+                  iconColor: "text-amber-600 dark:text-amber-400",
+                  bgColor: "bg-amber-500/5",
                 },
                 {
                   icon: BarChart3,
+                  step: 5,
                   title_no: "Modenhet og samsvarsscore",
                   title_en: "Maturity & compliance score",
                   desc_no: "Scoren beregnes ut fra hvor godt kontrollene er implementert — fra 0 (ikke startet) til 4 (verifisert).",
                   desc_en: "The score is calculated from how well controls are implemented — from 0 (not started) to 4 (verified).",
+                  nodeColor: "bg-emerald-500",
+                  borderColor: "border-l-emerald-500",
+                  iconColor: "text-emerald-600 dark:text-emerald-400",
+                  bgColor: "bg-emerald-500/5",
                 },
-              ].map((item, idx, arr) => {
+              ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.title_en}>
-                    <div className="flex items-start gap-4 py-3">
-                      <div className="flex flex-col items-center">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-5 w-5 text-primary" />
-                        </div>
-                      </div>
-                      <div className="pt-0.5">
-                        <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
-                        <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
-                      </div>
+                  <div key={item.title_en} className="relative flex items-start gap-4 py-3">
+                    {/* Node circle */}
+                    <div className={`relative z-10 h-10 w-10 rounded-full ${item.nodeColor} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                      <span className="text-sm font-bold text-white">{item.step}</span>
                     </div>
-                    {idx < arr.length - 1 && (
-                      <div className="flex items-center pl-[18px]">
-                        <ChevronDown className="h-4 w-4 text-muted-foreground/50" />
+                    {/* Content card */}
+                    <div className={`flex-1 rounded-xl border border-border/50 ${item.bgColor} border-l-[3px] ${item.borderColor} p-4`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon className={`h-4 w-4 ${item.iconColor}`} />
+                        <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
                       </div>
-                    )}
+                      <p className="text-sm text-muted-foreground leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
-            <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
               <p className="text-base text-muted-foreground leading-relaxed">
                 <span className="font-semibold text-foreground">{t("Kort sagt:", "In short:")}</span>{" "}
                 {t(
@@ -192,29 +222,29 @@ const MaturityMethodology = () => {
             </p>
             <div className="space-y-1.5">
               {[
-                { level: 0, no: "Ikke startet", en: "Not started", color: "bg-muted-foreground/20", desc_no: "Ingen praksis eller dokumentasjon", desc_en: "No practice or documentation" },
-                { level: 1, no: "Planlagt", en: "Planned", color: "bg-amber-400/30", desc_no: "Kravet er forstått og eier er utpekt", desc_en: "Requirement understood, owner assigned" },
-                { level: 2, no: "Dokumentert", en: "Documented", color: "bg-amber-500/50", desc_no: "Policy eller prosedyre finnes", desc_en: "Policy or procedure exists" },
-                { level: 3, no: "Implementert", en: "Implemented", color: "bg-primary/60", desc_no: "Gjennomføres i praksis, ikke bare på papir", desc_en: "Carried out in practice, not just on paper" },
-                { level: 4, no: "Verifisert", en: "Verified", color: "bg-primary", desc_no: "Evidens finnes og er nylig oppdatert", desc_en: "Evidence exists and is recently updated" },
+                { level: 0, no: "Ikke startet", en: "Not started", color: "bg-gray-200 dark:bg-gray-700", textColor: "text-gray-700 dark:text-gray-200", barColor: "bg-gray-300 dark:bg-gray-600", desc_no: "Ingen praksis eller dokumentasjon", desc_en: "No practice or documentation" },
+                { level: 1, no: "Planlagt", en: "Planned", color: "bg-amber-300 dark:bg-amber-700", textColor: "text-amber-900 dark:text-amber-100", barColor: "bg-amber-400", desc_no: "Kravet er forstått og eier er utpekt", desc_en: "Requirement understood, owner assigned" },
+                { level: 2, no: "Dokumentert", en: "Documented", color: "bg-amber-500", textColor: "text-white", barColor: "bg-amber-500", desc_no: "Policy eller prosedyre finnes", desc_en: "Policy or procedure exists" },
+                { level: 3, no: "Implementert", en: "Implemented", color: "bg-blue-500", textColor: "text-white", barColor: "bg-blue-500", desc_no: "Gjennomføres i praksis, ikke bare på papir", desc_en: "Carried out in practice, not just on paper" },
+                { level: 4, no: "Verifisert", en: "Verified", color: "bg-emerald-500", textColor: "text-white", barColor: "bg-emerald-500", desc_no: "Evidens finnes og er nylig oppdatert", desc_en: "Evidence exists and is recently updated" },
               ].map((item) => (
                 <div key={item.level} className="flex items-center gap-3 rounded-lg border border-border/40 bg-card p-3">
-                  <div className={`h-8 w-8 rounded-lg ${item.color} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-xs font-bold text-foreground">{item.level}</span>
+                  <div className={`h-9 w-9 rounded-lg ${item.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                    <span className={`text-sm font-bold ${item.textColor}`}>{item.level}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">{t(item.no, item.en)}</p>
                     <p className="text-sm text-muted-foreground">{t(item.desc_no, item.desc_en)}</p>
                   </div>
                   <div className="hidden sm:block">
-                    <div className="w-20 h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                      <div className={`h-full rounded-full ${item.color}`} style={{ width: `${(item.level / 4) * 100}%` }} />
+                    <div className="w-24 h-2 rounded-full bg-muted/50 overflow-hidden">
+                      <div className={`h-full rounded-full ${item.barColor} transition-all`} style={{ width: `${(item.level / 4) * 100}%` }} />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
+            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
               <p className="text-base text-foreground">
                 <span className="font-semibold">{t("Eksempel:", "Example:")}</span>{" "}
                 {t(
@@ -226,11 +256,11 @@ const MaturityMethodology = () => {
           </div>
 
           {/* Your current status */}
-          <Card variant="flat" className="border-primary/15 bg-primary/5">
+          <Card variant="flat" className="border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-blue-500/5">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   <div>
                     <p className="text-sm font-semibold text-foreground">
                       {t("Din nåværende modenhet", "Your current maturity")}
@@ -243,14 +273,16 @@ const MaturityMethodology = () => {
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-primary/15 text-primary border-primary/20 text-lg font-bold px-3 py-1">
-                  {progressPercent}%
-                </Badge>
+                <div className="relative flex items-center justify-center">
+                  <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
+                  </div>
+                </div>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-3 text-primary hover:text-primary/80"
+                className="w-full mt-3 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
                 onClick={() => navigate("/compliance-checklist")}
               >
                 {t("Se alle kontroller →", "View all controls →")}
@@ -277,7 +309,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">Trust Score</span>
+                    <span className="text-base font-semibold text-left">Trust Score</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -317,7 +349,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Beregning av risikoeksponering", "Risk Exposure calculation")}
                     </span>
                   </div>
@@ -363,7 +395,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Layers className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Foundation-status", "Foundation status")}
                     </span>
                   </div>
@@ -403,7 +435,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <BarChart3 className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Rapporteringsdimensjoner", "Reporting dimensions")}
                     </span>
                   </div>
@@ -438,7 +470,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Scale className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Scope, vekting og relevans", "Scope, weighting and relevance")}
                     </span>
                   </div>
