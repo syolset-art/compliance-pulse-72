@@ -184,7 +184,7 @@ const MaturityMethodology = () => {
             <h2 className="text-xl font-bold text-foreground">
               {t("Modenhetsskalaen (0–4)", "The maturity scale (0–4)")}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {t(
                 "Hver kontroll vurderes på denne skalaen. Jo høyere nivå, desto bedre er kontrollen forankret i virksomheten.",
                 "Each control is assessed on this scale. The higher the level, the better the control is embedded in your organization."
