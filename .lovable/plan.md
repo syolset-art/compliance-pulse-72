@@ -1,48 +1,54 @@
 
 
-# Plan: Fix "Your Current Maturity" text + Create new "Mynder Controls" page
+## Plan: Oppdater fokusområder til ny 4-delt struktur
 
-## Two changes
+### Nåværende situasjon
+Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
 
-### 1. Fix misleading text on MaturityMethodology page
-**Current:** "Based on 20 of 113 controlled assets" — this is wrong. The stats come from `useComplianceRequirements` which counts **controls**, not assets.
+### Nye fokusområder
+Erstatte de 3 kategoriene med 4 nye:
 
-**Fix:** Change the subtitle in the "Your current maturity" card (line ~458) to say "controls assessed" instead of referencing assets. The current code already says "controls assessed" in the template string, so this may already be correct in code — will verify and ensure it reads clearly as "Based on X of Y controls assessed".
+| ID | Navn (NO) | Beskrivelse |
+|----|-----------|-------------|
+| `governance` | Governance | Styring, ansvar og risikostyring |
+| `operations` | Operations | Systemer, prosesser og drift |
+| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
+| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
 
-### 2. Create new page: `/resources/controls` — "Mynder Controls"
+### Filer som endres
 
-A new educational page following the same layout pattern as `MaturityMethodology.tsx` (Sidebar + centered content, bilingual no/en).
+**1. `src/lib/certificationPhases.ts`**
+- Endre `SLACategory` type fra 3 til 4 verdier
+- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
 
-**Sections:**
+**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
+- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
+  - `organization_governance` → `governance`
+  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
+  - `roles_access` → `identity_access`
+- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
 
-**A. Hero — "What are Controls in Mynder?"**
-Short explanation: controls = practices to manage security/privacy/risk. Mynder measures implementation, not just documentation. Controls drive maturity + compliance scores.
+**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
+- Utvide fra 3 til 4 kort med nye ikoner og farger
+- Oppdatere `MOCK_TRENDS` med 4 verdier
 
-**B. Core Control Model — 4 domains**
-Four color-coded cards (reusing the domain colors from the pipeline):
-- Governance (indigo) — leadership, policies, compliance, risk management
-- Operations (blue) — security of systems and operations
-- Identity & Access (cyan) — who can access what
-- Supplier & Ecosystem (amber) — vendor and third-party risk
+**4. `src/components/widgets/SLAWidget.tsx`**
+- Oppdatere `SLA_CATEGORIES` array til 4 verdier
 
-**C. Foundation Controls (V1)**
-Visual showing: 4 domains × 4 controls = 16 foundation controls. Explain Foundation Status = minimum baseline achieved when most controls are implemented. Grid/list of the 16 controls grouped by domain.
+**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
+- Oppdatere `slaByCat` referanser til nye kategorier
 
-**D. How controls connect to real work**
-Reuse the visual pipeline pattern from MaturityMethodology (colored vertical timeline): Workspaces → Processes → Systems/Vendors/Assets → Risk scenarios → Controls → Maturity score. With plain-text explanations.
+**6. `src/locales/en.json` og `src/locales/nb.json`**
+- Legge til oversettelser for de 4 nye kategorinavnene
 
-**E. Framework Mapping**
-Show that controls map to ISO 27001, GDPR, EU AI Act. One operational model → multiple framework compliance. Simple visual with framework badges.
+### Mapping-logikk (forenklet)
+- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
+- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
+- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
+- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
 
-**F. What comes next**
-"Coming soon" section with badges: additional control families, industry-specific sets (NIS2, DORA), AI governance controls, MSP integrations, custom controls.
+### Teknisk detalj
+`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
 
-**G. Key principle callout**
-Highlighted box: "Mynder helps organizations manage security, risk and compliance through one operational control model — instead of multiple regulatory checklists."
-
-### Files changed
-1. **`src/pages/MynderControls.tsx`** — new page (~350 lines)
-2. **`src/App.tsx`** — add route `/resources/controls`
-3. **`src/pages/MaturityMethodology.tsx`** — fix "Your current maturity" subtitle + add link to new Controls page from "In a nutshell" section
-4. **`src/pages/Resources.tsx`** — add navigation card to the new Controls page
+Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
 
