@@ -69,7 +69,7 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const score = stats.progressPercent;
+  
 
   const dashboardContent = (
     <>
