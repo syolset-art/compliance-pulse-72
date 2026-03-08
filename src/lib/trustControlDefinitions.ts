@@ -5,6 +5,19 @@
  * Type-specific controls apply based on asset_type.
  */
 
+// ── Verification & ownership types ───────────────────────────────────
+
+export type ProfileSource = "ai_generated" | "customer_created" | "vendor_claimed";
+export type ProfileOwner = "platform" | "customer" | "vendor";
+export type ProfileContributor = "ai" | "customer" | "vendor";
+export type VerificationSource = "ai_inferred" | "customer_asserted" | "vendor_verified" | "third_party_verified";
+
+export interface TrustProfileMeta {
+  profileSource: ProfileSource;
+  profileOwner: ProfileOwner;
+  contributors: ProfileContributor[];
+}
+
 export type TrustControlStatus = "implemented" | "partial" | "missing";
 
 export interface TrustControlDefinition {
@@ -16,7 +29,17 @@ export interface TrustControlDefinition {
 
 export interface EvaluatedControl extends TrustControlDefinition {
   status: TrustControlStatus;
+  verificationSource?: VerificationSource;
 }
+
+// ── Verification weight multipliers ──────────────────────────────────
+// Higher verification = higher confidence contribution
+const VERIFICATION_WEIGHTS: Record<VerificationSource, number> = {
+  ai_inferred: 0.5,
+  customer_asserted: 0.7,
+  vendor_verified: 1.0,
+  third_party_verified: 1.0,
+};
 
 // ── Generic controls (apply to every object) ──────────────────────────
 export const GENERIC_CONTROLS: TrustControlDefinition[] = [
@@ -86,4 +109,82 @@ export function calculateTrustScore(controls: EvaluatedControl[]): number {
     return s + c.weight * factor;
   }, 0);
   return Math.round((earned / totalWeight) * 100);
+}
+
+/**
+ * Calculate confidence score based on verification levels.
+ * Confidence rises when controls are vendor-verified or third-party-verified.
+ */
+export function calculateConfidenceScore(controls: EvaluatedControl[]): number {
+  const implemented = controls.filter((c) => c.status !== "missing");
+  if (implemented.length === 0) return 0;
+  const totalPossible = implemented.length; // max 1.0 each
+  const earned = implemented.reduce((s, c) => {
+    const vw = VERIFICATION_WEIGHTS[c.verificationSource || "ai_inferred"];
+    return s + vw;
+  }, 0);
+  return Math.round((earned / totalPossible) * 100);
+}
+
+/**
+ * Infer TrustProfileMeta from asset data.
+ */
+export function inferProfileMeta(asset: {
+  asset_type?: string;
+  metadata?: Record<string, any> | null;
+}): TrustProfileMeta {
+  const meta = (asset.metadata || {}) as Record<string, any>;
+
+  // Determine source
+  const profileSource: ProfileSource =
+    meta.profile_source === "vendor_claimed" ? "vendor_claimed"
+    : meta.profile_source === "customer_created" ? "customer_created"
+    : "ai_generated";
+
+  // Determine owner
+  const profileOwner: ProfileOwner =
+    meta.profile_owner === "vendor" ? "vendor"
+    : meta.profile_owner === "customer" ? "customer"
+    : "platform";
+
+  // Contributors – always include AI; add others based on data
+  const contributors: ProfileContributor[] = ["ai"];
+  if (meta.customer_enriched || meta.profile_source === "customer_created") {
+    contributors.push("customer");
+  }
+  if (meta.vendor_claimed || meta.profile_source === "vendor_claimed") {
+    contributors.push("vendor");
+  }
+
+  return { profileSource, profileOwner, contributors };
+}
+
+/**
+ * Infer the verification source for a control based on metadata.
+ */
+export function inferVerificationSource(
+  controlKey: string,
+  asset: { metadata?: Record<string, any> | null },
+  docsCount: number,
+): VerificationSource {
+  const meta = (asset.metadata || {}) as Record<string, any>;
+
+  // If the vendor has verified this specific control
+  const vendorVerified = meta.vendor_verified_controls as string[] | undefined;
+  if (vendorVerified?.includes(controlKey)) return "vendor_verified";
+
+  // If there's third-party certification covering this
+  const tpVerified = meta.third_party_verified_controls as string[] | undefined;
+  if (tpVerified?.includes(controlKey)) return "third_party_verified";
+
+  // If vendor claimed the profile, controls default to vendor_verified
+  if (meta.profile_source === "vendor_claimed") return "vendor_verified";
+
+  // If customer explicitly set data, it's customer_asserted
+  if (meta.customer_enriched) return "customer_asserted";
+
+  // Documentation boosts from ai_inferred to customer_asserted
+  if (docsCount >= 1 && controlKey === "documentation_available") return "customer_asserted";
+
+  return "ai_inferred";
 }
