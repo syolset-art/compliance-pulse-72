@@ -111,7 +111,11 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      {/* Controls Summary from Trust Controls */}
+      <ControlsSummaryCard assetId={assetId} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="md:col-span-2 space-y-6">
         <Card>
           <CardHeader>
