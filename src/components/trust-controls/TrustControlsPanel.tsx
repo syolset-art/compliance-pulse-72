@@ -271,9 +271,9 @@ export function TrustControlsPanel({
           </p>
         </Card>
 
-        {/* Security Overview */}
+        {/* Control Domains */}
         <Card className="p-5 space-y-3">
-          <h2 className="text-sm font-semibold">{isNb ? "Sikkerhetsoversikt" : "Security Overview"}</h2>
+          <h2 className="text-sm font-semibold">{isNb ? "Kontrollområder" : "Control Domains"}</h2>
           <div className="space-y-2.5">
             {([
               { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
