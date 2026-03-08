@@ -39,6 +39,7 @@ export function ComplianceShield({
   regulationDomains, focusAreas, assessed, total, avgMaturity 
 }: ComplianceShieldProps) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
   const colors = getShieldColor(score);
   const message = getMessage(score, isNorwegian);
