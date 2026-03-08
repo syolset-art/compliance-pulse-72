@@ -245,7 +245,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
         onChange={handleLogoUpload}
       />
 
-      {/* Top row: icon/logo + name + badges */}
+      {/* Top row: icon/logo + name + badges + trust metrics */}
       <div className="flex items-start gap-4">
         {/* Logo / Icon area */}
         <div className="relative group shrink-0">
@@ -338,6 +338,48 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </a>
           )}
         </div>
+
+        {/* Trust Metrics — right side */}
+        {trustMetrics && (
+          <div className="hidden md:flex flex-col items-end gap-2 shrink-0">
+            {/* Trust Score */}
+            <div className="flex items-center gap-2.5">
+              <div className="text-right">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`text-2xl font-bold tabular-nums ${
+                  trustMetrics.trustScore >= 75 ? "text-success" : trustMetrics.trustScore >= 50 ? "text-warning" : trustMetrics.trustScore > 0 ? "text-primary" : "text-muted-foreground"
+                }`}>
+                  {trustMetrics.trustScore}
+                </span>
+                <Progress value={trustMetrics.trustScore} className="h-1 w-12" />
+              </div>
+            </div>
+            {/* Confidence + Updated */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {trustMetrics.confidenceScore >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
+                {trustMetrics.confidenceScore >= 50 && trustMetrics.confidenceScore < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
+                {trustMetrics.confidenceScore < 50 && <XCircle className="h-3 w-3 text-muted-foreground" />}
+                <span className={`text-[11px] font-semibold ${
+                  trustMetrics.confidenceScore >= 80 ? "text-success" : trustMetrics.confidenceScore >= 50 ? "text-warning" : "text-muted-foreground"
+                }`}>
+                  {trustMetrics.confidenceScore >= 80 ? (isNb ? "Høy" : "High") : trustMetrics.confidenceScore >= 50 ? (isNb ? "Middels" : "Medium") : (isNb ? "Lav" : "Low")}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[11px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
+              </div>
+            </div>
+            {/* Self-declared badge */}
+            <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1">
+              <ShieldCheck className="h-2.5 w-2.5" />
+              {isNb ? "Egenerklæring" : "Self-declared"}
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Owner and Manager row — hidden for self/published profiles */}
