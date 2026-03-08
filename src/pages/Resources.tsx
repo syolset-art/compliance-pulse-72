@@ -12,7 +12,7 @@ import { GLOSSARY_TERMS, GLOSSARY_CATEGORIES, type GlossaryCategory } from "@/li
 import {
   ArrowRight, ChevronDown,
   BookOpen, ExternalLink, Sparkles, Search, BookOpenText,
-  Leaf, Shield, Bot, GitCompare, TrendingUp,
+  Leaf, Shield, Bot, GitCompare, TrendingUp, Layers,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
