@@ -58,14 +58,32 @@ export function ComplianceStatusHero({ companyName }: Props) {
                 implementation maturity
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Based on {assessed} of {total} controls assessed · Average maturity level across all controls in scope
-            </p>
+            <div className="flex items-center gap-2 mb-3">
+              <p className="text-xs text-muted-foreground">
+                Based on {assessed} of {total} controls assessed
+              </p>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-xs text-primary p-0 h-auto"
+                onClick={() => navigate("/compliance-checklist")}
+              >
+                View all controls →
+              </Button>
+            </div>
             <Progress value={score} className="h-2.5 mb-3" />
             <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="font-medium text-foreground">What does this mean?</span>{" "}
               Your score reflects how well your organization has implemented security, privacy and compliance controls. 
-              100% means all controls are verified with documented evidence.
+              100% means all controls are verified with documented evidence.{" "}
+              <Button
+                variant="link"
+                size="sm"
+                className="text-xs text-primary p-0 h-auto inline"
+                onClick={() => navigate("/resources?tab=methodology")}
+              >
+                Learn how we calculate maturity
+              </Button>
             </p>
           </div>
 
