@@ -181,7 +181,7 @@ const MaturityMethodology = () => {
 
           {/* 0-4 Scale — visual and clear */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Modenhetsskalaen (0–4)", "The maturity scale (0–4)")}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
