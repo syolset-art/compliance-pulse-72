@@ -17,7 +17,6 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield } from "lucide-react";
-import { Shield } from "lucide-react";
 
 const Index = () => {
   const isMobile = useIsMobile();
