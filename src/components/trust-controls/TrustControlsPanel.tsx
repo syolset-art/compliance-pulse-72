@@ -9,6 +9,7 @@ import {
   CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock,
   ShieldCheck, TriangleAlert, Layers, Target, Clock, Eye,
   Server, HardDrive, AppWindow, Network, Building2, GitBranch, BarChart3,
+  BookOpen, Scale,
 } from "lucide-react";
 import {
   type EvaluatedControl,
