@@ -338,8 +338,8 @@ const MaturityMethodology = () => {
                         { label: t("Lav", "Low"), w: 1 },
                       ].map((r) => (
                         <div key={r.label} className="text-center rounded-lg border border-border/40 bg-muted/20 p-2">
-                          <p className="text-xs font-semibold text-foreground">{r.label}</p>
-                          <p className="text-[10px] text-muted-foreground">{t("Vekt", "Weight")} {r.w}</p>
+                          <p className="text-sm font-semibold text-foreground">{r.label}</p>
+                          <p className="text-xs text-muted-foreground">{t("Vekt", "Weight")} {r.w}</p>
                         </div>
                       ))}
                     </div>
