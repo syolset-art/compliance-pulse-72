@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, ArrowRight, CheckCircle2, Circle } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { useMemo } from "react";
@@ -16,16 +16,66 @@ const STAGES = [
   { key: "certification", label: "Certification", min: 90, description: "Ready for external audit" },
 ];
 
+const DOMAIN_LABELS: Record<string, string> = {
+  governance: "Governance",
+  operations: "Operations",
+  identity_access: "Identity & Access",
+  supplier_ecosystem: "Supplier & Ecosystem",
+};
+
 interface Props {
   companyName?: string | null;
+}
+
+function CircularProgress({ value, size = 120, strokeWidth = 10 }: { value: number; size?: number; strokeWidth?: number }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="hsl(var(--muted))"
+        strokeWidth={strokeWidth}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        className="transition-all duration-700"
+      />
+    </svg>
+  );
 }
 
 export function ComplianceStatusHero({ companyName }: Props) {
   const navigate = useNavigate();
   const { stats } = useComplianceRequirements({});
   const score = stats.progressPercent;
-  const assessed = stats.overallScore?.assessed ?? 0;
-  const total = stats.overallScore?.total ?? 0;
+
+  const domainScores = useMemo(() => {
+    const byDomain = stats.byDomainArea || {};
+    return Object.entries(DOMAIN_LABELS).map(([key, label]) => {
+      const domainData = (byDomain as any)[key];
+      return {
+        key,
+        label,
+        score: domainData?.score ?? 0,
+        assessed: domainData?.assessed ?? 0,
+        total: domainData?.total ?? 0,
+      };
+    });
+  }, [stats.byDomainArea]);
 
   const currentStage = useMemo(() => {
     return [...STAGES].reverse().find((s) => score >= s.min) || STAGES[0];
@@ -34,7 +84,6 @@ export function ComplianceStatusHero({ companyName }: Props) {
   const currentIndex = STAGES.findIndex((s) => s.key === currentStage.key);
   const nextStage = STAGES[currentIndex + 1];
 
-  // How far within the current stage (for sub-progress)
   const stageProgress = useMemo(() => {
     const nextMin = nextStage?.min ?? 100;
     const range = nextMin - currentStage.min;
@@ -45,20 +94,34 @@ export function ComplianceStatusHero({ companyName }: Props) {
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
       <CardContent className="p-6">
-        {/* Top: Score + Stage side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Security Maturity score */}
+          {/* Left: Security Maturity with circular progress + domain breakdown */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
               Security Maturity
             </p>
-            <div className="flex items-baseline gap-3 mb-2">
-              <span className="text-4xl font-bold text-foreground">{score}%</span>
+            <div className="flex items-center gap-5 mb-4">
+              <div className="relative flex-shrink-0">
+                <CircularProgress value={score} size={100} strokeWidth={8} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-foreground">{score}%</span>
+                </div>
+              </div>
+              <div className="flex-1 space-y-2">
+                {domainScores.map((d) => (
+                  <div key={d.key}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs text-muted-foreground">{d.label}</span>
+                      <span className="text-xs font-medium text-foreground">{d.score}%</span>
+                    </div>
+                    <Progress value={d.score} className="h-1.5" />
+                  </div>
+                ))}
+              </div>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Based on implemented security and governance controls.
+              Score based on maturity level (0–4) across four focus areas.
             </p>
-            <Progress value={score} className="h-2.5 mb-4" />
             <Button
               variant="link"
               size="sm"
@@ -80,7 +143,6 @@ export function ComplianceStatusHero({ companyName }: Props) {
             </div>
             <p className="text-xs text-muted-foreground mb-4">{currentStage.description}</p>
 
-            {/* Stage progress dots */}
             <div className="flex items-center gap-1.5 mb-4">
               {STAGES.map((stage, i) => (
                 <div key={stage.key} className="flex items-center gap-1.5">
@@ -112,7 +174,6 @@ export function ComplianceStatusHero({ companyName }: Props) {
               ))}
             </div>
 
-            {/* Next milestone */}
             {nextStage ? (
               <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
                 <div className="flex items-center justify-between mb-1">
