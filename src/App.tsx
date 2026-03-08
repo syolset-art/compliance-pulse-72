@@ -93,7 +93,10 @@ const App = () => (
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
-                  <Route path="/compliance-checklist" element={<MynderControls />} />
+                  <Route path="/compliance" element={<ComplianceChecklist />} />
+                  <Route path="/controls" element={<MynderControls />} />
+                  <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
+                  <Route path="/resources/controls" element={<MynderControls />} />
                   <Route path="/quality" element={<QualityDashboard />} />
                   <Route path="/lara-inbox" element={<LaraInbox />} />
                   <Route path="/customer-requests" element={<CustomerRequests />} />
