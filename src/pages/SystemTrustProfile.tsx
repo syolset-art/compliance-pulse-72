@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
 import { SystemHeader } from "@/components/system-profile/SystemHeader";
 import { SystemMetrics } from "@/components/system-profile/SystemMetrics";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { ValidationTab } from "@/components/system-profile/tabs/ValidationTab";
 import { SystemUsageTab } from "@/components/system-profile/tabs/SystemUsageTab";
 import { DataHandlingTab } from "@/components/system-profile/tabs/DataHandlingTab";
