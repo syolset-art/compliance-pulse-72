@@ -22,7 +22,6 @@ import { Shield } from "lucide-react";
 
 const Index = () => {
   const isMobile = useIsMobile();
-  const { stats } = useComplianceRequirements({});
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
