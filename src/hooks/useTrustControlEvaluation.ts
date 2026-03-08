@@ -1,0 +1,157 @@
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  type EvaluatedControl,
+  type TrustControlStatus,
+  type ControlArea,
+  GENERIC_CONTROLS,
+  getTypeSpecificControls,
+  calculateTrustScore,
+  calculateConfidenceScore,
+  deriveKeyRisks,
+  inferVerificationSource,
+  groupControlsByArea,
+} from "@/lib/trustControlDefinitions";
+
+interface AssetLike {
+  id: string;
+  asset_type?: string;
+  asset_owner?: string | null;
+  asset_manager?: string | null;
+  description?: string | null;
+  risk_level?: string | null;
+  criticality?: string | null;
+  next_review_date?: string | null;
+  gdpr_role?: string | null;
+  contact_person?: string | null;
+  contact_email?: string | null;
+  work_area_id?: string | null;
+  metadata?: Record<string, any> | null;
+  updated_at?: string | null;
+}
+
+function evaluateGenericControl(key: string, asset: AssetLike, docsCount: number): TrustControlStatus {
+  switch (key) {
+    case "owner_assigned": return asset.asset_owner || asset.work_area_id ? "implemented" : "missing";
+    case "responsible_person": return asset.asset_manager ? "implemented" : "missing";
+    case "description_defined":
+      return asset.description && asset.description.length > 10 ? "implemented" : asset.description ? "partial" : "missing";
+    case "risk_level_defined": return asset.risk_level ? "implemented" : "missing";
+    case "criticality_defined": return asset.criticality ? "implemented" : "missing";
+    case "risk_assessment": return asset.risk_level ? "partial" : "missing";
+    case "review_cycle": return asset.next_review_date ? "implemented" : "missing";
+    case "documentation_available": return docsCount >= 3 ? "implemented" : docsCount > 0 ? "partial" : "missing";
+    default: return "missing";
+  }
+}
+
+function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, docsCount: number): TrustControlStatus {
+  const meta = (asset.metadata || {}) as Record<string, any>;
+  const maps: Record<string, Record<string, () => TrustControlStatus>> = {
+    vendor: {
+      dpa_verified: () => meta.dpa_verified ? "implemented" : docsCount > 0 ? "partial" : "missing",
+      security_contact: () => asset.contact_email ? "implemented" : asset.contact_person ? "partial" : "missing",
+      sub_processors_disclosed: () => meta.sub_processors_disclosed ? "implemented" : "missing",
+      vendor_security_review: () => meta.vendor_security_review ? "implemented" : "missing",
+    },
+    system: {
+      mfa_enabled: () => meta.mfa_enabled ? "implemented" : "missing",
+      encryption_enabled: () => meta.encryption_enabled ? "implemented" : "missing",
+      backup_configured: () => meta.backup_configured ? "implemented" : "missing",
+      security_logging: () => meta.security_logging ? "implemented" : "missing",
+    },
+    hardware: {
+      device_encryption: () => meta.disk_encrypted ? "implemented" : "missing",
+      endpoint_protection: () => meta.antivirus ? "implemented" : "missing",
+      patch_management: () => meta.patch_management ? "implemented" : "missing",
+    },
+    self: {
+      responsible_manager: () => asset.asset_manager ? "implemented" : "missing",
+      security_training: () => meta.security_training_completed ? "implemented" : "missing",
+      incident_reporting: () => meta.incident_reporting_defined ? "implemented" : "missing",
+    },
+  };
+  return maps[assetType]?.[key]?.() ?? "missing";
+}
+
+export function useTrustControlEvaluation(assetId: string) {
+  const { data: asset } = useQuery({
+    queryKey: ["asset-for-trust-eval", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("*")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!assetId,
+  });
+
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["asset-docs-count", assetId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("framework_documents")
+        .select("*", { count: "exact", head: true })
+        .eq("framework_id", assetId);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!assetId,
+  });
+
+  return useMemo(() => {
+    if (!asset) return null;
+
+    const effectiveType = asset.asset_type || "";
+    const assetLike: AssetLike = {
+      ...asset,
+      metadata: (asset.metadata as Record<string, any>) || null,
+    };
+
+    const evaluatedGeneric: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
+      ...c,
+      status: evaluateGenericControl(c.key, assetLike, docsCount),
+      verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
+    }));
+    const typeDefinitions = getTypeSpecificControls(effectiveType);
+    const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => ({
+      ...c,
+      status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount),
+      verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
+    }));
+    const allControls = [...evaluatedGeneric, ...evaluatedType];
+
+    const trustScore = calculateTrustScore(allControls);
+    const confidenceScore = calculateConfidenceScore(allControls);
+    const risks = deriveKeyRisks(allControls);
+    const grouped = groupControlsByArea(allControls);
+
+    const implementedCount = allControls.filter(c => c.status === "implemented").length;
+    const partialCount = allControls.filter(c => c.status === "partial").length;
+    const missingCount = allControls.filter(c => c.status === "missing").length;
+
+    const areaScore = (area: ControlArea) => {
+      const controls = grouped[area];
+      if (controls.length === 0) return 0;
+      const impl = controls.filter(c => c.status === "implemented").length;
+      const partial = controls.filter(c => c.status === "partial").length;
+      return Math.round(((impl + partial * 0.5) / controls.length) * 100);
+    };
+
+    return {
+      allControls,
+      trustScore,
+      confidenceScore,
+      risks,
+      grouped,
+      implementedCount,
+      partialCount,
+      missingCount,
+      areaScore,
+    };
+  }, [asset, docsCount]);
+}
