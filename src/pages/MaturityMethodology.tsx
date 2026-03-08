@@ -215,7 +215,7 @@ const MaturityMethodology = () => {
               ))}
             </div>
             <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
-              <p className="text-sm text-foreground">
+              <p className="text-base text-foreground">
                 <span className="font-semibold">{t("Eksempel:", "Example:")}</span>{" "}
                 {t(
                   "En kontroll på nivå 3 gir 75 % (3/4). Nivå 4 gir 100 %.",
