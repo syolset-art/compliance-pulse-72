@@ -263,7 +263,7 @@ const MaturityMethodology = () => {
             <h2 className="text-xl font-bold text-foreground">
               {t("Vil du vite mer?", "Want to learn more?")}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {t(
                 "Utforsk detaljene i modellen vår nedenfor.",
                 "Explore the details of our model below."
