@@ -101,7 +101,7 @@ const MaturityMethodology = () => {
              <h2 className="text-xl font-bold text-foreground">
               {t("Slik henger det sammen", "How the model works")}
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {t(
                 "Mynder bygger opp et bilde av virksomheten din steg for steg. Her ser du hvordan alt henger sammen — fra organisasjonen din helt ned til modenhetsscoren.",
                 "Mynder builds a picture of your organization step by step. Here's how everything connects — from your organization all the way to the maturity score."
