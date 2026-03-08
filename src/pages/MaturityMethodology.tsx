@@ -169,7 +169,7 @@ const MaturityMethodology = () => {
               })}
             </div>
             <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 <span className="font-semibold text-foreground">{t("Kort sagt:", "In short:")}</span>{" "}
                 {t(
                   "Organisasjon → prosesser → systemer → risiko → kontroller → samsvarsscore.",
