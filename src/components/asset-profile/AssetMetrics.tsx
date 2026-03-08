@@ -98,7 +98,8 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
 
   const risk = getRiskBadge(asset.risk_level);
   const crit = getCriticalityBadge(asset.criticality);
-  const complianceColor = complianceScore >= 80 ? "text-success" : complianceScore >= 50 ? "text-warning" : complianceScore > 0 ? "text-primary" : "text-muted-foreground";
+  const complianceScore = 0; // placeholder for metric cards; real score is in TrustControlsPanel
+  const complianceColor = "text-muted-foreground";
   const formattedReviewDate = asset.next_review_date
     ? new Date(asset.next_review_date).toLocaleDateString()
     : t("trustProfile.notSet");
