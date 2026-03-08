@@ -73,7 +73,7 @@ const Index = () => {
 
   const dashboardContent = (
     <>
-      {/* 1. Trust & Compliance Overview */}
+      {/* 1. Trust & Compliance Overview — hero with score + maturity */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <Shield className="h-6 w-6 text-primary" />
@@ -84,18 +84,7 @@ const Index = () => {
         <p className="text-sm text-muted-foreground max-w-2xl mb-4">
           A real-time overview of your organization's security, privacy and compliance.
         </p>
-        {/* Mini score bar */}
-        <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card">
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-sm font-medium text-foreground">
-                {companyName || "Organization"} — overall compliance
-              </span>
-              <Badge variant="outline" className="text-xs">{score}%</Badge>
-            </div>
-            <Progress value={score} className="h-2" />
-          </div>
-        </div>
+        <ComplianceStatusHero companyName={companyName} />
       </div>
 
       {/* 2. AI Activity */}
