@@ -298,6 +298,24 @@ export function TrustControlsPanel({
               );
             })}
           </div>
+
+          {/* Control Area badges */}
+          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border">
+            {([
+              { area: "governance" as ControlArea, label: "Governance", labelNb: "Styring" },
+              { area: "risk_compliance" as ControlArea, label: "Operations", labelNb: "Drift" },
+              { area: "security_posture" as ControlArea, label: "Identity & Access", labelNb: "Identitet" },
+              { area: "supplier_governance" as ControlArea, label: "Supplier & Ecosystem", labelNb: "Leverandør" },
+            ]).map(({ area, label, labelNb: areaNb }) => {
+              const score = areaScore(area);
+              const variant = score >= 75 ? "action" : score >= 40 ? "warning" : score > 0 ? "destructive" : "secondary";
+              return (
+                <Badge key={area} variant={variant as any} className="text-[9px] gap-1" aria-label={`${label} ${score}%`}>
+                  {isNb ? areaNb : label} {score}%
+                </Badge>
+              );
+            })}
+          </div>
         </Card>
       </div>
 
