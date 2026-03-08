@@ -323,6 +323,48 @@ const SidebarContent = () => {
           </Link>
         )}
 
+        {/* Compliance & Security section */}
+        <div className="pt-4">
+          <button
+            onClick={() => setCompSecOpen(!compSecOpen)}
+            className={cn(
+              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+              complianceSecurityMenu.some(i => location.pathname === i.href)
+                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5" />
+              {t("nav.complianceSecurity", "Compliance & Security")}
+            </div>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", compSecOpen && "rotate-180")} />
+          </button>
+
+          {compSecOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              {complianceSecurityMenu.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-primary"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {t(item.name)}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <div className="pt-4">
           <button 
             onClick={() => setAdminOpen(!adminOpen)}
