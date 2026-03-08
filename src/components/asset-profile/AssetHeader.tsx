@@ -39,6 +39,12 @@ import {
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
+interface TrustMetrics {
+  trustScore: number;
+  confidenceScore: number;
+  lastUpdated: string;
+}
+
 interface AssetHeaderProps {
   asset: {
     id: string;
@@ -64,6 +70,7 @@ interface AssetHeaderProps {
     icon: string;
     color: string;
   } | null;
+  trustMetrics?: TrustMetrics | null;
 }
 
 const iconMap: Record<string, LucideIcon> = {
