@@ -458,7 +458,258 @@ const MaturityMethodology = () => {
             </div>
           </div>
 
-          {/* Section 5: Typical profiles */}
+          {/* Section 5: Scoring per control (0-4) */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'Scoring per control (0–4)' : 'Skåring per kontroll (0–4)'}
+            </h2>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              {lang === 'en'
+                ? 'All scores in Mynder are built from one common data point: the maturity level of each requirement/control. Each control is assessed on a 0–4 scale:'
+                : 'Alle skårer i Mynder bygges fra ett felles datapunkt: modenhetsnivået for hvert krav/kontroll. Hver kontroll vurderes på en 0–4 skala:'}
+            </p>
+            <div className="space-y-2">
+              {[
+                { level: 0, en: 'Not started', no: 'Ikke startet', desc_en: 'No defined practice or documentation.', desc_no: 'Ingen definert praksis eller dokumentasjon.' },
+                { level: 1, en: 'Planned', no: 'Planlagt', desc_en: 'Requirement understood, owner assigned, measures defined.', desc_no: 'Kravet er forstått. Eier er utpekt. Tiltak er definert.' },
+                { level: 2, en: 'Documented', no: 'Dokumentert', desc_en: 'Policy/procedure exists and is available.', desc_no: 'Policy/prosedyre finnes og er tilgjengelig.' },
+                { level: 3, en: 'Implemented', no: 'Implementert', desc_en: 'Practice is carried out in operations (not just on paper).', desc_no: 'Praksis gjennomføres i drift (ikke bare på papir).' },
+                { level: 4, en: 'Verified', no: 'Verifisert', desc_en: 'Evidence exists (logs, audit, test) and is recently updated.', desc_no: 'Evidens finnes (logger, revisjon, test) og er nylig oppdatert.' },
+              ].map((item) => (
+                <div key={item.level} className="flex items-start gap-3 rounded-lg border border-border/50 bg-card p-3">
+                  <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-primary">{item.level}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{lang === 'en' ? item.en : item.no}</p>
+                    <p className="text-xs text-muted-foreground">{lang === 'en' ? item.desc_en : item.desc_no}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Card variant="flat" className="border-primary/10 bg-primary/5">
+              <CardContent className="p-4">
+                <p className="text-sm font-mono text-foreground">
+                  {lang === 'en' ? 'score_per_control = maturity_level / 4' : 'skår_per_kontroll = modenhetsnivå / 4'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {lang === 'en'
+                    ? 'A control at level 3 (Implemented) gives a score of 75%. Level 4 (Verified) gives 100%.'
+                    : 'En kontroll på nivå 3 (Implementert) gir en skår på 75 %. Nivå 4 (Verifisert) gir 100 %.'}
+                </p>
+              </CardContent>
+            </Card>
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+              <p className="text-xs text-foreground/80 leading-relaxed">
+                <strong>{lang === 'en' ? 'Evidence rule: ' : 'Evidensregel: '}</strong>
+                {lang === 'en'
+                  ? 'Level 4 requires at least one evidence link/artifact (document, log extract, test result, audit finding, sign-off).'
+                  : 'Nivå 4 krever minst én evidenslenke/artefakt (dokument, loggutdrag, testresultat, revisjonsfunn, sign-off).'}
+              </p>
+            </div>
+          </div>
+
+          {/* Section 6: Aggregation */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'How we aggregate scores' : 'Slik aggregerer vi skårer'}
+            </h2>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              {lang === 'en'
+                ? 'The overall compliance score is the weighted average of all in-scope controls. Only controls that are both relevant and activated count toward the score.'
+                : 'Den samlede samsvars-skåren er det vektede gjennomsnittet av alle kontroller som er i scope. Kun kontroller som er både relevante og aktivert teller med i skåren.'}
+            </p>
+            <Card variant="flat" className="border-primary/10 bg-primary/5">
+              <CardContent className="p-4 space-y-2">
+                <p className="text-sm font-mono text-foreground">
+                  {lang === 'en'
+                    ? 'score = Σ(score_per_control × weight) / Σ(weight)'
+                    : 'skår = Σ(skår_per_kontroll × vekt) / Σ(vekt)'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {lang === 'en'
+                    ? 'Default weight = 1 for all controls. Weight range 1–3 can be applied based on criticality.'
+                    : 'Standardvekt = 1 for alle kontroller. Vektintervall 1–3 kan brukes basert på kritikalitet.'}
+                </p>
+              </CardContent>
+            </Card>
+
+            <h3 className="text-base font-bold text-foreground pt-2">
+              {lang === 'en' ? 'Reporting dimensions' : 'Rapporteringsdimensjoner'}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {lang === 'en'
+                ? 'The same underlying data points can be viewed from three different angles — these are not separate calculations, just different ways to group the same controls:'
+                : 'De samme underliggende datapunktene kan vises fra tre ulike vinkler — dette er ikke separate beregninger, bare ulike måter å gruppere de samme kontrollene:'}
+            </p>
+            <div className="grid gap-3">
+              {[
+                { title_en: 'Per framework', title_no: 'Per rammeverk', desc_en: 'GDPR, ISO 27001, AI Act — used when you think "audit / regulator / requirements list".', desc_no: 'GDPR, ISO 27001, AI Act — brukes når du tenker «tilsyn / revisor / kravliste».' },
+                { title_en: 'Per focus area', title_no: 'Per fokusområde', desc_en: 'Governance, Operations, Identity & Access, Supplier & Ecosystem — cross-cutting domains.', desc_no: 'Governance, Operations, Identity & Access, Supplier & Ecosystem — tverrgående domener.' },
+                { title_en: 'Per object', title_no: 'Per objekt', desc_en: 'Systems, processes, vendors — useful for prioritization: "where is the actual gap?"', desc_no: 'Systemer, prosesser, leverandører — nyttig for prioritering: «hvor er det faktiske gapet?»' },
+              ].map((item) => (
+                <div key={item.title_en} className="flex items-start gap-3 rounded-lg border border-border/50 bg-card p-3">
+                  <div className="h-2 w-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{lang === 'en' ? item.title_en : item.title_no}</p>
+                    <p className="text-xs text-muted-foreground">{lang === 'en' ? item.desc_en : item.desc_no}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 7: Foundation */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'Foundation status' : 'Foundation-status'}
+            </h2>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              {lang === 'en'
+                ? 'Foundation is a system-calculated indicator showing that your organization has established a minimum level of governance, visibility and control across all four domains.'
+                : 'Foundation er en systemberegnet indikator som viser at virksomheten har etablert minimumsnivå for styring, oversikt og kontroll innen alle fire domener.'}
+            </p>
+            <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
+              {[
+                { domain_en: 'Governance', domain_no: 'Governance', controls_en: 'Security policy, Risk management, Management commitment, Compliance officer', controls_no: 'Sikkerhetspolicy, Risikostyring, Ledelsesforankring, Samsvarsansvarlig' },
+                { domain_en: 'Operations', domain_no: 'Operations', controls_en: 'System inventory, Backup routines, Incident management, Change management', controls_no: 'Systemoversikt, Backup-rutiner, Hendelseshåndtering, Endringshåndtering' },
+                { domain_en: 'Identity & Access', domain_no: 'Identity & Access', controls_en: 'Access control policy, User provisioning, Authentication, Access review', controls_no: 'Tilgangspolicy, Brukeradministrasjon, Autentisering, Tilgangsgjennomgang' },
+                { domain_en: 'Supplier & Ecosystem', domain_no: 'Supplier & Ecosystem', controls_en: 'Vendor inventory, DPA management, Vendor risk assessment, Subprocessor oversight', controls_no: 'Leverandøroversikt, Databehandleravtaler, Leverandørrisikovurdering, Underleverandørkontroll' },
+              ].map((d) => (
+                <Card key={d.domain_en} variant="flat" className="border-border/50">
+                  <CardContent className="p-4 space-y-2">
+                    <p className="text-sm font-bold text-foreground">{lang === 'en' ? d.domain_en : d.domain_no}</p>
+                    <p className="text-xs text-muted-foreground">{lang === 'en' ? d.controls_en : d.controls_no}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Card variant="flat" className="border-primary/10 bg-primary/5">
+              <CardContent className="p-4 space-y-1">
+                <p className="text-sm text-foreground">
+                  {lang === 'en'
+                    ? '✓ A control counts as "OK" when maturity level ≥ 2 (Documented)'
+                    : '✓ En kontroll regnes som «OK» når modenhetsnivå ≥ 2 (Dokumentert)'}
+                </p>
+                <p className="text-sm text-foreground">
+                  {lang === 'en'
+                    ? '✓ A domain is fulfilled when ≥ 3 of 4 controls are OK'
+                    : '✓ Et domene er oppfylt når ≥ 3 av 4 kontroller er OK'}
+                </p>
+                <p className="text-sm text-foreground font-semibold">
+                  {lang === 'en'
+                    ? '✓ Foundation Established when all 4 domains are fulfilled'
+                    : '✓ Foundation Established når alle 4 domener er oppfylt'}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section 8: Trust Score */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'Trust Score' : 'Trust Score'}
+            </h2>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              {lang === 'en'
+                ? 'The Trust Score is a composite index that combines three components into a single, explainable number:'
+                : 'Trust Score er en sammensatt indeks som kombinerer tre komponenter til ett enkelt, forklarbart tall:'}
+            </p>
+            <div className="space-y-3">
+              {[
+                { pct: '60%', title_en: 'Compliance', title_no: 'Compliance', desc_en: 'Implementation maturity across all in-scope controls.', desc_no: 'Implementeringsmodenhet for alle kontroller i scope.', color: 'bg-primary' },
+                { pct: '30%', title_en: 'Risk Exposure', title_no: 'Risikoeksponering', desc_en: 'Inverse risk score — fewer unmitigated high/critical risks = higher score.', desc_no: 'Invers risikoskår — færre uhåndterte høy/kritiske risikoer = høyere skår.', color: 'bg-amber-500' },
+                { pct: '10%', title_en: 'Coverage', title_no: 'Dekningsgrad', desc_en: 'Percentage of controls that have been assessed (maturity > 0).', desc_no: 'Andel kontroller som er vurdert (modenhet > 0).', color: 'bg-emerald-500' },
+              ].map((c) => (
+                <div key={c.title_en} className="flex items-center gap-4 rounded-lg border border-border/50 bg-card p-4">
+                  <div className={`h-10 w-10 rounded-lg ${c.color}/15 flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-sm font-bold text-foreground">{c.pct}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{lang === 'en' ? c.title_en : c.title_no}</p>
+                    <p className="text-xs text-muted-foreground">{lang === 'en' ? c.desc_en : c.desc_no}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Card variant="flat" className="border-primary/10 bg-primary/5">
+              <CardContent className="p-4">
+                <p className="text-sm font-mono text-foreground">
+                  Trust Score = Compliance × 0.6 + Risk Exposure × 0.3 + Coverage × 0.1
+                </p>
+              </CardContent>
+            </Card>
+
+            <h3 className="text-base font-bold text-foreground pt-2">
+              {lang === 'en' ? 'Risk Exposure calculation' : 'Beregning av risikoeksponering'}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {lang === 'en'
+                ? 'Risk Exposure is calculated from your documented risk scenarios. Each scenario is weighted by severity (critical=4, high=3, medium=2, low=1). Mitigated risks reduce exposure: fully mitigated = 0 impact, in progress = 50% impact, not started = full impact. The score is inverted so that low risk gives a high score.'
+                : 'Risikoeksponering beregnes fra dokumenterte risikoscenarioer. Hvert scenario vektes etter alvorlighetsgrad (kritisk=4, høy=3, medium=2, lav=1). Håndterte risikoer reduserer eksponering: fullstendig håndtert = 0 påvirkning, pågående = 50 % påvirkning, ikke startet = full påvirkning. Skåren inverteres slik at lav risiko gir høy skår.'}
+            </p>
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+              <p className="text-xs text-foreground/80 leading-relaxed">
+                {lang === 'en'
+                  ? 'When no risk scenarios are documented, a neutral score of 50 is used. This means the Trust Score will improve as you document and treat risks.'
+                  : 'Når ingen risikoscenarioer er dokumentert, brukes en nøytral skår på 50. Det betyr at Trust Score forbedres når du dokumenterer og håndterer risikoer.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Section 9: Scope rules */}
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-foreground">
+              {lang === 'en' ? 'Scope and relevance' : 'Scope og relevans'}
+            </h2>
+            <p className="text-sm text-foreground/90 leading-relaxed">
+              {lang === 'en'
+                ? 'Not all controls apply to every organization. Mynder uses two filters to determine which controls count toward your score:'
+                : 'Ikke alle kontroller gjelder for alle virksomheter. Mynder bruker to filtre for å avgjøre hvilke kontroller som teller med i skåren:'}
+            </p>
+            <div className="space-y-2">
+              <div className="flex items-start gap-3 rounded-lg border border-border/50 bg-card p-3">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Relevant' : 'Relevant'}</p>
+                  <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Not marked as "Not applicable" — the control applies to your organization.' : 'Ikke markert som «Ikke relevant» — kontrollen gjelder for din virksomhet.'}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-lg border border-border/50 bg-card p-3">
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{lang === 'en' ? 'Activated' : 'Aktivert'}</p>
+                  <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Part of your selected scope (e.g. activated frameworks, enabled control families/services).' : 'Del av ditt valgte scope (f.eks. aktiverte rammeverk, aktiverte kontrollfamilier/tjenester).'}</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {lang === 'en'
+                ? 'Controls that are neither relevant nor activated are excluded from all score calculations.'
+                : 'Kontroller som verken er relevante eller aktivert utelates fra alle skårberegninger.'}
+            </p>
+          </div>
+
+          {/* Section 10: Legal disclaimer */}
+          <div className="rounded-xl border border-border/50 bg-muted/30 p-5 space-y-3">
+            <h3 className="text-base font-bold text-foreground">
+              {lang === 'en' ? 'Important: Implementation maturity, not legal compliance' : 'Viktig: Implementeringsmodenhet, ikke juridisk compliance'}
+            </h3>
+            <div className="space-y-2 text-sm text-foreground/80 leading-relaxed">
+              <p>
+                {lang === 'en'
+                  ? 'The score in Mynder is decision support, not a guarantee of legal compliance. We measure implementation maturity of the management system (policies, processes, controls and evidence) — not a legal "verdict" on compliance.'
+                  : 'Skåren i Mynder er beslutningsstøtte, ikke en garanti for juridisk etterlevelse. Vi måler implementeringsmodenhet i styringssystemet (policies, prosesser, kontroller og evidens) — ikke en juridisk «fasit» på compliance.'}
+              </p>
+              <p>
+                {lang === 'en'
+                  ? 'This aligns with how ISO-based management systems work: ISO 27001 measures maturity in ISMS, ISO 27701 in PIMS, ISO 42001 in AIMS. In short: we measure whether practice, governance and control are in place and can be documented — not whether the organization is "guaranteed" legally compliant in every situation.'
+                  : 'Dette samsvarer med hvordan ISO-baserte styringssystemer fungerer: ISO 27001 måler modenhet i ISMS, ISO 27701 i PIMS, ISO 42001 i AIMS. Kort sagt: vi måler om praksis, styring og kontroll er på plass og kan dokumenteres — ikke om virksomheten «garantert» er juridisk compliant i enhver situasjon.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Section 11: Typical profiles */}
           <div className="space-y-5">
             <h2 className="text-xl font-bold text-foreground">
               {lang === 'en' ? 'What\'s typical for your type of business?' : 'Hva er typisk for din type virksomhet?'}
