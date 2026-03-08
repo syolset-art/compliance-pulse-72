@@ -1,5 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RISK_DATA = [
   { level: "High", count: 2, color: "bg-destructive", textColor: "text-destructive" },
@@ -10,6 +12,7 @@ const RISK_DATA = [
 const TOP_RISK = "Recruitment process – unauthorized access to candidate data";
 
 export function RiskExposureWidget() {
+  const navigate = useNavigate();
   const total = RISK_DATA.reduce((s, r) => s + r.count, 0);
 
   return (
@@ -37,12 +40,22 @@ export function RiskExposureWidget() {
           ))}
         </div>
 
-        <div className="rounded-lg border border-border bg-muted/50 p-3">
+        <div className="rounded-lg border border-border bg-muted/50 p-3 mb-3">
           <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
             Top risk
           </p>
           <p className="text-xs text-foreground leading-relaxed">{TOP_RISK}</p>
         </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-1.5 text-xs"
+          onClick={() => navigate("/controls")}
+        >
+          Manage risks
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       </CardContent>
     </Card>
   );

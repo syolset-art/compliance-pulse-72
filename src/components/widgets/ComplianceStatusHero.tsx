@@ -119,17 +119,17 @@ export function ComplianceStatusHero({ companyName }: Props) {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">
-              Controls are scored on a 0–4 maturity scale.
-            </p>
-            <Button
-              variant="link"
-              size="sm"
-              className="text-xs text-primary p-0 h-auto"
-              onClick={() => navigate("/controls")}
-            >
-              View maturity details <ArrowRight className="h-3 w-3 ml-1 inline" />
-            </Button>
+             <p className="text-xs text-muted-foreground mb-3">
+               Controls are scored on a 0–4 maturity scale.
+             </p>
+             <Button
+               size="sm"
+               className="gap-1.5 text-xs"
+               onClick={() => navigate("/controls")}
+             >
+               View maturity details
+               <ArrowRight className="h-3.5 w-3.5" />
+             </Button>
           </div>
 
           {/* Right: Current maturity stage + next step */}
