@@ -47,6 +47,7 @@ import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
+import MaturityDashboard from "./pages/MaturityDashboard";
 import MynderControls from "./pages/MynderControls";
 import TrustCenterSaaS from "./pages/TrustCenterSaaS";
 import TrustCenterShared from "./pages/TrustCenterShared";
@@ -95,7 +96,7 @@ const App = () => (
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/compliance" element={<ComplianceChecklist />} />
-                  <Route path="/maturity" element={<MaturityMethodology />} />
+                  <Route path="/maturity" element={<MaturityDashboard />} />
                   <Route path="/controls" element={<MynderControls />} />
                   <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
