@@ -470,7 +470,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <Scale className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Scope, vekting og relevans", "Scope, weighting and relevance")}
                     </span>
                   </div>
