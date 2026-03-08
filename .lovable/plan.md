@@ -1,54 +1,54 @@
 
 
-## Plan: Oppdater fokusområder til ny 4-delt struktur
+# Add "Trust Profile" section to Maturity Methodology page
 
-### Nåværende situasjon
-Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
+## What to build
+A new section inserted after the "How the model works" pipeline and before the "Maturity scale (0–4)" section. Inspired by the uploaded image showing a 4-stage quality progression.
 
-### Nye fokusområder
-Erstatte de 3 kategoriene med 4 nye:
+## New section: "Hva er en Trust Profile?" / "What is a Trust Profile?"
 
-| ID | Navn (NO) | Beskrivelse |
-|----|-----------|-------------|
-| `governance` | Governance | Styring, ansvar og risikostyring |
-| `operations` | Operations | Systemer, prosesser og drift |
-| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
-| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
+### 1. Intro paragraph
+Plain-language explanation: A Trust Profile is a living compliance card for any system, vendor or your own organization. It can be AI-generated or fully owned by the company itself.
 
-### Filer som endres
+### 2. Visual horizontal 4-stage quality flow (inspired by uploaded image)
+Four color-coded cards in a horizontal row (stacked on mobile) showing how a Trust Profile evolves:
 
-**1. `src/lib/certificationPhases.ts`**
-- Endre `SLACategory` type fra 3 til 4 verdier
-- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
+| Stage | Title | Color | Description |
+|-------|-------|-------|-------------|
+| 1 | Created | `emerald` | AI scans public sources, finds basic data and risk signals |
+| 2 | Enriched | `amber` | Customer adds documents, analysis, compliance data |
+| 3 | Requested | `orange` | Missing info requested from supplier, follow-up automated |
+| 4 | Verified | `indigo/purple` | Supplier responds, self-declaration signed, identity confirmed |
 
-**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
-- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
-  - `organization_governance` → `governance`
-  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
-  - `roles_access` → `identity_access`
-- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
+Each card shows 3 bullet points + "By: Lara Soft / Customer / Supplier" label + a quality percentage badge.
 
-**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
-- Utvide fra 3 til 4 kort med nye ikoner og farger
-- Oppdatere `MOCK_TRENDS` med 4 verdier
+A gradient progress bar spans across the top (LOW → HIGH quality).
 
-**4. `src/components/widgets/SLAWidget.tsx`**
-- Oppdatere `SLA_CATEGORIES` array til 4 verdier
+### 3. "Your profile vs. vendor profile" explainer
+Two side-by-side mini-cards explaining the key difference:
 
-**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
-- Oppdatere `slaByCat` referanser til nye kategorier
+**Your Trust Profile (self)**
+- Shows YOUR compliance maturity and controls
+- You own and manage the data
+- Shared with customers who request it
 
-**6. `src/locales/en.json` og `src/locales/nb.json`**
-- Legge til oversettelser for de 4 nye kategorinavnene
+**Vendor Trust Profile**
+- Shows the vendor's compliance FROM YOUR PERSPECTIVE
+- Includes YOUR risk assessment of that vendor
+- Compliance score = vendor's own data; Risk score = your evaluation
 
-### Mapping-logikk (forenklet)
-- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
-- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
-- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
-- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
+A short callout box: "The same Trust Profile can show different risk scores depending on who is looking — because risk is always relative to the observer's context."
 
-### Teknisk detalj
-`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
+### 4. Three bottom highlight cards (inspired by image)
+- **Community effect**: Reports shared by others improve everyone's profiles
+- **Reusable**: One profile, verified once — trusted across all customers
+- **AI + Human**: AI creates the base, humans verify and enrich
 
-Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
+## Technical details
+- All changes in `src/pages/MaturityMethodology.tsx`
+- Insert new section block (~120 lines) between the pipeline summary box (line ~210) and the maturity scale section (line ~212)
+- Uses existing components: Card, Badge, lucide icons
+- New icons needed: `Bot, Users, UserCheck, Share2, ShieldCheck, Fingerprint`
+- Full bilingual support (no/en) via existing `t()` helper
+- Responsive: horizontal cards on desktop, stacked on mobile using `isMobile` flag
 
