@@ -117,7 +117,6 @@ const AssetTrustProfile = () => {
 
   // Overflow button label
   const moreLabel = isNb ? "Mer" : "More";
-  ].filter(t => t.show);
 
   const activeOverflowTab = overflowTabDefs.find(t => t.value === activeTab);
 
