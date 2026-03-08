@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Zap, Flame, TrendingUp } from "lucide-react";
+import { Zap, Flame, TrendingUp, Shield, SlidersHorizontal, FileCheck, ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import type { ScoreResult } from "@/lib/scoringEngine";
 
 interface ComplianceShieldProps {
@@ -37,6 +39,7 @@ export function ComplianceShield({
   regulationDomains, focusAreas, assessed, total, avgMaturity 
 }: ComplianceShieldProps) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
   const colors = getShieldColor(score);
   const message = getMessage(score, isNorwegian);
@@ -95,6 +98,62 @@ export function ComplianceShield({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+          {
+            icon: SlidersHorizontal,
+            label_no: "Kontroller",
+            label_en: "Controls",
+            desc_no: "Se og håndter sikkerhetskontroller",
+            desc_en: "View and manage security controls",
+            route: "/controls",
+            accent: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20",
+          },
+          {
+            icon: Shield,
+            label_no: "ISO Readiness",
+            label_en: "ISO Readiness",
+            desc_no: "Sertifiseringsreise og fremdrift",
+            desc_en: "Certification journey & progress",
+            route: "/compliance",
+            accent: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 hover:bg-blue-500/20",
+          },
+          {
+            icon: FileCheck,
+            label_no: "Regelverk",
+            label_en: "Regulations",
+            desc_no: "Aktiver og administrer rammeverk",
+            desc_en: "Activate and manage frameworks",
+            route: "/regulations",
+            accent: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 hover:bg-purple-500/20",
+          },
+        ].map((action) => {
+          const ActionIcon = action.icon;
+          return (
+            <button
+              key={action.route}
+              onClick={() => navigate(action.route)}
+              className={cn(
+                "rounded-xl border p-4 text-left transition-all flex items-start gap-3 group",
+                action.accent
+              )}
+            >
+              <div className="rounded-lg bg-background/60 p-2 shrink-0">
+                <ActionIcon className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">{isNorwegian ? action.label_no : action.label_en}</span>
+                  <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <p className="text-[11px] opacity-80 mt-0.5">{isNorwegian ? action.desc_no : action.desc_en}</p>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Two dimension grids */}
