@@ -291,12 +291,12 @@ export function TrustControlsPanel({
             <Progress value={trustScore} className="h-2 w-full max-w-[120px]" aria-label={`Trust score progress: ${trustScore}%`} />
           </div>
 
-          {/* Verification Confidence */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label="Verification Confidence">
+          {/* Data Quality */}
+          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label={isNb ? "Datakvalitet" : "Data Quality"}>
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Verifiseringsgrad" : "Confidence"}
+                {isNb ? "Datakvalitet" : "Data Quality"}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -307,7 +307,11 @@ export function TrustControlsPanel({
                 {isNb ? confidenceLabelNb : confidenceLabelEn}
               </p>
             </div>
-            <span className="text-xs text-muted-foreground">{confidenceScore}%</span>
+            <span className="text-xs text-muted-foreground leading-tight max-w-[160px]">
+              {isNb
+                ? "Hvor godt dokumentert og verifisert datagrunnlaget er"
+                : "How well documented and verified the underlying data is"}
+            </span>
           </div>
 
           {/* Last Updated */}
