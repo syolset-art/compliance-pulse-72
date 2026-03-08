@@ -339,9 +339,67 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
           </div>
 
           {isSelf ? (
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {isNb ? "Digital Trust Profile og samsvarsoversikt" : "Digital Trust Profile and compliance overview"}
-            </p>
+            <div>
+              <p className="text-sm text-muted-foreground mt-0.5 mb-2">
+                {isNb ? "Digital Trust Profile og samsvarsoversikt" : "Digital Trust Profile and compliance overview"}
+              </p>
+              {/* Editable description */}
+              {editingDesc ? (
+                <div className="flex flex-col gap-2 mt-1">
+                  <Textarea
+                    value={descValue}
+                    onChange={(e) => setDescValue(e.target.value)}
+                    className="text-sm min-h-[80px] resize-none"
+                    placeholder={isNb ? "Beskriv virksomheten din..." : "Describe your company..."}
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button size="sm" onClick={handleSaveDesc} disabled={updateAsset.isPending} className="h-7 text-xs">
+                      {isNb ? "Lagre" : "Save"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setEditingDesc(false); setDescValue(asset.description || ""); }}
+                      className="h-7 text-xs"
+                    >
+                      {isNb ? "Avbryt" : "Cancel"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleGenerateDesc}
+                      disabled={isGeneratingDesc}
+                      className="h-7 text-xs gap-1.5 ml-auto text-primary border-primary/30 hover:bg-primary/10"
+                    >
+                      {isGeneratingDesc ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      {isNb ? "Lara foreslår" : "Lara suggests"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="group flex items-start gap-2">
+                  {asset.description ? (
+                    <p className="text-sm text-muted-foreground flex-1 leading-relaxed">{asset.description}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground/50 italic flex-1">
+                      {isNb ? "Legg til en beskrivelse av virksomheten..." : "Add a company description..."}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => { setDescValue(asset.description || ""); setEditingDesc(true); }}
+                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded-md"
+                    title={isNb ? "Rediger beskrivelse" : "Edit description"}
+                  >
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
