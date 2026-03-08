@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send, TrendingUp, ShieldCheck, Layers, Target, Clock } from "lucide-react";
-import { CERTIFICATION_PHASES } from "@/lib/certificationPhases";
-import { GOVERNANCE_LEVELS, type GovernanceLevel } from "@/lib/governanceLevelEngine";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface AssetMetricsProps {
   asset: {
@@ -32,21 +31,6 @@ interface AssetMetricsProps {
   tasksCount: number;
 }
 
-// Each criterion contributes points — total = 100%
-const COMPLIANCE_CRITERIA = [
-  { key: "owner", points: 15, labelNb: "Eier tilordnet", labelEn: "Owner assigned" },
-  { key: "manager", points: 10, labelNb: "Ansvarlig person", labelEn: "Responsible person" },
-  { key: "description", points: 5, labelNb: "Beskrivelse utfylt", labelEn: "Description filled" },
-  { key: "risk_level", points: 10, labelNb: "Risikonivå satt", labelEn: "Risk level set" },
-  { key: "criticality", points: 5, labelNb: "Kritikalitet satt", labelEn: "Criticality set" },
-  { key: "gdpr_role", points: 10, labelNb: "GDPR-rolle definert", labelEn: "GDPR role defined" },
-  { key: "contact", points: 5, labelNb: "Kontaktperson", labelEn: "Contact person" },
-  { key: "review_date", points: 5, labelNb: "Neste gjennomgang", labelEn: "Next review date" },
-  { key: "documents", points: 25, labelNb: "Dokumenter lastet opp", labelEn: "Documents uploaded" },
-  { key: "relations", points: 10, labelNb: "Relasjoner definert", labelEn: "Relations defined" },
-];
-
-const TOTAL_POINTS = COMPLIANCE_CRITERIA.reduce((s, c) => s + c.points, 0);
 
 export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   const { t, i18n } = useTranslation();
@@ -91,23 +75,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     },
   });
 
-  // Dynamic compliance calculation
-  const fulfilled: string[] = [];
-  if (asset.work_area_id) fulfilled.push("owner");
-  if (asset.asset_manager) fulfilled.push("manager");
-  if (asset.description) fulfilled.push("description");
-  if (asset.risk_level) fulfilled.push("risk_level");
-  if (asset.criticality) fulfilled.push("criticality");
-  if (asset.gdpr_role) fulfilled.push("gdpr_role");
-  if (asset.contact_person || asset.contact_email) fulfilled.push("contact");
-  if (asset.next_review_date) fulfilled.push("review_date");
-  if (docsCount > 0) fulfilled.push("documents");
-  if (relationsCount > 0) fulfilled.push("relations");
-
-  const earnedPoints = COMPLIANCE_CRITERIA
-    .filter((c) => fulfilled.includes(c.key))
-    .reduce((s, c) => s + c.points, 0);
-  const complianceScore = Math.round((earnedPoints / TOTAL_POINTS) * 100);
+  // complianceScore is no longer calculated here — TrustControlsPanel handles it
 
   const getRiskBadge = (level: string | null) => {
     switch (level) {
@@ -130,7 +98,8 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
 
   const risk = getRiskBadge(asset.risk_level);
   const crit = getCriticalityBadge(asset.criticality);
-  const complianceColor = complianceScore >= 80 ? "text-success" : complianceScore >= 50 ? "text-warning" : complianceScore > 0 ? "text-primary" : "text-muted-foreground";
+  const complianceScore = 0; // placeholder for metric cards; real score is in TrustControlsPanel
+  const complianceColor = "text-muted-foreground";
   const formattedReviewDate = asset.next_review_date
     ? new Date(asset.next_review_date).toLocaleDateString()
     : t("trustProfile.notSet");
@@ -279,45 +248,12 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
         </div>
       )}
 
-      {/* Compliance Score — prominent card with checklist */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">{isNb ? "Samsvar" : "Compliance"}</span>
-          </div>
-          <span className={`text-2xl font-bold ${complianceColor}`}>{complianceScore}%</span>
-        </div>
-        <Progress value={complianceScore} className="h-2 mb-3" />
-        <TooltipProvider>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5">
-            {COMPLIANCE_CRITERIA.map((c) => {
-              const done = fulfilled.includes(c.key);
-              return (
-                <Tooltip key={c.key}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] transition-colors ${
-                        done ? "bg-success/10 text-success" : "bg-muted/50 text-muted-foreground"
-                      }`}
-                    >
-                      <CheckCircle2
-                        className={`h-3 w-3 shrink-0 ${done ? "text-success" : "text-muted-foreground/30"}`}
-                      />
-                      <span className="truncate">{isNb ? c.labelNb : c.labelEn}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {done
-                      ? `✓ ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`
-                      : `${isNb ? "Mangler" : "Missing"}: ${isNb ? c.labelNb : c.labelEn} (+${c.points}%)`}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </div>
-        </TooltipProvider>
-      </Card>
+      {/* Trust Controls Panel */}
+      <TrustControlsPanel
+        asset={asset}
+        docsCount={docsCount}
+        relationsCount={relationsCount}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {smallMetrics.map((m) => (
