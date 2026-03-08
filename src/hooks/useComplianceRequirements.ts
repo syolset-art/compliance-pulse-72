@@ -125,7 +125,21 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
     }).filter(req => includeCompleted || req.status !== 'completed');
   }, [frameworkId, domain, includeCompleted, statusData, dbRequirements]);
 
-  // Calculate statistics
+  // Convert to ScoredRequirement format for scoring engine
+  const scoredRequirements = useMemo((): ScoredRequirement[] => {
+    return requirements.map(r => ({
+      requirement_id: r.requirement_id,
+      framework_id: r.framework_id,
+      domain: r.domain,
+      sla_category: r.sla_category,
+      maturity_level: r.maturity_level as 0 | 1 | 2 | 3 | 4,
+      is_relevant: r.is_relevant,
+      weight: 1,
+      has_evidence: !!r.evidence_notes,
+    }));
+  }, [requirements]);
+
+  // Calculate statistics using scoring engine
   const stats = useMemo(() => {
     const total = requirements.length;
     const completed = requirements.filter(r => r.status === 'completed').length;
@@ -152,18 +166,30 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       manual: requirements.filter(r => r.status === 'completed' && r.agent_capability === 'manual').length
     };
 
+    // New scoring engine calculations
+    const overallScore = calculateScore(scoredRequirements);
+    const byFramework = calculateScoreByFramework(scoredRequirements);
+    const byDomainArea = calculateScoreByDomain(scoredRequirements);
+    const byRegulationDomain = calculateScoreByRegulationDomain(scoredRequirements);
+
     return {
       total,
       completed,
       inProgress,
       notStarted,
       aiHandling,
-      progressPercent: total > 0 ? Math.round((completed / total) * 100) : 0,
+      // Legacy: keep progressPercent for backward compat, but now uses maturity-based score
+      progressPercent: overallScore.score,
       byCapability,
       byPriority,
-      completedByCapability
+      completedByCapability,
+      // New scoring data
+      overallScore,
+      byFramework,
+      byDomainArea,
+      byRegulationDomain,
     };
-  }, [requirements]);
+  }, [requirements, scoredRequirements]);
 
   // Update requirement status mutation
   const updateStatus = useMutation({
