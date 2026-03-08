@@ -12,6 +12,7 @@ import {
   ArrowLeft, Shield, Target, BarChart3, Eye,
   Layers, Scale, TrendingUp, AlertTriangle,
   Building2, Workflow, Monitor, FileCheck, ChevronDown,
+  Bot, Users, UserCheck, Share2, ShieldCheck, Fingerprint,
 } from "lucide-react";
 
 const MaturityMethodology = () => {
@@ -206,6 +207,193 @@ const MaturityMethodology = () => {
                   "Organization → processes → systems → risk → controls → compliance score."
                 )}
               </p>
+            </div>
+          </div>
+
+          {/* ── Trust Profile section ── */}
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-foreground">
+                {t("Hva er en Trust Profile?", "What is a Trust Profile?")}
+              </h2>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                {t(
+                  "En Trust Profile er et levende samsvars- og risikokort for ethvert system, leverandør eller din egen organisasjon. Den kan være AI-generert fra offentlige kilder, eller fullstendig eid og vedlikeholdt av virksomheten selv.",
+                  "A Trust Profile is a living compliance and risk card for any system, vendor or your own organization. It can be AI-generated from public sources, or fully owned and maintained by the company itself."
+                )}
+              </p>
+            </div>
+
+            {/* 4-stage quality flow */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                {t("Kvalitetsnivåer", "Quality stages")}
+              </p>
+              {/* Gradient quality bar */}
+              <div className="relative h-2 rounded-full bg-muted/40 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-amber-400 via-orange-400 to-indigo-500 rounded-full" />
+              </div>
+              <div className="flex justify-between text-[10px] text-muted-foreground font-medium px-1">
+                <span>{t("LAV KVALITET", "LOW QUALITY")}</span>
+                <span>{t("HØY KVALITET", "HIGH QUALITY")}</span>
+              </div>
+
+              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"} gap-3`}>
+                {[
+                  {
+                    step: 1, quality: "25%",
+                    title_no: "Opprettet", title_en: "Created",
+                    by_no: "Av: Lara AI", by_en: "By: Lara AI",
+                    color: "bg-emerald-500", borderColor: "border-t-emerald-500", bgColor: "bg-emerald-500/5",
+                    icon: Bot, iconColor: "text-emerald-600 dark:text-emerald-400",
+                    bullets_no: ["Skanner offentlige kilder", "Finner grunndata og risikosignaler", "Klassifiserer automatisk"],
+                    bullets_en: ["Scans public sources", "Finds basic data and risk signals", "Classifies automatically"],
+                  },
+                  {
+                    step: 2, quality: "50%",
+                    title_no: "Beriket", title_en: "Enriched",
+                    by_no: "Av: Kunde", by_en: "By: Customer",
+                    color: "bg-amber-500", borderColor: "border-t-amber-500", bgColor: "bg-amber-500/5",
+                    icon: FileCheck, iconColor: "text-amber-600 dark:text-amber-400",
+                    bullets_no: ["Legger til dokumenter og analyse", "Egne vurderinger og notater", "Kobler til prosesser og kontroller"],
+                    bullets_en: ["Adds documents and analysis", "Own assessments and notes", "Links to processes and controls"],
+                  },
+                  {
+                    step: 3, quality: "75%",
+                    title_no: "Forespurt", title_en: "Requested",
+                    by_no: "Av: Kunde → Leverandør", by_en: "By: Customer → Supplier",
+                    color: "bg-orange-500", borderColor: "border-t-orange-500", bgColor: "bg-orange-500/5",
+                    icon: Users, iconColor: "text-orange-600 dark:text-orange-400",
+                    bullets_no: ["Manglende info forespørres", "Automatisk oppfølging", "Leverandør får varsel"],
+                    bullets_en: ["Missing info requested", "Automated follow-up", "Supplier gets notified"],
+                  },
+                  {
+                    step: 4, quality: "100%",
+                    title_no: "Verifisert", title_en: "Verified",
+                    by_no: "Av: Leverandør", by_en: "By: Supplier",
+                    color: "bg-indigo-500", borderColor: "border-t-indigo-500", bgColor: "bg-indigo-500/5",
+                    icon: ShieldCheck, iconColor: "text-indigo-600 dark:text-indigo-400",
+                    bullets_no: ["Leverandør svarer og bekrefter", "Selverklæring signert", "Identitet bekreftet"],
+                    bullets_en: ["Supplier responds and confirms", "Self-declaration signed", "Identity confirmed"],
+                  },
+                ].map((stage) => {
+                  const Icon = stage.icon;
+                  return (
+                    <div key={stage.step} className={`relative rounded-xl border border-border/50 ${stage.bgColor} border-t-[3px] ${stage.borderColor} p-4 space-y-3`}>
+                      <div className="flex items-center justify-between">
+                        <div className={`h-8 w-8 rounded-lg ${stage.color} flex items-center justify-center`}>
+                          <span className="text-xs font-bold text-white">{stage.step}</span>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] font-mono">{stage.quality}</Badge>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Icon className={`h-4 w-4 ${stage.iconColor}`} />
+                          <p className="text-sm font-semibold text-foreground">{t(stage.title_no, stage.title_en)}</p>
+                        </div>
+                        <ul className="space-y-0.5">
+                          {(lang === "en" ? stage.bullets_en : stage.bullets_no).map((b, i) => (
+                            <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                              <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/40 flex-shrink-0" />
+                              {b}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">{t(stage.by_no, stage.by_en)}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Self vs Vendor comparison */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                {t("Din profil vs. leverandørprofil", "Your profile vs. vendor profile")}
+              </p>
+              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-3`}>
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                      <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <p className="text-sm font-bold text-foreground">{t("Din Trust Profile (self)", "Your Trust Profile (self)")}</p>
+                  </div>
+                  <ul className="space-y-1">
+                    {(lang === "en"
+                      ? ["Shows YOUR compliance maturity and controls", "You own and manage all the data", "Shared with customers who request it"]
+                      : ["Viser DIN samsvarsmodenhet og kontroller", "Du eier og forvalter all data", "Deles med kunder som ber om det"]
+                    ).map((b, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-emerald-500 mt-0.5">✓</span> {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                      <Monitor className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <p className="text-sm font-bold text-foreground">{t("Leverandørens Trust Profile", "Vendor Trust Profile")}</p>
+                  </div>
+                  <ul className="space-y-1">
+                    {(lang === "en"
+                      ? ["Shows vendor compliance FROM YOUR PERSPECTIVE", "Compliance score = vendor's own data", "Risk score = YOUR evaluation of that vendor"]
+                      : ["Viser leverandørens samsvar FRA DITT PERSPEKTIV", "Samsvarsscore = leverandørens egne data", "Risikoscore = DIN vurdering av leverandøren"]
+                    ).map((b, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-blue-500 mt-0.5">✓</span> {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  <span className="font-semibold text-foreground">{t("Viktig:", "Important:")}</span>{" "}
+                  {t(
+                    "Samme Trust Profile kan vise ulike risikoscorer avhengig av hvem som ser — fordi risiko alltid er relativ til observatørens kontekst.",
+                    "The same Trust Profile can show different risk scores depending on who is looking — because risk is always relative to the observer's context."
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Three highlight cards */}
+            <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-3`}>
+              {[
+                {
+                  icon: Share2, iconColor: "text-cyan-600 dark:text-cyan-400", bgColor: "bg-cyan-500/10",
+                  title_no: "Fellesskapseffekt", title_en: "Community effect",
+                  desc_no: "Rapporter delt av andre forbedrer alles profiler — du bidrar og drar nytte av nettverket.",
+                  desc_en: "Reports shared by others improve everyone's profiles — you contribute and benefit from the network.",
+                },
+                {
+                  icon: Fingerprint, iconColor: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-500/10",
+                  title_no: "Gjenbrukbar", title_en: "Reusable",
+                  desc_no: "Én profil, verifisert én gang — betrodd på tvers av alle kunder og forespørsler.",
+                  desc_en: "One profile, verified once — trusted across all customers and requests.",
+                },
+                {
+                  icon: Bot, iconColor: "text-indigo-600 dark:text-indigo-400", bgColor: "bg-indigo-500/10",
+                  title_no: "AI + Menneske", title_en: "AI + Human",
+                  desc_no: "AI skaper grunnlaget, mennesker verifiserer og beriker. Kvaliteten stiger over tid.",
+                  desc_en: "AI creates the base, humans verify and enrich. Quality rises over time.",
+                },
+              ].map((card) => {
+                const Icon = card.icon;
+                return (
+                  <div key={card.title_en} className="rounded-xl border border-border/50 bg-card p-4 space-y-2">
+                    <div className={`h-9 w-9 rounded-lg ${card.bgColor} flex items-center justify-center`}>
+                      <Icon className={`h-4 w-4 ${card.iconColor}`} />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">{t(card.title_no, card.title_en)}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{t(card.desc_no, card.desc_en)}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
