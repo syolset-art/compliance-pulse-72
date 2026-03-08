@@ -477,7 +477,7 @@ const MaturityMethodology = () => {
                 variant="ghost"
                 size="sm"
                 className="w-full mt-3 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
-                onClick={() => navigate("/compliance-checklist")}
+                onClick={() => navigate("/resources/controls")}
               >
                 {t("Se alle kontroller →", "View all controls →")}
               </Button>
