@@ -176,12 +176,13 @@ const AssetTrustProfile = () => {
             {/* ═══ TRUST SNAPSHOT ═══════════════════════════════════════ */}
 
             {/* Entity Header */}
-            <AssetHeader asset={asset} template={template} />
+            <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
 
-            {/* Trust Metrics + Scope + Security + Risk + Controls */}
+            {/* Security Areas + Scope (side by side on desktop) */}
             <AssetMetrics
               asset={asset}
               tasksCount={tasks?.length || 0}
+              onTrustMetrics={handleTrustMetrics}
             />
 
             {/* Publishing for self-type */}
