@@ -95,6 +95,7 @@ const App = () => (
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/compliance" element={<ComplianceChecklist />} />
+                  <Route path="/maturity" element={<MaturityMethodology />} />
                   <Route path="/controls" element={<MynderControls />} />
                   <Route path="/compliance-checklist" element={<ComplianceChecklist />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
