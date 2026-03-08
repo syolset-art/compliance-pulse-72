@@ -727,6 +727,7 @@ export type Database = {
           framework_id: string
           id: string
           is_active: boolean
+          is_relevant: boolean
           name: string
           name_no: string | null
           priority: string
@@ -745,6 +746,7 @@ export type Database = {
           framework_id: string
           id?: string
           is_active?: boolean
+          is_relevant?: boolean
           name: string
           name_no?: string | null
           priority?: string
@@ -763,6 +765,7 @@ export type Database = {
           framework_id?: string
           id?: string
           is_active?: boolean
+          is_relevant?: boolean
           name?: string
           name_no?: string | null
           priority?: string
@@ -2024,6 +2027,7 @@ export type Database = {
           linked_assets: string[] | null
           linked_processes: string[] | null
           linked_tasks: string[] | null
+          maturity_level: number
           progress_percent: number | null
           requirement_id: string
           status: string
@@ -2039,6 +2043,7 @@ export type Database = {
           linked_assets?: string[] | null
           linked_processes?: string[] | null
           linked_tasks?: string[] | null
+          maturity_level?: number
           progress_percent?: number | null
           requirement_id: string
           status?: string
@@ -2054,6 +2059,7 @@ export type Database = {
           linked_assets?: string[] | null
           linked_processes?: string[] | null
           linked_tasks?: string[] | null
+          maturity_level?: number
           progress_percent?: number | null
           requirement_id?: string
           status?: string
