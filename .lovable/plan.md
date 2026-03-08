@@ -1,54 +1,39 @@
 
 
-## Plan: Oppdater fokusområder til ny 4-delt struktur
+## Analysis
 
-### Nåværende situasjon
-Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
+The **ValidationTab** currently shows four sections:
+1. **Controls Summary** (ControlsSummaryCard)
+2. **System Tasks** (task list)
+3. **Compliance by Standard** (GDPR, NIS2, CRA, AI Act progress bars)
+4. **Total Compliance** gauge + **AI Insights**
 
-### Nye fokusområder
-Erstatte de 3 kategoriene med 4 nye:
+Your instinct is right — "Compliance by Standard" as a static list is too rigid. Users should be able to choose *how* they view compliance data.
 
-| ID | Navn (NO) | Beskrivelse |
-|----|-----------|-------------|
-| `governance` | Governance | Styring, ansvar og risikostyring |
-| `operations` | Operations | Systemer, prosesser og drift |
-| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
-| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
+## Recommended Approach
 
-### Filer som endres
+Replace the static "Compliance by Standard" card with a **single card that has a view switcher** (segmented control / tabs inside the card):
 
-**1. `src/lib/certificationPhases.ts`**
-- Endre `SLACategory` type fra 3 til 4 verdier
-- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
+- **By Framework** — GDPR, NIS2, CRA, AI Act (current view, renamed)
+- **By Control Area** — Governance, Operations, Identity & Access, Supplier & Ecosystem (uses `groupControlsByArea` data already available)
 
-**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
-- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
-  - `organization_governance` → `governance`
-  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
-  - `roles_access` → `identity_access`
-- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
+This is a clean pattern: one card, two lenses on the same data. No extra clutter.
 
-**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
-- Utvide fra 3 til 4 kort med nye ikoner og farger
-- Oppdatere `MOCK_TRENDS` med 4 verdier
+Also removing from this tab per previous decisions:
+- **Total Compliance gauge** — redundant with Trust Score on the snapshot
+- **AI Insights** — placeholder card with no real value yet
+- **System Tasks** — belongs in a task/workspace view, not the validation tab
 
-**4. `src/components/widgets/SLAWidget.tsx`**
-- Oppdatere `SLA_CATEGORIES` array til 4 verdier
+## Changes
 
-**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
-- Oppdatere `slaByCat` referanser til nye kategorier
+### `src/components/asset-profile/tabs/ValidationTab.tsx`
+- Remove the Total Compliance gauge card, AI Insights card, and System Tasks card
+- Replace "Compliance by Standard" with a new **Compliance View** card containing:
+  - A small segmented toggle: `By Framework` | `By Control Area`
+  - **By Framework**: same GDPR/NIS2/CRA/AI Act progress bars (relabeled)
+  - **By Control Area**: shows Governance/Operations/Identity & Access/Supplier scores using `useTrustControlEvaluation` hook (already exists)
+- Keep the ControlsSummaryCard at the top
+- Simplify the grid layout since we're removing the sidebar column
 
-**6. `src/locales/en.json` og `src/locales/nb.json`**
-- Legge til oversettelser for de 4 nye kategorinavnene
-
-### Mapping-logikk (forenklet)
-- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
-- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
-- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
-- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
-
-### Teknisk detalj
-`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
-
-Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
+This keeps the ValidationTab focused: Controls Summary + Compliance breakdown with user-chosen perspective.
 
