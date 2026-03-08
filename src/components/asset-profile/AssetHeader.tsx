@@ -104,13 +104,20 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const queryClient = useQueryClient();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [descValue, setDescValue] = useState(asset.description || "");
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_msp"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("company_profile").select("is_msp_partner").limit(1).maybeSingle();
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("is_msp_partner, industry, name")
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -133,7 +140,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
 
   const updateAsset = useMutation({
-    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null }>) => {
+    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null; description: string | null }>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)
@@ -161,6 +168,36 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
 
   const handleManagerChange = (value: string) => {
     updateAsset.mutate({ asset_manager: value });
+  };
+
+  const handleSaveDesc = () => {
+    updateAsset.mutate({ description: descValue });
+    setEditingDesc(false);
+  };
+
+  const handleGenerateDesc = async () => {
+    setIsGeneratingDesc(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-company-description", {
+        body: {
+          companyName: asset.name,
+          industry: (companyProfile as any)?.industry,
+          existingDescription: descValue,
+          language: i18n.language,
+        },
+      });
+      if (!error && data?.suggestion) {
+        setDescValue(data.suggestion);
+        toast.success(isNb ? "Forslag hentet fra Lara" : "Suggestion from Lara");
+      } else {
+        toast.error(isNb ? "Kunne ikke hente forslag" : "Could not get suggestion");
+      }
+    } catch (e) {
+      console.error("generate desc error:", e);
+      toast.error(isNb ? "Noe gikk galt" : "Something went wrong");
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
