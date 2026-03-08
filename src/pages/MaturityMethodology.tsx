@@ -384,8 +384,8 @@ const MaturityMethodology = () => {
                         { no: "Supplier & Ecosystem", en: "Supplier & Ecosystem", desc_no: "Leverandøroversikt, DPA, leverandørrisikovurdering, underleverandørkontroll", desc_en: "Vendor inventory, DPA, vendor risk assessment, subprocessor oversight" },
                       ].map((d) => (
                         <div key={d.en} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                          <p className="text-xs font-bold text-foreground">{t(d.no, d.en)}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{t(d.desc_no, d.desc_en)}</p>
+                          <p className="text-sm font-bold text-foreground">{t(d.no, d.en)}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t(d.desc_no, d.desc_en)}</p>
                         </div>
                       ))}
                     </div>
