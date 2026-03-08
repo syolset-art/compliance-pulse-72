@@ -11,6 +11,13 @@ import {
   type RequirementDomain
 } from "@/lib/complianceRequirementsData";
 import type { RequirementStatus } from "@/components/compliance/RequirementCard";
+import { 
+  calculateScore, 
+  calculateScoreByFramework, 
+  calculateScoreByDomain,
+  calculateScoreByRegulationDomain,
+  type ScoredRequirement 
+} from "@/lib/scoringEngine";
 
 export interface RequirementWithStatus extends ComplianceRequirement {
   status: RequirementStatus;
