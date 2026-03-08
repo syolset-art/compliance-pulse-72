@@ -16,6 +16,8 @@ export interface RequirementWithStatus extends ComplianceRequirement {
   status: RequirementStatus;
   progress_percent: number;
   is_ai_handling: boolean;
+  maturity_level: number;
+  is_relevant: boolean;
   completed_at?: string;
   completed_by?: string;
   evidence_notes?: string;
