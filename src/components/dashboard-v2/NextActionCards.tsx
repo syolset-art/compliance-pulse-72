@@ -76,18 +76,17 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-auto">
+              <div className="flex items-center justify-between mt-auto pt-1">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-yellow-600 dark:text-yellow-400">
                   <Zap className="h-3 w-3" />
                   +{xp} XP
                 </span>
                 <Button
-                  variant="ghost"
                   size="sm"
-                  className="h-7 text-xs gap-1"
+                  className="h-8 text-xs gap-1.5 px-3"
                   onClick={() => navigate(route)}
                 >
-                  {isNorwegian ? "Gjør det" : "Do it"}
+                  {isNorwegian ? "Start" : "Start"}
                   <ArrowRight className="h-3 w-3" />
                 </Button>
               </div>
