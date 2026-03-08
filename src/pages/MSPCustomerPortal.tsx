@@ -174,7 +174,11 @@ export default function MSPCustomerPortal() {
             level={level.key}
             levelLabel_no={level.label_no}
             levelLabel_en={level.label_en}
-            domains={domains}
+            regulationDomains={regulationDomains}
+            focusAreas={focusAreas}
+            assessed={stats.overallScore?.assessed || 0}
+            total={stats.overallScore?.total || 0}
+            avgMaturity={stats.overallScore?.avgMaturity || 0}
           />
           <NextActionCards actions={incompleteActions} />
           <RiskAndCalendarSection requirements={requirements} />
