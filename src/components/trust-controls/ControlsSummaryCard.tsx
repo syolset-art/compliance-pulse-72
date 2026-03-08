@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { type ControlArea } from "@/lib/trustControlDefinitions";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
 interface ControlsSummaryCardProps {
@@ -37,23 +35,6 @@ export function ControlsSummaryCard({ assetId }: ControlsSummaryCardProps) {
           <span className="text-xl font-bold text-destructive">{missingCount}</span>
           <span className="text-[9px] font-medium text-destructive uppercase">{isNb ? "Mangler" : "Missing"}</span>
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {([
-          { area: "governance" as ControlArea, label: "Governance", labelNb: "Styring" },
-          { area: "risk_compliance" as ControlArea, label: "Operations", labelNb: "Drift" },
-          { area: "security_posture" as ControlArea, label: "Identity & Access", labelNb: "Identitet" },
-          { area: "supplier_governance" as ControlArea, label: "Supplier & Ecosystem", labelNb: "Leverandør" },
-        ]).map(({ area, label, labelNb: nb }) => {
-          const score = areaScore(area);
-          const variant = score >= 75 ? "action" : score >= 40 ? "warning" : score > 0 ? "destructive" : "secondary";
-          return (
-            <Badge key={area} variant={variant as any} className="text-[9px] gap-1" aria-label={`${label} ${score}%`}>
-              {isNb ? nb : label} {score}%
-            </Badge>
-          );
-        })}
       </div>
     </Card>
   );
