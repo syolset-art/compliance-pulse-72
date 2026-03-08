@@ -41,6 +41,19 @@ function calculateStreak(completedDates: string[]): number {
   return streak;
 }
 
+const REGULATION_LABELS: Record<string, { label_no: string; label_en: string }> = {
+  privacy: { label_no: "Personvern", label_en: "Privacy" },
+  security: { label_no: "Sikkerhet", label_en: "Security" },
+  ai: { label_no: "AI", label_en: "AI" },
+};
+
+const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> = {
+  governance: { label_no: "Governance", label_en: "Governance" },
+  operations: { label_no: "Operations", label_en: "Operations" },
+  identity_access: { label_no: "Identity & Access", label_en: "Identity & Access" },
+  supplier_ecosystem: { label_no: "Supplier & Ecosystem", label_en: "Supplier & Ecosystem" },
+};
+
 export default function DashboardV2() {
   const { i18n } = useTranslation();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
@@ -63,7 +76,7 @@ export default function DashboardV2() {
     return calculateStreak(dates);
   }, [requirements]);
 
-  // Shield score = overall completion %
+  // Shield score = overall maturity-based score
   const score = stats.progressPercent;
 
   // Level
@@ -72,20 +85,25 @@ export default function DashboardV2() {
     return l || MATURITY_LEVELS[0];
   }, [score]);
 
-  // Domain scores
-  const domains = useMemo(() => {
-    const calc = (domain: string) => {
-      const domainReqs = requirements.filter((r) => r.domain === domain);
-      if (domainReqs.length === 0) return 0;
-      const completed = domainReqs.filter((r) => r.status === "completed").length;
-      return Math.round((completed / domainReqs.length) * 100);
-    };
-    return [
-      { label_no: "Personvern", label_en: "Privacy", percent: calc("privacy") },
-      { label_no: "Sikkerhet", label_en: "Security", percent: calc("security") },
-      { label_no: "AI", label_en: "AI", percent: calc("ai") },
-    ];
-  }, [requirements]);
+  // Regulation domains (Privacy / Security / AI)
+  const regulationDomains = useMemo(() => {
+    const byReg = stats.byRegulationDomain || {};
+    return ["privacy", "security", "ai"].map((key) => ({
+      label_no: REGULATION_LABELS[key]?.label_no || key,
+      label_en: REGULATION_LABELS[key]?.label_en || key,
+      percent: byReg[key]?.score || 0,
+    }));
+  }, [stats.byRegulationDomain]);
+
+  // Focus areas (Governance / Operations / Identity & Access / Supplier & Ecosystem)
+  const focusAreas = useMemo(() => {
+    const byDomain = stats.byDomainArea || {};
+    return ["governance", "operations", "identity_access", "supplier_ecosystem"].map((key) => ({
+      label_no: FOCUS_AREA_LABELS[key]?.label_no || key,
+      label_en: FOCUS_AREA_LABELS[key]?.label_en || key,
+      percent: byDomain[key]?.score || 0,
+    }));
+  }, [stats.byDomainArea]);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -110,7 +128,11 @@ export default function DashboardV2() {
             level={level.key}
             levelLabel_no={level.label_no}
             levelLabel_en={level.label_en}
-            domains={domains}
+            regulationDomains={regulationDomains}
+            focusAreas={focusAreas}
+            assessed={stats.overallScore?.assessed || 0}
+            total={stats.overallScore?.total || 0}
+            avgMaturity={stats.overallScore?.avgMaturity || 0}
           />
 
           {/* Zone 2: Next actions */}
