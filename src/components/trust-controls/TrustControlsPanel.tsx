@@ -3,9 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock,
+  CheckCircle2, AlertTriangle, XCircle, Shield, Lock,
   ShieldCheck, Layers, Target, Clock,
-  Server, HardDrive, Network, Building2, BarChart3,
+  Server, HardDrive, Network, Building2,
   TriangleAlert,
 } from "lucide-react";
 import {
@@ -78,30 +78,29 @@ function evaluateGenericControl(key: string, asset: AssetLike, docsCount: number
 
 function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, docsCount: number): TrustControlStatus {
   const meta = (asset.metadata || {}) as Record<string, any>;
-  const vendorMap: Record<string, () => TrustControlStatus> = {
-    dpa_verified: () => meta.dpa_verified ? "implemented" : docsCount > 0 ? "partial" : "missing",
-    security_contact: () => asset.contact_email ? "implemented" : asset.contact_person ? "partial" : "missing",
-    sub_processors_disclosed: () => meta.sub_processors_disclosed ? "implemented" : "missing",
-    vendor_security_review: () => meta.vendor_security_review ? "implemented" : "missing",
-  };
-  const systemMap: Record<string, () => TrustControlStatus> = {
-    mfa_enabled: () => meta.mfa_enabled ? "implemented" : "missing",
-    encryption_enabled: () => meta.encryption_enabled ? "implemented" : "missing",
-    backup_configured: () => meta.backup_configured ? "implemented" : "missing",
-    security_logging: () => meta.security_logging ? "implemented" : "missing",
-  };
-  const hardwareMap: Record<string, () => TrustControlStatus> = {
-    device_encryption: () => meta.disk_encrypted ? "implemented" : "missing",
-    endpoint_protection: () => meta.antivirus ? "implemented" : "missing",
-    patch_management: () => meta.patch_management ? "implemented" : "missing",
-  };
-  const orgMap: Record<string, () => TrustControlStatus> = {
-    responsible_manager: () => asset.asset_manager ? "implemented" : "missing",
-    security_training: () => meta.security_training_completed ? "implemented" : "missing",
-    incident_reporting: () => meta.incident_reporting_defined ? "implemented" : "missing",
-  };
   const maps: Record<string, Record<string, () => TrustControlStatus>> = {
-    vendor: vendorMap, system: systemMap, hardware: hardwareMap, self: orgMap,
+    vendor: {
+      dpa_verified: () => meta.dpa_verified ? "implemented" : docsCount > 0 ? "partial" : "missing",
+      security_contact: () => asset.contact_email ? "implemented" : asset.contact_person ? "partial" : "missing",
+      sub_processors_disclosed: () => meta.sub_processors_disclosed ? "implemented" : "missing",
+      vendor_security_review: () => meta.vendor_security_review ? "implemented" : "missing",
+    },
+    system: {
+      mfa_enabled: () => meta.mfa_enabled ? "implemented" : "missing",
+      encryption_enabled: () => meta.encryption_enabled ? "implemented" : "missing",
+      backup_configured: () => meta.backup_configured ? "implemented" : "missing",
+      security_logging: () => meta.security_logging ? "implemented" : "missing",
+    },
+    hardware: {
+      device_encryption: () => meta.disk_encrypted ? "implemented" : "missing",
+      endpoint_protection: () => meta.antivirus ? "implemented" : "missing",
+      patch_management: () => meta.patch_management ? "implemented" : "missing",
+    },
+    self: {
+      responsible_manager: () => asset.asset_manager ? "implemented" : "missing",
+      security_training: () => meta.security_training_completed ? "implemented" : "missing",
+      incident_reporting: () => meta.incident_reporting_defined ? "implemented" : "missing",
+    },
   };
   return maps[assetType]?.[key]?.() ?? "missing";
 }
@@ -115,7 +114,6 @@ export function TrustControlsPanel({
   const isNb = i18n.language === "nb";
   const effectiveType = overrideType || asset.asset_type || "";
 
-  // Evaluate controls
   const evaluatedGeneric: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
     ...c,
     status: evaluateGenericControl(c.key, asset, docsCount),
@@ -162,177 +160,140 @@ export function TrustControlsPanel({
     processesMaped: scope.processesMaped ?? 0,
     vendorsMapped: scope.vendorsMapped ?? 0,
   };
-  const totalMapped = s.systemsMapped + s.devicesMapped + s.processesMaped + s.vendorsMapped + docsCount;
-  const coveragePercent = Math.min(100, Math.round((totalMapped / Math.max(totalMapped, 10)) * 100));
+
+  const securityAreas = ([
+    { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
+    { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
+    { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
+    { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
+  ]).filter(({ area }) => grouped[area].length > 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
 
-      {/* ━━━ 1. TRUST SNAPSHOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ CARD 1: TRUST SCORE + SECURITY AREAS (Hero) ━━━━━━━━━━━━━ */}
       <Card className="p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Trust Score */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label="Trust Score">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Trust Score</span>
-            </div>
-            <p className={`text-4xl font-bold ${scoreColor}`} aria-label={`Trust score ${trustScore} percent`}>
-              {trustScore}<span className="text-lg">%</span>
+        {/* Top: Score hero + meta */}
+        <div className="flex items-start gap-6">
+          {/* Trust Score — dominant */}
+          <div className="flex flex-col items-center gap-1.5 shrink-0" role="group" aria-label="Trust Score">
+            <p className={`text-5xl font-bold tracking-tight ${scoreColor}`} aria-label={`Trust score ${trustScore} percent`}>
+              {trustScore}
             </p>
-            <Progress value={trustScore} className="h-2 w-full max-w-[120px]" aria-label={`Trust score progress: ${trustScore}%`} />
+            <Progress value={trustScore} className="h-1.5 w-20" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Trust Score</span>
           </div>
 
-          {/* Verification Confidence */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label={isNb ? "Verifiseringstillit" : "Verification Confidence"}>
+          {/* Meta: Confidence + Last Updated — secondary */}
+          <div className="flex-1 min-w-0 space-y-2 pt-1">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Verifiseringstillit" : "Verification Confidence"}
+              {confidenceLevel === "high" && <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />}
+              {confidenceLevel === "medium" && <AlertTriangle className="h-3.5 w-3.5 text-warning shrink-0" />}
+              {confidenceLevel === "low" && <XCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
+              <span className="text-xs text-muted-foreground">
+                {isNb ? "Verifiseringstillit" : "Confidence"}:
               </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {confidenceLevel === "high" && <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />}
-              {confidenceLevel === "medium" && <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />}
-              {confidenceLevel === "low" && <XCircle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />}
-              <p className={`text-2xl font-bold ${confidenceColor}`}>
+              <span className={`text-xs font-semibold ${confidenceColor}`}>
                 {isNb ? confidenceLabelNb : confidenceLabelEn}
-              </p>
-            </div>
-            <span className="text-[10px] text-muted-foreground">{confidenceScore}%</span>
-          </div>
-
-          {/* Last Updated */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label="Last Updated">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Sist oppdatert" : "Last Updated"}
               </span>
             </div>
-            <p className="text-lg font-semibold text-foreground">{lastUpdated}</p>
+            <div className="flex items-center gap-2">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="text-xs text-muted-foreground">
+                {isNb ? "Oppdatert" : "Updated"}: <span className="font-medium text-foreground">{lastUpdated}</span>
+              </span>
+            </div>
+            <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1 mt-1">
+              <ShieldCheck className="h-2.5 w-2.5" />
+              {isNb ? "Egenerklæring" : "Self-declared"}
+            </Badge>
           </div>
         </div>
-      </Card>
 
-      {/* ━━━ 2. SCOPE & COVERAGE + 3. SECURITY AREAS ━━━━━━━━━━━━━━━━ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        {/* Scope & Coverage */}
-        <Card className="p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">{isNb ? "Omfang og dekning" : "Scope & Coverage"}</h2>
-            <div className="flex items-center gap-1.5" role="group" aria-label={`Coverage ${coveragePercent}%`}>
-              <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-              <span className="text-sm font-bold text-foreground">{coveragePercent}%</span>
-            </div>
-          </div>
-
-          <Progress value={coveragePercent} className="h-1.5" aria-label={`Coverage ${coveragePercent}%`} />
-
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-            {[
-              { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
-              { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
-              { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
-              { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
-            ].map(item => (
-              <div key={item.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span className="text-muted-foreground text-xs">{item.label}</span>
-                </div>
-                <span className="font-semibold text-xs">{item.value}</span>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-            {isNb
-              ? "Dekning viser hvor mye av leverandørens systemer og relasjoner som er inkludert i denne tillitsprofilen."
-              : "Coverage shows how much of the vendor's systems and relationships are included in this trust profile."}
-          </p>
-        </Card>
-
-        {/* Security Areas */}
-        <Card className="p-5 space-y-3">
-          <h2 className="text-sm font-semibold">{isNb ? "Sikkerhetsområder" : "Security Areas"}</h2>
-          <div className="space-y-2.5">
-            {([
-              { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-              { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
-              { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
-              { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
-            ]).map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
+        {/* Security Areas — below score */}
+        {securityAreas.length > 0 && (
+          <div className="mt-5 pt-4 border-t border-border space-y-2">
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              {isNb ? "Sikkerhetsområder" : "Security Areas"}
+            </h3>
+            {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
               const score = areaScore(area);
-              const count = grouped[area].length;
-              if (count === 0) return null;
               return (
-                <div key={area} className="space-y-1">
+                <div key={area} className="space-y-0.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <AreaIcon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                      <span className="text-xs font-medium">{isNb ? areaNb : label}</span>
+                      <AreaIcon className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[11px] font-medium text-foreground">{isNb ? areaNb : label}</span>
                     </div>
-                    <span className="text-xs font-semibold" aria-label={`${label} ${score}%`}>{score}%</span>
+                    <span className="text-[11px] font-semibold tabular-nums">{score}%</span>
                   </div>
-                  <Progress value={score} className="h-1.5" aria-label={`${label} progress: ${score}%`} />
+                  <Progress value={score} className="h-1" />
                 </div>
               );
             })}
           </div>
-        </Card>
-      </div>
-
-      {/* ━━━ 4. RISK OVERVIEW ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <Card className="p-5">
-        <h2 className="text-sm font-semibold mb-3">{isNb ? "Risikooversikt" : "Risk Overview"}</h2>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-destructive/10" role="group" aria-label={`${highRisks} high risks`}>
-            <TriangleAlert className="h-4 w-4 text-destructive" aria-hidden="true" />
-            <span className="text-2xl font-bold text-destructive">{highRisks}</span>
-            <span className="text-[10px] font-medium text-destructive uppercase">{isNb ? "Høy" : "High"}</span>
-          </div>
-          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-warning/10" role="group" aria-label={`${mediumRisks} medium risks`}>
-            <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
-            <span className="text-2xl font-bold text-warning">{mediumRisks}</span>
-            <span className="text-[10px] font-medium text-warning uppercase">{isNb ? "Middels" : "Medium"}</span>
-          </div>
-          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/50" role="group" aria-label={`${lowRisks} low risks`}>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            <span className="text-2xl font-bold text-muted-foreground">{lowRisks}</span>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase">{isNb ? "Lav" : "Low"}</span>
-          </div>
-        </div>
-
-        {/* Top risks as compact list */}
-        {risks.length > 0 && (
-          <div className="space-y-1 mt-3 pt-3 border-t border-border">
-            {risks.slice(0, 3).map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <TriangleAlert className={`h-3 w-3 shrink-0 ${r.severity === "high" ? "text-destructive" : r.severity === "medium" ? "text-warning" : "text-muted-foreground"}`} aria-hidden="true" />
-                  <span className="text-xs truncate text-muted-foreground">{isNb ? r.titleNb : r.titleEn}</span>
-                </div>
-                <Badge
-                  variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"}
-                  className="text-[9px] shrink-0 px-1.5 py-0"
-                >
-                  {r.severity === "high" ? (isNb ? "Høy" : "High") : r.severity === "medium" ? (isNb ? "Middels" : "Medium") : (isNb ? "Lav" : "Low")}
-                </Badge>
-              </div>
-            ))}
-          </div>
         )}
       </Card>
 
-      {/* ━━━ SELF-DECLARATION BADGE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <div className="flex justify-center">
-        <Badge variant="outline" className="text-[10px] text-muted-foreground gap-1.5 px-3 py-1">
-          <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-          {isNb ? "Basert på egenerklæring og systemdata" : "Based on self-declaration and system data"}
-        </Badge>
-      </div>
+      {/* ━━━ CARD 2: SCOPE + RISK (Compact secondary) ━━━━━━━━━━━━━━━ */}
+      <Card className="p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Scope */}
+          <div>
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              {isNb ? "Omfang" : "Scope"}
+            </h3>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {[
+                { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
+                { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
+                { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
+                { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <item.icon className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] text-muted-foreground">{item.label}</span>
+                  </div>
+                  <span className="text-[11px] font-semibold tabular-nums">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Risk */}
+          <div>
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              {isNb ? "Risiko" : "Risk"}
+            </h3>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-destructive/10">
+                <TriangleAlert className="h-3 w-3 text-destructive" />
+                <span className="text-xs font-bold text-destructive">{highRisks}</span>
+                <span className="text-[10px] text-destructive/70">{isNb ? "Høy" : "High"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-warning/10">
+                <AlertTriangle className="h-3 w-3 text-warning" />
+                <span className="text-xs font-bold text-warning">{mediumRisks}</span>
+                <span className="text-[10px] text-warning/70">{isNb ? "Middels" : "Med"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/60">
+                <AlertTriangle className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs font-bold text-muted-foreground">{lowRisks}</span>
+                <span className="text-[10px] text-muted-foreground/70">{isNb ? "Lav" : "Low"}</span>
+              </div>
+            </div>
+
+            {/* Top risk item — only show first one for density */}
+            {risks.length > 0 && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <TriangleAlert className={`h-2.5 w-2.5 shrink-0 ${risks[0].severity === "high" ? "text-destructive" : "text-warning"}`} />
+                <span className="text-[10px] text-muted-foreground truncate">{isNb ? risks[0].titleNb : risks[0].titleEn}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
