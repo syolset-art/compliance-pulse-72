@@ -373,13 +373,13 @@ export function TrustControlsPanel({
             </div>
           </div>
 
-          {/* Framework badges */}
+          {/* Control Domain badges */}
           <div className="flex flex-wrap gap-1.5 mb-2">
             {([
               { area: "governance" as ControlArea, label: "Governance", labelNb: "Styring" },
               { area: "risk_compliance" as ControlArea, label: "Operations", labelNb: "Drift" },
               { area: "security_posture" as ControlArea, label: "Identity & Access", labelNb: "Identitet" },
-              { area: "supplier_governance" as ControlArea, label: "Supplier", labelNb: "Leverandør" },
+              { area: "supplier_governance" as ControlArea, label: "Supplier & Ecosystem", labelNb: "Leverandør" },
             ]).map(({ area, label, labelNb: nb }) => {
               const score = areaScore(area);
               const variant = score >= 75 ? "action" : score >= 40 ? "warning" : score > 0 ? "destructive" : "secondary";
