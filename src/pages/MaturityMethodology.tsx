@@ -88,7 +88,7 @@ const MaturityMethodology = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t(item.desc_no, item.desc_en)}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t(item.desc_no, item.desc_en)}</p>
                     </div>
                   </div>
                 );
