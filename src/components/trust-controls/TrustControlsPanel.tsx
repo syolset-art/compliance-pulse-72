@@ -172,6 +172,79 @@ function ExpandableSection({ icon: Icon, title, count, children, defaultOpen = f
     </Collapsible>
   );
 }
+function FlippableDataQuality({ confidenceLevel, confidenceScore, confidenceColor, confidenceLabelEn, confidenceLabelNb, isNb, implementedCount, allControlsCount }: {
+  confidenceLevel: string;
+  confidenceScore: number;
+  confidenceColor: string;
+  confidenceLabelEn: string;
+  confidenceLabelNb: string;
+  isNb: boolean;
+  implementedCount: number;
+  allControlsCount: number;
+}) {
+  const [flipped, setFlipped] = useState(false);
+
+  const levelExplanation = isNb
+    ? confidenceLevel === "high"
+      ? "De fleste kontrollene er verifisert av leverandør eller tredjepart. Datagrunnlaget er pålitelig."
+      : confidenceLevel === "medium"
+      ? "Noen kontroller er bekreftet, men flere mangler verifisering fra leverandør eller dokumentasjon."
+      : "De fleste kontrollene er basert på AI-antakelser. Last opp dokumentasjon eller be leverandør verifisere."
+    : confidenceLevel === "high"
+      ? "Most controls are verified by vendor or third party. The data is reliable."
+      : confidenceLevel === "medium"
+      ? "Some controls are confirmed, but several lack vendor verification or documentation."
+      : "Most controls are based on AI assumptions. Upload documentation or request vendor verification.";
+
+  const improveTip = isNb
+    ? "Tips: Be leverandøren verifisere profilen, eller last opp dokumentasjon for å øke datakvaliteten."
+    : "Tip: Ask the vendor to verify the profile, or upload documentation to improve data quality.";
+
+  return (
+    <button
+      onClick={() => setFlipped(!flipped)}
+      className="flex flex-col items-center text-center gap-2 cursor-pointer rounded-lg p-3 -m-3 hover:bg-accent/50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring relative min-h-[120px] justify-center"
+      role="group"
+      aria-label={isNb ? "Datakvalitet — klikk for detaljer" : "Data Quality — click for details"}
+    >
+      {!flipped ? (
+        <>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {isNb ? "Datakvalitet" : "Data Quality"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {confidenceLevel === "high" && <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />}
+            {confidenceLevel === "medium" && <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />}
+            {confidenceLevel === "low" && <XCircle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />}
+            <p className={`text-2xl font-bold ${confidenceColor}`}>
+              {isNb ? confidenceLabelNb : confidenceLabelEn}
+            </p>
+          </div>
+          <span className="text-[10px] text-muted-foreground">
+            {isNb ? "Trykk for å lese mer" : "Tap to learn more"}
+          </span>
+        </>
+      ) : (
+        <div className="text-left space-y-2 max-w-[200px]">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              {isNb ? "Datakvalitet" : "Data Quality"}: {confidenceScore}%
+            </span>
+          </div>
+          <p className="text-xs text-foreground leading-relaxed">{levelExplanation}</p>
+          <p className="text-[10px] text-primary leading-tight">{improveTip}</p>
+          <span className="text-[10px] text-muted-foreground">
+            {isNb ? "Trykk for å lukke" : "Tap to close"}
+          </span>
+        </div>
+      )}
+    </button>
+  );
+}
 
 function ControlRow({ control, isNb }: { control: EvaluatedControl; isNb: boolean }) {
   const cfg = STATUS_CONFIG[control.status];
@@ -291,28 +364,17 @@ export function TrustControlsPanel({
             <Progress value={trustScore} className="h-2 w-full max-w-[120px]" aria-label={`Trust score progress: ${trustScore}%`} />
           </div>
 
-          {/* Data Quality */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label={isNb ? "Datakvalitet" : "Data Quality"}>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Datakvalitet" : "Data Quality"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {confidenceLevel === "high" && <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />}
-              {confidenceLevel === "medium" && <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />}
-              {confidenceLevel === "low" && <XCircle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />}
-              <p className={`text-2xl font-bold ${confidenceColor}`}>
-                {isNb ? confidenceLabelNb : confidenceLabelEn}
-              </p>
-            </div>
-            <span className="text-xs text-muted-foreground leading-tight max-w-[160px]">
-              {isNb
-                ? "Hvor godt dokumentert og verifisert datagrunnlaget er"
-                : "How well documented and verified the underlying data is"}
-            </span>
-          </div>
+          {/* Data Quality — flippable */}
+          <FlippableDataQuality
+            confidenceLevel={confidenceLevel}
+            confidenceScore={confidenceScore}
+            confidenceColor={confidenceColor}
+            confidenceLabelEn={confidenceLabelEn}
+            confidenceLabelNb={confidenceLabelNb}
+            isNb={isNb}
+            implementedCount={implementedCount}
+            allControlsCount={allControls.length}
+          />
 
           {/* Last Updated */}
           <div className="flex flex-col items-center text-center gap-2" role="group" aria-label="Last Updated">
