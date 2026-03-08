@@ -75,23 +75,7 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
     },
   });
 
-  // Dynamic compliance calculation
-  const fulfilled: string[] = [];
-  if (asset.work_area_id) fulfilled.push("owner");
-  if (asset.asset_manager) fulfilled.push("manager");
-  if (asset.description) fulfilled.push("description");
-  if (asset.risk_level) fulfilled.push("risk_level");
-  if (asset.criticality) fulfilled.push("criticality");
-  if (asset.gdpr_role) fulfilled.push("gdpr_role");
-  if (asset.contact_person || asset.contact_email) fulfilled.push("contact");
-  if (asset.next_review_date) fulfilled.push("review_date");
-  if (docsCount > 0) fulfilled.push("documents");
-  if (relationsCount > 0) fulfilled.push("relations");
-
-  const earnedPoints = COMPLIANCE_CRITERIA
-    .filter((c) => fulfilled.includes(c.key))
-    .reduce((s, c) => s + c.points, 0);
-  const complianceScore = Math.round((earnedPoints / TOTAL_POINTS) * 100);
+  // complianceScore is no longer calculated here — TrustControlsPanel handles it
 
   const getRiskBadge = (level: string | null) => {
     switch (level) {
