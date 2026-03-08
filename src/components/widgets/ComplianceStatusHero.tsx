@@ -120,7 +120,7 @@ export function ComplianceStatusHero({ companyName }: Props) {
               </div>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Score based on maturity level (0–4) across four focus areas.
+              Controls are scored on a 0–4 maturity scale.
             </p>
             <Button
               variant="link"
