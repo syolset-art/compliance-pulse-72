@@ -339,47 +339,78 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
           )}
         </div>
 
-        {/* Trust Metrics — right side */}
-        {trustMetrics && (
-          <div className="hidden md:flex flex-col items-end gap-2 shrink-0">
-            {/* Trust Score */}
-            <div className="flex items-center gap-2.5">
-              <div className="text-right">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Trust Score</span>
+        {/* Trust Score Seal — right side */}
+        {trustMetrics && (() => {
+          const score = trustMetrics.trustScore;
+          const conf = trustMetrics.confidenceScore;
+          const isHigh = score >= 75;
+          const isMid = score >= 50;
+          // SVG arc values for circular progress
+          const radius = 28;
+          const circ = 2 * Math.PI * radius;
+          const dash = (score / 100) * circ;
+          const strokeColor = isHigh ? "hsl(var(--success))" : isMid ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+          const bgRingColor = "hsl(var(--muted))";
+          const confLabel = conf >= 80 ? (isNb ? "Høy tillit" : "High confidence") : conf >= 50 ? (isNb ? "Middels tillit" : "Medium confidence") : (isNb ? "Lav tillit" : "Low confidence");
+          return (
+            <div className="hidden md:flex flex-col items-center gap-1.5 shrink-0 pl-4 border-l border-border">
+              {/* Circular gauge */}
+              <div className="relative flex items-center justify-center">
+                <svg width="72" height="72" viewBox="0 0 72 72" className="-rotate-90">
+                  {/* Background ring */}
+                  <circle
+                    cx="36" cy="36" r={radius}
+                    fill="none"
+                    stroke={bgRingColor}
+                    strokeWidth="5"
+                  />
+                  {/* Score arc */}
+                  <circle
+                    cx="36" cy="36" r={radius}
+                    fill="none"
+                    stroke={strokeColor}
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeDasharray={`${dash} ${circ}`}
+                    style={{ transition: "stroke-dasharray 0.6s ease" }}
+                  />
+                </svg>
+                {/* Score number inside */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-xl font-bold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
+                    {score}
+                  </span>
+                  <span className="text-[8px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">/100</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className={`text-2xl font-bold tabular-nums ${
-                  trustMetrics.trustScore >= 75 ? "text-success" : trustMetrics.trustScore >= 50 ? "text-warning" : trustMetrics.trustScore > 0 ? "text-primary" : "text-muted-foreground"
-                }`}>
-                  {trustMetrics.trustScore}
-                </span>
-                <Progress value={trustMetrics.trustScore} className="h-1 w-12" />
+
+              {/* Label */}
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+
+              {/* Meta row */}
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex items-center gap-1">
+                  {conf >= 80 && <CheckCircle2 className="h-2.5 w-2.5 text-success" />}
+                  {conf >= 50 && conf < 80 && <AlertTriangle className="h-2.5 w-2.5 text-warning" />}
+                  {conf < 50 && <XCircle className="h-2.5 w-2.5 text-muted-foreground" />}
+                  <span className={`text-[10px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>
+                    {confLabel}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+                  <span className="text-[9px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
+                </div>
               </div>
+
+              {/* Self-declared badge */}
+              <Badge variant="outline" className="text-[8px] text-muted-foreground gap-0.5 px-1.5 py-0 h-4">
+                <ShieldCheck className="h-2 w-2" />
+                {isNb ? "Egenerklæring" : "Self-declared"}
+              </Badge>
             </div>
-            {/* Confidence + Updated */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                {trustMetrics.confidenceScore >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
-                {trustMetrics.confidenceScore >= 50 && trustMetrics.confidenceScore < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
-                {trustMetrics.confidenceScore < 50 && <XCircle className="h-3 w-3 text-muted-foreground" />}
-                <span className={`text-[11px] font-semibold ${
-                  trustMetrics.confidenceScore >= 80 ? "text-success" : trustMetrics.confidenceScore >= 50 ? "text-warning" : "text-muted-foreground"
-                }`}>
-                  {trustMetrics.confidenceScore >= 80 ? (isNb ? "Høy" : "High") : trustMetrics.confidenceScore >= 50 ? (isNb ? "Middels" : "Medium") : (isNb ? "Lav" : "Low")}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[11px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
-              </div>
-            </div>
-            {/* Self-declared badge */}
-            <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1">
-              <ShieldCheck className="h-2.5 w-2.5" />
-              {isNb ? "Egenerklæring" : "Self-declared"}
-            </Badge>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Owner and Manager row — hidden for self/published profiles */}
