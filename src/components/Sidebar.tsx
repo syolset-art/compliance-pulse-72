@@ -188,6 +188,9 @@ const SidebarContent = () => {
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
   const [adminOpen, setAdminOpen] = useState(false);
+  const [compSecOpen, setCompSecOpen] = useState(() => 
+    ["/compliance", "/controls", "/compliance-calendar"].some(p => location.pathname.startsWith(p))
+  );
   const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
