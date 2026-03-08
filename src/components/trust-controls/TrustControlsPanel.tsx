@@ -1,23 +1,17 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock,
-  ShieldCheck, TriangleAlert, Layers, Target, Clock, Eye,
-  Server, HardDrive, AppWindow, Network, Building2, GitBranch, BarChart3,
-  BookOpen, Scale,
+  ShieldCheck, Layers, Target, Clock,
+  Server, HardDrive, Network, Building2, BarChart3,
+  TriangleAlert,
 } from "lucide-react";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
-  type VerificationSource,
   type ControlArea,
-  type KeyRisk,
-  type RiskSeverity,
   GENERIC_CONTROLS,
   getTypeSpecificControls,
   calculateTrustScore,
@@ -112,16 +106,10 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
   return maps[assetType]?.[key]?.() ?? "missing";
 }
 
-const SEVERITY_CONFIG: Record<RiskSeverity, { color: string; bg: string; labelEn: string; labelNb: string }> = {
-  high: { color: "text-destructive", bg: "bg-destructive/10", labelEn: "High", labelNb: "Høy" },
-  medium: { color: "text-warning", bg: "bg-warning/10", labelEn: "Medium", labelNb: "Middels" },
-  low: { color: "text-muted-foreground", bg: "bg-muted/50", labelEn: "Low", labelNb: "Lav" },
-};
-
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType, scope = {}, onViewControls, onViewRisks,
+  asset, docsCount, relationsCount, overrideType, scope = {},
 }: TrustControlsPanelProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -145,10 +133,6 @@ export function TrustControlsPanel({
   const confidenceScore = calculateConfidenceScore(allControls);
   const risks = deriveKeyRisks(allControls);
   const grouped = groupControlsByArea(allControls);
-
-  const implementedCount = allControls.filter(c => c.status === "implemented").length;
-  const partialCount = allControls.filter(c => c.status === "partial").length;
-  const missingCount = allControls.filter(c => c.status === "missing").length;
 
   const highRisks = risks.filter(r => r.severity === "high").length;
   const mediumRisks = risks.filter(r => r.severity === "medium").length;
@@ -175,19 +159,16 @@ export function TrustControlsPanel({
   const s = {
     systemsMapped: scope.systemsMapped ?? 0,
     devicesMapped: scope.devicesMapped ?? 0,
-    applicationsMapped: scope.applicationsMapped ?? 0,
     processesMaped: scope.processesMaped ?? 0,
     vendorsMapped: scope.vendorsMapped ?? 0,
-    subProcessorsMapped: scope.subProcessorsMapped ?? 0,
   };
-  const totalMapped = s.systemsMapped + s.devicesMapped + s.applicationsMapped + s.processesMaped + s.vendorsMapped + s.subProcessorsMapped + docsCount;
+  const totalMapped = s.systemsMapped + s.devicesMapped + s.processesMaped + s.vendorsMapped + docsCount;
   const coveragePercent = Math.min(100, Math.round((totalMapped / Math.max(totalMapped, 10)) * 100));
-
-  const [showRiskDetails, setShowRiskDetails] = useState(false);
 
   return (
     <div className="space-y-4">
-      {/* ━━━ TRUST METRICS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+
+      {/* ━━━ 1. TRUST SNAPSHOT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-5">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Trust Score */}
@@ -234,10 +215,11 @@ export function TrustControlsPanel({
         </div>
       </Card>
 
-      {/* ━━━ SCOPE & COVERAGE + CONTROL DOMAINS ━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ 2. SCOPE & COVERAGE + 3. SECURITY AREAS ━━━━━━━━━━━━━━━━ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         {/* Scope & Coverage */}
-        <Card className="p-5 space-y-4">
+        <Card className="p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold">{isNb ? "Omfang og dekning" : "Scope & Coverage"}</h2>
             <div className="flex items-center gap-1.5" role="group" aria-label={`Coverage ${coveragePercent}%`}>
@@ -248,85 +230,33 @@ export function TrustControlsPanel({
 
           <Progress value={coveragePercent} className="h-1.5" aria-label={`Coverage ${coveragePercent}%`} />
 
-          {/* Asset Coverage */}
-          <div className="space-y-1.5">
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Kartlagte ressurser" : "Asset Coverage"}
-            </h3>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-              {[
-                { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
-                { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
-                { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
-                { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
-              ].map(item => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                    <span className="text-muted-foreground text-xs">{item.label}</span>
-                  </div>
-                  <span className="font-semibold text-xs" aria-label={`${item.value} ${item.label}`}>{item.value}</span>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+            {[
+              { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
+              { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
+              { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
+              { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
+            ].map(item => (
+              <div key={item.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                  <span className="text-muted-foreground text-xs">{item.label}</span>
                 </div>
-              ))}
-            </div>
+                <span className="font-semibold text-xs">{item.value}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Control Scope */}
-          <div className="space-y-1.5 pt-2 border-t border-border">
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Kontrollomfang" : "Control Scope"}
-            </h3>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-              {([
-                { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-                { area: "risk_compliance" as ControlArea, icon: Target, label: "Risk & Compliance", labelNb: "Risiko og samsvar" },
-                { area: "security_posture" as ControlArea, icon: Lock, label: "Security Posture", labelNb: "Sikkerhetsstilling" },
-                { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier Governance", labelNb: "Leverandørstyring" },
-              ]).map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
-                const count = grouped[area].length;
-                return (
-                  <div key={area} className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <AreaIcon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                      <span className="text-muted-foreground text-xs">{isNb ? areaNb : label}</span>
-                    </div>
-                    <span className="font-semibold text-xs" aria-label={`${count} controls`}>
-                      {count} {isNb ? "kontroller" : "controls"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Framework Scope */}
-          <div className="space-y-1.5 pt-2 border-t border-border">
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Rammeverk" : "Framework Scope"}
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                { id: "gdpr", label: "GDPR", controls: allControls.filter(c => ["dpa_verified", "sub_processors_disclosed", "owner_assigned", "responsible_person", "documentation_available", "description_defined", "review_cycle", "risk_assessment"].includes(c.key)).length },
-                { id: "iso27001", label: "ISO 27001", controls: allControls.filter(c => ["mfa_enabled", "encryption_enabled", "backup_configured", "security_logging", "device_encryption", "endpoint_protection", "patch_management", "risk_level_defined", "criticality_defined", "risk_assessment", "review_cycle", "security_training"].includes(c.key)).length },
-                { id: "aiact", label: "AI Act", controls: allControls.filter(c => ["documentation_available", "risk_assessment", "responsible_person", "review_cycle"].includes(c.key)).length },
-              ].filter(fw => fw.controls > 0).map(fw => (
-                <Badge key={fw.id} variant="outline" className="text-[9px] gap-1 px-2 py-0.5">
-                  <Scale className="h-2.5 w-2.5" aria-hidden="true" />
-                  {fw.label} – {fw.controls} {isNb ? "kontroller" : "controls"}
-                </Badge>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              {isNb
-                ? "Rammeverk som er koblet til kontrollene inkludert i Trust Score."
-                : "Frameworks mapped to the controls included in the Trust Score."}
-            </p>
-          </div>
+          <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
+            {isNb
+              ? "Dekning viser hvor mye av leverandørens systemer og relasjoner som er inkludert i denne tillitsprofilen."
+              : "Coverage shows how much of the vendor's systems and relationships are included in this trust profile."}
+          </p>
         </Card>
 
-        {/* Control Areas */}
+        {/* Security Areas */}
         <Card className="p-5 space-y-3">
-          <h2 className="text-sm font-semibold">{isNb ? "Kontrollområder" : "Control Areas"}</h2>
+          <h2 className="text-sm font-semibold">{isNb ? "Sikkerhetsområder" : "Security Areas"}</h2>
           <div className="space-y-2.5">
             {([
               { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
@@ -354,6 +284,55 @@ export function TrustControlsPanel({
         </Card>
       </div>
 
+      {/* ━━━ 4. RISK OVERVIEW ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <Card className="p-5">
+        <h2 className="text-sm font-semibold mb-3">{isNb ? "Risikooversikt" : "Risk Overview"}</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-destructive/10" role="group" aria-label={`${highRisks} high risks`}>
+            <TriangleAlert className="h-4 w-4 text-destructive" aria-hidden="true" />
+            <span className="text-2xl font-bold text-destructive">{highRisks}</span>
+            <span className="text-[10px] font-medium text-destructive uppercase">{isNb ? "Høy" : "High"}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-warning/10" role="group" aria-label={`${mediumRisks} medium risks`}>
+            <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
+            <span className="text-2xl font-bold text-warning">{mediumRisks}</span>
+            <span className="text-[10px] font-medium text-warning uppercase">{isNb ? "Middels" : "Medium"}</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/50" role="group" aria-label={`${lowRisks} low risks`}>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <span className="text-2xl font-bold text-muted-foreground">{lowRisks}</span>
+            <span className="text-[10px] font-medium text-muted-foreground uppercase">{isNb ? "Lav" : "Low"}</span>
+          </div>
+        </div>
+
+        {/* Top risks as compact list */}
+        {risks.length > 0 && (
+          <div className="space-y-1 mt-3 pt-3 border-t border-border">
+            {risks.slice(0, 3).map((r) => (
+              <div key={r.id} className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <TriangleAlert className={`h-3 w-3 shrink-0 ${r.severity === "high" ? "text-destructive" : r.severity === "medium" ? "text-warning" : "text-muted-foreground"}`} aria-hidden="true" />
+                  <span className="text-xs truncate text-muted-foreground">{isNb ? r.titleNb : r.titleEn}</span>
+                </div>
+                <Badge
+                  variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"}
+                  className="text-[9px] shrink-0 px-1.5 py-0"
+                >
+                  {r.severity === "high" ? (isNb ? "Høy" : "High") : r.severity === "medium" ? (isNb ? "Middels" : "Medium") : (isNb ? "Lav" : "Low")}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* ━━━ SELF-DECLARATION BADGE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="flex justify-center">
+        <Badge variant="outline" className="text-[10px] text-muted-foreground gap-1.5 px-3 py-1">
+          <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+          {isNb ? "Basert på egenerklæring og systemdata" : "Based on self-declaration and system data"}
+        </Badge>
+      </div>
     </div>
   );
 }
