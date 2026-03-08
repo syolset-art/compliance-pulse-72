@@ -109,10 +109,9 @@ const Index = () => {
         <EnvironmentOverviewWidget />
       </div>
 
-      {/* 8. NIS2 readiness + 9. Compliance maturity — side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      {/* 8. NIS2 readiness */}
+      <div className="mb-6">
         <NIS2ReadinessWidget />
-        <ComplianceMaturityWidget />
       </div>
     </>
   );
