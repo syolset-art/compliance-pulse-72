@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,8 @@ import {
   XCircle,
   Clock,
   ShieldCheck,
+  Pencil,
+  Sparkles,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
