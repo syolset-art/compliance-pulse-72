@@ -96,6 +96,89 @@ const MaturityMethodology = () => {
             </div>
           </div>
 
+          {/* How the model works — visual flow */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-foreground">
+              {t("Slik henger det sammen", "How the model works")}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t(
+                "Mynder bygger opp et bilde av virksomheten din steg for steg. Her ser du hvordan alt henger sammen — fra organisasjonen din helt ned til modenhetsscoren.",
+                "Mynder builds a picture of your organization step by step. Here's how everything connects — from your organization all the way to the maturity score."
+              )}
+            </p>
+            <div className="space-y-0">
+              {[
+                {
+                  icon: Building2,
+                  title_no: "Arbeidsområder",
+                  title_en: "Workspaces",
+                  desc_no: "Representerer deler av organisasjonen som eier systemer og leverandører — for eksempel HR, IT eller Økonomi.",
+                  desc_en: "Represent parts of your organization that own systems and vendors — for example HR, IT or Finance.",
+                },
+                {
+                  icon: Workflow,
+                  title_no: "Prosesser",
+                  title_en: "Processes",
+                  desc_no: "Viser hvordan systemer og leverandører faktisk brukes i praksis, for eksempel «Rekruttering» eller «Fakturering».",
+                  desc_en: "Show how systems and vendors are actually used in practice, for example 'Recruitment' or 'Invoicing'.",
+                },
+                {
+                  icon: Monitor,
+                  title_no: "Systemer, leverandører og assets",
+                  title_en: "Systems, vendors & assets",
+                  desc_no: "Alle ressurser får automatisk en Trust Profile — et levende bilde av samsvar, risiko og dokumentasjon.",
+                  desc_en: "All resources automatically get a Trust Profile — a living picture of compliance, risk and documentation.",
+                },
+                {
+                  icon: AlertTriangle,
+                  title_no: "Risiko og kontroller",
+                  title_en: "Risk & controls",
+                  desc_no: "Risikovurdering gjøres på prosessnivå. Kontroller og dokumentasjon knyttes til Trust Profiles.",
+                  desc_en: "Risk assessments are done at the process level. Controls and documentation are linked to Trust Profiles.",
+                },
+                {
+                  icon: BarChart3,
+                  title_no: "Modenhet og samsvarsscore",
+                  title_en: "Maturity & compliance score",
+                  desc_no: "Scoren beregnes ut fra hvor godt kontrollene er implementert — fra 0 (ikke startet) til 4 (verifisert).",
+                  desc_en: "The score is calculated from how well controls are implemented — from 0 (not started) to 4 (verified).",
+                },
+              ].map((item, idx, arr) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title_en}>
+                    <div className="flex items-start gap-4 py-3">
+                      <div className="flex flex-col items-center">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <Icon className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <div className="pt-0.5">
+                        <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
+                      </div>
+                    </div>
+                    {idx < arr.length - 1 && (
+                      <div className="flex items-center pl-[18px]">
+                        <ChevronDown className="h-4 w-4 text-muted-foreground/50" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="rounded-lg border border-primary/15 bg-primary/5 px-4 py-3">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                <span className="font-semibold text-foreground">{t("Kort sagt:", "In short:")}</span>{" "}
+                {t(
+                  "Organisasjon → prosesser → systemer → risiko → kontroller → samsvarsscore.",
+                  "Organization → processes → systems → risk → controls → compliance score."
+                )}
+              </p>
+            </div>
+          </div>
+
           {/* 0-4 Scale — visual and clear */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">
