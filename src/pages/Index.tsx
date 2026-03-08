@@ -9,6 +9,8 @@ import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget"
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
 import { ComplianceStatusHero } from "@/components/widgets/ComplianceStatusHero";
+import { RiskExposureWidget } from "@/components/widgets/RiskExposureWidget";
+import { CoverageWidget } from "@/components/widgets/CoverageWidget";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
