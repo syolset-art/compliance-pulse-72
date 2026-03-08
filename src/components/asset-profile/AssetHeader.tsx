@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
+import { Progress } from "@/components/ui/progress";
+import {
   ExternalLink, 
   Server,
   Building2,
@@ -30,7 +31,11 @@ import {
   Camera,
   Loader2,
   Award,
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
