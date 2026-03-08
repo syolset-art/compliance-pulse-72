@@ -83,19 +83,24 @@ export default function MSPCustomerPortal() {
     return l || MATURITY_LEVELS[0];
   }, [score]);
 
-  const domains = useMemo(() => {
-    const calc = (domain: string) => {
-      const domainReqs = requirements.filter((r) => r.domain === domain);
-      if (domainReqs.length === 0) return 0;
-      const completed = domainReqs.filter((r) => r.status === "completed").length;
-      return Math.round((completed / domainReqs.length) * 100);
-    };
+  const regulationDomains = useMemo(() => {
+    const byReg = stats.byRegulationDomain || {};
     return [
-      { label_no: "Personvern", label_en: "Privacy", percent: calc("privacy") },
-      { label_no: "Sikkerhet", label_en: "Security", percent: calc("security") },
-      { label_no: "AI", label_en: "AI", percent: calc("ai") },
+      { label_no: "Personvern", label_en: "Privacy", percent: (byReg as any)?.privacy?.score || 0 },
+      { label_no: "Sikkerhet", label_en: "Security", percent: (byReg as any)?.security?.score || 0 },
+      { label_no: "AI", label_en: "AI", percent: (byReg as any)?.ai?.score || 0 },
     ];
-  }, [requirements]);
+  }, [stats.byRegulationDomain]);
+
+  const focusAreas = useMemo(() => {
+    const byDomain = stats.byDomainArea || {};
+    return [
+      { label_no: "Governance", label_en: "Governance", percent: (byDomain as any)?.governance?.score || 0 },
+      { label_no: "Operations", label_en: "Operations", percent: (byDomain as any)?.operations?.score || 0 },
+      { label_no: "Identity & Access", label_en: "Identity & Access", percent: (byDomain as any)?.identity_access?.score || 0 },
+      { label_no: "Supplier & Ecosystem", label_en: "Supplier & Ecosystem", percent: (byDomain as any)?.supplier_ecosystem?.score || 0 },
+    ];
+  }, [stats.byDomainArea]);
 
   const incompleteActions = grouped.incompleteManual.slice(0, 3);
 
@@ -169,7 +174,11 @@ export default function MSPCustomerPortal() {
             level={level.key}
             levelLabel_no={level.label_no}
             levelLabel_en={level.label_en}
-            domains={domains}
+            regulationDomains={regulationDomains}
+            focusAreas={focusAreas}
+            assessed={stats.overallScore?.assessed || 0}
+            total={stats.overallScore?.total || 0}
+            avgMaturity={stats.overallScore?.avgMaturity || 0}
           />
           <NextActionCards actions={incompleteActions} />
           <RiskAndCalendarSection requirements={requirements} />

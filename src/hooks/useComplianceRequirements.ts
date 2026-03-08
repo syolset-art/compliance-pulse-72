@@ -11,11 +11,20 @@ import {
   type RequirementDomain
 } from "@/lib/complianceRequirementsData";
 import type { RequirementStatus } from "@/components/compliance/RequirementCard";
+import { 
+  calculateScore, 
+  calculateScoreByFramework, 
+  calculateScoreByDomain,
+  calculateScoreByRegulationDomain,
+  type ScoredRequirement 
+} from "@/lib/scoringEngine";
 
 export interface RequirementWithStatus extends ComplianceRequirement {
   status: RequirementStatus;
   progress_percent: number;
   is_ai_handling: boolean;
+  maturity_level: number;
+  is_relevant: boolean;
   completed_at?: string;
   completed_by?: string;
   evidence_notes?: string;
@@ -47,6 +56,7 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
           status,
           progress_percent,
           is_ai_handling,
+          maturity_level,
           completed_at,
           completed_by,
           evidence_notes,
@@ -103,6 +113,8 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
         status: (status?.status as RequirementStatus) || 'not_started',
         progress_percent: status?.progress_percent || 0,
         is_ai_handling: status?.is_ai_handling || false,
+        maturity_level: (status as any)?.maturity_level ?? 0,
+        is_relevant: true, // default all relevant for now
         completed_at: status?.completed_at || undefined,
         completed_by: status?.completed_by || undefined,
         evidence_notes: status?.evidence_notes || undefined,
@@ -113,7 +125,21 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
     }).filter(req => includeCompleted || req.status !== 'completed');
   }, [frameworkId, domain, includeCompleted, statusData, dbRequirements]);
 
-  // Calculate statistics
+  // Convert to ScoredRequirement format for scoring engine
+  const scoredRequirements = useMemo((): ScoredRequirement[] => {
+    return requirements.map(r => ({
+      requirement_id: r.requirement_id,
+      framework_id: r.framework_id,
+      domain: r.domain,
+      sla_category: r.sla_category,
+      maturity_level: r.maturity_level as 0 | 1 | 2 | 3 | 4,
+      is_relevant: r.is_relevant,
+      weight: 1,
+      has_evidence: !!r.evidence_notes,
+    }));
+  }, [requirements]);
+
+  // Calculate statistics using scoring engine
   const stats = useMemo(() => {
     const total = requirements.length;
     const completed = requirements.filter(r => r.status === 'completed').length;
@@ -140,18 +166,30 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       manual: requirements.filter(r => r.status === 'completed' && r.agent_capability === 'manual').length
     };
 
+    // New scoring engine calculations
+    const overallScore = calculateScore(scoredRequirements);
+    const byFramework = calculateScoreByFramework(scoredRequirements);
+    const byDomainArea = calculateScoreByDomain(scoredRequirements);
+    const byRegulationDomain = calculateScoreByRegulationDomain(scoredRequirements);
+
     return {
       total,
       completed,
       inProgress,
       notStarted,
       aiHandling,
-      progressPercent: total > 0 ? Math.round((completed / total) * 100) : 0,
+      // Legacy: keep progressPercent for backward compat, but now uses maturity-based score
+      progressPercent: overallScore.score,
       byCapability,
       byPriority,
-      completedByCapability
+      completedByCapability,
+      // New scoring data
+      overallScore,
+      byFramework,
+      byDomainArea,
+      byRegulationDomain,
     };
-  }, [requirements]);
+  }, [requirements, scoredRequirements]);
 
   // Update requirement status mutation
   const updateStatus = useMutation({
@@ -161,7 +199,8 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       progressPercent,
       isAiHandling,
       evidenceNotes,
-      completedBy
+      completedBy,
+      maturityLevel
     }: {
       requirementDbId: string;
       status?: RequirementStatus;
@@ -169,6 +208,7 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       isAiHandling?: boolean;
       evidenceNotes?: string;
       completedBy?: string;
+      maturityLevel?: number;
     }) => {
       const updates: Record<string, unknown> = {};
       
@@ -177,9 +217,13 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
       if (isAiHandling !== undefined) updates.is_ai_handling = isAiHandling;
       if (evidenceNotes !== undefined) updates.evidence_notes = evidenceNotes;
       if (completedBy !== undefined) updates.completed_by = completedBy;
+      if (maturityLevel !== undefined) updates.maturity_level = maturityLevel;
       
       if (status === 'completed') {
         updates.completed_at = new Date().toISOString();
+        if (maturityLevel === undefined) updates.maturity_level = 4;
+      } else if (status === 'in_progress' && maturityLevel === undefined) {
+        updates.maturity_level = 2;
       }
 
       // Check if status record exists
