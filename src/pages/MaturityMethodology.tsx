@@ -156,7 +156,7 @@ const MaturityMethodology = () => {
                       </div>
                       <div className="pt-0.5">
                         <p className="text-sm font-semibold text-foreground">{t(item.title_no, item.title_en)}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
+                        <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{t(item.desc_no, item.desc_en)}</p>
                       </div>
                     </div>
                     {idx < arr.length - 1 && (
