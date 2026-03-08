@@ -233,7 +233,7 @@ export function TrustControlsPanel({
         </div>
       </Card>
 
-      {/* ━━━ SCOPE & COVERAGE + SECURITY OVERVIEW ━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ SCOPE & COVERAGE + CONTROL DOMAINS ━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Scope & Coverage */}
         <Card className="p-5 space-y-3">
@@ -271,9 +271,9 @@ export function TrustControlsPanel({
           </p>
         </Card>
 
-        {/* Security Overview */}
+        {/* Control Domains */}
         <Card className="p-5 space-y-3">
-          <h2 className="text-sm font-semibold">{isNb ? "Sikkerhetsoversikt" : "Security Overview"}</h2>
+          <h2 className="text-sm font-semibold">{isNb ? "Kontrollområder" : "Control Domains"}</h2>
           <div className="space-y-2.5">
             {([
               { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
@@ -373,13 +373,13 @@ export function TrustControlsPanel({
             </div>
           </div>
 
-          {/* Framework badges */}
+          {/* Control Domain badges */}
           <div className="flex flex-wrap gap-1.5 mb-2">
             {([
               { area: "governance" as ControlArea, label: "Governance", labelNb: "Styring" },
               { area: "risk_compliance" as ControlArea, label: "Operations", labelNb: "Drift" },
               { area: "security_posture" as ControlArea, label: "Identity & Access", labelNb: "Identitet" },
-              { area: "supplier_governance" as ControlArea, label: "Supplier", labelNb: "Leverandør" },
+              { area: "supplier_governance" as ControlArea, label: "Supplier & Ecosystem", labelNb: "Leverandør" },
             ]).map(({ area, label, labelNb: nb }) => {
               const score = areaScore(area);
               const variant = score >= 75 ? "action" : score >= 40 ? "warning" : score > 0 ? "destructive" : "secondary";
