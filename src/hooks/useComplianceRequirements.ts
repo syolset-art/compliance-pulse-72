@@ -106,6 +106,8 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
         status: (status?.status as RequirementStatus) || 'not_started',
         progress_percent: status?.progress_percent || 0,
         is_ai_handling: status?.is_ai_handling || false,
+        maturity_level: (status as any)?.maturity_level ?? 0,
+        is_relevant: true, // default all relevant for now
         completed_at: status?.completed_at || undefined,
         completed_by: status?.completed_by || undefined,
         evidence_notes: status?.evidence_notes || undefined,
