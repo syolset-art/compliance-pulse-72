@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertTriangle, CheckCircle2, Calendar, ListTodo, Shield, Send, TrendingUp, ShieldCheck, Layers, Target, Clock } from "lucide-react";
-import { CERTIFICATION_PHASES } from "@/lib/certificationPhases";
-import { GOVERNANCE_LEVELS, type GovernanceLevel } from "@/lib/governanceLevelEngine";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface AssetMetricsProps {
   asset: {
