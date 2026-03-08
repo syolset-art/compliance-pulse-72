@@ -179,15 +179,25 @@ export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   });
 
   const getMaturityLabel = () => {
-    return isNb ? "Drift" : "Operational";
+    // Map from scoring engine process step
+    const avgMaturity = complianceScore >= 75 ? 3 : complianceScore >= 50 ? 2 : complianceScore >= 25 ? 1 : 0;
+    if (avgMaturity >= 3) return isNb ? "Drift" : "Operational";
+    if (avgMaturity >= 2) return isNb ? "Implementering" : "Implementing";
+    return isNb ? "Fundament" : "Foundation";
   };
 
   const getGovernanceLevelLabel = () => {
-    return isNb ? "Etablert" : "Established";
+    // In V1, Foundation is derived from compliance coverage
+    // Full Foundation calculation would use FOUNDATION_CONTROLS from scoringEngine
+    const hasBasics = complianceScore >= 30;
+    return hasBasics ? (isNb ? "Etablert" : "Established") : (isNb ? "Pågår" : "In progress");
   };
 
   const getScopeLabel = () => {
-    return isNb ? "Kjernesystemer og leverandører inkludert" : "Core systems and suppliers included";
+    const sys = assetCounts?.systems || 0;
+    const ven = assetCounts?.vendors || 0;
+    if (sys + ven === 0) return isNb ? "Ikke kartlagt ennå" : "Not mapped yet";
+    return isNb ? `${sys} systemer, ${ven} leverandører i scope` : `${sys} systems, ${ven} vendors in scope`;
   };
 
   const getLastUpdated = () => {
