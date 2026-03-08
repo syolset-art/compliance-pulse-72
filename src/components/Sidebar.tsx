@@ -68,6 +68,7 @@ const navigation: { name: string; href: string; icon: typeof LayoutDashboard; hi
 ];
 
 const complianceSecurityMenu = [
+  { name: "nav.maturity", href: "/maturity", icon: Layers },
   { name: "nav.compliance", href: "/compliance", icon: Shield },
   { name: "nav.controls", href: "/controls", icon: CheckCircle2 },
   { name: "nav.complianceCalendar", href: "/compliance-calendar", icon: CalendarDays },
