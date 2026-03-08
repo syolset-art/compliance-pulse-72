@@ -1,54 +1,57 @@
 
 
-## Plan: Oppdater fokusområder til ny 4-delt struktur
+## Plan: Separate Compliance and Controls into dedicated pages
 
-### Nåværende situasjon
-Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
+### Current state
 
-### Nye fokusområder
-Erstatte de 3 kategoriene med 4 nye:
+- **Controls** (`MynderControls`) exists at `/compliance-checklist` and `/resources/controls` — shows the 4-domain control overview (Governance, Operations, Identity & Access, Supplier & Ecosystem)
+- **Compliance** (`ComplianceChecklist`) exists at `/compliance-checklist` route (but currently MynderControls is mounted there) — has framework-based requirement tracking with filters and progress
+- **Regulations** (`/regulations`) — framework activation and management
+- Neither Compliance nor Controls has a dedicated primary sidebar entry
 
-| ID | Navn (NO) | Beskrivelse |
-|----|-----------|-------------|
-| `governance` | Governance | Styring, ansvar og risikostyring |
-| `operations` | Operations | Systemer, prosesser og drift |
-| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
-| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
+### Proposed structure
 
-### Filer som endres
+```text
+Sidebar (new section: "Compliance & Security")
+├── Compliance     → /compliance       (framework compliance status)
+├── Controls       → /controls         (security controls by domain)
+├── Regulations    → /regulations      (framework activation — stays in admin)
+└── Calendar       → /compliance-calendar (stays as-is)
+```
 
-**1. `src/lib/certificationPhases.ts`**
-- Endre `SLACategory` type fra 3 til 4 verdier
-- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
+### Changes
 
-**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
-- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
-  - `organization_governance` → `governance`
-  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
-  - `roles_access` → `identity_access`
-- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
+**1. Sidebar — Add "Compliance & Security" section**
+- Add two new primary nav items: **Compliance** (`/compliance`, Shield icon) and **Controls** (`/controls`, CheckCircle2 icon)
+- Remove `/compliance-calendar` from main nav; group it under this section instead
+- This creates a clear "security home" in the sidebar
 
-**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
-- Utvide fra 3 til 4 kort med nye ikoner og farger
-- Oppdatere `MOCK_TRENDS` med 4 verdier
+**2. New route: `/compliance`**
+- Mount the existing `ComplianceChecklist` page at `/compliance`
+- This is the framework-based view: ISO 27001 requirements, progress headers, agent capabilities, filters
+- Update page title/header to "Compliance Status" to distinguish from controls
 
-**4. `src/components/widgets/SLAWidget.tsx`**
-- Oppdatere `SLA_CATEGORIES` array til 4 verdier
+**3. New route: `/controls`**
+- Mount `MynderControls` at `/controls`
+- This is the domain-based control overview (Governance, Operations, Identity & Access, Supplier & Ecosystem)
+- Keep existing content as-is
 
-**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
-- Oppdatere `slaByCat` referanser til nye kategorier
+**4. Route cleanup in App.tsx**
+- Add `/compliance` → `ComplianceChecklist`
+- Add `/controls` → `MynderControls`
+- Keep `/compliance-checklist` and `/resources/controls` as redirects for backward compatibility
 
-**6. `src/locales/en.json` og `src/locales/nb.json`**
-- Legge til oversettelser for de 4 nye kategorinavnene
+**5. Dashboard links**
+- Update "View maturity details" CTA in `ComplianceStatusHero` to point to `/controls`
+- Update any other internal links referencing the old paths
 
-### Mapping-logikk (forenklet)
-- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
-- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
-- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
-- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
+### What stays the same
+- All page content remains unchanged
+- Regulations page stays in admin submenu
+- Calendar stays at `/compliance-calendar`
 
-### Teknisk detalj
-`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
-
-Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
+### Result
+Users get two clear, distinct pages in the sidebar:
+- **Compliance** = "Are we meeting regulatory requirements?"
+- **Controls** = "What security measures do we have in place?"
 
