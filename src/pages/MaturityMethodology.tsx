@@ -449,34 +449,51 @@ const MaturityMethodology = () => {
             </div>
           </div>
 
-          {/* Your current status */}
+          {/* Your current status — split into two metrics */}
           <Card variant="flat" className="border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-blue-500/5">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {t("Din nåværende modenhet", "Your current maturity")}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <p className="text-sm font-semibold text-foreground">
+                  {t("Din nåværende modenhet", "Your current maturity")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Security Maturity */}
+                <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-background/50 p-4">
+                  <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security Maturity")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {t(
-                        `Basert på ${stats.completed + stats.inProgress} av ${stats.total} kontroller vurdert`,
-                        `Based on ${stats.completed + stats.inProgress} of ${stats.total} controls assessed`
+                        `${stats.completed + stats.inProgress} av ${stats.total} kontroller`,
+                        `${stats.completed + stats.inProgress} of ${stats.total} controls`
                       )}
                     </p>
                   </div>
                 </div>
-                <div className="relative flex items-center justify-center">
-                  <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
-                    <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{progressPercent}%</span>
+
+                {/* Coverage */}
+                <div className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-background/50 p-4">
+                  <div className="h-16 w-16 rounded-full border-4 border-blue-500/30 flex items-center justify-center bg-blue-500/10">
+                    <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{Math.round((stats.total > 0 ? ((stats.completed + stats.inProgress) / stats.total) : 0) * 100)}%</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-foreground">{t("Dekningsgrad", "Coverage")}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("Systemer, leverandører og prosesser kartlagt", "Systems, vendors and processes mapped")}
+                    </p>
                   </div>
                 </div>
               </div>
+
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-3 text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
+                className="w-full text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200"
                 onClick={() => navigate("/resources/controls")}
               >
                 {t("Se alle kontroller →", "View all controls →")}
