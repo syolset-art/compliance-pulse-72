@@ -68,7 +68,13 @@ export function ComplianceChecklistPreview({
   const completedRequirements = requirements.filter(r => r.status === 'completed').length;
   const inProgressRequirements = requirements.filter(r => r.status === 'in_progress').length;
   const aiHandlingCount = requirements.filter(r => r.is_ai_handling).length;
-  const progressPercent = totalRequirements > 0 ? Math.round((completedRequirements / totalRequirements) * 100) : 0;
+  
+  // Score based on maturity levels: avg(maturity_level / 4) * 100
+  const progressPercent = totalRequirements > 0 
+    ? Math.round(
+        requirements.reduce((sum, r) => sum + ((r as any).maturity_level ?? 0) / 4, 0) / totalRequirements * 100
+      ) 
+    : 0;
   
   // Group requirements
   const incompleteManual = requirements
