@@ -53,7 +53,7 @@ const MaturityMethodology = () => {
 
           {/* The Big Idea — 3 simple cards */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
+            <h2 className="text-xl font-bold text-foreground">
               {t("Kort oppsummert", "In a nutshell")}
             </h2>
             <div className="grid gap-3">
