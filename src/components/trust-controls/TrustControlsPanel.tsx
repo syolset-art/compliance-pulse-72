@@ -291,8 +291,7 @@ function ControlRow({ control, isNb }: { control: EvaluatedControl; isNb: boolea
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType,
-  processesCount = 0, systemsCount = 0, vendorsCount = 0,
+  asset, docsCount, relationsCount, overrideType, scope = {},
 }: TrustControlsPanelProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
