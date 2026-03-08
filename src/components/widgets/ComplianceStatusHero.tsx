@@ -176,7 +176,7 @@ export function ComplianceStatusHero({ companyName }: Props) {
 
             {nextStage ? (
               <button
-                onClick={() => navigate(`/compliance?stage=${nextStage.key}`)}
+                onClick={() => navigate(`/maturity?phase=${nextStage.key}`)}
                 className="w-full text-left rounded-lg border border-primary/20 bg-primary/5 p-3 hover:bg-primary/10 hover:border-primary/40 transition-all group cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-1">
