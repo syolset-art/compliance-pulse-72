@@ -47,44 +47,26 @@ export function ComplianceStatusHero({ companyName }: Props) {
       <CardContent className="p-6">
         {/* Top: Score + Stage side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Overall compliance score with explanation */}
+          {/* Left: Security Maturity score */}
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              Overall compliance
+              Security Maturity
             </p>
-            <div className="flex items-baseline gap-3 mb-1">
+            <div className="flex items-baseline gap-3 mb-2">
               <span className="text-4xl font-bold text-foreground">{score}%</span>
-              <span className="text-sm text-muted-foreground">
-                implementation maturity
-              </span>
             </div>
-            <div className="flex items-center gap-2 mb-3">
-              <p className="text-xs text-muted-foreground">
-                Based on {assessed} of {total} controls assessed
-              </p>
-              <Button
-                variant="link"
-                size="sm"
-                className="text-xs text-primary p-0 h-auto"
-                onClick={() => navigate("/compliance-checklist")}
-              >
-                View all controls →
-              </Button>
-            </div>
-            <Progress value={score} className="h-2.5 mb-3" />
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground">What does this mean?</span>{" "}
-              Your score reflects how well your organization has implemented security, privacy and compliance controls. 
-              100% means all controls are verified with documented evidence.{" "}
-              <Button
-                variant="link"
-                size="sm"
-                className="text-xs text-primary p-0 h-auto inline"
-                onClick={() => navigate("/resources?tab=methodology")}
-              >
-                Learn how we calculate maturity
-              </Button>
+            <p className="text-xs text-muted-foreground mb-3">
+              Based on implemented security and governance controls.
             </p>
+            <Progress value={score} className="h-2.5 mb-4" />
+            <Button
+              variant="link"
+              size="sm"
+              className="text-xs text-primary p-0 h-auto"
+              onClick={() => navigate("/resources?tab=methodology")}
+            >
+              View maturity details <ArrowRight className="h-3 w-3 ml-1 inline" />
+            </Button>
           </div>
 
           {/* Right: Current maturity stage + next step */}
@@ -151,21 +133,6 @@ export function ComplianceStatusHero({ companyName }: Props) {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Bottom link */}
-        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Maturity is measured on a 0–4 scale per control: Not started → Planned → Documented → Implemented → Verified
-          </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-primary hover:text-primary/80 shrink-0"
-            onClick={() => navigate("/tasks?view=iso-readiness")}
-          >
-            View full maturity model <ArrowRight className="h-3.5 w-3.5 ml-1" />
-          </Button>
         </div>
       </CardContent>
     </Card>
