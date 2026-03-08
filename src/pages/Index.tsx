@@ -85,6 +85,10 @@ const Index = () => {
           A real-time overview of your organization's security, privacy and compliance.
         </p>
         <ComplianceStatusHero companyName={companyName} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <RiskExposureWidget />
+          <CoverageWidget />
+        </div>
       </div>
 
       {/* 2. AI Activity */}
