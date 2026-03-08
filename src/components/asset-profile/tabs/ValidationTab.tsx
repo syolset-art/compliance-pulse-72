@@ -218,5 +218,6 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
         </Card>
       </div>
     </div>
+    </div>
   );
 };
