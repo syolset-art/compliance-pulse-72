@@ -435,7 +435,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <BarChart3 className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Rapporteringsdimensjoner", "Reporting dimensions")}
                     </span>
                   </div>
