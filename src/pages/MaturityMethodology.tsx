@@ -474,7 +474,7 @@ const MaturityMethodology = () => {
 
           {/* Legal disclaimer — compact */}
           <div className="rounded-xl border border-border/50 bg-muted/20 p-5 space-y-2">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-base font-semibold text-foreground">
               {t("Viktig å vite", "Important to know")}
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
