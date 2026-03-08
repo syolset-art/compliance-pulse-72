@@ -115,6 +115,10 @@ const AssetTrustProfile = () => {
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: isSelf },
   ].filter(t => t.show);
 
+  // Overflow button label
+  const moreLabel = isNb ? "Mer" : "More";
+  ].filter(t => t.show);
+
   const activeOverflowTab = overflowTabDefs.find(t => t.value === activeTab);
 
   if (isLoading) {

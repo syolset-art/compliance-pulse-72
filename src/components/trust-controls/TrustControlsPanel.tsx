@@ -202,11 +202,11 @@ export function TrustControlsPanel({
           </div>
 
           {/* Verification Confidence */}
-          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label={isNb ? "Datakvalitet" : "Data Quality"}>
+          <div className="flex flex-col items-center text-center gap-2" role="group" aria-label={isNb ? "Verifiseringstillit" : "Verification Confidence"}>
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Datakvalitet" : "Data Quality"}
+                {isNb ? "Verifiseringstillit" : "Verification Confidence"}
               </span>
             </div>
             <div className="flex items-center gap-2">
