@@ -1,15 +1,20 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock, Bot, User, Building2, Award, ShieldCheck } from "lucide-react";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
+  type VerificationSource,
+  type TrustProfileMeta,
   GENERIC_CONTROLS,
   getTypeSpecificControls,
   calculateTrustScore,
-  type TrustControlDefinition,
+  calculateConfidenceScore,
+  inferProfileMeta,
+  inferVerificationSource,
 } from "@/lib/trustControlDefinitions";
 
 // ── Status evaluation helpers ────────────────────────────────────────
@@ -34,36 +39,21 @@ interface TrustControlsPanelProps {
   asset: AssetLike;
   docsCount: number;
   relationsCount: number;
-  /** Override type for controls lookup (e.g. pass "system" for SystemTrustProfile) */
   overrideType?: string;
 }
 
-function evaluateGenericControl(
-  key: string,
-  asset: AssetLike,
-  docsCount: number,
-): TrustControlStatus {
+function evaluateGenericControl(key: string, asset: AssetLike, docsCount: number): TrustControlStatus {
   switch (key) {
-    case "owner_assigned":
-      return asset.asset_owner || asset.work_area_id ? "implemented" : "missing";
-    case "responsible_person":
-      return asset.asset_manager ? "implemented" : "missing";
+    case "owner_assigned": return asset.asset_owner || asset.work_area_id ? "implemented" : "missing";
+    case "responsible_person": return asset.asset_manager ? "implemented" : "missing";
     case "description_defined":
-      return asset.description && asset.description.length > 10 ? "implemented"
-        : asset.description ? "partial" : "missing";
-    case "risk_level_defined":
-      return asset.risk_level ? "implemented" : "missing";
-    case "criticality_defined":
-      return asset.criticality ? "implemented" : "missing";
-    case "risk_assessment":
-      // Partial if risk level is set but no formal assessment metadata
-      return asset.risk_level ? "partial" : "missing";
-    case "review_cycle":
-      return asset.next_review_date ? "implemented" : "missing";
-    case "documentation_available":
-      return docsCount >= 3 ? "implemented" : docsCount > 0 ? "partial" : "missing";
-    default:
-      return "missing";
+      return asset.description && asset.description.length > 10 ? "implemented" : asset.description ? "partial" : "missing";
+    case "risk_level_defined": return asset.risk_level ? "implemented" : "missing";
+    case "criticality_defined": return asset.criticality ? "implemented" : "missing";
+    case "risk_assessment": return asset.risk_level ? "partial" : "missing";
+    case "review_cycle": return asset.next_review_date ? "implemented" : "missing";
+    case "documentation_available": return docsCount >= 3 ? "implemented" : docsCount > 0 ? "partial" : "missing";
+    default: return "missing";
   }
 }
 
@@ -127,28 +117,49 @@ const STATUS_CONFIG: Record<TrustControlStatus, { icon: typeof CheckCircle2; col
   missing: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", labelEn: "Missing", labelNb: "Mangler" },
 };
 
-function ControlRow({ control, isNb }: { control: EvaluatedControl; isNb: boolean }) {
-  const cfg = STATUS_CONFIG[control.status];
-  const Icon = cfg.icon;
+const VERIFICATION_LABELS: Record<VerificationSource, { en: string; nb: string; color: string }> = {
+  ai_inferred: { en: "AI inferred", nb: "AI-utledet", color: "text-muted-foreground" },
+  customer_asserted: { en: "Customer asserted", nb: "Kunde bekreftet", color: "text-primary" },
+  vendor_verified: { en: "Vendor verified", nb: "Leverandør verifisert", color: "text-success" },
+  third_party_verified: { en: "Third-party verified", nb: "Tredjepartsverifisert", color: "text-success" },
+};
+
+function VerificationDot({ source, isNb }: { source: VerificationSource; isNb: boolean }) {
+  const cfg = VERIFICATION_LABELS[source];
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={`flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm transition-colors ${cfg.bg}`}>
-            <div className="flex items-center gap-2 min-w-0">
-              <Icon className={`h-4 w-4 shrink-0 ${cfg.color}`} />
-              <span className="truncate">{isNb ? control.labelNb : control.labelEn}</span>
-            </div>
-            <span className={`text-xs font-medium shrink-0 ${cfg.color}`}>
-              {isNb ? cfg.labelNb : cfg.labelEn}
-            </span>
-          </div>
+          <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${
+            source === "vendor_verified" || source === "third_party_verified" ? "bg-success"
+            : source === "customer_asserted" ? "bg-primary"
+            : "bg-muted-foreground/40"
+          }`} />
         </TooltipTrigger>
         <TooltipContent side="top" className="text-xs">
-          {isNb ? control.labelNb : control.labelEn}: {isNb ? cfg.labelNb : cfg.labelEn}
+          {isNb ? cfg.nb : cfg.en}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
+  );
+}
+
+function ControlRow({ control, isNb }: { control: EvaluatedControl; isNb: boolean }) {
+  const cfg = STATUS_CONFIG[control.status];
+  const Icon = cfg.icon;
+  return (
+    <div className={`flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm transition-colors ${cfg.bg}`}>
+      <div className="flex items-center gap-2 min-w-0">
+        <Icon className={`h-4 w-4 shrink-0 ${cfg.color}`} />
+        <span className="truncate">{isNb ? control.labelNb : control.labelEn}</span>
+        {control.verificationSource && (
+          <VerificationDot source={control.verificationSource} isNb={isNb} />
+        )}
+      </div>
+      <span className={`text-xs font-medium shrink-0 ${cfg.color}`}>
+        {isNb ? cfg.labelNb : cfg.labelEn}
+      </span>
+    </div>
   );
 }
 
@@ -161,9 +172,67 @@ function ControlSection({ title, icon: SectionIcon, controls, isNb }: { title: s
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-        {controls.map((c) => (
-          <ControlRow key={c.key} control={c} isNb={isNb} />
-        ))}
+        {controls.map((c) => <ControlRow key={c.key} control={c} isNb={isNb} />)}
+      </div>
+    </div>
+  );
+}
+
+// ── Profile badge ────────────────────────────────────────────────────
+
+function ProfileBadges({ meta, isNb }: { meta: TrustProfileMeta; isNb: boolean }) {
+  const sourceLabels: Record<string, { en: string; nb: string; icon: typeof Bot }> = {
+    ai_generated: { en: "Generated by Mynder AI", nb: "Generert av Mynder AI", icon: Bot },
+    customer_created: { en: "Created by customer", nb: "Opprettet av kunde", icon: User },
+    vendor_claimed: { en: "Verified by vendor", nb: "Verifisert av leverandør", icon: Building2 },
+  };
+
+  const src = sourceLabels[meta.profileSource];
+  const SrcIcon = src.icon;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Badge variant="secondary" className="gap-1.5 text-xs font-normal">
+        <SrcIcon className="h-3 w-3" />
+        {isNb ? src.nb : src.en}
+      </Badge>
+      {meta.contributors.includes("customer") && meta.profileSource !== "customer_created" && (
+        <Badge variant="outline" className="gap-1.5 text-xs font-normal">
+          <User className="h-3 w-3" />
+          {isNb ? "Beriket av kunde" : "Enriched by customer"}
+        </Badge>
+      )}
+      {meta.contributors.includes("vendor") && meta.profileSource !== "vendor_claimed" && (
+        <Badge variant="outline" className="gap-1.5 text-xs font-normal">
+          <Building2 className="h-3 w-3" />
+          {isNb ? "Verifisert av leverandør" : "Verified by vendor"}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+// ── Confidence indicator ─────────────────────────────────────────────
+
+function ConfidenceIndicator({ score, isNb }: { score: number; isNb: boolean }) {
+  const level = score >= 80 ? "high" : score >= 50 ? "medium" : "low";
+  const color = level === "high" ? "text-success" : level === "medium" ? "text-warning" : "text-muted-foreground";
+  const bgColor = level === "high" ? "bg-success/10" : level === "medium" ? "bg-warning/10" : "bg-muted/50";
+  const label = {
+    high: { en: "High confidence", nb: "Høy tillit" },
+    medium: { en: "Medium confidence", nb: "Middels tillit" },
+    low: { en: "Low confidence", nb: "Lav tillit" },
+  }[level];
+
+  return (
+    <div className={`flex items-center gap-2 rounded-lg px-3 py-2 ${bgColor}`}>
+      <ShieldCheck className={`h-4 w-4 ${color}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium">{isNb ? "Verifiseringsgrad" : "Verification confidence"}</span>
+          <span className={`text-xs font-bold ${color}`}>{score}%</span>
+        </div>
+        <p className={`text-[10px] ${color}`}>{isNb ? label.nb : label.en}</p>
       </div>
     </div>
   );
@@ -188,10 +257,13 @@ export function TrustControlsPanel({ asset, docsCount, relationsCount, overrideT
   const isNb = i18n.language === "nb";
   const effectiveType = overrideType || asset.asset_type || "";
 
+  const profileMeta = inferProfileMeta(asset);
+
   // Evaluate generic controls
   const evaluatedGeneric: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
     ...c,
     status: evaluateGenericControl(c.key, asset, docsCount),
+    verificationSource: inferVerificationSource(c.key, asset, docsCount),
   }));
 
   // Evaluate type-specific controls
@@ -199,23 +271,31 @@ export function TrustControlsPanel({ asset, docsCount, relationsCount, overrideT
   const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => ({
     ...c,
     status: evaluateTypeControl(c.key, effectiveType, asset, docsCount),
+    verificationSource: inferVerificationSource(c.key, asset, docsCount),
   }));
 
   const allControls = [...evaluatedGeneric, ...evaluatedType];
   const trustScore = calculateTrustScore(allControls);
+  const confidenceScore = calculateConfidenceScore(allControls);
   const scoreColor = trustScore >= 75 ? "text-success" : trustScore >= 50 ? "text-warning" : trustScore > 0 ? "text-primary" : "text-muted-foreground";
 
   return (
     <Card className="p-5 space-y-5">
+      {/* Profile verification badges */}
+      <ProfileBadges meta={profileMeta} isNb={isNb} />
+
       {/* Trust score header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">{isNb ? "Trust Score" : "Trust Score"}</span>
+          <span className="text-sm font-medium">Trust Score</span>
         </div>
         <span className={`text-2xl font-bold ${scoreColor}`}>{trustScore}%</span>
       </div>
       <Progress value={trustScore} className="h-2" />
+
+      {/* Confidence indicator */}
+      <ConfidenceIndicator score={confidenceScore} isNb={isNb} />
 
       {/* Summary chips */}
       <div className="flex gap-3 text-xs text-muted-foreground">
