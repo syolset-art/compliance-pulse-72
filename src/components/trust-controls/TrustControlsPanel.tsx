@@ -9,6 +9,7 @@ import {
   CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, Lock,
   ShieldCheck, TriangleAlert, Layers, Target, Clock, Eye,
   Server, HardDrive, AppWindow, Network, Building2, GitBranch, BarChart3,
+  BookOpen, Scale,
 } from "lucide-react";
 import {
   type EvaluatedControl,
@@ -236,7 +237,7 @@ export function TrustControlsPanel({
       {/* ━━━ SCOPE & COVERAGE + CONTROL DOMAINS ━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Scope & Coverage */}
-        <Card className="p-5 space-y-3">
+        <Card className="p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold">{isNb ? "Omfang og dekning" : "Scope & Coverage"}</h2>
             <div className="flex items-center gap-1.5" role="group" aria-label={`Coverage ${coveragePercent}%`}>
@@ -247,28 +248,80 @@ export function TrustControlsPanel({
 
           <Progress value={coveragePercent} className="h-1.5" aria-label={`Coverage ${coveragePercent}%`} />
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-            {[
-              { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
-              { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
-              { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
-              { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
-            ].map(item => (
-              <div key={item.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span className="text-muted-foreground text-xs">{item.label}</span>
+          {/* Asset Coverage */}
+          <div className="space-y-1.5">
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Kartlagte ressurser" : "Asset Coverage"}
+            </h3>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+              {[
+                { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
+                { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
+                { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
+                { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <item.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                    <span className="text-muted-foreground text-xs">{item.label}</span>
+                  </div>
+                  <span className="font-semibold text-xs" aria-label={`${item.value} ${item.label}`}>{item.value}</span>
                 </div>
-                <span className="font-semibold text-xs" aria-label={`${item.value} ${item.label}`}>{item.value}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          <p className="text-[10px] text-muted-foreground leading-relaxed pt-1 border-t border-border">
-            {isNb
-              ? "Dekning viser hvor mye av organisasjonens systemer, leverandører og prosesser som er inkludert."
-              : "Coverage shows how much of the organization's systems, vendors and processes are included in this trust profile."}
-          </p>
+          {/* Control Scope */}
+          <div className="space-y-1.5 pt-2 border-t border-border">
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Kontrollomfang" : "Control Scope"}
+            </h3>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+              {([
+                { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
+                { area: "risk_compliance" as ControlArea, icon: Target, label: "Risk & Compliance", labelNb: "Risiko og samsvar" },
+                { area: "security_posture" as ControlArea, icon: Lock, label: "Security Posture", labelNb: "Sikkerhetsstilling" },
+                { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier Governance", labelNb: "Leverandørstyring" },
+              ]).map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
+                const count = grouped[area].length;
+                return (
+                  <div key={area} className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <AreaIcon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                      <span className="text-muted-foreground text-xs">{isNb ? areaNb : label}</span>
+                    </div>
+                    <span className="font-semibold text-xs" aria-label={`${count} controls`}>
+                      {count} {isNb ? "kontroller" : "controls"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Framework Scope */}
+          <div className="space-y-1.5 pt-2 border-t border-border">
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Rammeverk" : "Framework Scope"}
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: "gdpr", label: "GDPR", controls: allControls.filter(c => ["dpa_verified", "sub_processors_disclosed", "owner_assigned", "responsible_person", "documentation_available", "description_defined", "review_cycle", "risk_assessment"].includes(c.key)).length },
+                { id: "iso27001", label: "ISO 27001", controls: allControls.filter(c => ["mfa_enabled", "encryption_enabled", "backup_configured", "security_logging", "device_encryption", "endpoint_protection", "patch_management", "risk_level_defined", "criticality_defined", "risk_assessment", "review_cycle", "security_training"].includes(c.key)).length },
+                { id: "aiact", label: "AI Act", controls: allControls.filter(c => ["documentation_available", "risk_assessment", "responsible_person", "review_cycle"].includes(c.key)).length },
+              ].filter(fw => fw.controls > 0).map(fw => (
+                <Badge key={fw.id} variant="outline" className="text-[9px] gap-1 px-2 py-0.5">
+                  <Scale className="h-2.5 w-2.5" aria-hidden="true" />
+                  {fw.label} – {fw.controls} {isNb ? "kontroller" : "controls"}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              {isNb
+                ? "Rammeverk som er koblet til kontrollene inkludert i Trust Score."
+                : "Frameworks mapped to the controls included in the Trust Score."}
+            </p>
+          </div>
         </Card>
 
         {/* Control Areas */}
