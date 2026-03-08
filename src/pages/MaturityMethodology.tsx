@@ -349,7 +349,7 @@ const MaturityMethodology = () => {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-left">
+                    <span className="text-base font-semibold text-left">
                       {t("Beregning av risikoeksponering", "Risk Exposure calculation")}
                     </span>
                   </div>
