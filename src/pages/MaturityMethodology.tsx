@@ -477,7 +477,7 @@ const MaturityMethodology = () => {
             <p className="text-base font-semibold text-foreground">
               {t("Viktig å vite", "Important to know")}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {t(
                 "Mynder måler implementeringsmodenhet i styringssystemet — ikke juridisk etterlevelse. Dette samsvarer med ISO 27001 (ISMS), ISO 27701 (PIMS) og ISO 42001 (AIMS): vi måler om praksis, styring og kontroll er på plass og kan dokumenteres.",
                 "Mynder measures implementation maturity of your management system — not legal compliance. This aligns with ISO 27001 (ISMS), ISO 27701 (PIMS) and ISO 42001 (AIMS): we measure whether practice, governance and control are in place and can be documented."
