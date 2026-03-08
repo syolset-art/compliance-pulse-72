@@ -27,7 +27,7 @@ interface AssetMetricsProps {
     contact_person?: string | null;
     contact_email?: string | null;
     updated_at?: string | null;
-    metadata?: Record<string, any> | null;
+    metadata?: any;
   };
   tasksCount: number;
 }
