@@ -116,6 +116,7 @@ const App = () => (
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
+                  <Route path="/resources/controls" element={<MynderControls />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/trust-center/products" element={<TrustCenterProducts />} />

@@ -248,6 +248,21 @@ const Resources = () => {
               <p className="text-sm text-muted-foreground mt-1">GDPR, NIS2, ISO 27001 og AI Act</p>
             </button>
 
+            {/* Controls card */}
+            <button
+              onClick={() => navigate("/resources/controls")}
+              className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-3">
+                  <Layers className="h-5 w-5 text-emerald-500" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">Mynder Controls</h3>
+              <p className="text-sm text-muted-foreground mt-1">16 grunnkontroller i 4 domener</p>
+            </button>
+
             {/* Glossary card */}
             <button
               onClick={() => { setActiveTab("glossary"); tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
