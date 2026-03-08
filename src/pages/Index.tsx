@@ -16,8 +16,7 @@ import { AddRoleDialog } from "@/components/dialogs/AddRoleDialog";
 import { QualityModuleActivationWizard } from "@/components/quality/QualityModuleActivationWizard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Shield } from "lucide-react";
 import { Shield } from "lucide-react";
 
 const Index = () => {
