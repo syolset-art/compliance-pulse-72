@@ -31,21 +31,6 @@ interface AssetMetricsProps {
   tasksCount: number;
 }
 
-// Each criterion contributes points — total = 100%
-const COMPLIANCE_CRITERIA = [
-  { key: "owner", points: 15, labelNb: "Eier tilordnet", labelEn: "Owner assigned" },
-  { key: "manager", points: 10, labelNb: "Ansvarlig person", labelEn: "Responsible person" },
-  { key: "description", points: 5, labelNb: "Beskrivelse utfylt", labelEn: "Description filled" },
-  { key: "risk_level", points: 10, labelNb: "Risikonivå satt", labelEn: "Risk level set" },
-  { key: "criticality", points: 5, labelNb: "Kritikalitet satt", labelEn: "Criticality set" },
-  { key: "gdpr_role", points: 10, labelNb: "GDPR-rolle definert", labelEn: "GDPR role defined" },
-  { key: "contact", points: 5, labelNb: "Kontaktperson", labelEn: "Contact person" },
-  { key: "review_date", points: 5, labelNb: "Neste gjennomgang", labelEn: "Next review date" },
-  { key: "documents", points: 25, labelNb: "Dokumenter lastet opp", labelEn: "Documents uploaded" },
-  { key: "relations", points: 10, labelNb: "Relasjoner definert", labelEn: "Relations defined" },
-];
-
-const TOTAL_POINTS = COMPLIANCE_CRITERIA.reduce((s, c) => s + c.points, 0);
 
 export function AssetMetrics({ asset, tasksCount }: AssetMetricsProps) {
   const { t, i18n } = useTranslation();
