@@ -2,12 +2,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Zap, Flame, TrendingUp } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-
-interface DomainScore {
-  label_no: string;
-  label_en: string;
-  percent: number;
-}
+import type { ScoreResult } from "@/lib/scoringEngine";
 
 interface ComplianceShieldProps {
   score: number;
@@ -16,7 +11,11 @@ interface ComplianceShieldProps {
   level: string;
   levelLabel_no: string;
   levelLabel_en: string;
-  domains: DomainScore[];
+  regulationDomains: { label_no: string; label_en: string; percent: number }[];
+  focusAreas: { label_no: string; label_en: string; percent: number }[];
+  assessed: number;
+  total: number;
+  avgMaturity: number;
 }
 
 function getShieldColor(score: number) {
@@ -33,7 +32,10 @@ function getMessage(score: number, isNorwegian: boolean) {
   return isNorwegian ? "Viktige mangler" : "Critical gaps";
 }
 
-export function ComplianceShield({ score, xp, streak, level, levelLabel_no, levelLabel_en, domains }: ComplianceShieldProps) {
+export function ComplianceShield({ 
+  score, xp, streak, level, levelLabel_no, levelLabel_en, 
+  regulationDomains, focusAreas, assessed, total, avgMaturity 
+}: ComplianceShieldProps) {
   const { i18n } = useTranslation();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
   const colors = getShieldColor(score);
@@ -70,6 +72,12 @@ export function ComplianceShield({ score, xp, streak, level, levelLabel_no, leve
         {/* Info */}
         <div className="flex-1 space-y-2">
           <h2 className={cn("text-xl font-bold", colors.text)}>{message}</h2>
+          <p className="text-xs text-muted-foreground">
+            {isNorwegian 
+              ? `${assessed}/${total} krav vurdert · Snitt modenhet ${avgMaturity}/4`
+              : `${assessed}/${total} assessed · Avg maturity ${avgMaturity}/4`
+            }
+          </p>
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold">
               <TrendingUp className="h-3 w-3" />
@@ -89,17 +97,43 @@ export function ComplianceShield({ score, xp, streak, level, levelLabel_no, leve
         </div>
       </div>
 
-      {/* Domain pillars */}
-      <div className="grid grid-cols-3 gap-3">
-        {domains.map((d) => (
-          <div key={d.label_en} className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-foreground">{isNorwegian ? d.label_no : d.label_en}</span>
-              <span className="text-muted-foreground">{d.percent}%</span>
-            </div>
-            <Progress value={d.percent} className="h-1.5" />
+      {/* Two dimension grids */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Per regulation domain */}
+        <div className="space-y-2">
+          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNorwegian ? "Per regelverk" : "By regulation"}
+          </h3>
+          <div className="space-y-2">
+            {regulationDomains.map((d) => (
+              <div key={d.label_en} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground">{isNorwegian ? d.label_no : d.label_en}</span>
+                  <span className="text-muted-foreground">{d.percent}%</span>
+                </div>
+                <Progress value={d.percent} className="h-1.5" />
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Per focus area (domain) */}
+        <div className="space-y-2">
+          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNorwegian ? "Per fokusområde" : "By focus area"}
+          </h3>
+          <div className="space-y-2">
+            {focusAreas.map((d) => (
+              <div key={d.label_en} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-foreground">{isNorwegian ? d.label_no : d.label_en}</span>
+                  <span className="text-muted-foreground">{d.percent}%</span>
+                </div>
+                <Progress value={d.percent} className="h-1.5" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
