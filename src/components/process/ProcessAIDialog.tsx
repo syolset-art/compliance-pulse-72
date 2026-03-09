@@ -412,6 +412,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           existingPurpose: aiPurpose || undefined,
           systemNames: systemNames.length > 0 ? systemNames : undefined,
           aiFeatures: selectedFeatureNames.length > 0 ? selectedFeatureNames : undefined,
+          language: i18n.language,
         },
       });
 
