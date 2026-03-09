@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
@@ -11,6 +11,7 @@ import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { CriticalDependenciesWidget } from "@/components/widgets/CriticalDependenciesWidget";
 import { DashboardWidgetToggle } from "@/components/dashboard/DashboardWidgetToggle";
+import { DashboardGrid, DashboardTile, TileSize } from "@/components/dashboard/DashboardGrid";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
@@ -19,36 +20,55 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ListTodo, Cpu } from "lucide-react";
+import { AlertTriangle, ListTodo, Cpu, LayoutGrid, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// Widget registry for toggle
-const WIDGET_REGISTRY = [
-  { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention" },
-  { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions" },
-  { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes" },
-  { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies" },
-  { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity" },
-  { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests" },
-  { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs" },
-  { id: "environment", label: "Ditt miljø", labelEn: "Your environment" },
-  { id: "nis2", label: "NIS2-beredskap", labelEn: "NIS2 readiness" },
+// Widget definitions with size and component mapping
+const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
+  { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "half" },
+  { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "half" },
+  { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
+  { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
+  { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
+  { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs", size: "half" },
+  { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests", size: "half" },
+  { id: "environment", label: "Ditt miljø", labelEn: "Your environment", size: "full" },
+  { id: "nis2", label: "NIS2-beredskap", labelEn: "NIS2 readiness", size: "full" },
 ];
 
+const DEFAULT_ORDER = WIDGET_DEFS.map(w => w.id);
 const HIDDEN_KEY = "mynder_dashboard_hidden_widgets";
+const ORDER_KEY = "mynder_dashboard_widget_order";
 
-function getHiddenWidgets(): string[] {
+function loadFromStorage<T>(key: string, fallback: T): T {
   try {
-    const stored = localStorage.getItem(HIDDEN_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch { return []; }
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch { return fallback; }
 }
+
+// Widget component map
+const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
+  "immediate-attention": <ImmediateAttentionWidget />,
+  "user-actions": <UserActionsWidget />,
+  "critical-processes": <CriticalProcessesWidget />,
+  "ai-dependencies": <CriticalDependenciesWidget />,
+  "ai-activity": <AIActivityWidget />,
+  "ai-docs": <AIGeneratedDocsWidget />,
+  "vendor-requests": <VendorRequestsWidget />,
+  "environment": <EnvironmentOverviewWidget />,
+  "nis2": <NIS2ReadinessWidget />,
+};
 
 const Index = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
 
-  const [hiddenWidgets, setHiddenWidgets] = useState<string[]>(getHiddenWidgets);
+  const [hiddenWidgets, setHiddenWidgets] = useState<string[]>(() => loadFromStorage(HIDDEN_KEY, []));
+  const [widgetOrder, setWidgetOrder] = useState<string[]>(() => loadFromStorage(ORDER_KEY, DEFAULT_ORDER));
+  const [editMode, setEditMode] = useState(false);
+
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
@@ -68,7 +88,6 @@ const Index = () => {
       const { data: companyData } = await supabase
         .from("company_profile").select("name").limit(1).maybeSingle();
       if (companyData?.name) setCompanyName(companyData.name);
-
       const { data: templates } = await supabase
         .from("asset_type_templates")
         .select("asset_type, display_name, display_name_plural, icon, color");
@@ -77,26 +96,47 @@ const Index = () => {
     fetchData();
   }, []);
 
+  // Ensure order contains all widget IDs (in case new ones added)
+  const normalizedOrder = useMemo(() => {
+    const missing = DEFAULT_ORDER.filter(id => !widgetOrder.includes(id));
+    return [...widgetOrder, ...missing];
+  }, [widgetOrder]);
+
   const toggleWidget = (id: string, visible: boolean) => {
     const next = visible ? hiddenWidgets.filter(w => w !== id) : [...hiddenWidgets, id];
     setHiddenWidgets(next);
     localStorage.setItem(HIDDEN_KEY, JSON.stringify(next));
   };
 
-  const resetWidgets = () => {
-    setHiddenWidgets([]);
-    localStorage.removeItem(HIDDEN_KEY);
+  const hideWidget = (id: string) => {
+    toggleWidget(id, false);
   };
 
-  const show = (id: string) => !hiddenWidgets.includes(id);
+  const resetWidgets = () => {
+    setHiddenWidgets([]);
+    setWidgetOrder(DEFAULT_ORDER);
+    localStorage.removeItem(HIDDEN_KEY);
+    localStorage.removeItem(ORDER_KEY);
+  };
 
-  const widgetToggles = WIDGET_REGISTRY.map(w => ({
+  const handleReorder = (newOrder: string[]) => {
+    setWidgetOrder(newOrder);
+    localStorage.setItem(ORDER_KEY, JSON.stringify(newOrder));
+  };
+
+  const widgetToggles = WIDGET_DEFS.map(w => ({
     id: w.id,
     label: isNb ? w.label : w.labelEn,
-    visible: show(w.id),
+    visible: !hiddenWidgets.includes(w.id),
   }));
 
-  // Quick summary counts (mock)
+  const tiles: DashboardTile[] = WIDGET_DEFS.map(w => ({
+    id: w.id,
+    label: isNb ? w.label : w.labelEn,
+    size: w.size,
+    component: WIDGET_COMPONENTS[w.id],
+  }));
+
   const summaryItems = [
     { icon: AlertTriangle, label: isNb ? "Åpne hendelser" : "Open incidents", count: 3, color: "text-destructive" },
     { icon: ListTodo, label: isNb ? "Ventende oppgaver" : "Pending tasks", count: 8, color: "text-warning" },
@@ -105,74 +145,61 @@ const Index = () => {
 
   const dashboardContent = (
     <>
-      {/* Header with greeting + toggle */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           {isNb ? `Hei${companyName ? `, ${companyName}` : ""}` : `Hi${companyName ? `, ${companyName}` : ""}`}
         </h1>
-        <DashboardWidgetToggle widgets={widgetToggles} onToggle={toggleWidget} onReset={resetWidgets} />
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant={editMode ? "default" : "ghost"}
+            size="sm"
+            className="gap-1.5 h-8 text-xs"
+            onClick={() => setEditMode(!editMode)}
+          >
+            {editMode ? (
+              <><Check className="h-3.5 w-3.5" />{isNb ? "Ferdig" : "Done"}</>
+            ) : (
+              <><LayoutGrid className="h-3.5 w-3.5" />{isNb ? "Tilpass" : "Customize"}</>
+            )}
+          </Button>
+          <DashboardWidgetToggle widgets={widgetToggles} onToggle={toggleWidget} onReset={resetWidgets} />
+        </div>
       </div>
       <p className="text-sm text-muted-foreground mb-5">
-        {isNb ? "Her er det som trenger din oppmerksomhet." : "Here's what needs your attention."}
+        {isNb
+          ? editMode
+            ? "Dra flisene for å endre rekkefølge, eller fjern de du ikke trenger."
+            : "Her er det som trenger din oppmerksomhet."
+          : editMode
+            ? "Drag tiles to reorder, or remove the ones you don't need."
+            : "Here's what needs your attention."}
       </p>
 
       {/* Quick summary row */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {summaryItems.map(item => (
-          <div key={item.label} className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-3">
-            <item.icon className={`h-4 w-4 ${item.color}`} />
-            <div>
-              <p className="text-lg font-bold text-foreground leading-none">{item.count}</p>
-              <p className="text-[11px] text-muted-foreground">{item.label}</p>
+      {!editMode && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {summaryItems.map(item => (
+            <div key={item.label} className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-3">
+              <item.icon className={`h-4 w-4 ${item.color}`} />
+              <div>
+                <p className="text-lg font-bold text-foreground leading-none">{item.count}</p>
+                <p className="text-[11px] text-muted-foreground">{item.label}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* 1. Immediate attention + Your actions */}
-      {(show("immediate-attention") || show("user-actions")) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          {show("immediate-attention") && <ImmediateAttentionWidget />}
-          {show("user-actions") && <UserActionsWidget />}
+          ))}
         </div>
       )}
 
-      {/* 2. Critical processes + AI Act dependencies */}
-      {(show("critical-processes") || show("ai-dependencies")) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          {show("critical-processes") && <CriticalProcessesWidget />}
-          {show("ai-dependencies") && <CriticalDependenciesWidget />}
-        </div>
-      )}
-
-      {/* 3. AI Activity */}
-      {show("ai-activity") && (
-        <div className="mb-6">
-          <AIActivityWidget />
-        </div>
-      )}
-
-      {/* 4. AI-generated docs + Vendor requests */}
-      {(show("ai-docs") || show("vendor-requests")) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          {show("ai-docs") && <AIGeneratedDocsWidget />}
-          {show("vendor-requests") && <VendorRequestsWidget />}
-        </div>
-      )}
-
-      {/* 5. Your environment */}
-      {show("environment") && (
-        <div className="mb-6">
-          <EnvironmentOverviewWidget />
-        </div>
-      )}
-
-      {/* 6. NIS2 readiness */}
-      {show("nis2") && (
-        <div className="mb-6">
-          <NIS2ReadinessWidget />
-        </div>
-      )}
+      {/* Widget grid */}
+      <DashboardGrid
+        tiles={tiles}
+        order={normalizedOrder}
+        hiddenIds={hiddenWidgets}
+        onReorder={handleReorder}
+        onHide={hideWidget}
+        editMode={editMode}
+      />
     </>
   );
 
