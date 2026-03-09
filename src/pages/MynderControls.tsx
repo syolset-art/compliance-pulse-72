@@ -267,40 +267,61 @@ const MynderControls = () => {
           </div>
 
           {/* E. Framework Mapping */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground">
-              {t("Rammeverk-kartlegging", "Framework Mapping")}
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {t(
-                "Mynders kontroller er mappet mot flere rammeverk. Du jobber med én operasjonell kontrollmodell — og dekker samtidig krav fra flere regelverk.",
-                "Mynder's controls are mapped to multiple frameworks. You work with one operational control model — while covering requirements from multiple regulations."
-              )}
-            </p>
-            <div className="flex items-center justify-center gap-4 py-4">
-              <div className="flex flex-col items-center gap-2">
-                <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Layers className="h-7 w-7 text-primary" />
-                </div>
-                <p className="text-xs font-semibold text-foreground">{t("Mynder Controls", "Mynder Controls")}</p>
-              </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground/50" />
-              <div className="flex flex-wrap gap-2">
-                {FRAMEWORKS.map((fw) => (
-                  <Badge key={fw.name} variant="outline" className={`text-sm px-3 py-1 ${fw.color}`}>
-                    {fw.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-foreground">
+                {t("Rammeverk-kartlegging", "Framework Mapping")}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                 {t(
-                  "Organisasjonen jobber med én kontrollmodell i stedet for separate sjekklister per rammeverk.",
-                  "The organization works with one control model instead of separate checklists per framework."
+                  "Du jobber med én operasjonell kontrollmodell — og dekker samtidig krav fra flere regelverk. Mynder mapper kontrollene automatisk slik at du slipper dobbeltarbeid.",
+                  "Work with one operational control model — while covering requirements from multiple regulations. Mynder maps controls automatically so you avoid duplicate effort."
                 )}
               </p>
             </div>
+
+            <Card variant="flat" className="overflow-hidden border-border/60">
+              <CardContent className="p-0">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+                  {/* Left: Mynder Controls */}
+                  <div className="flex flex-col items-center justify-center gap-3 p-6 bg-primary/[0.03]">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                      <Layers className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-foreground">Mynder Controls</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {t("Én kontrollmodell", "One control model")}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Center: Arrow connector */}
+                  <div className="flex flex-col items-center gap-1 px-2">
+                    <div className="h-px w-8 bg-border" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground/40" />
+                    <div className="h-px w-8 bg-border" />
+                  </div>
+
+                  {/* Right: Frameworks */}
+                  <div className="flex flex-col gap-2 p-6">
+                    {FRAMEWORKS.map((fw) => (
+                      <div key={fw.name} className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 ${fw.color}`}>
+                        <Shield className="h-3.5 w-3.5 shrink-0" />
+                        <span className="text-sm font-medium">{fw.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <p className="text-xs text-muted-foreground leading-relaxed px-1">
+              {t(
+                "Organisasjonen jobber med én kontrollmodell i stedet for separate sjekklister per rammeverk — noe som reduserer duplisering og gir bedre oversikt.",
+                "The organization works with one control model instead of separate checklists per framework — reducing duplication and providing better oversight."
+              )}
+            </p>
           </div>
 
           {/* F. What comes next */}
