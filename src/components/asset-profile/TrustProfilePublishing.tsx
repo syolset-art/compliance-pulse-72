@@ -83,9 +83,9 @@ export const TrustProfilePublishing = ({
   return (
     <Card className="border border-border bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">Trust Profil</CardTitle>
+        <CardTitle className="text-lg font-semibold">Trust Profile</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Administrer din Trust Profil og velg hvem som kan se den.
+          {isNb ? "Administrer din Trust Profil og velg hvem som kan se den." : "Manage your Trust Profile and choose who can view it."}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
