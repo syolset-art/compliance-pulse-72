@@ -97,7 +97,7 @@ export const ProcessAIDialog = ({
   workAreaId,
   systemId,
 }: ProcessAIDialogProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
   
