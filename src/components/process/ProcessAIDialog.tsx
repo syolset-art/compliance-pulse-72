@@ -425,7 +425,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
       }
     } catch (e) {
       console.error('suggest-ai-purpose error:', e);
-      toast.error('Kunne ikke generere forslag. Prøv igjen.');
+      toast.error(i18n.language === 'nb' ? 'Kunne ikke generere forslag. Prøv igjen.' : 'Could not generate suggestion. Please try again.');
     } finally {
       setIsGeneratingPurpose(false);
     }
