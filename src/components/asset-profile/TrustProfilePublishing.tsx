@@ -129,7 +129,7 @@ export const TrustProfilePublishing = ({
         {isPublished && (
           <fieldset className="space-y-4">
             <legend className="text-sm font-medium mb-2">
-              Publiseringsinnstillinger
+              {isNb ? "Publiseringsinnstillinger" : "Publishing settings"}
             </legend>
 
             <RadioGroup
