@@ -30,6 +30,7 @@ export const TrustProfilePublishing = ({
     initialCustomers || []
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     setIsPublished(initialMode !== "private");
