@@ -33,20 +33,18 @@ export function UserActionsWidget() {
   const actions = [
     ...grouped.incompleteManual
       .filter((r) => r.priority === "high" || r.priority === "critical")
-      .slice(0, 3)
+      .slice(0, 2)
       .map((r) => ({
         id: `req-${r.requirement_id}`,
         title: r.name,
-        subtitle: r.description || "Compliance action",
         route: "/compliance-checklist",
       })),
-    ...pendingTasks.slice(0, 2).map((t) => ({
+    ...pendingTasks.slice(0, 1).map((t) => ({
       id: `task-${t.id}`,
       title: t.title,
-      subtitle: "Pending task",
       route: "/tasks",
     })),
-  ].slice(0, 5);
+  ].slice(0, 3);
 
   return (
     <Card>
