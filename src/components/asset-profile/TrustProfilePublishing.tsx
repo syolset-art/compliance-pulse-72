@@ -23,6 +23,8 @@ export const TrustProfilePublishing = ({
   publishMode: initialMode,
   publishToCustomers: initialCustomers,
 }: TrustProfilePublishingProps) => {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const [isPublished, setIsPublished] = useState(initialMode !== "private");
   const [audience, setAudience] = useState<string>(
     initialMode === "all" ? "all" : "selected"
