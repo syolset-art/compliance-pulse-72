@@ -106,12 +106,14 @@ export const TrustProfilePublishing = ({
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">
-              {isPublished ? "Profilen er publisert" : "Profilen er privat"}
+              {isPublished
+                ? (isNb ? "Profilen er publisert" : "Profile is published")
+                : (isNb ? "Profilen er privat" : "Profile is private")}
             </p>
             <p className="text-xs text-muted-foreground">
               {isPublished
-                ? "Profilen er synlig for valgte kunder."
-                : "Ingen kunder kan se profilen din ennå."}
+                ? (isNb ? "Profilen er synlig for valgte kunder." : "The profile is visible to selected customers.")
+                : (isNb ? "Ingen kunder kan se profilen din ennå." : "No customers can see your profile yet.")}
             </p>
           </div>
           <div className="shrink-0">
