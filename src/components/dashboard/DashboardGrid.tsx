@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, ReactNode } from "react";
 import { GripVertical, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type TileSize = "half" | "full";
+export type TileSize = "half" | "full" | "compact";
 
 export interface DashboardTile {
   id: string;
@@ -20,12 +20,17 @@ interface DashboardGridProps {
   editMode: boolean;
 }
 
+const TILE_HEIGHT: Record<TileSize, string> = {
+  compact: "h-[200px]",
+  half: "h-[320px]",
+  full: "h-[320px]",
+};
+
 export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, editMode }: DashboardGridProps) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const dragNode = useRef<HTMLDivElement | null>(null);
 
-  // Sort tiles by order, filter hidden
   const visibleTiles = order
     .filter(id => !hiddenIds.includes(id))
     .map(id => tiles.find(t => t.id === id))
@@ -35,7 +40,6 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
     setDragId(id);
     dragNode.current = e.currentTarget;
     e.dataTransfer.effectAllowed = "move";
-    // Make drag image semi-transparent
     requestAnimationFrame(() => {
       if (dragNode.current) dragNode.current.style.opacity = "0.4";
     });
@@ -49,10 +53,8 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
       const toIdx = currentOrder.indexOf(overId);
       if (fromIdx !== -1 && toIdx !== -1) {
         const newOrder = [...order];
-        // Remove dragId from its position in the full order
         const fullFrom = newOrder.indexOf(dragId);
         newOrder.splice(fullFrom, 1);
-        // Insert at the position of overId
         const fullTo = newOrder.indexOf(overId);
         newOrder.splice(toIdx > fromIdx ? fullTo + 1 : fullTo, 0, dragId);
         onReorder(newOrder);
@@ -80,6 +82,7 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
             className={cn(
               "relative transition-all duration-200 rounded-xl",
               tile.size === "full" && "lg:col-span-2",
+              TILE_HEIGHT[tile.size],
               editMode && "ring-1 ring-dashed ring-border",
               isBeingDragged && "opacity-40",
               isDropTarget && "ring-2 ring-primary ring-dashed",
@@ -90,7 +93,6 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
             onDragOver={(e) => handleDragOver(e, tile.id)}
             onDragLeave={() => setOverId(null)}
           >
-            {/* Edit mode overlay with drag handle + dismiss */}
             {editMode && (
               <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                 <div className="flex items-center gap-0.5 rounded-md bg-muted/90 backdrop-blur-sm px-1.5 py-1 cursor-grab active:cursor-grabbing">
@@ -107,7 +109,9 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
                 </button>
               </div>
             )}
-            {tile.component}
+            <div className="h-full overflow-hidden rounded-xl [&>*]:h-full [&>*]:flex [&>*]:flex-col [&>*]:overflow-hidden">
+              {tile.component}
+            </div>
           </div>
         );
       })}
