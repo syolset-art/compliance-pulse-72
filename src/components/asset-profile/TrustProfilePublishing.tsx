@@ -74,9 +74,9 @@ export const TrustProfilePublishing = ({
 
     setIsSaving(false);
     if (error) {
-      toast.error("Kunne ikke lagre endringer");
+      toast.error(isNb ? "Kunne ikke lagre endringer" : "Could not save changes");
     } else {
-      toast.success("Publiseringsinnstillinger lagret");
+      toast.success(isNb ? "Publiseringsinnstillinger lagret" : "Publishing settings saved");
     }
   };
 
