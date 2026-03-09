@@ -176,7 +176,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
 
     try {
       const { data, error } = await supabase.functions.invoke("suggest-processes", {
-        body: { work_area_id: workAreaId },
+        body: { work_area_id: workAreaId, language: i18n.language },
       });
 
       if (error) throw error;
