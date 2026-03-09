@@ -18,7 +18,7 @@ interface ProcessListProps {
 }
 
 export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: ProcessListProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
