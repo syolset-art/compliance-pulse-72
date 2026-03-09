@@ -151,7 +151,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
   const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => ({
     ...c,
     status: evaluateTypeControl(c.key, effectiveType, asset, docsCount),
-    verificationSource: inferVerificationSource(c.key, asset, docsCount),
+    verificationSource: inferVerificationSource(c.key, asset as any, docsCount),
   }));
   const allControls = [...evaluatedGeneric, ...evaluatedType];
   const trustScore = calculateTrustScore(allControls);
