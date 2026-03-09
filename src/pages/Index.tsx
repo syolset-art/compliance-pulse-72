@@ -25,8 +25,8 @@ import { Button } from "@/components/ui/button";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
-  { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "half" },
-  { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "half" },
+  { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "compact" },
+  { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "compact" },
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
   { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
   { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
