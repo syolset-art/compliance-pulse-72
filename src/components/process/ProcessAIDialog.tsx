@@ -456,12 +456,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           }));
         if (newFeatures.length > 0) {
           setAiFeatures(prev => [...prev, ...newFeatures]);
-          toast.success(`Lara foreslo ${newFeatures.length} AI-funksjoner`);
+          toast.success(i18n.language === 'nb'
+            ? `Lara foreslo ${newFeatures.length} AI-funksjoner`
+            : `Lara suggested ${newFeatures.length} AI features`);
         } else {
-          toast.info('Ingen nye forslag – alle er allerede i listen');
+          toast.info(i18n.language === 'nb' ? 'Ingen nye forslag – alle er allerede i listen' : 'No new suggestions – all are already in the list');
         }
       } else {
-        toast.error('Ingen forslag mottatt. Legg til manuelt nedenfor.');
+        toast.error(i18n.language === 'nb' ? 'Ingen forslag mottatt. Legg til manuelt nedenfor.' : 'No suggestions received. Add manually below.');
       }
     } catch (e) {
       console.error('suggest-ai-features error:', e);
