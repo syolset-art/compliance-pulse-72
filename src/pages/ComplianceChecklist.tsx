@@ -222,6 +222,9 @@ export default function ComplianceChecklist() {
                 <CertificationJourney completedPercent={overallStats.percent} />
               </Card>
 
+              {/* Coverage overview */}
+              <CoverageWidget />
+
               {/* SLA Category Breakdown */}
               <SLACategoryBreakdown requirements={requirements} />
 
