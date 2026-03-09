@@ -382,22 +382,19 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                   </div>
                 </div>
               ) : (
-                <div className="group flex items-start gap-2">
+              <button
+                  onClick={() => { setDescValue(asset.description || ""); setEditingDesc(true); }}
+                  className="flex items-start gap-2 w-full text-left rounded-md p-1.5 -m-1.5 hover:bg-muted/50 transition-colors cursor-pointer group"
+                >
                   {asset.description ? (
                     <p className="text-sm text-muted-foreground flex-1 leading-relaxed">{asset.description}</p>
                   ) : (
                     <p className="text-sm text-muted-foreground/50 italic flex-1">
-                      {isNb ? "Legg til en beskrivelse av virksomheten..." : "Add a company description..."}
+                      {isNb ? "Klikk for å legge til en beskrivelse av virksomheten..." : "Click to add a company description..."}
                     </p>
                   )}
-                  <button
-                    onClick={() => { setDescValue(asset.description || ""); setEditingDesc(true); }}
-                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded-md"
-                    title={isNb ? "Rediger beskrivelse" : "Edit description"}
-                  >
-                    <Pencil className="h-3 w-3 text-muted-foreground" />
-                  </button>
-                </div>
+                  <Pencil className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </button>
               )}
             </div>
           ) : (
