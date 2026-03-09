@@ -440,6 +440,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           processName,
           purpose: aiPurpose || undefined,
           systemNames: systemNames.length > 0 ? systemNames : undefined,
+          language: i18n.language,
         },
       });
 
