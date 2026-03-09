@@ -199,18 +199,18 @@ export const TrustProfilePublishing = ({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil" onClick={() => setPreviewOpen(true)}>
+          <Button variant="outline" size="sm" aria-label={isNb ? "Forhåndsvis Trust Profil" : "Preview Trust Profile"} onClick={() => setPreviewOpen(true)}>
             <Eye className="h-4 w-4 mr-1.5" />
-            Vis Trust Profil
+            {isNb ? "Vis Trust Profil" : "View Trust Profile"}
           </Button>
           <Button
             size="sm"
             onClick={handleSave}
             disabled={isSaving}
-            aria-label="Lagre publiseringsinnstillinger"
+            aria-label={isNb ? "Lagre publiseringsinnstillinger" : "Save publishing settings"}
           >
             <Save className="h-4 w-4 mr-1.5" />
-            {isSaving ? "Lagrer..." : "Lagre endringer"}
+            {isSaving ? (isNb ? "Lagrer..." : "Saving...") : (isNb ? "Lagre endringer" : "Save changes")}
           </Button>
         </div>
       </CardContent>
