@@ -33,70 +33,54 @@ export function UserActionsWidget() {
   const actions = [
     ...grouped.incompleteManual
       .filter((r) => r.priority === "high" || r.priority === "critical")
-      .slice(0, 3)
+      .slice(0, 2)
       .map((r) => ({
         id: `req-${r.requirement_id}`,
         title: r.name,
-        subtitle: r.description || "Compliance action",
         route: "/compliance-checklist",
       })),
-    ...pendingTasks.slice(0, 2).map((t) => ({
+    ...pendingTasks.slice(0, 1).map((t) => ({
       id: `task-${t.id}`,
       title: t.title,
-      subtitle: "Pending task",
       route: "/tasks",
     })),
-  ].slice(0, 5);
+  ].slice(0, 3);
 
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-primary" />
-            Your actions required
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4 text-primary" />
+            Your actions
           </CardTitle>
-          <Badge variant="outline" className="text-xs">
-            {actions.length} pending
+          <Badge variant="outline" className="text-[10px] h-5">
+            {actions.length}
           </Badge>
         </div>
-        <p className="text-xs text-muted-foreground">To improve compliance</p>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-1.5 px-4 pb-3 pt-0">
         {actions.length === 0 ? (
-          <div className="text-center py-6 text-muted-foreground">
-            <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-40" />
-            <p className="text-sm font-medium">All caught up!</p>
+          <div className="text-center py-4 text-muted-foreground">
+            <CheckCircle2 className="h-6 w-6 mx-auto mb-1 opacity-40" />
+            <p className="text-xs font-medium">All caught up!</p>
           </div>
         ) : (
-          <>
-            {actions.map((action, i) => (
-              <button
-                key={action.id}
-                onClick={() => navigate(action.route)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
-                  {i + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                    {action.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">{action.subtitle}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0" />
-              </button>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-muted-foreground hover:text-foreground mt-1"
-              onClick={() => navigate("/tasks")}
+          actions.map((action, i) => (
+            <button
+              key={action.id}
+              onClick={() => navigate(action.route)}
+              className="w-full flex items-center gap-2.5 p-2 rounded-lg border border-border hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
             >
-              View all actions <ArrowRight className="h-3.5 w-3.5 ml-1" />
-            </Button>
-          </>
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold shrink-0">
+                {i + 1}
+              </div>
+              <p className="flex-1 min-w-0 text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                {action.title}
+              </p>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary shrink-0" />
+            </button>
+          ))
         )}
       </CardContent>
     </Card>
