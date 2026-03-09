@@ -22,6 +22,7 @@ import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
 import { DomainActivationWizard } from "@/components/regulations/DomainActivationWizard";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { CoverageWidget } from "@/components/widgets/CoverageWidget";
 import type { RequirementDomain } from "@/lib/complianceRequirementsData";
 
 const frameworkToDomain: Record<string, RequirementDomain> = {
