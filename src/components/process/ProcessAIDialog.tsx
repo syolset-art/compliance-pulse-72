@@ -419,7 +419,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
       if (error) throw error;
       if (data?.purpose) {
         setAiPurpose(data.purpose);
-        toast.success(aiPurpose ? 'Formålet ble forbedret av Lara' : 'Lara foreslo en formålsbeskrivelse');
+        toast.success(aiPurpose
+          ? (i18n.language === 'nb' ? 'Formålet ble forbedret av Lara' : 'Purpose improved by Lara')
+          : (i18n.language === 'nb' ? 'Lara foreslo en formålsbeskrivelse' : 'Lara suggested a purpose description'));
       }
     } catch (e) {
       console.error('suggest-ai-purpose error:', e);
