@@ -60,7 +60,7 @@ export function AddProcessDialog({
   workAreaName,
   onProcessAdded,
 }: AddProcessDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -100,7 +100,7 @@ export function AddProcessDialog({
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ work_area_id: workAreaId }),
+          body: JSON.stringify({ work_area_id: workAreaId, language: i18n.language }),
         }
       );
 

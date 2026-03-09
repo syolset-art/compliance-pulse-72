@@ -97,7 +97,7 @@ export const ProcessAIDialog = ({
   workAreaId,
   systemId,
 }: ProcessAIDialogProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
   
@@ -412,17 +412,20 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           existingPurpose: aiPurpose || undefined,
           systemNames: systemNames.length > 0 ? systemNames : undefined,
           aiFeatures: selectedFeatureNames.length > 0 ? selectedFeatureNames : undefined,
+          language: i18n.language,
         },
       });
 
       if (error) throw error;
       if (data?.purpose) {
         setAiPurpose(data.purpose);
-        toast.success(aiPurpose ? 'Formålet ble forbedret av Lara' : 'Lara foreslo en formålsbeskrivelse');
+        toast.success(aiPurpose
+          ? (i18n.language === 'nb' ? 'Formålet ble forbedret av Lara' : 'Purpose improved by Lara')
+          : (i18n.language === 'nb' ? 'Lara foreslo en formålsbeskrivelse' : 'Lara suggested a purpose description'));
       }
     } catch (e) {
       console.error('suggest-ai-purpose error:', e);
-      toast.error('Kunne ikke generere forslag. Prøv igjen.');
+      toast.error(i18n.language === 'nb' ? 'Kunne ikke generere forslag. Prøv igjen.' : 'Could not generate suggestion. Please try again.');
     } finally {
       setIsGeneratingPurpose(false);
     }
@@ -437,6 +440,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           processName,
           purpose: aiPurpose || undefined,
           systemNames: systemNames.length > 0 ? systemNames : undefined,
+          language: i18n.language,
         },
       });
 
@@ -452,16 +456,18 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           }));
         if (newFeatures.length > 0) {
           setAiFeatures(prev => [...prev, ...newFeatures]);
-          toast.success(`Lara foreslo ${newFeatures.length} AI-funksjoner`);
+          toast.success(i18n.language === 'nb'
+            ? `Lara foreslo ${newFeatures.length} AI-funksjoner`
+            : `Lara suggested ${newFeatures.length} AI features`);
         } else {
-          toast.info('Ingen nye forslag – alle er allerede i listen');
+          toast.info(i18n.language === 'nb' ? 'Ingen nye forslag – alle er allerede i listen' : 'No new suggestions – all are already in the list');
         }
       } else {
-        toast.error('Ingen forslag mottatt. Legg til manuelt nedenfor.');
+        toast.error(i18n.language === 'nb' ? 'Ingen forslag mottatt. Legg til manuelt nedenfor.' : 'No suggestions received. Add manually below.');
       }
     } catch (e) {
       console.error('suggest-ai-features error:', e);
-      toast.error('Kunne ikke generere forslag. Legg til manuelt nedenfor.');
+      toast.error(i18n.language === 'nb' ? 'Kunne ikke generere forslag. Legg til manuelt nedenfor.' : 'Could not generate suggestions. Add manually below.');
     } finally {
       setIsGeneratingFeatures(false);
     }
