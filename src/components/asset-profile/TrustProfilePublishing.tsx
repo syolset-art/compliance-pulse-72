@@ -186,7 +186,7 @@ export const TrustProfilePublishing = ({
                       <Checkbox
                         checked={selectedCustomers.includes(name)}
                         onCheckedChange={() => toggleCustomer(name)}
-                        aria-label={`Gi tilgang til ${name}`}
+                        aria-label={`${isNb ? "Gi tilgang til" : "Grant access to"} ${name}`}
                       />
                       <span className="text-sm">{name}</span>
                     </label>
