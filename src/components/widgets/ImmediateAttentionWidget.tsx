@@ -60,7 +60,7 @@ export function ImmediateAttentionWidget() {
         route: "/compliance-checklist",
         type: "control" as const,
       })),
-  ].slice(0, 5);
+  ].slice(0, 3);
 
   const severityConfig = {
     critical: { bg: "bg-destructive/10 border-destructive/20", text: "text-destructive", label: "Critical" },
