@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { TrustProfilePreview } from "./TrustProfilePreview";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export const TrustProfilePublishing = ({
     initialCustomers || []
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     setIsPublished(initialMode !== "private");
@@ -192,7 +194,7 @@ export const TrustProfilePublishing = ({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil">
+          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil" onClick={() => setPreviewOpen(true)}>
             <Eye className="h-4 w-4 mr-1.5" />
             Vis Trust Profil
           </Button>
@@ -207,6 +209,8 @@ export const TrustProfilePublishing = ({
           </Button>
         </div>
       </CardContent>
+
+      <TrustProfilePreview open={previewOpen} onOpenChange={setPreviewOpen} assetId={assetId} />
     </Card>
   );
 };
