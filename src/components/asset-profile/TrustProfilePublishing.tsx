@@ -158,9 +158,9 @@ export const TrustProfilePublishing = ({
                   className="mt-0.5"
                 />
                 <div>
-                  <span className="text-sm font-medium">Utvalgte kunder</span>
+                  <span className="text-sm font-medium">{isNb ? "Utvalgte kunder" : "Selected customers"}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Velg hvilke kunder som får tilgang
+                    {isNb ? "Velg hvilke kunder som får tilgang" : "Choose which customers get access"}
                   </p>
                 </div>
               </label>
