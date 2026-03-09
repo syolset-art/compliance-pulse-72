@@ -194,7 +194,7 @@ export const TrustProfilePublishing = ({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil">
+          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil" onClick={() => setPreviewOpen(true)}>
             <Eye className="h-4 w-4 mr-1.5" />
             Vis Trust Profil
           </Button>
