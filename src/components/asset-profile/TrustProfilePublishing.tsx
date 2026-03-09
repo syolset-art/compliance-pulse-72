@@ -142,9 +142,9 @@ export const TrustProfilePublishing = ({
               >
                 <RadioGroupItem value="all" id="audience-all" className="mt-0.5" />
                 <div>
-                  <span className="text-sm font-medium">Alle kunder</span>
+                  <span className="text-sm font-medium">{isNb ? "Alle kunder" : "All customers"}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Profilen deles med alle som ber om innsyn
+                    {isNb ? "Profilen deles med alle som ber om innsyn" : "Profile is shared with anyone who requests access"}
                   </p>
                 </div>
               </label>
