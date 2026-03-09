@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { TrustProfilePreview } from "./TrustProfilePreview";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +23,8 @@ export const TrustProfilePublishing = ({
   publishMode: initialMode,
   publishToCustomers: initialCustomers,
 }: TrustProfilePublishingProps) => {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const [isPublished, setIsPublished] = useState(initialMode !== "private");
   const [audience, setAudience] = useState<string>(
     initialMode === "all" ? "all" : "selected"
@@ -71,18 +74,18 @@ export const TrustProfilePublishing = ({
 
     setIsSaving(false);
     if (error) {
-      toast.error("Kunne ikke lagre endringer");
+      toast.error(isNb ? "Kunne ikke lagre endringer" : "Could not save changes");
     } else {
-      toast.success("Publiseringsinnstillinger lagret");
+      toast.success(isNb ? "Publiseringsinnstillinger lagret" : "Publishing settings saved");
     }
   };
 
   return (
     <Card className="border border-border bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">Trust Profil</CardTitle>
+        <CardTitle className="text-lg font-semibold">Trust Profile</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Administrer din Trust Profil og velg hvem som kan se den.
+          {isNb ? "Administrer din Trust Profil og velg hvem som kan se den." : "Manage your Trust Profile and choose who can view it."}
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -103,19 +106,21 @@ export const TrustProfilePublishing = ({
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">
-              {isPublished ? "Profilen er publisert" : "Profilen er privat"}
+              {isPublished
+                ? (isNb ? "Profilen er publisert" : "Profile is published")
+                : (isNb ? "Profilen er privat" : "Profile is private")}
             </p>
             <p className="text-xs text-muted-foreground">
               {isPublished
-                ? "Profilen er synlig for valgte kunder."
-                : "Ingen kunder kan se profilen din ennå."}
+                ? (isNb ? "Profilen er synlig for valgte kunder." : "The profile is visible to selected customers.")
+                : (isNb ? "Ingen kunder kan se profilen din ennå." : "No customers can see your profile yet.")}
             </p>
           </div>
           <div className="shrink-0">
             <Switch
               checked={isPublished}
               onCheckedChange={setIsPublished}
-              aria-label="Publiser Trust Profil"
+              aria-label={isNb ? "Publiser Trust Profil" : "Publish Trust Profile"}
             />
           </div>
         </div>
@@ -124,7 +129,7 @@ export const TrustProfilePublishing = ({
         {isPublished && (
           <fieldset className="space-y-4">
             <legend className="text-sm font-medium mb-2">
-              Publiseringsinnstillinger
+              {isNb ? "Publiseringsinnstillinger" : "Publishing settings"}
             </legend>
 
             <RadioGroup
@@ -137,9 +142,9 @@ export const TrustProfilePublishing = ({
               >
                 <RadioGroupItem value="all" id="audience-all" className="mt-0.5" />
                 <div>
-                  <span className="text-sm font-medium">Alle kunder</span>
+                  <span className="text-sm font-medium">{isNb ? "Alle kunder" : "All customers"}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Profilen deles med alle som ber om innsyn
+                    {isNb ? "Profilen deles med alle som ber om innsyn" : "Profile is shared with anyone who requests access"}
                   </p>
                 </div>
               </label>
@@ -153,9 +158,9 @@ export const TrustProfilePublishing = ({
                   className="mt-0.5"
                 />
                 <div>
-                  <span className="text-sm font-medium">Utvalgte kunder</span>
+                  <span className="text-sm font-medium">{isNb ? "Utvalgte kunder" : "Selected customers"}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Velg hvilke kunder som får tilgang
+                    {isNb ? "Velg hvilke kunder som får tilgang" : "Choose which customers get access"}
                   </p>
                 </div>
               </label>
@@ -166,11 +171,11 @@ export const TrustProfilePublishing = ({
               <div
                 className="ml-8 space-y-2 border-l-2 border-border pl-4"
                 role="group"
-                aria-label="Velg kunder"
+                aria-label={isNb ? "Velg kunder" : "Select customers"}
               >
                 {customers.length === 0 ? (
                   <p className="text-xs text-muted-foreground py-2">
-                    Ingen kundeforespørsler funnet.
+                    {isNb ? "Ingen kundeforespørsler funnet." : "No customer requests found."}
                   </p>
                 ) : (
                   customers.map((name) => (
@@ -181,7 +186,7 @@ export const TrustProfilePublishing = ({
                       <Checkbox
                         checked={selectedCustomers.includes(name)}
                         onCheckedChange={() => toggleCustomer(name)}
-                        aria-label={`Gi tilgang til ${name}`}
+                        aria-label={`${isNb ? "Gi tilgang til" : "Grant access to"} ${name}`}
                       />
                       <span className="text-sm">{name}</span>
                     </label>
@@ -194,18 +199,18 @@ export const TrustProfilePublishing = ({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" aria-label="Forhåndsvis Trust Profil" onClick={() => setPreviewOpen(true)}>
+          <Button variant="outline" size="sm" aria-label={isNb ? "Forhåndsvis Trust Profil" : "Preview Trust Profile"} onClick={() => setPreviewOpen(true)}>
             <Eye className="h-4 w-4 mr-1.5" />
-            Vis Trust Profil
+            {isNb ? "Vis Trust Profil" : "View Trust Profile"}
           </Button>
           <Button
             size="sm"
             onClick={handleSave}
             disabled={isSaving}
-            aria-label="Lagre publiseringsinnstillinger"
+            aria-label={isNb ? "Lagre publiseringsinnstillinger" : "Save publishing settings"}
           >
             <Save className="h-4 w-4 mr-1.5" />
-            {isSaving ? "Lagrer..." : "Lagre endringer"}
+            {isSaving ? (isNb ? "Lagrer..." : "Saving...") : (isNb ? "Lagre endringer" : "Save changes")}
           </Button>
         </div>
       </CardContent>
