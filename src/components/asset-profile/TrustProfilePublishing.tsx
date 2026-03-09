@@ -175,7 +175,7 @@ export const TrustProfilePublishing = ({
               >
                 {customers.length === 0 ? (
                   <p className="text-xs text-muted-foreground py-2">
-                    Ingen kundeforespørsler funnet.
+                    {isNb ? "Ingen kundeforespørsler funnet." : "No customer requests found."}
                   </p>
                 ) : (
                   customers.map((name) => (
