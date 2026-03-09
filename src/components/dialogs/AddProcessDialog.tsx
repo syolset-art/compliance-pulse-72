@@ -60,7 +60,7 @@ export function AddProcessDialog({
   workAreaName,
   onProcessAdded,
 }: AddProcessDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
