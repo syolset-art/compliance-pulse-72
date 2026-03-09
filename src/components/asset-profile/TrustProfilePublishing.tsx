@@ -120,7 +120,7 @@ export const TrustProfilePublishing = ({
             <Switch
               checked={isPublished}
               onCheckedChange={setIsPublished}
-              aria-label="Publiser Trust Profil"
+              aria-label={isNb ? "Publiser Trust Profil" : "Publish Trust Profile"}
             />
           </div>
         </div>
