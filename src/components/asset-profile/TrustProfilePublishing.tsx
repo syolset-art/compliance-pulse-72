@@ -171,7 +171,7 @@ export const TrustProfilePublishing = ({
               <div
                 className="ml-8 space-y-2 border-l-2 border-border pl-4"
                 role="group"
-                aria-label="Velg kunder"
+                aria-label={isNb ? "Velg kunder" : "Select customers"}
               >
                 {customers.length === 0 ? (
                   <p className="text-xs text-muted-foreground py-2">
