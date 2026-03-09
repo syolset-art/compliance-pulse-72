@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,21 +75,19 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetrics
     },
   });
 
-  const { data: scopeData } = useQuery({
-    queryKey: ["scope-counts"],
+  // Active regulatory frameworks
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("assets")
-        .select("asset_type")
-        .neq("asset_type", "self");
-      if (error) return { systemsMapped: 0, devicesMapped: 0, applicationsMapped: 0, vendorsMapped: 0 };
-      const items = data || [];
-      return {
-        systemsMapped: items.filter((a: any) => a.asset_type === "system").length,
-        devicesMapped: items.filter((a: any) => a.asset_type === "hardware").length,
-        applicationsMapped: 0,
-        vendorsMapped: items.filter((a: any) => a.asset_type === "vendor").length,
-      };
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
     },
   });
 
@@ -118,20 +116,13 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetrics
         </div>
       )}
 
-      {/* Trust Snapshot Panel — Security Areas + Scope side by side */}
+      {/* Trust Snapshot Panel — Security Areas + Regulatory Scope */}
       <TrustControlsPanel
         asset={asset}
         docsCount={docsCount}
         relationsCount={relationsCount}
         onTrustMetrics={onTrustMetrics}
-        scope={{
-          systemsMapped: scopeData?.systemsMapped || 0,
-          devicesMapped: scopeData?.devicesMapped || 0,
-          applicationsMapped: scopeData?.applicationsMapped || 0,
-          vendorsMapped: scopeData?.vendorsMapped || 0,
-          processesMaped: 0,
-          subProcessorsMapped: 0,
-        }}
+        frameworks={frameworks}
       />
 
       <RequestUpdateDialog

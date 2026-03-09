@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertTriangle, Shield, Lock, Layers, Target,
-  Server, HardDrive, Network, Building2, TriangleAlert,
+  TriangleAlert, FileCheck,
 } from "lucide-react";
 import {
   type EvaluatedControl,
@@ -37,13 +38,9 @@ interface AssetLike {
   updated_at?: string | null;
 }
 
-interface ScopeData {
-  systemsMapped: number;
-  devicesMapped: number;
-  applicationsMapped: number;
-  processesMaped: number;
-  vendorsMapped: number;
-  subProcessorsMapped: number;
+interface FrameworkItem {
+  framework_id: string;
+  framework_name: string;
 }
 
 interface TrustControlsPanelProps {
@@ -51,7 +48,7 @@ interface TrustControlsPanelProps {
   docsCount: number;
   relationsCount: number;
   overrideType?: string;
-  scope?: Partial<ScopeData>;
+  frameworks?: FrameworkItem[];
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
 }
 
@@ -101,10 +98,30 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
   return maps[assetType]?.[key]?.() ?? "missing";
 }
 
+// ── Framework badge colours ──────────────────────────────────────────
+
+const FRAMEWORK_COLORS: Record<string, string> = {
+  gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+  personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+  nis2: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
+  iso27001: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+  iso27701: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+  "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+  nsmicf: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
+};
+
+function frameworkBadgeClass(id: string): string {
+  const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+  for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
+    if (lower.includes(key.replace("-", ""))) return cls;
+  }
+  return "bg-muted text-muted-foreground border-border";
+}
+
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType, scope = {}, onTrustMetrics,
+  asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics,
 }: TrustControlsPanelProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -134,7 +151,6 @@ export function TrustControlsPanel({
 
   // Report metrics up to parent (for header)
   if (onTrustMetrics) {
-    // Use a microtask to avoid setState-during-render
     queueMicrotask(() => onTrustMetrics({ trustScore, confidenceScore, lastUpdated }));
   }
 
@@ -144,25 +160,19 @@ export function TrustControlsPanel({
 
   const areaScore = (area: ControlArea) => {
     const controls = grouped[area];
-    if (controls.length === 0) return 0;
+    if (!controls || controls.length === 0) return 0;
     const impl = controls.filter(c => c.status === "implemented").length;
     const partial = controls.filter(c => c.status === "partial").length;
     return Math.round(((impl + partial * 0.5) / controls.length) * 100);
   };
 
-  const s = {
-    systemsMapped: scope.systemsMapped ?? 0,
-    devicesMapped: scope.devicesMapped ?? 0,
-    processesMaped: scope.processesMaped ?? 0,
-    vendorsMapped: scope.vendorsMapped ?? 0,
-  };
-
-  const securityAreas = ([
+  // All 4 security areas — always displayed
+  const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
     { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
     { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
     { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
-  ]).filter(({ area }) => grouped[area].length > 0);
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -171,52 +181,49 @@ export function TrustControlsPanel({
         <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {isNb ? "Sikkerhetsområder" : "Security Areas"}
         </h3>
-        {securityAreas.length > 0 ? (
-          <div className="space-y-2.5">
-            {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
-              const score = areaScore(area);
-              return (
-                <div key={area} className="space-y-0.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <AreaIcon className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[11px] font-medium text-foreground">{isNb ? areaNb : label}</span>
-                    </div>
-                    <span className="text-[11px] font-semibold tabular-nums">{score}%</span>
+        <div className="space-y-2.5">
+          {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
+            const score = areaScore(area);
+            return (
+              <div key={area} className="space-y-0.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <AreaIcon className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] font-medium text-foreground">{isNb ? areaNb : label}</span>
                   </div>
-                  <Progress value={score} className="h-1" />
+                  <span className="text-[11px] font-semibold tabular-nums">{score}%</span>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">{isNb ? "Ingen data" : "No data"}</p>
-        )}
+                <Progress value={score} className="h-1" />
+              </div>
+            );
+          })}
+        </div>
       </Card>
 
-      {/* ━━━ Scope & Risk ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ Regulatory Scope + Risk ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-4 space-y-4">
-        {/* Scope */}
+        {/* Frameworks */}
         <div>
           <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            {isNb ? "Omfang" : "Scope"}
+            {isNb ? "Gjeldende regelverk" : "Regulatory Scope"}
           </h3>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            {[
-              { icon: Server, label: isNb ? "Systemer" : "Systems", value: s.systemsMapped },
-              { icon: Building2, label: isNb ? "Leverandører" : "Vendors", value: s.vendorsMapped },
-              { icon: Network, label: isNb ? "Prosesser" : "Processes", value: s.processesMaped },
-              { icon: HardDrive, label: isNb ? "Enheter" : "Devices", value: s.devicesMapped },
-            ].map(item => (
-              <div key={item.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <item.icon className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground">{item.label}</span>
-                </div>
-                <span className="text-[11px] font-semibold tabular-nums">{item.value}</span>
-              </div>
-            ))}
-          </div>
+          {frameworks.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {frameworks.map((fw) => (
+                <span
+                  key={fw.framework_id}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
+                >
+                  <FileCheck className="h-2.5 w-2.5" />
+                  {fw.framework_name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground/60 italic">
+              {isNb ? "Ingen rammeverk valgt ennå" : "No frameworks selected yet"}
+            </p>
+          )}
         </div>
 
         {/* Risk */}

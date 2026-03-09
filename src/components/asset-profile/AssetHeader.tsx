@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,8 @@ import {
   XCircle,
   Clock,
   ShieldCheck,
+  Pencil,
+  Sparkles,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 
@@ -101,13 +104,20 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const queryClient = useQueryClient();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [descValue, setDescValue] = useState(asset.description || "");
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_msp"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("company_profile").select("is_msp_partner").limit(1).maybeSingle();
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("is_msp_partner, industry, name")
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -130,7 +140,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
 
   const updateAsset = useMutation({
-    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null }>) => {
+    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null; description: string | null }>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)
@@ -158,6 +168,36 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
 
   const handleManagerChange = (value: string) => {
     updateAsset.mutate({ asset_manager: value });
+  };
+
+  const handleSaveDesc = () => {
+    updateAsset.mutate({ description: descValue });
+    setEditingDesc(false);
+  };
+
+  const handleGenerateDesc = async () => {
+    setIsGeneratingDesc(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-company-description", {
+        body: {
+          companyName: asset.name,
+          industry: (companyProfile as any)?.industry,
+          existingDescription: descValue,
+          language: i18n.language,
+        },
+      });
+      if (!error && data?.suggestion) {
+        setDescValue(data.suggestion);
+        toast.success(isNb ? "Forslag hentet fra Lara" : "Suggestion from Lara");
+      } else {
+        toast.error(isNb ? "Kunne ikke hente forslag" : "Could not get suggestion");
+      }
+    } catch (e) {
+      console.error("generate desc error:", e);
+      toast.error(isNb ? "Noe gikk galt" : "Something went wrong");
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,9 +339,67 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
           </div>
 
           {isSelf ? (
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {isNb ? "Digital Trust Profile og samsvarsoversikt" : "Digital Trust Profile and compliance overview"}
-            </p>
+            <div>
+              <p className="text-sm text-muted-foreground mt-0.5 mb-2">
+                {isNb ? "Digital Trust Profile og samsvarsoversikt" : "Digital Trust Profile and compliance overview"}
+              </p>
+              {/* Editable description */}
+              {editingDesc ? (
+                <div className="flex flex-col gap-2 mt-1">
+                  <Textarea
+                    value={descValue}
+                    onChange={(e) => setDescValue(e.target.value)}
+                    className="text-sm min-h-[80px] resize-none"
+                    placeholder={isNb ? "Beskriv virksomheten din..." : "Describe your company..."}
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button size="sm" onClick={handleSaveDesc} disabled={updateAsset.isPending} className="h-7 text-xs">
+                      {isNb ? "Lagre" : "Save"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setEditingDesc(false); setDescValue(asset.description || ""); }}
+                      className="h-7 text-xs"
+                    >
+                      {isNb ? "Avbryt" : "Cancel"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleGenerateDesc}
+                      disabled={isGeneratingDesc}
+                      className="h-7 text-xs gap-1.5 ml-auto text-primary border-primary/30 hover:bg-primary/10"
+                    >
+                      {isGeneratingDesc ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      {isNb ? "Lara foreslår" : "Lara suggests"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="group flex items-start gap-2">
+                  {asset.description ? (
+                    <p className="text-sm text-muted-foreground flex-1 leading-relaxed">{asset.description}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground/50 italic flex-1">
+                      {isNb ? "Legg til en beskrivelse av virksomheten..." : "Add a company description..."}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => { setDescValue(asset.description || ""); setEditingDesc(true); }}
+                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded-md"
+                    title={isNb ? "Rediger beskrivelse" : "Edit description"}
+                  >
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
