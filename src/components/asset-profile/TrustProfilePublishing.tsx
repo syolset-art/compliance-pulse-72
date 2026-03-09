@@ -209,6 +209,8 @@ export const TrustProfilePublishing = ({
           </Button>
         </div>
       </CardContent>
+
+      <TrustProfilePreview open={previewOpen} onOpenChange={setPreviewOpen} assetId={assetId} />
     </Card>
   );
 };
