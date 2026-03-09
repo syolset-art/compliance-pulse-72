@@ -467,7 +467,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
       }
     } catch (e) {
       console.error('suggest-ai-features error:', e);
-      toast.error('Kunne ikke generere forslag. Legg til manuelt nedenfor.');
+      toast.error(i18n.language === 'nb' ? 'Kunne ikke generere forslag. Legg til manuelt nedenfor.' : 'Could not generate suggestions. Add manually below.');
     } finally {
       setIsGeneratingFeatures(false);
     }
