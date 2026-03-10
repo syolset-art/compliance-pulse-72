@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useTranslation } from "react-i18next";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -18,15 +19,6 @@ import {
 import { cn } from "@/lib/utils";
 import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 
-// Safe hook to access GlobalChat context without throwing
-const useGlobalChatSafe = () => {
-  try {
-    const { useGlobalChat } = require("@/components/GlobalChatProvider");
-    return useGlobalChat();
-  } catch {
-    return null;
-  }
-};
 
 const stepIcons: Record<string, React.ElementType> = {
   'Building2': Building2,
@@ -49,8 +41,8 @@ export function OnboardingProgressWidget() {
     isLoading 
   } = useOnboardingProgress();
   
-  // Use safe context access - may be null if provider not ready
-  const globalChat = useGlobalChatSafe();
+  // Use safe context access
+  const globalChat = useGlobalChat();
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Show roadmap widget when onboarding is complete
