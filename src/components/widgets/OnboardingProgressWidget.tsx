@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
