@@ -6,11 +6,12 @@ import { cn } from "@/lib/utils";
 import {
   SECURITY_SERVICE_CATALOG,
   evaluateServiceCoverage,
-  ServiceCoverageStatus,
 } from "@/lib/securityServiceCatalog";
+import { useTranslation } from "react-i18next";
 
 export function SecurityCoverageWidget() {
-  // In a real scenario this would come from the company's assessment data
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const results = evaluateServiceCoverage(null);
   const covered = results.filter((r) => r.status === "covered").length;
   const total = SECURITY_SERVICE_CATALOG.length;
@@ -21,7 +22,7 @@ export function SecurityCoverageWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Sikkerhetsdekning</h3>
+          <h3 className="font-semibold text-foreground">{isNb ? "Sikkerhetsdekning" : "Security Coverage"}</h3>
         </div>
         <Badge variant="secondary">{covered}/{total}</Badge>
       </div>
@@ -49,7 +50,7 @@ export function SecurityCoverageWidget() {
               <div className={cn("h-6 w-6 rounded flex items-center justify-center text-white shrink-0", service.color)}>
                 <Icon className="h-3 w-3" />
               </div>
-              <span className="font-medium text-foreground truncate flex-1">{service.name}</span>
+              <span className="font-medium text-foreground truncate flex-1">{isNb ? service.name : service.nameEn}</span>
               <StatusIcon className={cn(
                 "h-3.5 w-3.5 shrink-0",
                 status === "covered" && "text-green-600 dark:text-green-400",

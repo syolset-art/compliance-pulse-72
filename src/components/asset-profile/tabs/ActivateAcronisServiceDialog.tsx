@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Shield, Clock, CheckCircle, Zap, PartyPopper, UserCheck, Building2, Mail } from "lucide-react";
 import type { AcronisModule, MSPProduct, SecurityServiceCategory, MSPPartnerInfo } from "@/lib/securityServiceCatalog";
+import { useTranslation } from "react-i18next";
 
 type ActivatableProduct =
   | { type: "acronis"; product: AcronisModule }
@@ -22,10 +23,16 @@ interface ActivateServiceDialogProps {
   onActivate: (id: string, activatedBy: string) => void;
 }
 
-const ACTIVATED_BY_OPTIONS = [
+const ACTIVATED_BY_OPTIONS_NB = [
   { value: "self", label: "Jeg aktiverte selv", icon: UserCheck, description: "Du har selv satt opp eller bestilt tjenesten" },
   { value: "msp", label: "MSP-partner aktiverte", icon: Building2, description: "Partneren din har aktivert tjenesten via Acronis eller annet" },
   { value: "agreed", label: "Allerede avtalt via e-post/annet", icon: Mail, description: "Dere har avtalt aktivering utenfor plattformen" },
+];
+
+const ACTIVATED_BY_OPTIONS_EN = [
+  { value: "self", label: "I activated it myself", icon: UserCheck, description: "You set up or ordered the service yourself" },
+  { value: "msp", label: "MSP partner activated", icon: Building2, description: "Your partner activated the service via Acronis or other" },
+  { value: "agreed", label: "Already agreed via email/other", icon: Mail, description: "You agreed on activation outside the platform" },
 ];
 
 export function ActivateServiceDialog({
@@ -33,18 +40,22 @@ export function ActivateServiceDialog({
 }: ActivateServiceDialogProps) {
   const [confirmed, setConfirmed] = useState(false);
   const [activatedBy, setActivatedBy] = useState("self");
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
 
   if (!item || !service) return null;
 
+  const ACTIVATED_BY_OPTIONS = isNb ? ACTIVATED_BY_OPTIONS_NB : ACTIVATED_BY_OPTIONS_EN;
   const productName = item.product.name;
-  const partnerName = effectivePartner?.name || "MSP-partner";
+  const partnerName = effectivePartner?.name || (isNb ? "MSP-partner" : "MSP partner");
+  const serviceName = isNb ? service.name : service.nameEn;
 
   const selectedOption = ACTIVATED_BY_OPTIONS.find(o => o.value === activatedBy)!;
-  const displayActivatedBy = activatedBy === "msp" ? partnerName : activatedBy === "self" ? "deg" : "avtale";
+  const displayActivatedBy = activatedBy === "msp" ? partnerName : activatedBy === "self" ? (isNb ? "deg" : "you") : (isNb ? "avtale" : "agreement");
 
   const handleActivate = () => {
     const id = item.product.id;
-    const byLabel = activatedBy === "msp" ? partnerName : activatedBy === "self" ? "deg" : "avtale (e-post/annet)";
+    const byLabel = activatedBy === "msp" ? partnerName : activatedBy === "self" ? (isNb ? "deg" : "you") : (isNb ? "avtale (e-post/annet)" : "agreement (email/other)");
     onActivate(id, byLabel);
     setConfirmed(true);
   };
@@ -64,10 +75,12 @@ export function ActivateServiceDialog({
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground flex items-center justify-center gap-2">
-                Tjenesten er aktivert! <PartyPopper className="h-5 w-5 text-amber-500" />
+                {isNb ? "Tjenesten er aktivert!" : "Service activated!"} <PartyPopper className="h-5 w-5 text-amber-500" />
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-                <strong className="text-foreground">{productName}</strong> er nå registrert som aktiv for din organisasjon.
+                {isNb
+                  ? <><strong className="text-foreground">{productName}</strong> er nå registrert som aktiv for din organisasjon.</>
+                  : <><strong className="text-foreground">{productName}</strong> is now registered as active for your organization.</>}
               </p>
             </div>
 
@@ -75,9 +88,11 @@ export function ActivateServiceDialog({
               <div className="flex items-start gap-3">
                 <selectedOption.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-medium text-foreground">Aktivert av {displayActivatedBy}</p>
+                  <p className="text-xs font-medium text-foreground">{isNb ? `Aktivert av ${displayActivatedBy}` : `Activated by ${displayActivatedBy}`}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Denne tjenesten vil nå vises som aktiv i din sikkerhetsoversikt og dekke relevante ISO 27001-kontroller.
+                    {isNb
+                      ? "Denne tjenesten vil nå vises som aktiv i din sikkerhetsoversikt og dekke relevante ISO 27001-kontroller."
+                      : "This service will now appear as active in your security overview and cover relevant ISO 27001 controls."}
                   </p>
                 </div>
               </div>
@@ -85,7 +100,7 @@ export function ActivateServiceDialog({
 
             {/* ISO controls covered */}
             <div className="w-full text-left">
-              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">ISO 27001-kontroller som nå dekkes</p>
+              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">{isNb ? "ISO 27001-kontroller som nå dekkes" : "ISO 27001 controls now covered"}</p>
               <div className="flex gap-1.5 flex-wrap">
                 {service.linkedControls.map((ctrl) => (
                   <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
@@ -94,7 +109,7 @@ export function ActivateServiceDialog({
             </div>
 
             <Button onClick={handleClose} className="w-full mt-2">
-              Lukk
+              {isNb ? "Lukk" : "Close"}
             </Button>
           </div>
         </DialogContent>
@@ -108,10 +123,12 @@ export function ActivateServiceDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Aktiver {productName}
+            {isNb ? `Aktiver ${productName}` : `Activate ${productName}`}
           </DialogTitle>
           <DialogDescription>
-            Registrer denne tjenesten som aktiv for din organisasjon.
+            {isNb
+              ? "Registrer denne tjenesten som aktiv for din organisasjon."
+              : "Register this service as active for your organization."}
           </DialogDescription>
         </DialogHeader>
 
@@ -119,7 +136,7 @@ export function ActivateServiceDialog({
           {/* Product info */}
           <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">Leverandør</span>
+              <span className="text-sm font-medium text-foreground">{isNb ? "Leverandør" : "Vendor"}</span>
               <span className="text-sm text-muted-foreground">
                 {item.type === "acronis" ? "Acronis" : item.product.vendor}
               </span>
@@ -127,26 +144,26 @@ export function ActivateServiceDialog({
             {item.type === "acronis" && (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Acronis-pakke</span>
+                  <span className="text-sm font-medium text-foreground">{isNb ? "Acronis-pakke" : "Acronis package"}</span>
                   <Badge variant="outline" className="text-xs">{item.product.acronisPackage}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Prismodell</span>
+                  <span className="text-sm font-medium text-foreground">{isNb ? "Prismodell" : "Pricing model"}</span>
                   <Badge variant={item.product.priceIndicator === "included" ? "default" : "secondary"} className="text-xs">
-                    {item.product.priceIndicator === "included" ? "Inkludert i pakke" : "Tilleggstjeneste"}
+                    {item.product.priceIndicator === "included" ? (isNb ? "Inkludert i pakke" : "Included in package") : (isNb ? "Tilleggstjeneste" : "Add-on service")}
                   </Badge>
                 </div>
               </>
             )}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">Kategori</span>
-              <span className="text-sm text-muted-foreground">{service.name}</span>
+              <span className="text-sm font-medium text-foreground">{isNb ? "Kategori" : "Category"}</span>
+              <span className="text-sm text-muted-foreground">{serviceName}</span>
             </div>
           </div>
 
           {/* Who activated */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Hvem aktiverte tjenesten?</p>
+            <p className="text-sm font-medium text-foreground">{isNb ? "Hvem aktiverte tjenesten?" : "Who activated the service?"}</p>
             <RadioGroup value={activatedBy} onValueChange={setActivatedBy} className="space-y-2">
               {ACTIVATED_BY_OPTIONS.map((opt) => (
                 <label
@@ -172,7 +189,7 @@ export function ActivateServiceDialog({
 
           {/* ISO controls */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2">ISO 27001-kontroller som dekkes</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2">{isNb ? "ISO 27001-kontroller som dekkes" : "ISO 27001 controls covered"}</p>
             <div className="flex gap-1.5 flex-wrap">
               {service.linkedControls.map((ctrl) => (
                 <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
@@ -184,10 +201,10 @@ export function ActivateServiceDialog({
         <DialogFooter className="flex-col gap-2 sm:flex-col">
           <Button onClick={handleActivate} className="w-full gap-2">
             <Zap className="h-4 w-4" />
-            Aktiver tjeneste
+            {isNb ? "Aktiver tjeneste" : "Activate service"}
           </Button>
           <Button onClick={handleClose} variant="ghost" className="w-full text-xs text-muted-foreground">
-            Avbryt
+            {isNb ? "Avbryt" : "Cancel"}
           </Button>
         </DialogFooter>
       </DialogContent>
