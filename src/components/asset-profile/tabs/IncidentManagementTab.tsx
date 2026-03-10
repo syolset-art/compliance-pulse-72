@@ -316,7 +316,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("trustProfile.incident")}</TableHead>
-                  <TableHead>Kilde</TableHead>
+                  <TableHead>{isNb ? "Kilde" : "Source"}</TableHead>
                   <TableHead>{t("trustProfile.riskLevel")}</TableHead>
                   <TableHead>{t("trustProfile.responsible")}</TableHead>
                   <TableHead>{t("trustProfile.lastUpdated")}</TableHead>
