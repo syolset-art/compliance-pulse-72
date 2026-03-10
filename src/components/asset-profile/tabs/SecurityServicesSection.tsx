@@ -24,8 +24,9 @@ import {
 import { ActivateServiceDialog } from "./ActivateAcronisServiceDialog";
 import { RequestQuoteDialog } from "./RequestQuoteDialog";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { nb, enUS } from "date-fns/locale";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { useTranslation } from "react-i18next";
 
 type ActivatableProduct =
   | { type: "acronis"; product: AcronisModule }
@@ -41,7 +42,7 @@ interface SecurityServicesSectionProps {
   assessmentResponses?: Record<string, string> | null;
 }
 
-function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerInfo; isOverride?: boolean; onReset?: () => void }) {
+function PartnerBanner({ partner, isOverride, onReset, isNb }: { partner: MSPPartnerInfo; isOverride?: boolean; onReset?: () => void; isNb: boolean }) {
   return (
     <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
       <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
@@ -49,7 +50,7 @@ function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerIn
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground">{partner.name}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{partner.description}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{isNb ? partner.description : partner.descriptionEn}</p>
         <div className="flex items-center gap-3 mt-1">
           {partner.website && (
             <a
@@ -58,7 +59,7 @@ function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerIn
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              Besøk {partner.name} <ExternalLink className="h-3 w-3" />
+              {isNb ? `Besøk ${partner.name}` : `Visit ${partner.name}`} <ExternalLink className="h-3 w-3" />
             </a>
           )}
           {isOverride && onReset && (
@@ -66,22 +67,22 @@ function PartnerBanner({ partner, isOverride, onReset }: { partner: MSPPartnerIn
               onClick={onReset}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <RefreshCw className="h-3 w-3" /> Tilbakestill til standard
+              <RefreshCw className="h-3 w-3" /> {isNb ? "Tilbakestill til standard" : "Reset to default"}
             </button>
           )}
         </div>
       </div>
       <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] shrink-0">
-        {isOverride ? "Valgt for tjeneste" : "MSP-partner"}
+        {isOverride ? (isNb ? "Valgt for tjeneste" : "Selected for service") : (isNb ? "MSP-partner" : "MSP partner")}
       </Badge>
     </div>
   );
 }
 
-function ActivationInfo({ info }: { info: ActivatedServiceInfo }) {
+function ActivationInfo({ info, isNb }: { info: ActivatedServiceInfo; isNb: boolean }) {
   return (
     <p className="text-[10px] text-muted-foreground mt-0.5">
-      Aktivert av {info.activatedBy} — {format(info.activatedAt, "d. MMM yyyy", { locale: nb })}
+      {isNb ? "Aktivert av" : "Activated by"} {info.activatedBy} — {format(info.activatedAt, "d. MMM yyyy", { locale: isNb ? nb : enUS })}
     </p>
   );
 }
@@ -92,12 +93,14 @@ function AcronisModuleCard({
   isQuoteRequested,
   onRequestQuote,
   onActivate,
+  isNb,
 }: {
   module: AcronisModule;
   activationInfo: ActivatedServiceInfo | null;
   isQuoteRequested: boolean;
   onRequestQuote: () => void;
   onActivate: () => void;
+  isNb: boolean;
 }) {
   const active = module.isActive || !!activationInfo;
 
@@ -119,20 +122,20 @@ function AcronisModuleCard({
         <div className="shrink-0 flex items-center gap-1.5">
           {active ? (
             <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
-              <CheckCircle className="h-3 w-3" /> Aktiv
+              <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
                 <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
-                  <Clock className="h-3 w-3" /> Tilbud forespurt
+                  <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
               <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
-                <FileText className="h-3 w-3" /> Be om tilbud
+                <FileText className="h-3 w-3" /> {isNb ? "Be om tilbud" : "Request quote"}
               </Button>
               <Button size="sm" className="gap-1 text-xs h-7" onClick={onActivate}>
-                <Zap className="h-3 w-3" /> Aktiver
+                <Zap className="h-3 w-3" /> {isNb ? "Aktiver" : "Activate"}
               </Button>
             </>
           )}
@@ -140,7 +143,7 @@ function AcronisModuleCard({
       </div>
       {active && activationInfo && (
         <div className="ml-7">
-          <ActivationInfo info={activationInfo} />
+          <ActivationInfo info={activationInfo} isNb={isNb} />
         </div>
       )}
     </div>
@@ -153,12 +156,14 @@ function MSPProductCard({
   isQuoteRequested,
   onRequestQuote,
   onActivate,
+  isNb,
 }: {
   product: MSPProduct;
   activationInfo: ActivatedServiceInfo | null;
   isQuoteRequested: boolean;
   onRequestQuote: () => void;
   onActivate: () => void;
+  isNb: boolean;
 }) {
   const isActivated = !!activationInfo;
 
@@ -179,20 +184,20 @@ function MSPProductCard({
         <div className="shrink-0 flex items-center gap-1.5">
           {isActivated ? (
             <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
-              <CheckCircle className="h-3 w-3" /> Aktiv
+              <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
                 <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
-                  <Clock className="h-3 w-3" /> Tilbud forespurt
+                  <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
               <Button size="sm" variant="outline" className="gap-1 text-xs h-7" onClick={onRequestQuote}>
-                <FileText className="h-3 w-3" /> Be om tilbud
+                <FileText className="h-3 w-3" /> {isNb ? "Be om tilbud" : "Request quote"}
               </Button>
               <Button size="sm" className="gap-1 text-xs h-7" onClick={onActivate}>
-                <Zap className="h-3 w-3" /> Aktiver
+                <Zap className="h-3 w-3" /> {isNb ? "Aktiver" : "Activate"}
               </Button>
             </>
           )}
@@ -200,7 +205,7 @@ function MSPProductCard({
       </div>
       {isActivated && activationInfo && (
         <div className="ml-0 mt-1">
-          <ActivationInfo info={activationInfo} />
+          <ActivationInfo info={activationInfo} isNb={isNb} />
         </div>
       )}
     </div>
@@ -218,6 +223,7 @@ function ServiceDetailCard({
   serviceOverrideId,
   onSetOverride,
   onClearOverride,
+  isNb,
 }: {
   result: ServiceCoverageResult;
   activatedServices: Record<string, ActivatedServiceInfo>;
@@ -229,6 +235,7 @@ function ServiceDetailCard({
   serviceOverrideId: string | undefined;
   onSetOverride: (serviceId: string, partnerId: string) => void;
   onClearOverride: (serviceId: string) => void;
+  isNb: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [showOverrideSelect, setShowOverrideSelect] = useState(false);
@@ -248,6 +255,9 @@ function ServiceDetailCard({
 
   const isOverride = !!serviceOverrideId;
 
+  const sName = isNb ? service.name : service.nameEn;
+  const sDesc = isNb ? service.description : service.descriptionEn;
+
   return (
     <div
       className={cn(
@@ -265,21 +275,21 @@ function ServiceDetailCard({
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm text-foreground">{service.name}</p>
-          <p className="text-xs text-muted-foreground">{service.description}</p>
+          <p className="font-medium text-sm text-foreground">{sName}</p>
+          <p className="text-xs text-muted-foreground">{sDesc}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {totalActivated > 0 && (
             <Badge variant="outline" className="text-[10px] gap-1 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
               <CheckCircle className="h-3 w-3" />
-              {totalActivated} aktive
+              {totalActivated} {isNb ? "aktive" : "active"}
             </Badge>
           )}
           <Badge
             variant={status === "covered" ? "default" : status === "missing" ? "destructive" : "outline"}
             className="text-xs"
           >
-            {status === "covered" ? "Implementert" : status === "missing" ? "Mangler" : "Ikke kartlagt"}
+            {status === "covered" ? (isNb ? "Implementert" : "Implemented") : status === "missing" ? (isNb ? "Mangler" : "Missing") : (isNb ? "Ikke kartlagt" : "Not assessed")}
           </Badge>
           <StatusIcon className={cn(
             "h-5 w-5",
@@ -299,6 +309,7 @@ function ServiceDetailCard({
               partner={effectivePartner}
               isOverride={isOverride}
               onReset={isOverride ? () => onClearOverride(service.id) : undefined}
+              isNb={isNb}
             />
           )}
 
@@ -308,7 +319,7 @@ function ServiceDetailCard({
               onClick={(e) => { e.stopPropagation(); setShowOverrideSelect(true); }}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
             >
-              <RefreshCw className="h-3 w-3" /> Bruk annen partner for denne tjenesten
+              <RefreshCw className="h-3 w-3" /> {isNb ? "Bruk annen partner for denne tjenesten" : "Use different partner for this service"}
             </button>
           )}
 
@@ -322,7 +333,7 @@ function ServiceDetailCard({
                 }}
               >
                 <SelectTrigger className="h-8 text-xs w-56">
-                  <SelectValue placeholder="Velg partner..." />
+                  <SelectValue placeholder={isNb ? "Velg partner..." : "Select partner..."} />
                 </SelectTrigger>
                 <SelectContent>
                   {MSP_PARTNER_DIRECTORY.filter((p) => p.id !== globalPartnerId).map((p) => (
@@ -330,7 +341,7 @@ function ServiceDetailCard({
                       <span className="flex items-center gap-2">
                         {p.name}
                         {p.specialties.includes(service.id) && (
-                          <Badge variant="outline" className="text-[9px] px-1 py-0 ml-1">Anbefalt</Badge>
+                          <Badge variant="outline" className="text-[9px] px-1 py-0 ml-1">{isNb ? "Anbefalt" : "Recommended"}</Badge>
                         )}
                       </span>
                     </SelectItem>
@@ -338,7 +349,7 @@ function ServiceDetailCard({
                 </SelectContent>
               </Select>
               <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowOverrideSelect(false)}>
-                Avbryt
+                {isNb ? "Avbryt" : "Cancel"}
               </Button>
             </div>
           )}
@@ -355,6 +366,7 @@ function ServiceDetailCard({
                   isQuoteRequested={quoteRequestedIds.includes(mod.id)}
                   onRequestQuote={() => onOpenQuoteDialog({ type: "acronis", product: mod }, service)}
                   onActivate={() => onOpenActivateDialog({ type: "acronis", product: mod }, service)}
+                  isNb={isNb}
                 />
               ))}
             </div>
@@ -362,7 +374,7 @@ function ServiceDetailCard({
 
           {service.mspProducts.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Andre løsninger</p>
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{isNb ? "Andre løsninger" : "Other solutions"}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {service.mspProducts.map((product) => (
                   <MSPProductCard
@@ -372,6 +384,7 @@ function ServiceDetailCard({
                     isQuoteRequested={quoteRequestedIds.includes(product.id)}
                     onRequestQuote={() => onOpenQuoteDialog({ type: "msp-product", product }, service)}
                     onActivate={() => onOpenActivateDialog({ type: "msp-product", product }, service)}
+                    isNb={isNb}
                   />
                 ))}
               </div>
@@ -384,7 +397,7 @@ function ServiceDetailCard({
             <CollapsibleTrigger asChild>
               <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors pt-1">
                 <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>&]:rotate-180" />
-                Vis detaljer
+                {isNb ? "Vis detaljer" : "Show details"}
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-3 pt-3">
@@ -392,8 +405,8 @@ function ServiceDetailCard({
               <div className="flex gap-3">
                 <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-medium text-foreground mb-0.5">Anbefaling fra MSP</p>
-                  <p className="text-xs text-muted-foreground">{service.mspRecommendation}</p>
+                  <p className="text-xs font-medium text-foreground mb-0.5">{isNb ? "Anbefaling fra MSP" : "MSP recommendation"}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? service.mspRecommendation : service.mspRecommendationEn}</p>
                 </div>
               </div>
 
@@ -409,10 +422,10 @@ function ServiceDetailCard({
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <ListChecks className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-xs font-medium text-foreground">Implementeringssteg</p>
+                  <p className="text-xs font-medium text-foreground">{isNb ? "Implementeringssteg" : "Implementation steps"}</p>
                 </div>
                 <ol className="space-y-1.5">
-                  {service.implementationSteps.map((step, i) => (
+                  {(isNb ? service.implementationSteps : service.implementationStepsEn).map((step, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className={cn(
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
@@ -441,6 +454,8 @@ function ServiceDetailCard({
 }
 
 export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: SecurityServicesSectionProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const { activateService: globalActivate, activatedServices: globalActivated } = useActivatedServices();
   const [activatedServices, setActivatedServices] = useState<Record<string, ActivatedServiceInfo>>(() => {
     const seeded: Record<string, ActivatedServiceInfo> = {};
@@ -451,7 +466,6 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
   });
   const [quoteRequestedIds, setQuoteRequestedIds] = useState<string[]>([]);
   
-  // Separate dialog state for quote vs activate
   const [quoteDialogItem, setQuoteDialogItem] = useState<ActivatableProduct | null>(null);
   const [quoteDialogService, setQuoteDialogService] = useState<SecurityServiceCategory | null>(null);
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
@@ -504,7 +518,6 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
       ...prev,
       [id]: { activatedBy, activatedAt: new Date() },
     }));
-    // Persist globally so DeviceComplianceTab can read it
     globalActivate(id, activatedBy);
   };
 
@@ -528,7 +541,7 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Sikkerhetstjenester</CardTitle>
+              <CardTitle className="text-lg">{isNb ? "Sikkerhetstjenester" : "Security Services"}</CardTitle>
             </div>
             <div className="flex items-center gap-2">
               {!isSelfProfile && (
@@ -541,8 +554,12 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {isSelfProfile
-              ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav. Be om tilbud fra din MSP-partner og godkjenn via innboksen."
-              : "Se hvilke sikkerhetstjenester som dekker relevante ISO 27001-kontroller"}
+              ? (isNb
+                ? "Oversikt over sikkerhetstjenester koblet til dine compliance-krav. Be om tilbud fra din MSP-partner og godkjenn via innboksen."
+                : "Overview of security services linked to your compliance requirements. Request quotes from your MSP partner and approve via inbox.")
+              : (isNb
+                ? "Se hvilke sikkerhetstjenester som dekker relevante ISO 27001-kontroller"
+                : "See which security services cover relevant ISO 27001 controls")}
           </p>
         </CardHeader>
         <CardContent>
@@ -552,14 +569,14 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
               <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
                 <div className="flex items-center gap-2">
                   <Award className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-sm font-medium text-foreground">MSP-partner</span>
+                  <span className="text-sm font-medium text-foreground">{isNb ? "MSP-partner" : "MSP partner"}</span>
                 </div>
                 <Select
                   value={selectedPartnerId || ""}
                   onValueChange={(val) => setSelectedPartnerId(val || null)}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Velg din MSP-partner..." />
+                    <SelectValue placeholder={isNb ? "Velg din MSP-partner..." : "Select your MSP partner..."} />
                   </SelectTrigger>
                   <SelectContent>
                     {MSP_PARTNER_DIRECTORY.map((p) => (
@@ -568,34 +585,34 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
                   </SelectContent>
                 </Select>
                 {selectedPartner && (
-                  <p className="text-xs text-muted-foreground">{selectedPartner.description}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? selectedPartner.description : selectedPartner.descriptionEn}</p>
                 )}
               </div>
             )}
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm font-medium text-foreground">Sikkerhetsdekning</span>
-                <span className="text-sm font-bold text-foreground">{covered}/{total} tjenester</span>
+                <span className="text-sm font-medium text-foreground">{isNb ? "Sikkerhetsdekning" : "Security coverage"}</span>
+                <span className="text-sm font-bold text-foreground">{covered}/{total} {isNb ? "tjenester" : "services"}</span>
               </div>
               <Progress value={pct} className="h-2.5" />
             </div>
             <div className="flex gap-4 text-xs flex-wrap">
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                <span className="text-muted-foreground">{covered} implementert</span>
+                <span className="text-muted-foreground">{covered} {isNb ? "implementert" : "implemented"}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                <span className="text-muted-foreground">{missing} mangler</span>
+                <span className="text-muted-foreground">{missing} {isNb ? "mangler" : "missing"}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">{total - covered - missing} ikke kartlagt</span>
+                <span className="text-muted-foreground">{total - covered - missing} {isNb ? "ikke kartlagt" : "not assessed"}</span>
               </div>
               <div className="flex items-center gap-1.5 ml-auto">
                 <CloudCog className="h-3.5 w-3.5 text-primary" />
-                <span className="text-muted-foreground">{activeAcronisModules}/{totalAcronisModules} Acronis-moduler aktive</span>
+                <span className="text-muted-foreground">{activeAcronisModules}/{totalAcronisModules} {isNb ? "Acronis-moduler aktive" : "Acronis modules active"}</span>
               </div>
             </div>
           </div>
@@ -617,6 +634,7 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
             serviceOverrideId={servicePartnerOverrides[result.service.id]}
             onSetOverride={handleSetOverride}
             onClearOverride={handleClearOverride}
+            isNb={isNb}
           />
         ))}
       </div>
