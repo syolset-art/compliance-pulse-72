@@ -14,11 +14,11 @@ interface IncidentManagementTabProps {
   assetId: string;
 }
 
-const SEVERITY_CONFIG: Record<string, { label: string; className: string }> = {
-  critical: { label: "Kritisk", className: "bg-red-500/15 text-red-700 border-red-500/30" },
-  high: { label: "Høy", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
-  medium: { label: "Middels", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
-  low: { label: "Lav", className: "bg-green-500/15 text-green-700 border-green-500/30" },
+const SEVERITY_CONFIG: Record<string, { labelNb: string; labelEn: string; className: string }> = {
+  critical: { labelNb: "Kritisk", labelEn: "Critical", className: "bg-red-500/15 text-red-700 border-red-500/30" },
+  high: { labelNb: "Høy", labelEn: "High", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
+  medium: { labelNb: "Middels", labelEn: "Medium", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
+  low: { labelNb: "Lav", labelEn: "Low", className: "bg-green-500/15 text-green-700 border-green-500/30" },
 };
 
 function getSeverityFromFileName(fileName?: string | null): string | null {
@@ -38,6 +38,7 @@ function getSeverityFromFileName(fileName?: string | null): string | null {
 
 export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) => {
   const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
 
   const { data: incidents } = useQuery({
@@ -81,10 +82,10 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
-      toast.success(data.message || "Hendelser hentet");
+      toast.success(data.message || (isNb ? "Hendelser hentet" : "Incidents fetched"));
     },
     onError: (err: any) => {
-      toast.error("Feil ved henting: " + err.message);
+      toast.error((isNb ? "Feil ved henting: " : "Error fetching: ") + err.message);
     },
   });
 
@@ -112,7 +113,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
       queryClient.invalidateQueries({ queryKey: ["deviations"] });
-      toast.success("Hendelse godkjent og opprettet som avvik");
+      toast.success(isNb ? "Hendelse godkjent og opprettet som avvik" : "Incident approved and created as deviation");
     },
   });
 
@@ -123,7 +124,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
-      toast.success("Hendelse avvist");
+      toast.success(isNb ? "Hendelse avvist" : "Incident rejected");
     },
   });
 
@@ -196,10 +197,10 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-orange-600" />
-            Live hendelser fra 7 Security
+            {isNb ? "Live hendelser fra 7 Security" : "Live incidents from 7 Security"}
             {pendingIncidents.length > 0 && (
               <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-xs">
-                {pendingIncidents.length} nye
+                {pendingIncidents.length} {isNb ? "nye" : "new"}
               </Badge>
             )}
           </CardTitle>
@@ -210,13 +211,13 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
             disabled={fetchIncidentsMutation.isPending}
           >
             <RefreshCw className={`h-4 w-4 mr-1 ${fetchIncidentsMutation.isPending ? "animate-spin" : ""}`} />
-            Hent siste hendelser
+            {isNb ? "Hent siste hendelser" : "Fetch latest incidents"}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {pendingIncidents.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              Ingen ventende hendelser. Klikk «Hent siste hendelser» for å sjekke.
+              {isNb ? "Ingen ventende hendelser. Klikk «Hent siste hendelser» for å sjekke." : "No pending incidents. Click \"Fetch latest incidents\" to check."}
             </p>
           ) : (
             pendingIncidents.map((item: any) => {
@@ -229,14 +230,14 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                       <div className="flex items-center gap-2 mb-1">
                         <p className="text-sm font-medium">{item.subject}</p>
                         {sevConfig && (
-                          <Badge className={`text-[10px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
+                          <Badge className={`text-[10px] ${sevConfig.className}`}>{isNb ? sevConfig.labelNb : sevConfig.labelEn}</Badge>
                         )}
                       </div>
                       {item.file_path && (
                         <p className="text-xs text-muted-foreground line-clamp-2">{item.file_path}</p>
                       )}
                       <p className="text-[10px] text-muted-foreground mt-1">
-                        {item.file_name?.replace(".json", "")} · {new Date(item.received_at).toLocaleDateString("nb-NO")}
+                        {item.file_name?.replace(".json", "")} · {new Date(item.received_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -246,7 +247,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                         onClick={() => approveIncidentMutation.mutate(item)}
                       >
                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Opprett avvik
+                        {isNb ? "Opprett avvik" : "Create deviation"}
                       </Button>
                       <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => rejectMutation.mutate(item.id)}>
                         <X className="h-3 w-3" />
@@ -315,7 +316,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("trustProfile.incident")}</TableHead>
-                  <TableHead>Kilde</TableHead>
+                  <TableHead>{isNb ? "Kilde" : "Source"}</TableHead>
                   <TableHead>{t("trustProfile.riskLevel")}</TableHead>
                   <TableHead>{t("trustProfile.responsible")}</TableHead>
                   <TableHead>{t("trustProfile.lastUpdated")}</TableHead>
@@ -341,7 +342,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                           7 Security
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">Manuell</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{isNb ? "Manuell" : "Manual"}</Badge>
                       )}
                     </TableCell>
                     <TableCell>{getRiskLevelBadge(incident.risk_level)}</TableCell>
