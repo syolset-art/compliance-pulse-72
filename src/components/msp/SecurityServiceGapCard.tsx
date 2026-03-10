@@ -26,6 +26,9 @@ const statusConfigEn: Record<ServiceCoverageStatus, { label: string; icon: typeo
 };
 
 export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceGapCardProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const statusConfig = isNb ? statusConfigNb : statusConfigEn;
   const results = evaluateServiceCoverage(assessmentResponses);
   const covered = results.filter((r) => r.status === "covered").length;
   const total = SECURITY_SERVICE_CATALOG.length;
@@ -34,9 +37,9 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="h-5 w-5 text-primary" />
-        <h3 className="font-semibold text-foreground">Sikkerhetstjenester – gap-analyse</h3>
+        <h3 className="font-semibold text-foreground">{isNb ? "Sikkerhetstjenester – gap-analyse" : "Security services – gap analysis"}</h3>
         <Badge variant="secondary" className="ml-auto">
-          {covered}/{total} dekket
+          {covered}/{total} {isNb ? "dekket" : "covered"}
         </Badge>
       </div>
 
