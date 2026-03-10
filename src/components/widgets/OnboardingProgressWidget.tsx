@@ -19,14 +19,11 @@ import { cn } from "@/lib/utils";
 import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 
 // Safe hook to access GlobalChat context without throwing
-let useGlobalChatModule: any = null;
-try {
-  useGlobalChatModule = await import("@/components/GlobalChatProvider");
-} catch {}
-
 const useGlobalChatSafe = () => {
   try {
-    return useGlobalChatModule?.useGlobalChat?.() ?? null;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = (globalThis as any).__globalChatHook;
+    return mod?.() ?? null;
   } catch {
     return null;
   }
