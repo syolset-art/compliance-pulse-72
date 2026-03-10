@@ -197,7 +197,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-orange-600" />
-            Live hendelser fra 7 Security
+            {isNb ? "Live hendelser fra 7 Security" : "Live incidents from 7 Security"}
             {pendingIncidents.length > 0 && (
               <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-xs">
                 {pendingIncidents.length} nye
