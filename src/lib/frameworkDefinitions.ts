@@ -75,6 +75,13 @@ export const frameworks: Framework[] = [
     triggerQuestion: 'Har dere amerikanske kunder som krever SOC 2-sertifisering?'
   },
   {
+    id: 'dora',
+    name: 'DORA',
+    description: 'Digital Operational Resilience Act – EUs forordning om digital operasjonell motstandsdyktighet for finanssektoren',
+    category: 'security',
+    triggerQuestion: 'Er virksomheten i finanssektoren eller leverer IKT-tjenester til finansforetak?'
+  },
+  {
     id: 'cra',
     name: 'Cyber Resilience Act (CRA)',
     description: 'EUs forordning om cybersikkerhetskrav for produkter med digitale elementer',
