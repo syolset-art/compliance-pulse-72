@@ -44,7 +44,7 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {results.map(({ service, status, reason }) => {
+        {results.map(({ service, status, reason, reasonEn }) => {
           const Icon = service.icon;
           const cfg = statusConfig[status];
           const StatusIcon = cfg.icon;
