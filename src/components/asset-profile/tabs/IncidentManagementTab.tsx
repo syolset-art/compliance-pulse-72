@@ -211,7 +211,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
             disabled={fetchIncidentsMutation.isPending}
           >
             <RefreshCw className={`h-4 w-4 mr-1 ${fetchIncidentsMutation.isPending ? "animate-spin" : ""}`} />
-            Hent siste hendelser
+            {isNb ? "Hent siste hendelser" : "Fetch latest incidents"}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
