@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useTranslation } from "react-i18next";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
