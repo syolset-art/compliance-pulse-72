@@ -21,9 +21,7 @@ import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 // Safe hook to access GlobalChat context without throwing
 const useGlobalChatSafe = () => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = (globalThis as any).__globalChatHook;
-    return mod?.() ?? null;
+    return null;
   } catch {
     return null;
   }
