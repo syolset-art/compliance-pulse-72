@@ -237,7 +237,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                         <p className="text-xs text-muted-foreground line-clamp-2">{item.file_path}</p>
                       )}
                       <p className="text-[10px] text-muted-foreground mt-1">
-                        {item.file_name?.replace(".json", "")} · {new Date(item.received_at).toLocaleDateString("nb-NO")}
+                        {item.file_name?.replace(".json", "")} · {new Date(item.received_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
