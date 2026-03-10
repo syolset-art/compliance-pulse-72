@@ -247,7 +247,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                         onClick={() => approveIncidentMutation.mutate(item)}
                       >
                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Opprett avvik
+                        {isNb ? "Opprett avvik" : "Create deviation"}
                       </Button>
                       <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => rejectMutation.mutate(item.id)}>
                         <X className="h-3 w-3" />
