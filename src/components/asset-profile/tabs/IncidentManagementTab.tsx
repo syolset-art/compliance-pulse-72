@@ -230,7 +230,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                       <div className="flex items-center gap-2 mb-1">
                         <p className="text-sm font-medium">{item.subject}</p>
                         {sevConfig && (
-                          <Badge className={`text-[10px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
+                          <Badge className={`text-[10px] ${sevConfig.className}`}>{isNb ? sevConfig.labelNb : sevConfig.labelEn}</Badge>
                         )}
                       </div>
                       {item.file_path && (
