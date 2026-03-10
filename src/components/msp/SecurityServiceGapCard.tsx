@@ -71,7 +71,7 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
                   status === "unknown" && "text-muted-foreground"
                 )} />
               </div>
-              <p className="text-xs text-muted-foreground">{(isNb ? reason : result.reasonEn) || (isNb ? service.description : service.descriptionEn)}</p>
+              <p className="text-xs text-muted-foreground">{(isNb ? reason : reasonEn) || (isNb ? service.description : service.descriptionEn)}</p>
               {service.linkedControls.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-auto">
                   {service.linkedControls.slice(0, 3).map((ctrl) => (
