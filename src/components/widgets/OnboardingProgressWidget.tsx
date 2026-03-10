@@ -41,8 +41,8 @@ export function OnboardingProgressWidget() {
     isLoading 
   } = useOnboardingProgress();
   
-  // Use safe context access - may be null if provider not ready
-  const globalChat = useGlobalChatSafe();
+  // Use safe context access
+  const globalChat = useGlobalChat();
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Show roadmap widget when onboarding is complete
