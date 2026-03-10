@@ -38,6 +38,7 @@ function getSeverityFromFileName(fileName?: string | null): string | null {
 
 export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) => {
   const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
 
   const { data: incidents } = useQuery({
