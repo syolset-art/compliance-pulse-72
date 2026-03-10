@@ -16,12 +16,21 @@ export function SecurityCoverageWidget() {
   const total = SECURITY_SERVICE_CATALOG.length;
   const pct = Math.round((covered / total) * 100);
 
+  // Detect language – widget may be used outside i18n provider so we fall back
+  let isNb = true;
+  try {
+    const { useTranslation } = require("react-i18next");
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { i18n } = useTranslation();
+    isNb = i18n.language === "nb";
+  } catch { /* fallback nb */ }
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">Sikkerhetsdekning</h3>
+          <h3 className="font-semibold text-foreground">{isNb ? "Sikkerhetsdekning" : "Security Coverage"}</h3>
         </div>
         <Badge variant="secondary">{covered}/{total}</Badge>
       </div>
