@@ -200,7 +200,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
             {isNb ? "Live hendelser fra 7 Security" : "Live incidents from 7 Security"}
             {pendingIncidents.length > 0 && (
               <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-xs">
-                {pendingIncidents.length} nye
+                {pendingIncidents.length} {isNb ? "nye" : "new"}
               </Badge>
             )}
           </CardTitle>
