@@ -63,7 +63,7 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
                 <div className={cn("h-8 w-8 rounded-md flex items-center justify-center text-white", service.color)}>
                   <Icon className="h-4 w-4" />
                 </div>
-                <span className="text-sm font-medium text-foreground flex-1">{service.name}</span>
+                <span className="text-sm font-medium text-foreground flex-1">{isNb ? service.name : service.nameEn}</span>
                 <StatusIcon className={cn(
                   "h-4 w-4",
                   status === "covered" && "text-green-600 dark:text-green-400",
@@ -71,7 +71,7 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
                   status === "unknown" && "text-muted-foreground"
                 )} />
               </div>
-              <p className="text-xs text-muted-foreground">{reason || service.description}</p>
+              <p className="text-xs text-muted-foreground">{(isNb ? reason : result.reasonEn) || (isNb ? service.description : service.descriptionEn)}</p>
               {service.linkedControls.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-auto">
                   {service.linkedControls.slice(0, 3).map((ctrl) => (
