@@ -342,7 +342,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                           7 Security
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">Manuell</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{isNb ? "Manuell" : "Manual"}</Badge>
                       )}
                     </TableCell>
                     <TableCell>{getRiskLevelBadge(incident.risk_level)}</TableCell>
