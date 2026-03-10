@@ -217,7 +217,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
         <CardContent className="space-y-3">
           {pendingIncidents.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              Ingen ventende hendelser. Klikk «Hent siste hendelser» for å sjekke.
+              {isNb ? "Ingen ventende hendelser. Klikk «Hent siste hendelser» for å sjekke." : "No pending incidents. Click \"Fetch latest incidents\" to check."}
             </p>
           ) : (
             pendingIncidents.map((item: any) => {
