@@ -85,7 +85,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
       toast.success(data.message || (isNb ? "Hendelser hentet" : "Incidents fetched"));
     },
     onError: (err: any) => {
-      toast.error("Feil ved henting: " + err.message);
+      toast.error((isNb ? "Feil ved henting: " : "Error fetching: ") + err.message);
     },
   });
 
