@@ -14,11 +14,11 @@ interface IncidentManagementTabProps {
   assetId: string;
 }
 
-const SEVERITY_CONFIG: Record<string, { label: string; className: string }> = {
-  critical: { label: "Kritisk", className: "bg-red-500/15 text-red-700 border-red-500/30" },
-  high: { label: "Høy", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
-  medium: { label: "Middels", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
-  low: { label: "Lav", className: "bg-green-500/15 text-green-700 border-green-500/30" },
+const SEVERITY_CONFIG: Record<string, { labelNb: string; labelEn: string; className: string }> = {
+  critical: { labelNb: "Kritisk", labelEn: "Critical", className: "bg-red-500/15 text-red-700 border-red-500/30" },
+  high: { labelNb: "Høy", labelEn: "High", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
+  medium: { labelNb: "Middels", labelEn: "Medium", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
+  low: { labelNb: "Lav", labelEn: "Low", className: "bg-green-500/15 text-green-700 border-green-500/30" },
 };
 
 function getSeverityFromFileName(fileName?: string | null): string | null {

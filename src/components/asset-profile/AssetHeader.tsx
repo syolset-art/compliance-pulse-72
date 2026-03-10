@@ -323,7 +323,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             {isMspPartner && (
               <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
                 <Award className="h-3 w-3" />
-                Partner og forhandler av Mynder
+                {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
             {!isSelf && (
