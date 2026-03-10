@@ -24,7 +24,7 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
   const [verificationState, setVerificationState] = useState<"idle" | "verifying" | "success" | "error">("idle");
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const partnerName = integration.partnerName || "7 Security";
 

@@ -19,10 +19,14 @@ import { cn } from "@/lib/utils";
 import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 
 // Safe hook to access GlobalChat context without throwing
+let useGlobalChatModule: any = null;
+try {
+  useGlobalChatModule = await import("@/components/GlobalChatProvider");
+} catch {}
+
 const useGlobalChatSafe = () => {
   try {
-    const { useGlobalChat } = require("@/components/GlobalChatProvider");
-    return useGlobalChat();
+    return useGlobalChatModule?.useGlobalChat?.() ?? null;
   } catch {
     return null;
   }
