@@ -19,14 +19,6 @@ import {
 import { cn } from "@/lib/utils";
 import { PostOnboardingRoadmapWidget } from "./PostOnboardingRoadmapWidget";
 
-// Safe hook to access GlobalChat context without throwing
-const useGlobalChatSafe = () => {
-  try {
-    return null;
-  } catch {
-    return null;
-  }
-};
 
 const stepIcons: Record<string, React.ElementType> = {
   'Building2': Building2,
