@@ -7,15 +7,22 @@ import {
   evaluateServiceCoverage,
   ServiceCoverageStatus,
 } from "@/lib/securityServiceCatalog";
+import { useTranslation } from "react-i18next";
 
 interface SecurityServiceGapCardProps {
   assessmentResponses: Record<string, string> | null;
 }
 
-const statusConfig: Record<ServiceCoverageStatus, { label: string; icon: typeof CheckCircle; badgeVariant: "default" | "destructive" | "secondary" | "outline" }> = {
+const statusConfigNb: Record<ServiceCoverageStatus, { label: string; icon: typeof CheckCircle; badgeVariant: "default" | "destructive" | "secondary" | "outline" }> = {
   covered: { label: "Dekket", icon: CheckCircle, badgeVariant: "default" },
   missing: { label: "Mangler", icon: XCircle, badgeVariant: "destructive" },
   unknown: { label: "Ukjent", icon: HelpCircle, badgeVariant: "outline" },
+};
+
+const statusConfigEn: Record<ServiceCoverageStatus, { label: string; icon: typeof CheckCircle; badgeVariant: "default" | "destructive" | "secondary" | "outline" }> = {
+  covered: { label: "Covered", icon: CheckCircle, badgeVariant: "default" },
+  missing: { label: "Missing", icon: XCircle, badgeVariant: "destructive" },
+  unknown: { label: "Unknown", icon: HelpCircle, badgeVariant: "outline" },
 };
 
 export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceGapCardProps) {
