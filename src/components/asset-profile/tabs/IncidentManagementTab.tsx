@@ -113,7 +113,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
       queryClient.invalidateQueries({ queryKey: ["deviations"] });
-      toast.success("Hendelse godkjent og opprettet som avvik");
+      toast.success(isNb ? "Hendelse godkjent og opprettet som avvik" : "Incident approved and created as deviation");
     },
   });
 
