@@ -82,7 +82,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
-      toast.success(data.message || "Hendelser hentet");
+      toast.success(data.message || (isNb ? "Hendelser hentet" : "Incidents fetched"));
     },
     onError: (err: any) => {
       toast.error("Feil ved henting: " + err.message);
