@@ -124,7 +124,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-incidents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
-      toast.success("Hendelse avvist");
+      toast.success(isNb ? "Hendelse avvist" : "Incident rejected");
     },
   });
 
