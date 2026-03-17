@@ -25,6 +25,7 @@ import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerReq
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
 import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
 import { OrganizationServicesPanel } from "@/components/asset-profile/OrganizationServicesPanel";
+import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 
 const AssetTrustProfile = () => {
@@ -109,6 +110,7 @@ const AssetTrustProfile = () => {
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isHardware },
     // Standard tabs
     { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: !isHardware },
+    { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: !isHardware },
     { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: !isHardware },
     { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
     { value: 'incidents', label: isNb ? 'Avvik og hendelser' : 'Deviations & Incidents', show: true },
@@ -314,6 +316,10 @@ const AssetTrustProfile = () => {
                 {/* Standard tabs */}
                 <TabsContent value="validation" className="mt-6">
                   <ValidationTab assetId={asset.id} />
+                </TabsContent>
+
+                <TabsContent value="controls" className="mt-6">
+                  <ControlsTab assetId={asset.id} />
                 </TabsContent>
 
                 <TabsContent value="dataHandling" className="mt-6">
