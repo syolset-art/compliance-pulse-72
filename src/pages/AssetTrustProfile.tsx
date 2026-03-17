@@ -110,6 +110,7 @@ const AssetTrustProfile = () => {
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isHardware },
     // Standard tabs
     { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: !isHardware },
+    { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: !isHardware },
     { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: !isHardware },
     { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
     { value: 'incidents', label: isNb ? 'Avvik og hendelser' : 'Deviations & Incidents', show: true },
