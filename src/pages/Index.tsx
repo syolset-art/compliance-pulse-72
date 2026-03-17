@@ -59,6 +59,7 @@ const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "ai-docs": <AIGeneratedDocsWidget />,
   "vendor-requests": <VendorRequestsWidget />,
   "environment": <EnvironmentOverviewWidget />,
+  "data-geography": <DataGeographyWidget />,
   "nis2": <NIS2ReadinessWidget />,
 };
 
