@@ -21,8 +21,9 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ListTodo, Cpu, LayoutGrid, Check } from "lucide-react";
+import { LayoutGrid, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
