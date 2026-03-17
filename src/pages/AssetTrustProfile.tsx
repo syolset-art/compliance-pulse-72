@@ -318,6 +318,11 @@ const AssetTrustProfile = () => {
                   <ValidationTab assetId={asset.id} />
                 </TabsContent>
 
+                <TabsContent value="controls" className="mt-6">
+                  <ControlsTab assetId={asset.id} />
+                </TabsContent>
+                </TabsContent>
+
                 <TabsContent value="dataHandling" className="mt-6">
                   <DataHandlingTab assetId={asset.id} />
                 </TabsContent>
