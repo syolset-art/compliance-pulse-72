@@ -8,6 +8,7 @@ import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidge
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
+import { DataGeographyWidget } from "@/components/widgets/DataGeographyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { CriticalDependenciesWidget } from "@/components/widgets/CriticalDependenciesWidget";
 import { DashboardWidgetToggle } from "@/components/dashboard/DashboardWidgetToggle";
@@ -33,6 +34,7 @@ const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize 
   { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs", size: "half" },
   { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests", size: "half" },
   { id: "environment", label: "Ditt miljø", labelEn: "Your environment", size: "full" },
+  { id: "data-geography", label: "Datageografi", labelEn: "Data geography", size: "full" },
   { id: "nis2", label: "NIS2-beredskap", labelEn: "NIS2 readiness", size: "full" },
 ];
 
@@ -57,6 +59,7 @@ const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "ai-docs": <AIGeneratedDocsWidget />,
   "vendor-requests": <VendorRequestsWidget />,
   "environment": <EnvironmentOverviewWidget />,
+  "data-geography": <DataGeographyWidget />,
   "nis2": <NIS2ReadinessWidget />,
 };
 
