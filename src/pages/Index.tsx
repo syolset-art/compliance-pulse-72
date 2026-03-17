@@ -34,6 +34,7 @@ const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize 
   { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs", size: "half" },
   { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests", size: "half" },
   { id: "environment", label: "Ditt miljø", labelEn: "Your environment", size: "full" },
+  { id: "data-geography", label: "Datageografi", labelEn: "Data geography", size: "full" },
   { id: "nis2", label: "NIS2-beredskap", labelEn: "NIS2 readiness", size: "full" },
 ];
 
