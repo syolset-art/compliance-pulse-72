@@ -23,9 +23,9 @@ import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
 import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
-import { DeviceComplianceTab } from "@/components/devices/DeviceComplianceTab";
 import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
 import { OrganizationServicesPanel } from "@/components/asset-profile/OrganizationServicesPanel";
+import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
