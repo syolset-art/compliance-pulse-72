@@ -25,6 +25,7 @@ import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerReq
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
 import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
 import { OrganizationServicesPanel } from "@/components/asset-profile/OrganizationServicesPanel";
+import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 
 const AssetTrustProfile = () => {
