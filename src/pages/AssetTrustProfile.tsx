@@ -161,6 +161,20 @@ const AssetTrustProfile = () => {
     );
   }
 
+  // ── Hardware devices get a completely different profile ──
+  if (isHardware) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <Sidebar />
+          <main className="flex-1 overflow-auto">
+            <DeviceTrustProfile asset={asset} />
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -173,12 +187,10 @@ const AssetTrustProfile = () => {
               {t("common.back")}
             </Button>
 
-            {/* ═══ TRUST SNAPSHOT ═══════════════════════════════════════ */}
-
             {/* Entity Header */}
             <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
 
-            {/* Security Areas + Scope (side by side on desktop) */}
+            {/* Security Areas + Scope */}
             <AssetMetrics
               asset={asset}
               tasksCount={tasks?.length || 0}
@@ -290,17 +302,7 @@ const AssetTrustProfile = () => {
                   </div>
                 </nav>
 
-                {/* Hardware tabs */}
-                {isHardware && (
-                  <TabsContent value="compliance" className="mt-6">
-                    <DeviceComplianceTab
-                      assetId={asset.id}
-                      metadata={(asset.metadata as Record<string, any>) || {}}
-                      asset={asset}
-                    />
-                  </TabsContent>
-                )}
-                {(isHardware || isSelf) && (
+                {isSelf && (
                   <TabsContent value="nis2" className="mt-6">
                     <NIS2AssessmentTab
                       assetId={asset.id}
