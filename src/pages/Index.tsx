@@ -21,8 +21,9 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ListTodo, Cpu, LayoutGrid, Check } from "lucide-react";
+import { LayoutGrid, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
@@ -140,12 +141,6 @@ const Index = () => {
     component: WIDGET_COMPONENTS[w.id],
   }));
 
-  const summaryItems = [
-    { icon: AlertTriangle, label: isNb ? "Åpne hendelser" : "Open incidents", count: 3, color: "text-destructive" },
-    { icon: ListTodo, label: isNb ? "Ventende oppgaver" : "Pending tasks", count: 8, color: "text-warning" },
-    { icon: Cpu, label: isNb ? "Høyrisiko AI-systemer" : "High-risk AI systems", count: 2, color: "text-primary" },
-  ];
-
   const dashboardContent = (
     <>
       {/* Header */}
@@ -179,20 +174,8 @@ const Index = () => {
             : "Here's what needs your attention."}
       </p>
 
-      {/* Quick summary row */}
-      {!editMode && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {summaryItems.map(item => (
-            <div key={item.label} className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-3">
-              <item.icon className={`h-4 w-4 ${item.color}`} />
-              <div>
-                <p className="text-lg font-bold text-foreground leading-none">{item.count}</p>
-                <p className="text-[11px] text-muted-foreground">{item.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Graphical hero cards – max 2 wide */}
+      {!editMode && <DashboardHeroCards />}
 
       {/* Widget grid */}
       <DashboardGrid
