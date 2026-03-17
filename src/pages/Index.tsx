@@ -8,6 +8,7 @@ import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidge
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
+import { DataGeographyWidget } from "@/components/widgets/DataGeographyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { CriticalDependenciesWidget } from "@/components/widgets/CriticalDependenciesWidget";
 import { DashboardWidgetToggle } from "@/components/dashboard/DashboardWidgetToggle";
