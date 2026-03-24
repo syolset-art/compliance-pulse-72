@@ -259,8 +259,7 @@ export default function WorkAreas() {
         .single();
 
       if (profileError && profileError.code === "PGRST116") {
-        // No company profile exists - show onboarding
-        setShowOnboarding(true);
+        // No company profile exists - continue to show page anyway
         setInitialLoadComplete(true);
         return;
       }
@@ -458,10 +457,6 @@ export default function WorkAreas() {
     return null;
   }
 
-  // Show onboarding if no company profile exists
-  if (showOnboarding) {
-    return <CompanyOnboarding onComplete={handleOnboardingComplete} />;
-  }
 
   // Show loading state while checking for company profile
   if (!initialLoadComplete) {
