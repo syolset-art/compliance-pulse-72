@@ -457,10 +457,6 @@ export default function WorkAreas() {
     return null;
   }
 
-  // Show onboarding if no company profile exists
-  if (showOnboarding) {
-    return <CompanyOnboarding onComplete={handleOnboardingComplete} />;
-  }
 
   // Show loading state while checking for company profile
   if (!initialLoadComplete) {
