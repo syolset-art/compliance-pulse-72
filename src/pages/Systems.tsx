@@ -254,7 +254,7 @@ export default function Systems() {
 
   const restoreSystem = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("systems").update({ status: "active" }).eq("id", id);
+      const { error } = await supabase.from("systems").update({ status: "in_use" }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -263,19 +263,28 @@ export default function Systems() {
     },
   });
 
-  // "I bruk" = has work_area_id (assigned owner). "Ikke i bruk" = no owner assigned.
-  const inUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && s.work_area_id), [systems]);
-  const notInUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && !s.work_area_id), [systems]);
-  const archivedSystems = useMemo(() => systems.filter((s) => s.status === "archived"), [systems]);
+  const changeStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("systems").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("Status oppdatert");
+    },
+  });
 
   const filterSystems = (list: System[]) => {
     return list.filter((system) => {
       const matchesName = system.name.toLowerCase().includes(nameFilter.toLowerCase());
       const matchesType = !typeFilter || typeFilter === "all" || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
       const matchesOwner = !ownerFilter || ownerFilter === "all" || system.work_area_id === ownerFilter;
-      return matchesName && matchesType && matchesOwner;
+      const matchesStatus = !statusFilter || statusFilter === "all" || system.status === statusFilter;
+      return matchesName && matchesType && matchesOwner && matchesStatus;
     });
   };
+
+  const filteredSystems = useMemo(() => filterSystems(systems), [systems, nameFilter, typeFilter, ownerFilter, statusFilter]);
 
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
