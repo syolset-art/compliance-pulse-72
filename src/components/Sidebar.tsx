@@ -141,7 +141,7 @@ const TrustCenterMenu = () => {
   }, []);
 
   const trustCenterItems = [
-    { name: "Organization Trust Profile", href: selfAssetId ? `/assets/${selfAssetId}` : null, icon: Shield },
+    { name: "Trust Profile", href: selfAssetId ? `/assets/${selfAssetId}` : "/trust-center/saas", icon: Shield },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
     { name: "Compliance Status", href: "/trust-center/compliance", icon: FileCheck },
     { name: "Policies", href: "/trust-center/policies", icon: FileText },
