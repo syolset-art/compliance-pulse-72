@@ -226,7 +226,16 @@ export default function Assets() {
             </TabsList>
 
             <TabsContent value="devices">
-              <DeviceListTab devices={devices} />
+              <DeviceListTab
+                devices={devices}
+                workAreas={workAreas}
+                lifecycleOptions={ASSET_LIFECYCLE_OPTIONS}
+                onSetOwner={(id, waId) => assignOwner.mutate({ id, workAreaId: waId })}
+                onSetStatus={(id, status) => changeLifecycle.mutate({ id, status })}
+                onArchive={(id) => archiveAsset.mutate(id)}
+                onRestore={(id) => restoreAsset.mutate(id)}
+                onDelete={(id) => deleteAsset.mutate(id)}
+              />
             </TabsContent>
 
             <TabsContent value="other">
