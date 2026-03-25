@@ -608,6 +608,54 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                 required: ["step", "message"]
               }
             }
+          },
+          {
+            type: "function",
+            function: {
+              name: "create_action_plan",
+              description: "Create a structured action plan with steps that can be approved by the user. Use this when user asks for a remediation plan, action plan, or after analyzing risks/gaps and they want to create tasks.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: {
+                    type: "string",
+                    description: "Title of the action plan"
+                  },
+                  summary: {
+                    type: "string",
+                    description: "Brief summary of what the plan addresses"
+                  },
+                  steps: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string", description: "Step title" },
+                        description: { type: "string", description: "Detailed description" },
+                        priority: { type: "string", enum: ["high", "medium", "low"], description: "Priority level" },
+                        estimated_days: { type: "number", description: "Estimated days to complete" },
+                        trust_impact: { type: "number", description: "Estimated Trust Score improvement percentage" },
+                        category: { type: "string", enum: ["vendor", "control", "policy", "risk", "ai"], description: "Category of the action" }
+                      },
+                      required: ["title", "description", "priority", "estimated_days", "trust_impact", "category"]
+                    },
+                    description: "Array of action steps in the plan"
+                  },
+                  total_trust_impact: {
+                    type: "number",
+                    description: "Total estimated Trust Score improvement"
+                  }
+                },
+                required: ["title", "summary", "steps", "total_trust_impact"]
+              }
+            }
+          }
+        ],
+        stream: true,
+...
+                required: ["step", "message"]
+              }
+            }
           }
         ],
         stream: true,
