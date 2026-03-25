@@ -134,6 +134,28 @@ export default function Assets() {
     },
   });
 
+  const changeLifecycle = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Status oppdatert");
+    },
+  });
+
+  const restoreAsset = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: "active" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Asset gjenopprettet");
+    },
+  });
+
   const devices = useMemo(() => assets.filter(a => a.asset_type === "hardware"), [assets]);
   const otherAssets = useMemo(() => assets.filter(a => a.asset_type !== "hardware"), [assets]);
 
