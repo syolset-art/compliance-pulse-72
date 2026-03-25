@@ -5,6 +5,7 @@ import { Monitor, Smartphone, Server, HardDrive, RefreshCw, Loader2, Laptop, Wif
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { AssetRowActionMenu, type StatusOption } from "@/components/shared/AssetRowActionMenu";
 import {
   Select,
   SelectContent,
