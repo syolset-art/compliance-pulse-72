@@ -107,6 +107,19 @@ const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon;
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
 };
 
+const SYSTEM_STATUSES = [
+  { value: "in_use", label: "I bruk", badgeClass: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" },
+  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" },
+  { value: "quarantined", label: "Karantene", badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400" },
+  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" },
+  { value: "archived", label: "Arkivert", badgeClass: "bg-muted text-muted-foreground" },
+  { value: "rejected", label: "Avvist", badgeClass: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" },
+];
+
+const getStatusBadge = (status: string | null) => {
+  return SYSTEM_STATUSES.find((s) => s.value === status) || SYSTEM_STATUSES[0];
+};
+
 const getMaturityBadge = (score: number) => {
   if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" };
   if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" };
