@@ -78,6 +78,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSuggestingRisk, setIsSuggestingRisk] = useState(false);
+  const [riskSuggestion, setRiskSuggestion] = useState<{ risk_level: string; reasoning: string } | null>(null);
   const { toast } = useToast();
 
   // Search state
@@ -109,7 +111,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
       setTrustResults([]);
       setWebResult(null);
       setSearchSource("none");
-      setSearchPerformed(false);
+      setRiskSuggestion(null);
+      setIsSuggestingRisk(false);
       setFormData({
         name: "",
         description: "",
@@ -271,6 +274,35 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
   const canProceedFromSearch = searchSource !== "none" || formData.name.trim().length > 0;
   const canProceedFromRisk = formData.risk_level !== "";
+
+  const handleSuggestRisk = async () => {
+    setIsSuggestingRisk(true);
+    setRiskSuggestion(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-system-risk", {
+        body: {
+          systemName: formData.name,
+          vendor: formData.vendor,
+          category: formData.category,
+          description: formData.description,
+          hasAi: webResult?.has_ai || false,
+        },
+      });
+      if (error) throw error;
+      if (data?.risk_level) {
+        setRiskSuggestion(data);
+      }
+    } catch (e) {
+      console.error("Risk suggestion error:", e);
+      toast({
+        title: "Kunne ikke hente forslag",
+        description: "AI-rådgiveren er ikke tilgjengelig. Velg risikonivå manuelt.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSuggestingRisk(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -540,6 +572,51 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         {/* Step 4: Risk & Criticality */}
         {step === "risk" && (
           <div className="space-y-4">
+            {/* AI Risk Suggestion */}
+            {!riskSuggestion && !isSuggestingRisk && (
+              <Button
+                variant="outline"
+                onClick={handleSuggestRisk}
+                className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
+              >
+                <Sparkles className="h-4 w-4" />
+                La Lara foreslå risikonivå for {formData.name}
+              </Button>
+            )}
+
+            {isSuggestingRisk && (
+              <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Lara analyserer systemet...</p>
+                  <p className="text-xs text-muted-foreground">Vurderer risiko basert på {formData.name}</p>
+                </div>
+              </div>
+            )}
+
+            {riskSuggestion && (
+              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Laras anbefaling</p>
+                    <p className="text-sm text-muted-foreground">{riskSuggestion.reasoning}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, risk_level: riskSuggestion.risk_level }));
+                  }}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Bruk foreslått nivå: {riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk"}
+                </Button>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label>Risikonivå *</Label>
               <Select value={formData.risk_level} onValueChange={(v) => setFormData(prev => ({ ...prev, risk_level: v }))}>
@@ -582,9 +659,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Aktiv</SelectItem>
-                  <SelectItem value="planned">Planlagt</SelectItem>
-                  <SelectItem value="decommissioned">Utfaset</SelectItem>
+                  <SelectItem value="in_use">I bruk</SelectItem>
+                  <SelectItem value="evaluation">Under evaluering</SelectItem>
+                  <SelectItem value="quarantined">Karantene</SelectItem>
+                  <SelectItem value="phasing_out">Fases ut</SelectItem>
+                  <SelectItem value="rejected">Avvist</SelectItem>
                 </SelectContent>
               </Select>
             </div>
