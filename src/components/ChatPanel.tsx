@@ -134,7 +134,7 @@ function ChatPanelContent({ isOpen, onClose, onShowContent, onBackToDashboard }:
         className={cn(
           "fixed right-4 bottom-4 w-[400px] bg-card border border-border rounded-2xl shadow-2xl z-40 transition-all duration-300 ease-out flex flex-col overflow-hidden",
           isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-4 opacity-0 scale-95 pointer-events-none",
-          hasMessages ? "h-[70vh] max-h-[800px]" : "h-[600px] max-h-[75vh]"
+          hasMessages ? "h-[70vh] max-h-[800px]" : "h-[85vh] max-h-[900px]"
         )}
       >
         <div className="relative flex-1 flex flex-col overflow-hidden">
