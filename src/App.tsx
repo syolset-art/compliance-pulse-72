@@ -9,6 +9,7 @@ import { GlobalChatProvider } from "@/components/GlobalChatProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SystemTrustProfile from "./pages/SystemTrustProfile";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
 import Tasks from "./pages/Tasks";
