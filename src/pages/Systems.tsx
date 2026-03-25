@@ -457,20 +457,12 @@ export default function Systems() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                        {/* Set Owner submenu */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <UserCircle className="h-4 w-4 mr-2" />
-                              Sett eier
-                              {system.work_area_id && (
-                                <span className="ml-auto text-xs text-muted-foreground">
-                                  {workAreas.find((wa: WorkArea) => wa.id === system.work_area_id)?.name || ""}
-                                </span>
-                              )}
-                            </DropdownMenuItem>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent side="left" align="start">
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <UserCircle className="h-4 w-4 mr-2" />
+                            Sett eier
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
                             {workAreas.length === 0 ? (
                               <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
                             ) : (
@@ -484,8 +476,8 @@ export default function Systems() {
                                 </DropdownMenuItem>
                               ))
                             )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
                           <Archive className="h-4 w-4 mr-2" />
