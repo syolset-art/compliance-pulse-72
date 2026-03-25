@@ -17,7 +17,7 @@ import { Progress } from "@/components/ui/progress";
 interface AddSystemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSystemAdded: () => void;
+  onSystemAdded: (status?: string) => void;
 }
 
 type WizardStep = "search" | "confirm" | "category" | "risk" | "contact";
