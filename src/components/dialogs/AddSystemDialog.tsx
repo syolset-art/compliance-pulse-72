@@ -230,6 +230,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         status: formData.status,
         url: formData.url || null,
         system_manager: formData.system_manager || null,
+        contact_person: formData.contact_person || null,
+        contact_email: formData.contact_email || null,
       };
 
       const { error } = await supabase.from("systems").insert([insertData]);
