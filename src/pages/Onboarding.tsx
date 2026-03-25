@@ -418,6 +418,11 @@ export default function Onboarding() {
       setOverallProgress(100);
       setCurrentStep("complete");
       setIsLaraWorking(false);
+      
+      // Auto-redirect to dashboard after showing congratulations
+      setTimeout(() => {
+        goToDashboard();
+      }, 4000);
     }, 1500);
   };
 
@@ -1293,41 +1298,19 @@ export default function Onboarding() {
 
         {/* Complete */}
         {currentStep === "complete" && (
-          <div className="space-y-6 animate-fade-in text-center py-12">
+          <div className="space-y-8 animate-fade-in text-center py-20">
             <div className="inline-block p-6 rounded-full bg-primary/10 mb-4 animate-scale-in">
               <PartyPopper className="w-16 h-16 text-primary" />
             </div>
             
-            <h2 className="text-4xl font-bold">Du er 70% compliant!</h2>
-            <p className="text-xl text-muted-foreground">På 3 minutter. Lara holder deg oppdatert automatisk.</p>
+            <h2 className="text-4xl font-bold">Gratulerer! 🎉</h2>
+            <p className="text-xl text-muted-foreground max-w-lg mx-auto">
+              Du er nå 70% compliant — på bare 3 minutter. Lara holder deg oppdatert automatisk.
+            </p>
 
-            <Card className="max-w-2xl mx-auto text-left">
-              <CardHeader>
-                <CardTitle>Sjekkliste</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>Grunnprofil opprettet</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>{systemsFound} systemer funnet</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>{generatedPolicies.length} policyer publisert</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>Tiltak aktivert</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>Første Trust Profile delt</span>
-                </div>
-              </CardContent>
-            </Card>
+            <p className="text-sm text-muted-foreground animate-pulse">
+              Sender deg til dashbordet om et øyeblikk...
+            </p>
 
             <Button onClick={goToDashboard} size="lg" className="text-lg px-8">
               Gå til Dashboard →
