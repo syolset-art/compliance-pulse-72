@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -107,6 +107,19 @@ const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon;
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
 };
 
+const SYSTEM_STATUSES = [
+  { value: "in_use", label: "I bruk", badgeClass: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" },
+  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" },
+  { value: "quarantined", label: "Karantene", badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400" },
+  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" },
+  { value: "archived", label: "Arkivert", badgeClass: "bg-muted text-muted-foreground" },
+  { value: "rejected", label: "Avvist", badgeClass: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" },
+];
+
+const getStatusBadge = (status: string | null) => {
+  return SYSTEM_STATUSES.find((s) => s.value === status) || SYSTEM_STATUSES[0];
+};
+
 const getMaturityBadge = (score: number) => {
   if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" };
   if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" };
@@ -130,6 +143,7 @@ export default function Systems() {
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("in_use");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -240,7 +254,7 @@ export default function Systems() {
 
   const restoreSystem = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("systems").update({ status: "active" }).eq("id", id);
+      const { error } = await supabase.from("systems").update({ status: "in_use" }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -249,19 +263,28 @@ export default function Systems() {
     },
   });
 
-  // "I bruk" = has work_area_id (assigned owner). "Ikke i bruk" = no owner assigned.
-  const inUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && s.work_area_id), [systems]);
-  const notInUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && !s.work_area_id), [systems]);
-  const archivedSystems = useMemo(() => systems.filter((s) => s.status === "archived"), [systems]);
+  const changeStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("systems").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("Status oppdatert");
+    },
+  });
 
   const filterSystems = (list: System[]) => {
     return list.filter((system) => {
       const matchesName = system.name.toLowerCase().includes(nameFilter.toLowerCase());
       const matchesType = !typeFilter || typeFilter === "all" || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
       const matchesOwner = !ownerFilter || ownerFilter === "all" || system.work_area_id === ownerFilter;
-      return matchesName && matchesType && matchesOwner;
+      const matchesStatus = !statusFilter || statusFilter === "all" || system.status === statusFilter;
+      return matchesName && matchesType && matchesOwner && matchesStatus;
     });
   };
+
+  const filteredSystems = useMemo(() => filterSystems(systems), [systems, nameFilter, typeFilter, ownerFilter, statusFilter]);
 
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
@@ -279,6 +302,7 @@ export default function Systems() {
     const risk = getRiskLabel(system.risk_level);
     const ownerWa = getOwnerWorkArea(system);
     const isArchived = system.status === "archived";
+    const statusBadge = getStatusBadge(system.status);
 
     return (
       <div
@@ -292,18 +316,26 @@ export default function Systems() {
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${color}`}>
               <IconComponent className="h-5 w-5" />
             </div>
-            <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadge.badgeClass}`}>
+                {statusBadge.label}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             <AssetRowActionMenu
               itemId={system.id}
               currentWorkAreaId={system.work_area_id}
+              currentStatus={system.status}
               isArchived={isArchived}
               workAreas={workAreas}
+              statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
               onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
               onArchive={(itemId) => archiveSystem.mutate(itemId)}
               onRestore={(itemId) => restoreSystem.mutate(itemId)}
               onDelete={(itemId) => deleteSystem.mutate(itemId)}
+              onSetStatus={(itemId, status) => changeStatus.mutate({ id: itemId, status })}
             />
           </div>
         </div>
@@ -395,9 +427,7 @@ export default function Systems() {
     );
   };
 
-  const renderCardList = (systemsList: System[]) => {
-    const filtered = filterSystems(systemsList);
-
+  const renderCardList = () => {
     if (isLoading) {
       return (
         <div className="p-8 text-center text-muted-foreground">
@@ -407,7 +437,7 @@ export default function Systems() {
       );
     }
 
-    if (filtered.length === 0) {
+    if (filteredSystems.length === 0) {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -423,7 +453,7 @@ export default function Systems() {
 
     return (
       <div className="space-y-4">
-        {filtered.map((system) => renderSystemCard(system))}
+        {filteredSystems.map((system) => renderSystemCard(system))}
       </div>
     );
   };
@@ -469,7 +499,7 @@ export default function Systems() {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
               placeholder="Filtrer etter systemnavn"
               value={nameFilter}
@@ -502,41 +532,23 @@ export default function Systems() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="bg-background border-border">
+                <SelectValue placeholder="Filtrer etter status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle statuser</SelectItem>
+                {SYSTEM_STATUSES.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Tabs: I bruk / Ikke i bruk / Arkiverte */}
-          <Tabs defaultValue="in-use" className="space-y-4">
-            <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="in-use" className="gap-1.5">
-                I bruk
-                {inUseSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {inUseSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="not-in-use" className="gap-1.5">
-                Ikke i bruk
-                {notInUseSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {notInUseSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="archived" className="gap-1.5">
-                Arkiverte
-                {archivedSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {archivedSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="in-use">{renderCardList(inUseSystems)}</TabsContent>
-            <TabsContent value="not-in-use">{renderCardList(notInUseSystems)}</TabsContent>
-            <TabsContent value="archived">{renderCardList(archivedSystems)}</TabsContent>
-          </Tabs>
+          {/* System list */}
+          {renderCardList()}
         </div>
       </main>
 

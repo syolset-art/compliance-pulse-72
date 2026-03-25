@@ -1,4 +1,4 @@
-import { MoreHorizontal, UserCircle, Archive, Trash2, CheckCircle2 } from "lucide-react";
+import { MoreHorizontal, UserCircle, Archive, Trash2, CheckCircle2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,26 +17,37 @@ interface WorkArea {
   responsible_person?: string | null;
 }
 
+export interface StatusOption {
+  value: string;
+  label: string;
+}
+
 interface AssetRowActionMenuProps {
   itemId: string;
   currentWorkAreaId?: string | null;
+  currentStatus?: string | null;
   isArchived?: boolean;
   workAreas: WorkArea[];
+  statusOptions?: StatusOption[];
   onSetOwner: (itemId: string, workAreaId: string) => void;
   onArchive: (itemId: string) => void;
   onRestore?: (itemId: string) => void;
   onDelete: (itemId: string) => void;
+  onSetStatus?: (itemId: string, status: string) => void;
 }
 
 export function AssetRowActionMenu({
   itemId,
   currentWorkAreaId,
+  currentStatus,
   isArchived = false,
   workAreas,
+  statusOptions,
   onSetOwner,
   onArchive,
   onRestore,
   onDelete,
+  onSetStatus,
 }: AssetRowActionMenuProps) {
   return (
     <DropdownMenu>
@@ -74,6 +85,32 @@ export function AssetRowActionMenu({
             )}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+
+        {statusOptions && statusOptions.length > 0 && onSetStatus && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Endre status
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {statusOptions.map((opt) => (
+                  <DropdownMenuItem
+                    key={opt.value}
+                    onClick={() => onSetStatus(itemId, opt.value)}
+                  >
+                    {opt.label}
+                    {currentStatus === opt.value && (
+                      <span className="ml-auto text-xs">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </>
+        )}
+
         <DropdownMenuSeparator />
         {isArchived && onRestore ? (
           <DropdownMenuItem onClick={() => onRestore(itemId)}>
