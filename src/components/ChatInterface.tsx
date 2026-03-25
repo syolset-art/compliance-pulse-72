@@ -68,10 +68,10 @@ interface Suggestion {
 
 const suggestionMap: Record<SuggestionContext, Suggestion[]> = {
   default: [
-    { textKey: "chat.suggestions.default.addAssets", type: "action", icon: Database },
+    { textKey: "chat.suggestions.default.addAssets", type: "warning", icon: AlertTriangle },
     { textKey: "chat.suggestions.default.checkCompliance", type: "view", icon: Shield },
-    { textKey: "chat.suggestions.default.showRisks", type: "warning", icon: AlertTriangle },
-    { textKey: "chat.suggestions.default.missingDocs", type: "action", icon: Search }
+    { textKey: "chat.suggestions.default.showRisks", type: "warning", icon: Search },
+    { textKey: "chat.suggestions.default.missingDocs", type: "view", icon: Brain }
   ],
   protocols: [
     { textKey: "chat.suggestions.protocols.tableView", type: "view", icon: FileText },

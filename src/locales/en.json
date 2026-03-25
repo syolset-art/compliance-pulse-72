@@ -1031,10 +1031,10 @@
     "suggestions": {
       "title": "Suggestions",
       "default": {
-        "addAssets": "Add vendors from external sources",
-        "checkCompliance": "Check compliance status for our systems",
-        "showRisks": "Show risk assessments that need follow-up",
-        "missingDocs": "Which vendors are missing documentation?"
+        "addAssets": "Identify high-risk vendors in our environment",
+        "checkCompliance": "Show gaps in our security controls",
+        "showRisks": "What risks require immediate action?",
+        "missingDocs": "Assess our exposure related to AI usage"
       },
       "protocols": {
         "tableView": "Show in table format",
