@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
 import Tasks from "./pages/Tasks";
+import Systems from "./pages/Systems";
 import Onboarding from "./pages/Onboarding";
 import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
