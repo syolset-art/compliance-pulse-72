@@ -78,6 +78,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSuggestingRisk, setIsSuggestingRisk] = useState(false);
+  const [riskSuggestion, setRiskSuggestion] = useState<{ risk_level: string; reasoning: string } | null>(null);
   const { toast } = useToast();
 
   // Search state
