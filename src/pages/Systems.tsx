@@ -302,6 +302,7 @@ export default function Systems() {
     const risk = getRiskLabel(system.risk_level);
     const ownerWa = getOwnerWorkArea(system);
     const isArchived = system.status === "archived";
+    const statusBadge = getStatusBadge(system.status);
 
     return (
       <div
