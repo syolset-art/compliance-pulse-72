@@ -94,11 +94,24 @@ const statusLabel = (status?: string) => {
   }
 };
 
+interface WorkArea {
+  id: string;
+  name: string;
+  responsible_person?: string | null;
+}
+
 interface DeviceListTabProps {
   devices: DeviceAsset[];
   onSyncAcronis?: () => void;
   isSyncing?: boolean;
   hasAcronisIntegration?: boolean;
+  workAreas?: WorkArea[];
+  lifecycleOptions?: StatusOption[];
+  onSetOwner?: (id: string, workAreaId: string) => void;
+  onSetStatus?: (id: string, status: string) => void;
+  onArchive?: (id: string) => void;
+  onRestore?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisIntegration }: DeviceListTabProps) {
