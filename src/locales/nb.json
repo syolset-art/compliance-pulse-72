@@ -1032,10 +1032,10 @@
     "suggestions": {
       "title": "Forslag",
       "default": {
-        "addAssets": "Legg til leverandører fra eksterne kilder",
-        "checkCompliance": "Sjekk compliance-status for våre systemer",
-        "showRisks": "Vis risikovurderinger som trenger oppfølging",
-        "missingDocs": "Hvilke leverandører mangler dokumentasjon?"
+        "addAssets": "Identify high-risk vendors in our environment",
+        "checkCompliance": "Show gaps in our security controls",
+        "showRisks": "What risks require immediate action?",
+        "missingDocs": "Assess our exposure related to AI usage"
       },
       "protocols": {
         "tableView": "Vis i tabellformat",
