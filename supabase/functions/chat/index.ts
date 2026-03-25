@@ -70,7 +70,18 @@ Når bruker sier "hjelp", "demo", "vis meg hvordan", "forstår ikke", "veilednin
 4. Vær proaktiv og foreslå relevante funksjoner
 ` : "";
 
-    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen.${contextSection}
+    // Build database results section if provided
+    const dbSection = databaseResults ? `
+
+DATABASERESULTATER (reelle data fra brukerens miljø):
+${JSON.stringify(databaseResults, null, 2)}
+
+VIKTIG: Bruk disse ekte dataene i din analyse. Ikke finn opp data - referer til de faktiske navnene, verdiene og statusene du ser her.
+Presenter funnene strukturert med risikonivå-indikatorer (🔴 høy, 🟡 medium, 🟢 lav).
+Etter å ha presentert funnene, bruk ALLTID suggest_options for å tilby neste steg som "Lag handlingsplan", "Vis detaljer" osv.
+` : "";
+
+    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen.${contextSection}${dbSection}
 
 Din rolle er å hjelpe brukere med å finne og vise informasjon i systemet på en pedagogisk og intuitiv måte.
 
