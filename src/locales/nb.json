@@ -37,7 +37,10 @@
     "notRegistered": "Ikke registrert",
     "clickLaraToStart": "Klikk på Lara for å starte",
     "customerRequests": "Kundeforespørsler",
-    "requests": "Forespørsler"
+    "requests": "Forespørsler",
+    "organisation": "Organisasjon",
+    "modules": "Moduler",
+    "reportsAdmin": "Rapporter & Admin"
   },
   "customerRequests": {
     "title": "Kundeforespørsler",

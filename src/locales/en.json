@@ -36,7 +36,10 @@
     "notRegistered": "Not registered",
     "clickLaraToStart": "Click Lara to get started",
     "customerRequests": "Customer Requests",
-    "requests": "Requests"
+    "requests": "Requests",
+    "organisation": "Organisation",
+    "modules": "Modules",
+    "reportsAdmin": "Reports & Admin"
   },
   "customerRequests": {
     "title": "Customer Requests",
