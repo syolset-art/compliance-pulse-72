@@ -2577,6 +2577,8 @@ export type Database = {
         Row: {
           category: string | null
           compliance_score: number | null
+          contact_email: string | null
+          contact_person: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -2594,6 +2596,8 @@ export type Database = {
         Insert: {
           category?: string | null
           compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -2611,6 +2615,8 @@ export type Database = {
         Update: {
           category?: string | null
           compliance_score?: number | null
+          contact_email?: string | null
+          contact_person?: string | null
           created_at?: string | null
           description?: string | null
           id?: string

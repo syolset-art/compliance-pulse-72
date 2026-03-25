@@ -1,0 +1,1 @@
+ALTER TABLE public.systems ADD COLUMN contact_person TEXT, ADD COLUMN contact_email TEXT;
