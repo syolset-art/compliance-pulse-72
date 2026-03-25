@@ -1,117 +1,81 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, Calendar, ClipboardList } from "lucide-react";
-import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface SystemMetricsProps {
-  system: {
-    risk_level?: string | null;
-    compliance_score?: number | null;
-    next_review_date?: string | null;
+  systemAsAsset: {
+    id: string;
+    name: string;
+    vendor?: string | null;
+    risk_level: string | null;
+    compliance_score: number | null;
+    next_review_date: string | null;
+    criticality: string | null;
+    work_area_id?: string | null;
+    asset_manager?: string | null;
+    asset_owner?: string | null;
+    description?: string | null;
+    gdpr_role?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
+    updated_at?: string | null;
+    asset_type?: string;
   };
   tasksCount: number;
+  onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
 }
 
-export const SystemMetrics = ({ system, tasksCount }: SystemMetricsProps) => {
-  const { t, i18n } = useTranslation();
+export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics }: SystemMetricsProps) => {
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["vendor-documents-count", systemAsAsset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id")
+        .eq("asset_id", systemAsAsset.id);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
 
-  const getRiskLevel = (level?: string | null) => {
-    switch (level?.toLowerCase()) {
-      case "high":
-      case "høy":
-        return { label: t("trustProfile.riskHigh"), color: "text-destructive", bg: "bg-destructive/10" };
-      case "medium":
-      case "middels":
-        return { label: t("trustProfile.riskMedium"), color: "text-yellow-600", bg: "bg-yellow-500/10" };
-      case "low":
-      case "lav":
-      default:
-        return { label: t("trustProfile.riskLow"), color: "text-green-600", bg: "bg-green-500/10" };
-    }
-  };
+  const { data: relationsCount = 0 } = useQuery({
+    queryKey: ["asset-relations-count", systemAsAsset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("asset_relationships")
+        .select("id")
+        .or(`source_asset_id.eq.${systemAsAsset.id},target_asset_id.eq.${systemAsAsset.id}`);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
 
-  const riskInfo = getRiskLevel(system.risk_level);
-  const complianceScore = system.compliance_score ?? 0;
-
-  const getComplianceColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 50) return "text-yellow-600";
-    return "text-destructive";
-  };
-
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return t("trustProfile.notSet");
-    try {
-      return format(new Date(dateStr), "dd.MM.yyyy", { locale: i18n.language === "nb" ? nb : undefined });
-    } catch {
-      return t("trustProfile.notSet");
-    }
-  };
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
+    },
+  });
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Risk Level */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className={`h-10 w-10 rounded-lg ${riskInfo.bg} flex items-center justify-center`}>
-              <AlertTriangle className={`h-5 w-5 ${riskInfo.color}`} />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("trustProfile.riskLevel")}</p>
-              <p className={`text-lg font-semibold ${riskInfo.color}`}>{riskInfo.label}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Compliance Score */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <CheckCircle className={`h-5 w-5 ${getComplianceColor(complianceScore)}`} />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("trustProfile.complianceScore")}</p>
-              <p className={`text-lg font-semibold ${getComplianceColor(complianceScore)}`}>
-                {complianceScore}%
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Next Review Date */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("trustProfile.nextReview")}</p>
-              <p className="text-lg font-semibold">{formatDate(system.next_review_date)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tasks Count */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              <ClipboardList className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">{t("trustProfile.tasks")}</p>
-              <p className="text-lg font-semibold">{tasksCount}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-3">
+      <TrustControlsPanel
+        asset={systemAsAsset}
+        docsCount={docsCount}
+        relationsCount={relationsCount}
+        onTrustMetrics={onTrustMetrics}
+        frameworks={frameworks}
+      />
     </div>
   );
 };
