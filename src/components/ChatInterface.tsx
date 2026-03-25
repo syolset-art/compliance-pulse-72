@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X, ListChecks, Clock, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
