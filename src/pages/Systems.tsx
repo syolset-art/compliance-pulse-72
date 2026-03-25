@@ -376,7 +376,7 @@ export default function Systems() {
                 <div
                   key={system.id}
                   onClick={() => navigate(`/systems/${system.id}`)}
-                  className="grid grid-cols-[2fr_2fr_1fr_80px_2fr_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                  className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_80px_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
                 >
                   {/* System Name with Icon */}
                   <div className="flex items-center gap-3">
@@ -394,6 +394,9 @@ export default function Systems() {
                   {/* Type */}
                   <div className="text-muted-foreground">{system.category || "-"}</div>
 
+                  {/* Vendor */}
+                  <div className="text-muted-foreground text-sm">{system.vendor || "-"}</div>
+
                   {/* Compliance Badge */}
                   <div>
                     <span className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${compliance.color}`}>
@@ -406,33 +409,13 @@ export default function Systems() {
                     <div className={`h-3 w-3 rounded-full ${riskColor}`} />
                   </div>
 
-                  {/* Owner Dropdown */}
-                  <div>
-                    <Select defaultValue="none">
-                      <SelectTrigger className="bg-muted/30 border-border h-8 text-sm">
-                        <SelectValue placeholder={t("systems.notSet")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{t("systems.notSet")}</SelectItem>
-                        {workAreas.map((area: WorkArea) => (
-                          <SelectItem key={area.id} value={area.id}>
-                            {area.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   {/* Actions */}
                   <div className="flex items-center gap-1 justify-end">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                      <HelpCircle className="h-4 w-4" />
-                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => deleteSystem.mutate(system.id)}
+                      onClick={(e) => { e.stopPropagation(); deleteSystem.mutate(system.id); }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
