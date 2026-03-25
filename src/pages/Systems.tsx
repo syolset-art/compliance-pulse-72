@@ -70,6 +70,26 @@ export default function Systems() {
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
+
+  const handleSeedSystems = async () => {
+    try {
+      const count = await seedDemoSystems();
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success(`${count} demo-systemer ble lastet inn`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke laste inn demo-systemer");
+    }
+  };
+
+  const handleDeleteSystems = async () => {
+    try {
+      const count = await deleteDemoSystems();
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success(`${count} demo-systemer ble fjernet`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke fjerne demo-systemer");
+    }
+  };
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch systems
