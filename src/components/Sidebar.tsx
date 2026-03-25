@@ -279,8 +279,9 @@ const SidebarContent = () => {
   }, []);
 
 
-  // Check if any admin submenu item is active
-  const isAdminActive = adminSubMenu.some(item => location.pathname === item.href);
+  // Check if any reports/admin item is active
+  const isReportsAdminActive = reportsAdminMenu.some(item => location.pathname === item.href);
+  const [reportsAdminOpen, setReportsAdminOpen] = useState(() => isReportsAdminActive);
   
   return (
     <>
@@ -298,7 +299,8 @@ const SidebarContent = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
-        {navigation.map((item) => {
+        {/* Dashboard links */}
+        {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <Link
@@ -320,6 +322,56 @@ const SidebarContent = () => {
           );
         })}
 
+        {/* Organisasjon section */}
+        <div className="pt-3">
+          <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+            {t("nav.organisation", "Organisasjon")}
+          </p>
+          {organisationNav.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {t(item.name)}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Moduler section */}
+        <div className="pt-3">
+          <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+            {t("nav.modules", "Moduler")}
+          </p>
+          {modulesNav.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {t(item.name)}
+              </Link>
+            );
+          })}
+        </div>
+
         {/* Quality System - conditional on active modules */}
         {hasQualityModule && (
           <Link
@@ -338,7 +390,7 @@ const SidebarContent = () => {
         )}
 
         {/* Compliance & Security section */}
-        <div className="pt-4">
+        <div className="pt-3">
           <button
             onClick={() => setCompSecOpen(!compSecOpen)}
             className={cn(
@@ -379,25 +431,27 @@ const SidebarContent = () => {
           )}
         </div>
 
-        <div className="pt-4">
-          <button 
-            onClick={() => setAdminOpen(!adminOpen)}
+        {/* Rapporter & Administrasjon section */}
+        <div className="pt-3">
+          <button
+            onClick={() => setReportsAdminOpen(!reportsAdminOpen)}
             className={cn(
-              "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isAdminActive ? "bg-sidebar-accent text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+              isReportsAdminActive
+                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
-              {t("nav.admin")}
+              {t("nav.reportsAdmin", "Rapporter & Admin")}
             </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
+            <ChevronDown className={cn("h-4 w-4 transition-transform", reportsAdminOpen && "rotate-180")} />
           </button>
-          
-          {/* Admin Submenu */}
-          {adminOpen && (
+
+          {reportsAdminOpen && (
             <div className="ml-4 mt-1 space-y-1">
-              {adminSubMenu.map((item) => {
+              {reportsAdminMenu.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
