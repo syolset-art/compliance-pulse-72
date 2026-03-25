@@ -27,7 +27,10 @@ import {
   ArrowUp,
   ArrowDown,
   MoreVertical,
-  Database
+  Database,
+  Archive,
+  UserCircle,
+  MoreHorizontal
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
@@ -39,7 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu";
 import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
 
 interface System {
@@ -57,6 +60,7 @@ interface System {
 interface WorkArea {
   id: string;
   name: string;
+  responsible_person?: string | null;
 }
 
 export default function Systems() {
@@ -69,6 +73,7 @@ export default function Systems() {
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [ownerMenuSystemId, setOwnerMenuSystemId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
 
   const handleSeedSystems = async () => {
@@ -98,11 +103,10 @@ export default function Systems() {
     queryFn: async () => {
       const { data, error } = await supabase.from("systems").select("*");
       if (error) throw error;
-      // Add mock compliance scores for demo
+      // Add mock compliance scores for demo (seeded per id for stability)
       return (data || []).map((system) => ({
         ...system,
-        compliance_score: Math.floor(Math.random() * 100),
-        work_area_id: null,
+        compliance_score: system.compliance_score || Math.abs(system.id.charCodeAt(0) * 7 + system.id.charCodeAt(1) * 3) % 100,
       }));
     },
   });
@@ -129,6 +133,35 @@ export default function Systems() {
     },
     onError: () => {
       toast.error(t("systems.deleteError"));
+    },
+  });
+
+  // Assign owner (work area) to system
+  const assignOwner = useMutation({
+    mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
+      const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
+      const { error } = await supabase.from("systems").update({ 
+        work_area_id: workAreaId,
+        system_manager: workArea?.responsible_person || null 
+      }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      setOwnerMenuSystemId(null);
+      toast.success("Eier satt");
+    },
+  });
+
+  // Archive system
+  const archiveSystem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("systems").update({ status: "archived" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("System arkivert");
     },
   });
 
@@ -409,16 +442,55 @@ export default function Systems() {
                     <div className={`h-3 w-3 rounded-full ${riskColor}`} />
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => { e.stopPropagation(); deleteSystem.mutate(system.id); }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  {/* Row Actions Menu */}
+                  <div className="flex items-center justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <UserCircle className="h-4 w-4 mr-2" />
+                            Sett eier
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
+                            {workAreas.length === 0 ? (
+                              <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
+                            ) : (
+                              workAreas.map((area: WorkArea) => (
+                                <DropdownMenuItem
+                                  key={area.id}
+                                  onClick={() => assignOwner.mutate({ id: system.id, workAreaId: area.id })}
+                                >
+                                  {area.name}
+                                  {system.work_area_id === area.id && <span className="ml-auto text-xs">✓</span>}
+                                </DropdownMenuItem>
+                              ))
+                            )}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
+                          <Archive className="h-4 w-4 mr-2" />
+                          Arkiver
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => deleteSystem.mutate(system.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Slett
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               );
