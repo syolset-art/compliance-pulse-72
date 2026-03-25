@@ -1,42 +1,29 @@
 
 
-## Device Trust Profile -- Action-Oriented Redesign
+## Fix Contact Step in Add System Dialog
 
 ### Problem
-The current device profile shows everything (OK, partial, missing) in long lists without clear actions. Users see "Mangler" and "Delvis" labels without knowing what to do. Too much noise, not enough signal.
-
-### Design Principles
-- **Hide what's OK** -- passed controls are collapsed behind a "Show all" toggle
-- **Critical findings first** -- elevate failed controls with clear action buttons
-- **Actionable items** -- every issue shows what to do + status tracking (not started / in progress / done)
-- **Less is more** -- overview tab shows only what needs attention
+The "Systemansvarlig" (system manager) field in the contact step is confusing during system registration. This should either be auto-populated by the AI/web lookup or left empty. The user needs to add a **contact person at the vendor** instead.
 
 ### Changes
 
-#### 1. Redesign `DeviceControlStatus.tsx`
-- Keep the summary score card at top (score %, progress bar, counts)
-- Remove the full list of OK controls -- replace with a collapsible "X av Y kontroller OK" section using Collapsible component
-- Failed and warn controls get action buttons inline ("Fiks dette" / "Aktiver tjeneste")
-- Each failed/warn item gets a status selector: `Ikke startet` | `Pågår` | `Fullført`
-- Rename "Mangler" to "Krever tiltak" (Requires action) and "Delvis" to "Trenger oppfølging" (Needs follow-up)
+#### 1. Database Migration -- Add contact fields to `systems` table
+Add `contact_person` and `contact_email` columns to the `systems` table (matching the pattern already used in `assets`).
 
-#### 2. Redesign `DeviceRiskFindings.tsx`
-- Each finding gets a clear "Anbefalt tiltak" (Recommended action) button
-- Add status badge per finding: `Ikke startet` | `Pågår` | `Løst`
-- Group by severity but limit initial view to critical + high; medium behind "Vis flere"
+#### 2. Update `AddSystemDialog.tsx` -- Contact Step
+- Remove the "Systemansvarlig" input from the contact step
+- Replace with two fields: **Kontaktperson hos leverandør** (name) and **Kontakt e-post** (email)
+- Update form state to use `contact_person` and `contact_email` instead of `system_manager`
+- Auto-fill `system_manager` from web lookup result if available (store silently, don't show in form)
+- Update the summary section to show contact person instead of system manager
+- Update the `handleSubmit` to save the new fields
 
-#### 3. Simplify `DeviceOverviewTab.tsx`
-- Show only: (1) compact score summary, (2) critical/high findings with actions, (3) action plans
-- Move DeviceControlStatus full view to the "Controls" tab only
-- Technical status and automation stay in grid at bottom
-
-#### 4. Update `DeviceActionPlans.tsx`
-- Add status toggle per action item (not started / in progress / done)
-- Done items collapse to bottom with strikethrough
+#### 3. Update `SystemHeader.tsx`
+- Show contact person info if available (read-only or editable)
+- Keep system manager field but label it more clearly as internal owner/responsibility
 
 ### Technical Details
-- Status tracking is local state (useState) for now -- no DB changes needed
-- Use existing Collapsible component from `@/components/ui/collapsible`
-- Use existing Badge variants for status indicators
-- All text bilingual (nb/en) following existing pattern
+- New columns: `contact_person TEXT`, `contact_email TEXT` on `systems` table
+- Form state adds `contact_person`, `contact_email`; removes `system_manager` from visible UI
+- `system_manager` stays in DB for internal use (assigned later via card or header)
 
