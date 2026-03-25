@@ -10,13 +10,30 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X, ListChecks, Clock, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { useOnboardingProgress, OnboardingStep } from "@/hooks/useOnboardingProgress";
 import { PageContext } from "@/hooks/usePageContext";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
+
+interface ActionPlanStep {
+  title: string;
+  description: string;
+  priority: "high" | "medium" | "low";
+  estimated_days: number;
+  trust_impact: number;
+  category: string;
+}
+
+interface ActionPlan {
+  title: string;
+  summary: string;
+  steps: ActionPlanStep[];
+  total_trust_impact: number;
+  status: "pending" | "approved" | "rejected";
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -31,6 +48,7 @@ interface Message {
   thinkingTime?: number;
   thinkingSummary?: string;
   timestamp?: Date;
+  actionPlan?: ActionPlan;
 }
 
 interface ContentViewOptions {
@@ -421,7 +439,56 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     }
   };
 
-  // Notify parent about messages state
+  // Handle approve action plan
+  const handleApprovePlan = async (messageIndex: number) => {
+    const msg = messages[messageIndex];
+    if (!msg?.actionPlan) return;
+
+    // Update plan status to approved
+    setMessages(prev => prev.map((m, i) => 
+      i === messageIndex && m.actionPlan 
+        ? { ...m, actionPlan: { ...m.actionPlan, status: "approved" as const } }
+        : m
+    ));
+
+    // Create tasks in database
+    try {
+      for (const step of msg.actionPlan.steps) {
+        await supabase.from("tasks").insert({
+          title: step.title,
+          description: step.description,
+          priority: step.priority,
+          type: step.category,
+          status: "pending",
+          relevant_for: [],
+          ai_autonomy_level: 0,
+          ai_handling: false,
+        });
+      }
+
+      // Add confirmation message
+      const confirmMsg: Message = {
+        role: "assistant",
+        content: t("chat.actionPlan.confirmedMessage", { count: msg.actionPlan.steps.length }),
+        isComplete: true,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, confirmMsg]);
+
+      toast({
+        title: t("chat.actionPlan.tasksCreated"),
+        description: t("chat.actionPlan.tasksCreatedDesc", { count: msg.actionPlan.steps.length }),
+      });
+    } catch (error) {
+      console.error("Failed to create tasks:", error);
+      toast({
+        title: t("common.error"),
+        description: t("chat.actionPlan.createError"),
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     onMessagesChange?.(messages.length > 0);
   }, [messages.length, onMessagesChange]);
@@ -791,7 +858,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options" || tc.function?.name === "start_demo") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options" || tc.function?.name === "start_demo" || tc.function?.name === "create_action_plan") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
@@ -889,6 +956,30 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               setTimeout(() => {
                 onStartDemo(args.scenario_id);
               }, 500);
+            }
+          } else if (toolCall.name === "create_action_plan") {
+            const plan: ActionPlan = {
+              title: args.title,
+              summary: args.summary,
+              steps: args.steps,
+              total_trust_impact: args.total_trust_impact,
+              status: "pending",
+            };
+            const planMessage = assistantContent || t("chat.actionPlan.created");
+            
+            setMessages(prev => {
+              const last = prev[prev.length - 1];
+              if (last?.role === "assistant") {
+                return prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: planMessage, actionPlan: plan, isComplete: true } : m
+                );
+              }
+              return [...prev, { role: "assistant", content: planMessage, actionPlan: plan, isComplete: true, timestamp: new Date() }];
+            });
+
+            // Also show in content viewer
+            if (onShowContent) {
+              onShowContent("action-plan", undefined, undefined, JSON.stringify(plan));
             }
           }
         } catch (e) {
@@ -1045,6 +1136,69 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                         </Badge>
                       );
                     })}
+                  </div>
+                )}
+                {/* Action Plan inline preview */}
+                {message.actionPlan && message.role === "assistant" && (
+                  <div className="mt-3 ml-9 rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <ListChecks className="h-5 w-5 text-primary" />
+                      <span className="font-semibold text-foreground">{message.actionPlan.title}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{message.actionPlan.summary}</p>
+                    <div className="space-y-2">
+                      {message.actionPlan.steps.map((step, si) => (
+                        <div key={si} className="flex items-start gap-3 p-2.5 rounded-lg bg-background border border-border">
+                          <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
+                            step.priority === 'high' ? 'bg-destructive text-destructive-foreground' :
+                            step.priority === 'medium' ? 'bg-warning text-warning-foreground' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {si + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">{step.title}</p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" /> {step.estimated_days}d
+                              </span>
+                              <span className="flex items-center gap-1 text-success">
+                                <TrendingUp className="h-3 w-3" /> +{step.trust_impact}%
+                              </span>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {step.priority.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <TrendingUp className="h-4 w-4 text-success" />
+                        {t("chat.actionPlan.totalImpact", { impact: message.actionPlan.total_trust_impact })}
+                      </span>
+                      {message.actionPlan.status === "pending" && (
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => handleSend(t("chat.actionPlan.cancelPrompt"))}>
+                            {t("chat.actionPlan.cancel")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleSend(t("chat.actionPlan.editPrompt"))}>
+                            ✏️ {t("chat.actionPlan.edit")}
+                          </Button>
+                          <Button size="sm" onClick={() => handleApprovePlan(i)}>
+                            <CheckCircle2 className="h-4 w-4 mr-1" />
+                            {t("chat.actionPlan.approve")}
+                          </Button>
+                        </div>
+                      )}
+                      {message.actionPlan.status === "approved" && (
+                        <Badge className="bg-success text-success-foreground">
+                          <Check className="h-3 w-3 mr-1" />
+                          {t("chat.actionPlan.approved")}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

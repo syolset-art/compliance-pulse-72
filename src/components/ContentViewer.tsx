@@ -1270,6 +1270,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "systems": return "IT-systemer";
       case "gap-analysis": return "Gap-analyse";
       case "asset-import-preview": return "Importer eiendeler";
+      case "action-plan": return "Handlingsplan";
       default: return "Innhold";
     }
   };
@@ -1281,7 +1282,90 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "systems": return <Server className="h-6 w-6" />;
       case "gap-analysis": return <AlertTriangle className="h-6 w-6" />;
       case "asset-import-preview": return <Download className="h-6 w-6" />;
+      case "action-plan": return <List className="h-6 w-6" />;
       default: return <Shield className="h-6 w-6" />;
+    }
+  };
+
+  const renderActionPlan = () => {
+    if (!explanation) return <p className="text-muted-foreground">Ingen handlingsplan tilgjengelig</p>;
+    try {
+      const plan = JSON.parse(explanation);
+      const priorityColors: Record<string, string> = {
+        high: "bg-destructive text-destructive-foreground",
+        medium: "bg-warning text-warning-foreground",
+        low: "bg-muted text-muted-foreground",
+      };
+      return (
+        <div className="space-y-6">
+          <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-lg bg-primary/10">
+                  <List className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">{plan.title}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">{plan.summary}</p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="p-4 text-center">
+                <p className="text-sm text-muted-foreground">Tiltak</p>
+                <p className="text-3xl font-bold text-primary">{plan.steps.length}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-success/5 border-success/20">
+              <CardContent className="p-4 text-center">
+                <p className="text-sm text-muted-foreground">Trust Score Impact</p>
+                <p className="text-3xl font-bold text-success">+{plan.total_trust_impact}%</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-warning/5 border-warning/20">
+              <CardContent className="p-4 text-center">
+                <p className="text-sm text-muted-foreground">Est. varighet</p>
+                <p className="text-3xl font-bold text-warning">
+                  {plan.steps.reduce((sum: number, s: any) => sum + s.estimated_days, 0)}d
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-4">
+            {plan.steps.map((step: any, idx: number) => (
+              <Card key={idx} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${priorityColors[step.priority] || 'bg-muted text-muted-foreground'}`}>
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-foreground">{step.title}</h4>
+                        <Badge variant="outline" className="text-xs capitalize">{step.category}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">{step.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">⏱ {step.estimated_days} dager</span>
+                        <span className="flex items-center gap-1 text-success font-medium">📈 +{step.trust_impact}% Trust Score</span>
+                        <Badge variant={step.priority === 'high' ? 'destructive' : step.priority === 'medium' ? 'secondary' : 'outline'} className="text-xs">
+                          {step.priority === 'high' ? 'Høy' : step.priority === 'medium' ? 'Medium' : 'Lav'} prioritet
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    } catch {
+      return <p className="text-muted-foreground">Kunne ikke vise handlingsplanen</p>;
     }
   };
 
@@ -1292,6 +1376,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "systems": return renderSystems();
       case "gap-analysis": return renderGapAnalysis();
       case "asset-import-preview": return renderAssetImportPreview();
+      case "action-plan": return renderActionPlan();
       default: return <p className="text-muted-foreground">Innholdstype ikke støttet ennå</p>;
     }
   };

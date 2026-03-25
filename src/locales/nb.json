@@ -1208,7 +1208,21 @@
       "helpful": "Nyttig svar",
       "notHelpful": "Ikke nyttig svar"
     },
-    "close": "Lukk"
+    "close": "Lukk",
+    "actionPlan": {
+      "created": "Her er foreslått handlingsplan:",
+      "totalImpact": "Total Trust Score: +{{impact}}%",
+      "approve": "Godkjenn plan",
+      "edit": "Endre",
+      "cancel": "Avbryt",
+      "approved": "Plan godkjent",
+      "editPrompt": "Jeg vil endre handlingsplanen",
+      "cancelPrompt": "Avbryt handlingsplanen",
+      "confirmedMessage": "✓ Plan godkjent! {{count}} oppgaver er opprettet. Du finner dem under Oppgaver i menyen.",
+      "tasksCreated": "Oppgaver opprettet",
+      "tasksCreatedDesc": "{{count}} oppgaver fra handlingsplanen er opprettet",
+      "createError": "Kunne ikke opprette oppgaver. Prøv igjen."
+    }
   },
   "roles": {
     "daglig_leder": "Daglig leder",

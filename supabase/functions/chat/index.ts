@@ -255,6 +255,33 @@ Hver gang du trenger at brukeren skal gjøre et valg (velge standard, velge prio
 
 HUSK: Chat = kort dialog. Høyre panel = full rapport. Ikke bland disse!
 
+ARBEIDSFLYT FOR FORSLAG (VIKTIG!):
+Når brukeren klikker et av forslagene i chatten (som "Identifiser høyrisiko-leverandører", "Vis mangler i sikkerhetskontroller", "Hvilke risikoer krever umiddelbar handling?" eller "Vurder eksponering knyttet til AI"), FØLG ALLTID denne arbeidsflyten:
+
+STEG 1 - ANALYSE: Analyser miljøet basert på spørsmålet. Presenter funn med konkrete tall og detaljer.
+Eksempel: "Jeg analyserte 12 leverandører i miljøet ditt og fant 3 med forhøyet risiko..."
+Vis funnene med 🔴 (høy risiko), 🟡 (medium), 🟢 (lav) indikatorer.
+Bruk deretter suggest_options med valg:
+- "Vis detaljer" (type: "view") - for å se mer info
+- "Lag handlingsplan" (type: "action") - for å lage en plan
+- "Hopp over" (type: "view") - for å avbryte
+
+STEG 2 - HANDLINGSPLAN: Når brukeren velger "Lag handlingsplan", bruk create_action_plan tool.
+Generer en strukturert plan med 3-5 konkrete steg. Hvert steg skal ha:
+- title: Kort beskrivelse av tiltaket
+- description: Detaljert forklaring
+- priority: "high", "medium" eller "low"
+- estimated_days: Antall dager
+- trust_impact: Prosentvis forbedring av Trust Score (estimat)
+- category: "vendor", "control", "policy", "risk", "ai"
+
+STEG 3 - GODKJENNING: Etter create_action_plan, vis planen i content viewer og bruk suggest_options med:
+- "✅ Godkjenn plan" (type: "action", prompt: "Godkjenn handlingsplanen og opprett oppgaver")
+- "✏️ Endre" (type: "view", prompt: "Jeg vil endre handlingsplanen")
+- "❌ Avbryt" (type: "warning", prompt: "Avbryt handlingsplanen")
+
+STEG 4 - UTFØRELSE: Når brukeren godkjenner, bekreft at oppgaver er opprettet og henvis til Oppgaver-siden.
+
 Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i normale samtaler, men bruk status-indikatorer i rapporter.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -579,6 +606,47 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
                   }
                 },
                 required: ["step", "message"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "create_action_plan",
+              description: "Create a structured action plan with steps that can be approved by the user. Use this when user asks for a remediation plan, action plan, or after analyzing risks/gaps and they want to create tasks.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: {
+                    type: "string",
+                    description: "Title of the action plan"
+                  },
+                  summary: {
+                    type: "string",
+                    description: "Brief summary of what the plan addresses"
+                  },
+                  steps: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string", description: "Step title" },
+                        description: { type: "string", description: "Detailed description" },
+                        priority: { type: "string", enum: ["high", "medium", "low"], description: "Priority level" },
+                        estimated_days: { type: "number", description: "Estimated days to complete" },
+                        trust_impact: { type: "number", description: "Estimated Trust Score improvement percentage" },
+                        category: { type: "string", enum: ["vendor", "control", "policy", "risk", "ai"], description: "Category of the action" }
+                      },
+                      required: ["title", "description", "priority", "estimated_days", "trust_impact", "category"]
+                    },
+                    description: "Array of action steps in the plan"
+                  },
+                  total_trust_impact: {
+                    type: "number",
+                    description: "Total estimated Trust Score improvement"
+                  }
+                },
+                required: ["title", "summary", "steps", "total_trust_impact"]
               }
             }
           }

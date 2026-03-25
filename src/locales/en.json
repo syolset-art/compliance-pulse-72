@@ -1207,7 +1207,21 @@
       "helpful": "Helpful answer",
       "notHelpful": "Not helpful answer"
     },
-    "close": "Close"
+    "close": "Close",
+    "actionPlan": {
+      "created": "Here is the proposed action plan:",
+      "totalImpact": "Total Trust Score: +{{impact}}%",
+      "approve": "Approve plan",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "approved": "Plan approved",
+      "editPrompt": "I want to change the action plan",
+      "cancelPrompt": "Cancel the action plan",
+      "confirmedMessage": "✓ Plan approved! {{count}} tasks have been created. You can find them under Tasks in the menu.",
+      "tasksCreated": "Tasks created",
+      "tasksCreatedDesc": "{{count}} tasks from the action plan have been created",
+      "createError": "Could not create tasks. Please try again."
+    }
   },
   "roles": {
     "daglig_leder": "CEO / Managing Director",
