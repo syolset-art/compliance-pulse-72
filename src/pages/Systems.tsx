@@ -25,7 +25,9 @@ import {
   LucideIcon,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  MoreVertical,
+  Database
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
@@ -37,6 +39,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
 
 interface System {
   id: string;
@@ -66,6 +70,26 @@ export default function Systems() {
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
+
+  const handleSeedSystems = async () => {
+    try {
+      const count = await seedDemoSystems();
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success(`${count} demo-systemer ble lastet inn`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke laste inn demo-systemer");
+    }
+  };
+
+  const handleDeleteSystems = async () => {
+    try {
+      const count = await deleteDemoSystems();
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success(`${count} demo-systemer ble fjernet`);
+    } catch (e: any) {
+      toast.error(e.message || "Kunne ikke fjerne demo-systemer");
+    }
+  };
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch systems
@@ -245,10 +269,21 @@ export default function Systems() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">{t("systems.title")}</h1>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            {t("systems.addSystem")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              {t("systems.addSystem")}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSeedSystems}><Database className="h-4 w-4 mr-2" />Last inn demo-data</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeleteSystems} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" />Slett demo-data</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Filters */}
