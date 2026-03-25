@@ -28,7 +28,8 @@ import {
   Share2,
   Layers,
   CalendarDays,
-  CheckCircle2
+  CheckCircle2,
+  Cloud
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -60,7 +61,9 @@ import {
 const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
-  { name: "nav.assets", href: "/assets", icon: Package },
+  { name: "nav.vendors", href: "/vendors", icon: Building2 },
+  { name: "nav.systems", href: "/systems", icon: Cloud },
+  { name: "nav.assetsDevices", href: "/assets", icon: Package },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
