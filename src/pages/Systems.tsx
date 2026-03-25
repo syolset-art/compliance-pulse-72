@@ -60,6 +60,7 @@ interface System {
 interface WorkArea {
   id: string;
   name: string;
+  responsible_person?: string | null;
 }
 
 export default function Systems() {
