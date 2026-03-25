@@ -97,6 +97,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     status: "active",
     url: "",
     system_manager: "",
+    contact_person: "",
+    contact_email: "",
   });
 
   // Reset when dialog opens/closes
@@ -117,6 +119,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         status: "active",
         url: "",
         system_manager: "",
+        contact_person: "",
+        contact_email: "",
       });
     }
   }, [open]);
@@ -226,6 +230,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         status: formData.status,
         url: formData.url || null,
         system_manager: formData.system_manager || null,
+        contact_person: formData.contact_person || null,
+        contact_email: formData.contact_email || null,
       };
 
       const { error } = await supabase.from("systems").insert([insertData]);
@@ -600,17 +606,28 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border">
               <User className="h-4 w-4 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
-                Kontaktinformasjon er valgfritt, men nødvendig for å kunne sende forespørsler til leverandøren.
+                Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler.
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="system-manager">Systemansvarlig</Label>
+              <Label htmlFor="contact-person">Kontaktperson hos leverandør</Label>
               <Input
-                id="system-manager"
-                value={formData.system_manager}
-                onChange={(e) => setFormData(prev => ({ ...prev, system_manager: e.target.value }))}
-                placeholder="Navn på systemansvarlig"
+                id="contact-person"
+                value={formData.contact_person}
+                onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
+                placeholder="Navn på kontaktperson"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact-email">Kontakt e-post</Label>
+              <Input
+                id="contact-email"
+                type="email"
+                value={formData.contact_email}
+                onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
+                placeholder="kontakt@leverandor.no"
               />
             </div>
 
@@ -639,6 +656,12 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <span>{CATEGORY_LABELS[formData.category] || formData.category || "—"}</span>
                 <span className="text-muted-foreground">Risikonivå:</span>
                 <span className="capitalize">{formData.risk_level || "—"}</span>
+                {formData.contact_person && (
+                  <>
+                    <span className="text-muted-foreground">Kontaktperson:</span>
+                    <span>{formData.contact_person}</span>
+                  </>
+                )}
               </div>
             </div>
 
