@@ -325,7 +325,7 @@ export default function Systems() {
         {/* Table */}
         <div className="rounded-lg border border-border overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[2fr_2fr_1fr_80px_2fr_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_80px_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
             <button 
               onClick={() => handleSort("name")}
               className="flex items-center hover:text-foreground transition-colors text-left"
@@ -340,12 +340,12 @@ export default function Systems() {
               {t("systems.type")}
               <SortIcon column="type" />
             </button>
+            <div>{t("systems.vendor", "Leverandør")}</div>
             <button 
               onClick={() => handleSort("compliance")}
               className="flex items-center gap-1 hover:text-foreground transition-colors text-left"
             >
               {t("systems.compliance")}
-              <HelpCircle className="h-3.5 w-3.5" />
               <SortIcon column="compliance" />
             </button>
             <button 
@@ -355,7 +355,6 @@ export default function Systems() {
               {t("systems.risk")}
               <SortIcon column="risk" />
             </button>
-            <div>{t("systems.owner")}</div>
             <div></div>
           </div>
 
