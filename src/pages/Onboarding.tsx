@@ -418,6 +418,11 @@ export default function Onboarding() {
       setOverallProgress(100);
       setCurrentStep("complete");
       setIsLaraWorking(false);
+      
+      // Auto-redirect to dashboard after showing congratulations
+      setTimeout(() => {
+        goToDashboard();
+      }, 4000);
     }, 1500);
   };
 
