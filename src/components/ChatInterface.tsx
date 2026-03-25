@@ -908,6 +908,30 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                 onStartDemo(args.scenario_id);
               }, 500);
             }
+          } else if (toolCall.name === "create_action_plan") {
+            const plan: ActionPlan = {
+              title: args.title,
+              summary: args.summary,
+              steps: args.steps,
+              total_trust_impact: args.total_trust_impact,
+              status: "pending",
+            };
+            const planMessage = assistantContent || t("chat.actionPlan.created");
+            
+            setMessages(prev => {
+              const last = prev[prev.length - 1];
+              if (last?.role === "assistant") {
+                return prev.map((m, i) => 
+                  i === prev.length - 1 ? { ...m, content: planMessage, actionPlan: plan, isComplete: true } : m
+                );
+              }
+              return [...prev, { role: "assistant", content: planMessage, actionPlan: plan, isComplete: true, timestamp: new Date() }];
+            });
+
+            // Also show in content viewer
+            if (onShowContent) {
+              onShowContent("action-plan", undefined, undefined, JSON.stringify(plan));
+            }
           }
         } catch (e) {
           console.error("Failed to parse tool arguments:", e);
