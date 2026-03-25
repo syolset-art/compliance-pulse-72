@@ -17,6 +17,7 @@ import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
 import Assets from "./pages/Assets";
+import VendorDashboard from "./pages/VendorDashboard";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
 import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
