@@ -18,6 +18,23 @@ import { useOnboardingProgress, OnboardingStep } from "@/hooks/useOnboardingProg
 import { PageContext } from "@/hooks/usePageContext";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
+interface ActionPlanStep {
+  title: string;
+  description: string;
+  priority: "high" | "medium" | "low";
+  estimated_days: number;
+  trust_impact: number;
+  category: string;
+}
+
+interface ActionPlan {
+  title: string;
+  summary: string;
+  steps: ActionPlanStep[];
+  total_trust_impact: number;
+  status: "pending" | "approved" | "rejected";
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -31,6 +48,7 @@ interface Message {
   thinkingTime?: number;
   thinkingSummary?: string;
   timestamp?: Date;
+  actionPlan?: ActionPlan;
 }
 
 interface ContentViewOptions {
