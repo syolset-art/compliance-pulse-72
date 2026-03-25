@@ -271,13 +271,9 @@ export default function Systems() {
     onSuccess: (_, { id, status: newStatus }) => {
       const systemName = systems?.find(s => s.id === id)?.name || "Systemet";
       const newStatusLabel = SYSTEM_STATUSES.find(s => s.value === newStatus)?.label || newStatus;
+      setStatusFilter(newStatus);
       queryClient.invalidateQueries({ queryKey: ["systems"] });
-      toast.success(`«${systemName}» endret til «${newStatusLabel}»`, {
-        action: {
-          label: `Vis i ${newStatusLabel}`,
-          onClick: () => setStatusFilter(newStatus),
-        },
-      });
+      toast.success(`«${systemName}» endret til «${newStatusLabel}»`);
     },
   });
 
