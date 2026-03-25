@@ -1032,10 +1032,10 @@
     "suggestions": {
       "title": "Forslag",
       "default": {
-        "addAssets": "Identify high-risk vendors in our environment",
-        "checkCompliance": "Show gaps in our security controls",
-        "showRisks": "What risks require immediate action?",
-        "missingDocs": "Assess our exposure related to AI usage"
+        "addAssets": "Identifiser høyrisiko-leverandører i vårt miljø",
+        "checkCompliance": "Vis mangler i våre sikkerhetskontroller",
+        "showRisks": "Hvilke risikoer krever umiddelbar handling?",
+        "missingDocs": "Vurder vår eksponering knyttet til AI-bruk"
       },
       "protocols": {
         "tableView": "Vis i tabellformat",
