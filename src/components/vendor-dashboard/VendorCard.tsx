@@ -1,8 +1,9 @@
-import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, Trash2 } from "lucide-react";
+import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   saas: <Cloud className="h-2.5 w-2.5" />,
@@ -28,6 +29,12 @@ const GDPR_LABELS: Record<string, string> = {
   ingen: "Ingen persondata",
 };
 
+interface WorkArea {
+  id: string;
+  name: string;
+  responsible_person?: string | null;
+}
+
 interface VendorCardProps {
   vendor: {
     id: string;
@@ -48,10 +55,13 @@ interface VendorCardProps {
   expiredDocsCount?: number;
   onClick?: () => void;
   compact?: boolean;
+  workAreas?: WorkArea[];
+  onSetOwner?: (itemId: string, workAreaId: string) => void;
+  onArchive?: (itemId: string) => void;
   onDelete?: (id: string) => void;
 }
 
-export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, onDelete }: VendorCardProps) {
+export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, workAreas = [], onSetOwner, onArchive, onDelete }: VendorCardProps) {
   const { t } = useTranslation();
   const score = vendor.compliance_score || 0;
 
@@ -83,14 +93,17 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {onDelete && !vendor.work_area_id && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onDelete(vendor.id); }}
-              className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              title="Slett leverandør"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+          {onSetOwner && onArchive && onDelete && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <AssetRowActionMenu
+                itemId={vendor.id}
+                currentWorkAreaId={vendor.work_area_id}
+                workAreas={workAreas}
+                onSetOwner={onSetOwner}
+                onArchive={onArchive}
+                onDelete={onDelete}
+              />
+            </div>
           )}
           <div className={cn("text-lg font-bold", complianceColor)}>{score}%</div>
         </div>
