@@ -1270,6 +1270,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "systems": return "IT-systemer";
       case "gap-analysis": return "Gap-analyse";
       case "asset-import-preview": return "Importer eiendeler";
+      case "action-plan": return "Handlingsplan";
       default: return "Innhold";
     }
   };
