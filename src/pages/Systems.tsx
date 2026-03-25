@@ -103,11 +103,10 @@ export default function Systems() {
     queryFn: async () => {
       const { data, error } = await supabase.from("systems").select("*");
       if (error) throw error;
-      // Add mock compliance scores for demo
+      // Add mock compliance scores for demo (seeded per id for stability)
       return (data || []).map((system) => ({
         ...system,
-        compliance_score: Math.floor(Math.random() * 100),
-        work_area_id: null,
+        compliance_score: system.compliance_score || Math.abs(system.id.charCodeAt(0) * 7 + system.id.charCodeAt(1) * 3) % 100,
       }));
     },
   });
