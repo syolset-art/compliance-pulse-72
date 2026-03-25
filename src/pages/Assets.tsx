@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Inbox, Database, Trash2, Loader2 } from "lucide-react";
+import { Inbox, Database, Trash2, Loader2, Plus } from "lucide-react";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -171,7 +171,12 @@ export default function Assets() {
                 )}
               </button>
             </div>
-            <DropdownMenu>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t("vendorDashboard.addVendor", "Legg til leverandør")}
+              </Button>
+              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
                   {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
@@ -196,8 +201,9 @@ export default function Assets() {
                    Fjern demo-enheter
                  </DropdownMenuItem>
                </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+             </DropdownMenu>
+            </div>
+           </div>
 
           {/* Tabbed Layout */}
           <Tabs defaultValue="all" className="space-y-4">
