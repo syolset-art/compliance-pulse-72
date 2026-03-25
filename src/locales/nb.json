@@ -1358,7 +1358,7 @@
   },
   "chatPanel": {
     "talkToLara": "Snakk med Lara",
-    "aiAssistant": "AI-assistent",
+    "aiAssistant": "Ask me to assess risk, check compliance or take action.",
     "showDemoHelp": "Vis demo-hjelp",
     "scenarios": {
       "addAsset": "Hjelp meg legge til en leverandør",

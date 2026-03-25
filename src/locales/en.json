@@ -1357,7 +1357,7 @@
   },
   "chatPanel": {
     "talkToLara": "Talk to Lara",
-    "aiAssistant": "AI assistant",
+    "aiAssistant": "Ask me to assess risk, check compliance or take action.",
     "showDemoHelp": "Show demo help",
     "scenarios": {
       "addAsset": "Help me add an asset",
