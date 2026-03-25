@@ -652,13 +652,6 @@ Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i norma
           }
         ],
         stream: true,
-...
-                required: ["step", "message"]
-              }
-            }
-          }
-        ],
-        stream: true,
       }),
     });
 
