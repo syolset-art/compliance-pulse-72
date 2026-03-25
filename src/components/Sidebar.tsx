@@ -201,7 +201,7 @@ const SidebarContent = () => {
   const { t } = useTranslation();
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
-  const [reportsAdminOpenInit, setReportsAdminOpenInit] = useState(false);
+  
   const [compSecOpen, setCompSecOpen] = useState(() => 
     ["/compliance", "/controls", "/compliance-calendar"].some(p => location.pathname.startsWith(p))
   );
