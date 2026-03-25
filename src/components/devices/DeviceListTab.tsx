@@ -114,7 +114,7 @@ interface DeviceListTabProps {
   onDelete?: (id: string) => void;
 }
 
-export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisIntegration }: DeviceListTabProps) {
+export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisIntegration, workAreas = [], lifecycleOptions, onSetOwner, onSetStatus, onArchive, onRestore, onDelete }: DeviceListTabProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
