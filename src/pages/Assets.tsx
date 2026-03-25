@@ -292,10 +292,15 @@ export default function Assets() {
                           <AssetRowActionMenu
                             itemId={asset.id}
                             currentWorkAreaId={asset.work_area_id}
+                            currentStatus={asset.lifecycle_status}
+                            isArchived={asset.lifecycle_status === "archived"}
                             workAreas={workAreas}
+                            statusOptions={ASSET_LIFECYCLE_OPTIONS}
                             onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
                             onArchive={(itemId) => archiveAsset.mutate(itemId)}
+                            onRestore={(itemId) => restoreAsset.mutate(itemId)}
                             onDelete={(itemId) => deleteAsset.mutate(itemId)}
+                            onSetStatus={(itemId, status) => changeLifecycle.mutate({ id: itemId, status })}
                           />
                         </div>
                       </div>
