@@ -26,6 +26,7 @@ interface DeviceAsset {
   last_synced_at: string | null;
   metadata: any;
   external_source_provider: string | null;
+  work_area_id: string | null;
 }
 
 /** ISO 27001 Annex A / PESB device categories */
