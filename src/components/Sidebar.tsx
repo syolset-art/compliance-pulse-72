@@ -58,16 +58,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const navigation: { name: string; href: string; icon: typeof LayoutDashboard; highlight?: boolean }[] = [
+// Top-level dashboard links
+const dashboardNav = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
   { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
-  { name: "nav.vendors", href: "/vendors", icon: Building2 },
-  { name: "nav.systems", href: "/systems", icon: Cloud },
-  { name: "nav.assetsDevices", href: "/assets", icon: Package },
+];
+
+// Organisasjon section (workplace-oriented)
+const organisationNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.reports", href: "/reports", icon: FileBarChart },
+];
+
+// Moduler section (data modules)
+const modulesNav = [
+  { name: "nav.vendors", href: "/vendors", icon: Building2 },
+  { name: "nav.systems", href: "/systems", icon: Cloud },
+  { name: "nav.assetsDevices", href: "/assets", icon: Package },
 ];
 
 const complianceSecurityMenu = [
@@ -77,7 +85,9 @@ const complianceSecurityMenu = [
   { name: "nav.complianceCalendar", href: "/compliance-calendar", icon: CalendarDays },
 ];
 
-const adminSubMenu = [
+// Rapporter & Administrasjon
+const reportsAdminMenu = [
+  { name: "nav.reports", href: "/reports", icon: FileBarChart },
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
