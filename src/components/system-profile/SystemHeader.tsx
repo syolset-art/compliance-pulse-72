@@ -22,6 +22,8 @@ interface SystemHeaderProps {
     url?: string | null;
     work_area_id?: string | null;
     system_manager?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
     work_areas?: {
       id: string;
       name: string;
