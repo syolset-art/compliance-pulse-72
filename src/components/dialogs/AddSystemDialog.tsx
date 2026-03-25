@@ -111,7 +111,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
       setTrustResults([]);
       setWebResult(null);
       setSearchSource("none");
-      setSearchPerformed(false);
+      setRiskSuggestion(null);
+      setIsSuggestingRisk(false);
       setFormData({
         name: "",
         description: "",
