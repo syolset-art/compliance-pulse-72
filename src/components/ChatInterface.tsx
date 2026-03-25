@@ -809,7 +809,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
 
             if (delta?.tool_calls) {
               const tc = delta.tool_calls[0];
-              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options" || tc.function?.name === "start_demo") {
+              if (tc.function?.name === "navigate_to" || tc.function?.name === "show_content" || tc.function?.name === "generate_tia" || tc.function?.name === "suggest_options" || tc.function?.name === "start_demo" || tc.function?.name === "create_action_plan") {
                 if (!toolCall) {
                   toolCall = { name: tc.function.name, arguments: "" };
                 }
