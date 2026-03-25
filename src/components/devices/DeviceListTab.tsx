@@ -243,12 +243,13 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
               <TableHead>Status</TableHead>
               <TableHead>Sist sett</TableHead>
               <TableHead>Risiko</TableHead>
+              {(onSetOwner || onSetStatus) && <TableHead className="w-[50px]"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredDevices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={(onSetOwner || onSetStatus) ? 7 : 6} className="text-center py-8 text-muted-foreground">
                   Ingen enheter matcher valgte filtre
                 </TableCell>
               </TableRow>
@@ -262,6 +263,7 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
                 const lastSeen = device.last_synced_at
                   ? new Date(device.last_synced_at).toLocaleDateString("nb-NO")
                   : "–";
+                const isArchived = device.lifecycle_status === "archived";
 
                 return (
                   <TableRow
@@ -291,6 +293,23 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
                         {device.risk_level || "lav"}
                       </Badge>
                     </TableCell>
+                    {(onSetOwner || onSetStatus) && (
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <AssetRowActionMenu
+                          itemId={device.id}
+                          currentWorkAreaId={device.work_area_id}
+                          currentStatus={device.lifecycle_status}
+                          isArchived={isArchived}
+                          workAreas={workAreas}
+                          statusOptions={lifecycleOptions}
+                          onSetOwner={(id, waId) => onSetOwner?.(id, waId)}
+                          onArchive={(id) => onArchive?.(id)}
+                          onRestore={onRestore ? (id) => onRestore(id) : undefined}
+                          onDelete={(id) => onDelete?.(id)}
+                          onSetStatus={onSetStatus ? (id, s) => onSetStatus(id, s) : undefined}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })
