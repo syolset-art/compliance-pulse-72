@@ -136,6 +136,35 @@ export default function Systems() {
     },
   });
 
+  // Assign owner (work area) to system
+  const assignOwner = useMutation({
+    mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
+      const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
+      const { error } = await supabase.from("systems").update({ 
+        work_area_id: workAreaId,
+        system_manager: workArea?.responsible_person || null 
+      }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      setOwnerMenuSystemId(null);
+      toast.success("Eier satt");
+    },
+  });
+
+  // Archive system
+  const archiveSystem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("systems").update({ status: "archived" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("System arkivert");
+    },
+  });
+
   // Filter and sort systems
   const filteredSystems = useMemo(() => {
     let result = systems.filter((system) => {
