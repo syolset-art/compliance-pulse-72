@@ -76,6 +76,7 @@ const modulesNav = [
   { name: "nav.vendors", href: "/vendors", icon: Building2 },
   { name: "nav.systems", href: "/systems", icon: Cloud },
   { name: "nav.assetsDevices", href: "/assets", icon: Package },
+  { name: "nav.protocols", href: "/protocols", icon: FileText },
 ];
 
 const complianceSecurityMenu = [
