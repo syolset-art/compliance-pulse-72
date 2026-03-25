@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { 
-  HelpCircle, 
-  Trash2, 
   Plus, 
   Mail, 
   Users, 
@@ -30,9 +28,14 @@ import {
   Database,
   Archive,
   UserCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  Trash2,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  Server
 } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
   Select,
@@ -41,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu";
 import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
@@ -55,6 +59,7 @@ interface System {
   risk_level: string | null;
   compliance_score?: number;
   work_area_id?: string | null;
+  system_manager?: string | null;
 }
 
 interface WorkArea {
@@ -63,47 +68,96 @@ interface WorkArea {
   responsible_person?: string | null;
 }
 
+// Map vendor/system names to icons
+const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon; color: string } => {
+  const lowerName = name.toLowerCase();
+  const lowerVendor = (vendor || "").toLowerCase();
+  
+  if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft")) {
+    return { icon: Mail, color: "bg-orange-500/20 text-orange-500" };
+  }
+  if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce")) {
+    return { icon: Users, color: "bg-blue-500/20 text-blue-500" };
+  }
+  if (lowerName.includes("sap") || lowerVendor.includes("sap")) {
+    return { icon: DollarSign, color: "bg-yellow-500/20 text-yellow-500" };
+  }
+  if (lowerName.includes("slack") || lowerVendor.includes("slack")) {
+    return { icon: MessageSquare, color: "bg-purple-500/20 text-purple-500" };
+  }
+  if (lowerName.includes("zoom") || lowerVendor.includes("zoom")) {
+    return { icon: Video, color: "bg-blue-400/20 text-blue-400" };
+  }
+  if (lowerName.includes("visma") || lowerVendor.includes("visma")) {
+    return { icon: Briefcase, color: "bg-green-600/20 text-green-600" };
+  }
+  if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex")) {
+    return { icon: Calculator, color: "bg-indigo-500/20 text-indigo-500" };
+  }
+  if (lowerName.includes("jira") || lowerVendor.includes("atlassian")) {
+    return { icon: KanbanSquare, color: "bg-blue-600/20 text-blue-600" };
+  }
+  if (lowerName.includes("github") || lowerVendor.includes("github")) {
+    return { icon: Github, color: "bg-gray-500/20 text-gray-400" };
+  }
+  if (lowerName.includes("aws") || lowerVendor.includes("amazon")) {
+    return { icon: Cloud, color: "bg-orange-400/20 text-orange-400" };
+  }
+  if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot")) {
+    return { icon: Megaphone, color: "bg-orange-600/20 text-orange-600" };
+  }
+  if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk")) {
+    return { icon: Headphones, color: "bg-teal-500/20 text-teal-500" };
+  }
+  
+  return { icon: Cloud, color: "bg-primary/20 text-primary" };
+};
+
 export default function Systems() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [ownerMenuSystemId, setOwnerMenuSystemId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSeedSystems = async () => {
+    setIsSeeding(true);
     try {
       const count = await seedDemoSystems();
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success(`${count} demo-systemer ble lastet inn`);
     } catch (e: any) {
       toast.error(e.message || "Kunne ikke laste inn demo-systemer");
+    } finally {
+      setIsSeeding(false);
     }
   };
 
   const handleDeleteSystems = async () => {
+    setIsDeleting(true);
     try {
       const count = await deleteDemoSystems();
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success(`${count} demo-systemer ble fjernet`);
     } catch (e: any) {
       toast.error(e.message || "Kunne ikke fjerne demo-systemer");
+    } finally {
+      setIsDeleting(false);
     }
   };
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Fetch systems
   const { data: systems = [], isLoading } = useQuery({
     queryKey: ["systems"],
     queryFn: async () => {
       const { data, error } = await supabase.from("systems").select("*");
       if (error) throw error;
-      // Add mock compliance scores for demo (seeded per id for stability)
       return (data || []).map((system) => ({
         ...system,
         compliance_score: system.compliance_score || Math.abs(system.id.charCodeAt(0) * 7 + system.id.charCodeAt(1) * 3) % 100,
@@ -111,7 +165,6 @@ export default function Systems() {
     },
   });
 
-  // Fetch work areas for the owner dropdown
   const { data: workAreas = [] } = useQuery({
     queryKey: ["work_areas"],
     queryFn: async () => {
@@ -121,7 +174,6 @@ export default function Systems() {
     },
   });
 
-  // Delete system mutation
   const deleteSystem = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("systems").delete().eq("id", id);
@@ -136,7 +188,6 @@ export default function Systems() {
     },
   });
 
-  // Assign owner (work area) to system
   const assignOwner = useMutation({
     mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
       const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
@@ -148,12 +199,10 @@ export default function Systems() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["systems"] });
-      setOwnerMenuSystemId(null);
       toast.success("Eier satt");
     },
   });
 
-  // Archive system
   const archiveSystem = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("systems").update({ status: "archived" }).eq("id", id);
@@ -165,40 +214,38 @@ export default function Systems() {
     },
   });
 
-  // Filter and sort systems
-  const filteredSystems = useMemo(() => {
-    let result = systems.filter((system) => {
+  const restoreSystem = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("systems").update({ status: "active" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("System gjenopprettet");
+    },
+  });
+
+  const activeSystems = useMemo(() => systems.filter(s => s.status !== "archived"), [systems]);
+  const archivedSystems = useMemo(() => systems.filter(s => s.status === "archived"), [systems]);
+
+  const filterSystems = (list: System[]) => {
+    let result = list.filter((system) => {
       const matchesName = system.name.toLowerCase().includes(nameFilter.toLowerCase());
       const matchesType = !typeFilter || typeFilter === "all" || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
-      const matchesOwner = !ownerFilter || ownerFilter === "all";
+      const matchesOwner = !ownerFilter || ownerFilter === "all" || system.work_area_id === ownerFilter;
       return matchesName && matchesType && matchesOwner;
     });
 
-    // Apply sorting
     if (sortColumn) {
       result = [...result].sort((a, b) => {
         let aValue: string | number = "";
         let bValue: string | number = "";
-
         switch (sortColumn) {
-          case "name":
-            aValue = a.name.toLowerCase();
-            bValue = b.name.toLowerCase();
-            break;
-          case "type":
-            aValue = (a.category || "").toLowerCase();
-            bValue = (b.category || "").toLowerCase();
-            break;
-          case "compliance":
-            aValue = a.compliance_score || 0;
-            bValue = b.compliance_score || 0;
-            break;
-          case "risk":
-            aValue = a.compliance_score || 0;
-            bValue = b.compliance_score || 0;
-            break;
+          case "name": aValue = a.name.toLowerCase(); bValue = b.name.toLowerCase(); break;
+          case "type": aValue = (a.category || "").toLowerCase(); bValue = (b.category || "").toLowerCase(); break;
+          case "vendor": aValue = (a.vendor || "").toLowerCase(); bValue = (b.vendor || "").toLowerCase(); break;
+          case "compliance": aValue = a.compliance_score || 0; bValue = b.compliance_score || 0; break;
         }
-
         if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
         if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
         return 0;
@@ -206,15 +253,13 @@ export default function Systems() {
     }
 
     return result;
-  }, [systems, nameFilter, typeFilter, ownerFilter, sortColumn, sortDirection]);
+  };
 
-  // Get unique categories for filter
   const categories = useMemo(() => {
     const cats = new Set(systems.map((s) => s.category).filter(Boolean));
     return Array.from(cats);
   }, [systems]);
 
-  // Handle column sorting
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -225,278 +270,279 @@ export default function Systems() {
   };
 
   const SortIcon = ({ column }: { column: string }) => {
-    if (sortColumn !== column) {
-      return <ArrowUpDown className="h-3.5 w-3.5 ml-1 opacity-50" />;
+    if (sortColumn !== column) return <ArrowUpDown className="h-3.5 w-3.5 ml-1 opacity-50" />;
+    return sortDirection === "asc" ? <ArrowUp className="h-3.5 w-3.5 ml-1" /> : <ArrowDown className="h-3.5 w-3.5 ml-1" />;
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "active": return { label: "Aktiv", className: "bg-green-500/20 text-green-600 border-green-500/30" };
+      case "under_review": return { label: "Under vurdering", className: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" };
+      case "archived": return { label: "Arkivert", className: "bg-muted text-muted-foreground border-border" };
+      default: return { label: status || "Aktiv", className: "bg-green-500/20 text-green-600 border-green-500/30" };
     }
-    return sortDirection === "asc" 
-      ? <ArrowUp className="h-3.5 w-3.5 ml-1" /> 
-      : <ArrowDown className="h-3.5 w-3.5 ml-1" />;
   };
 
-  const getComplianceLabel = (score: number) => {
-    if (score >= 85) return { label: `${score}% - Samsvar`, color: "bg-green-500/20 text-green-400 border-green-500/30" };
-    if (score >= 50) return { label: `${score}% - Delvis`, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
-    return { label: `${score}% - Lav`, color: "bg-red-500/20 text-red-400 border-red-500/30" };
+  const getOwnerName = (system: System) => {
+    if (system.system_manager) return system.system_manager;
+    if (system.work_area_id) {
+      const wa = workAreas.find((a: WorkArea) => a.id === system.work_area_id);
+      return wa?.name || null;
+    }
+    return null;
   };
 
-  const getRiskIndicator = (score: number) => {
-    if (score >= 85) return "bg-green-500";
-    if (score >= 50) return "bg-blue-500";
-    if (score >= 25) return "bg-orange-500";
-    return "bg-red-500";
+  const renderSystemRow = (system: System, showRestore = false) => {
+    const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
+    const statusBadge = getStatusBadge(system.status);
+    const ownerName = getOwnerName(system);
+
+    return (
+      <div
+        key={system.id}
+        onClick={() => navigate(`/systems/${system.id}`)}
+        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
+            <IconComponent className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-foreground font-medium block truncate">{system.name}</span>
+            {system.description && (
+              <span className="text-xs text-muted-foreground truncate block">{system.description}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="text-muted-foreground text-sm">{system.category || "-"}</div>
+
+        <div className="text-muted-foreground text-sm">{system.vendor || "-"}</div>
+
+        <div className="text-sm">
+          {ownerName ? (
+            <span className="text-foreground">{ownerName}</span>
+          ) : (
+            <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
+          )}
+        </div>
+
+        <div>
+          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${statusBadge.className}`}>
+            {statusBadge.label}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <UserCircle className="h-4 w-4 mr-2" />
+                  Sett eier
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {workAreas.length === 0 ? (
+                    <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
+                  ) : (
+                    workAreas.map((area: WorkArea) => (
+                      <DropdownMenuItem
+                        key={area.id}
+                        onClick={() => assignOwner.mutate({ id: system.id, workAreaId: area.id })}
+                      >
+                        {area.name}
+                        {system.work_area_id === area.id && <span className="ml-auto text-xs">✓</span>}
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              {showRestore ? (
+                <DropdownMenuItem onClick={() => restoreSystem.mutate(system.id)}>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Gjenopprett
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
+                  <Archive className="h-4 w-4 mr-2" />
+                  Arkiver
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => deleteSystem.mutate(system.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Slett
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    );
   };
 
-  // Map vendor/system names to icons
-  const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon; color: string } => {
-    const lowerName = name.toLowerCase();
-    const lowerVendor = (vendor || "").toLowerCase();
+  const renderTable = (systemsList: System[], showRestore = false) => {
+    const filtered = filterSystems(systemsList);
     
-    if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft")) {
-      return { icon: Mail, color: "bg-orange-500/20 text-orange-500" };
-    }
-    if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce")) {
-      return { icon: Users, color: "bg-blue-500/20 text-blue-500" };
-    }
-    if (lowerName.includes("sap") || lowerVendor.includes("sap")) {
-      return { icon: DollarSign, color: "bg-yellow-500/20 text-yellow-500" };
-    }
-    if (lowerName.includes("slack") || lowerVendor.includes("slack")) {
-      return { icon: MessageSquare, color: "bg-purple-500/20 text-purple-500" };
-    }
-    if (lowerName.includes("zoom") || lowerVendor.includes("zoom")) {
-      return { icon: Video, color: "bg-blue-400/20 text-blue-400" };
-    }
-    if (lowerName.includes("visma") || lowerVendor.includes("visma")) {
-      return { icon: Briefcase, color: "bg-green-600/20 text-green-600" };
-    }
-    if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex")) {
-      return { icon: Calculator, color: "bg-indigo-500/20 text-indigo-500" };
-    }
-    if (lowerName.includes("jira") || lowerVendor.includes("atlassian")) {
-      return { icon: KanbanSquare, color: "bg-blue-600/20 text-blue-600" };
-    }
-    if (lowerName.includes("github") || lowerVendor.includes("github")) {
-      return { icon: Github, color: "bg-gray-500/20 text-gray-400" };
-    }
-    if (lowerName.includes("aws") || lowerVendor.includes("amazon")) {
-      return { icon: Cloud, color: "bg-orange-400/20 text-orange-400" };
-    }
-    if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot")) {
-      return { icon: Megaphone, color: "bg-orange-600/20 text-orange-600" };
-    }
-    if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk")) {
-      return { icon: Headphones, color: "bg-teal-500/20 text-teal-500" };
-    }
-    
-    // Default icon
-    return { icon: Cloud, color: "bg-primary/20 text-primary" };
+    return (
+      <div className="rounded-lg border border-border overflow-hidden">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+          <button onClick={() => handleSort("name")} className="flex items-center hover:text-foreground transition-colors text-left">
+            {t("systems.system", "System")}
+            <SortIcon column="name" />
+          </button>
+          <button onClick={() => handleSort("type")} className="flex items-center hover:text-foreground transition-colors text-left">
+            {t("systems.type", "Kategori")}
+            <SortIcon column="type" />
+          </button>
+          <button onClick={() => handleSort("vendor")} className="flex items-center hover:text-foreground transition-colors text-left">
+            {t("systems.vendor", "Leverandør")}
+            <SortIcon column="vendor" />
+          </button>
+          <div>{t("systems.owner", "Eier")}</div>
+          <div>{t("systems.status", "Status")}</div>
+          <div></div>
+        </div>
+
+        {isLoading ? (
+          <div className="p-8 text-center text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
+            Laster systemer...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-12 text-center">
+            <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              {showRestore ? "Ingen arkiverte systemer" : t("systems.noSystems", "Ingen systemer funnet")}
+            </h3>
+            {!showRestore && (
+              <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+            )}
+            {!showRestore && (
+              <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t("systems.addSystem", "Legg til system")}
+              </Button>
+            )}
+          </div>
+        ) : (
+          filtered.map((system) => renderSystemRow(system, showRestore))
+        )}
+      </div>
+    );
   };
 
   return (
     <div className="flex min-h-screen bg-background">
-      {!isMobile && <Sidebar />}
-      {isMobile && <Sidebar />}
-      
-      <main className="flex-1 overflow-auto">
+      <Sidebar />
+      <main className="flex-1 overflow-auto pt-16 md:pt-0">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-primary">{t("systems.title")}</h1>
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              {t("systems.addSystem")}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon"><MoreVertical className="h-4 w-4" /></Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleSeedSystems}><Database className="h-4 w-4 mr-2" />Last inn demo-data</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDeleteSystems} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" />Slett demo-data</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Input
-            placeholder={t("systems.filterByName")}
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-            className="bg-muted/50 border-border"
-          />
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="bg-muted/50 border-border">
-              <SelectValue placeholder={t("systems.filterByType")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("systems.allTypes")}</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat || ""}>
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-            <SelectTrigger className="bg-muted/50 border-border">
-              <SelectValue placeholder={t("systems.filterByOwner")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("systems.allOwners")}</SelectItem>
-              {workAreas.map((area: WorkArea) => (
-                <SelectItem key={area.id} value={area.id}>
-                  {area.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_80px_100px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
-            <button 
-              onClick={() => handleSort("name")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("systems.system")}
-              <SortIcon column="name" />
-            </button>
-            <button 
-              onClick={() => handleSort("type")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("systems.type")}
-              <SortIcon column="type" />
-            </button>
-            <div>{t("systems.vendor", "Leverandør")}</div>
-            <button 
-              onClick={() => handleSort("compliance")}
-              className="flex items-center gap-1 hover:text-foreground transition-colors text-left"
-            >
-              {t("systems.compliance")}
-              <SortIcon column="compliance" />
-            </button>
-            <button 
-              onClick={() => handleSort("risk")}
-              className="flex items-center hover:text-foreground transition-colors text-left"
-            >
-              {t("systems.risk")}
-              <SortIcon column="risk" />
-            </button>
-            <div></div>
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h1 className="text-xl md:text-2xl font-bold text-primary">
+              {t("systems.title", "Systemer")}
+            </h1>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t("systems.addSystem", "Legg til system")}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
+                    {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+                    Demo-data
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleSeedSystems} disabled={isSeeding}>
+                    <Database className="h-4 w-4 mr-2" />
+                    Last inn demo-systemer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeleteSystems} disabled={isDeleting} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Fjern demo-systemer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
-          {/* Table Body */}
-          {isLoading ? (
-            <div className="p-8 text-center text-muted-foreground">
-              {t("common.loading")}
-            </div>
-          ) : filteredSystems.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              {t("systems.noSystems")}
-            </div>
-          ) : (
-            filteredSystems.map((system) => {
-              const compliance = getComplianceLabel(system.compliance_score || 0);
-              const riskColor = getRiskIndicator(system.compliance_score || 0);
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              placeholder={t("systems.filterByName", "Filtrer etter systemnavn")}
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              className="bg-muted/50 border-border"
+            />
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="bg-muted/50 border-border">
+                <SelectValue placeholder={t("systems.filterByType", "Filtrer etter kategori")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("systems.allTypes", "Alle kategorier")}</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat || ""}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+              <SelectTrigger className="bg-muted/50 border-border">
+                <SelectValue placeholder={t("systems.filterByOwner", "Filtrer etter eier")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("systems.allOwners", "Alle eiere")}</SelectItem>
+                {workAreas.map((area: WorkArea) => (
+                  <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              return (
-                <div
-                  key={system.id}
-                  onClick={() => navigate(`/systems/${system.id}`)}
-                  className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_80px_100px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
-                >
-                  {/* System Name with Icon */}
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
-                      return (
-                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
-                          <IconComponent className="h-4 w-4" />
-                        </div>
-                      );
-                    })()}
-                    <span className="text-foreground font-medium">{system.name}</span>
-                  </div>
+          {/* Tabs */}
+          <Tabs defaultValue="active" className="space-y-4">
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="active" className="gap-1.5">
+                <CheckCircle2 className="h-4 w-4" />
+                Aktive
+                {activeSystems.length > 0 && (
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                    {activeSystems.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="archived" className="gap-1.5">
+                <Archive className="h-4 w-4" />
+                Arkiverte
+                {archivedSystems.length > 0 && (
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                    {archivedSystems.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
 
-                  {/* Type */}
-                  <div className="text-muted-foreground">{system.category || "-"}</div>
+            <TabsContent value="active">
+              {renderTable(activeSystems)}
+            </TabsContent>
 
-                  {/* Vendor */}
-                  <div className="text-muted-foreground text-sm">{system.vendor || "-"}</div>
-
-                  {/* Compliance Badge */}
-                  <div>
-                    <span className={`inline-flex px-2 py-1 rounded text-xs font-medium border ${compliance.color}`}>
-                      {compliance.label}
-                    </span>
-                  </div>
-
-                  {/* Risk Indicator */}
-                  <div className="flex justify-center">
-                    <div className={`h-3 w-3 rounded-full ${riskColor}`} />
-                  </div>
-
-                  {/* Row Actions Menu */}
-                  <div className="flex items-center justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenuSub>
-                          <DropdownMenuSubTrigger>
-                            <UserCircle className="h-4 w-4 mr-2" />
-                            Sett eier
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent>
-                            {workAreas.length === 0 ? (
-                              <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
-                            ) : (
-                              workAreas.map((area: WorkArea) => (
-                                <DropdownMenuItem
-                                  key={area.id}
-                                  onClick={() => assignOwner.mutate({ id: system.id, workAreaId: area.id })}
-                                >
-                                  {area.name}
-                                  {system.work_area_id === area.id && <span className="ml-auto text-xs">✓</span>}
-                                </DropdownMenuItem>
-                              ))
-                            )}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
-                          <Archive className="h-4 w-4 mr-2" />
-                          Arkiver
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => deleteSystem.mutate(system.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Slett
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+            <TabsContent value="archived">
+              {renderTable(archivedSystems, true)}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 
