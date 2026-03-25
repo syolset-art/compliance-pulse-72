@@ -1282,6 +1282,7 @@ export function ContentViewer({ contentType, filter, viewMode = "cards", sortBy,
       case "systems": return <Server className="h-6 w-6" />;
       case "gap-analysis": return <AlertTriangle className="h-6 w-6" />;
       case "asset-import-preview": return <Download className="h-6 w-6" />;
+      case "action-plan": return <List className="h-6 w-6" />;
       default: return <Shield className="h-6 w-6" />;
     }
   };
