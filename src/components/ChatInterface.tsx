@@ -439,7 +439,56 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
     }
   };
 
-  // Notify parent about messages state
+  // Handle approve action plan
+  const handleApprovePlan = async (messageIndex: number) => {
+    const msg = messages[messageIndex];
+    if (!msg?.actionPlan) return;
+
+    // Update plan status to approved
+    setMessages(prev => prev.map((m, i) => 
+      i === messageIndex && m.actionPlan 
+        ? { ...m, actionPlan: { ...m.actionPlan, status: "approved" as const } }
+        : m
+    ));
+
+    // Create tasks in database
+    try {
+      for (const step of msg.actionPlan.steps) {
+        await supabase.from("tasks").insert({
+          title: step.title,
+          description: step.description,
+          priority: step.priority,
+          type: step.category,
+          status: "pending",
+          relevant_for: [],
+          ai_autonomy_level: 0,
+          ai_handling: false,
+        });
+      }
+
+      // Add confirmation message
+      const confirmMsg: Message = {
+        role: "assistant",
+        content: t("chat.actionPlan.confirmedMessage", { count: msg.actionPlan.steps.length }),
+        isComplete: true,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, confirmMsg]);
+
+      toast({
+        title: t("chat.actionPlan.tasksCreated"),
+        description: t("chat.actionPlan.tasksCreatedDesc", { count: msg.actionPlan.steps.length }),
+      });
+    } catch (error) {
+      console.error("Failed to create tasks:", error);
+      toast({
+        title: t("common.error"),
+        description: t("chat.actionPlan.createError"),
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     onMessagesChange?.(messages.length > 0);
   }, [messages.length, onMessagesChange]);
