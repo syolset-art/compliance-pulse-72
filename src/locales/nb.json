@@ -1010,7 +1010,7 @@
       "description": "Jeg hjelper deg med Personvern, informasjonssikkerhet og AI Governance"
     },
     "onboarding": {
-      "title": "ISO-klargjøring",
+      "title": "Foundation setup",
       "remaining": "gjenstår",
       "stepsCompleted": "{{completed}} av {{total}} steg fullført",
       "hideOnboarding": "Skjul onboarding",
