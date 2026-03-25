@@ -442,16 +442,63 @@ export default function Systems() {
                     <div className={`h-3 w-3 rounded-full ${riskColor}`} />
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => { e.stopPropagation(); deleteSystem.mutate(system.id); }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  {/* Row Actions Menu */}
+                  <div className="flex items-center justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        {/* Set Owner submenu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                              <UserCircle className="h-4 w-4 mr-2" />
+                              Sett eier
+                              {system.work_area_id && (
+                                <span className="ml-auto text-xs text-muted-foreground">
+                                  {workAreas.find((wa: WorkArea) => wa.id === system.work_area_id)?.name || ""}
+                                </span>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent side="left" align="start">
+                            {workAreas.length === 0 ? (
+                              <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
+                            ) : (
+                              workAreas.map((area: WorkArea) => (
+                                <DropdownMenuItem
+                                  key={area.id}
+                                  onClick={() => assignOwner.mutate({ id: system.id, workAreaId: area.id })}
+                                >
+                                  {area.name}
+                                  {system.work_area_id === area.id && <span className="ml-auto text-xs">✓</span>}
+                                </DropdownMenuItem>
+                              ))
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
+                          <Archive className="h-4 w-4 mr-2" />
+                          Arkiver
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => deleteSystem.mutate(system.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Slett
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               );
