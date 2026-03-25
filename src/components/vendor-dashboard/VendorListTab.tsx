@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VendorCard } from "./VendorCard";
+import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 import {
   Select,
   SelectContent,
@@ -20,9 +21,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Trash2,
   Building2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Asset {
   id: string;
@@ -39,6 +40,13 @@ interface Asset {
   vendor_category?: string | null;
   gdpr_role?: string | null;
   work_area_id?: string | null;
+  lifecycle_status?: string | null;
+}
+
+interface WorkArea {
+  id: string;
+  name: string;
+  responsible_person?: string | null;
 }
 
 interface VendorListTabProps {
@@ -51,6 +59,44 @@ interface VendorListTabProps {
 export function VendorListTab({ vendors, allAssets, relationships, onDelete }: VendorListTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: workAreas = [] } = useQuery({
+    queryKey: ["work_areas"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("work_areas").select("*");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const assignOwner = useMutation({
+    mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
+      const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
+      const { error } = await supabase.from("assets").update({
+        work_area_id: workAreaId,
+        asset_owner: workArea?.responsible_person || null,
+      }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success("Eier satt");
+    },
+  });
+
+  const archiveAsset = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: "archived" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
+      queryClient.invalidateQueries({ queryKey: ["assets"] });
+      toast.success("Leverandør arkivert");
+    },
+  });
 
   const { data: inboxCounts = {} } = useQuery({
     queryKey: ["lara-inbox-counts"],
@@ -137,6 +183,15 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
 
   const getConnectedCount = (id: string) =>
     relationships.filter(r => r.source_asset_id === id || r.target_asset_id === id).length;
+
+  const getOwnerName = (asset: Asset) => {
+    if (asset.asset_owner) return asset.asset_owner;
+    if (asset.work_area_id) {
+      const wa = workAreas.find((a: WorkArea) => a.id === asset.work_area_id);
+      return wa?.name || null;
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-4">
@@ -227,6 +282,9 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               inboxCount={inboxCounts[v.id] || 0}
               expiredDocsCount={expiredCounts[v.id] || 0}
               onClick={() => navigate(`/assets/${v.id}`)}
+              workAreas={workAreas}
+              onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+              onArchive={(itemId) => archiveAsset.mutate(itemId)}
               onDelete={onDelete}
             />
           ))}
@@ -234,11 +292,12 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
       ) : (
         /* List View */
         <div className="rounded-lg border border-border overflow-hidden">
-          <div className="grid grid-cols-[2fr_1fr_1fr_80px_80px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
             <button onClick={() => handleSort("name")} className="flex items-center hover:text-foreground text-left">
               {t("assets.name")} <SortIcon column="name" />
             </button>
             <div>{t("assets.category")}</div>
+            <div>{t("systems.owner", "Eier")}</div>
             <button onClick={() => handleSort("compliance")} className="flex items-center hover:text-foreground text-left">
               {t("assets.compliance")} <SortIcon column="compliance" />
             </button>
@@ -252,11 +311,12 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               const score = asset.compliance_score || 0;
               const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
               const riskColor = { high: "bg-destructive", medium: "bg-warning", low: "bg-success" }[asset.risk_level || ""] || "bg-muted-foreground";
+              const ownerName = getOwnerName(asset);
               return (
                 <div
                   key={asset.id}
                   onClick={() => navigate(`/assets/${asset.id}`)}
-                  className="grid grid-cols-[2fr_1fr_1fr_80px_80px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                  className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -265,16 +325,24 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                     <span className="font-medium text-foreground truncate">{asset.name}</span>
                   </div>
                   <div className="text-sm text-muted-foreground truncate">{asset.category || "—"}</div>
+                  <div className="text-sm">
+                    {ownerName ? (
+                      <span className="text-foreground">{ownerName}</span>
+                    ) : (
+                      <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
+                    )}
+                  </div>
                   <div className={`font-semibold ${scoreColor}`}>{score}%</div>
                   <div className="flex justify-center"><div className={`h-3 w-3 rounded-full ${riskColor}`} /></div>
                   <div className="flex justify-end" onClick={e => e.stopPropagation()}>
-                    {!asset.work_area_id ? (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => onDelete(asset.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <span className="text-[10px] text-muted-foreground italic">Tilknyttet</span>
-                    )}
+                    <AssetRowActionMenu
+                      itemId={asset.id}
+                      currentWorkAreaId={asset.work_area_id}
+                      workAreas={workAreas}
+                      onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+                      onArchive={(itemId) => archiveAsset.mutate(itemId)}
+                      onDelete={onDelete}
+                    />
                   </div>
                 </div>
               );

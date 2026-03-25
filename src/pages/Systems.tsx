@@ -24,16 +24,11 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  MoreVertical,
   Database,
   Archive,
-  UserCircle,
-  MoreHorizontal,
   Trash2,
   Loader2,
   CheckCircle2,
-  AlertTriangle,
-  Clock,
   Server
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
@@ -46,7 +41,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
 
 interface System {
@@ -334,60 +330,16 @@ export default function Systems() {
         </div>
 
         <div className="flex items-center justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <UserCircle className="h-4 w-4 mr-2" />
-                  Sett eier
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  {workAreas.length === 0 ? (
-                    <DropdownMenuItem disabled>Ingen arbeidsområder</DropdownMenuItem>
-                  ) : (
-                    workAreas.map((area: WorkArea) => (
-                      <DropdownMenuItem
-                        key={area.id}
-                        onClick={() => assignOwner.mutate({ id: system.id, workAreaId: area.id })}
-                      >
-                        {area.name}
-                        {system.work_area_id === area.id && <span className="ml-auto text-xs">✓</span>}
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuSeparator />
-              {showRestore ? (
-                <DropdownMenuItem onClick={() => restoreSystem.mutate(system.id)}>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Gjenopprett
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => archiveSystem.mutate(system.id)}>
-                  <Archive className="h-4 w-4 mr-2" />
-                  Arkiver
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onClick={() => deleteSystem.mutate(system.id)}
-                className="text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Slett
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AssetRowActionMenu
+            itemId={system.id}
+            currentWorkAreaId={system.work_area_id}
+            isArchived={showRestore}
+            workAreas={workAreas}
+            onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+            onArchive={(itemId) => archiveSystem.mutate(itemId)}
+            onRestore={(itemId) => restoreSystem.mutate(itemId)}
+            onDelete={(itemId) => deleteSystem.mutate(itemId)}
+          />
         </div>
       </div>
     );

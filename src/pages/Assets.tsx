@@ -10,8 +10,15 @@ import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DeviceListTab } from "@/components/devices/DeviceListTab";
+import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 import { seedDemoDevices, deleteDemoDevices } from "@/lib/demoDeviceProfiles";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+
+interface WorkArea {
+  id: string;
+  name: string;
+  responsible_person?: string | null;
+}
 
 export default function Assets() {
   const { t } = useTranslation();
@@ -47,7 +54,6 @@ export default function Assets() {
     }
   };
 
-  // Fetch non-vendor assets (devices + other types)
   const { data: assets = [] } = useQuery({
     queryKey: ["device-assets"],
     queryFn: async () => {
@@ -70,6 +76,15 @@ export default function Assets() {
     },
   });
 
+  const { data: workAreas = [] } = useQuery({
+    queryKey: ["work_areas"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("work_areas").select("*");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const deleteAsset = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("assets").delete().eq("id", id);
@@ -84,8 +99,43 @@ export default function Assets() {
     },
   });
 
+  const assignOwner = useMutation({
+    mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
+      const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
+      const { error } = await supabase.from("assets").update({
+        work_area_id: workAreaId,
+        asset_owner: workArea?.responsible_person || null,
+      }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Eier satt");
+    },
+  });
+
+  const archiveAsset = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: "archived" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Asset arkivert");
+    },
+  });
+
   const devices = useMemo(() => assets.filter(a => a.asset_type === "hardware"), [assets]);
   const otherAssets = useMemo(() => assets.filter(a => a.asset_type !== "hardware"), [assets]);
+
+  const getOwnerName = (asset: any) => {
+    if (asset.asset_owner) return asset.asset_owner;
+    if (asset.work_area_id) {
+      const wa = workAreas.find((a: WorkArea) => a.id === asset.work_area_id);
+      return wa?.name || null;
+    }
+    return null;
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -165,41 +215,52 @@ export default function Assets() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-border overflow-hidden">
-                  <div className="grid grid-cols-[2fr_1fr_1fr_80px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
+                  <div className="grid grid-cols-[2fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
                     <div>{t("assets.name", "Navn")}</div>
                     <div>{t("assets.type", "Type")}</div>
+                    <div>{t("systems.owner", "Eier")}</div>
                     <div>{t("assets.riskLevel", "Risiko")}</div>
                     <div></div>
                   </div>
-                  {otherAssets.map((asset) => (
-                    <div
-                      key={asset.id}
-                      onClick={() => navigate(`/assets/${asset.id}`)}
-                      className="grid grid-cols-[2fr_1fr_1fr_80px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 cursor-pointer transition-colors"
-                    >
-                      <div className="font-medium text-foreground">{asset.name}</div>
-                      <div className="text-muted-foreground text-sm">{asset.asset_type}</div>
-                      <div>
-                        <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                          asset.risk_level === "high" ? "bg-destructive/20 text-destructive" :
-                          asset.risk_level === "medium" ? "bg-yellow-500/20 text-yellow-600" :
-                          "bg-green-500/20 text-green-600"
-                        }`}>
-                          {asset.risk_level || "medium"}
-                        </span>
+                  {otherAssets.map((asset) => {
+                    const ownerName = getOwnerName(asset);
+                    return (
+                      <div
+                        key={asset.id}
+                        onClick={() => navigate(`/assets/${asset.id}`)}
+                        className="grid grid-cols-[2fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 cursor-pointer transition-colors"
+                      >
+                        <div className="font-medium text-foreground">{asset.name}</div>
+                        <div className="text-muted-foreground text-sm">{asset.asset_type}</div>
+                        <div className="text-sm">
+                          {ownerName ? (
+                            <span className="text-foreground">{ownerName}</span>
+                          ) : (
+                            <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
+                          )}
+                        </div>
+                        <div>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                            asset.risk_level === "high" ? "bg-destructive/20 text-destructive" :
+                            asset.risk_level === "medium" ? "bg-yellow-500/20 text-yellow-600" :
+                            "bg-green-500/20 text-green-600"
+                          }`}>
+                            {asset.risk_level || "medium"}
+                          </span>
+                        </div>
+                        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                          <AssetRowActionMenu
+                            itemId={asset.id}
+                            currentWorkAreaId={asset.work_area_id}
+                            workAreas={workAreas}
+                            onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+                            onArchive={(itemId) => archiveAsset.mutate(itemId)}
+                            onDelete={(itemId) => deleteAsset.mutate(itemId)}
+                          />
+                        </div>
                       </div>
-                      <div className="flex justify-end">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={(e) => { e.stopPropagation(); deleteAsset.mutate(asset.id); }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
