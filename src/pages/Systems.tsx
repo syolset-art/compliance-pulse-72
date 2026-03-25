@@ -25,7 +25,9 @@ import {
   LucideIcon,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  MoreVertical,
+  Database
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
