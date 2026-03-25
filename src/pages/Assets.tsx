@@ -10,8 +10,17 @@ import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DeviceListTab } from "@/components/devices/DeviceListTab";
-import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { AssetRowActionMenu, type StatusOption } from "@/components/shared/AssetRowActionMenu";
 import { seedDemoDevices, deleteDemoDevices } from "@/lib/demoDeviceProfiles";
+
+const ASSET_LIFECYCLE_OPTIONS: StatusOption[] = [
+  { value: "active", label: "Aktiv" },
+  { value: "in_review", label: "Under evaluering" },
+  { value: "quarantine", label: "Karantene" },
+  { value: "phase_out", label: "Fases ut" },
+  { value: "archived", label: "Arkivert" },
+  { value: "rejected", label: "Avvist" },
+];
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface WorkArea {
