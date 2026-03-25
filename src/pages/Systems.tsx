@@ -143,7 +143,7 @@ export default function Systems() {
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("in_use");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -271,7 +271,6 @@ export default function Systems() {
     onSuccess: (_, { id, status: newStatus }) => {
       const systemName = systems?.find(s => s.id === id)?.name || "Systemet";
       const newStatusLabel = SYSTEM_STATUSES.find(s => s.value === newStatus)?.label || newStatus;
-      setStatusFilter(newStatus);
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success(`«${systemName}» endret til «${newStatusLabel}»`);
     },
