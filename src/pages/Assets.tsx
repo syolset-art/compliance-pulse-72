@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Inbox, Database, Trash2, Loader2 } from "lucide-react";
+import { Inbox, Database, Trash2, Loader2, Plus } from "lucide-react";
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
