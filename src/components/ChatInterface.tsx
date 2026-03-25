@@ -290,7 +290,7 @@ function EmptyStateWelcome({
       {/* Suggestions */}
       <nav className="w-full space-y-2 pb-3 px-2 mt-4" aria-label={t("chat.suggestions.title")}>
         <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">{t("chat.suggestions.title")}</p>
-        {suggestions.slice(0, 3).map((suggestion, i) => {
+        {suggestions.slice(0, 4).map((suggestion, i) => {
           const Icon = suggestion.icon;
           const text = t(suggestion.textKey);
           return (
