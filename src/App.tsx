@@ -107,7 +107,7 @@ const App = () => (
                   <Route path="/lara-inbox" element={<LaraInbox />} />
                   <Route path="/customer-requests" element={<CustomerRequests />} />
                   <Route path="/systems" element={<Systems />} />
-                  <Route path="/systems/:id" element={<AssetTrustProfile />} />
+                  <Route path="/systems/:id" element={<SystemTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
