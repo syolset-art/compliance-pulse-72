@@ -1009,7 +1009,7 @@
       "description": "I help you with Privacy, Information Security and AI Governance"
     },
     "onboarding": {
-      "title": "ISO Preparation",
+      "title": "Foundation setup",
       "remaining": "left",
       "stepsCompleted": "{{completed}} of {{total}} steps completed",
       "hideOnboarding": "Hide onboarding",
