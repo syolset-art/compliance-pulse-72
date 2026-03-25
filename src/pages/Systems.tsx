@@ -499,7 +499,7 @@ export default function Systems() {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
               placeholder="Filtrer etter systemnavn"
               value={nameFilter}
@@ -532,41 +532,23 @@ export default function Systems() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="bg-background border-border">
+                <SelectValue placeholder="Filtrer etter status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle statuser</SelectItem>
+                {SYSTEM_STATUSES.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Tabs: I bruk / Ikke i bruk / Arkiverte */}
-          <Tabs defaultValue="in-use" className="space-y-4">
-            <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="in-use" className="gap-1.5">
-                I bruk
-                {inUseSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {inUseSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="not-in-use" className="gap-1.5">
-                Ikke i bruk
-                {notInUseSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {notInUseSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="archived" className="gap-1.5">
-                Arkiverte
-                {archivedSystems.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {archivedSystems.length}
-                  </span>
-                )}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="in-use">{renderCardList(inUseSystems)}</TabsContent>
-            <TabsContent value="not-in-use">{renderCardList(notInUseSystems)}</TabsContent>
-            <TabsContent value="archived">{renderCardList(archivedSystems)}</TabsContent>
-          </Tabs>
+          {/* System list */}
+          {renderCardList()}
         </div>
       </main>
 
