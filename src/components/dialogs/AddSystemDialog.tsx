@@ -119,6 +119,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         status: "active",
         url: "",
         system_manager: "",
+        contact_person: "",
+        contact_email: "",
       });
     }
   }, [open]);
