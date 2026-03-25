@@ -764,6 +764,42 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
       setCurrentContext("compliance");
     }
 
+    // Detect if this message needs database data
+    const needsDbData = lowerText.includes("søk") || lowerText.includes("database") || 
+      lowerText.includes("identifiser") || lowerText.includes("høyrisiko") ||
+      lowerText.includes("leverandør") || lowerText.includes("risiko") ||
+      lowerText.includes("mangler") || lowerText.includes("sikkerhetskontroll") ||
+      lowerText.includes("eksponering") || lowerText.includes("ai") ||
+      lowerText.includes("vendor") || lowerText.includes("high-risk") ||
+      lowerText.includes("gaps") || lowerText.includes("controls");
+
+    let databaseResults: any = undefined;
+    if (needsDbData) {
+      try {
+        // Fetch assets/vendors
+        const { data: assets } = await supabase.from("assets").select("id, name, asset_type, risk_level, risk_score, compliance_score, vendor, country, region, criticality, category, vendor_category, gdpr_role, description").limit(50);
+        // Fetch systems
+        const { data: systems } = await supabase.from("systems").select("id, name, category, vendor, status, risk_level, compliance_score, risk_score").limit(30);
+        // Fetch processes
+        const { data: processes } = await supabase.from("system_processes").select("id, name, description, status, system_id").limit(30);
+        
+        databaseResults = {
+          assets: assets || [],
+          systems: systems || [],
+          processes: processes || [],
+          summary: {
+            total_assets: assets?.length || 0,
+            vendors: assets?.filter(a => a.asset_type === "vendor")?.length || 0,
+            high_risk: assets?.filter(a => a.risk_level === "high")?.length || 0,
+            medium_risk: assets?.filter(a => a.risk_level === "medium")?.length || 0,
+            low_risk: assets?.filter(a => a.risk_level === "low")?.length || 0,
+          }
+        };
+      } catch (err) {
+        console.error("Failed to prefetch database data:", err);
+      }
+    }
+
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
       const response = await fetch(CHAT_URL, {
@@ -780,7 +816,8 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             pageDescription: pageContext.pageDescription,
             availableActions: pageContext.availableActions,
             demoScenarios: pageContext.demoScenarios
-          } : undefined
+          } : undefined,
+          databaseResults,
         }),
       });
 

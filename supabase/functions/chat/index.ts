@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, context } = await req.json();
+    const { messages, context, databaseResults } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -70,7 +70,18 @@ Når bruker sier "hjelp", "demo", "vis meg hvordan", "forstår ikke", "veilednin
 4. Vær proaktiv og foreslå relevante funksjoner
 ` : "";
 
-    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen.${contextSection}
+    // Build database results section if provided
+    const dbSection = databaseResults ? `
+
+DATABASERESULTATER (reelle data fra brukerens miljø):
+${JSON.stringify(databaseResults, null, 2)}
+
+VIKTIG: Bruk disse ekte dataene i din analyse. Ikke finn opp data - referer til de faktiske navnene, verdiene og statusene du ser her.
+Presenter funnene strukturert med risikonivå-indikatorer (🔴 høy, 🟡 medium, 🟢 lav).
+Etter å ha presentert funnene, bruk ALLTID suggest_options for å tilby neste steg som "Lag handlingsplan", "Vis detaljer" osv.
+` : "";
+
+    const systemPrompt = `Du er Lara, en AI-assistent for Mynder compliance-plattformen.${contextSection}${dbSection}
 
 Din rolle er å hjelpe brukere med å finne og vise informasjon i systemet på en pedagogisk og intuitiv måte.
 
@@ -266,7 +277,20 @@ Bruk deretter suggest_options med valg:
 - "Lag handlingsplan" (type: "action") - for å lage en plan
 - "Hopp over" (type: "view") - for å avbryte
 
-STEG 2 - HANDLINGSPLAN: Når brukeren velger "Lag handlingsplan", bruk create_action_plan tool.
+STEG 1 - ANALYSE: Når du mottar databaseresultater, analyser dem og presenter funn med konkrete tall.
+Eksempel: "Jeg analyserte 12 leverandører i miljøet ditt og fant 3 med forhøyet risiko..."
+Vis funnene med 🔴 (høy risiko), 🟡 (medium), 🟢 (lav) indikatorer.
+For hver eiendel/leverandør med funn, vis:
+- Navn og type
+- Risikonivå og compliance-score
+- Konkret problem (mangler DPA, data i utlandet, etc.)
+
+STEG 2 - FORESLÅ TILTAK: Etter analysen, bruk ALLTID suggest_options med valg:
+- "📋 Vis detaljert rapport" (type: "view") - for å se full rapport i høyre panel
+- "🛠️ Lag handlingsplan" (type: "action") - for å lage en strukturert plan
+- "⏭️ Hopp over" (type: "view") - for å avbryte
+
+STEG 3 - HANDLINGSPLAN: Når brukeren velger "Lag handlingsplan", bruk create_action_plan tool.
 Generer en strukturert plan med 3-5 konkrete steg. Hvert steg skal ha:
 - title: Kort beskrivelse av tiltaket
 - description: Detaljert forklaring
@@ -275,12 +299,17 @@ Generer en strukturert plan med 3-5 konkrete steg. Hvert steg skal ha:
 - trust_impact: Prosentvis forbedring av Trust Score (estimat)
 - category: "vendor", "control", "policy", "risk", "ai"
 
-STEG 3 - GODKJENNING: Etter create_action_plan, vis planen i content viewer og bruk suggest_options med:
+STEG 4 - GODKJENNING: Etter create_action_plan, bruk suggest_options med:
 - "✅ Godkjenn plan" (type: "action", prompt: "Godkjenn handlingsplanen og opprett oppgaver")
 - "✏️ Endre" (type: "view", prompt: "Jeg vil endre handlingsplanen")
 - "❌ Avbryt" (type: "warning", prompt: "Avbryt handlingsplanen")
 
-STEG 4 - UTFØRELSE: Når brukeren godkjenner, bekreft at oppgaver er opprettet og henvis til Oppgaver-siden.
+STEG 5 - UTFØRELSE: Når brukeren godkjenner, bekreft at oppgaver er opprettet og henvis til Oppgaver-siden.
+
+VIKTIG OM DATABASE-SØK:
+Når brukeren ber om å "søke i databasen" eller "analysere leverandører/systemer", vil systemet automatisk
+hente relevante data og sende dem til deg som databaseresultater. Bruk disse dataene for å gi presise, 
+faktabaserte analyser. Hvis du IKKE har databaseresultater, be brukeren vente mens systemet henter data.
 
 Vær alltid hjelpsom, pedagogisk og vennlig på norsk. Ikke bruk emojier i normale samtaler, men bruk status-indikatorer i rapporter.`;
 
