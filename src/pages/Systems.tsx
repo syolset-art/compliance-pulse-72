@@ -427,9 +427,7 @@ export default function Systems() {
     );
   };
 
-  const renderCardList = (systemsList: System[]) => {
-    const filtered = filterSystems(systemsList);
-
+  const renderCardList = () => {
     if (isLoading) {
       return (
         <div className="p-8 text-center text-muted-foreground">
@@ -439,7 +437,7 @@ export default function Systems() {
       );
     }
 
-    if (filtered.length === 0) {
+    if (filteredSystems.length === 0) {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
@@ -455,7 +453,7 @@ export default function Systems() {
 
     return (
       <div className="space-y-4">
-        {filtered.map((system) => renderSystemCard(system))}
+        {filteredSystems.map((system) => renderSystemCard(system))}
       </div>
     );
   };
