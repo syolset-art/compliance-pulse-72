@@ -171,7 +171,12 @@ export default function Assets() {
                 )}
               </button>
             </div>
-            <DropdownMenu>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {t("vendorDashboard.addVendor", "Legg til leverandør")}
+              </Button>
+              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
                   {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
