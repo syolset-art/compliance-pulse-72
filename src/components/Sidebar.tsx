@@ -28,7 +28,8 @@ import {
   Share2,
   Layers,
   CalendarDays,
-  CheckCircle2
+  CheckCircle2,
+  Cloud
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
