@@ -10,8 +10,17 @@ import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DeviceListTab } from "@/components/devices/DeviceListTab";
-import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { AssetRowActionMenu, type StatusOption } from "@/components/shared/AssetRowActionMenu";
 import { seedDemoDevices, deleteDemoDevices } from "@/lib/demoDeviceProfiles";
+
+const ASSET_LIFECYCLE_OPTIONS: StatusOption[] = [
+  { value: "active", label: "Aktiv" },
+  { value: "in_review", label: "Under evaluering" },
+  { value: "quarantine", label: "Karantene" },
+  { value: "phase_out", label: "Fases ut" },
+  { value: "archived", label: "Arkivert" },
+  { value: "rejected", label: "Avvist" },
+];
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface WorkArea {
@@ -125,6 +134,28 @@ export default function Assets() {
     },
   });
 
+  const changeLifecycle = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Status oppdatert");
+    },
+  });
+
+  const restoreAsset = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("assets").update({ lifecycle_status: "active" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["device-assets"] });
+      toast.success("Asset gjenopprettet");
+    },
+  });
+
   const devices = useMemo(() => assets.filter(a => a.asset_type === "hardware"), [assets]);
   const otherAssets = useMemo(() => assets.filter(a => a.asset_type !== "hardware"), [assets]);
 
@@ -195,7 +226,16 @@ export default function Assets() {
             </TabsList>
 
             <TabsContent value="devices">
-              <DeviceListTab devices={devices} />
+              <DeviceListTab
+                devices={devices}
+                workAreas={workAreas}
+                lifecycleOptions={ASSET_LIFECYCLE_OPTIONS}
+                onSetOwner={(id, waId) => assignOwner.mutate({ id, workAreaId: waId })}
+                onSetStatus={(id, status) => changeLifecycle.mutate({ id, status })}
+                onArchive={(id) => archiveAsset.mutate(id)}
+                onRestore={(id) => restoreAsset.mutate(id)}
+                onDelete={(id) => deleteAsset.mutate(id)}
+              />
             </TabsContent>
 
             <TabsContent value="other">
@@ -252,10 +292,15 @@ export default function Assets() {
                           <AssetRowActionMenu
                             itemId={asset.id}
                             currentWorkAreaId={asset.work_area_id}
+                            currentStatus={asset.lifecycle_status}
+                            isArchived={asset.lifecycle_status === "archived"}
                             workAreas={workAreas}
+                            statusOptions={ASSET_LIFECYCLE_OPTIONS}
                             onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
                             onArchive={(itemId) => archiveAsset.mutate(itemId)}
+                            onRestore={(itemId) => restoreAsset.mutate(itemId)}
                             onDelete={(itemId) => deleteAsset.mutate(itemId)}
+                            onSetStatus={(itemId, status) => changeLifecycle.mutate({ id: itemId, status })}
                           />
                         </div>
                       </div>

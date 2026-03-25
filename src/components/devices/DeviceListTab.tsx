@@ -5,6 +5,7 @@ import { Monitor, Smartphone, Server, HardDrive, RefreshCw, Loader2, Laptop, Wif
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { AssetRowActionMenu, type StatusOption } from "@/components/shared/AssetRowActionMenu";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ interface DeviceAsset {
   last_synced_at: string | null;
   metadata: any;
   external_source_provider: string | null;
+  work_area_id: string | null;
 }
 
 /** ISO 27001 Annex A / PESB device categories */
@@ -93,14 +95,27 @@ const statusLabel = (status?: string) => {
   }
 };
 
+interface WorkArea {
+  id: string;
+  name: string;
+  responsible_person?: string | null;
+}
+
 interface DeviceListTabProps {
   devices: DeviceAsset[];
   onSyncAcronis?: () => void;
   isSyncing?: boolean;
   hasAcronisIntegration?: boolean;
+  workAreas?: WorkArea[];
+  lifecycleOptions?: StatusOption[];
+  onSetOwner?: (id: string, workAreaId: string) => void;
+  onSetStatus?: (id: string, status: string) => void;
+  onArchive?: (id: string) => void;
+  onRestore?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisIntegration }: DeviceListTabProps) {
+export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisIntegration, workAreas = [], lifecycleOptions, onSetOwner, onSetStatus, onArchive, onRestore, onDelete }: DeviceListTabProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -229,12 +244,13 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
               <TableHead>Status</TableHead>
               <TableHead>Sist sett</TableHead>
               <TableHead>Risiko</TableHead>
+              {(onSetOwner || onSetStatus) && <TableHead className="w-[50px]"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredDevices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={(onSetOwner || onSetStatus) ? 7 : 6} className="text-center py-8 text-muted-foreground">
                   Ingen enheter matcher valgte filtre
                 </TableCell>
               </TableRow>
@@ -248,6 +264,7 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
                 const lastSeen = device.last_synced_at
                   ? new Date(device.last_synced_at).toLocaleDateString("nb-NO")
                   : "–";
+                const isArchived = device.lifecycle_status === "archived";
 
                 return (
                   <TableRow
@@ -277,6 +294,23 @@ export function DeviceListTab({ devices, onSyncAcronis, isSyncing, hasAcronisInt
                         {device.risk_level || "lav"}
                       </Badge>
                     </TableCell>
+                    {(onSetOwner || onSetStatus) && (
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <AssetRowActionMenu
+                          itemId={device.id}
+                          currentWorkAreaId={device.work_area_id}
+                          currentStatus={device.lifecycle_status}
+                          isArchived={isArchived}
+                          workAreas={workAreas}
+                          statusOptions={lifecycleOptions}
+                          onSetOwner={(id, waId) => onSetOwner?.(id, waId)}
+                          onArchive={(id) => onArchive?.(id)}
+                          onRestore={onRestore ? (id) => onRestore(id) : undefined}
+                          onDelete={(id) => onDelete?.(id)}
+                          onSetStatus={onSetStatus ? (id, s) => onSetStatus(id, s) : undefined}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })
