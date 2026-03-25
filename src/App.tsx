@@ -106,7 +106,7 @@ const App = () => (
                   <Route path="/quality" element={<QualityDashboard />} />
                   <Route path="/lara-inbox" element={<LaraInbox />} />
                   <Route path="/customer-requests" element={<CustomerRequests />} />
-                  <Route path="/systems" element={<Assets />} />
+                  <Route path="/systems" element={<Systems />} />
                   <Route path="/systems/:id" element={<AssetTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
