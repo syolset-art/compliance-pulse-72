@@ -315,18 +315,26 @@ export default function Systems() {
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${color}`}>
               <IconComponent className="h-5 w-5" />
             </div>
-            <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadge.badgeClass}`}>
+                {statusBadge.label}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
             <AssetRowActionMenu
               itemId={system.id}
               currentWorkAreaId={system.work_area_id}
+              currentStatus={system.status}
               isArchived={isArchived}
               workAreas={workAreas}
+              statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
               onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
               onArchive={(itemId) => archiveSystem.mutate(itemId)}
               onRestore={(itemId) => restoreSystem.mutate(itemId)}
               onDelete={(itemId) => deleteSystem.mutate(itemId)}
+              onSetStatus={(itemId, status) => changeStatus.mutate({ id: itemId, status })}
             />
           </div>
         </div>
