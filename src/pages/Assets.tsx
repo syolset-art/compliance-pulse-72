@@ -201,8 +201,9 @@ export default function Assets() {
                    Fjern demo-enheter
                  </DropdownMenuItem>
                </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+             </DropdownMenu>
+            </div>
+           </div>
 
           {/* Tabbed Layout */}
           <Tabs defaultValue="all" className="space-y-4">
