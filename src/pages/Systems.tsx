@@ -72,6 +72,7 @@ export default function Systems() {
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [ownerMenuSystemId, setOwnerMenuSystemId] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
 
   const handleSeedSystems = async () => {
