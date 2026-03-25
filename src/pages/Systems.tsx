@@ -555,7 +555,12 @@ export default function Systems() {
       <AddSystemDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        onSystemAdded={() => queryClient.invalidateQueries({ queryKey: ["systems"] })}
+        onSystemAdded={(status) => {
+          queryClient.invalidateQueries({ queryKey: ["systems"] });
+          if (status) {
+            setStatusFilter(status);
+          }
+        }}
       />
     </div>
   );
