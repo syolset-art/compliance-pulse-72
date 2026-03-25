@@ -17,7 +17,7 @@ import { Progress } from "@/components/ui/progress";
 interface AddSystemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSystemAdded: () => void;
+  onSystemAdded: (status?: string) => void;
 }
 
 type WizardStep = "search" | "confirm" | "category" | "risk" | "contact";
@@ -253,12 +253,22 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
           .eq("id", progressData.id);
       }
 
+      const STATUS_LABELS: Record<string, string> = {
+        in_use: "I bruk",
+        evaluation: "Under evaluering",
+        quarantined: "Karantene",
+        phasing_out: "Fases ut",
+        archived: "Arkivert",
+        rejected: "Avvist",
+      };
+      const statusLabel = STATUS_LABELS[formData.status] || formData.status;
+
       toast({
-        title: "System registrert! ✅",
-        description: `${formData.name} er nå lagt til i systemregisteret.`,
+        title: "Systemet er registrert ✅",
+        description: `Systemet «${formData.name}» er lagt til med status «${statusLabel}».`,
       });
 
-      onSystemAdded();
+      onSystemAdded(formData.status);
       onOpenChange(false);
     } catch (error) {
       console.error("Error adding system:", error);
