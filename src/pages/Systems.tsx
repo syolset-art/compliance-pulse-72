@@ -6,30 +6,28 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
-import { 
-  Plus, 
-  Mail, 
-  Users, 
-  DollarSign, 
-  MessageSquare, 
-  Video, 
-  Briefcase, 
-  Calculator, 
-  KanbanSquare, 
-  Github, 
-  Cloud, 
-  Megaphone, 
+import {
+  Plus,
+  Mail,
+  Users,
+  DollarSign,
+  MessageSquare,
+  Video,
+  Briefcase,
+  Calculator,
+  KanbanSquare,
+  Github,
+  Cloud,
+  Megaphone,
   Headphones,
   LucideIcon,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   Database,
-  Archive,
   Trash2,
   Loader2,
-  CheckCircle2,
-  Server
+  Server,
+  Info,
+  X,
+  HelpCircle,
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
@@ -41,9 +39,20 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface System {
   id: string;
@@ -64,62 +73,64 @@ interface WorkArea {
   responsible_person?: string | null;
 }
 
-// Map vendor/system names to icons
 const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon; color: string } => {
   const lowerName = name.toLowerCase();
   const lowerVendor = (vendor || "").toLowerCase();
-  
-  if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft")) {
+
+  if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft"))
     return { icon: Mail, color: "bg-orange-500/20 text-orange-500" };
-  }
-  if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce")) {
+  if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce"))
     return { icon: Users, color: "bg-blue-500/20 text-blue-500" };
-  }
-  if (lowerName.includes("sap") || lowerVendor.includes("sap")) {
+  if (lowerName.includes("sap") || lowerVendor.includes("sap"))
     return { icon: DollarSign, color: "bg-yellow-500/20 text-yellow-500" };
-  }
-  if (lowerName.includes("slack") || lowerVendor.includes("slack")) {
+  if (lowerName.includes("slack") || lowerVendor.includes("slack"))
     return { icon: MessageSquare, color: "bg-purple-500/20 text-purple-500" };
-  }
-  if (lowerName.includes("zoom") || lowerVendor.includes("zoom")) {
+  if (lowerName.includes("zoom") || lowerVendor.includes("zoom"))
     return { icon: Video, color: "bg-blue-400/20 text-blue-400" };
-  }
-  if (lowerName.includes("visma") || lowerVendor.includes("visma")) {
+  if (lowerName.includes("visma") || lowerVendor.includes("visma"))
     return { icon: Briefcase, color: "bg-green-600/20 text-green-600" };
-  }
-  if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex")) {
+  if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex"))
     return { icon: Calculator, color: "bg-indigo-500/20 text-indigo-500" };
-  }
-  if (lowerName.includes("jira") || lowerVendor.includes("atlassian")) {
+  if (lowerName.includes("jira") || lowerVendor.includes("atlassian"))
     return { icon: KanbanSquare, color: "bg-blue-600/20 text-blue-600" };
-  }
-  if (lowerName.includes("github") || lowerVendor.includes("github")) {
+  if (lowerName.includes("github") || lowerVendor.includes("github"))
     return { icon: Github, color: "bg-gray-500/20 text-gray-400" };
-  }
-  if (lowerName.includes("aws") || lowerVendor.includes("amazon")) {
+  if (lowerName.includes("aws") || lowerVendor.includes("amazon"))
     return { icon: Cloud, color: "bg-orange-400/20 text-orange-400" };
-  }
-  if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot")) {
+  if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot"))
     return { icon: Megaphone, color: "bg-orange-600/20 text-orange-600" };
-  }
-  if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk")) {
+  if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk"))
     return { icon: Headphones, color: "bg-teal-500/20 text-teal-500" };
-  }
-  
+  if (lowerName.includes("linkedin") || lowerVendor.includes("linkedin"))
+    return { icon: Users, color: "bg-blue-700/20 text-blue-700" };
+
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
+};
+
+const getMaturityBadge = (score: number) => {
+  if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" };
+  if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" };
+  return { label: `${score}% - Lav dekning`, className: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" };
+};
+
+const getRiskLabel = (risk: string | null) => {
+  switch (risk) {
+    case "high": return { label: "Høy risiko", dotClass: "bg-red-500" };
+    case "medium": return { label: "Moderat risiko", dotClass: "bg-blue-500" };
+    case "low": return { label: "Lav risiko", dotClass: "bg-green-500" };
+    default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
+  }
 };
 
 export default function Systems() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -187,15 +198,32 @@ export default function Systems() {
   const assignOwner = useMutation({
     mutationFn: async ({ id, workAreaId }: { id: string; workAreaId: string }) => {
       const workArea = workAreas.find((wa: WorkArea) => wa.id === workAreaId);
-      const { error } = await supabase.from("systems").update({ 
-        work_area_id: workAreaId,
-        system_manager: workArea?.responsible_person || null 
-      }).eq("id", id);
+      const { error } = await supabase
+        .from("systems")
+        .update({
+          work_area_id: workAreaId,
+          system_manager: workArea?.responsible_person || null,
+        })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["systems"] });
       toast.success("Eier satt");
+    },
+  });
+
+  const removeOwner = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("systems")
+        .update({ work_area_id: null, system_manager: null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systems"] });
+      toast.success("Eier fjernet");
     },
   });
 
@@ -221,34 +249,18 @@ export default function Systems() {
     },
   });
 
-  const activeSystems = useMemo(() => systems.filter(s => s.status !== "archived"), [systems]);
-  const archivedSystems = useMemo(() => systems.filter(s => s.status === "archived"), [systems]);
+  // "I bruk" = has work_area_id (assigned owner). "Ikke i bruk" = no owner assigned.
+  const inUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && s.work_area_id), [systems]);
+  const notInUseSystems = useMemo(() => systems.filter((s) => s.status !== "archived" && !s.work_area_id), [systems]);
+  const archivedSystems = useMemo(() => systems.filter((s) => s.status === "archived"), [systems]);
 
   const filterSystems = (list: System[]) => {
-    let result = list.filter((system) => {
+    return list.filter((system) => {
       const matchesName = system.name.toLowerCase().includes(nameFilter.toLowerCase());
       const matchesType = !typeFilter || typeFilter === "all" || system.category?.toLowerCase().includes(typeFilter.toLowerCase());
       const matchesOwner = !ownerFilter || ownerFilter === "all" || system.work_area_id === ownerFilter;
       return matchesName && matchesType && matchesOwner;
     });
-
-    if (sortColumn) {
-      result = [...result].sort((a, b) => {
-        let aValue: string | number = "";
-        let bValue: string | number = "";
-        switch (sortColumn) {
-          case "name": aValue = a.name.toLowerCase(); bValue = b.name.toLowerCase(); break;
-          case "type": aValue = (a.category || "").toLowerCase(); bValue = (b.category || "").toLowerCase(); break;
-          case "vendor": aValue = (a.vendor || "").toLowerCase(); bValue = (b.vendor || "").toLowerCase(); break;
-          case "compliance": aValue = a.compliance_score || 0; bValue = b.compliance_score || 0; break;
-        }
-        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return result;
   };
 
   const categories = useMemo(() => {
@@ -256,142 +268,162 @@ export default function Systems() {
     return Array.from(cats);
   }, [systems]);
 
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
+  const getOwnerWorkArea = (system: System): WorkArea | undefined => {
+    if (!system.work_area_id) return undefined;
+    return workAreas.find((a: WorkArea) => a.id === system.work_area_id);
   };
 
-  const SortIcon = ({ column }: { column: string }) => {
-    if (sortColumn !== column) return <ArrowUpDown className="h-3.5 w-3.5 ml-1 opacity-50" />;
-    return sortDirection === "asc" ? <ArrowUp className="h-3.5 w-3.5 ml-1" /> : <ArrowDown className="h-3.5 w-3.5 ml-1" />;
-  };
-
-  const getStatusBadge = (status: string | null) => {
-    switch (status) {
-      case "active": return { label: "Aktiv", className: "bg-green-500/20 text-green-600 border-green-500/30" };
-      case "under_review": return { label: "Under vurdering", className: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" };
-      case "archived": return { label: "Arkivert", className: "bg-muted text-muted-foreground border-border" };
-      default: return { label: status || "Aktiv", className: "bg-green-500/20 text-green-600 border-green-500/30" };
-    }
-  };
-
-  const getOwnerName = (system: System) => {
-    if (system.system_manager) return system.system_manager;
-    if (system.work_area_id) {
-      const wa = workAreas.find((a: WorkArea) => a.id === system.work_area_id);
-      return wa?.name || null;
-    }
-    return null;
-  };
-
-  const renderSystemRow = (system: System, showRestore = false) => {
+  const renderSystemCard = (system: System) => {
     const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
-    const statusBadge = getStatusBadge(system.status);
-    const ownerName = getOwnerName(system);
+    const maturity = getMaturityBadge(system.compliance_score || 0);
+    const risk = getRiskLabel(system.risk_level);
+    const ownerWa = getOwnerWorkArea(system);
+    const isArchived = system.status === "archived";
 
     return (
       <div
         key={system.id}
+        className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer"
         onClick={() => navigate(`/systems/${system.id}`)}
-        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
       >
-        <div className="flex items-center gap-3">
-          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color}`}>
-            <IconComponent className="h-4 w-4" />
+        {/* Top row: icon + name + actions */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${color}`}>
+              <IconComponent className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
           </div>
-          <div className="min-w-0">
-            <span className="text-foreground font-medium block truncate">{system.name}</span>
-            {system.description && (
-              <span className="text-xs text-muted-foreground truncate block">{system.description}</span>
-            )}
+          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <AssetRowActionMenu
+              itemId={system.id}
+              currentWorkAreaId={system.work_area_id}
+              isArchived={isArchived}
+              workAreas={workAreas}
+              onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+              onArchive={(itemId) => archiveSystem.mutate(itemId)}
+              onRestore={(itemId) => restoreSystem.mutate(itemId)}
+              onDelete={(itemId) => deleteSystem.mutate(itemId)}
+            />
           </div>
         </div>
 
-        <div className="text-muted-foreground text-sm">{system.category || "-"}</div>
+        {/* Info grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Systemtype */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Systemtype</p>
+            <p className="text-sm font-medium text-foreground">{system.category || "-"}</p>
+          </div>
 
-        <div className="text-muted-foreground text-sm">{system.vendor || "-"}</div>
+          {/* Modenhet */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Modenhet</p>
+            <div className="flex items-center gap-1.5">
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${maturity.className}`}>
+                {maturity.label}
+              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground/50 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Basert på dokumentasjon og kontrolldekning</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
 
-        <div className="text-sm">
-          {ownerName ? (
-            <span className="text-foreground">{ownerName}</span>
-          ) : (
-            <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
-          )}
-        </div>
+          {/* Risiko */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Risiko</p>
+            <div className="flex items-center gap-2">
+              <span className={`h-3 w-3 rounded-full ${risk.dotClass}`} />
+              <span className="text-sm text-foreground">{risk.label}</span>
+            </div>
+          </div>
 
-        <div>
-          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${statusBadge.className}`}>
-            {statusBadge.label}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-end">
-          <AssetRowActionMenu
-            itemId={system.id}
-            currentWorkAreaId={system.work_area_id}
-            isArchived={showRestore}
-            workAreas={workAreas}
-            onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
-            onArchive={(itemId) => archiveSystem.mutate(itemId)}
-            onRestore={(itemId) => restoreSystem.mutate(itemId)}
-            onDelete={(itemId) => deleteSystem.mutate(itemId)}
-          />
+          {/* Eier (Arbeidsområde) */}
+          <div>
+            <div className="flex items-center gap-1 mb-1">
+              <p className="text-xs text-muted-foreground">Eier (Arbeidsområde)</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-3.5 w-3.5 text-blue-500 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Arbeidsområdet som eier og er ansvarlig for dette systemet</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div onClick={(e) => e.stopPropagation()}>
+              {ownerWa ? (
+                <div className="flex items-center gap-1 border border-border rounded-md px-2.5 py-1 bg-background max-w-[180px]">
+                  <span className="text-sm text-foreground truncate">{ownerWa.name}</span>
+                  <button
+                    onClick={() => removeOwner.mutate(system.id)}
+                    className="ml-auto shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <Select
+                  value=""
+                  onValueChange={(waId) => assignOwner.mutate({ id: system.id, workAreaId: waId })}
+                >
+                  <SelectTrigger className="h-8 text-sm max-w-[180px] bg-background">
+                    <SelectValue placeholder="Ikke satt" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workAreas.map((area: WorkArea) => (
+                      <SelectItem key={area.id} value={area.id}>
+                        {area.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
   };
 
-  const renderTable = (systemsList: System[], showRestore = false) => {
+  const renderCardList = (systemsList: System[]) => {
     const filtered = filterSystems(systemsList);
-    
-    return (
-      <div className="rounded-lg border border-border overflow-hidden">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_60px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
-          <button onClick={() => handleSort("name")} className="flex items-center hover:text-foreground transition-colors text-left">
-            {t("systems.system", "System")}
-            <SortIcon column="name" />
-          </button>
-          <button onClick={() => handleSort("type")} className="flex items-center hover:text-foreground transition-colors text-left">
-            {t("systems.type", "Kategori")}
-            <SortIcon column="type" />
-          </button>
-          <button onClick={() => handleSort("vendor")} className="flex items-center hover:text-foreground transition-colors text-left">
-            {t("systems.vendor", "Leverandør")}
-            <SortIcon column="vendor" />
-          </button>
-          <div>{t("systems.owner", "Eier")}</div>
-          <div>{t("systems.status", "Status")}</div>
-          <div></div>
-        </div>
 
-        {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-            Laster systemer...
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="p-12 text-center">
-            <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              {showRestore ? "Ingen arkiverte systemer" : t("systems.noSystems", "Ingen systemer funnet")}
-            </h3>
-            {!showRestore && (
-              <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
-            )}
-            {!showRestore && (
-              <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-                <Plus className="h-4 w-4" />
-                {t("systems.addSystem", "Legg til system")}
-              </Button>
-            )}
-          </div>
-        ) : (
-          filtered.map((system) => renderSystemRow(system, showRestore))
-        )}
+    if (isLoading) {
+      return (
+        <div className="p-8 text-center text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
+          Laster systemer...
+        </div>
+      );
+    }
+
+    if (filtered.length === 0) {
+      return (
+        <div className="p-12 text-center">
+          <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
+          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Legg til system
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {filtered.map((system) => renderSystemCard(system))}
       </div>
     );
   };
@@ -403,18 +435,22 @@ export default function Systems() {
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               {t("systems.title", "Systemer")}
             </h1>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
                 <Plus className="h-4 w-4" />
-                {t("systems.addSystem", "Legg til system")}
+                Legg til system
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
-                    {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
+                    {isSeeding || isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Database className="h-4 w-4" />
+                    )}
                     Demo-data
                   </Button>
                 </DropdownMenuTrigger>
@@ -435,49 +471,59 @@ export default function Systems() {
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              placeholder={t("systems.filterByName", "Filtrer etter systemnavn")}
+              placeholder="Filtrer etter systemnavn"
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              className="bg-muted/50 border-border"
+              className="bg-background border-border"
             />
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="bg-muted/50 border-border">
-                <SelectValue placeholder={t("systems.filterByType", "Filtrer etter kategori")} />
+              <SelectTrigger className="bg-background border-border">
+                <SelectValue placeholder="Filtrer etter systemtype" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("systems.allTypes", "Alle kategorier")}</SelectItem>
+                <SelectItem value="all">Alle systemtyper</SelectItem>
                 {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat || ""}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat || ""}>
+                    {cat}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-              <SelectTrigger className="bg-muted/50 border-border">
-                <SelectValue placeholder={t("systems.filterByOwner", "Filtrer etter eier")} />
+              <SelectTrigger className="bg-background border-border">
+                <SelectValue placeholder="Filtrer etter Eier (Arbeidsområde)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("systems.allOwners", "Alle eiere")}</SelectItem>
+                <SelectItem value="all">Alle eiere</SelectItem>
                 {workAreas.map((area: WorkArea) => (
-                  <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                  <SelectItem key={area.id} value={area.id}>
+                    {area.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Tabs */}
-          <Tabs defaultValue="active" className="space-y-4">
+          {/* Tabs: I bruk / Ikke i bruk / Arkiverte */}
+          <Tabs defaultValue="in-use" className="space-y-4">
             <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="active" className="gap-1.5">
-                <CheckCircle2 className="h-4 w-4" />
-                Aktive
-                {activeSystems.length > 0 && (
+              <TabsTrigger value="in-use" className="gap-1.5">
+                I bruk
+                {inUseSystems.length > 0 && (
                   <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
-                    {activeSystems.length}
+                    {inUseSystems.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="not-in-use" className="gap-1.5">
+                Ikke i bruk
+                {notInUseSystems.length > 0 && (
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                    {notInUseSystems.length}
                   </span>
                 )}
               </TabsTrigger>
               <TabsTrigger value="archived" className="gap-1.5">
-                <Archive className="h-4 w-4" />
                 Arkiverte
                 {archivedSystems.length > 0 && (
                   <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
@@ -487,20 +533,16 @@ export default function Systems() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="active">
-              {renderTable(activeSystems)}
-            </TabsContent>
-
-            <TabsContent value="archived">
-              {renderTable(archivedSystems, true)}
-            </TabsContent>
+            <TabsContent value="in-use">{renderCardList(inUseSystems)}</TabsContent>
+            <TabsContent value="not-in-use">{renderCardList(notInUseSystems)}</TabsContent>
+            <TabsContent value="archived">{renderCardList(archivedSystems)}</TabsContent>
           </Tabs>
         </div>
       </main>
 
-      <AddSystemDialog 
-        open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen} 
+      <AddSystemDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
         onSystemAdded={() => queryClient.invalidateQueries({ queryKey: ["systems"] })}
       />
     </div>
