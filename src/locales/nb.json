@@ -1007,7 +1007,7 @@
   "chat": {
     "welcome": {
       "greeting": "Hei! Jeg er Lara 👋",
-      "description": "Jeg hjelper deg med Personvern, informasjonssikkerhet og AI Governance"
+      "description": "Jeg hjelper deg med å håndtere og redusere risiko innen personvern, sikkerhet og AI"
     },
     "onboarding": {
       "title": "Foundation setup",
