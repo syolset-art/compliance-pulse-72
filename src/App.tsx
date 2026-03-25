@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
 import Tasks from "./pages/Tasks";
+import Systems from "./pages/Systems";
 import Onboarding from "./pages/Onboarding";
 import Sustainability from "./pages/Sustainability";
 import Transparency from "./pages/Transparency";
@@ -105,7 +106,7 @@ const App = () => (
                   <Route path="/quality" element={<QualityDashboard />} />
                   <Route path="/lara-inbox" element={<LaraInbox />} />
                   <Route path="/customer-requests" element={<CustomerRequests />} />
-                  <Route path="/systems" element={<Assets />} />
+                  <Route path="/systems" element={<Systems />} />
                   <Route path="/systems/:id" element={<AssetTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
