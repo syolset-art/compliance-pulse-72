@@ -1089,6 +1089,69 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                     })}
                   </div>
                 )}
+                {/* Action Plan inline preview */}
+                {message.actionPlan && message.role === "assistant" && (
+                  <div className="mt-3 ml-9 rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <ListChecks className="h-5 w-5 text-primary" />
+                      <span className="font-semibold text-foreground">{message.actionPlan.title}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{message.actionPlan.summary}</p>
+                    <div className="space-y-2">
+                      {message.actionPlan.steps.map((step, si) => (
+                        <div key={si} className="flex items-start gap-3 p-2.5 rounded-lg bg-background border border-border">
+                          <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
+                            step.priority === 'high' ? 'bg-destructive text-destructive-foreground' :
+                            step.priority === 'medium' ? 'bg-warning text-warning-foreground' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {si + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">{step.title}</p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" /> {step.estimated_days}d
+                              </span>
+                              <span className="flex items-center gap-1 text-success">
+                                <TrendingUp className="h-3 w-3" /> +{step.trust_impact}%
+                              </span>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {step.priority.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <TrendingUp className="h-4 w-4 text-success" />
+                        {t("chat.actionPlan.totalImpact", { impact: message.actionPlan.total_trust_impact })}
+                      </span>
+                      {message.actionPlan.status === "pending" && (
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => handleSend(t("chat.actionPlan.cancelPrompt"))}>
+                            {t("chat.actionPlan.cancel")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleSend(t("chat.actionPlan.editPrompt"))}>
+                            ✏️ {t("chat.actionPlan.edit")}
+                          </Button>
+                          <Button size="sm" onClick={() => handleApprovePlan(i)}>
+                            <CheckCircle2 className="h-4 w-4 mr-1" />
+                            {t("chat.actionPlan.approve")}
+                          </Button>
+                        </div>
+                      )}
+                      {message.actionPlan.status === "approved" && (
+                        <Badge className="bg-success text-success-foreground">
+                          <Check className="h-3 w-3 mr-1" />
+                          {t("chat.actionPlan.approved")}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
