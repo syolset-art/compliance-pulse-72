@@ -275,6 +275,35 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const canProceedFromSearch = searchSource !== "none" || formData.name.trim().length > 0;
   const canProceedFromRisk = formData.risk_level !== "";
 
+  const handleSuggestRisk = async () => {
+    setIsSuggestingRisk(true);
+    setRiskSuggestion(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-system-risk", {
+        body: {
+          systemName: formData.name,
+          vendor: formData.vendor,
+          category: formData.category,
+          description: formData.description,
+          hasAi: webResult?.has_ai || false,
+        },
+      });
+      if (error) throw error;
+      if (data?.risk_level) {
+        setRiskSuggestion(data);
+      }
+    } catch (e) {
+      console.error("Risk suggestion error:", e);
+      toast({
+        title: "Kunne ikke hente forslag",
+        description: "AI-rådgiveren er ikke tilgjengelig. Velg risikonivå manuelt.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSuggestingRisk(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
