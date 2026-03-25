@@ -1,54 +1,83 @@
 
 
-## Plan: Oppdater fokusområder til ny 4-delt struktur
+## Plan: Simulert arbeidsflyt for Lara-forslag
 
-### Nåværende situasjon
-Plattformen bruker i dag `sla_category` med 3 verdier: `systems_processes`, `organization_governance`, `roles_access`. Disse vises i SLA-nedbrytningen på ISO Readiness-siden, i ComplianceSummaryCards-widgeten, og i SLAWidget. Hver compliance-krav er tagget med en av disse.
+### Hva dette handler om
 
-### Nye fokusområder
-Erstatte de 3 kategoriene med 4 nye:
+Når brukeren klikker et forslag (f.eks. "Identifiser høyrisiko-leverandører"), skal Lara gjennomføre en komplett arbeidsflyt:
 
-| ID | Navn (NO) | Beskrivelse |
-|----|-----------|-------------|
-| `governance` | Governance | Styring, ansvar og risikostyring |
-| `operations` | Operations | Systemer, prosesser og drift |
-| `identity_access` | Identity & Access | Brukere, roller og tilgangskontroll |
-| `supplier_ecosystem` | Supplier & Ecosystem | Leverandører og tredjepartsrisiko |
+1. **Analyse** — Lara undersøker data og presenterer funn
+2. **Forslag til tiltak** — Lara foreslår konkrete handlinger med prioritet
+3. **Plan-presentasjon** — Lara viser en strukturert plan med steg, tidsestimat og ansvarlig
+4. **Godkjenning** — Brukeren får "Godkjenn plan" / "Endre" knapper
+5. **Utførelse** — Ved godkjenning oppretter Lara oppgaver i systemet
 
-### Filer som endres
+### Teknisk tilnærming
 
-**1. `src/lib/certificationPhases.ts`**
-- Endre `SLACategory` type fra 3 til 4 verdier
-- Oppdater `getPhaseForRequirement` til å bruke nye kategorier
+**Oppdatere edge function (`supabase/functions/chat/index.ts`)**:
+- Utvide system-prompten med instruksjoner for arbeidsflyt-mønsteret
+- Lara skal ALLTID følge denne strukturen når et forslag-spørsmål mottas:
+  - Steg 1: Hent og analyser relevant data, presenter funn med tall
+  - Steg 2: Foreslå tiltak via `suggest_options` med valg som "Vis detaljer", "Lag handlingsplan", "Hopp over"
+  - Steg 3: Presenter plan i strukturert format med checkboxes og tidslinjer
+  - Steg 4: Bruk `suggest_options` med "✅ Godkjenn plan", "✏️ Endre", "❌ Avbryt"
 
-**2. `src/lib/complianceRequirementsData.ts`** (1681 linjer)
-- Re-mappe alle ~150+ krav fra gammel `sla_category` til ny:
-  - `organization_governance` → `governance`
-  - `systems_processes` → `operations` (hoveddelen) eller `supplier_ecosystem` (leverandør-relaterte)
-  - `roles_access` → `identity_access`
-- Leverandør-relaterte krav (A.5.19–A.5.23 osv.) flyttes til `supplier_ecosystem`
+**Ny tool: `create_action_plan`** i edge function:
+- Genererer oppgaver i `tasks`-tabellen basert på godkjent plan
+- Returnerer bekreftelse med lenke til oppgavesiden
 
-**3. `src/components/iso-readiness/SLACategoryBreakdown.tsx`**
-- Utvide fra 3 til 4 kort med nye ikoner og farger
-- Oppdatere `MOCK_TRENDS` med 4 verdier
+**Oppdatere `ChatInterface.tsx`**:
+- Ny meldings-type for "plan"-visning med visuell plan-layout (steg, tidslinje, prioritet)
+- Spesiell rendering av plan-meldinger med:
+  - Nummererte steg med status-ikoner
+  - Prioritetsbadges (HIGH/MEDIUM/LOW)
+  - Tidsestimat per steg
+  - Trust Score impact per tiltak
+  - "Godkjenn" / "Endre" knapper nederst
 
-**4. `src/components/widgets/SLAWidget.tsx`**
-- Oppdatere `SLA_CATEGORIES` array til 4 verdier
+**Oppdatere `ContentViewer.tsx`**:
+- Ny content_type `"action-plan"` som viser planen i full bredde i høyre panel
 
-**5. `src/components/widgets/ComplianceSummaryCards.tsx`**
-- Oppdatere `slaByCat` referanser til nye kategorier
+### Konkret flyt-eksempel
 
-**6. `src/locales/en.json` og `src/locales/nb.json`**
-- Legge til oversettelser for de 4 nye kategorinavnene
+```text
+Bruker klikker: "Identifiser høyrisiko-leverandører"
 
-### Mapping-logikk (forenklet)
-- Krav som handler om policy, ledelsesansvar, risikovurdering → `governance`
-- Krav om systemer, drift, hendelser, kryptering, logging → `operations`
-- Krav om tilgangskontroll, identitet, autentisering, roller → `identity_access`
-- Krav om leverandører, skytjenester, supply chain → `supplier_ecosystem`
+Lara (analyse):
+"Jeg analyserer leverandørene i miljøet ditt..."
+→ Henter fra assets-tabellen, filtrerer vendors
 
-### Teknisk detalj
-`SLACategory` typen i `certificationPhases.ts` er den sentrale definisjonen. Alle komponenter som refererer til denne typen vil automatisk få typefeil ved endring, noe som gjør refaktoreringen trygg.
+Lara (funn):
+"Jeg fant 3 høyrisiko-leverandører:
+ 🔴 CloudProvider X — Mangler DPA, data i USA
+ 🔴 SaaS Tool Y — Ingen sikkerhetsrevisjon
+ 🟡 Analytics Z — Utdatert DPA
+[Vis detaljer] [Lag handlingsplan]"
 
-Database-tabellen `compliance_requirements` har en `sla_category`-kolonne. Eksisterende data i databasen bør migreres til de nye verdiene, men statiske data i koden er primærkilden.
+Bruker klikker: "Lag handlingsplan"
+
+Lara (plan):
+"Her er foreslått handlingsplan:"
+→ Vises i content viewer med:
+  1. Request DPA fra CloudProvider X (HIGH, 3 dager)
+     → Trust Score +8%
+  2. Sikkerhetsrevisjon av SaaS Tool Y (HIGH, 1 uke)
+     → Trust Score +12%
+  3. Forny DPA for Analytics Z (MEDIUM, 5 dager)
+     → Trust Score +4%
+[✅ Godkjenn plan] [✏️ Endre] [❌ Avbryt]
+
+Bruker klikker: "✅ Godkjenn plan"
+
+Lara (utført):
+"✓ Plan godkjent! 3 oppgaver opprettet.
+ Se dem under Oppgaver i menyen."
+```
+
+### Filer som endres/opprettes
+
+- **Endres:** `supabase/functions/chat/index.ts` — Ny tool `create_action_plan`, utvidet system prompt med arbeidsflyt-instruksjoner
+- **Endres:** `src/components/ChatInterface.tsx` — Ny plan-rendering med visuelt layout, godkjenn/endre-knapper, oppgave-opprettelse ved godkjenning
+- **Endres:** `src/components/ContentViewer.tsx` — Ny `action-plan` content type
+- **Endres:** `src/locales/en.json` og `src/locales/nb.json` — Nye tekster for plan-flyten
 
