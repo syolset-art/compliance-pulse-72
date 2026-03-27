@@ -488,7 +488,7 @@ export default function TrustCenterRegulations() {
           onOpenChange={() => setDocsDialogFramework(null)}
           frameworkId={docsDialogFramework.id}
           frameworkName={docsDialogFramework.name}
-          onDocumentsChange={fetchDocCounts}
+          onCountChange={fetchDocCounts}
         />
       )}
     </div>
