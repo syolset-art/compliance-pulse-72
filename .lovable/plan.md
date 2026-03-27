@@ -1,42 +1,67 @@
 
 
-## Upgrade System Trust Profiles to Match Asset/Vendor Trust Profiles
+## Smart Documents for Work Areas — Contract & Document Hub
 
-### Problem
-The route `/systems/:id` currently points to `AssetTrustProfile`, which queries the `assets` table. Since systems live in the `systems` table, the page shows "not found" when you click a system card. The existing `SystemTrustProfile.tsx` page exists but is not wired up and has a much simpler layout than the full asset trust profile.
+### What we're building
+Replace the "Coming soon" placeholder on the Documents tab with a practical document hub focused on contracts and auto-generated documents at the work area level. Since vendor/system registration already exists elsewhere, this focuses on what's unique to work areas: managing contracts, generating privacy declarations, and linking documents to the work area's compliance context.
 
-### Solution
-Route `/systems/:id` to a redesigned `SystemTrustProfile` that mirrors the look and feel of `AssetTrustProfile` -- same trust seal header, trust controls panel, and tab structure -- but reads from the `systems` table.
+### Features
 
-### Changes
+#### 1. New component: `WorkAreaDocumentsTab.tsx`
+The Documents tab gets three sections:
 
-#### 1. Update route in `App.tsx`
-Change `/systems/:id` to render `SystemTrustProfile` instead of `AssetTrustProfile`.
+**A. Upload & manage contracts**
+- Upload zone for contracts (DPA, SLA, NDA, processor agreements)
+- Files stored in existing `documents` bucket under `work-areas/{workAreaId}/`
+- Each document gets a type selector (DPA, SLA, NDA, Privacy Policy, Risk Assessment, Other)
+- Table view: file name, type, uploaded date, linked vendor/system (optional dropdown from work area's assets)
+- Delete action per document
 
-#### 2. Rewrite `SystemTrustProfile.tsx`
-Rebuild the page to match the `AssetTrustProfile` structure:
-- **Header**: Reuse the same trust seal design from `AssetHeader` but adapted for system data (system icon, vendor badge, status badge, editable description, system manager, contact person).
-- **Trust Controls Panel**: Show the `TrustControlsPanel` with trust score gauge, verification confidence, and security domain progress -- same as assets.
-- **Tabs**: Use the same tab structure as `AssetTrustProfile`:
-  - Validation (from Mynder)
-  - Controls
-  - Data Handling
-  - Audit & Risk Management
-  - Deviations & Incidents
-  - Documents
-  - Usage (work areas, processes)
-  - Overflow menu: Inbox
-- **Back navigation**: Navigate back to `/systems`.
+**B. Auto-generate documents**
+- "Generate" button section with template options:
+  - Personvernerklæring (Privacy Declaration)
+  - Databehandleravtale (DPA template)
+  - Risikovurdering (Risk Assessment summary)
+- Clicking a template calls an edge function that uses AI to generate a draft based on the work area's systems, processes, and assets
+- Output rendered in a preview dialog with "Download as DOCX" option
+- Generated docs auto-saved to the documents bucket
 
-#### 3. Update `SystemHeader.tsx`
-Restyle to match `AssetHeader` trust seal visual: large circular SVG gauge, trust metrics column, vendor badge, editable fields. Reuse the same card layout and spacing.
+**C. Document overview cards**
+- Summary cards at top: "X contracts uploaded", "Y missing DPAs" (cross-referenced with assets that have `gdpr_role = 'processor'` but no linked DPA document)
+- Quick compliance insight without full AI analysis
 
-#### 4. Update `SystemMetrics.tsx`
-Replace the current simple metrics with `TrustControlsPanel` integration, matching how `AssetMetrics` works -- showing trust score, domain progress bars, and scope badges.
+#### 2. New DB table: `work_area_documents`
+```sql
+create table public.work_area_documents (
+  id uuid primary key default gen_random_uuid(),
+  work_area_id uuid not null,
+  file_name text not null,
+  file_path text not null,
+  file_size integer,
+  document_type text default 'other',
+  linked_asset_id uuid,
+  notes text,
+  generated boolean default false,
+  created_at timestamptz default now()
+);
+alter table public.work_area_documents enable row level security;
+create policy "Allow all access" on public.work_area_documents for all using (true) with check (true);
+```
+
+#### 3. New edge function: `generate-work-area-document`
+- Accepts `workAreaId`, `templateType` (privacy_declaration | dpa_template | risk_assessment)
+- Fetches the work area's linked systems and assets from the DB
+- Sends context to AI to generate a Norwegian-language document draft
+- Returns structured text (sections with headings + content)
+- Uses `LOVABLE_API_KEY` with `google/gemini-2.5-flash`
+
+#### 4. Update `WorkAreas.tsx`
+- Replace the "Coming soon" card with `<WorkAreaDocumentsTab workAreaId={...} />`
+- Update the document count badge from hardcoded `5` to live count from `work_area_documents`
 
 ### Technical details
-- System data maps to asset-like fields: `system.name` → name, `system.vendor` → vendor, `system.status` → lifecycle_status, `system.risk_level` → risk_level, `system.work_area_id` → work_area_id, etc.
-- The asset-profile tab components (`ValidationTab`, `ControlsTab`, `DataHandlingTab`, etc.) use `assetId` prop. For systems, we pass `systemId` and either adapt each tab to also accept system context, or use the system-profile specific tabs that already exist.
-- Since system-profile already has its own `ValidationTab`, `DataHandlingTab`, `RiskManagementTab`, `IncidentManagementTab`, and `SystemUsageTab`, we keep using those but ensure the visual wrapper (tabs, overflow menu) matches the asset profile pattern.
-- No database changes needed -- all data already exists in the `systems` table.
+- Storage path: `work-areas/{workAreaId}/{fileName}` in existing `documents` bucket
+- Document types: `dpa`, `sla`, `nda`, `privacy_policy`, `risk_assessment`, `contract`, `other`
+- The generate function composes context from `systems` + `assets` where `work_area_id` matches
+- No changes to existing vendor/system flows -- this is purely a document layer on top
 
