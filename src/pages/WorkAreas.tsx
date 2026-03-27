@@ -131,6 +131,21 @@ export default function WorkAreas() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // Fetch document count for selected work area
+  const { data: docCount = 0 } = useQuery({
+    queryKey: ["work-area-doc-count", selectedWorkArea?.id],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id) return 0;
+      const { count, error } = await supabase
+        .from("work_area_documents" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("work_area_id", selectedWorkArea.id);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!selectedWorkArea?.id,
+  });
+
   // Fetch assets owned by this work area
   const { data: ownedAssets = [] } = useQuery({
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
