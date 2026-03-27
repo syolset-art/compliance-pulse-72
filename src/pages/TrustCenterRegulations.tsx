@@ -418,7 +418,7 @@ export default function TrustCenterRegulations() {
                                     Anbefalt
                                   </Badge>
                                 )}
-                                {framework.comingSoon && (
+                                {(framework as any).comingSoon && (
                                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1">
                                     <Clock className="h-2.5 w-2.5" />
                                     Kommer
