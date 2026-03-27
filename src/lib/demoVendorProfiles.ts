@@ -7,6 +7,7 @@ interface DemoVendor {
   region: string;
   vendor: string;
   vendor_category: string;
+  category: string;
   gdpr_role: string;
   compliance_score: number;
   risk_score: number;
@@ -59,6 +60,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Fløyen AS",
     vendor_category: "consulting",
+    category: "Rådgivning",
     gdpr_role: "databehandler",
     compliance_score: 72,
     risk_score: 42,
@@ -81,6 +83,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "YouWell AS",
     vendor_category: "saas",
+    category: "Helseteknologi",
     gdpr_role: "databehandler",
     compliance_score: 85,
     risk_score: 18,
@@ -105,6 +108,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Vipps MobilePay AS",
     vendor_category: "saas",
+    category: "Betaling og finans",
     gdpr_role: "databehandler",
     compliance_score: 96,
     risk_score: 8,
@@ -129,6 +133,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Ulriken 643 AS",
     vendor_category: "facilities",
+    category: "Fasiliteter og drift",
     gdpr_role: "databehandler",
     compliance_score: 45,
     risk_score: 65,
@@ -150,6 +155,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "BankID BankAxept AS",
     vendor_category: "infrastructure",
+    category: "Infrastruktur og identitet",
     gdpr_role: "databehandler",
     compliance_score: 98,
     risk_score: 5,
@@ -175,6 +181,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Mynder AS",
     vendor_category: "saas",
+    category: "Compliance og styring",
     gdpr_role: "databehandler",
     compliance_score: 91,
     risk_score: 12,
@@ -198,6 +205,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "DIPS AS",
     vendor_category: "saas",
+    category: "Helseteknologi",
     gdpr_role: "databehandler",
     compliance_score: 88,
     risk_score: 15,
@@ -222,6 +230,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "CheckWare AS",
     vendor_category: "saas",
+    category: "Helseteknologi",
     gdpr_role: "databehandler",
     compliance_score: 78,
     risk_score: 25,
@@ -244,6 +253,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Connect Vest AS",
     vendor_category: "it_operations",
+    category: "IT-drift og managed services",
     gdpr_role: "databehandler",
     compliance_score: 62,
     risk_score: 48,
@@ -266,6 +276,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Digitaliseringsdirektoratet",
     vendor_category: "infrastructure",
+    category: "Infrastruktur og identitet",
     gdpr_role: "behandlingsansvarlig",
     compliance_score: 94,
     risk_score: 10,
@@ -289,6 +300,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Arbeids- og velferdsdirektoratet",
     vendor_category: "infrastructure",
+    category: "Offentlig sektor",
     gdpr_role: "behandlingsansvarlig",
     compliance_score: 90,
     risk_score: 14,
