@@ -451,7 +451,7 @@ export default function TrustCenterRegulations() {
                                 </TooltipTrigger>
                                 <TooltipContent>Dette regelverket er lovpålagt og kan ikke deaktiveres</TooltipContent>
                               </Tooltip>
-                            ) : framework.comingSoon ? (
+                            ) : (framework as any).comingSoon ? (
                               <Badge variant="outline" className="text-xs">Ikke tilgjengelig ennå</Badge>
                             ) : (
                               <Switch
