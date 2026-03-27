@@ -96,6 +96,7 @@ export default function Deviations() {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
+  const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
 
   // Fetch deviations from system_incidents
   const { data: systemDeviations = [], isLoading: loadingSystem } = useQuery({
