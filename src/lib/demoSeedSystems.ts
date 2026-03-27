@@ -348,13 +348,22 @@ export async function deleteDemoSystems(): Promise<number> {
 
   if (demoDevices && demoDevices.length > 0) {
     const deviceIds = demoDevices.map(d => d.id);
-    // Delete relationships involving these devices
     await supabase
       .from("asset_relationships")
       .delete()
       .or(`source_asset_id.in.(${deviceIds.join(",")}),target_asset_id.in.(${deviceIds.join(",")})`);
-    // Delete the devices
     await supabase.from("assets").delete().in("id", deviceIds);
+  }
+
+  // Delete demo system assets
+  const { data: demoSystemAssets } = await supabase
+    .from("assets")
+    .select("id")
+    .eq("asset_type", "system")
+    .not("metadata->is_demo_system", "is", null);
+
+  if (demoSystemAssets && demoSystemAssets.length > 0) {
+    await supabase.from("assets").delete().in("id", demoSystemAssets.map(a => a.id));
   }
 
   const { error } = await supabase
