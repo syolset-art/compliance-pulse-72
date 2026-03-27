@@ -12,6 +12,7 @@ import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
+import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -129,6 +130,21 @@ export default function WorkAreas() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  // Fetch document count for selected work area
+  const { data: docCount = 0 } = useQuery({
+    queryKey: ["work-area-doc-count", selectedWorkArea?.id],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id) return 0;
+      const { count, error } = await supabase
+        .from("work_area_documents" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("work_area_id", selectedWorkArea.id);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!selectedWorkArea?.id,
+  });
 
   // Fetch assets owned by this work area
   const { data: ownedAssets = [] } = useQuery({
@@ -687,7 +703,7 @@ export default function WorkAreas() {
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">{t("myWorkAreas.tabs.documents")}</span>
                     <span className="sm:hidden">Dok</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
+                    <Badge variant="secondary" className="ml-1 text-xs">{docCount}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="settings" 
@@ -868,9 +884,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="documents" className="mt-4">
-                <Card className="p-8 text-center text-muted-foreground">
-                  {t("myWorkAreas.comingSoon")}
-                </Card>
+                <WorkAreaDocumentsTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="settings" className="mt-4">
