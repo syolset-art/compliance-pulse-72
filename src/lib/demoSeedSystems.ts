@@ -36,6 +36,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-06-15" },
   },
   {
     name: "Salesforce CRM",
@@ -45,6 +47,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Salesforce Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: true },
+    trustGov: { asset_owner: "Salgsavdeling", asset_manager: "Ola Hansen", criticality: "high", next_review_date: "2026-05-01" },
   },
   {
     name: "SAP Business One",
@@ -54,6 +58,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "SAP SE",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: false },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Maria Johansen", criticality: "high", next_review_date: "2026-04-20" },
   },
   {
     name: "Slack",
@@ -62,7 +68,9 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     vendor: "Slack Technologies",
     status: "in_use",
     risk_level: "low",
-    vendorAssetName: "Salesforce Inc.", // Slack owned by Salesforce
+    vendorAssetName: "Salesforce Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "medium", next_review_date: "2026-08-01" },
   },
   {
     name: "GitHub Enterprise",
@@ -72,6 +80,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "Utviklingsavdeling", asset_manager: "Lars Eriksen", criticality: "high", next_review_date: "2026-07-10" },
   },
   {
     name: "Visma.net",
@@ -81,6 +91,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Visma AS",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: false },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-06-01" },
   },
   {
     name: "Jira Software",
@@ -90,6 +102,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Atlassian Pty Ltd",
+    trustMeta: { mfa_enabled: false, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Prosjektkontor", asset_manager: "Maria Johansen", criticality: "medium" },
   },
   {
     name: "AWS Cloud Services",
@@ -99,6 +113,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "Amazon Web Services",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "high", next_review_date: "2026-04-15" },
     relatedDevices: [
       { name: "IOT-GW-AWS-01", device_type: "iot", description: "IoT Gateway koblet til AWS IoT Core" },
       { name: "SENSOR-TEMP-01", device_type: "iot", description: "Temperatursensor – serverrom" },
@@ -112,6 +128,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Zendesk Inc.",
+    trustMeta: { mfa_enabled: false, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Kundeservice", criticality: "low" },
   },
   {
     name: "HubSpot Marketing",
@@ -121,6 +139,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "HubSpot Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: false, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Markedsavdeling", asset_manager: "Ola Hansen", criticality: "medium", next_review_date: "2026-09-01" },
   },
   {
     name: "Zoom Meetings",
@@ -130,6 +150,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Zoom Video Communications",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "IT-avdeling", criticality: "low" },
   },
   {
     name: "Tripletex",
@@ -139,6 +161,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Tripletex AS",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Lars Eriksen", criticality: "medium", next_review_date: "2026-07-01" },
   },
   {
     name: "Cisco Meraki",
@@ -148,6 +172,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Cisco Systems",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "high", next_review_date: "2026-05-15" },
     relatedDevices: [
       { name: "SW-CORE-01", device_type: "network", description: "Kjernesvitsj – Cisco Meraki MS250" },
       { name: "AP-WIFI-01", device_type: "network", description: "Trådløst aksesspunkt – Cisco Meraki MR46" },
@@ -162,6 +188,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-04-30" },
     relatedDevices: [
       { name: "IOT-HVAC-01", device_type: "iot", description: "Smart HVAC-kontroller – ventilasjon" },
       { name: "IOT-ACCESS-01", device_type: "iot", description: "IoT adgangskontroll – hovedinngang" },
