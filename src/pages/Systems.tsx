@@ -28,6 +28,8 @@ import {
   Info,
   X,
   HelpCircle,
+  List,
+  LayoutGrid,
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
