@@ -150,6 +150,9 @@ export default function Systems() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
+  const [activeChip, setActiveChip] = useState<string | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleSeedSystems = async () => {
     setIsSeeding(true);
