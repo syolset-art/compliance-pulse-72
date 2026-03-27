@@ -11,6 +11,20 @@ interface DemoSystem {
   vendorAssetName?: string;
   /** Related IoT/device asset names to create relationships with */
   relatedDevices?: { name: string; device_type: string; description: string }[];
+  /** Trust profile metadata for the system asset */
+  trustMeta?: {
+    mfa_enabled?: boolean;
+    encryption_enabled?: boolean;
+    backup_configured?: boolean;
+    security_logging?: boolean;
+  };
+  /** Trust profile governance fields */
+  trustGov?: {
+    asset_owner?: string;
+    asset_manager?: string;
+    criticality?: string;
+    next_review_date?: string;
+  };
 }
 
 const DEMO_SYSTEMS: DemoSystem[] = [
