@@ -108,6 +108,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Vipps MobilePay AS",
     vendor_category: "saas",
+    category: "Betaling og finans",
     gdpr_role: "databehandler",
     compliance_score: 96,
     risk_score: 8,
