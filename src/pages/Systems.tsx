@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +28,8 @@ import {
   Info,
   X,
   HelpCircle,
+  List,
+  LayoutGrid,
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
@@ -46,6 +48,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { seedDemoSystems, deleteDemoSystems } from "@/lib/demoSeedSystems";
 import {
   Tooltip,
@@ -147,6 +150,9 @@ export default function Systems() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
+  const [activeChip, setActiveChip] = useState<string | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleSeedSystems = async () => {
     setIsSeeding(true);
@@ -293,6 +299,29 @@ export default function Systems() {
     return Array.from(cats);
   }, [systems]);
 
+  const groupedSystems = useMemo(() => {
+    const groups: Record<string, System[]> = {};
+    filteredSystems.forEach((system) => {
+      const cat = system.category || "Ukategorisert";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(system);
+    });
+    // Sort categories alphabetically, but put "Ukategorisert" last
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      if (a === "Ukategorisert") return 1;
+      if (b === "Ukategorisert") return -1;
+      return a.localeCompare(b, "nb");
+    });
+    const sorted: Record<string, System[]> = {};
+    sortedKeys.forEach((k) => (sorted[k] = groups[k]));
+    return sorted;
+  }, [filteredSystems]);
+
+  const scrollToCategory = useCallback((cat: string) => {
+    setActiveChip(cat);
+    sectionRefs.current[cat]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const getOwnerWorkArea = (system: System): WorkArea | undefined => {
     if (!system.work_area_id) return undefined;
     return workAreas.find((a: WorkArea) => a.id === system.work_area_id);
@@ -429,6 +458,79 @@ export default function Systems() {
     );
   };
 
+  const renderCategoryChips = () => {
+    const entries = Object.entries(groupedSystems);
+    return (
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          onClick={() => {
+            setActiveChip(null);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium border transition-colors ${
+            activeChip === null
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-background text-foreground border-border hover:bg-accent"
+          }`}
+        >
+          Alle
+          <span className="text-xs opacity-70">{filteredSystems.length}</span>
+        </button>
+        {entries.map(([cat, items]) => (
+          <button
+            key={cat}
+            onClick={() => scrollToCategory(cat)}
+            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium border transition-colors ${
+              activeChip === cat
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background text-foreground border-border hover:bg-accent"
+            }`}
+          >
+            {cat}
+            <span className="text-xs opacity-70">{items.length}</span>
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  const renderGroupedList = () => {
+    const entries = Object.entries(groupedSystems);
+    if (entries.length === 0) {
+      return (
+        <div className="p-12 text-center">
+          <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
+          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Legg til system
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        {entries.map(([cat, items]) => (
+          <div
+            key={cat}
+            ref={(el) => { sectionRefs.current[cat] = el; }}
+            className="scroll-mt-24"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-lg font-semibold text-foreground">{cat}</h2>
+              <Badge variant="secondary" className="text-xs">{items.length}</Badge>
+            </div>
+            <div className="space-y-4">
+              {items.map((system) => renderSystemCard(system))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderCardList = () => {
     if (isLoading) {
       return (
@@ -549,8 +651,28 @@ export default function Systems() {
             </Select>
           </div>
 
+          {/* View toggle + category chips */}
+          <div className="flex items-center justify-between gap-4">
+            {viewMode === "grouped" && renderCategoryChips()}
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list"); }}
+              className="shrink-0"
+            >
+              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
+                <LayoutGrid className="h-4 w-4" />
+                Gruppert
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="Listevisning" className="gap-1.5 text-xs">
+                <List className="h-4 w-4" />
+                Liste
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           {/* System list */}
-          {renderCardList()}
+          {viewMode === "grouped" ? renderGroupedList() : renderCardList()}
         </div>
       </main>
 
