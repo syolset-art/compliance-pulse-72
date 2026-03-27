@@ -634,6 +634,130 @@ export default function Deviations() {
           </div>
         )}
 
+        {/* Deviation Detail Dialog */}
+        <Dialog open={!!selectedDeviation} onOpenChange={() => setSelectedDeviation(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Avviksdetaljer</DialogTitle>
+            </DialogHeader>
+            {selectedDeviation && (() => {
+              const criticality = criticalityConfig[selectedDeviation.criticality] || criticalityConfig.medium;
+              const status = statusConfig[selectedDeviation.status] || statusConfig.open;
+              const progress = selectedDeviation.measures_count > 0
+                ? Math.round((selectedDeviation.measures_completed / selectedDeviation.measures_count) * 100)
+                : 0;
+              return (
+                <div className="space-y-4">
+                  {/* Badges */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className={cn("text-xs font-semibold", criticality.bgColor, criticality.color)}>
+                      {criticality.label}
+                    </Badge>
+                    <Badge className={cn("text-xs font-semibold", status.bgColor, status.color)}>
+                      {status.label}
+                    </Badge>
+                    {selectedDeviation.source === "employee" && (
+                      <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30">Ansattmelding</Badge>
+                    )}
+                    {selectedDeviation.source === "notification" && (
+                      <Badge className="text-[10px] bg-purple-500/15 text-purple-700 border-purple-500/30">Varsel</Badge>
+                    )}
+                    {selectedDeviation.source === "7security" && (
+                      <Badge className="text-[10px] bg-orange-500/15 text-orange-700 border-orange-500/30">7 Security</Badge>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-semibold text-foreground">{selectedDeviation.title}</h3>
+
+                  {/* Category */}
+                  {selectedDeviation.category && (
+                    <Badge variant="secondary" className="text-xs">
+                      {categoryLabels[selectedDeviation.category] || selectedDeviation.category}
+                    </Badge>
+                  )}
+
+                  {/* Description */}
+                  {selectedDeviation.description ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium mb-1">Beskrivelse</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{selectedDeviation.description}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Ingen beskrivelse lagt til.</p>
+                  )}
+
+                  {/* Meta grid */}
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Ansvarlig</p>
+                      <p className="text-sm font-medium text-foreground flex items-center gap-1 mt-0.5">
+                        <User className="h-3.5 w-3.5" />
+                        {selectedDeviation.responsible || "Ikke tildelt"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Frist / Opprettet</p>
+                      <p className="text-sm font-medium text-foreground flex items-center gap-1 mt-0.5">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatDate(selectedDeviation.due_date || selectedDeviation.created_at)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-3 pt-2 border-t border-border">
+                    <div className="text-center p-2 rounded-lg bg-muted/50">
+                      <Monitor className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                      <p className="text-lg font-bold text-foreground">{selectedDeviation.systems_count || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Systemer</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-muted/50">
+                      <Layers className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                      <p className="text-lg font-bold text-foreground">{selectedDeviation.processes_count || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Prosesser</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-muted/50">
+                      <ListChecks className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
+                      <p className="text-lg font-bold text-foreground">{selectedDeviation.measures_count || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Tiltak</p>
+                    </div>
+                  </div>
+
+                  {/* Progress */}
+                  {selectedDeviation.measures_count > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-muted-foreground">Tiltaksframgang</span>
+                        <span className="text-foreground font-medium">{progress}%</span>
+                      </div>
+                      <Progress
+                        value={progress}
+                        className={cn(
+                          "h-2",
+                          progress === 100 ? "[&>div]:bg-success" : "[&>div]:bg-primary"
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* Frameworks */}
+                  {selectedDeviation.relevant_frameworks && selectedDeviation.relevant_frameworks.length > 0 && (
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-xs text-muted-foreground mb-2">Relevante rammeverk</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedDeviation.relevant_frameworks.map((fw) => (
+                          <Badge key={fw} variant="outline" className="text-xs bg-muted/50">{fw}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
+
         {/* Add Deviation Dialog */}
         <AddDeviationDialog
           open={isAddDialogOpen}
