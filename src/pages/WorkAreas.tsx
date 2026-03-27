@@ -703,7 +703,7 @@ export default function WorkAreas() {
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">{t("myWorkAreas.tabs.documents")}</span>
                     <span className="sm:hidden">Dok</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
+                    <Badge variant="secondary" className="ml-1 text-xs">{docCount}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="settings" 
