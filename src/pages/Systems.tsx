@@ -651,8 +651,28 @@ export default function Systems() {
             </Select>
           </div>
 
+          {/* View toggle + category chips */}
+          <div className="flex items-center justify-between gap-4">
+            {viewMode === "grouped" && renderCategoryChips()}
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list"); }}
+              className="shrink-0"
+            >
+              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
+                <LayoutGrid className="h-4 w-4" />
+                Gruppert
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="Listevisning" className="gap-1.5 text-xs">
+                <List className="h-4 w-4" />
+                Liste
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           {/* System list */}
-          {renderCardList()}
+          {viewMode === "grouped" ? renderGroupedList() : renderCardList()}
         </div>
       </main>
 
