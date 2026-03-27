@@ -276,6 +276,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Digitaliseringsdirektoratet",
     vendor_category: "infrastructure",
+    category: "Infrastruktur og identitet",
     gdpr_role: "behandlingsansvarlig",
     compliance_score: 94,
     risk_score: 10,
