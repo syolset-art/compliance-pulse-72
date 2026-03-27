@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,6 +48,16 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
 import { deviationCategories } from "@/lib/deviationCategories";
+import { toast } from "sonner";
+
+const dummyPeople = [
+  "Kari Nordmann",
+  "Ola Hansen",
+  "Maria Johansen",
+  "Erik Solberg",
+  "Ingrid Bakken",
+  "Thomas Berg",
+];
 
 interface Deviation {
   id: string;
@@ -690,11 +700,27 @@ export default function Deviations() {
                   {/* Meta grid */}
                   <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
                     <div>
-                      <p className="text-xs text-muted-foreground">Ansvarlig</p>
-                      <p className="text-sm font-medium text-foreground flex items-center gap-1 mt-0.5">
-                        <User className="h-3.5 w-3.5" />
-                        {selectedDeviation.responsible || "Ikke tildelt"}
-                      </p>
+                      <p className="text-xs text-muted-foreground mb-1">Ansvarlig</p>
+                      <Select
+                        value={selectedDeviation.responsible || ""}
+                        onValueChange={async (value) => {
+                          const isEmployee = selectedDeviation.source === "employee";
+                          const table = isEmployee ? "employee_deviation_reports" : "system_incidents";
+                          const field = isEmployee ? "processed_by" : "responsible";
+                          await supabase.from(table).update({ [field]: value } as any).eq("id", selectedDeviation.id);
+                          setSelectedDeviation({ ...selectedDeviation, responsible: value });
+                          toast.success(`Ansvarlig satt til ${value}`);
+                        }}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Velg ansvarlig..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {dummyPeople.map((name) => (
+                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Frist / Opprettet</p>
