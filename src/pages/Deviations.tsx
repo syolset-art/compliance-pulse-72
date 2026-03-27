@@ -48,6 +48,19 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
 import { deviationCategories } from "@/lib/deviationCategories";
+import { toast } from "sonner";
+
+const dummyPeople = [
+  "Kari Nordmann",
+  "Ola Hansen",
+  "Maria Johansen",
+  "Erik Solberg",
+  "Ingrid Bakken",
+  "Thomas Berg",
+];
+import { nb } from "date-fns/locale";
+import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
+import { deviationCategories } from "@/lib/deviationCategories";
 
 interface Deviation {
   id: string;
