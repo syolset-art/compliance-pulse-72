@@ -60,6 +60,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Fløyen AS",
     vendor_category: "consulting",
+    category: "Rådgivning",
     gdpr_role: "databehandler",
     compliance_score: 72,
     risk_score: 42,
