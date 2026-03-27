@@ -299,6 +299,29 @@ export default function Systems() {
     return Array.from(cats);
   }, [systems]);
 
+  const groupedSystems = useMemo(() => {
+    const groups: Record<string, System[]> = {};
+    filteredSystems.forEach((system) => {
+      const cat = system.category || "Ukategorisert";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(system);
+    });
+    // Sort categories alphabetically, but put "Ukategorisert" last
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      if (a === "Ukategorisert") return 1;
+      if (b === "Ukategorisert") return -1;
+      return a.localeCompare(b, "nb");
+    });
+    const sorted: Record<string, System[]> = {};
+    sortedKeys.forEach((k) => (sorted[k] = groups[k]));
+    return sorted;
+  }, [filteredSystems]);
+
+  const scrollToCategory = useCallback((cat: string) => {
+    setActiveChip(cat);
+    sectionRefs.current[cat]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const getOwnerWorkArea = (system: System): WorkArea | undefined => {
     if (!system.work_area_id) return undefined;
     return workAreas.find((a: WorkArea) => a.id === system.work_area_id);
