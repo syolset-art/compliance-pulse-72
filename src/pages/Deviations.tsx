@@ -58,9 +58,6 @@ const dummyPeople = [
   "Ingrid Bakken",
   "Thomas Berg",
 ];
-import { nb } from "date-fns/locale";
-import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
-import { deviationCategories } from "@/lib/deviationCategories";
 
 interface Deviation {
   id: string;
