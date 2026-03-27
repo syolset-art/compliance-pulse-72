@@ -7,6 +7,7 @@ interface DemoVendor {
   region: string;
   vendor: string;
   vendor_category: string;
+  category: string;
   gdpr_role: string;
   compliance_score: number;
   risk_score: number;
