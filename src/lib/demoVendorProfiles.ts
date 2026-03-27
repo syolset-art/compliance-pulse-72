@@ -181,6 +181,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Mynder AS",
     vendor_category: "saas",
+    category: "Compliance og styring",
     gdpr_role: "databehandler",
     compliance_score: 91,
     risk_score: 12,
