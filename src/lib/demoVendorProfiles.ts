@@ -155,6 +155,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "BankID BankAxept AS",
     vendor_category: "infrastructure",
+    category: "Infrastruktur og identitet",
     gdpr_role: "databehandler",
     compliance_score: 98,
     risk_score: 5,
