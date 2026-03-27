@@ -11,6 +11,20 @@ interface DemoSystem {
   vendorAssetName?: string;
   /** Related IoT/device asset names to create relationships with */
   relatedDevices?: { name: string; device_type: string; description: string }[];
+  /** Trust profile metadata for the system asset */
+  trustMeta?: {
+    mfa_enabled?: boolean;
+    encryption_enabled?: boolean;
+    backup_configured?: boolean;
+    security_logging?: boolean;
+  };
+  /** Trust profile governance fields */
+  trustGov?: {
+    asset_owner?: string;
+    asset_manager?: string;
+    criticality?: string;
+    next_review_date?: string;
+  };
 }
 
 const DEMO_SYSTEMS: DemoSystem[] = [
@@ -22,6 +36,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-06-15" },
   },
   {
     name: "Salesforce CRM",
@@ -31,6 +47,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Salesforce Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: true },
+    trustGov: { asset_owner: "Salgsavdeling", asset_manager: "Ola Hansen", criticality: "high", next_review_date: "2026-05-01" },
   },
   {
     name: "SAP Business One",
@@ -40,6 +58,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "SAP SE",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: false },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Maria Johansen", criticality: "high", next_review_date: "2026-04-20" },
   },
   {
     name: "Slack",
@@ -48,7 +68,9 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     vendor: "Slack Technologies",
     status: "in_use",
     risk_level: "low",
-    vendorAssetName: "Salesforce Inc.", // Slack owned by Salesforce
+    vendorAssetName: "Salesforce Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "medium", next_review_date: "2026-08-01" },
   },
   {
     name: "GitHub Enterprise",
@@ -58,6 +80,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "Utviklingsavdeling", asset_manager: "Lars Eriksen", criticality: "high", next_review_date: "2026-07-10" },
   },
   {
     name: "Visma.net",
@@ -67,6 +91,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Visma AS",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: false },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-06-01" },
   },
   {
     name: "Jira Software",
@@ -76,6 +102,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Atlassian Pty Ltd",
+    trustMeta: { mfa_enabled: false, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Prosjektkontor", asset_manager: "Maria Johansen", criticality: "medium" },
   },
   {
     name: "AWS Cloud Services",
@@ -85,6 +113,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "Amazon Web Services",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "high", next_review_date: "2026-04-15" },
     relatedDevices: [
       { name: "IOT-GW-AWS-01", device_type: "iot", description: "IoT Gateway koblet til AWS IoT Core" },
       { name: "SENSOR-TEMP-01", device_type: "iot", description: "Temperatursensor – serverrom" },
@@ -98,6 +128,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Zendesk Inc.",
+    trustMeta: { mfa_enabled: false, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Kundeservice", criticality: "low" },
   },
   {
     name: "HubSpot Marketing",
@@ -107,6 +139,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "HubSpot Inc.",
+    trustMeta: { mfa_enabled: true, encryption_enabled: false, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "Markedsavdeling", asset_manager: "Ola Hansen", criticality: "medium", next_review_date: "2026-09-01" },
   },
   {
     name: "Zoom Meetings",
@@ -116,6 +150,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Zoom Video Communications",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: false },
+    trustGov: { asset_owner: "IT-avdeling", criticality: "low" },
   },
   {
     name: "Tripletex",
@@ -125,6 +161,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "low",
     vendorAssetName: "Tripletex AS",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "Økonomiavdeling", asset_manager: "Lars Eriksen", criticality: "medium", next_review_date: "2026-07-01" },
   },
   {
     name: "Cisco Meraki",
@@ -134,6 +172,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "medium",
     vendorAssetName: "Cisco Systems",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: true, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Anders Berg", criticality: "high", next_review_date: "2026-05-15" },
     relatedDevices: [
       { name: "SW-CORE-01", device_type: "network", description: "Kjernesvitsj – Cisco Meraki MS250" },
       { name: "AP-WIFI-01", device_type: "network", description: "Trådløst aksesspunkt – Cisco Meraki MR46" },
@@ -148,6 +188,8 @@ const DEMO_SYSTEMS: DemoSystem[] = [
     status: "in_use",
     risk_level: "high",
     vendorAssetName: "Microsoft Corporation",
+    trustMeta: { mfa_enabled: true, encryption_enabled: true, backup_configured: false, security_logging: true },
+    trustGov: { asset_owner: "IT-avdeling", asset_manager: "Kari Nordmann", criticality: "high", next_review_date: "2026-04-30" },
     relatedDevices: [
       { name: "IOT-HVAC-01", device_type: "iot", description: "Smart HVAC-kontroller – ventilasjon" },
       { name: "IOT-ACCESS-01", device_type: "iot", description: "IoT adgangskontroll – hovedinngang" },
@@ -167,7 +209,7 @@ export async function seedDemoSystems(): Promise<number> {
   }
 
   // 1. Insert systems
-  const systemRows = DEMO_SYSTEMS.map(({ vendorAssetName, relatedDevices, ...rest }) => rest);
+  const systemRows = DEMO_SYSTEMS.map(({ vendorAssetName, relatedDevices, trustMeta, trustGov, ...rest }) => rest);
   const { data: insertedSystems, error: sysErr } = await supabase
     .from("systems")
     .insert(systemRows)
@@ -262,6 +304,30 @@ export async function seedDemoSystems(): Promise<number> {
     await supabase.from("asset_relationships").insert(relationships);
   }
 
+  // 5. Create system-type assets with trust profile metadata
+  const systemAssetInserts = DEMO_SYSTEMS.map((demoDef) => ({
+    name: demoDef.name,
+    asset_type: "system" as const,
+    description: demoDef.description,
+    vendor: demoDef.vendor,
+    category: demoDef.category,
+    risk_level: demoDef.risk_level,
+    lifecycle_status: demoDef.status === "in_use" ? "active" : demoDef.status,
+    asset_owner: demoDef.trustGov?.asset_owner || null,
+    asset_manager: demoDef.trustGov?.asset_manager || null,
+    criticality: demoDef.trustGov?.criticality || "medium",
+    next_review_date: demoDef.trustGov?.next_review_date || null,
+    metadata: {
+      is_demo_system: true,
+      mfa_enabled: demoDef.trustMeta?.mfa_enabled || false,
+      encryption_enabled: demoDef.trustMeta?.encryption_enabled || false,
+      backup_configured: demoDef.trustMeta?.backup_configured || false,
+      security_logging: demoDef.trustMeta?.security_logging || false,
+    },
+  }));
+
+  await supabase.from("assets").insert(systemAssetInserts);
+
   return insertedSystems.length;
 }
 
@@ -282,13 +348,22 @@ export async function deleteDemoSystems(): Promise<number> {
 
   if (demoDevices && demoDevices.length > 0) {
     const deviceIds = demoDevices.map(d => d.id);
-    // Delete relationships involving these devices
     await supabase
       .from("asset_relationships")
       .delete()
       .or(`source_asset_id.in.(${deviceIds.join(",")}),target_asset_id.in.(${deviceIds.join(",")})`);
-    // Delete the devices
     await supabase.from("assets").delete().in("id", deviceIds);
+  }
+
+  // Delete demo system assets
+  const { data: demoSystemAssets } = await supabase
+    .from("assets")
+    .select("id")
+    .eq("asset_type", "system")
+    .not("metadata->is_demo_system", "is", null);
+
+  if (demoSystemAssets && demoSystemAssets.length > 0) {
+    await supabase.from("assets").delete().in("id", demoSystemAssets.map(a => a.id));
   }
 
   const { error } = await supabase
