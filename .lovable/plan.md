@@ -1,67 +1,33 @@
 
 
-## Smart Documents for Work Areas — Contract & Document Hub
+## Group Systems by Category Without Filtering
 
-### What we're building
-Replace the "Coming soon" placeholder on the Documents tab with a practical document hub focused on contracts and auto-generated documents at the work area level. Since vendor/system registration already exists elsewhere, this focuses on what's unique to work areas: managing contracts, generating privacy declarations, and linking documents to the work area's compliance context.
+### Approach
+Replace the flat list with a **grouped view** that organizes systems under category headers (e.g., "Kommunikasjon", "Økonomi", "Prosjektstyring"). All systems remain visible at all times. A horizontal category chip bar at the top lets users click a category to scroll to that section, with a count badge on each chip. The existing filter dropdowns stay as-is for when users want to narrow down.
 
-### Features
+### Changes
 
-#### 1. New component: `WorkAreaDocumentsTab.tsx`
-The Documents tab gets three sections:
+#### 1. Add a view toggle: "Liste" vs "Gruppert"
+A `ToggleGroup` above the system list lets users switch between the current flat list and the new grouped view. Default: grouped.
 
-**A. Upload & manage contracts**
-- Upload zone for contracts (DPA, SLA, NDA, processor agreements)
-- Files stored in existing `documents` bucket under `work-areas/{workAreaId}/`
-- Each document gets a type selector (DPA, SLA, NDA, Privacy Policy, Risk Assessment, Other)
-- Table view: file name, type, uploaded date, linked vendor/system (optional dropdown from work area's assets)
-- Delete action per document
+#### 2. Grouped view in `Systems.tsx`
+- Derive category groups from `filteredSystems` using `useMemo` -- group by `system.category`, with a fallback "Ukategorisert" group
+- Render each group as a collapsible section with:
+  - Category name as header + system count badge
+  - Systems listed as cards underneath (reusing `renderSystemCard`)
+- A horizontal scrollable chip bar at the top shows all categories with counts. Clicking a chip smooth-scrolls to that section (using `ref` per category + `scrollIntoView`)
 
-**B. Auto-generate documents**
-- "Generate" button section with template options:
-  - Personvernerklæring (Privacy Declaration)
-  - Databehandleravtale (DPA template)
-  - Risikovurdering (Risk Assessment summary)
-- Clicking a template calls an edge function that uses AI to generate a draft based on the work area's systems, processes, and assets
-- Output rendered in a preview dialog with "Download as DOCX" option
-- Generated docs auto-saved to the documents bucket
-
-**C. Document overview cards**
-- Summary cards at top: "X contracts uploaded", "Y missing DPAs" (cross-referenced with assets that have `gdpr_role = 'processor'` but no linked DPA document)
-- Quick compliance insight without full AI analysis
-
-#### 2. New DB table: `work_area_documents`
-```sql
-create table public.work_area_documents (
-  id uuid primary key default gen_random_uuid(),
-  work_area_id uuid not null,
-  file_name text not null,
-  file_path text not null,
-  file_size integer,
-  document_type text default 'other',
-  linked_asset_id uuid,
-  notes text,
-  generated boolean default false,
-  created_at timestamptz default now()
-);
-alter table public.work_area_documents enable row level security;
-create policy "Allow all access" on public.work_area_documents for all using (true) with check (true);
-```
-
-#### 3. New edge function: `generate-work-area-document`
-- Accepts `workAreaId`, `templateType` (privacy_declaration | dpa_template | risk_assessment)
-- Fetches the work area's linked systems and assets from the DB
-- Sends context to AI to generate a Norwegian-language document draft
-- Returns structured text (sections with headings + content)
-- Uses `LOVABLE_API_KEY` with `google/gemini-2.5-flash`
-
-#### 4. Update `WorkAreas.tsx`
-- Replace the "Coming soon" card with `<WorkAreaDocumentsTab workAreaId={...} />`
-- Update the document count badge from hardcoded `5` to live count from `work_area_documents`
+#### 3. Category chip bar
+- Rendered above the card list when in grouped view
+- Each chip: category name + count, styled as outline badges
+- Active/clicked chip gets primary styling
+- "Alle" chip at the start shows total count
 
 ### Technical details
-- Storage path: `work-areas/{workAreaId}/{fileName}` in existing `documents` bucket
-- Document types: `dpa`, `sla`, `nda`, `privacy_policy`, `risk_assessment`, `contract`, `other`
-- The generate function composes context from `systems` + `assets` where `work_area_id` matches
-- No changes to existing vendor/system flows -- this is purely a document layer on top
+- No database changes
+- Uses existing `categories` memo and `filteredSystems`
+- Grouping: `Object.groupBy` or manual reduce on `system.category`
+- Scroll targets via `useRef` map keyed by category string
+- View mode stored in local state (no persistence needed)
+- The existing 4-column filter row remains unchanged and applies to both views
 
