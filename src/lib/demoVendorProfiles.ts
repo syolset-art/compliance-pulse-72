@@ -253,6 +253,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Connect Vest AS",
     vendor_category: "it_operations",
+    category: "IT-drift og managed services",
     gdpr_role: "databehandler",
     compliance_score: 62,
     risk_score: 48,
