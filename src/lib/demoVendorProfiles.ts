@@ -133,6 +133,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "Ulriken 643 AS",
     vendor_category: "facilities",
+    category: "Fasiliteter og drift",
     gdpr_role: "databehandler",
     compliance_score: 45,
     risk_score: 65,
