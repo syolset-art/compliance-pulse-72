@@ -2959,6 +2959,60 @@ export type Database = {
           },
         ]
       }
+      work_area_documents: {
+        Row: {
+          created_at: string | null
+          document_type: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          generated: boolean | null
+          id: string
+          linked_asset_id: string | null
+          notes: string | null
+          work_area_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_type?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          generated?: boolean | null
+          id?: string
+          linked_asset_id?: string | null
+          notes?: string | null
+          work_area_id: string
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          generated?: boolean | null
+          id?: string
+          linked_asset_id?: string | null
+          notes?: string | null
+          work_area_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_area_documents_linked_asset_id_fkey"
+            columns: ["linked_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_area_documents_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_area_templates: {
         Row: {
           created_at: string | null
