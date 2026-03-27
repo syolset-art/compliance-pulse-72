@@ -884,9 +884,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="documents" className="mt-4">
-                <Card className="p-8 text-center text-muted-foreground">
-                  {t("myWorkAreas.comingSoon")}
-                </Card>
+                <WorkAreaDocumentsTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="settings" className="mt-4">

@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.suggest-company-description]
 verify_jwt = false
+
+[functions.generate-work-area-document]
+verify_jwt = false
