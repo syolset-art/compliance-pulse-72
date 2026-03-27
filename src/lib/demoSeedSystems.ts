@@ -209,7 +209,7 @@ export async function seedDemoSystems(): Promise<number> {
   }
 
   // 1. Insert systems
-  const systemRows = DEMO_SYSTEMS.map(({ vendorAssetName, relatedDevices, ...rest }) => rest);
+  const systemRows = DEMO_SYSTEMS.map(({ vendorAssetName, relatedDevices, trustMeta, trustGov, ...rest }) => rest);
   const { data: insertedSystems, error: sysErr } = await supabase
     .from("systems")
     .insert(systemRows)
