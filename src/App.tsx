@@ -58,6 +58,7 @@ import TrustCenterCompliance from "./pages/TrustCenterCompliance";
 import TrustCenterPolicies from "./pages/TrustCenterPolicies";
 import TrustCenterCertifications from "./pages/TrustCenterCertifications";
 import TrustCenterProducts from "./pages/TrustCenterProducts";
+import TrustCenterRegulations from "./pages/TrustCenterRegulations";
 import ComplianceCalendar from "./pages/ComplianceCalendar";
 import ComplianceChecklist from "./pages/ComplianceChecklist";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
