@@ -229,7 +229,7 @@ export default function Deviations() {
         : 0;
 
     return (
-      <Card className="bg-card border-border hover:border-primary/30 transition-colors">
+      <Card className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer" onClick={() => setSelectedDeviation(deviation)}>
         <CardContent className="p-4">
           {/* Badges */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
