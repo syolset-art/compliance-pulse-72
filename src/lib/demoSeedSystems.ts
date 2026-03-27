@@ -304,6 +304,30 @@ export async function seedDemoSystems(): Promise<number> {
     await supabase.from("asset_relationships").insert(relationships);
   }
 
+  // 5. Create system-type assets with trust profile metadata
+  const systemAssetInserts = DEMO_SYSTEMS.map((demoDef) => ({
+    name: demoDef.name,
+    asset_type: "system" as const,
+    description: demoDef.description,
+    vendor: demoDef.vendor,
+    category: demoDef.category,
+    risk_level: demoDef.risk_level,
+    lifecycle_status: demoDef.status === "in_use" ? "active" : demoDef.status,
+    asset_owner: demoDef.trustGov?.asset_owner || null,
+    asset_manager: demoDef.trustGov?.asset_manager || null,
+    criticality: demoDef.trustGov?.criticality || "medium",
+    next_review_date: demoDef.trustGov?.next_review_date || null,
+    metadata: {
+      is_demo_system: true,
+      mfa_enabled: demoDef.trustMeta?.mfa_enabled || false,
+      encryption_enabled: demoDef.trustMeta?.encryption_enabled || false,
+      backup_configured: demoDef.trustMeta?.backup_configured || false,
+      security_logging: demoDef.trustMeta?.security_logging || false,
+    },
+  }));
+
+  await supabase.from("assets").insert(systemAssetInserts);
+
   return insertedSystems.length;
 }
 
