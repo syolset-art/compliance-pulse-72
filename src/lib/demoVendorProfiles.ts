@@ -230,6 +230,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     region: "norway",
     vendor: "CheckWare AS",
     vendor_category: "saas",
+    category: "Helseteknologi",
     gdpr_role: "databehandler",
     compliance_score: 78,
     risk_score: 25,
