@@ -11,6 +11,8 @@ import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
 import { DataGeographyWidget } from "@/components/widgets/DataGeographyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { CriticalDependenciesWidget } from "@/components/widgets/CriticalDependenciesWidget";
+import { BusinessRiskExposureWidget } from "@/components/widgets/BusinessRiskExposureWidget";
+import { VulnerabilityMapWidget } from "@/components/widgets/VulnerabilityMapWidget";
 import { DashboardWidgetToggle } from "@/components/dashboard/DashboardWidgetToggle";
 import { DashboardGrid, DashboardTile, TileSize } from "@/components/dashboard/DashboardGrid";
 
