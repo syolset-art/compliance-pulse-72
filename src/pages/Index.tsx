@@ -11,6 +11,8 @@ import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
 import { DataGeographyWidget } from "@/components/widgets/DataGeographyWidget";
 import { CriticalProcessesWidget } from "@/components/widgets/CriticalProcessesWidget";
 import { CriticalDependenciesWidget } from "@/components/widgets/CriticalDependenciesWidget";
+import { BusinessRiskExposureWidget } from "@/components/widgets/BusinessRiskExposureWidget";
+import { VulnerabilityMapWidget } from "@/components/widgets/VulnerabilityMapWidget";
 import { DashboardWidgetToggle } from "@/components/dashboard/DashboardWidgetToggle";
 import { DashboardGrid, DashboardTile, TileSize } from "@/components/dashboard/DashboardGrid";
 
@@ -29,6 +31,8 @@ import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
   { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "compact" },
   { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "compact" },
+  { id: "business-risk-exposure", label: "Forretningsrisiko (FAIR)", labelEn: "Business Risk (FAIR)", size: "half" },
+  { id: "vulnerability-map", label: "Sårbarhetskart", labelEn: "Vulnerability Map", size: "half" },
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
   { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
   { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
@@ -54,6 +58,8 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "immediate-attention": <ImmediateAttentionWidget />,
   "user-actions": <UserActionsWidget />,
+  "business-risk-exposure": <BusinessRiskExposureWidget />,
+  "vulnerability-map": <VulnerabilityMapWidget />,
   "critical-processes": <CriticalProcessesWidget />,
   "ai-dependencies": <CriticalDependenciesWidget />,
   "ai-activity": <AIActivityWidget />,
