@@ -40,7 +40,10 @@
     "requests": "Forespørsler",
     "organisation": "Organisasjon",
     "modules": "Moduler",
-    "reportsAdmin": "Rapporter & Admin"
+    "reportsAdmin": "Rapporter & Admin",
+    "administration": "Administrasjon",
+    "adminOrganisation": "Organisasjon",
+    "adminDocuments": "Dokumenter"
   },
   "customerRequests": {
     "title": "Kundeforespørsler",

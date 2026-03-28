@@ -39,7 +39,10 @@
     "requests": "Requests",
     "organisation": "Organisation",
     "modules": "Modules",
-    "reportsAdmin": "Reports & Admin"
+    "reportsAdmin": "Reports & Admin",
+    "administration": "Administration",
+    "adminOrganisation": "Organisation",
+    "adminDocuments": "Documents"
   },
   "customerRequests": {
     "title": "Customer Requests",
