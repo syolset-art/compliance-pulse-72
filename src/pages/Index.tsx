@@ -31,6 +31,8 @@ import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
   { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "compact" },
   { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "compact" },
+  { id: "business-risk-exposure", label: "Forretningsrisiko (FAIR)", labelEn: "Business Risk (FAIR)", size: "half" },
+  { id: "vulnerability-map", label: "Sårbarhetskart", labelEn: "Vulnerability Map", size: "half" },
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
   { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
   { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
