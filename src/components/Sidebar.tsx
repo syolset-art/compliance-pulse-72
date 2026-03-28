@@ -89,9 +89,15 @@ const complianceSecurityMenu = [
 // Rapporter & Administrasjon
 const reportsAdminMenu = [
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
+];
+
+// Administrasjon submenu
+const administrationMenu = [
+  { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
+  { name: "nav.regulations", href: "/regulations", icon: Scale },
+  { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
 ];
 
 const TrustCenterMenu = () => {
@@ -285,6 +291,9 @@ const SidebarContent = () => {
   const isReportsAdminActive = reportsAdminMenu.some(item => location.pathname === item.href);
   const [reportsAdminOpen, setReportsAdminOpen] = useState(() => isReportsAdminActive);
   
+  const isAdminActive = administrationMenu.some(item => location.pathname === item.href);
+  const [adminOpen, setAdminOpen] = useState(() => isAdminActive || location.pathname.startsWith("/admin/"));
+  
   return (
     <>
       {/* Logo */}
@@ -471,6 +480,48 @@ const SidebarContent = () => {
                     {item.highlight && (
                       <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
                     )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Administrasjon section */}
+        <div className="pt-3">
+          <button
+            onClick={() => setAdminOpen(!adminOpen)}
+            className={cn(
+              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+              isAdminActive || location.pathname.startsWith("/admin/")
+                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <Settings className="h-5 w-5" />
+              {t("nav.administration", "Administrasjon")}
+            </div>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
+          </button>
+
+          {adminOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              {administrationMenu.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-primary"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {t(item.name)}
                   </Link>
                 );
               })}

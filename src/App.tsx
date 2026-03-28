@@ -64,6 +64,8 @@ import ComplianceChecklist from "./pages/ComplianceChecklist";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
 import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 import DemoLibrary from "./pages/DemoLibrary";
+import AdminOrganisation from "./pages/AdminOrganisation";
+import AdminDocuments from "./pages/AdminDocuments";
 
 const queryClient = new QueryClient();
 
@@ -137,6 +139,8 @@ const App = () => (
                   <Route path="/trust-center/regulations" element={<TrustCenterRegulations />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
                   <Route path="/demo-library" element={<DemoLibrary />} />
+                  <Route path="/admin/organisation" element={<AdminOrganisation />} />
+                  <Route path="/admin/documents" element={<AdminDocuments />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
