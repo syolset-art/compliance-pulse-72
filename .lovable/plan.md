@@ -1,33 +1,68 @@
 
 
-## Group Systems by Category Without Filtering
+# To nye dashboard-widgets for sikkerhetsansvarlig og ledelse
 
-### Approach
-Replace the flat list with a **grouped view** that organizes systems under category headers (e.g., "Kommunikasjon", "Økonomi", "Prosjektstyring"). All systems remain visible at all times. A horizontal category chip bar at the top lets users click a category to scroll to that section, with a count badge on each chip. The existing filter dropdowns stay as-is for when users want to narrow down.
+## Widget 1: Forretningsrisiko i kroner (FAIR-modell)
 
-### Changes
+Kvantifiserer risikoeksponering i NOK basert på FAIR-metodikken (Factor Analysis of Information Risk). Viser estimert annualisert tap (ALE) per forretningsområde/prosess, koblet til underliggende systemer og leverandorer.
 
-#### 1. Add a view toggle: "Liste" vs "Gruppert"
-A `ToggleGroup` above the system list lets users switch between the current flat list and the new grouped view. Default: grouped.
+**Innhold:**
+- Totaleksponering i NOK (f.eks. "Estimert arlig risikoeksponering: kr 4 250 000")
+- Top 5 risikoer rangert etter estimert tap, med kobling til prosess, system og leverandor
+- Mini horisontalt bar-chart per risiko som viser sannsynlighet vs konsekvens
+- Fargekodede risikokategorier (Datatap, Nedetid, Regelverksbrudd, Leverandorsvikt)
+- Trend-indikator: endring fra forrige kvartal
+- CTA-knapp: "Se full risikoanalyse" -> navigerer til risk management
 
-#### 2. Grouped view in `Systems.tsx`
-- Derive category groups from `filteredSystems` using `useMemo` -- group by `system.category`, with a fallback "Ukategorisert" group
-- Render each group as a collapsible section with:
-  - Category name as header + system count badge
-  - Systems listed as cards underneath (reusing `renderSystemCard`)
-- A horizontal scrollable chip bar at the top shows all categories with counts. Clicking a chip smooth-scrolls to that section (using `ref` per category + `scrollIntoView`)
+**Demodata hardkodet:**
+```
+Ansettelsesprosess / HireVue    -> kr 1 800 000 (datatap, hoy)
+Kundedatasystem / Salesforce    -> kr 1 200 000 (nedetid, hoy)
+Okonomi / Visma                 -> kr   650 000 (regelverksbrudd, medium)
+E-post / Microsoft 365          -> kr   400 000 (datatap, medium)
+Nettside / Cloudflare           -> kr   200 000 (nedetid, lav)
+```
 
-#### 3. Category chip bar
-- Rendered above the card list when in grouped view
-- Each chip: category name + count, styled as outline badges
-- Active/clicked chip gets primary styling
-- "Alle" chip at the start shows total count
+**Fil:** `src/components/widgets/BusinessRiskExposureWidget.tsx`
+**Storrelse:** `half` (320px)
 
-### Technical details
-- No database changes
-- Uses existing `categories` memo and `filteredSystems`
-- Grouping: `Object.groupBy` or manual reduce on `system.category`
-- Scroll targets via `useRef` map keyed by category string
-- View mode stored in local state (no persistence needed)
-- The existing 4-column filter row remains unchanged and applies to both views
+---
+
+## Widget 2: Kritiske avhengigheter og sarbarhetskart
+
+Visuell oversikt over de mest sarbare forretningsomradene basert pa konsentrasjon av kritiske systemer, leverandorer og prosesser. Hjelper ledelsen a forstå "single points of failure".
+
+**Innhold:**
+- 3-4 forretningsomrader (Helse, Okonomi, HR, Drift) med sarbarhetsscore (0-100)
+- Per omrade: antall kritiske systemer, leverandorer uten DPA, prosesser uten eier
+- Visuell "heatmap-stripe" (rod/gul/gronn) per omrade
+- "Storst sarbarhet"-highlight med konkret anbefaling
+- CTA: "Utforsk avhengigheter" -> navigerer til work areas
+
+**Demodata hardkodet:**
+```
+HR & Rekruttering    -> 82/100 (3 systemer, 1 uten DPA, 2 hoyrisiko-AI)
+Okonomi & Regnskap   -> 65/100 (4 systemer, 0 uten DPA, 1 review utlopt)
+Pasientbehandling    -> 71/100 (5 systemer, 2 uten DPA, sensitiv data)
+IT & Drift           -> 45/100 (6 systemer, alle med DPA, god dekning)
+```
+
+**Fil:** `src/components/widgets/VulnerabilityMapWidget.tsx`
+**Storrelse:** `half` (320px)
+
+---
+
+## Integrasjon i dashbordet
+
+I `src/pages/Index.tsx`:
+- Legg til begge i `WIDGET_DEFS` med id `business-risk-exposure` og `vulnerability-map`
+- Plasser dem etter `user-actions` og for `critical-processes` i default-rekkefølgen
+- Begge som `half`-størrelse slik at de vises side om side
+
+## Tekniske detaljer
+- Følger eksisterende widget-mønster med Card/CardContent
+- Norsk UI-tekst som standard, i18n-klar med `useTranslation`
+- Hardkodede demodata (ingen DB-avhengighet)
+- Navigasjonsknapper med `useNavigate`
+- Responsive grid med `grid-cols-2` for metrikkene
 
