@@ -215,6 +215,7 @@ const SidebarContent = () => {
   );
   const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [comingOpen, setComingOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [companyName, setCompanyName] = useState<string | null>(null);
