@@ -79,20 +79,6 @@ const modulesNav = [
   { name: "nav.protocols", href: "/protocols", icon: FileText },
 ];
 
-const complianceSecurityMenu = [
-  { name: "nav.maturity", href: "/maturity", icon: Layers },
-  { name: "nav.compliance", href: "/compliance", icon: Shield },
-  { name: "nav.controls", href: "/controls", icon: CheckCircle2 },
-  { name: "nav.complianceCalendar", href: "/compliance-calendar", icon: CalendarDays },
-];
-
-// Rapporter & Administrasjon
-const reportsAdminMenu = [
-  { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
-  { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
-];
-
 // Administrasjon submenu
 const administrationMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
@@ -210,9 +196,6 @@ const SidebarContent = () => {
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
   
-  const [compSecOpen, setCompSecOpen] = useState(() => 
-    ["/compliance", "/controls", "/compliance-calendar"].some(p => location.pathname.startsWith(p))
-  );
   const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [comingOpen, setComingOpen] = useState(false);
@@ -238,7 +221,6 @@ const SidebarContent = () => {
   const handleResetDemo = async () => {
     setResetting(true);
     try {
-      // Delete in correct order (foreign key dependencies)
       await supabase.from("vendor_documents" as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("lara_inbox").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("asset_ai_usage").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -287,11 +269,6 @@ const SidebarContent = () => {
     fetchCompany();
   }, []);
 
-
-  // Check if any reports/admin item is active
-  const isReportsAdminActive = reportsAdminMenu.some(item => location.pathname === item.href);
-  const [reportsAdminOpen, setReportsAdminOpen] = useState(() => isReportsAdminActive);
-  
   const isAdminActive = administrationMenu.some(item => location.pathname === item.href);
   const [adminOpen, setAdminOpen] = useState(() => isAdminActive || location.pathname.startsWith("/admin/"));
   
@@ -384,111 +361,7 @@ const SidebarContent = () => {
           })}
         </div>
 
-        {/* Quality System - conditional on active modules */}
-        {hasQualityModule && (
-          <Link
-            to="/quality"
-            className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
-              location.pathname === "/quality"
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <Shield className="h-5 w-5" />
-            {t("quality.title", "Kvalitetssystem")}
-            <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
-          </Link>
-        )}
-
-        {/* Compliance & Security section */}
-        <div className="pt-3">
-          <button
-            onClick={() => setCompSecOpen(!compSecOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              complianceSecurityMenu.some(i => location.pathname === i.href)
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5" />
-              {t("nav.complianceSecurity", "Compliance & Security")}
-            </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", compSecOpen && "rotate-180")} />
-          </button>
-
-          {compSecOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {complianceSecurityMenu.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {t(item.name)}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Rapporter & Administrasjon section */}
-        <div className="pt-3">
-          <button
-            onClick={() => setReportsAdminOpen(!reportsAdminOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              isReportsAdminActive
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <Settings className="h-5 w-5" />
-              {t("nav.reportsAdmin", "Rapporter & Admin")}
-            </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", reportsAdminOpen && "rotate-180")} />
-          </button>
-
-          {reportsAdminOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {reportsAdminMenu.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors relative",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {t(item.name)}
-                    {item.highlight && (
-                      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Administrasjon section */}
+        {/* Administrasjon section - moved up */}
         <div className="pt-3">
           <button
             onClick={() => setAdminOpen(!adminOpen)}
@@ -554,7 +427,10 @@ const SidebarContent = () => {
               {[
                 { name: t("quality.title", "Kvalitetssystem"), href: "/quality", icon: Shield },
                 { name: t("nav.complianceSecurity", "Compliance & Security"), href: "/compliance", icon: Shield },
+                { name: t("nav.reportsAdmin", "Rapporter & Admin"), href: "/reports", icon: FileBarChart },
                 { name: t("nav.resources", "Ressurssenter"), href: "/resources", icon: HelpCircle },
+                { name: t("nav.aiSetup", "AI-agent"), href: "/ai-setup", icon: Bot },
+                { name: t("nav.aiRegistry", "AI-register"), href: "/ai-registry", icon: Bot },
                 { name: "Utviklere", href: "/developer/trust-profile-architecture", icon: Code2 },
                 { name: "Mynder Me", href: "/mynder-me", icon: Users },
                 { name: "Leverandørdemo", href: "/vendor-response-demo", icon: Play },
