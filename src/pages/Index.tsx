@@ -58,6 +58,8 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "immediate-attention": <ImmediateAttentionWidget />,
   "user-actions": <UserActionsWidget />,
+  "business-risk-exposure": <BusinessRiskExposureWidget />,
+  "vulnerability-map": <VulnerabilityMapWidget />,
   "critical-processes": <CriticalProcessesWidget />,
   "ai-dependencies": <CriticalDependenciesWidget />,
   "ai-activity": <AIActivityWidget />,
