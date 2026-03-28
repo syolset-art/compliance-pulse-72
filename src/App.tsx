@@ -139,6 +139,8 @@ const App = () => (
                   <Route path="/trust-center/regulations" element={<TrustCenterRegulations />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
                   <Route path="/demo-library" element={<DemoLibrary />} />
+                  <Route path="/admin/organisation" element={<AdminOrganisation />} />
+                  <Route path="/admin/documents" element={<AdminDocuments />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
