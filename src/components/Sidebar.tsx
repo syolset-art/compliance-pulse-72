@@ -89,9 +89,15 @@ const complianceSecurityMenu = [
 // Rapporter & Administrasjon
 const reportsAdminMenu = [
   { name: "nav.reports", href: "/reports", icon: FileBarChart },
-  { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.aiSetup", href: "/ai-setup", icon: Bot, highlight: true },
   { name: "nav.aiRegistry", href: "/ai-registry", icon: Bot, highlight: true },
+];
+
+// Administrasjon submenu
+const administrationMenu = [
+  { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
+  { name: "nav.regulations", href: "/regulations", icon: Scale },
+  { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
 ];
 
 const TrustCenterMenu = () => {

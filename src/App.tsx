@@ -64,6 +64,8 @@ import ComplianceChecklist from "./pages/ComplianceChecklist";
 import MSPCustomerTrustProfile from "./pages/MSPCustomerTrustProfile";
 import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 import DemoLibrary from "./pages/DemoLibrary";
+import AdminOrganisation from "./pages/AdminOrganisation";
+import AdminDocuments from "./pages/AdminDocuments";
 
 const queryClient = new QueryClient();
 
