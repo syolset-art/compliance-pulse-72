@@ -291,6 +291,9 @@ const SidebarContent = () => {
   const isReportsAdminActive = reportsAdminMenu.some(item => location.pathname === item.href);
   const [reportsAdminOpen, setReportsAdminOpen] = useState(() => isReportsAdminActive);
   
+  const isAdminActive = administrationMenu.some(item => location.pathname === item.href);
+  const [adminOpen, setAdminOpen] = useState(() => isAdminActive || location.pathname.startsWith("/admin/"));
+  
   return (
     <>
       {/* Logo */}
