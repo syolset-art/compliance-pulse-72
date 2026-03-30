@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Monitor, CheckCircle2, XCircle, AlertTriangle, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DeviceTechnicalStatusProps {
   meta: Record<string, any>;
@@ -34,12 +35,35 @@ export function DeviceTechnicalStatus({ meta }: DeviceTechnicalStatusProps) {
     { label: isNb ? "Serienummer" : "Serial", value: meta.serial_number || "–", icon: null },
   ];
 
+  // Calculate overall status
+  const checkableRows = rows.filter(r => r.icon !== null);
+  const issueCount = checkableRows.filter(r => {
+    const iconType = r.icon?.type;
+    return iconType === XCircle || iconType === AlertTriangle;
+  }).length;
+  const allOk = issueCount === 0;
+  const hasWarningsOnly = !allOk && checkableRows.every(r => r.icon?.type !== XCircle);
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Monitor className="h-5 w-5 text-primary" />
-          {isNb ? "Teknisk status" : "Technical Status"}
+        <CardTitle className="flex items-center justify-between text-base">
+          <div className="flex items-center gap-2">
+            <Monitor className="h-5 w-5 text-primary" />
+            {isNb ? "Teknisk status" : "Technical Status"}
+          </div>
+          <Badge className={cn(
+            "text-[10px] font-semibold",
+            allOk
+              ? "bg-success/10 text-success border-success/30"
+              : hasWarningsOnly
+                ? "bg-warning/10 text-warning border-warning/30"
+                : "bg-destructive/10 text-destructive border-destructive/30"
+          )}>
+            {allOk
+              ? (isNb ? "✓ Alt OK" : "✓ All OK")
+              : `${issueCount} ${isNb ? "funn" : "issue"}${issueCount > 1 && !isNb ? "s" : ""}`}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-0 p-0">
