@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceControlStatus } from "./DeviceControlStatus";
 import { DeviceRiskFindings } from "./DeviceRiskFindings";
+import { DeviceRiskTab } from "./DeviceRiskTab";
 import { DeviceActionPlans } from "./DeviceActionPlans";
 import { DeviceTechnicalStatus } from "./DeviceTechnicalStatus";
 import { DeviceAutomation } from "./DeviceAutomation";
@@ -72,7 +73,7 @@ export function DeviceTrustProfile({ asset }: DeviceTrustProfileProps) {
         </TabsContent>
 
         <TabsContent value="risk" className="mt-6">
-          <DeviceRiskFindings controls={controls} meta={meta} asset={asset} />
+          <DeviceRiskTab controls={controls} meta={meta} asset={asset} />
         </TabsContent>
 
         <TabsContent value="actions" className="mt-6">
