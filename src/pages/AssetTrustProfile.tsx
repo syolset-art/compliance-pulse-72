@@ -189,6 +189,18 @@ const AssetTrustProfile = () => {
               {t("common.back")}
             </Button>
 
+            {/* Trust Center header for self-profile */}
+            {isSelf && (
+              <div className="mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                  {isNb ? "Din Trust Profile" : "Your Trust Profile"}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {asset.name} • {isNb ? "Administrer og del din compliance-profil" : "Manage and share your compliance profile"}
+                </p>
+              </div>
+            )}
+
             {/* Entity Header */}
             <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
 
