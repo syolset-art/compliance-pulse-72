@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bot, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DeviceAutomationProps {
   meta: Record<string, any>;
@@ -15,19 +16,15 @@ export function DeviceAutomation({ meta }: DeviceAutomationProps) {
   const hasEdr = meta.antivirus === "aktiv" || meta.antivirus === "active";
 
   const automationItems = [
-    {
-      label: "Auto-monitoring",
-      status: hasEdr ? "active" : "inactive",
-    },
-    {
-      label: "Auto-remediation",
-      status: hasMdm ? "available" : "inactive",
-    },
-    {
-      label: "Alerts",
-      status: hasEdr ? "active" : "inactive",
-    },
+    { label: "Auto-monitoring", status: hasEdr ? "active" : "inactive" },
+    { label: "Auto-remediation", status: hasMdm ? "available" : "inactive" },
+    { label: isNb ? "Varsler" : "Alerts", status: hasEdr ? "active" : "inactive" },
   ];
+
+  const activeCount = automationItems.filter(i => i.status === "active").length;
+  const inactiveCount = automationItems.filter(i => i.status === "inactive").length;
+  const allOk = inactiveCount === 0;
+  const hasWarningsOnly = !allOk && inactiveCount === 0;
 
   const statusConfig = {
     active: { icon: <CheckCircle2 className="h-4 w-4 text-success" />, badge: <Badge className="bg-success/10 text-success border-success/30 text-[10px]">{isNb ? "Aktiv" : "Active"}</Badge> },
@@ -38,9 +35,21 @@ export function DeviceAutomation({ meta }: DeviceAutomationProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Bot className="h-5 w-5 text-primary" />
-          {isNb ? "Automatisering" : "Automation"}
+        <CardTitle className="flex items-center justify-between text-base">
+          <div className="flex items-center gap-2">
+            <Bot className="h-5 w-5 text-primary" />
+            {isNb ? "Automatisering" : "Automation"}
+          </div>
+          <Badge className={cn(
+            "text-[10px] font-semibold",
+            allOk
+              ? "bg-success/10 text-success border-success/30"
+              : "bg-warning/10 text-warning border-warning/30"
+          )}>
+            {allOk
+              ? (isNb ? "✓ Alt OK" : "✓ All OK")
+              : `${activeCount}/${automationItems.length} ${isNb ? "aktive" : "active"}`}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-0 p-0">
