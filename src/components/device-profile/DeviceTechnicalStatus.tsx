@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Monitor, CheckCircle2, XCircle, AlertTriangle, Clock } from "lucide-react";
+import { Monitor, CheckCircle2, XCircle, AlertTriangle, Clock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeviceTechnicalStatusProps {
