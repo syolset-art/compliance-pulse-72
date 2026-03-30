@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceControlStatus } from "./DeviceControlStatus";
 import { DeviceRiskFindings } from "./DeviceRiskFindings";
+import { DeviceRiskTab } from "./DeviceRiskTab";
 import { DeviceActionPlans } from "./DeviceActionPlans";
 import { DeviceTechnicalStatus } from "./DeviceTechnicalStatus";
 import { DeviceAutomation } from "./DeviceAutomation";
