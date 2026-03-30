@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Bot, CheckCircle2, XCircle, AlertTriangle, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeviceAutomationProps {
