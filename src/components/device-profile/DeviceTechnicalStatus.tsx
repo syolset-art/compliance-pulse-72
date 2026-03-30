@@ -47,23 +47,17 @@ export function DeviceTechnicalStatus({ meta }: DeviceTechnicalStatusProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center gap-2">
-            <Monitor className="h-5 w-5 text-primary" />
-            {isNb ? "Teknisk status" : "Technical Status"}
-          </div>
-          <Badge className={cn(
-            "text-[10px] font-semibold",
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Circle className={cn(
+            "h-3 w-3 shrink-0",
             allOk
-              ? "bg-success/10 text-success border-success/30"
+              ? "fill-green-500 text-green-500"
               : hasWarningsOnly
-                ? "bg-warning/10 text-warning border-warning/30"
-                : "bg-destructive/10 text-destructive border-destructive/30"
-          )}>
-            {allOk
-              ? (isNb ? "✓ Alt OK" : "✓ All OK")
-              : `${issueCount} ${isNb ? "funn" : "issue"}${issueCount > 1 && !isNb ? "s" : ""}`}
-          </Badge>
+                ? "fill-amber-500 text-amber-500"
+                : "fill-red-500 text-red-500"
+          )} />
+          <Monitor className="h-5 w-5 text-primary" />
+          {isNb ? "Teknisk status" : "Technical Status"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-0 p-0">
