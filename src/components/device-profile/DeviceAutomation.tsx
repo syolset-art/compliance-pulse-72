@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Bot, CheckCircle2, XCircle, AlertTriangle, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeviceAutomationProps {
@@ -35,21 +35,17 @@ export function DeviceAutomation({ meta }: DeviceAutomationProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            {isNb ? "Automatisering" : "Automation"}
-          </div>
-          <Badge className={cn(
-            "text-[10px] font-semibold",
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Circle className={cn(
+            "h-3 w-3 shrink-0",
             allOk
-              ? "bg-success/10 text-success border-success/30"
-              : "bg-warning/10 text-warning border-warning/30"
-          )}>
-            {allOk
-              ? (isNb ? "✓ Alt OK" : "✓ All OK")
-              : `${activeCount}/${automationItems.length} ${isNb ? "aktive" : "active"}`}
-          </Badge>
+              ? "fill-green-500 text-green-500"
+              : inactiveCount > 0
+                ? "fill-amber-500 text-amber-500"
+                : "fill-green-500 text-green-500"
+          )} />
+          <Bot className="h-5 w-5 text-primary" />
+          {isNb ? "Automatisering" : "Automation"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-0 p-0">
