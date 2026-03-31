@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { ComplianceShield } from "@/components/dashboard-v2/ComplianceShield";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
+import { SecurityBreachWidget } from "@/components/widgets/SecurityBreachWidget";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { getISOWeek, getISOWeekYear, subWeeks } from "date-fns";
 
