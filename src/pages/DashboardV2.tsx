@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { ComplianceShield } from "@/components/dashboard-v2/ComplianceShield";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
+import { SecurityBreachWidget } from "@/components/widgets/SecurityBreachWidget";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { getISOWeek, getISOWeekYear, subWeeks } from "date-fns";
 
@@ -135,10 +136,13 @@ export default function DashboardV2() {
             avgMaturity={stats.overallScore?.avgMaturity || 0}
           />
 
-          {/* Zone 2: Next actions */}
+          {/* Zone 2: Security breach feed */}
+          <SecurityBreachWidget />
+
+          {/* Zone 3: Next actions */}
           <NextActionCards actions={grouped.incompleteManual} />
 
-          {/* Zone 3: Risk + Calendar */}
+          {/* Zone 4: Risk + Calendar */}
           <RiskAndCalendarSection requirements={requirements} />
         </div>
       </main>
