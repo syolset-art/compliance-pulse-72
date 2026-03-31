@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug } from "lucide-react";
+import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug, Building2, MessageSquareReply, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
@@ -36,6 +36,15 @@ const categories: { titleNb: string; titleEn: string; icon: React.ElementType; i
       { id: "new_task", icon: ClipboardList, titleNb: "Nye oppgaver", titleEn: "New tasks", descNb: "Varsel når en oppgave blir tildelt", descEn: "Alert when a task is assigned", defaultOn: true },
       { id: "document_update", icon: FileCheck, titleNb: "Dokumentoppdateringer", titleEn: "Document updates", descNb: "Varsel når et dokument oppdateres", descEn: "Alert when a document is updated", defaultOn: false },
       { id: "approval_request", icon: CheckCircle, titleNb: "Godkjenningsforespørsler", titleEn: "Approval requests", descNb: "Varsel ved nye godkjenningsforespørsler", descEn: "Alert on new approval requests", defaultOn: true },
+    ],
+  },
+  {
+    titleNb: "Leverandører & Trust Profile",
+    titleEn: "Vendors & Trust Profile",
+    icon: Building2,
+    items: [
+      { id: "vendor_response", icon: MessageSquareReply, titleNb: "Leverandørsvar", titleEn: "Vendor responses", descNb: "Varsel når en leverandør svarer på en compliance-forespørsel", descEn: "Alert when a vendor responds to a compliance request", defaultOn: true },
+      { id: "trust_profile_request", icon: Inbox, titleNb: "Innkommende forespørsler", titleEn: "Incoming requests", descNb: "Varsel når noen sender en forespørsel til din Trust Profile", descEn: "Alert when someone sends a request to your Trust Profile", defaultOn: true },
     ],
   },
   {
