@@ -66,6 +66,7 @@ import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 import DemoLibrary from "./pages/DemoLibrary";
 import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
+import AdminNotifications from "./pages/AdminNotifications";
 
 const queryClient = new QueryClient();
 
@@ -141,6 +142,7 @@ const App = () => (
                   <Route path="/demo-library" element={<DemoLibrary />} />
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
+                  <Route path="/admin/notifications" element={<AdminNotifications />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>

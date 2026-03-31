@@ -29,7 +29,8 @@ import {
   Layers,
   CalendarDays,
   CheckCircle2,
-  Cloud
+  Cloud,
+  Bell
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -84,6 +85,7 @@ const administrationMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
+  { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
 ];
 
 const TrustCenterMenu = () => {
