@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug } from "lucide-react";
+import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug, Building2, MessageSquareReply, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
