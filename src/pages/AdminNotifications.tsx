@@ -39,6 +39,15 @@ const categories: { titleNb: string; titleEn: string; icon: React.ElementType; i
     ],
   },
   {
+    titleNb: "Leverandører & Trust Profile",
+    titleEn: "Vendors & Trust Profile",
+    icon: Building2,
+    items: [
+      { id: "vendor_response", icon: MessageSquareReply, titleNb: "Leverandørsvar", titleEn: "Vendor responses", descNb: "Varsel når en leverandør svarer på en compliance-forespørsel", descEn: "Alert when a vendor responds to a compliance request", defaultOn: true },
+      { id: "trust_profile_request", icon: Inbox, titleNb: "Innkommende forespørsler", titleEn: "Incoming requests", descNb: "Varsel når noen sender en forespørsel til din Trust Profile", descEn: "Alert when someone sends a request to your Trust Profile", defaultOn: true },
+    ],
+  },
+  {
     titleNb: "System & Integrasjoner",
     titleEn: "System & Integrations",
     icon: Server,
