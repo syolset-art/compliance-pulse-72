@@ -136,10 +136,13 @@ export default function DashboardV2() {
             avgMaturity={stats.overallScore?.avgMaturity || 0}
           />
 
-          {/* Zone 2: Next actions */}
+          {/* Zone 2: Security breach feed */}
+          <SecurityBreachWidget />
+
+          {/* Zone 3: Next actions */}
           <NextActionCards actions={grouped.incompleteManual} />
 
-          {/* Zone 3: Risk + Calendar */}
+          {/* Zone 4: Risk + Calendar */}
           <RiskAndCalendarSection requirements={requirements} />
         </div>
       </main>
