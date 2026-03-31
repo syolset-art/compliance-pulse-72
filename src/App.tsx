@@ -66,6 +66,7 @@ import MSPCustomerNIS2 from "./pages/MSPCustomerNIS2";
 import DemoLibrary from "./pages/DemoLibrary";
 import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
+import AdminNotifications from "./pages/AdminNotifications";
 
 const queryClient = new QueryClient();
 
