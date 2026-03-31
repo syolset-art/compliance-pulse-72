@@ -42,7 +42,8 @@
     "reportsAdmin": "Reports & Admin",
     "administration": "Administration",
     "adminOrganisation": "Organisation",
-    "adminDocuments": "Documents",
+"adminDocuments": "Documents",
+    "adminNotifications": "Notifications",
     "coming": "Coming"
   },
   "customerRequests": {

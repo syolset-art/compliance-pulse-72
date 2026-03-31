@@ -142,6 +142,7 @@ const App = () => (
                   <Route path="/demo-library" element={<DemoLibrary />} />
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
+                  <Route path="/admin/notifications" element={<AdminNotifications />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>

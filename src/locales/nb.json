@@ -43,7 +43,8 @@
     "reportsAdmin": "Rapporter & Admin",
     "administration": "Administrasjon",
     "adminOrganisation": "Organisasjon",
-    "adminDocuments": "Dokumenter",
+"adminDocuments": "Dokumenter",
+    "adminNotifications": "Varslinger",
     "coming": "Kommer"
   },
   "customerRequests": {
