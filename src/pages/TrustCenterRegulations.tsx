@@ -260,14 +260,34 @@ export default function TrustCenterRegulations() {
       <main className="flex-1 overflow-auto pt-16 md:pt-0">
         <div className="container max-w-5xl mx-auto p-4 md:p-6 space-y-6">
           {/* Header */}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Scale className="h-6 w-6 text-primary" />
-              Regelverk og omfang
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Konfigurer hvilke regelverk som gjelder for {companyProfile?.name || "din virksomhet"} — obligatoriske og valgfrie
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Scale className="h-6 w-6 text-primary" />
+                Regelverk og omfang
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Konfigurer hvilke regelverk som gjelder for {companyProfile?.name || "din virksomhet"} — obligatoriske og valgfrie
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-1.5 text-xs"
+              onClick={async () => {
+                const { data } = await supabase
+                  .from("assets")
+                  .select("id")
+                  .eq("asset_type", "self")
+                  .limit(1)
+                  .maybeSingle();
+                if (data) navigate(`/assets/${data.id}`);
+                else navigate("/trust-center");
+              }}
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Vis i Trust Profile
+            </Button>
           </div>
 
           {/* Summary cards */}
