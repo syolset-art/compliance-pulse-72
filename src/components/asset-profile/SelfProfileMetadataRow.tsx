@@ -104,19 +104,19 @@ export function SelfProfileMetadataRow({
     {
       key: "country",
       label: isNb ? "LAND" : "COUNTRY",
-      value: asset.country || "–",
+      value: asset.country || demoCountry,
       type: "select",
     },
     {
       key: "industry",
       label: isNb ? "BRANSJE" : "INDUSTRY",
-      value: industry || "–",
+      value: industry || demoIndustry,
       editable: true,
     },
     {
       key: "url",
       label: isNb ? "NETTSIDE" : "WEBSITE",
-      value: asset.url,
+      value: asset.url || demoUrl,
       type: "url",
       editable: true,
     },
