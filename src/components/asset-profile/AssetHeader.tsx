@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -41,6 +42,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 
 interface TrustMetrics {
   trustScore: number;
@@ -115,7 +117,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     queryFn: async () => {
       const { data, error } = await supabase
         .from("company_profile")
-        .select("is_msp_partner, industry, name")
+        .select("id, is_msp_partner, industry, name")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
@@ -140,7 +142,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
 
   const updateAsset = useMutation({
-    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null; description: string | null }>) => {
+    mutationFn: async (updates: Partial<Record<string, any>>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)
@@ -153,6 +155,19 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     },
     onError: () => {
       toast.error(t("trustProfile.updateError"));
+    },
+  });
+
+  const updateCompanyProfile = useMutation({
+    mutationFn: async (updates: Partial<Record<string, any>>) => {
+      const { error } = await supabase
+        .from("company_profile")
+        .update(updates)
+        .eq("id", companyProfile?.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company_profile_msp"] });
     },
   });
 
@@ -421,14 +436,14 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </>
           )}
 
-          {asset.url && (
+          {!isSelf && asset.url && (
             <a 
               href={asset.url} 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
             >
-              {asset.url}
+              {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
@@ -507,6 +522,17 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
           );
         })()}
       </div>
+
+      {/* Self-profile metadata row */}
+      {isSelf && (
+        <SelfProfileMetadataRow
+          asset={asset}
+          companyProfile={companyProfile}
+          updateAsset={updateAsset}
+          updateCompanyProfile={updateCompanyProfile}
+          isNb={isNb}
+        />
+      )}
 
       {/* Owner and Manager row — hidden for self/published profiles */}
       {!isSelf && (
