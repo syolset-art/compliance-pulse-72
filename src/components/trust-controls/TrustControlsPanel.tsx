@@ -176,9 +176,9 @@ export function TrustControlsPanel({
   // All 4 security areas — always displayed
   const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-    { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
-    { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
-    { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
+    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations", labelNb: "Drift" },
+    { area: "security_posture" as ControlArea, icon: Key, label: "Identity & Access", labelNb: "Identitet og tilgang" },
+    { area: "supplier_governance" as ControlArea, icon: Users, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
   ];
 
   return (
