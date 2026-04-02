@@ -220,14 +220,6 @@ const AssetTrustProfile = () => {
               onTrustMetrics={handleTrustMetrics}
             />
 
-            {/* Publishing for self-type */}
-            {isSelf && (
-              <TrustProfilePublishing
-                assetId={asset.id}
-                publishMode={(asset as any).publish_mode || 'private'}
-                publishToCustomers={(asset as any).publish_to_customers || []}
-              />
-            )}
 
             {/* Organization-level nav for self-type */}
             {isSelf && (
