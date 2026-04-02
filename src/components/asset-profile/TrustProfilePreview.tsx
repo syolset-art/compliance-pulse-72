@@ -252,38 +252,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   {asset.description && (
                     <p className="text-sm text-muted-foreground/70 mt-1.5 leading-relaxed max-w-xl line-clamp-2">{asset.description}</p>
                   )}
-                  {/* Metadata row */}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5 text-[11px] text-muted-foreground">
-                    {asset.org_number && (
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Org.nr" : "Org no."}:</span> {asset.org_number}
-                      </span>
-                    )}
-                    {companyProfile?.industry && (
-                      <span className="flex items-center gap-1">
-                        <Layers className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Bransje" : "Industry"}:</span> {companyProfile.industry}
-                      </span>
-                    )}
-                    {asset.category && (
-                      <span className="flex items-center gap-1">
-                        <Target className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Kategori" : "Category"}:</span> {asset.category}
-                      </span>
-                    )}
-                    {asset.url && (
-                      <span className="flex items-center gap-1">
-                        <Globe className="h-3 w-3 shrink-0" />
-                        <a href={asset.url.startsWith("http") ? asset.url : `https://${asset.url}`} target="_blank" rel="noopener noreferrer"
-                          className="hover:underline text-primary"
-                        >
-                          {asset.url.replace(/^https?:\/\//, "")}
-                        </a>
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <div className="flex items-center gap-1.5 mt-3">
                     <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[9px] gap-1">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       {isNb ? "Verifisert av organisasjon" : "Verified by organisation"}
@@ -359,6 +328,63 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
             </div>
           </div>
         </div>
+
+        {/* ══════════ COMPANY INFO STRIP ══════════ */}
+        {(asset.org_number || companyProfile?.industry || asset.category || asset.url) && (
+          <div className="px-6 md:px-10 -mt-1">
+            <div className="rounded-xl border border-border bg-card/60 backdrop-blur-sm shadow-sm grid grid-cols-2 md:grid-cols-4 divide-x divide-border">
+              {asset.org_number && (
+                <div className="px-4 py-3 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Org.nr" : "Org no."}</p>
+                    <p className="text-sm font-semibold text-foreground tabular-nums truncate">{asset.org_number}</p>
+                  </div>
+                </div>
+              )}
+              {companyProfile?.industry && (
+                <div className="px-4 py-3 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Layers className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Bransje" : "Industry"}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">{companyProfile.industry}</p>
+                  </div>
+                </div>
+              )}
+              {asset.category && (
+                <div className="px-4 py-3 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Target className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Kategori" : "Category"}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">{asset.category}</p>
+                  </div>
+                </div>
+              )}
+              {asset.url && (
+                <div className="px-4 py-3 flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Globe className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Nettside" : "Website"}</p>
+                    <a href={asset.url.startsWith("http") ? asset.url : `https://${asset.url}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="text-sm font-semibold text-primary hover:underline truncate block"
+                    >
+                      {asset.url.replace(/^https?:\/\//, "")}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ══════════ BODY ══════════ */}
         <div className="px-6 md:px-10 py-6 space-y-5">
