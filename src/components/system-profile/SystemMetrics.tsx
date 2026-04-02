@@ -28,7 +28,7 @@ interface SystemMetricsProps {
   onNavigateToTab?: (target: string) => void;
 }
 
-export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics }: SystemMetricsProps) => {
+export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics, onNavigateToTab }: SystemMetricsProps) => {
   const { data: docsCount = 0 } = useQuery({
     queryKey: ["vendor-documents-count", systemAsAsset.id],
     queryFn: async () => {
