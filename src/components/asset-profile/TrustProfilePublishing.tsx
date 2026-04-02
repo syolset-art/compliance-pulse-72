@@ -81,141 +81,100 @@ export const TrustProfilePublishing = ({
   };
 
   return (
-    <Card className="border border-border bg-card">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold">Trust Profile</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {isNb ? "Administrer din Trust Profil og velg hvem som kan se den." : "Manage your Trust Profile and choose who can view it."}
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Status banner */}
+    <>
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Compact status badge */}
         <div
-          className={`flex items-center gap-3 rounded-lg border p-4 ${
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
             isPublished
-              ? "border-primary/20 bg-primary/5"
-              : "border-border bg-muted/30"
+              ? "bg-primary/10 text-primary"
+              : "bg-muted text-muted-foreground"
           }`}
           role="status"
-          aria-live="polite"
         >
           {isPublished ? (
-            <Globe className="h-5 w-5 text-primary shrink-0" />
+            <Globe className="h-3 w-3" />
           ) : (
-            <Lock className="h-5 w-5 text-muted-foreground shrink-0" />
+            <Lock className="h-3 w-3" />
           )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">
-              {isPublished
-                ? (isNb ? "Profilen er publisert" : "Profile is published")
-                : (isNb ? "Profilen er privat" : "Profile is private")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {isPublished
-                ? (isNb ? "Profilen er synlig for valgte kunder." : "The profile is visible to selected customers.")
-                : (isNb ? "Ingen kunder kan se profilen din ennå." : "No customers can see your profile yet.")}
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Switch
-              checked={isPublished}
-              onCheckedChange={setIsPublished}
-              aria-label={isNb ? "Publiser Trust Profil" : "Publish Trust Profile"}
-            />
-          </div>
+          {isPublished
+            ? (isNb ? "Publisert" : "Published")
+            : (isNb ? "Privat" : "Private")}
         </div>
 
-        {/* Audience settings */}
-        {isPublished && (
-          <fieldset className="space-y-4">
-            <legend className="text-sm font-medium mb-2">
-              {isNb ? "Publiseringsinnstillinger" : "Publishing settings"}
-            </legend>
+        <Switch
+          checked={isPublished}
+          onCheckedChange={setIsPublished}
+          aria-label={isNb ? "Publiser Trust Profil" : "Publish Trust Profile"}
+          className="scale-90"
+        />
 
-            <RadioGroup
-              value={audience}
-              onValueChange={setAudience}
-              className="space-y-3"
-            >
-              <label
-                className="flex items-start gap-3 cursor-pointer rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors focus-within:ring-2 focus-within:ring-primary"
-              >
-                <RadioGroupItem value="all" id="audience-all" className="mt-0.5" />
-                <div>
-                  <span className="text-sm font-medium">{isNb ? "Alle kunder" : "All customers"}</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {isNb ? "Profilen deles med alle som ber om innsyn" : "Profile is shared with anyone who requests access"}
-                  </p>
-                </div>
-              </label>
+        <div className="flex-1" />
 
-              <label
-                className="flex items-start gap-3 cursor-pointer rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors focus-within:ring-2 focus-within:ring-primary"
-              >
-                <RadioGroupItem
-                  value="selected"
-                  id="audience-selected"
-                  className="mt-0.5"
-                />
-                <div>
-                  <span className="text-sm font-medium">{isNb ? "Utvalgte kunder" : "Selected customers"}</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {isNb ? "Velg hvilke kunder som får tilgang" : "Choose which customers get access"}
-                  </p>
-                </div>
-              </label>
-            </RadioGroup>
+        {/* Compact action buttons */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1"
+          onClick={() => setPreviewOpen(true)}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          {isNb ? "Forhåndsvisning" : "Preview"}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          <Save className="h-3.5 w-3.5" />
+          {isSaving ? (isNb ? "Lagrer..." : "Saving...") : (isNb ? "Lagre" : "Save")}
+        </Button>
+      </div>
 
-            {/* Customer checklist */}
-            {audience === "selected" && (
-              <div
-                className="ml-8 space-y-2 border-l-2 border-border pl-4"
-                role="group"
-                aria-label={isNb ? "Velg kunder" : "Select customers"}
-              >
-                {customers.length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-2">
-                    {isNb ? "Ingen kundeforespørsler funnet." : "No customer requests found."}
-                  </p>
-                ) : (
-                  customers.map((name) => (
-                    <label
-                      key={name}
-                      className="flex items-center gap-2.5 py-1.5 cursor-pointer"
-                    >
-                      <Checkbox
-                        checked={selectedCustomers.includes(name)}
-                        onCheckedChange={() => toggleCustomer(name)}
-                        aria-label={`${isNb ? "Gi tilgang til" : "Grant access to"} ${name}`}
-                      />
-                      <span className="text-sm">{name}</span>
-                    </label>
-                  ))
-                )}
-              </div>
-            )}
-          </fieldset>
-        )}
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" aria-label={isNb ? "Forhåndsvis Trust Profil" : "Preview Trust Profile"} onClick={() => setPreviewOpen(true)}>
-            <Eye className="h-4 w-4 mr-1.5" />
-            {isNb ? "Vis Trust Profil" : "View Trust Profile"}
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={isSaving}
-            aria-label={isNb ? "Lagre publiseringsinnstillinger" : "Save publishing settings"}
+      {/* Expandable audience settings - only when published */}
+      {isPublished && (
+        <div className="mt-2 rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+          <RadioGroup
+            value={audience}
+            onValueChange={setAudience}
+            className="flex gap-4"
           >
-            <Save className="h-4 w-4 mr-1.5" />
-            {isSaving ? (isNb ? "Lagrer..." : "Saving...") : (isNb ? "Lagre endringer" : "Save changes")}
-          </Button>
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs">
+              <RadioGroupItem value="all" id="audience-all" className="h-3.5 w-3.5" />
+              {isNb ? "Alle kunder" : "All customers"}
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs">
+              <RadioGroupItem value="selected" id="audience-selected" className="h-3.5 w-3.5" />
+              {isNb ? "Utvalgte kunder" : "Selected customers"}
+            </label>
+          </RadioGroup>
+
+          {audience === "selected" && (
+            <div className="flex flex-wrap gap-2 pl-1">
+              {customers.length === 0 ? (
+                <p className="text-[10px] text-muted-foreground">
+                  {isNb ? "Ingen kundeforespørsler funnet." : "No customer requests found."}
+                </p>
+              ) : (
+                customers.map((name) => (
+                  <label key={name} className="inline-flex items-center gap-1.5 cursor-pointer text-xs">
+                    <Checkbox
+                      checked={selectedCustomers.includes(name)}
+                      onCheckedChange={() => toggleCustomer(name)}
+                      className="h-3.5 w-3.5"
+                    />
+                    {name}
+                  </label>
+                ))
+              )}
+            </div>
+          )}
         </div>
-      </CardContent>
+      )}
 
       <TrustProfilePreview open={previewOpen} onOpenChange={setPreviewOpen} assetId={assetId} />
-    </Card>
+    </>
   );
 };
