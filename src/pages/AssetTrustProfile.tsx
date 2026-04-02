@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -96,13 +96,25 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
-  
+  const headerRef = useRef<HTMLDivElement>(null);
 
   const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
     setTrustMetrics(prev => {
       if (prev && prev.trustScore === metrics.trustScore && prev.confidenceScore === metrics.confidenceScore) return prev;
       return metrics;
     });
+  }, []);
+
+  const handleNavigateToTab = useCallback((target: string) => {
+    if (target.startsWith("_header:")) {
+      headerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      setActiveTab(target);
+      // Scroll tabs into view after switching
+      setTimeout(() => {
+        document.querySelector('[role="tablist"]')?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 100);
+    }
   }, []);
 
   // Tab definitions following the new structure
@@ -213,13 +225,16 @@ const AssetTrustProfile = () => {
             )}
 
             {/* Entity Header */}
-            <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
+            <div ref={headerRef}>
+              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
+            </div>
 
             {/* Security Areas + Scope */}
             <AssetMetrics
               asset={asset}
               tasksCount={tasks?.length || 0}
               onTrustMetrics={handleTrustMetrics}
+              onNavigateToTab={handleNavigateToTab}
             />
 
 

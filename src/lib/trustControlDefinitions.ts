@@ -321,3 +321,31 @@ export function groupControlsByArea(controls: EvaluatedControl[]): Record<Contro
   }
   return grouped;
 }
+
+/**
+ * Navigation map: control key → profile tab (or "_header:field" for header-level fields).
+ */
+export const CONTROL_NAV_MAP: Record<string, string> = {
+  owner_assigned: "_header:work_area",
+  responsible_person: "_header:asset_manager",
+  description_defined: "_header:description",
+  risk_level_defined: "riskManagement",
+  criticality_defined: "riskManagement",
+  risk_assessment: "riskManagement",
+  review_cycle: "validation",
+  documentation_available: "documents",
+  dpa_verified: "documents",
+  security_contact: "_header:contact",
+  sub_processors_disclosed: "relations",
+  vendor_security_review: "controls",
+  mfa_enabled: "controls",
+  encryption_enabled: "controls",
+  backup_configured: "controls",
+  security_logging: "controls",
+  device_encryption: "controls",
+  endpoint_protection: "controls",
+  patch_management: "controls",
+  responsible_manager: "_header:asset_manager",
+  security_training: "controls",
+  incident_reporting: "incidents",
+};

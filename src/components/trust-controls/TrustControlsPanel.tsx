@@ -10,6 +10,7 @@ import {
   TriangleAlert, FileCheck, Pencil, ChevronDown, CheckCircle2, AlertCircle, MinusCircle, Settings,
   Key,
   Users,
+  ChevronRight,
 } from "lucide-react";
 import {
   type EvaluatedControl,
@@ -22,6 +23,7 @@ import {
   deriveKeyRisks,
   inferVerificationSource,
   groupControlsByArea,
+  CONTROL_NAV_MAP,
 } from "@/lib/trustControlDefinitions";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -55,6 +57,7 @@ interface TrustControlsPanelProps {
   overrideType?: string;
   frameworks?: FrameworkItem[];
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
+  onNavigateToTab?: (target: string) => void;
 }
 
 // ── Control evaluation ───────────────────────────────────────────────
@@ -126,7 +129,7 @@ function frameworkBadgeClass(id: string): string {
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics,
+  asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics, onNavigateToTab,
 }: TrustControlsPanelProps) {
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const { i18n } = useTranslation();
@@ -201,6 +204,14 @@ export function TrustControlsPanel({
 
   const totalImplemented = allControls.filter(c => c.status === "implemented").length;
 
+  const handleControlClick = (control: EvaluatedControl) => {
+    if (control.status === "implemented") return;
+    const target = CONTROL_NAV_MAP[control.key];
+    if (target && onNavigateToTab) {
+      onNavigateToTab(target);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {/* ━━━ Security Foundations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -252,22 +263,40 @@ export function TrustControlsPanel({
                 </button>
 
                 {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-border space-y-2 animate-fade-in">
-                    {controls.map((control) => (
-                      <div key={control.key} className="flex items-center gap-2">
-                        {getStatusIcon(control.status)}
-                        <span className="text-xs text-foreground flex-1">{isNb ? control.labelNb : control.labelEn}</span>
-                        <span className={`text-[10px] font-medium ${
-                          control.status === "implemented" ? "text-green-600 dark:text-green-400" :
-                          control.status === "partial" ? "text-orange-500 dark:text-orange-400" :
-                          "text-destructive"
-                        }`}>
-                          {control.status === "implemented" ? (isNb ? "OK" : "OK") :
-                           control.status === "partial" ? (isNb ? "Delvis" : "Partial") :
-                           (isNb ? "Mangler" : "Missing")}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="mt-3 pt-3 border-t border-border space-y-1 animate-fade-in">
+                    {controls.map((control) => {
+                      const isActionable = control.status !== "implemented" && !!CONTROL_NAV_MAP[control.key] && !!onNavigateToTab;
+                      return (
+                        <div
+                          key={control.key}
+                          onClick={() => isActionable && handleControlClick(control)}
+                          className={`flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1 ${
+                            isActionable
+                              ? "cursor-pointer hover:bg-muted/60 transition-colors group"
+                              : ""
+                          }`}
+                        >
+                          {getStatusIcon(control.status)}
+                          <span className="text-xs text-foreground flex-1">{isNb ? control.labelNb : control.labelEn}</span>
+                          {isActionable ? (
+                            <span className="flex items-center gap-0.5 text-[10px] font-medium text-primary opacity-70 group-hover:opacity-100 transition-opacity">
+                              {isNb ? "Fiks" : "Fix"}
+                              <ChevronRight className="h-3 w-3" />
+                            </span>
+                          ) : (
+                            <span className={`text-[10px] font-medium ${
+                              control.status === "implemented" ? "text-green-600 dark:text-green-400" :
+                              control.status === "partial" ? "text-orange-500 dark:text-orange-400" :
+                              "text-destructive"
+                            }`}>
+                              {control.status === "implemented" ? "OK" :
+                               control.status === "partial" ? (isNb ? "Delvis" : "Partial") :
+                               (isNb ? "Mangler" : "Missing")}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

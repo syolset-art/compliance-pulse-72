@@ -30,9 +30,10 @@ interface AssetMetricsProps {
   };
   tasksCount: number;
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
+  onNavigateToTab?: (target: string) => void;
 }
 
-export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetricsProps) {
+export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTab }: AssetMetricsProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
@@ -123,6 +124,7 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetrics
         relationsCount={relationsCount}
         onTrustMetrics={onTrustMetrics}
         frameworks={frameworks}
+        onNavigateToTab={onNavigateToTab}
       />
 
       <RequestUpdateDialog

@@ -25,9 +25,10 @@ interface SystemMetricsProps {
   };
   tasksCount: number;
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
+  onNavigateToTab?: (target: string) => void;
 }
 
-export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics }: SystemMetricsProps) => {
+export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics, onNavigateToTab }: SystemMetricsProps) => {
   const { data: docsCount = 0 } = useQuery({
     queryKey: ["vendor-documents-count", systemAsAsset.id],
     queryFn: async () => {
@@ -75,6 +76,7 @@ export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics }: Sys
         relationsCount={relationsCount}
         onTrustMetrics={onTrustMetrics}
         frameworks={frameworks}
+        onNavigateToTab={onNavigateToTab}
       />
     </div>
   );
