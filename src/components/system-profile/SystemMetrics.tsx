@@ -76,6 +76,7 @@ export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics, onNav
         relationsCount={relationsCount}
         onTrustMetrics={onTrustMetrics}
         frameworks={frameworks}
+        onNavigateToTab={onNavigateToTab}
       />
     </div>
   );
