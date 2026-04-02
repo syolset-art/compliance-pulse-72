@@ -61,7 +61,8 @@ export function SelfProfileMetadataRow({
     } else if (field === "org_number") {
       updateAsset.mutate({ org_number: editValue });
     } else if (field === "url") {
-      const val = editValue.startsWith("http") ? editValue : `https://${editValue}`;
+      const raw = editValue.replace(/^https?:\/\//, "");
+      const val = raw ? `https://${raw}` : "";
       updateAsset.mutate({ url: val });
     }
     setEditingField(null);
@@ -133,22 +134,28 @@ export function SelfProfileMetadataRow({
             </p>
 
             {editingField === f.key ? (
-              <div className="flex items-center gap-1">
+              <div className={`flex items-center gap-1.5 ${f.type === "url" ? "max-w-xs" : ""}`}>
+                {f.type === "url" && (
+                  <span className="text-[10px] text-muted-foreground bg-muted px-2 py-1.5 rounded-l-md border border-r-0 border-input shrink-0">
+                    https://
+                  </span>
+                )}
                 <Input
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  className="h-7 text-xs"
+                  value={f.type === "url" ? editValue.replace(/^https?:\/\//, "") : editValue}
+                  onChange={(e) => setEditValue(f.type === "url" ? e.target.value : e.target.value)}
+                  placeholder={f.type === "url" ? "www.example.com" : ""}
+                  className={`h-8 text-xs bg-background ${f.type === "url" ? "rounded-l-none min-w-[180px]" : ""}`}
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") saveField(f.key);
                     if (e.key === "Escape") cancelEdit();
                   }}
                 />
-                <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => saveField(f.key)}>
-                  <Check className="h-3 w-3" />
+                <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => saveField(f.key)}>
+                  <Check className="h-3.5 w-3.5 text-primary" />
                 </Button>
-                <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={cancelEdit}>
-                  <X className="h-3 w-3" />
+                <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={cancelEdit}>
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             ) : f.type === "select" ? (
