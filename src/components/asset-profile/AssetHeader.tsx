@@ -522,6 +522,17 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
         })()}
       </div>
 
+      {/* Self-profile metadata row */}
+      {isSelf && (
+        <SelfProfileMetadataRow
+          asset={asset}
+          companyProfile={companyProfile}
+          updateAsset={updateAsset}
+          updateCompanyProfile={updateCompanyProfile}
+          isNb={isNb}
+        />
+      )}
+
       {/* Owner and Manager row — hidden for self/published profiles */}
       {!isSelf && (
         <>
