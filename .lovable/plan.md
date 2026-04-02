@@ -1,24 +1,31 @@
 
 
-## Plan: Hent org.nr og nettside fra BrReg ved opprettelse av Trust Profile
+## Plan: Clean up task filters on the Tasks page
 
-### Hva skal endres
-Når Trust Profile (self-asset) opprettes under onboarding, skal `org_number`, `url` (hjemmeside) og `country` hentes fra BrReg-oppslaget og lagres direkte på assetet. I tillegg skal SelfProfileMetadataRow vise demo-data som fallback.
+### Problem
+The Tasks page has three separate filter sections stacked vertically, creating visual clutter:
+1. "Filtrer etter kontrollområde" (domain filter) — a full Card with buttons
+2. AI Status filter — a row of large buttons (All, AI handling, Requires action, Hybrid)
+3. "Filtrer etter:" — another row of uppercase buttons (SYSTEM, PROSESS, PROTOKOLL, etc.)
 
-### Endringer
+### Solution
+Consolidate all filters into a single, clean filter bar with grouped chip-style toggles:
 
-**1. Utvid `useBrregLookup.ts` – returner `hjemmeside` fra API**
-- BrReg API returnerer `hjemmeside` på enheter. Legg til dette feltet i `BrregData`-interfacet og returner det via `rawData`.
+**Single filter strip** replacing all three sections:
+- **Row 1**: Domain chips (Alle, Personvern, Informasjonssikkerhet, AI Governance) — small rounded pills
+- **Row 2**: Type & Priority chips in two visually separated groups using a subtle divider:
+  - Type group: System, Prosess
+  - Priority group: Høy, Middels, Lav
+- Remove the AI Status filter row entirely (it duplicates domain filtering and adds confusion with "Hybrid" which has unclear meaning)
+- Remove the wrapping Card around domain filters — use inline chips directly
+- Keep the task count summary as a small text line below
 
-**2. Oppdater `CompanyOnboarding.tsx` – lagre BrReg-data på self-asset**
-- Ved opprettelse av self-assetet (linje 214-222), inkluder `org_number`, `country: "Norge"`, og `url` (fra BrReg-oppslaget eller domain-feltet) i insert-kallet.
-- Bruk `formData.org_number` direkte og konstruer URL fra `formData.domain` hvis tilgjengelig (f.eks. `https://formData.domain`).
-
-**3. Oppdater `SelfProfileMetadataRow.tsx` – vis demo-data som fallback**
-- Når felter som org_number, country, url mangler, vis plausible demo-verdier som placeholder (f.eks. "983 052 968", "Norge", "https://mynder.io") slik at profilen ser utfylt ut i demo-modus.
-
-### Filer som endres
-- `src/hooks/useBrregLookup.ts` – legg til `hjemmeside` i BrregData
-- `src/components/onboarding/CompanyOnboarding.tsx` – send org_number/url/country til self-asset insert
-- `src/components/asset-profile/SelfProfileMetadataRow.tsx` – demo-fallback for tomme felter
+### Files to edit
+1. **`src/pages/Tasks.tsx`** (lines ~489-684)
+   - Remove the domain filter Card wrapper, replace with inline chip row
+   - Remove the AI Status Filter section (lines 627-665)
+   - Redesign the type/priority filter section (lines 667-684) as grouped chips
+   - Combine into one compact `<div>` with two rows
+   - Use small rounded-full buttons (`px-3 py-1 text-xs`) similar to the UpcomingTasksWidget filter style
+   - Remove unused state: `aiStatusFilter`, `aiHandlingCount`, `requiresActionCount`, `hybridCount`
 
