@@ -408,9 +408,7 @@ export default function Tasks() {
     ).length;
   };
 
-  const aiHandlingCount = mockTasks.filter(canAIHandle).length;
-  const requiresActionCount = mockTasks.filter(task => !canAIHandle(task)).length;
-  const hybridCount = mockTasks.filter(task => task.aiAutonomyLevel >= 40 && task.aiAutonomyLevel <= 60).length;
+  // Removed aiHandlingCount, requiresActionCount, hybridCount
 
   return (
     <div className="flex min-h-screen bg-background">
