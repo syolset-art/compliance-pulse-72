@@ -96,13 +96,25 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
-  
+  const headerRef = useRef<HTMLDivElement>(null);
 
   const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
     setTrustMetrics(prev => {
       if (prev && prev.trustScore === metrics.trustScore && prev.confidenceScore === metrics.confidenceScore) return prev;
       return metrics;
     });
+  }, []);
+
+  const handleNavigateToTab = useCallback((target: string) => {
+    if (target.startsWith("_header:")) {
+      headerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      setActiveTab(target);
+      // Scroll tabs into view after switching
+      setTimeout(() => {
+        document.querySelector('[role="tablist"]')?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 100);
+    }
   }, []);
 
   // Tab definitions following the new structure
