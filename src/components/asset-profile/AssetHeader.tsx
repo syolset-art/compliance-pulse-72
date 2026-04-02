@@ -42,6 +42,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 
 interface TrustMetrics {
   trustScore: number;
