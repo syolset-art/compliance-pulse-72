@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
+import { TrustProfilePreview } from "@/components/asset-profile/TrustProfilePreview";
 import { ValidationTab } from "@/components/asset-profile/tabs/ValidationTab";
 import { DataHandlingTab } from "@/components/asset-profile/tabs/DataHandlingTab";
 import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagementTab";
