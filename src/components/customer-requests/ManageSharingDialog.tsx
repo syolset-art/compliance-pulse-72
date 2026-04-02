@@ -23,6 +23,12 @@ import {
   Info,
   Check,
   Filter,
+  Plus,
+  Mail,
+  User,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,15 +38,17 @@ interface DemoCustomer {
   isPriority: boolean;
   category: string | null;
   isShared: boolean;
+  contactPerson?: string;
+  contactEmail?: string;
 }
 
 const DEMO_CUSTOMERS: DemoCustomer[] = [
-  { id: "c1", name: "Allier AS", isPriority: true, category: "ALL SUPPLIERS", isShared: true },
+  { id: "c1", name: "Allier AS", isPriority: true, category: "ALL SUPPLIERS", isShared: true, contactPerson: "Kari Nordmann", contactEmail: "kari@allier.no" },
   { id: "c2", name: "Allier AS FEIL", isPriority: true, category: null, isShared: false },
-  { id: "c3", name: "Anders O Grevstad AS", isPriority: true, category: "PRIORITY SUPPLIERS", isShared: true },
+  { id: "c3", name: "Anders O Grevstad AS", isPriority: true, category: "PRIORITY SUPPLIERS", isShared: true, contactPerson: "Anders Grevstad", contactEmail: "anders@grevstad.no" },
   { id: "c4", name: "TechCorp AS", isPriority: false, category: null, isShared: false },
   { id: "c5", name: "Nordic Solutions", isPriority: false, category: null, isShared: false },
-  { id: "c6", name: "Bergen Finans AS", isPriority: false, category: null, isShared: true },
+  { id: "c6", name: "Bergen Finans AS", isPriority: false, category: null, isShared: true, contactPerson: "Ola Hansen", contactEmail: "ola@bergenfinans.no" },
 ];
 
 interface ManageSharingDialogProps {
@@ -73,27 +81,42 @@ export function ManageSharingDialog({
   const [search, setSearch] = useState("");
   const [showPriorityOnly, setShowPriorityOnly] = useState(false);
 
+  // Custom customers added by the user
+  const [customCustomers, setCustomCustomers] = useState<DemoCustomer[]>([]);
+  // Add new customer form
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newContact, setNewContact] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  // Expanded customer detail
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const allCustomers = useMemo(() => [...DEMO_CUSTOMERS, ...customCustomers], [customCustomers]);
+
   const filteredCustomers = useMemo(() => {
-    let list = DEMO_CUSTOMERS;
+    let list = allCustomers;
     if (search) {
-      list = list.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+      list = list.filter((c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.contactPerson?.toLowerCase().includes(search.toLowerCase()) ||
+        c.contactEmail?.toLowerCase().includes(search.toLowerCase())
+      );
     }
     if (showPriorityOnly) {
       list = list.filter((c) => c.isPriority);
     }
     return list;
-  }, [search, showPriorityOnly]);
+  }, [search, showPriorityOnly, allCustomers]);
 
   const handleNext = () => {
     if (sharingMode === "selected") {
       setStep(2);
     } else {
-      // "all" or "none" — confirm immediately
-      const customers = sharingMode === "all" ? DEMO_CUSTOMERS.map((c) => c.name) : [];
+      const customers = sharingMode === "all" ? allCustomers.map((c) => c.name) : [];
       onConfirm(sharingMode, customers);
       toast.success(
         sharingMode === "all"
-          ? isNb ? `Delt med ${DEMO_CUSTOMERS.length} kunder` : `Shared with ${DEMO_CUSTOMERS.length} customers`
+          ? isNb ? `Delt med ${allCustomers.length} kunder` : `Shared with ${allCustomers.length} customers`
           : isNb ? "Deling oppdatert" : "Sharing updated"
       );
       resetAndClose();
@@ -114,6 +137,8 @@ export function ManageSharingDialog({
     setStep(1);
     setSearch("");
     setShowPriorityOnly(false);
+    setShowAddForm(false);
+    setExpandedId(null);
     onOpenChange(false);
   };
 
@@ -127,6 +152,27 @@ export function ManageSharingDialog({
   const handleDeselectAll = () => setSelectedCustomers([]);
   const handleResetToCurrentSharing = () => {
     setSelectedCustomers(DEMO_CUSTOMERS.filter((c) => c.isShared).map((c) => c.name));
+  };
+
+  const handleAddCustomer = () => {
+    if (!newName.trim()) return;
+    const newId = `custom-${Date.now()}`;
+    const newCustomer: DemoCustomer = {
+      id: newId,
+      name: newName.trim(),
+      isPriority: false,
+      category: null,
+      isShared: false,
+      contactPerson: newContact.trim() || undefined,
+      contactEmail: newEmail.trim() || undefined,
+    };
+    setCustomCustomers((prev) => [...prev, newCustomer]);
+    setSelectedCustomers((prev) => [...prev, newCustomer.name]);
+    setNewName("");
+    setNewContact("");
+    setNewEmail("");
+    setShowAddForm(false);
+    toast.success(isNb ? `${newCustomer.name} lagt til` : `${newCustomer.name} added`);
   };
 
   const totalSteps = 2;
@@ -248,8 +294,8 @@ export function ManageSharingDialog({
               <Info className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
               <p className="text-[11px] text-blue-700 dark:text-blue-300">
                 {isNb
-                  ? "Steg 2 av 2: Velg nøyaktig hvilke kunder som skal få malen, og bekreft."
-                  : "Step 2 of 2: Select exactly which customers should receive the template, and confirm."}
+                  ? "Steg 2 av 2: Velg kunder og legg til kontaktperson med e-post."
+                  : "Step 2 of 2: Select customers and add contact person with email."}
               </p>
             </div>
 
@@ -259,7 +305,7 @@ export function ManageSharingDialog({
                 {isNb ? "Tilbakestill" : "Reset"}
               </Button>
               <span className="text-[11px] text-muted-foreground">
-                {selectedCustomers.length} {isNb ? "av" : "of"} {DEMO_CUSTOMERS.length} {isNb ? "valgt" : "selected"}
+                {selectedCustomers.length} {isNb ? "av" : "of"} {allCustomers.length} {isNb ? "valgt" : "selected"}
               </span>
             </div>
 
@@ -291,50 +337,169 @@ export function ManageSharingDialog({
               <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={handleDeselectAll}>
                 {isNb ? "Fjern alle" : "Deselect all"}
               </Button>
+              <div className="flex-1" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-[11px] gap-1"
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                <Plus className="h-3 w-3" />
+                {isNb ? "Legg til kunde" : "Add customer"}
+              </Button>
             </div>
+
+            {/* Add new customer form */}
+            {showAddForm && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">
+                    {isNb ? "Ny kunde / gruppe" : "New customer / group"}
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setShowAddForm(false)}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div>
+                  <Label className="text-[11px] text-muted-foreground">{isNb ? "Kundenavn *" : "Customer name *"}</Label>
+                  <Input
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder={isNb ? "F.eks. Bedrift AS" : "e.g. Company AS"}
+                    className="h-8 text-xs mt-1"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-[11px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
+                    <div className="relative mt-1">
+                      <User className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                      <Input
+                        value={newContact}
+                        onChange={(e) => setNewContact(e.target.value)}
+                        placeholder={isNb ? "Navn" : "Name"}
+                        className="h-8 pl-7 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-[11px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
+                    <div className="relative mt-1">
+                      <Mail className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                      <Input
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="name@company.no"
+                        type="email"
+                        className="h-8 pl-7 text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="h-7 text-[11px] w-full gap-1"
+                  disabled={!newName.trim()}
+                  onClick={handleAddCustomer}
+                >
+                  <Plus className="h-3 w-3" />
+                  {isNb ? "Legg til" : "Add"}
+                </Button>
+              </div>
+            )}
 
             <div className="space-y-1 max-h-[280px] overflow-auto">
               {filteredCustomers.map((customer) => {
                 const isSelected = selectedCustomers.includes(customer.name);
+                const isExpanded = expandedId === customer.id;
                 return (
-                  <label
-                    key={customer.id}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5"
-                        : "border-border hover:bg-muted/50"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleCustomer(customer.name)}
-                      aria-label={`${isNb ? "Velg" : "Select"} ${customer.name}`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium">{customer.name}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        {customer.isShared ? (
-                          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
-                            {isNb ? "Delt" : "Shared"}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                            {isNb ? "Ikke delt" : "Not shared"}
-                          </Badge>
-                        )}
-                        {customer.isPriority && (
-                          <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[9px] px-1.5 py-0">
-                            {isNb ? "Prioritet" : "Priority"}
-                          </Badge>
-                        )}
-                        {customer.category && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0">
-                            {customer.category}
-                          </Badge>
+                  <div key={customer.id} className="space-y-0">
+                    <label
+                      className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5"
+                          : "border-border hover:bg-muted/50"
+                      } ${isExpanded ? "rounded-b-none" : ""}`}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleCustomer(customer.name)}
+                        aria-label={`${isNb ? "Velg" : "Select"} ${customer.name}`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium">{customer.name}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          {customer.contactPerson && (
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                              <User className="h-2.5 w-2.5" />
+                              {customer.contactPerson}
+                            </span>
+                          )}
+                          {customer.contactEmail && (
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                              <Mail className="h-2.5 w-2.5" />
+                              {customer.contactEmail}
+                            </span>
+                          )}
+                          {customer.isShared ? (
+                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Delt" : "Shared"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+                              {isNb ? "Ikke delt" : "Not shared"}
+                            </Badge>
+                          )}
+                          {customer.isPriority && (
+                            <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Prioritet" : "Priority"}
+                            </Badge>
+                          )}
+                          {customer.category && (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                              {customer.category}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setExpandedId(isExpanded ? null : customer.id);
+                        }}
+                        className="text-muted-foreground hover:text-foreground p-0.5"
+                      >
+                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      </button>
+                    </label>
+                    {isExpanded && (
+                      <div className="border border-t-0 border-border rounded-b-lg bg-muted/30 px-3 py-2.5 ml-8 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-[10px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <User className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span className="text-xs">{customer.contactPerson || (isNb ? "Ikke angitt" : "Not set")}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-[10px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span className="text-xs">{customer.contactEmail || (isNb ? "Ikke angitt" : "Not set")}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {!customer.contactPerson && !customer.contactEmail && (
+                          <p className="text-[10px] text-muted-foreground italic">
+                            {isNb ? "Ingen kontaktinfo registrert for denne kunden." : "No contact info registered for this customer."}
+                          </p>
                         )}
                       </div>
-                    </div>
-                  </label>
+                    )}
+                  </div>
                 );
               })}
             </div>
