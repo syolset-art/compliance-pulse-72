@@ -141,7 +141,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
   const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
 
   const updateAsset = useMutation({
-    mutationFn: async (updates: Partial<{ work_area_id: string | null; asset_manager: string | null; description: string | null }>) => {
+    mutationFn: async (updates: Partial<Record<string, any>>) => {
       const { error } = await supabase
         .from("assets")
         .update(updates)
@@ -154,6 +154,19 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     },
     onError: () => {
       toast.error(t("trustProfile.updateError"));
+    },
+  });
+
+  const updateCompanyProfile = useMutation({
+    mutationFn: async (updates: Partial<Record<string, any>>) => {
+      const { error } = await supabase
+        .from("company_profile")
+        .update(updates)
+        .eq("id", companyProfile?.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company_profile_msp"] });
     },
   });
 
