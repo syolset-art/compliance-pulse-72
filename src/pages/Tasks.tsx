@@ -369,13 +369,7 @@ export default function Tasks() {
         if (!hasRelevantFramework) return false;
       }
       
-      // AI status filter
-      if (aiStatusFilter !== "all") {
-        const aiCanHandle = canAIHandle(task);
-        if (aiStatusFilter === "ai-handling" && !aiCanHandle) return false;
-        if (aiStatusFilter === "requires-action" && aiCanHandle) return false;
-        if (aiStatusFilter === "hybrid" && (task.aiAutonomyLevel < 40 || task.aiAutonomyLevel > 60)) return false;
-      }
+      // AI status filter removed
       
       // Type/priority filters
       if (selectedFilters.length === 0) return true;
