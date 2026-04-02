@@ -8,13 +8,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MoreHorizontal, Building2, Server, Lock, Globe, Eye } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Building2, Server } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
-import { TrustProfilePreview } from "@/components/asset-profile/TrustProfilePreview";
+
 import { ValidationTab } from "@/components/asset-profile/tabs/ValidationTab";
 import { DataHandlingTab } from "@/components/asset-profile/tabs/DataHandlingTab";
 import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagementTab";
@@ -96,7 +96,7 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
-  const [topPreviewOpen, setTopPreviewOpen] = useState(false);
+  
 
   const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
     setTrustMetrics(prev => {
@@ -191,48 +191,9 @@ const AssetTrustProfile = () => {
               {t("common.back")}
             </Button>
 
-            {/* Trust Center header for self-profile */}
+            {/* Trust Center header + Publishing for self-profile */}
             {isSelf && (
               <div className="space-y-3">
-                {/* Privacy status bar */}
-                {(() => {
-                  const publishMode = (asset as any).publish_mode || 'private';
-                  const isPublished = publishMode !== 'private';
-                  return (
-                    <div className={`flex items-center gap-3 rounded-lg border p-3 ${
-                      isPublished
-                        ? "border-primary/20 bg-primary/5"
-                        : "border-border bg-muted/30"
-                    }`}>
-                      {isPublished ? (
-                        <Globe className="h-4 w-4 text-primary shrink-0" />
-                      ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">
-                          {isPublished
-                            ? (isNb ? "Profilen er publisert" : "Profile is published")
-                            : (isNb ? "Profilen er privat" : "Profile is private")}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isPublished
-                            ? (isNb ? "Synlig for valgte kunder" : "Visible to selected customers")
-                            : (isNb ? "Ingen kunder kan se profilen din ennå" : "No customers can see your profile yet")}
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 gap-1.5"
-                        onClick={() => setTopPreviewOpen(true)}
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        {isNb ? "Forhåndsvisning" : "Preview"}
-                      </Button>
-                    </div>
-                  );
-                })()}
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
                     {isNb ? "Din Trust Profile" : "Your Trust Profile"}
@@ -241,9 +202,13 @@ const AssetTrustProfile = () => {
                     {asset.name} • {isNb ? "Administrer og del din compliance-profil" : "Manage and share your compliance profile"}
                   </p>
                 </div>
+                <TrustProfilePublishing
+                  assetId={asset.id}
+                  publishMode={(asset as any).publish_mode || 'private'}
+                  publishToCustomers={(asset as any).publish_to_customers || []}
+                />
               </div>
             )}
-            {isSelf && <TrustProfilePreview open={topPreviewOpen} onOpenChange={setTopPreviewOpen} assetId={asset.id} />}
 
             {/* Entity Header */}
             <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
@@ -255,14 +220,6 @@ const AssetTrustProfile = () => {
               onTrustMetrics={handleTrustMetrics}
             />
 
-            {/* Publishing for self-type */}
-            {isSelf && (
-              <TrustProfilePublishing
-                assetId={asset.id}
-                publishMode={(asset as any).publish_mode || 'private'}
-                publishToCustomers={(asset as any).publish_to_customers || []}
-              />
-            )}
 
             {/* Organization-level nav for self-type */}
             {isSelf && (
