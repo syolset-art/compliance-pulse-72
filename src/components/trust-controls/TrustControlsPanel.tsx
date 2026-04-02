@@ -1,10 +1,12 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   AlertTriangle, Shield, Lock, Layers, Target,
-  TriangleAlert, FileCheck,
+  TriangleAlert, FileCheck, Pencil,
 } from "lucide-react";
 import {
   type EvaluatedControl,
