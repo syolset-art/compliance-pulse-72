@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -6,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle, Shield, Lock, Layers, Target,
-  TriangleAlert, FileCheck, Pencil,
+  TriangleAlert, FileCheck, Pencil, ChevronDown, CheckCircle2, AlertCircle, MinusCircle, Settings,
+  Key,
+  Users,
 } from "lucide-react";
 import {
   type EvaluatedControl,
@@ -125,6 +128,7 @@ function frameworkBadgeClass(id: string): string {
 export function TrustControlsPanel({
   asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics,
 }: TrustControlsPanelProps) {
+  const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isNb = i18n.language === "nb";
@@ -172,31 +176,100 @@ export function TrustControlsPanel({
   // All 4 security areas — always displayed
   const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-    { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
-    { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
-    { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
+    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations", labelNb: "Drift" },
+    { area: "security_posture" as ControlArea, icon: Key, label: "Identity & Access", labelNb: "Identitet og tilgang" },
+    { area: "supplier_governance" as ControlArea, icon: Users, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
   ];
+
+  const getScoreColor = (score: number) => {
+    if (score >= 75) return "text-green-600 dark:text-green-400";
+    if (score >= 50) return "text-orange-500 dark:text-orange-400";
+    return "text-destructive";
+  };
+
+  const getMaturityLabel = (score: number) => {
+    if (score >= 75) return { en: "High", nb: "Høy" };
+    if (score >= 50) return { en: "Medium", nb: "Middels" };
+    return { en: "Low", nb: "Lav" };
+  };
+
+  const getStatusIcon = (status: TrustControlStatus) => {
+    if (status === "implemented") return <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />;
+    if (status === "partial") return <MinusCircle className="h-3.5 w-3.5 text-orange-500 dark:text-orange-400" />;
+    return <AlertCircle className="h-3.5 w-3.5 text-destructive" />;
+  };
+
+  const totalImplemented = allControls.filter(c => c.status === "implemented").length;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {/* ━━━ Security Areas ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <Card className="p-4">
-        <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-          {isNb ? "Sikkerhetsområder" : "Security Areas"}
-        </h3>
-        <div className="space-y-2.5">
+      {/* ━━━ Security Foundations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <Card className="p-4 md:col-span-2">
+        <div className="flex items-center gap-2.5 mb-1">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground">Security Foundations</h3>
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-warning/50 text-warning">Demodata</Badge>
+              <span className="text-xs text-muted-foreground ml-auto">{totalImplemented}/{allControls.length} {isNb ? "praksiser dokumentert" : "practices documented"}</span>
+            </div>
+          </div>
+        </div>
+        <Progress value={(totalImplemented / allControls.length) * 100} className="h-1.5 mb-4" />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
             const score = areaScore(area);
+            const controls = grouped[area];
+            const isExpanded = expandedArea === area;
+            const maturity = getMaturityLabel(score);
+
             return (
-              <div key={area} className="space-y-0.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <AreaIcon className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-[11px] font-medium text-foreground">{isNb ? areaNb : label}</span>
+              <div key={area} className="border border-border rounded-xl p-3.5 hover:border-primary/30 transition-colors">
+                <button
+                  onClick={() => setExpandedArea(isExpanded ? null : area)}
+                  className="w-full text-left"
+                >
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <AreaIcon className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium text-foreground truncate">{isNb ? areaNb : label}</span>
+                    <span className={`text-lg font-bold ml-auto tabular-nums ${getScoreColor(score)}`}>{score}%</span>
                   </div>
-                  <span className="text-[11px] font-semibold tabular-nums">{score}%</span>
-                </div>
-                <Progress value={score} className="h-1" />
+                  <Progress value={score} className="h-1.5 mb-2" />
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs font-medium ${getScoreColor(score)}`}>
+                      {isNb ? maturity.nb : maturity.en}
+                    </span>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <span>{controls.length} {isNb ? "målepunkter" : "checkpoints"}</span>
+                      <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </div>
+                  </div>
+                </button>
+
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-border space-y-2 animate-fade-in">
+                    {controls.map((control) => (
+                      <div key={control.key} className="flex items-center gap-2">
+                        {getStatusIcon(control.status)}
+                        <span className="text-xs text-foreground flex-1">{isNb ? control.labelNb : control.labelEn}</span>
+                        <span className={`text-[10px] font-medium ${
+                          control.status === "implemented" ? "text-green-600 dark:text-green-400" :
+                          control.status === "partial" ? "text-orange-500 dark:text-orange-400" :
+                          "text-destructive"
+                        }`}>
+                          {control.status === "implemented" ? (isNb ? "OK" : "OK") :
+                           control.status === "partial" ? (isNb ? "Delvis" : "Partial") :
+                           (isNb ? "Mangler" : "Missing")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
