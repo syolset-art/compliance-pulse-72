@@ -84,32 +84,39 @@ export function SelfProfileMetadataRow({
     }
   };
 
+  // Demo fallback values when fields are empty
+  const demoOrgNumber = "983 052 968";
+  const demoCountry = "Norge";
+  const demoUrl = "https://mynder.io";
+  const demoIndustry = "saas";
+  const demoCategory = "saas";
+
   const industry = companyProfile?.industry || "";
-  const categoryLabel = CATEGORIES.find(c => c.value === asset.vendor_category)?.label || asset.vendor_category;
+  const categoryLabel = CATEGORIES.find(c => c.value === (asset.vendor_category || demoCategory))?.label || asset.vendor_category;
 
   const fields = [
     {
       key: "org_number",
       label: isNb ? "ORG.NR" : "ORG.NO",
-      value: asset.org_number || "–",
+      value: asset.org_number || demoOrgNumber,
       editable: true,
     },
     {
       key: "country",
       label: isNb ? "LAND" : "COUNTRY",
-      value: asset.country || "–",
+      value: asset.country || demoCountry,
       type: "select",
     },
     {
       key: "industry",
       label: isNb ? "BRANSJE" : "INDUSTRY",
-      value: industry || "–",
+      value: industry || demoIndustry,
       editable: true,
     },
     {
       key: "url",
       label: isNb ? "NETTSIDE" : "WEBSITE",
-      value: asset.url,
+      value: asset.url || demoUrl,
       type: "url",
       editable: true,
     },

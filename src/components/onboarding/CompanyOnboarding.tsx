@@ -212,12 +212,18 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
         .maybeSingle();
 
       if (!existingSelf) {
+        const websiteUrl = formData.domain
+          ? (formData.domain.startsWith("http") ? formData.domain : `https://${formData.domain}`)
+          : null;
         await supabase.from("assets").insert({
           name: formData.name,
           asset_type: "self",
           description: "Vår egen Trust Profil – selverklæring og compliance-dokumentasjon",
           lifecycle_status: "active",
           compliance_score: 0,
+          org_number: formData.org_number || null,
+          url: websiteUrl,
+          country: "Norge",
         });
       }
 
