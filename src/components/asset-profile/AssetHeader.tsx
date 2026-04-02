@@ -116,7 +116,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     queryFn: async () => {
       const { data, error } = await supabase
         .from("company_profile")
-        .select("is_msp_partner, industry, name")
+        .select("id, is_msp_partner, industry, name")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
