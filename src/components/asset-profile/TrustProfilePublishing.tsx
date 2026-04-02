@@ -82,55 +82,52 @@ export const TrustProfilePublishing = ({
 
   return (
     <>
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Compact status badge */}
-        <div
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-            isPublished
-              ? "bg-primary/10 text-primary"
-              : "bg-muted text-muted-foreground"
-          }`}
-          role="status"
-        >
-          {isPublished ? (
-            <Globe className="h-3 w-3" />
-          ) : (
-            <Lock className="h-3 w-3" />
-          )}
-          {isPublished
-            ? (isNb ? "Publisert" : "Published")
-            : (isNb ? "Privat" : "Private")}
+      <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+        {/* Status indicator dot + label */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full shrink-0 ${
+              isPublished ? "bg-emerald-500" : "bg-muted-foreground/40"
+            }`}
+          />
+          <span className="text-xs font-medium text-foreground">
+            {isPublished
+              ? (isNb ? "Publisert" : "Published")
+              : (isNb ? "Privat" : "Private")}
+          </span>
         </div>
 
         <Switch
           checked={isPublished}
           onCheckedChange={setIsPublished}
           aria-label={isNb ? "Publiser Trust Profil" : "Publish Trust Profile"}
-          className="scale-90"
+          className="scale-[0.8]"
         />
 
-        <div className="flex-1" />
+        {/* Separator */}
+        <div className="h-4 w-px bg-border" />
 
-        {/* Compact action buttons */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1"
+        {/* Actions as icon buttons with tooltips */}
+        <button
           onClick={() => setPreviewOpen(true)}
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          title={isNb ? "Forhåndsvisning" : "Preview"}
         >
           <Eye className="h-3.5 w-3.5" />
-          {isNb ? "Forhåndsvisning" : "Preview"}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1"
+          <span className="hidden sm:inline">{isNb ? "Forhåndsvis" : "Preview"}</span>
+        </button>
+
+        <button
           onClick={handleSave}
           disabled={isSaving}
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+          title={isNb ? "Lagre endringer" : "Save changes"}
         >
           <Save className="h-3.5 w-3.5" />
-          {isSaving ? (isNb ? "Lagrer..." : "Saving...") : (isNb ? "Lagre" : "Save")}
-        </Button>
+          <span className="hidden sm:inline">
+            {isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}
+          </span>
+        </button>
       </div>
 
       {/* Expandable audience settings - only when published */}
