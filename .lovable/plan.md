@@ -1,46 +1,24 @@
 
 
-## Plan: Redigerbar Trust Profile for intern visning
+## Plan: Hent org.nr og nettside fra BrReg ved opprettelse av Trust Profile
 
 ### Hva skal endres
-Når brukeren ser sin egen Trust Profile (self-asset), skal headeren vise redigerbare felt for **bransje**, **kategori/klassifisering**, **org.nummer**, **land**, og **nettside** (vist som ren lenke, ikke full URL). Brukeren skal kunne redigere disse feltene inline før profilen publiseres.
+Når Trust Profile (self-asset) opprettes under onboarding, skal `org_number`, `url` (hjemmeside) og `country` hentes fra BrReg-oppslaget og lagres direkte på assetet. I tillegg skal SelfProfileMetadataRow vise demo-data som fallback.
 
 ### Endringer
 
-**1. Utvid `AssetHeader.tsx` – Metadatarad for self-profiler**
+**1. Utvid `useBrregLookup.ts` – returner `hjemmeside` fra API**
+- BrReg API returnerer `hjemmeside` på enheter. Legg til dette feltet i `BrregData`-interfacet og returner det via `rawData`.
 
-Under firmanavn/beskrivelse-seksjonen, legg til en redigerbar metadatarad (kun for `isSelf`) med:
+**2. Oppdater `CompanyOnboarding.tsx` – lagre BrReg-data på self-asset**
+- Ved opprettelse av self-assetet (linje 214-222), inkluder `org_number`, `country: "Norge"`, og `url` (fra BrReg-oppslaget eller domain-feltet) i insert-kallet.
+- Bruk `formData.org_number` direkte og konstruer URL fra `formData.domain` hvis tilgjengelig (f.eks. `https://formData.domain`).
 
-- **ORG.NR** – Viser `asset.org_number`, redigerbar via inline input
-- **LAND** – Viser `asset.country`, redigerbar via Select (Norge, Sverige, etc.)
-- **BRANSJE** – Viser bransje fra `companyProfile.industry`, redigerbar via inline input/Select
-- **NETTSIDE** – Viser `asset.url` som kort klikkbar lenke (f.eks. "mynder.io") i stedet for full URL, med redigeringsmulighet via inline input
-- **KATEGORI** – Ny Select for `asset.vendor_category` eller `asset.category` med klassifiseringsalternativer
-
-Layout: 4-kolonne grid som i referansebildet (ORG.NR | LAND | BRANSJE | NETTSIDE).
-
-**2. URL-visning – kort format**
-
-Erstatt den nåværende `asset.url`-visningen (linje 424-434) slik at den viser bare domenenavnet:
-```
-new URL(asset.url).hostname  →  "mynder.io"
-```
-I stedet for hele URL-strengen.
-
-**3. Redigeringsmodus for felter**
-
-- Legg til edit-states for hvert felt (`editingIndustry`, `editingUrl`, etc.)
-- Klikk på et felt åpner inline-input
-- Lagring oppdaterer `assets`-tabellen via `updateAsset.mutate()`
-- For bransje: oppdater også `company_profile`-tabellen
-
-**4. Kategori/klassifisering**
-
-Legg til en Select med typiske kategorier:
-- SaaS / Programvare / Konsulenttjenester / Produksjon / Finans / Helse / Offentlig / Annet
-
-Lagres i `asset.category`-feltet.
+**3. Oppdater `SelfProfileMetadataRow.tsx` – vis demo-data som fallback**
+- Når felter som org_number, country, url mangler, vis plausible demo-verdier som placeholder (f.eks. "983 052 968", "Norge", "https://mynder.io") slik at profilen ser utfylt ut i demo-modus.
 
 ### Filer som endres
-- `src/components/asset-profile/AssetHeader.tsx` – Ny metadatarad med redigerbare felter, kort URL-format, kategori-velger
+- `src/hooks/useBrregLookup.ts` – legg til `hjemmeside` i BrregData
+- `src/components/onboarding/CompanyOnboarding.tsx` – send org_number/url/country til self-asset insert
+- `src/components/asset-profile/SelfProfileMetadataRow.tsx` – demo-fallback for tomme felter
 
