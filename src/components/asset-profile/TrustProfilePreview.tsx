@@ -109,7 +109,13 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
     queryKey: ["preview-frameworks"],
     queryFn: async () => {
       const { data } = await supabase.from("selected_frameworks").select("framework_id, framework_name").eq("is_selected", true);
-      return data || [];
+      // Only show frameworks that have a recognized color/badge — these are the ones
+      // the user would intentionally want to display on a public Trust Profile
+      const recognized = Object.keys(FRAMEWORK_COLORS);
+      return (data || []).filter((fw) => {
+        const lower = fw.framework_id.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return recognized.some((key) => lower.includes(key.replace("-", "")));
+      });
     },
     enabled: open,
   });
