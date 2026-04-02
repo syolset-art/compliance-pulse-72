@@ -225,7 +225,9 @@ const AssetTrustProfile = () => {
             )}
 
             {/* Entity Header */}
-            <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
+            <div ref={headerRef}>
+              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
+            </div>
 
             {/* Security Areas + Scope */}
             <AssetMetrics
