@@ -126,6 +126,7 @@ export function TrustControlsPanel({
   asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics,
 }: TrustControlsPanelProps) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNb = i18n.language === "nb";
   const effectiveType = overrideType || asset.asset_type || "";
 
