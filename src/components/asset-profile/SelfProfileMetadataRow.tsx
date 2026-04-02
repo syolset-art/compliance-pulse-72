@@ -61,7 +61,8 @@ export function SelfProfileMetadataRow({
     } else if (field === "org_number") {
       updateAsset.mutate({ org_number: editValue });
     } else if (field === "url") {
-      const val = editValue.startsWith("http") ? editValue : `https://${editValue}`;
+      const raw = editValue.replace(/^https?:\/\//, "");
+      const val = raw ? `https://${raw}` : "";
       updateAsset.mutate({ url: val });
     }
     setEditingField(null);
