@@ -124,6 +124,7 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTa
         relationsCount={relationsCount}
         onTrustMetrics={onTrustMetrics}
         frameworks={frameworks}
+        onNavigateToTab={onNavigateToTab}
       />
 
       <RequestUpdateDialog

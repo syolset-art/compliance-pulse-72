@@ -234,6 +234,7 @@ const AssetTrustProfile = () => {
               asset={asset}
               tasksCount={tasks?.length || 0}
               onTrustMetrics={handleTrustMetrics}
+              onNavigateToTab={handleNavigateToTab}
             />
 
 
