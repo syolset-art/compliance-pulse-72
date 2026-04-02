@@ -61,6 +61,7 @@ interface RecommendedFramework {
 export default function TrustCenterRegulations() {
   const { toast } = useToast();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [selectedFrameworks, setSelectedFrameworks] = useState<SelectedFramework[]>([]);
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
