@@ -478,202 +478,94 @@ export default function Tasks() {
           </Card>
         )}
 
-        {/* Domain Filter - Primary filter section */}
+        {/* Consolidated Filter Bar */}
         {!activeActionFilter && (
-          <Card className="p-4 mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Filtrer etter kontrollområde</span>
-              {domainFilter && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setDomainFilter(null)}
-                  className="text-xs text-muted-foreground hover:text-foreground gap-1"
-                >
-                  <X className="w-3 h-3" />
-                  Fjern filter
-                </Button>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant={!domainFilter ? "default" : "outline"}
-                size="sm"
+          <div className="mb-6 space-y-3">
+            {/* Row 1: Domain chips */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Område</span>
+              <button
                 onClick={() => setDomainFilter(null)}
-                className="gap-2"
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  !domainFilter
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
               >
-                Alle kontrollområder
-                <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
-              </Button>
+                Alle ({mockTasks.length})
+              </button>
               {Object.entries(domainFrameworkMapping).map(([key, domain]) => (
-                <Button
+                <button
                   key={key}
-                  variant={domainFilter === key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setDomainFilter(key)}
-                  className="gap-2"
+                  onClick={() => setDomainFilter(domainFilter === key ? null : key)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                    domainFilter === key
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {domain.icon}
-                  {domain.name}
-                  <Badge variant="secondary" className="ml-1">{getTaskCountForDomain(key)}</Badge>
-                </Button>
+                  {domain.name} ({getTaskCountForDomain(key)})
+                </button>
               ))}
             </div>
-            {activeDomain && (
-              <p className="text-xs text-muted-foreground mt-3">
-                Viser {filteredTasks.length} oppgaver for {activeDomain.name}, sortert etter prioritet
-              </p>
-            )}
-          </Card>
+
+            {/* Row 2: Type & Priority chips */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Type</span>
+              {["System", "Prosess"].map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => toggleFilter(filter.toUpperCase())}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    selectedFilters.includes(filter.toUpperCase())
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+
+              <div className="w-px h-4 bg-border mx-1" />
+
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Prioritet</span>
+              {[
+                { label: "Høy", value: "HØY PRIORITET" },
+                { label: "Middels", value: "MIDDELS PRIORITET" },
+                { label: "Lav", value: "LAV PRIORITET" },
+              ].map(filter => (
+                <button
+                  key={filter.value}
+                  onClick={() => toggleFilter(filter.value)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    selectedFilters.includes(filter.value)
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+
+              {selectedFilters.length > 0 && (
+                <button
+                  onClick={() => setSelectedFilters([])}
+                  className="rounded-full px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Nullstill
+                </button>
+              )}
+            </div>
+
+            {/* Task count */}
+            <p className="text-xs text-muted-foreground">
+              {t("tasks.showing", { count: filteredTasks.length })}
+              {activeDomain && <span> for {activeDomain.name}</span>}
+            </p>
+          </div>
         )}
-
-        {/* AI Status Banner - Now shows specific task details */}
-        {aiWorkingTasks.size > 0 && (
-          <Card className="p-4 mb-6 bg-primary/5 border-primary/20 animate-fade-in">
-            <div className="flex items-start gap-3">
-              <div className="relative mt-1">
-                <Bot className="w-8 h-8 text-primary" />
-                <Loader2 className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-spin" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-foreground">{t("tasks.aiWorking")}</p>
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                    <span className="text-sm font-medium text-primary">{t("tasks.autonomousWork")}</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {Array.from(aiWorkingTasks).map(taskId => {
-                    const task = mockTasks.find(t => t.id === taskId);
-                    const progress = taskProgress[taskId] || 0;
-                    if (!task) return null;
-                    return (
-                      <div key={taskId} className="bg-background/50 rounded-lg p-3 border border-primary/10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                            <span className="text-sm font-medium text-foreground">{task.title}</span>
-                          </div>
-                          <span className="text-sm font-semibold text-primary">{Math.round(progress)}%</span>
-                        </div>
-                        <Progress value={progress} className="h-1.5" />
-                        <p className="text-xs text-muted-foreground mt-1.5">
-                          {progress < 30 ? "Analyserer oppgaven..." : 
-                           progress < 60 ? "Henter og validerer data..." : 
-                           progress < 90 ? "Utfører endringer..." : 
-                           "Sluttfører og verifiserer..."}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Overall compliance card */}
-        <Card className="p-6 mb-6">
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-5xl font-bold text-primary transition-all duration-500">{overallCompliance}%</span>
-            <span className="text-lg text-muted-foreground">{t("tasks.overallCompliance")}</span>
-            {overallCompliance > 81 && (
-              <span className="text-green-500 text-sm flex items-center gap-1 ml-2 animate-fade-in">
-                <CheckCircle2 className="w-4 h-4" />
-                +{overallCompliance - 81}%
-              </span>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">{t("tasks.systemsProcesses")}</span>
-                <span className="font-semibold text-primary">67%</span>
-              </div>
-              <Progress value={67} className="h-2" />
-              <p className="text-xs text-muted-foreground">{t("tasks.systemsProcessesDesc")}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">{t("tasks.organizationGovernance")}</span>
-                <span className="font-semibold text-primary">97%</span>
-              </div>
-              <Progress value={97} className="h-2" />
-              <p className="text-xs text-muted-foreground">{t("tasks.organizationGovernanceDesc")}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">{t("tasks.rolesAccess")}</span>
-                <span className="font-semibold text-primary">75%</span>
-              </div>
-              <Progress value={75} className="h-2" />
-              <p className="text-xs text-muted-foreground">{t("tasks.rolesAccessDesc")}</p>
-            </div>
-          </div>
-        </Card>
-
-        {/* AI Status Filter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Button
-              variant={aiStatusFilter === "all" ? "default" : "outline"}
-              onClick={() => setAiStatusFilter("all")}
-              className="gap-2"
-            >
-              {t("tasks.filters.all")}
-              <Badge variant="secondary" className="ml-1">{mockTasks.length}</Badge>
-            </Button>
-            <Button
-              variant={aiStatusFilter === "ai-handling" ? "default" : "outline"}
-              onClick={() => setAiStatusFilter("ai-handling")}
-              className="gap-2"
-            >
-              <Bot className="w-4 h-4" />
-              {t("tasks.filters.aiHandling")}
-              <Badge variant="secondary" className="ml-1">{aiHandlingCount}</Badge>
-            </Button>
-            <Button
-              variant={aiStatusFilter === "requires-action" ? "default" : "outline"}
-              onClick={() => setAiStatusFilter("requires-action")}
-              className="gap-2"
-            >
-              {t("tasks.filters.requiresAction")}
-              <Badge variant="secondary" className="ml-1">{requiresActionCount}</Badge>
-            </Button>
-            <Button
-              variant={aiStatusFilter === "hybrid" ? "default" : "outline"}
-              onClick={() => setAiStatusFilter("hybrid")}
-              className="gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              {t("tasks.filters.hybrid")}
-              <Badge variant="secondary" className="ml-1">{hybridCount}</Badge>
-            </Button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">{t("tasks.filterBy")}</span>
-            {["SYSTEM", "PROSESS", "PROTOKOLL", "TJENESTEOMRÅDE", "HØY PRIORITET", "MIDDELS PRIORITET", "LAV PRIORITET"].map(filter => (
-              <Button
-                key={filter}
-                variant={selectedFilters.includes(filter) ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleFilter(filter)}
-                className="text-xs"
-              >
-                {filter}
-              </Button>
-            ))}
-          </div>
-          <p className="text-sm text-muted-foreground">{t("tasks.showing", { count: filteredTasks.length })}</p>
-        </div>
 
         {/* Tasks list */}
         <div className="space-y-4">
