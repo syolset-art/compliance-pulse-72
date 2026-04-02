@@ -204,6 +204,8 @@ const AssetTrustProfile = () => {
                 </div>
                 <TrustProfilePublishing
                   assetId={asset.id}
+                  assetName={asset.name}
+                  orgNumber={(asset as any).org_number || ''}
                   publishMode={(asset as any).publish_mode || 'private'}
                   publishToCustomers={(asset as any).publish_to_customers || []}
                 />
