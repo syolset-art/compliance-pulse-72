@@ -279,7 +279,7 @@ export default function Tasks() {
   const viewParam = searchParams.get("view");
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [aiStatusFilter, setAiStatusFilter] = useState<"all" | "ai-handling" | "requires-action" | "hybrid">("all");
+  // aiStatusFilter removed — consolidated into domain + type/priority chips
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [aiWorkingTasks, setAiWorkingTasks] = useState<Set<string>>(new Set());
