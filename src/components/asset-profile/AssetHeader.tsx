@@ -435,14 +435,14 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </>
           )}
 
-          {asset.url && (
+          {!isSelf && asset.url && (
             <a 
               href={asset.url} 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
             >
-              {asset.url}
+              {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
