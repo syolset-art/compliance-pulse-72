@@ -33,7 +33,7 @@ interface AssetMetricsProps {
   onNavigateToTab?: (target: string) => void;
 }
 
-export function AssetMetrics({ asset, tasksCount, onTrustMetrics }: AssetMetricsProps) {
+export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTab }: AssetMetricsProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
