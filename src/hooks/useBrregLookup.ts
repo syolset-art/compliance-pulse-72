@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 interface BrregData {
   organisasjonsnummer: string;
   navn: string;
+  hjemmeside?: string;
   naeringskode1?: {
     kode: string;
     beskrivelse: string;
