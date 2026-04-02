@@ -25,6 +25,7 @@ interface SystemMetricsProps {
   };
   tasksCount: number;
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
+  onNavigateToTab?: (target: string) => void;
 }
 
 export const SystemMetrics = ({ systemAsAsset, tasksCount, onTrustMetrics }: SystemMetricsProps) => {
