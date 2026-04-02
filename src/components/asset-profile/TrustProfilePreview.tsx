@@ -252,38 +252,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   {asset.description && (
                     <p className="text-sm text-muted-foreground/70 mt-1.5 leading-relaxed max-w-xl line-clamp-2">{asset.description}</p>
                   )}
-                  {/* Metadata row */}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5 text-[11px] text-muted-foreground">
-                    {asset.org_number && (
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Org.nr" : "Org no."}:</span> {asset.org_number}
-                      </span>
-                    )}
-                    {companyProfile?.industry && (
-                      <span className="flex items-center gap-1">
-                        <Layers className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Bransje" : "Industry"}:</span> {companyProfile.industry}
-                      </span>
-                    )}
-                    {asset.category && (
-                      <span className="flex items-center gap-1">
-                        <Target className="h-3 w-3 shrink-0" />
-                        <span className="font-medium">{isNb ? "Kategori" : "Category"}:</span> {asset.category}
-                      </span>
-                    )}
-                    {asset.url && (
-                      <span className="flex items-center gap-1">
-                        <Globe className="h-3 w-3 shrink-0" />
-                        <a href={asset.url.startsWith("http") ? asset.url : `https://${asset.url}`} target="_blank" rel="noopener noreferrer"
-                          className="hover:underline text-primary"
-                        >
-                          {asset.url.replace(/^https?:\/\//, "")}
-                        </a>
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <div className="flex items-center gap-1.5 mt-3">
                     <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[9px] gap-1">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       {isNb ? "Verifisert av organisasjon" : "Verified by organisation"}
