@@ -284,7 +284,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-2">
-                    <Badge variant="outline" className="text-[9px] gap-1 text-muted-foreground border-border">
+                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[9px] gap-1">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       {isNb ? "Verifisert av organisasjon" : "Verified by organisation"}
                     </Badge>
