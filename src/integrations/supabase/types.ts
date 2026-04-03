@@ -363,6 +363,47 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_data_processors: {
+        Row: {
+          asset_id: string
+          created_at: string | null
+          eu_eos_compliant: boolean | null
+          id: string
+          name: string
+          purpose: string | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string | null
+          eu_eos_compliant?: boolean | null
+          id?: string
+          name: string
+          purpose?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string | null
+          eu_eos_compliant?: boolean | null
+          id?: string
+          name?: string
+          purpose?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_data_processors_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       asset_relationships: {
         Row: {
           created_at: string | null
