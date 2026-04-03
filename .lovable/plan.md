@@ -1,68 +1,68 @@
 
 
-## Plan: Make incomplete Security Foundation checkpoints clickable and actionable
+## Plan: Complete DataHandlingTab with editable workflows
 
 ### Problem
-When users expand a security area in the Trust Controls Panel and see checkpoints marked "Missing" or "Partial", there is no way to navigate to the place where they can fix the issue. Users must manually figure out which tab or field to visit.
+The DataHandlingTab currently displays data but has no way for users to add or edit information. The "Add" buttons are non-functional, labels need updating, and there is no dialog for adding data processors (vendors).
 
-### Solution
-Make non-implemented checkpoints clickable with a subtle "Fix" button that navigates the user to the correct location (tab, field, or dialog) where they can complete the checkpoint.
+### Naming changes
+- "Datalagringslokasjoner" → **"Datalagring og overføring"**
+- "Sletterutiner" → **"Oppbevaring og sletting"**
+- Same in English locale
 
-### Design approach
+### What will be built
 
-**1. Add a navigation map in `trustControlDefinitions.ts`**
+**1. Add Data Processor Dialog** (`AddDataProcessorDialog.tsx`)
+- Form fields: Name, Purpose, EU/EOS compliant (toggle), Source/origin
+- Inserts into `system_vendors` table (note: FK currently points to `systems` — need migration to also support `assets`)
+- Inline delete button on each vendor row
 
-Add a `CONTROL_NAV_MAP` that maps each control key to a navigation target:
+**2. Editable AI Usage Card**
+- Toggle switch for AI in use (yes/no)
+- Text area for AI usage description
+- Upserts into `system_data_handling` table
 
-```text
-Control Key              → Target
-─────────────────────────────────────────────
-owner_assigned           → scroll to asset header (work area field)
-responsible_person       → scroll to asset header (asset_manager field)
-description_defined      → scroll to asset header (description field)
-risk_level_defined       → switch to "riskManagement" tab
-criticality_defined      → switch to "riskManagement" tab
-risk_assessment          → switch to "riskManagement" tab
-review_cycle             → switch to "validation" tab
-documentation_available  → switch to "documents" tab
-dpa_verified             → switch to "documents" tab
-security_contact         → scroll to asset header (contact field)
-sub_processors_disclosed → switch to "relations" tab
-vendor_security_review   → switch to "controls" tab
-mfa_enabled              → switch to "controls" tab
-encryption_enabled       → switch to "controls" tab
-backup_configured        → switch to "controls" tab
-security_logging         → switch to "controls" tab
-device_encryption        → switch to "controls" tab
-endpoint_protection      → switch to "controls" tab
-patch_management         → switch to "controls" tab
-responsible_manager      → scroll to asset header
-security_training        → switch to "controls" tab
-incident_reporting       → switch to "incidents" tab
+**3. Editable Data Locations (Datalagring og overføring)**
+- Input field + "Add" button to add location tags (e.g. "Norway", "EU", "AWS Frankfurt")
+- Click badge to remove
+- Updates `system_data_handling.data_locations` array
+
+**4. Editable Retention Keywords (Oppbevaring og sletting)**
+- Input field + "Add" to add keywords/policies (e.g. "3 years", "GDPR Art. 17")
+- Click badge to remove
+- Updates `system_data_handling.retention_keywords` array
+
+### Database changes
+
+**Migration**: Create a new `asset_data_processors` table (since `system_vendors` FK is to `systems`, and assets use a different table):
+```sql
+CREATE TABLE public.asset_data_processors (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  asset_id uuid NOT NULL REFERENCES public.assets(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  purpose text,
+  eu_eos_compliant boolean DEFAULT false,
+  source text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.asset_data_processors ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all access" ON public.asset_data_processors FOR ALL USING (true) WITH CHECK (true);
 ```
 
-**2. Update `TrustControlsPanel.tsx`**
+### Files to edit/create
 
-For each control with status `missing` or `partial`:
-- Make the row clickable (cursor-pointer, hover highlight)
-- Add a small arrow/button on the right: "Fiks →" / "Fix →"
-- On click, call an `onNavigate` callback prop with the target tab name
-- For header-level fields, emit a special target like `"_header:field_name"`
+| File | Action |
+|------|--------|
+| **Migration** | Create `asset_data_processors` table |
+| `src/components/asset-profile/tabs/AddDataProcessorDialog.tsx` | New — form dialog for adding vendors |
+| `src/components/asset-profile/tabs/DataHandlingTab.tsx` | Rewrite — add inline editing for AI usage, locations, retention; wire Add buttons; use new table; rename labels |
+| `src/locales/nb.json` | Update label keys |
+| `src/locales/en.json` | Update label keys |
 
-**3. Update `AssetTrustProfile.tsx`**
-
-- Pass `onNavigateToTab` callback to `AssetMetrics` → `TrustControlsPanel`
-- The callback calls `setActiveTab(tabName)` to switch to the correct tab
-- For header fields, scroll to the header section and optionally highlight the field
-
-**4. Visual treatment**
-- Non-implemented rows get a subtle hover state (`hover:bg-muted/50 rounded-md px-1 -mx-1`)
-- A small "Fiks" / "Fix" text with chevron-right icon appears on hover or always for missing items
-- Implemented rows remain static (no click action needed)
-
-### Files to edit
-1. **`src/lib/trustControlDefinitions.ts`** — Add `CONTROL_NAV_MAP` export mapping control keys to tab targets
-2. **`src/components/trust-controls/TrustControlsPanel.tsx`** — Accept `onNavigateToTab` prop, render clickable rows for incomplete controls
-3. **`src/components/asset-profile/AssetMetrics.tsx`** — Pass through `onNavigateToTab` prop
-4. **`src/pages/AssetTrustProfile.tsx`** — Wire `onNavigateToTab` callback to `setActiveTab`
+### UX approach
+- AI Usage card: toggle + inline text area, auto-saves on blur
+- Locations and retention: inline tag input (type + Enter or click +), badges are removable with X
+- Data processors: dialog with form, table shows edit/delete actions
+- All changes save immediately with toast feedback
 
