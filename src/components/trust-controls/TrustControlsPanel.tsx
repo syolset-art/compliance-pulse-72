@@ -261,9 +261,9 @@ export function TrustControlsPanel({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">Security Foundations</h3>
+              <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontrollområder" : "Control Areas"}</h3>
               <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-warning/50 text-warning">Demodata</Badge>
-              <span className="text-xs text-muted-foreground ml-auto">{totalImplemented}/{allControls.length} {isNb ? "praksiser dokumentert" : "practices documented"}</span>
+              <span className="text-xs text-muted-foreground ml-auto">{totalImplemented}/{allControls.length} {isNb ? "kontroller dokumentert" : "controls documented"}</span>
             </div>
           </div>
         </div>
