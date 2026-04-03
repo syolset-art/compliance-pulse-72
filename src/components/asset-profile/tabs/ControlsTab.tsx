@@ -57,7 +57,7 @@ export function ControlsTab({ assetId }: ControlsTabProps) {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Shield className="h-5 w-5 text-primary" />
-              {isNb ? "Kontrollstatus" : "Control Status"}
+              {isNb ? "Detaljert kontrollstatus" : "Detailed Control Status"}
             </CardTitle>
             <span className="text-sm text-muted-foreground">
               {total} {isNb ? "kontroller totalt" : "controls total"}
