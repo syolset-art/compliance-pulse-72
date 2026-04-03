@@ -318,10 +318,13 @@ export function TrustControlsPanel({
                           {getStatusIcon(control.status)}
                           <span className="text-xs text-foreground flex-1">{isNb ? control.labelNb : control.labelEn}</span>
                           {isActionable ? (
-                            <span className="flex items-center gap-0.5 text-[10px] font-medium text-primary opacity-70 group-hover:opacity-100 transition-opacity">
-                              {isNb ? "Fiks" : "Fix"}
+                            <button
+                              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
+                              onClick={(e) => { e.stopPropagation(); handleControlClick(control); }}
+                            >
+                              {isNb ? (ACTION_LABELS[control.key]?.nb || "Fiks") : (ACTION_LABELS[control.key]?.en || "Fix")}
                               <ChevronRight className="h-3 w-3" />
-                            </span>
+                            </button>
                           ) : (
                             <span className={`text-[10px] font-medium ${
                               control.status === "implemented" ? "text-green-600 dark:text-green-400" :
