@@ -205,11 +205,49 @@ export function TrustControlsPanel({
 
   const totalImplemented = allControls.filter(c => c.status === "implemented").length;
 
+  // Descriptive action labels per control (what the user should do)
+  const ACTION_LABELS: Record<string, { en: string; nb: string; tabEn: string; tabNb: string }> = {
+    owner_assigned: { en: "Assign owner", nb: "Tilordne eier", tabEn: "asset header", tabNb: "profilhodet" },
+    responsible_person: { en: "Define responsible person", nb: "Definer ansvarlig", tabEn: "asset header", tabNb: "profilhodet" },
+    description_defined: { en: "Add description", nb: "Legg til beskrivelse", tabEn: "asset header", tabNb: "profilhodet" },
+    risk_level_defined: { en: "Set risk level", nb: "Sett risikonivå", tabEn: "Audit & Risk", tabNb: "Revisjon og risiko" },
+    criticality_defined: { en: "Set criticality", nb: "Sett kritikalitet", tabEn: "Audit & Risk", tabNb: "Revisjon og risiko" },
+    risk_assessment: { en: "Perform risk assessment", nb: "Utfør risikovurdering", tabEn: "Audit & Risk", tabNb: "Revisjon og risiko" },
+    review_cycle: { en: "Define review cycle", nb: "Definer gjennomgangssyklus", tabEn: "Validation", tabNb: "Validering" },
+    documentation_available: { en: "Upload documents", nb: "Last opp dokumenter", tabEn: "Documents", tabNb: "Dokumenter" },
+    dpa_verified: { en: "Verify DPA", nb: "Verifiser DPA", tabEn: "Documents", tabNb: "Dokumenter" },
+    security_contact: { en: "Add security contact", nb: "Legg til sikkerhetskontakt", tabEn: "asset header", tabNb: "profilhodet" },
+    sub_processors_disclosed: { en: "Disclose sub-processors", nb: "Oppgi underleverandører", tabEn: "Relations", tabNb: "Relasjoner" },
+    vendor_security_review: { en: "Complete security review", nb: "Fullfør sikkerhetsgjennomgang", tabEn: "Controls", tabNb: "Kontroller" },
+    mfa_enabled: { en: "Enable MFA", nb: "Aktiver MFA", tabEn: "Controls", tabNb: "Kontroller" },
+    encryption_enabled: { en: "Enable encryption", nb: "Aktiver kryptering", tabEn: "Controls", tabNb: "Kontroller" },
+    backup_configured: { en: "Configure backup", nb: "Konfigurer backup", tabEn: "Controls", tabNb: "Kontroller" },
+    security_logging: { en: "Enable logging", nb: "Aktiver logging", tabEn: "Controls", tabNb: "Kontroller" },
+    device_encryption: { en: "Enable encryption", nb: "Aktiver kryptering", tabEn: "Controls", tabNb: "Kontroller" },
+    endpoint_protection: { en: "Install protection", nb: "Installer beskyttelse", tabEn: "Controls", tabNb: "Kontroller" },
+    patch_management: { en: "Activate patching", nb: "Aktiver patching", tabEn: "Controls", tabNb: "Kontroller" },
+    responsible_manager: { en: "Assign manager", nb: "Tilordne leder", tabEn: "asset header", tabNb: "profilhodet" },
+    security_training: { en: "Complete training", nb: "Fullfør opplæring", tabEn: "Controls", tabNb: "Kontroller" },
+    incident_reporting: { en: "Define process", nb: "Definer prosess", tabEn: "Incidents", tabNb: "Avvik og hendelser" },
+  };
+
   const handleControlClick = (control: EvaluatedControl) => {
     if (control.status === "implemented") return;
     const target = CONTROL_NAV_MAP[control.key];
+    const actionLabel = ACTION_LABELS[control.key];
     if (target && onNavigateToTab) {
       onNavigateToTab(target);
+      // Show toast with guidance
+      if (actionLabel) {
+        const tabName = isNb ? actionLabel.tabNb : actionLabel.tabEn;
+        const isHeader = target.startsWith("_header:");
+        toast.info(
+          isNb
+            ? `${actionLabel.nb} — ${isHeader ? "Oppdater feltet i" : "Gå til"} «${tabName}»`
+            : `${actionLabel.en} — ${isHeader ? "Update the field in" : "Go to"} "${tabName}"`,
+          { duration: 4000 }
+        );
+      }
     }
   };
 
