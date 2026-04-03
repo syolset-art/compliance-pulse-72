@@ -93,27 +93,7 @@ export function ControlsTab({ assetId }: ControlsTabProps) {
         </CardContent>
       </Card>
 
-      {/* Area breakdown */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">
-            {isNb ? "Kontrollområder" : "Control Areas"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {areaStats.map(a => (
-            <div key={a.area} className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-medium">{a.label}</span>
-                <span className={`font-semibold tabular-nums ${a.pct >= 80 ? "text-success" : a.pct >= 50 ? "text-warning" : "text-destructive"}`}>
-                  {a.pct}%
-                </span>
-              </div>
-              <Progress value={a.pct} className="h-1.5" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      {/* Note: Area breakdown (Governance, Operations, etc.) is shown in the Security Foundations panel above */}
 
       {/* Missing controls */}
       {missing.length > 0 && (
