@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, X, Mail, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
 
 interface Props {
   assetId: string;
@@ -27,6 +29,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
+  const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
 
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox", assetId],
@@ -57,10 +60,16 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
       // Update inbox status
       await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
     },
-    onSuccess: () => {
+    onSuccess: (_data, item) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success("Dokument godkjent og lagt til i profilen");
+      setApprovedItem({
+        fileName: item.file_name || item.subject || "",
+        documentType: item.matched_document_type || "other",
+        assetId,
+        assetName,
+        isIncident: false,
+      });
     },
   });
 
@@ -171,6 +180,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
           </CardContent>
         </Card>
       )}
+      <ApprovalSuccessDialog data={approvedItem} onClose={() => setApprovedItem(null)} />
     </div>
   );
 }
