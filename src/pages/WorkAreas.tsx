@@ -147,7 +147,26 @@ export default function WorkAreas() {
     enabled: !!selectedWorkArea?.id,
   });
 
-  // Fetch assets owned by this work area
+  // Fetch processing activity count for selected work area
+  const { data: processingActivityCount = 0 } = useQuery({
+    queryKey: ["work-area-processing-count", selectedWorkArea?.id],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id) return 0;
+      const { data: sysList, error: sysErr } = await supabase
+        .from("systems")
+        .select("id")
+        .eq("work_area_id", selectedWorkArea.id);
+      if (sysErr || !sysList || sysList.length === 0) return 0;
+      const { count, error } = await supabase
+        .from("system_processes")
+        .select("*", { count: "exact", head: true })
+        .in("system_id", sysList.map((s) => s.id));
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!selectedWorkArea?.id,
+  });
+
   const { data: ownedAssets = [] } = useQuery({
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
     queryFn: async () => {
