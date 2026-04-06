@@ -13,6 +13,7 @@ import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
+import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
