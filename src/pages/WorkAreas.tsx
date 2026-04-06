@@ -696,7 +696,7 @@ export default function WorkAreas() {
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">Behandlingsaktiviteter</span>
                     <span className="sm:hidden">Beh.</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">28</Badge>
+                    <Badge variant="secondary" className="ml-1 text-xs">{processingActivityCount}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="processes" 
