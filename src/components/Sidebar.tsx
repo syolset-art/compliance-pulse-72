@@ -78,6 +78,7 @@ const modulesNav = [
   { name: "nav.systems", href: "/systems", icon: Cloud },
   { name: "nav.assetsDevices", href: "/assets", icon: Package },
   { name: "nav.protocols", href: "/protocols", icon: FileText },
+  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
 // Administrasjon submenu
