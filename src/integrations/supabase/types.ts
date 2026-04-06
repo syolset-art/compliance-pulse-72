@@ -1814,6 +1814,48 @@ export type Database = {
         }
         Relationships: []
       }
+      network_connections: {
+        Row: {
+          accepted_at: string | null
+          connection_type: string
+          contact_email: string
+          contact_person: string | null
+          created_at: string | null
+          id: string
+          invited_at: string | null
+          invited_by_user_id: string
+          organization_name: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          connection_type?: string
+          contact_email: string
+          contact_person?: string | null
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by_user_id: string
+          organization_name: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          connection_type?: string
+          contact_email?: string
+          contact_person?: string | null
+          created_at?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by_user_id?: string
+          organization_name?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           company_info_completed: boolean | null
