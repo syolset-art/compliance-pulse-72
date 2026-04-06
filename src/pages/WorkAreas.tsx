@@ -859,19 +859,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="protocols" className="mt-4">
-                <Card className="p-6">
-                  <div className="text-center py-6">
-                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Behandlingsaktiviteter</h3>
-                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                      Oversikt over organisasjonens behandlingsaktiviteter i henhold til GDPR art. 30. Generer en rapport for å dokumentere alle aktiviteter.
-                    </p>
-                    <Button className="gap-2" onClick={() => navigate("/reports")}>
-                      <FileText className="h-4 w-4" />
-                      Lag behandlingsprotokoll
-                    </Button>
-                  </div>
-                </Card>
+                <ProcessingActivitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="processes" className="mt-4">
