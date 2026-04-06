@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug, Building2, MessageSquareReply, Inbox } from "lucide-react";
+import { Bell, ShieldAlert, FileText, Server, AlertTriangle, CalendarClock, Lock, ClipboardList, FileCheck, CheckCircle, Wrench, Unplug, Building2, MessageSquareReply, Inbox, Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface NotificationSetting {
@@ -15,6 +17,7 @@ interface NotificationSetting {
   descNb: string;
   descEn: string;
   defaultOn: boolean;
+  persistKey?: string; // maps to notification_preferences.notification_type
 }
 
 const categories: { titleNb: string; titleEn: string; icon: React.ElementType; items: NotificationSetting[] }[] = [
@@ -35,6 +38,7 @@ const categories: { titleNb: string; titleEn: string; icon: React.ElementType; i
     items: [
       { id: "new_task", icon: ClipboardList, titleNb: "Nye oppgaver", titleEn: "New tasks", descNb: "Varsel når en oppgave blir tildelt", descEn: "Alert when a task is assigned", defaultOn: true },
       { id: "document_update", icon: FileCheck, titleNb: "Dokumentoppdateringer", titleEn: "Document updates", descNb: "Varsel når et dokument oppdateres", descEn: "Alert when a document is updated", defaultOn: false },
+      { id: "document_expiry", icon: Clock, titleNb: "Dokumentutløp", titleEn: "Document expiry", descNb: "Varsel 30 og 7 dager før dokumenter utløper (app + e-post)", descEn: "Alert 30 and 7 days before documents expire (app + email)", defaultOn: true, persistKey: "document_expiry" },
       { id: "approval_request", icon: CheckCircle, titleNb: "Godkjenningsforespørsler", titleEn: "Approval requests", descNb: "Varsel ved nye godkjenningsforespørsler", descEn: "Alert on new approval requests", defaultOn: true },
     ],
   },
@@ -63,6 +67,7 @@ export default function AdminNotifications() {
   const { i18n } = useTranslation();
   const isMobile = useIsMobile();
   const isNb = i18n.language === "nb";
+  const { user } = useAuth();
 
   const [settings, setSettings] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {};
@@ -70,15 +75,51 @@ export default function AdminNotifications() {
     return init;
   });
 
-  const handleToggle = (id: string, label: string) => {
-    setSettings(prev => {
-      const next = { ...prev, [id]: !prev[id] };
-      toast.success(next[id]
-        ? (isNb ? `${label} er aktivert` : `${label} enabled`)
-        : (isNb ? `${label} er deaktivert` : `${label} disabled`)
-      );
-      return next;
-    });
+  // Load persisted preferences from DB
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("notification_preferences")
+      .select("notification_type, enabled")
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setSettings(prev => {
+            const next = { ...prev };
+            data.forEach((pref: any) => {
+              // Find item with matching persistKey
+              for (const cat of categories) {
+                for (const item of cat.items) {
+                  if (item.persistKey === pref.notification_type) {
+                    next[item.id] = pref.enabled;
+                  }
+                }
+              }
+            });
+            return next;
+          });
+        }
+      });
+  }, [user]);
+
+  const handleToggle = async (id: string, label: string, persistKey?: string) => {
+    const newValue = !settings[id];
+    setSettings(prev => ({ ...prev, [id]: newValue }));
+
+    toast.success(newValue
+      ? (isNb ? `${label} er aktivert` : `${label} enabled`)
+      : (isNb ? `${label} er deaktivert` : `${label} disabled`)
+    );
+
+    // Persist to DB if this is a persisted preference
+    if (persistKey && user) {
+      const { error } = await supabase
+        .from("notification_preferences")
+        .upsert(
+          { user_id: user.id, notification_type: persistKey, enabled: newValue },
+          { onConflict: "user_id,notification_type" }
+        );
+      if (error) console.error("Failed to save preference:", error);
+    }
   };
 
   const content = (
@@ -124,7 +165,7 @@ export default function AdminNotifications() {
                     </div>
                     <Switch
                       checked={settings[item.id]}
-                      onCheckedChange={() => handleToggle(item.id, label)}
+                      onCheckedChange={() => handleToggle(item.id, label, item.persistKey)}
                     />
                   </div>
                 );

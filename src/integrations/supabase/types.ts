@@ -906,6 +906,42 @@ export type Database = {
         }
         Relationships: []
       }
+      document_expiry_notifications: {
+        Row: {
+          asset_id: string
+          created_at: string
+          document_id: string
+          id: string
+          is_read: boolean
+          message: string | null
+          notification_type: string
+          sent_via: string
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          document_id: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          notification_type: string
+          sent_via?: string
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          notification_type?: string
+          sent_via?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       domain_addons: {
         Row: {
           activated_at: string | null
@@ -1853,6 +1889,33 @@ export type Database = {
           organization_name?: string
           status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          notification_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          notification_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          notification_type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
