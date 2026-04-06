@@ -13,6 +13,7 @@ import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
+import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -146,7 +147,26 @@ export default function WorkAreas() {
     enabled: !!selectedWorkArea?.id,
   });
 
-  // Fetch assets owned by this work area
+  // Fetch processing activity count for selected work area
+  const { data: processingActivityCount = 0 } = useQuery({
+    queryKey: ["work-area-processing-count", selectedWorkArea?.id],
+    queryFn: async () => {
+      if (!selectedWorkArea?.id) return 0;
+      const { data: sysList, error: sysErr } = await supabase
+        .from("systems")
+        .select("id")
+        .eq("work_area_id", selectedWorkArea.id);
+      if (sysErr || !sysList || sysList.length === 0) return 0;
+      const { count, error } = await supabase
+        .from("system_processes")
+        .select("*", { count: "exact", head: true })
+        .in("system_id", sysList.map((s) => s.id));
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!selectedWorkArea?.id,
+  });
+
   const { data: ownedAssets = [] } = useQuery({
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
     queryFn: async () => {
@@ -676,7 +696,7 @@ export default function WorkAreas() {
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">Behandlingsaktiviteter</span>
                     <span className="sm:hidden">Beh.</span>
-                    <Badge variant="secondary" className="ml-1 text-xs">28</Badge>
+                    <Badge variant="secondary" className="ml-1 text-xs">{processingActivityCount}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="processes" 
@@ -858,19 +878,7 @@ export default function WorkAreas() {
               </TabsContent>
 
               <TabsContent value="protocols" className="mt-4">
-                <Card className="p-6">
-                  <div className="text-center py-6">
-                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Behandlingsaktiviteter</h3>
-                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                      Oversikt over organisasjonens behandlingsaktiviteter i henhold til GDPR art. 30. Generer en rapport for å dokumentere alle aktiviteter.
-                    </p>
-                    <Button className="gap-2" onClick={() => navigate("/reports")}>
-                      <FileText className="h-4 w-4" />
-                      Lag behandlingsprotokoll
-                    </Button>
-                  </div>
-                </Card>
+                <ProcessingActivitiesTab workAreaId={selectedWorkArea.id} workAreaName={selectedWorkArea.name} />
               </TabsContent>
 
               <TabsContent value="processes" className="mt-4">
