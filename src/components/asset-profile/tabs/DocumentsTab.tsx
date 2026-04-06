@@ -166,6 +166,15 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
 
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+
+  const filteredDocuments = documents.filter((d: any) => {
+    if (sourceFilter === "all") return true;
+    if (sourceFilter === "vendor") return d.source === "vendor_portal" || d.source === "email_inbox";
+    if (sourceFilter === "internal") return d.source !== "vendor_portal" && d.source !== "email_inbox";
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       {/* Header with upload button */}
@@ -179,6 +188,35 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
           {t("vendorDocs.uploadTitle", "Last opp")}
         </Button>
       </div>
+
+      {/* Source filter chips */}
+      {documents.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">{isNb ? "Vis:" : "Show:"}</span>
+          {[
+            { value: "all", labelNb: "Alle", labelEn: "All" },
+            { value: "vendor", labelNb: "Fra leverandør", labelEn: "From vendor" },
+            { value: "internal", labelNb: "Interne", labelEn: "Internal" },
+          ].map((filter) => (
+            <Button
+              key={filter.value}
+              variant={sourceFilter === filter.value ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => setSourceFilter(filter.value)}
+            >
+              {isNb ? filter.labelNb : filter.labelEn}
+              {filter.value !== "all" && (
+                <Badge variant="secondary" className="ml-1 text-[10px]">
+                  {filter.value === "vendor"
+                    ? documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox").length
+                    : documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox").length}
+                </Badge>
+              )}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
@@ -195,8 +233,8 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <>
           {/* Vendor documents */}
           {(() => {
-            const vendorDocs = documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
-            const customerDocs = documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+            const vendorDocs = filteredDocuments.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
+            const customerDocs = filteredDocuments.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
 
             const renderDocTable = (docs: any[], emptyMsg: string) => (
               docs.length === 0 ? (
