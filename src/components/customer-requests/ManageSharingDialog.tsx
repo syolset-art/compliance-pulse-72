@@ -347,18 +347,24 @@ export function ManageSharingDialog({
               {filteredCustomers.map((customer) => {
                 const isSelected = selectedCustomers.includes(customer.name);
                 const isExpanded = expandedId === customer.id;
+                const isPending = customer.status === "pending";
+                const isDeclined = customer.status === "declined";
+                const isDisabled = isPending || isDeclined;
                 return (
                   <div key={customer.id} className="space-y-0">
                     <label
-                      className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
-                        isSelected
-                          ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5"
-                          : "border-border hover:bg-muted/50"
+                      className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all ${
+                        isDisabled
+                          ? "opacity-60 cursor-not-allowed border-border"
+                          : isSelected
+                            ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5 cursor-pointer"
+                            : "border-border hover:bg-muted/50 cursor-pointer"
                       } ${isExpanded ? "rounded-b-none" : ""}`}
                     >
                       <Checkbox
                         checked={isSelected}
-                        onCheckedChange={() => toggleCustomer(customer.name)}
+                        onCheckedChange={() => !isDisabled && toggleCustomer(customer.name)}
+                        disabled={isDisabled}
                         aria-label={`${isNb ? "Velg" : "Select"} ${customer.name}`}
                       />
                       <div className="flex-1 min-w-0">
@@ -376,18 +382,20 @@ export function ManageSharingDialog({
                               {customer.contactEmail}
                             </span>
                           )}
-                          {customer.isShared ? (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
-                              {isNb ? "Delt" : "Shared"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                              {isNb ? "Ikke delt" : "Not shared"}
+                          {isPending && (
+                            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[9px] px-1.5 py-0 gap-0.5">
+                              <Clock className="h-2.5 w-2.5" />
+                              {isNb ? "Avventer godkjenning" : "Awaiting approval"}
                             </Badge>
                           )}
-                          {customer.isPriority && (
-                            <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[9px] px-1.5 py-0">
-                              {isNb ? "Prioritet" : "Priority"}
+                          {isDeclined && (
+                            <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Avslått" : "Declined"}
+                            </Badge>
+                          )}
+                          {customer.status === "accepted" && customer.isShared && (
+                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Delt" : "Shared"}
                             </Badge>
                           )}
                           {customer.category && (
@@ -427,11 +435,6 @@ export function ManageSharingDialog({
                             </div>
                           </div>
                         </div>
-                        {!customer.contactPerson && !customer.contactEmail && (
-                          <p className="text-[10px] text-muted-foreground italic">
-                            {isNb ? "Ingen kontaktinfo registrert for denne kunden." : "No contact info registered for this customer."}
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>

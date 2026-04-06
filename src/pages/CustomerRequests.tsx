@@ -4,10 +4,11 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Inbox, Send, BookOpen } from "lucide-react";
+import { Inbox, Send, BookOpen, Network } from "lucide-react";
 import { InboundRequestsContent } from "@/components/customer-requests/InboundRequestsContent";
 import { OutboundRequestsTab } from "@/components/customer-requests/OutboundRequestsTab";
 import { TemplateLibrary } from "@/components/customer-requests/TemplateLibrary";
+import { NetworkTab } from "@/components/customer-requests/NetworkTab";
 
 const CustomerRequests = () => {
   const { t, i18n } = useTranslation();
@@ -41,6 +42,10 @@ const CustomerRequests = () => {
                   <Send className="h-4 w-4" />
                   {isNb ? "Utgående" : "Outbound"}
                 </TabsTrigger>
+                <TabsTrigger value="network" className="gap-1.5">
+                  <Network className="h-4 w-4" />
+                  {isNb ? "Nettverk" : "Network"}
+                </TabsTrigger>
                 <TabsTrigger value="templates" className="gap-1.5">
                   <BookOpen className="h-4 w-4" />
                   {isNb ? "Dokumentmaler" : "Templates"}
@@ -53,6 +58,10 @@ const CustomerRequests = () => {
 
               <TabsContent value="outbound" className="mt-6">
                 <OutboundRequestsTab />
+              </TabsContent>
+
+              <TabsContent value="network" className="mt-6">
+                <NetworkTab />
               </TabsContent>
 
               <TabsContent value="templates" className="mt-6">
