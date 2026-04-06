@@ -330,74 +330,16 @@ export function ManageSharingDialog({
               <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={handleDeselectAll}>
                 {isNb ? "Fjern alle" : "Deselect all"}
               </Button>
-              <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-[11px] gap-1"
-                onClick={() => setShowAddForm(!showAddForm)}
-              >
-                <Plus className="h-3 w-3" />
-                {isNb ? "Legg til kunde" : "Add customer"}
-              </Button>
             </div>
 
-            {/* Add new customer form */}
-            {showAddForm && (
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">
-                    {isNb ? "Ny kunde / gruppe" : "New customer / group"}
-                  </span>
-                  <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setShowAddForm(false)}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-                <div>
-                  <Label className="text-[11px] text-muted-foreground">{isNb ? "Kundenavn *" : "Customer name *"}</Label>
-                  <Input
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder={isNb ? "F.eks. Bedrift AS" : "e.g. Company AS"}
-                    className="h-8 text-xs mt-1"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-[11px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
-                    <div className="relative mt-1">
-                      <User className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                      <Input
-                        value={newContact}
-                        onChange={(e) => setNewContact(e.target.value)}
-                        placeholder={isNb ? "Navn" : "Name"}
-                        className="h-8 pl-7 text-xs"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-[11px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
-                    <div className="relative mt-1">
-                      <Mail className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                      <Input
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="name@company.no"
-                        type="email"
-                        className="h-8 pl-7 text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="h-7 text-[11px] w-full gap-1"
-                  disabled={!newName.trim()}
-                  onClick={handleAddCustomer}
-                >
-                  <Plus className="h-3 w-3" />
-                  {isNb ? "Legg til" : "Add"}
-                </Button>
+            {allCustomers.length === 0 && (
+              <div className="rounded-lg border border-dashed p-4 text-center space-y-2">
+                <Users className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Du har ingen kontakter i nettverket ennå. Gå til Forespørsler → Nettverk for å invitere kontakter."
+                    : "You have no contacts in your network yet. Go to Requests → Network to invite contacts."}
+                </p>
               </div>
             )}
 
