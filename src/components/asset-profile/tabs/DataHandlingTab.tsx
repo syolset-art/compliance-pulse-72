@@ -13,6 +13,7 @@ import { Plus, Bot, MapPin, Tag, Building2, CheckCircle, XCircle, X, Trash2 } fr
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { AddDataProcessorDialog } from "./AddDataProcessorDialog";
+import { PersonalDataCard } from "./PersonalDataCard";
 
 interface DataHandlingTabProps {
   assetId: string;
@@ -205,6 +206,9 @@ export const DataHandlingTab = ({ assetId }: DataHandlingTabProps) => {
             )}
           </CardContent>
         </Card>
+
+        {/* Personal Data Categories */}
+        <PersonalDataCard assetId={assetId} />
 
         {/* Retention Keywords → Oppbevaring og sletting */}
         <Card className="lg:col-span-2">

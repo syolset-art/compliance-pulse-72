@@ -363,6 +363,47 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_data_categories: {
+        Row: {
+          asset_id: string
+          category: string
+          created_at: string
+          data_type_name: string
+          id: string
+          legal_basis: string | null
+          retention_period: string | null
+          source: string
+        }
+        Insert: {
+          asset_id: string
+          category?: string
+          created_at?: string
+          data_type_name: string
+          id?: string
+          legal_basis?: string | null
+          retention_period?: string | null
+          source?: string
+        }
+        Update: {
+          asset_id?: string
+          category?: string
+          created_at?: string
+          data_type_name?: string
+          id?: string
+          legal_basis?: string | null
+          retention_period?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_data_categories_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       asset_data_processors: {
         Row: {
           asset_id: string
