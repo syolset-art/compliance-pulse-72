@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -29,10 +31,11 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface DemoCustomer {
+interface NetworkCustomer {
   id: string;
   name: string;
   isPriority: boolean;
@@ -40,16 +43,8 @@ interface DemoCustomer {
   isShared: boolean;
   contactPerson?: string;
   contactEmail?: string;
+  status: string; // 'accepted' | 'pending' | 'declined'
 }
-
-const DEMO_CUSTOMERS: DemoCustomer[] = [
-  { id: "c1", name: "Allier AS", isPriority: true, category: "ALL SUPPLIERS", isShared: true, contactPerson: "Kari Nordmann", contactEmail: "kari@allier.no" },
-  { id: "c2", name: "Allier AS FEIL", isPriority: true, category: null, isShared: false },
-  { id: "c3", name: "Anders O Grevstad AS", isPriority: true, category: "PRIORITY SUPPLIERS", isShared: true, contactPerson: "Anders Grevstad", contactEmail: "anders@grevstad.no" },
-  { id: "c4", name: "TechCorp AS", isPriority: false, category: null, isShared: false },
-  { id: "c5", name: "Nordic Solutions", isPriority: false, category: null, isShared: false },
-  { id: "c6", name: "Bergen Finans AS", isPriority: false, category: null, isShared: true, contactPerson: "Ola Hansen", contactEmail: "ola@bergenfinans.no" },
-];
 
 interface ManageSharingDialogProps {
   open: boolean;
@@ -75,23 +70,43 @@ export function ManageSharingDialog({
 
   const [step, setStep] = useState(1);
   const [sharingMode, setSharingMode] = useState<string>(currentSharedMode || "selected");
-  const [selectedCustomers, setSelectedCustomers] = useState<string[]>(
-    currentSharedWith.length > 0 ? currentSharedWith : DEMO_CUSTOMERS.filter((c) => c.isShared).map((c) => c.name)
-  );
   const [search, setSearch] = useState("");
   const [showPriorityOnly, setShowPriorityOnly] = useState(false);
-
-  // Custom customers added by the user
-  const [customCustomers, setCustomCustomers] = useState<DemoCustomer[]>([]);
-  // Add new customer form
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newContact, setNewContact] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  // Expanded customer detail
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const allCustomers = useMemo(() => [...DEMO_CUSTOMERS, ...customCustomers], [customCustomers]);
+  // Fetch network connections from DB
+  const { data: networkConnections = [] } = useQuery({
+    queryKey: ["network-connections-sharing"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("network_connections")
+        .select("*")
+        .order("organization_name");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  // Map network connections to customer format
+  const allCustomers: NetworkCustomer[] = useMemo(() => {
+    return networkConnections.map((conn: any) => ({
+      id: conn.id,
+      name: conn.organization_name,
+      isPriority: false,
+      category: conn.connection_type === "customer" ? (isNb ? "Kunde" : "Customer") : (isNb ? "Leverandør" : "Vendor"),
+      isShared: currentSharedWith.includes(conn.organization_name),
+      contactPerson: conn.contact_person || undefined,
+      contactEmail: conn.contact_email || undefined,
+      status: conn.status,
+    }));
+  }, [networkConnections, currentSharedWith, isNb]);
+
+  const acceptedCustomers = useMemo(() => allCustomers.filter((c) => c.status === "accepted"), [allCustomers]);
+
+  const [selectedCustomers, setSelectedCustomers] = useState<string[]>(
+    currentSharedWith.length > 0 ? currentSharedWith : []
+  );
 
   const filteredCustomers = useMemo(() => {
     let list = allCustomers;
@@ -103,7 +118,7 @@ export function ManageSharingDialog({
       );
     }
     if (showPriorityOnly) {
-      list = list.filter((c) => c.isPriority);
+      list = list.filter((c) => c.status === "accepted");
     }
     return list;
   }, [search, showPriorityOnly, allCustomers]);
@@ -112,11 +127,11 @@ export function ManageSharingDialog({
     if (sharingMode === "selected") {
       setStep(2);
     } else {
-      const customers = sharingMode === "all" ? allCustomers.map((c) => c.name) : [];
+      const customers = sharingMode === "all" ? acceptedCustomers.map((c) => c.name) : [];
       onConfirm(sharingMode, customers);
       toast.success(
         sharingMode === "all"
-          ? isNb ? `Delt med ${allCustomers.length} kunder` : `Shared with ${allCustomers.length} customers`
+          ? isNb ? `Delt med ${acceptedCustomers.length} kontakter` : `Shared with ${acceptedCustomers.length} contacts`
           : isNb ? "Deling oppdatert" : "Sharing updated"
       );
       resetAndClose();
@@ -127,8 +142,8 @@ export function ManageSharingDialog({
     onConfirm("selected", selectedCustomers);
     toast.success(
       isNb
-        ? `Delt med ${selectedCustomers.length} kunder`
-        : `Shared with ${selectedCustomers.length} customers`
+        ? `Delt med ${selectedCustomers.length} kontakter`
+        : `Shared with ${selectedCustomers.length} contacts`
     );
     resetAndClose();
   };
@@ -137,7 +152,6 @@ export function ManageSharingDialog({
     setStep(1);
     setSearch("");
     setShowPriorityOnly(false);
-    setShowAddForm(false);
     setExpandedId(null);
     onOpenChange(false);
   };
@@ -148,31 +162,10 @@ export function ManageSharingDialog({
     );
   };
 
-  const handleSelectAll = () => setSelectedCustomers(filteredCustomers.map((c) => c.name));
+  const handleSelectAll = () => setSelectedCustomers(acceptedCustomers.map((c) => c.name));
   const handleDeselectAll = () => setSelectedCustomers([]);
   const handleResetToCurrentSharing = () => {
-    setSelectedCustomers(DEMO_CUSTOMERS.filter((c) => c.isShared).map((c) => c.name));
-  };
-
-  const handleAddCustomer = () => {
-    if (!newName.trim()) return;
-    const newId = `custom-${Date.now()}`;
-    const newCustomer: DemoCustomer = {
-      id: newId,
-      name: newName.trim(),
-      isPriority: false,
-      category: null,
-      isShared: false,
-      contactPerson: newContact.trim() || undefined,
-      contactEmail: newEmail.trim() || undefined,
-    };
-    setCustomCustomers((prev) => [...prev, newCustomer]);
-    setSelectedCustomers((prev) => [...prev, newCustomer.name]);
-    setNewName("");
-    setNewContact("");
-    setNewEmail("");
-    setShowAddForm(false);
-    toast.success(isNb ? `${newCustomer.name} lagt til` : `${newCustomer.name} added`);
+    setSelectedCustomers(currentSharedWith);
   };
 
   const totalSteps = 2;
@@ -337,74 +330,16 @@ export function ManageSharingDialog({
               <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={handleDeselectAll}>
                 {isNb ? "Fjern alle" : "Deselect all"}
               </Button>
-              <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-[11px] gap-1"
-                onClick={() => setShowAddForm(!showAddForm)}
-              >
-                <Plus className="h-3 w-3" />
-                {isNb ? "Legg til kunde" : "Add customer"}
-              </Button>
             </div>
 
-            {/* Add new customer form */}
-            {showAddForm && (
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">
-                    {isNb ? "Ny kunde / gruppe" : "New customer / group"}
-                  </span>
-                  <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setShowAddForm(false)}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-                <div>
-                  <Label className="text-[11px] text-muted-foreground">{isNb ? "Kundenavn *" : "Customer name *"}</Label>
-                  <Input
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder={isNb ? "F.eks. Bedrift AS" : "e.g. Company AS"}
-                    className="h-8 text-xs mt-1"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-[11px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
-                    <div className="relative mt-1">
-                      <User className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                      <Input
-                        value={newContact}
-                        onChange={(e) => setNewContact(e.target.value)}
-                        placeholder={isNb ? "Navn" : "Name"}
-                        className="h-8 pl-7 text-xs"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-[11px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
-                    <div className="relative mt-1">
-                      <Mail className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                      <Input
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="name@company.no"
-                        type="email"
-                        className="h-8 pl-7 text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="h-7 text-[11px] w-full gap-1"
-                  disabled={!newName.trim()}
-                  onClick={handleAddCustomer}
-                >
-                  <Plus className="h-3 w-3" />
-                  {isNb ? "Legg til" : "Add"}
-                </Button>
+            {allCustomers.length === 0 && (
+              <div className="rounded-lg border border-dashed p-4 text-center space-y-2">
+                <Users className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Du har ingen kontakter i nettverket ennå. Gå til Forespørsler → Nettverk for å invitere kontakter."
+                    : "You have no contacts in your network yet. Go to Requests → Network to invite contacts."}
+                </p>
               </div>
             )}
 
@@ -412,18 +347,24 @@ export function ManageSharingDialog({
               {filteredCustomers.map((customer) => {
                 const isSelected = selectedCustomers.includes(customer.name);
                 const isExpanded = expandedId === customer.id;
+                const isPending = customer.status === "pending";
+                const isDeclined = customer.status === "declined";
+                const isDisabled = isPending || isDeclined;
                 return (
                   <div key={customer.id} className="space-y-0">
                     <label
-                      className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
-                        isSelected
-                          ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5"
-                          : "border-border hover:bg-muted/50"
+                      className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all ${
+                        isDisabled
+                          ? "opacity-60 cursor-not-allowed border-border"
+                          : isSelected
+                            ? "border-l-[3px] border-l-primary border-t border-r border-b border-primary/30 bg-primary/5 cursor-pointer"
+                            : "border-border hover:bg-muted/50 cursor-pointer"
                       } ${isExpanded ? "rounded-b-none" : ""}`}
                     >
                       <Checkbox
                         checked={isSelected}
-                        onCheckedChange={() => toggleCustomer(customer.name)}
+                        onCheckedChange={() => !isDisabled && toggleCustomer(customer.name)}
+                        disabled={isDisabled}
                         aria-label={`${isNb ? "Velg" : "Select"} ${customer.name}`}
                       />
                       <div className="flex-1 min-w-0">
@@ -441,18 +382,20 @@ export function ManageSharingDialog({
                               {customer.contactEmail}
                             </span>
                           )}
-                          {customer.isShared ? (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
-                              {isNb ? "Delt" : "Shared"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                              {isNb ? "Ikke delt" : "Not shared"}
+                          {isPending && (
+                            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[9px] px-1.5 py-0 gap-0.5">
+                              <Clock className="h-2.5 w-2.5" />
+                              {isNb ? "Avventer godkjenning" : "Awaiting approval"}
                             </Badge>
                           )}
-                          {customer.isPriority && (
-                            <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[9px] px-1.5 py-0">
-                              {isNb ? "Prioritet" : "Priority"}
+                          {isDeclined && (
+                            <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Avslått" : "Declined"}
+                            </Badge>
+                          )}
+                          {customer.status === "accepted" && customer.isShared && (
+                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
+                              {isNb ? "Delt" : "Shared"}
                             </Badge>
                           )}
                           {customer.category && (
@@ -492,11 +435,6 @@ export function ManageSharingDialog({
                             </div>
                           </div>
                         </div>
-                        {!customer.contactPerson && !customer.contactEmail && (
-                          <p className="text-[10px] text-muted-foreground italic">
-                            {isNb ? "Ingen kontaktinfo registrert for denne kunden." : "No contact info registered for this customer."}
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>

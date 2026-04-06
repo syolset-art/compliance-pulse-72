@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check,
-  Building2, Calendar, Upload, Paperclip, X, BookOpen, Save,
+  Building2, Calendar, Upload, Paperclip, X, BookOpen, Save, Network,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -288,6 +288,14 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
         {/* Step 2: Select vendors */}
         {step === 2 && (
           <div className="space-y-3 py-2">
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 mb-2">
+              <Network className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
+              <p className="text-[11px] text-blue-700 dark:text-blue-300">
+                {isNb
+                  ? "Du kan bare sende forespørsler til leverandører som er registrert i systemet ditt."
+                  : "You can only send requests to vendors registered in your system."}
+              </p>
+            </div>
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 {isNb ? "Velg leverandører" : "Select vendors"}
