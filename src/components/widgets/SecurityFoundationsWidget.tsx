@@ -1,0 +1,100 @@
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Shield, Settings, KeyRound, Users } from "lucide-react";
+import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
+import { cn } from "@/lib/utils";
+
+const PILLARS = [
+  { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance" },
+  { key: "operations", icon: Settings, label_no: "Drift", label_en: "Operations" },
+  { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
+  { key: "supplier_ecosystem", icon: Users, label_no: "Leverandør og økosystem", label_en: "Supplier & Ecosystem" },
+] as const;
+
+function maturityLabel(percent: number, isNb: boolean) {
+  if (percent >= 67) return { label: isNb ? "Høy" : "High", className: "text-emerald-600 dark:text-emerald-400" };
+  if (percent >= 34) return { label: isNb ? "Middels" : "Medium", className: "text-amber-600 dark:text-amber-400" };
+  return { label: isNb ? "Lav" : "Low", className: "text-orange-600 dark:text-orange-400" };
+}
+
+export function SecurityFoundationsWidget() {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb" || i18n.language === "no";
+  const { stats } = useComplianceRequirements({});
+
+  const overall = stats.overallScore || { assessed: 0, total: 0, score: 0 };
+  const byDomain = stats.byDomainArea || {};
+
+  return (
+    <Card>
+      <CardHeader className="pb-3 pt-4 px-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            Security Foundations
+          </CardTitle>
+          <Badge variant="outline" className="text-[10px] h-5">
+            {isNb ? "Demodata" : "Demo data"}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="px-4 pb-4 pt-0 space-y-4">
+        {/* Overall progress */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {isNb ? "Samlet modenhet" : "Overall maturity"}
+            </span>
+            <span className="font-semibold text-foreground">
+              {overall.assessed}/{overall.total}{" "}
+              {isNb ? "kontroller dokumentert" : "controls documented"}
+            </span>
+          </div>
+          <Progress value={overall.score} className="h-2.5 [&>div]:bg-primary" />
+          <p className="text-right text-xs font-medium text-primary">{Math.round(overall.score)}%</p>
+        </div>
+
+        {/* 2x2 pillar grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {PILLARS.map((pillar) => {
+            const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
+            const percent = Math.round(domainData.score || 0);
+            const maturity = maturityLabel(percent, isNb);
+            const Icon = pillar.icon;
+
+            return (
+              <div
+                key={pillar.key}
+                className="rounded-lg border border-border bg-card p-3 space-y-2"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-primary/10">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {isNb ? pillar.label_no : pillar.label_en}
+                  </span>
+                </div>
+                <Progress value={percent} className="h-2 [&>div]:bg-primary" />
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {domainData.assessed || 0}/{domainData.total || 0}{" "}
+                    {isNb ? "målepunkter" : "controls"}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-foreground">{percent}%</span>
+                    <span className={cn("font-medium", maturity.className)}>
+                      {maturity.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
