@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -29,10 +31,11 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface DemoCustomer {
+interface NetworkCustomer {
   id: string;
   name: string;
   isPriority: boolean;
@@ -40,16 +43,8 @@ interface DemoCustomer {
   isShared: boolean;
   contactPerson?: string;
   contactEmail?: string;
+  status: string; // 'accepted' | 'pending' | 'declined'
 }
-
-const DEMO_CUSTOMERS: DemoCustomer[] = [
-  { id: "c1", name: "Allier AS", isPriority: true, category: "ALL SUPPLIERS", isShared: true, contactPerson: "Kari Nordmann", contactEmail: "kari@allier.no" },
-  { id: "c2", name: "Allier AS FEIL", isPriority: true, category: null, isShared: false },
-  { id: "c3", name: "Anders O Grevstad AS", isPriority: true, category: "PRIORITY SUPPLIERS", isShared: true, contactPerson: "Anders Grevstad", contactEmail: "anders@grevstad.no" },
-  { id: "c4", name: "TechCorp AS", isPriority: false, category: null, isShared: false },
-  { id: "c5", name: "Nordic Solutions", isPriority: false, category: null, isShared: false },
-  { id: "c6", name: "Bergen Finans AS", isPriority: false, category: null, isShared: true, contactPerson: "Ola Hansen", contactEmail: "ola@bergenfinans.no" },
-];
 
 interface ManageSharingDialogProps {
   open: boolean;
@@ -75,23 +70,43 @@ export function ManageSharingDialog({
 
   const [step, setStep] = useState(1);
   const [sharingMode, setSharingMode] = useState<string>(currentSharedMode || "selected");
-  const [selectedCustomers, setSelectedCustomers] = useState<string[]>(
-    currentSharedWith.length > 0 ? currentSharedWith : DEMO_CUSTOMERS.filter((c) => c.isShared).map((c) => c.name)
-  );
   const [search, setSearch] = useState("");
   const [showPriorityOnly, setShowPriorityOnly] = useState(false);
-
-  // Custom customers added by the user
-  const [customCustomers, setCustomCustomers] = useState<DemoCustomer[]>([]);
-  // Add new customer form
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newContact, setNewContact] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  // Expanded customer detail
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const allCustomers = useMemo(() => [...DEMO_CUSTOMERS, ...customCustomers], [customCustomers]);
+  // Fetch network connections from DB
+  const { data: networkConnections = [] } = useQuery({
+    queryKey: ["network-connections-sharing"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("network_connections")
+        .select("*")
+        .order("organization_name");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  // Map network connections to customer format
+  const allCustomers: NetworkCustomer[] = useMemo(() => {
+    return networkConnections.map((conn: any) => ({
+      id: conn.id,
+      name: conn.organization_name,
+      isPriority: false,
+      category: conn.connection_type === "customer" ? (isNb ? "Kunde" : "Customer") : (isNb ? "Leverandør" : "Vendor"),
+      isShared: currentSharedWith.includes(conn.organization_name),
+      contactPerson: conn.contact_person || undefined,
+      contactEmail: conn.contact_email || undefined,
+      status: conn.status,
+    }));
+  }, [networkConnections, currentSharedWith, isNb]);
+
+  const acceptedCustomers = useMemo(() => allCustomers.filter((c) => c.status === "accepted"), [allCustomers]);
+
+  const [selectedCustomers, setSelectedCustomers] = useState<string[]>(
+    currentSharedWith.length > 0 ? currentSharedWith : []
+  );
 
   const filteredCustomers = useMemo(() => {
     let list = allCustomers;
@@ -103,7 +118,7 @@ export function ManageSharingDialog({
       );
     }
     if (showPriorityOnly) {
-      list = list.filter((c) => c.isPriority);
+      list = list.filter((c) => c.status === "accepted");
     }
     return list;
   }, [search, showPriorityOnly, allCustomers]);
@@ -112,11 +127,11 @@ export function ManageSharingDialog({
     if (sharingMode === "selected") {
       setStep(2);
     } else {
-      const customers = sharingMode === "all" ? allCustomers.map((c) => c.name) : [];
+      const customers = sharingMode === "all" ? acceptedCustomers.map((c) => c.name) : [];
       onConfirm(sharingMode, customers);
       toast.success(
         sharingMode === "all"
-          ? isNb ? `Delt med ${allCustomers.length} kunder` : `Shared with ${allCustomers.length} customers`
+          ? isNb ? `Delt med ${acceptedCustomers.length} kontakter` : `Shared with ${acceptedCustomers.length} contacts`
           : isNb ? "Deling oppdatert" : "Sharing updated"
       );
       resetAndClose();
@@ -127,8 +142,8 @@ export function ManageSharingDialog({
     onConfirm("selected", selectedCustomers);
     toast.success(
       isNb
-        ? `Delt med ${selectedCustomers.length} kunder`
-        : `Shared with ${selectedCustomers.length} customers`
+        ? `Delt med ${selectedCustomers.length} kontakter`
+        : `Shared with ${selectedCustomers.length} contacts`
     );
     resetAndClose();
   };
@@ -137,7 +152,6 @@ export function ManageSharingDialog({
     setStep(1);
     setSearch("");
     setShowPriorityOnly(false);
-    setShowAddForm(false);
     setExpandedId(null);
     onOpenChange(false);
   };
@@ -148,31 +162,10 @@ export function ManageSharingDialog({
     );
   };
 
-  const handleSelectAll = () => setSelectedCustomers(filteredCustomers.map((c) => c.name));
+  const handleSelectAll = () => setSelectedCustomers(acceptedCustomers.map((c) => c.name));
   const handleDeselectAll = () => setSelectedCustomers([]);
   const handleResetToCurrentSharing = () => {
-    setSelectedCustomers(DEMO_CUSTOMERS.filter((c) => c.isShared).map((c) => c.name));
-  };
-
-  const handleAddCustomer = () => {
-    if (!newName.trim()) return;
-    const newId = `custom-${Date.now()}`;
-    const newCustomer: DemoCustomer = {
-      id: newId,
-      name: newName.trim(),
-      isPriority: false,
-      category: null,
-      isShared: false,
-      contactPerson: newContact.trim() || undefined,
-      contactEmail: newEmail.trim() || undefined,
-    };
-    setCustomCustomers((prev) => [...prev, newCustomer]);
-    setSelectedCustomers((prev) => [...prev, newCustomer.name]);
-    setNewName("");
-    setNewContact("");
-    setNewEmail("");
-    setShowAddForm(false);
-    toast.success(isNb ? `${newCustomer.name} lagt til` : `${newCustomer.name} added`);
+    setSelectedCustomers(currentSharedWith);
   };
 
   const totalSteps = 2;
