@@ -1,60 +1,44 @@
 
 
-## Plan: Personopplysningskategorier på Datahåndtering-fanen
+## Plan: Security Foundations modenhetsoversikt på dashbordet
 
-### Problem
-Fanen «Datahåndtering» mangler en seksjon for å registrere hvilke typer personopplysninger som samles inn. Oppbevaring og sletting henger logisk sammen med datatypene — uten å vite hva som samles inn, gir ikke retningslinjer for oppbevaring mening. Det finnes allerede en mock-basert `ProcessDataTypesTab` med kategorier (ORDINÆR, SENSITIV, SÆRLIG), men ingen database-tabell eller reell data bak.
+### Hva
+Erstatt «Krever oppmerksomhet» og «Dine oppgaver»-widgetene med en ny **Security Foundations**-widget som viser organisasjonens modenhet fordelt på de fire pilarene (Styring, Drift, Identitet og tilgang, Leverandør og økosystem). Designet matcher skjermbildet: en overordnet fremdriftslinje med teller for dokumenterte kontroller, og et 2x2-rutenett med hvert område som eget kort med prosent, fremdriftslinje og modenhetsnivå (Lav/Middels/Høy).
 
-### Løsning
-Legg til en ny «Personopplysninger»-boks på Datahåndtering-fanen (asset-profile) der brukeren kan registrere hvilke datatyper som behandles, med kategori (Ordinær / Sensitiv / Særlig). Lagre i en ny tabell `asset_data_categories`. Oppbevarings-seksjonen kobles visuelt til disse datatypene.
+### Datakilde
+Gjenbruk `useComplianceRequirements` — dette gir allerede `stats.byDomainArea` med score per pilar (governance, operations, identity_access, supplier_ecosystem) og `stats.overallScore` for totalbildet. Ingen nye database-tabeller trengs.
 
-### Database
+### Endringer
 
-**Ny tabell: `asset_data_categories`**
+**Ny fil: `src/components/widgets/SecurityFoundationsWidget.tsx`**
+- Henter data fra `useComplianceRequirements`
+- Viser overordnet kort med:
+  - Tittel «Security Foundations» + Demodata-badge
+  - Samlet fremdriftslinje (lilla)
+  - Teller: «X/Y kontroller dokumentert» (fra `stats.overallScore.assessed` / `total`)
+- 2x2-rutenett med fire pilar-kort, hvert med:
+  - Ikon (Shield for Styring, Settings/Cog for Drift, Key for Identitet, Users for Leverandør)
+  - Pilar-navn (norsk/engelsk)
+  - Prosent fra `stats.byDomainArea[key].score`
+  - Fargekodert fremdriftslinje (lilla)
+  - Modenhetsnivå-label: Lav (0-33%, rød/oransje), Middels (34-66%, oransje), Høy (67-100%, grønn)
+  - Ekspanderbar «X målepunkter» med chevron (viser antall krav i pilar)
 
-| Kolonne | Type | Beskrivelse |
-|---------|------|-------------|
-| id | uuid PK | |
-| asset_id | uuid NOT NULL | Referanse til asset |
-| data_type_name | text NOT NULL | F.eks. «Fullt navn», «IP-adresse», «Helseopplysninger» |
-| category | text NOT NULL DEFAULT 'ordinary' | `ordinary`, `sensitive`, `special` |
-| retention_period | text | F.eks. «3 år», «Slettes ved oppsigelse» |
-| legal_basis | text | F.eks. «Samtykke», «Avtale», «Berettiget interesse» |
-| source | text DEFAULT 'manual' | `manual`, `ai_detected` (fra personvernerklæring/DPA-analyse) |
-| created_at | timestamptz | |
+**Redigert fil: `src/pages/Index.tsx`**
+- Fjern `immediate-attention` og `user-actions` fra `WIDGET_DEFS` og `WIDGET_COMPONENTS`
+- Legg til `security-foundations` som ny widget med size `"full"` (tar hele bredden)
+- Plasser den øverst i `DEFAULT_ORDER`
 
-RLS: Åpen tilgang (matcher eksisterende mønster for asset-tabeller).
-
-### UI-endringer
-
-**`src/components/asset-profile/tabs/DataHandlingTab.tsx`**
-- Legg til ny Card «Personopplysninger som behandles» plassert **over** «Oppbevaring og sletting»
-- Viser registrerte datatyper med fargekodede kategori-badges (blå=Ordinær, oransje=Særlig, rød=Sensitiv) — gjenbruk fargeskjema fra `ProcessDataTypesTab`
-- «Legg til»-knapp åpner en enkel inline-form eller dialog med: navn, kategori (dropdown), oppbevaringstid, rettslig grunnlag
-- Hver rad har slett-knapp
-- AI-detekterte typer vises med en liten «AI»-badge
-- Tom-tilstand: info-tekst om at AI kan kartlegge dette automatisk fra personvernerklæring
-
-**Kobling til oppbevaring**
-- «Oppbevaring og sletting»-seksjonen viser et hint/teller: «X datatyper uten definert oppbevaringstid» dersom noen registrerte datatyper mangler `retention_period`
-
-### Forhåndsdefinerte datatyper (valgmeny)
-Tilby vanlige norske personopplysningstyper som forslag:
-- Fullt navn (fornavn, etternavn)
-- Kontaktinformasjon (e-post, telefon, adresse)
-- Fødselsnummer / personnummer
-- IP-adresse
-- Enhetsidentifikatorer
-- Helseopplysninger
-- Biometriske data
-- Fagforeningsmedlemskap
-- Strafferettslige opplysninger
+### Visuell stil
+- Lilla fremdriftslinjer (matcher eksisterende merkevare)
+- Modenhetsnivå som fargede tekstlabels: Lav=oransje/rød, Middels=oransje, Høy=grønn
+- Hvite/card bakgrunn med subtil border for hvert pilar-kort
+- Konsistent med skjermbildet brukeren viste
 
 ### Filer
 
 | Fil | Endring |
 |-----|---------|
-| **Migration** | Opprett `asset_data_categories` med RLS |
-| `DataHandlingTab.tsx` (asset-profile) | Ny «Personopplysninger»-seksjon med CRUD, varsel om manglende oppbevaringstid |
-| `ProcessDataTypesTab.tsx` | Migrer fra MOCK_DATA_TYPES til å hente fra `asset_data_categories` (valgfritt, fase 2) |
+| `src/components/widgets/SecurityFoundationsWidget.tsx` | Ny — hele widgeten |
+| `src/pages/Index.tsx` | Erstatt immediate-attention + user-actions med security-foundations |
 
