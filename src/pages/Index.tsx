@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
-import { ImmediateAttentionWidget } from "@/components/widgets/ImmediateAttentionWidget";
-import { UserActionsWidget } from "@/components/widgets/UserActionsWidget";
+import { SecurityFoundationsWidget } from "@/components/widgets/SecurityFoundationsWidget";
 import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidget";
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
@@ -29,8 +28,7 @@ import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
-  { id: "immediate-attention", label: "Krever oppmerksomhet", labelEn: "Needs attention", size: "compact" },
-  { id: "user-actions", label: "Dine oppgaver", labelEn: "Your actions", size: "compact" },
+  { id: "security-foundations", label: "Security Foundations", labelEn: "Security Foundations", size: "full" },
   { id: "business-risk-exposure", label: "Forretningsrisiko (FAIR)", labelEn: "Business Risk (FAIR)", size: "half" },
   { id: "vulnerability-map", label: "Sårbarhetskart", labelEn: "Vulnerability Map", size: "half" },
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
@@ -56,8 +54,7 @@ function loadFromStorage<T>(key: string, fallback: T): T {
 
 // Widget component map
 const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
-  "immediate-attention": <ImmediateAttentionWidget />,
-  "user-actions": <UserActionsWidget />,
+  "security-foundations": <SecurityFoundationsWidget />,
   "business-risk-exposure": <BusinessRiskExposureWidget />,
   "vulnerability-map": <VulnerabilityMapWidget />,
   "critical-processes": <CriticalProcessesWidget />,
