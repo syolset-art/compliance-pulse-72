@@ -12,6 +12,7 @@ import { CheckCircle2, X, Mail, Sparkles, FileText, AlertTriangle, ShieldAlert, 
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   penetration_test: "Penetrasjonstest",
@@ -54,6 +55,7 @@ const LaraInbox = () => {
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [isSeeding, setIsSeeding] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
 
   const seedDemoInboxItems = async () => {
     setIsSeeding(true);
@@ -138,9 +140,16 @@ const LaraInbox = () => {
       } as any);
       await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
     },
-    onSuccess: () => {
+    onSuccess: (_data, item) => {
+      const asset = item.assets || {};
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
-      toast.success("Dokument godkjent og lagt til i profilen");
+      setApprovedItem({
+        fileName: item.file_name || item.subject || "",
+        documentType: item.matched_document_type || "other",
+        assetId: item.matched_asset_id,
+        assetName: asset.name || "Ukjent leverandør",
+        isIncident: false,
+      });
     },
   });
 
@@ -163,10 +172,17 @@ const LaraInbox = () => {
       } as any);
       await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
     },
-    onSuccess: () => {
+    onSuccess: (_data, item) => {
+      const asset = item.assets || {};
       queryClient.invalidateQueries({ queryKey: ["lara-inbox-global"] });
       queryClient.invalidateQueries({ queryKey: ["deviations"] });
-      toast.success("Hendelse godkjent og opprettet som avvik");
+      setApprovedItem({
+        fileName: item.file_name || item.subject || "",
+        documentType: item.matched_document_type || "incident",
+        assetId: item.matched_asset_id,
+        assetName: asset.name || "Ukjent system",
+        isIncident: true,
+      });
     },
   });
 
@@ -362,6 +378,7 @@ const LaraInbox = () => {
             )}
           </div>
         </main>
+        <ApprovalSuccessDialog data={approvedItem} onClose={() => setApprovedItem(null)} />
       </div>
     </SidebarProvider>
   );
