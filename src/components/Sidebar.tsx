@@ -84,6 +84,7 @@ const modulesNav = [
 // Administrasjon submenu
 const administrationMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
+  { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
