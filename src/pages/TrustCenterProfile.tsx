@@ -10,8 +10,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle,
-  ChevronDown, Clock, MessageSquare, FileText, Award, Globe,
+  Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
+  ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
