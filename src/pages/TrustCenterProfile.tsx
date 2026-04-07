@@ -135,6 +135,37 @@ const TrustCenterProfile = () => {
   const risks = evaluation?.risks ?? [];
   const highRisks = risks.filter(r => r.severity === "high");
 
+  // Slug for public URL
+  const slug = (companyProfile?.name || asset?.name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9æøå\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 40);
+  const orgSuffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
+  const publicUrl = `trust.mynder.com/${slug}${orgSuffix}`;
+
+  const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`https://${publicUrl}`);
+    setCopiedLink(true);
+    toast.success(isNb ? "Lenke kopiert" : "Link copied");
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handlePublish = async () => {
+    const { error } = await supabase
+      .from("assets")
+      .update({ publish_mode: "all" } as any)
+      .eq("id", asset!.id);
+    if (error) {
+      toast.error(isNb ? "Kunne ikke publisere" : "Could not publish");
+    } else {
+      toast.success(isNb ? "Trust Center publisert!" : "Trust Center published!");
+    }
+  };
+
   const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
   const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
   const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(142, 71%, 45%)" : "hsl(var(--destructive))";
