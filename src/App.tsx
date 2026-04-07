@@ -67,6 +67,7 @@ import DemoLibrary from "./pages/DemoLibrary";
 import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
+import AdminAccessManagement from "./pages/AdminAccessManagement";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 import FrameworkDetail from "./pages/FrameworkDetail";
 import ComplianceOverview from "./pages/ComplianceOverview";
@@ -154,6 +155,7 @@ const App = () => (
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
                   <Route path="/admin/notifications" element={<AdminNotifications />} />
+                  <Route path="/admin/access" element={<AdminAccessManagement />} />
                   <Route path="/risk" element={<BusinessRiskDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
