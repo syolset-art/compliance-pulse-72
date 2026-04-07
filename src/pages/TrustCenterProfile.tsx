@@ -30,10 +30,11 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
   { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
-const TrustCenterProfile = () => {
+const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const isServiceProfile = !!propAssetId;
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
@@ -45,8 +46,17 @@ const TrustCenterProfile = () => {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
-    queryKey: ["self-asset-profile"],
+    queryKey: propAssetId ? ["asset-profile", propAssetId] : ["self-asset-profile"],
     queryFn: async () => {
+      if (propAssetId) {
+        const { data, error } = await supabase
+          .from("assets")
+          .select("*")
+          .eq("id", propAssetId)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }
       const { data, error } = await supabase
         .from("assets")
         .select("*")
