@@ -269,11 +269,12 @@ const Regulations = () => {
           {selectedFramework && (
             <div className="mt-6 space-y-4">
               <FrameworkDetailCard framework={selectedFramework} counts={currentCounts} />
-              <ComplianceHistoryChart frameworkId={selectedFramework.id} />
+              <ComplianceHistoryChart frameworkId={selectedFramework.id} onEventClick={(reqId) => setHighlightReqId(reqId)} />
               <FrameworkRequirementsList
                 key={selectedFramework.id}
                 frameworkId={selectedFramework.id}
                 onCountsChange={handleCountsChange}
+                highlightRequirementId={highlightReqId}
               />
             </div>
           )}
