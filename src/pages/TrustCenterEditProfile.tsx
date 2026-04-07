@@ -414,16 +414,27 @@ const TrustCenterEditProfile = () => {
                       <Badge
                         key={area}
                         variant={isSelected ? "default" : "outline"}
-                        className={`cursor-pointer text-xs ${isSelected ? "bg-primary text-primary-foreground" : ""}`}
+                        className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
+                        onClick={async () => {
+                          const newAreas = isSelected
+                            ? selectedAreas.filter((a: string) => a !== area)
+                            : [...selectedAreas, area];
+                          const newMeta = { ...meta, business_areas: newAreas };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          toast.success(isSelected
+                            ? (isNb ? `${area} fjernet` : `${area} removed`)
+                            : (isNb ? `${area} lagt til` : `${area} added`));
+                        }}
                       >
+                        {isSelected && <Check className="h-3 w-3 mr-1" />}
                         {area}
                       </Badge>
                     );
                   })}
-                  <Badge variant="outline" className="text-xs cursor-pointer">{isNb ? "Annet" : "Other"}</Badge>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  {isNb ? "Velg én eller flere kategorier som beskriver virksomheten." : "Select one or more categories."}
+                  {isNb ? "Klikk for å velge eller fjerne kategorier." : "Click to select or remove categories."}
                 </p>
               </Card>
 
@@ -468,16 +479,28 @@ const TrustCenterEditProfile = () => {
                       <Badge
                         key={cat.key}
                         variant={isSelected ? "default" : "outline"}
-                        className={`cursor-pointer text-xs ${isSelected ? "bg-primary text-primary-foreground" : ""}`}
+                        className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
+                        onClick={async () => {
+                          const newCats = isSelected
+                            ? selectedServiceCats.filter((k: string) => k !== cat.key)
+                            : [...selectedServiceCats, cat.key];
+                          const newMeta = { ...meta, service_categories: newCats };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          const label = isNb ? cat.labelNb : cat.labelEn;
+                          toast.success(isSelected
+                            ? (isNb ? `${label} fjernet` : `${label} removed`)
+                            : (isNb ? `${label} lagt til` : `${label} added`));
+                        }}
                       >
+                        {isSelected && <Check className="h-3 w-3 mr-1" />}
                         {isNb ? cat.labelNb : cat.labelEn}
                       </Badge>
                     );
                   })}
-                  <Badge variant="outline" className="text-xs cursor-pointer">{isNb ? "Annet" : "Other"}</Badge>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  {isNb ? "Forhåndsutfylt fra onboarding · Maks for å endre" : "Pre-filled from onboarding · editable"}
+                  {isNb ? "Klikk for å velge eller fjerne kategorier." : "Click to select or remove categories."}
                 </p>
               </Card>
             </section>
