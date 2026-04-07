@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -6,45 +6,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Shield, Users, Building2, Globe, Mail, Phone, ExternalLink } from "lucide-react";
-import { AssetHeader } from "@/components/asset-profile/AssetHeader";
-import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
+import { Progress } from "@/components/ui/progress";
+import {
+  Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle,
+  ChevronDown, Clock, MessageSquare, FileText, Award, Globe,
+  Lock, Layers, Users,
+} from "lucide-react";
+import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
-import { ValidationTab } from "@/components/asset-profile/tabs/ValidationTab";
+import type { ControlArea } from "@/lib/trustControlDefinitions";
+
+const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
+  { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
+  { area: "risk_compliance", icon: Lock, labelEn: "Security", labelNb: "Security" },
+  { area: "security_posture", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
+  { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
+];
 
 const TrustCenterProfile = () => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const headerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
 
-  const [trustMetrics, setTrustMetrics] = useState<{
-    trustScore: number;
-    confidenceScore: number;
-    lastUpdated: string;
-  } | null>(null);
-
-  // Fetch the self-asset (organization's own profile)
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-profile"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
-        .select("*, work_areas (id, name, responsible_person)")
-        .eq("asset_type", "self")
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: template } = useQuery({
-    queryKey: ["asset_type_template", "self"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("asset_type_templates")
         .select("*")
         .eq("asset_type", "self")
         .maybeSingle();
@@ -53,54 +44,50 @@ const TrustCenterProfile = () => {
     },
   });
 
-  const { data: tasks } = useQuery({
-    queryKey: ["asset-tasks", asset?.id],
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company_profile_trust_center"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_profile").select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active-tc"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .contains("relevant_for", [asset!.id]);
-      if (error) throw error;
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
       return data || [];
+    },
+  });
+
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["vendor-documents-count-tc", asset?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("vendor_documents").select("id").eq("asset_id", asset!.id);
+      return data?.length || 0;
     },
     enabled: !!asset?.id,
   });
 
-  // Company profile for roles/metadata
-  const { data: companyProfile } = useQuery({
-    queryKey: ["company_profile_trust_center"],
+  const { data: certsCount = 0 } = useQuery({
+    queryKey: ["certs-count-tc", asset?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("company_profile")
-        .select("*")
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      const { data } = await supabase
+        .from("vendor_documents")
+        .select("id")
+        .eq("asset_id", asset!.id)
+        .eq("document_type", "certification");
+      return data?.length || 0;
     },
+    enabled: !!asset?.id,
   });
 
-  const handleTrustMetrics = useCallback(
-    (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
-      setTrustMetrics((prev) => {
-        if (prev && prev.trustScore === metrics.trustScore && prev.confidenceScore === metrics.confidenceScore) return prev;
-        return metrics;
-      });
-    },
-    []
-  );
-
-  const handleNavigateToTab = useCallback(
-    (target: string) => {
-      if (target.startsWith("_header:")) {
-        headerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-      // For tab-level navigation, redirect to the full asset view
-      if (asset?.id) {
-        navigate(`/assets/${asset.id}`);
-      }
-    },
-    [asset?.id, navigate]
-  );
+  const evaluation = useTrustControlEvaluation(asset?.id || "");
 
   if (isLoading) {
     return (
@@ -110,7 +97,7 @@ const TrustCenterProfile = () => {
           <main className="flex-1 p-6">
             <div className="animate-pulse space-y-4">
               <div className="h-8 w-48 bg-muted rounded" />
-              <div className="h-32 bg-muted rounded" />
+              <div className="h-64 bg-muted rounded" />
             </div>
           </main>
         </div>
@@ -129,11 +116,6 @@ const TrustCenterProfile = () => {
               <h2 className="text-xl font-semibold">
                 {isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}
               </h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                {isNb
-                  ? "Fullfør onboarding for å opprette din organisasjonsprofil."
-                  : "Complete onboarding to create your organization profile."}
-              </p>
               <Button onClick={() => navigate("/onboarding")}>
                 {isNb ? "Start onboarding" : "Start onboarding"}
               </Button>
@@ -144,55 +126,86 @@ const TrustCenterProfile = () => {
     );
   }
 
-  const roles = [
-    {
-      label: isNb ? "DPO" : "DPO",
-      name: companyProfile?.dpo_name,
-      email: companyProfile?.dpo_email,
-    },
-    {
-      label: "CISO",
-      name: companyProfile?.ciso_name,
-      email: companyProfile?.ciso_email,
-    },
-    {
-      label: isNb ? "Compliance-ansvarlig" : "Compliance Officer",
-      name: companyProfile?.compliance_officer,
-      email: companyProfile?.compliance_officer_email,
-    },
-  ].filter((r) => r.name);
+  const trustScore = evaluation?.trustScore ?? 0;
+  const risks = evaluation?.risks ?? [];
+  const highRisks = risks.filter(r => r.severity === "high");
+
+  const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
+  const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
+  const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(142, 71%, 45%)" : "hsl(var(--destructive))";
+
+  // Gauge SVG
+  const radius = 52;
+  const circ = 2 * Math.PI * radius;
+  const dash = (trustScore / 100) * circ;
+
+  const lastUpdated = asset.updated_at
+    ? new Date(asset.updated_at).toLocaleDateString(isNb ? "nb-NO" : "en-US", { day: "numeric", month: "long", year: "numeric" })
+    : "–";
+
+  const meta = (asset.metadata || {}) as Record<string, any>;
+  const dpaOk = meta.dpa_verified === true;
+
+  const frameworkBadgeClass = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
+    if (n.includes("nis2")) return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300";
+    if (n.includes("iso")) return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300";
+    if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
+    return "bg-muted text-muted-foreground border-border";
+  };
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto">
-          <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-5">
-            {/* Title + Publishing toolbar */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-                    {isNb ? "Din Trust Profile" : "Your Trust Profile"}
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {asset.name} •{" "}
-                    {isNb
-                      ? "Administrer og del din compliance-profil"
-                      : "Manage and share your compliance profile"}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 shrink-0"
-                  onClick={() => navigate(`/assets/${asset.id}`)}
-                >
-                  <Settings className="h-4 w-4" />
-                  {isNb ? "Avansert" : "Advanced"}
-                </Button>
+          <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-5">
+            {/* Page Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Shield className="h-4 w-4" />
+                <span>Trust Center</span>
               </div>
+              <Badge variant="outline" className="text-xs">Free Plan</Badge>
+            </div>
 
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Trust Profile</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isNb
+                  ? "Din organisasjons sikkerhets- og compliance-profil slik den vises for kunder og partnere."
+                  : "Your organization's security and compliance profile as seen by customers and partners."}
+              </p>
+            </div>
+
+            {/* Tab bar */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => setActiveTab("preview")}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "preview"
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Eye className="h-4 w-4" />
+                Preview
+              </button>
+              <button
+                onClick={() => setActiveTab("publish")}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "publish"
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Share2 className="h-4 w-4" />
+                Share & Publish
+              </button>
+            </div>
+
+            {activeTab === "publish" ? (
               <TrustProfilePublishing
                 assetId={asset.id}
                 assetName={asset.name}
@@ -200,106 +213,263 @@ const TrustCenterProfile = () => {
                 publishMode={(asset as any).publish_mode || "private"}
                 publishToCustomers={(asset as any).publish_to_customers || []}
               />
-            </div>
+            ) : (
+              /* ── PREVIEW TAB ── */
+              <Card className="overflow-hidden">
+                {/* Powered by header */}
+                <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Shield className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-medium">Powered by Mynder Trust Center</span>
+                  </div>
+                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </Badge>
+                </div>
 
-            {/* Section 1: Entity Header with Trust Seal */}
-            <div ref={headerRef}>
-              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
-            </div>
-
-            {/* Section 2: Security Areas + Metrics */}
-            <AssetMetrics
-              asset={asset}
-              tasksCount={tasks?.length || 0}
-              onTrustMetrics={handleTrustMetrics}
-              onNavigateToTab={handleNavigateToTab}
-            />
-
-            {/* Section 3: Trust Score Details (inline ValidationTab) */}
-            <section aria-label={isNb ? "Trust Score-detaljer" : "Trust Score Details"}>
-              <ValidationTab assetId={asset.id} />
-            </section>
-
-            {/* Section 4: Key Roles */}
-            {roles.length > 0 && (
-              <section aria-label={isNb ? "Nøkkelroller" : "Key Roles"}>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Users className="h-4 w-4 text-primary" />
-                      {isNb ? "Nøkkelroller" : "Key Roles"}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {roles.map((role) => (
-                        <div
-                          key={role.label}
-                          className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/20"
-                        >
-                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <Users className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              {role.label}
-                            </p>
-                            <p className="text-sm font-medium truncate">{role.name}</p>
-                            {role.email && (
-                              <p className="text-xs text-muted-foreground truncate">{role.email}</p>
-                            )}
-                          </div>
+                <div className="p-6 md:p-8 space-y-8">
+                  {/* ── Company Header ── */}
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-start gap-4">
+                        <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0">
+                          <Shield className="h-7 w-7 text-muted-foreground" />
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </section>
-            )}
+                        <div className="min-w-0">
+                          <h2 className="text-xl font-bold text-foreground">{companyProfile?.name || asset.name}</h2>
+                          <p className="text-sm text-muted-foreground">Digital Trust Profile og samsvarsversikt</p>
+                        </div>
+                      </div>
 
-            {/* Section 5: Organization Coverage */}
-            <section aria-label={isNb ? "Organisasjonsdekning" : "Organization Coverage"}>
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-primary" />
-                    {isNb ? "Organisasjonsdekning" : "Organization Coverage"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <Badge variant="outline" className="text-[10px]">
+                        {isNb ? "Egenerklæring" : "Self-declared"}
+                      </Badge>
+
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {asset.description || (isNb
+                          ? `${companyProfile?.name || asset.name} er registrert i Norge og har etablert en digital tillitsprofil for å dokumentere sikkerhet, personvern og samsvar med relevante regelverk.`
+                          : `${companyProfile?.name || asset.name} has established a digital trust profile to document security, privacy, and regulatory compliance.`)}
+                      </p>
+
+                      {/* Framework badges */}
+                      {frameworks.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {frameworks.map((fw: any) => (
+                            <Badge
+                              key={fw.framework_id}
+                              variant="outline"
+                              className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
+                            >
+                              {fw.framework_name}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Trust Score Gauge */}
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <div className="relative flex items-center justify-center">
+                        <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90">
+                          <circle cx="64" cy="64" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                          <circle
+                            cx="64" cy="64" r={radius} fill="none"
+                            stroke={strokeColor} strokeWidth="8" strokeLinecap="round"
+                            strokeDasharray={`${dash} ${circ}`}
+                            style={{ transition: "stroke-dasharray 0.6s ease" }}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
+                          <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground text-center">
+                        {trustScore >= 80
+                          ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases")
+                          : trustScore >= 50
+                            ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases")
+                            : (isNb ? "Begrenset egnethet" : "Limited suitability")}
+                      </p>
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metadata stripe */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
                     {[
-                      {
-                        label: isNb ? "Bransje" : "Industry",
-                        value: companyProfile?.industry || "–",
-                        icon: Building2,
-                      },
-                      {
-                        label: isNb ? "Ansatte" : "Employees",
-                        value: companyProfile?.employees || "–",
-                        icon: Users,
-                      },
-                      {
-                        label: isNb ? "Geografisk dekning" : "Geographic scope",
-                        value: companyProfile?.geographic_scope || "–",
-                        icon: Globe,
-                      },
-                      {
-                        label: isNb ? "Domene" : "Domain",
-                        value: companyProfile?.domain || "–",
-                        icon: ExternalLink,
-                      },
-                    ].map((item) => (
-                      <div key={item.label} className="text-center p-3 rounded-lg bg-muted/20 border border-border">
-                        <item.icon className="h-4 w-4 mx-auto mb-1.5 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">{item.label}</p>
-                        <p className="text-sm font-medium mt-0.5 truncate">{item.value}</p>
+                      { label: "ORG.NR", value: companyProfile?.org_number || "–" },
+                      { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
+                      { label: isNb ? "KATEGORI" : "CATEGORY", value: asset.vendor_category || asset.category || "–" },
+                      { label: isNb ? "NETTSIDE" : "WEBSITE", value: companyProfile?.domain || "–" },
+                    ].map(item => (
+                      <div key={item.label} className="bg-card px-4 py-3">
+                        <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                        <p className="text-sm font-medium text-foreground mt-0.5 truncate">{item.value}</p>
                       </div>
                     ))}
                   </div>
-                </CardContent>
+
+                  {/* ── Sikkerhet og kontroller ── */}
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Shield className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="text-base font-semibold text-foreground">
+                        {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
+                      </h3>
+                    </div>
+
+                    <div className="space-y-2">
+                      {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
+                        const score = evaluation?.areaScore(area) ?? 0;
+                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                        return (
+                          <div key={area} className="rounded-lg border border-border p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2.5">
+                                <Icon className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold tabular-nums text-foreground">{score}%</span>
+                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </div>
+                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                                style={{ width: `${score}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  {/* ── Key Risk Insights ── */}
+                  {highRisks.length > 0 && (
+                    <section>
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="h-4 w-4 text-warning" />
+                        <h3 className="text-sm font-semibold text-foreground">Key Risk Insights</h3>
+                      </div>
+                      <div className="space-y-2">
+                        {highRisks.slice(0, 5).map(risk => (
+                          <div key={risk.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                            <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
+                            <span className="text-sm text-foreground">{isNb ? risk.titleNb : risk.titleEn}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Last updated */}
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>Last updated: {lastUpdated}</span>
+                  </div>
+
+                  {/* ── Sammendrag og kontakt ── */}
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="text-base font-semibold text-foreground">
+                        {isNb ? "Sammendrag og kontakt" : "Summary and Contact"}
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="text-center p-3">
+                        <p className="text-2xl font-bold text-foreground">{frameworks.length}</p>
+                        <p className="text-xs text-muted-foreground">{isNb ? "Regelverk" : "Frameworks"}</p>
+                      </div>
+                      <div className="text-center p-3">
+                        <p className="text-2xl font-bold text-foreground">
+                          {evaluation ? `${evaluation.implementedCount}/${evaluation.allControls.length}` : "0/0"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{isNb ? "Sikkerhet og kontroller" : "Security & Controls"}</p>
+                      </div>
+                      <div className="text-center p-3">
+                        <p className="text-2xl font-bold text-foreground">{certsCount}</p>
+                        <p className="text-xs text-muted-foreground">{isNb ? "Sertifiseringer" : "Certifications"}</p>
+                      </div>
+                      <div className="text-center p-3">
+                        {dpaOk ? (
+                          <CheckCircle2 className="h-6 w-6 text-success mx-auto" />
+                        ) : (
+                          <p className="text-2xl font-bold text-muted-foreground">–</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">DPA {dpaOk ? "OK" : "–"}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {isNb ? "Trenger du mer informasjon?" : "Need more information?"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isNb
+                            ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling."
+                            : "Contact us for questions about security, compliance or data handling."}
+                        </p>
+                      </div>
+                      <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                        <MessageSquare className="h-4 w-4" />
+                        {isNb ? "Kontakt oss" : "Contact us"}
+                      </Button>
+                    </div>
+                  </section>
+
+                  {/* ── Dokumentasjon og bevis ── */}
+                  <section>
+                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                      {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
+                    </h3>
+                    <div className="space-y-2">
+                      {[
+                        { icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount },
+                        { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount },
+                        { icon: Globe, label: isNb ? "Datahåndtering" : "Data Handling", count: null },
+                      ].map(item => (
+                        <button
+                          key={item.label}
+                          className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium text-foreground">{item.label}</span>
+                            {item.count !== null && (
+                              <Badge variant="secondary" className="text-[10px]">{item.count}</Badge>
+                            )}
+                          </div>
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                </div>
               </Card>
-            </section>
+            )}
+
+            {/* Advanced link */}
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground"
+                onClick={() => navigate(`/assets/${asset.id}`)}
+              >
+                <Settings className="h-3.5 w-3.5" />
+                {isNb ? "Avansert redigering" : "Advanced editing"}
+              </Button>
+            </div>
           </div>
         </main>
       </div>
