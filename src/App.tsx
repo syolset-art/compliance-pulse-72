@@ -100,6 +100,7 @@ const App = () => (
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/regulations" element={<Regulations />} />
+                  <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
