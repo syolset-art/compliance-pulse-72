@@ -137,10 +137,17 @@ export function CustomerRequestsTab() {
                       </div>
                     </div>
                     {req.status !== "completed" && (
-                      <Button size="sm" className="h-7 text-xs gap-1 shrink-0" onClick={() => openSharingDialog(req)}>
-                        <Send className="h-3 w-3" />
-                        {isNb ? "Del ferdig" : "Share"}
-                      </Button>
+                      <div className="flex gap-1.5">
+                        <Button size="sm" className="h-7 text-xs gap-1 shrink-0" onClick={() => openSharingDialog(req)}>
+                          <Send className="h-3 w-3" />
+                          {isNb ? "Del med partner" : "Share with partner"}
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 text-xs gap-1 shrink-0" onClick={() => {
+                          toast.success(isNb ? "Dokumentet er lagt til som berikelse av Trust Profilen" : "Document added as enrichment to Trust Profile");
+                        }}>
+                          {isNb ? "Legg til i Trust Profile" : "Add to Trust Profile"}
+                        </Button>
+                      </div>
                     )}
                     {req.status === "completed" && (
                       <Button variant="outline" size="sm" className="h-7 text-xs gap-1 shrink-0" onClick={() => openSharingDialog(req)}>
