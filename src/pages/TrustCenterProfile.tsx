@@ -12,8 +12,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
   ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
-  Lock, Layers, Users,
+  Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
