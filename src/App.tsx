@@ -144,6 +144,7 @@ const App = () => (
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
                   <Route path="/admin/notifications" element={<AdminNotifications />} />
+                  <Route path="/risk" element={<BusinessRiskDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
