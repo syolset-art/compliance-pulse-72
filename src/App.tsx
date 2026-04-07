@@ -69,6 +69,7 @@ import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 import FrameworkDetail from "./pages/FrameworkDetail";
+import ComplianceOverview from "./pages/ComplianceOverview";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
                   <Route path="/protocols" element={<ProcessingRecords />} />
                   <Route path="/processes/:id" element={<ProcessProfile />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/reports/compliance" element={<ComplianceOverview />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/regulations" element={<Regulations />} />
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
