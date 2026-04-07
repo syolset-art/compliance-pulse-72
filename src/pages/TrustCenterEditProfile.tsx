@@ -602,6 +602,7 @@ const TrustCenterEditProfile = () => {
                   const score = evaluation?.areaScore(area) ?? 0;
                   const isExpanded = expandedArea === area;
                   const areaControls = evaluation?.grouped[area] ?? [];
+                  const selfDeclaredCount = areaControls.filter(c => c.verificationSource === "customer_asserted" || c.verificationSource === "ai_inferred").length;
 
                   return (
                     <Card key={area} className="overflow-hidden">
@@ -615,6 +616,11 @@ const TrustCenterEditProfile = () => {
                             <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
                           </div>
                           <div className="flex items-center gap-2">
+                            {selfDeclaredCount > 0 && (
+                              <Badge variant="outline" className="text-[10px]">
+                                {selfDeclaredCount} {isNb ? "egenerklært" : "self-declared"}
+                              </Badge>
+                            )}
                             <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
                             {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                           </div>
@@ -627,26 +633,58 @@ const TrustCenterEditProfile = () => {
                         </div>
                       </button>
                       {isExpanded && areaControls.length > 0 && (
-                        <div className="border-t border-border">
+                        <div className="border-t border-border divide-y divide-border">
                           {areaControls.map(control => {
-                            const sIcon = control.status === "implemented"
-                              ? <CheckCircle2 className="h-4 w-4 text-success" />
-                              : control.status === "partial"
-                                ? <AlertTriangle className="h-4 w-4 text-warning" />
-                                : <Shield className="h-4 w-4 text-muted-foreground" />;
+                            const currentStatus = control.status;
                             return (
-                              <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
-                                <div className="flex items-center gap-3">
-                                  {sIcon}
-                                  <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                              <div key={control.key} className="p-4 space-y-3">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground">{isNb ? control.labelNb : control.labelEn}</p>
+                                    {(control as any).descriptionNb && (
+                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                        {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <Badge variant="outline" className="text-[10px] shrink-0">
+                                    {isNb ? "Egenerklæring" : "Self-declaration"}
+                                  </Badge>
                                 </div>
-                                <Badge variant="outline" className={`text-[10px] ${
-                                  control.status === "implemented" ? "bg-success/10 text-success border-success/20"
-                                    : control.status === "partial" ? "bg-warning/10 text-warning border-warning/20"
-                                      : "bg-muted text-muted-foreground"
-                                }`}>
-                                  {control.status === "implemented" ? "Yes" : control.status === "partial" ? "Partial" : "No"}
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                  {([
+                                    { value: "implemented", labelNb: "Ja", labelEn: "Yes", icon: CheckCircle2, activeClass: "bg-success/10 text-success border-success/30" },
+                                    { value: "partial", labelNb: "Delvis", labelEn: "Partial", icon: AlertTriangle, activeClass: "bg-warning/10 text-warning border-warning/30" },
+                                    { value: "missing", labelNb: "Nei", labelEn: "No", icon: Shield, activeClass: "bg-destructive/10 text-destructive border-destructive/30" },
+                                  ] as const).map(opt => {
+                                    const isActive = currentStatus === opt.value;
+                                    return (
+                                      <button
+                                        key={opt.value}
+                                        onClick={async () => {
+                                          const metaKey = control.key;
+                                          const metaValue = opt.value === "implemented" ? "yes" : opt.value === "partial" ? "partial" : "no";
+                                          const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+                                          const newMeta = { ...currentMeta, [metaKey]: metaValue };
+                                          await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
+                                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                                          queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+                                        }}
+                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${
+                                          isActive ? opt.activeClass : "border-border text-muted-foreground hover:bg-muted/50"
+                                        }`}
+                                      >
+                                        <opt.icon className="h-3.5 w-3.5" />
+                                        {isNb ? opt.labelNb : opt.labelEn}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                <button className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
+                                  <Upload className="h-3 w-3" />
+                                  {isNb ? "Legg ved dokumentasjon" : "Attach documentation"}
+                                  <span className="text-muted-foreground">({isNb ? "valgfritt" : "optional"})</span>
+                                </button>
                               </div>
                             );
                           })}
