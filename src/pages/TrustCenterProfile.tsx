@@ -768,42 +768,31 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                   </div>
 
                   {/* ── Sammendrag og kontakt ── */}
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Settings className="h-4 w-4 text-muted-foreground" />
+                  <section className="space-y-5">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-primary" />
                       <h3 className="text-base font-semibold text-foreground">
                         {isNb ? "Sammendrag og kontakt" : "Summary and Contact"}
                       </h3>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div className="text-center p-3">
-                        <p className="text-2xl font-bold text-foreground">{frameworks.length}</p>
-                        <p className="text-xs text-muted-foreground">{isNb ? "Regelverk" : "Frameworks"}</p>
-                      </div>
-                      <div className="text-center p-3">
-                        <p className="text-2xl font-bold text-foreground">
-                          {evaluation ? `${evaluation.implementedCount}/${evaluation.allControls.length}` : "0/0"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{isNb ? "Sikkerhet og kontroller" : "Security & Controls"}</p>
-                      </div>
-                      <div className="text-center p-3">
-                        <p className="text-2xl font-bold text-foreground">{certsCount}</p>
-                        <p className="text-xs text-muted-foreground">{isNb ? "Sertifiseringer" : "Certifications"}</p>
-                      </div>
-                      <div className="text-center p-3">
-                        {dpaOk ? (
-                          <CheckCircle2 className="h-6 w-6 text-success mx-auto" />
-                        ) : (
-                          <p className="text-2xl font-bold text-muted-foreground">–</p>
-                        )}
-                        <p className="text-xs text-muted-foreground">DPA {dpaOk ? "OK" : "–"}</p>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { value: String(frameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
+                        { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Sikkerhet og kontroller" : "Security & Controls", color: "text-warning" },
+                        { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
+                        { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
+                      ].map((item, i) => (
+                        <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
+                          <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{item.label}</p>
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border">
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-semibold text-foreground">
                           {isNb ? "Trenger du mer informasjon?" : "Need more information?"}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -812,36 +801,39 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                             : "Contact us for questions about security, compliance or data handling."}
                         </p>
                       </div>
-                      <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                      <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
                         <MessageSquare className="h-4 w-4" />
                         {isNb ? "Kontakt oss" : "Contact us"}
                       </Button>
                     </div>
                   </section>
 
+                  <Separator />
+
                   {/* ── Dokumentasjon og bevis ── */}
-                  <section>
-                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                       {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
                     </h3>
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {[
-                        { icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount },
-                        { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount },
-                        { icon: Globe, label: isNb ? "Datahåndtering" : "Data Handling", count: null },
+                        { icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount, color: "text-primary" },
+                        { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500" },
+                        { icon: Globe, label: isNb ? "Datahåndtering" : "Data Handling", count: null, color: "text-muted-foreground" },
+                        { icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: null, color: "text-muted-foreground" },
                       ].map(item => (
                         <button
                           key={item.label}
-                          className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
+                          className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl border border-border hover:bg-muted/40 hover:border-border/80 transition-all text-left group"
                         >
                           <div className="flex items-center gap-3">
-                            <item.icon className="h-4 w-4 text-muted-foreground" />
+                            <item.icon className={`h-4 w-4 ${item.color}`} />
                             <span className="text-sm font-medium text-foreground">{item.label}</span>
-                            {item.count !== null && (
-                              <Badge variant="secondary" className="text-[10px]">{item.count}</Badge>
+                            {item.count !== null && item.count > 0 && (
+                              <Badge variant="secondary" className="text-[10px] rounded-full px-2 font-semibold">{item.count}</Badge>
                             )}
                           </div>
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                         </button>
                       ))}
                     </div>
