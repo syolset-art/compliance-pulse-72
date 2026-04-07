@@ -696,7 +696,10 @@ const Regulations = () => {
                                     : 'bg-muted/30 border-border'
                                 }`}
                               >
-                                <div className="flex items-start gap-3 flex-1 min-w-0">
+                                <div 
+                                  className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer"
+                                  onClick={() => isActive && navigate(`/regulations/${framework.id}`)}
+                                >
                                   <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
                                     isActive ? 'bg-primary/20' : 'bg-muted'
                                   }`}>
@@ -708,7 +711,7 @@ const Regulations = () => {
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                      <span className={`font-medium text-sm ${isActive ? '' : 'text-muted-foreground'}`}>
+                                      <span className={`font-medium text-sm ${isActive ? 'hover:underline' : 'text-muted-foreground'}`}>
                                         {framework.name}
                                       </span>
                                       {isMandatory && (
@@ -736,6 +739,20 @@ const Regulations = () => {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                                  {isActive && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 gap-1 text-xs text-primary hover:text-primary px-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/regulations/${framework.id}`);
+                                      }}
+                                    >
+                                      <ChevronRight className="h-3.5 w-3.5" />
+                                      Se krav
+                                    </Button>
+                                  )}
                                   {isActive && (
                                     <Button
                                       variant="ghost"

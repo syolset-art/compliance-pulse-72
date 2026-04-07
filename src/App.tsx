@@ -68,6 +68,7 @@ import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
+import FrameworkDetail from "./pages/FrameworkDetail";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => (
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/regulations" element={<Regulations />} />
+                  <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
