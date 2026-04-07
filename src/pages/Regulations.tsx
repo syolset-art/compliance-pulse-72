@@ -321,9 +321,13 @@ const Regulations = () => {
           setShowActivationDialog(true);
         }
       } else {
+        const framework = frameworks.find(f => f.id === frameworkId);
+        const wasMandatory = existingFramework?.is_mandatory || framework?.isMandatory;
         toast({
-          title: "Regelverk deaktivert",
-          description: "Regelverket er fjernet fra listen din"
+          title: wasMandatory ? "⚠️ Obligatorisk regelverk deaktivert" : "Regelverk deaktivert",
+          description: wasMandatory 
+            ? `${framework?.name || 'Regelverket'} er lovpålagt, men er nå fjernet fra ditt scope. Du kan aktivere det igjen når som helst.`
+            : "Regelverket er fjernet fra listen din"
         });
       }
     } catch (error) {
