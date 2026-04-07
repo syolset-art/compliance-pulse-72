@@ -70,6 +70,7 @@ import AdminNotifications from "./pages/AdminNotifications";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 import FrameworkDetail from "./pages/FrameworkDetail";
 import ComplianceOverview from "./pages/ComplianceOverview";
+import TrustCenterProfile from "./pages/TrustCenterProfile";
 
 const queryClient = new QueryClient();
 
@@ -136,6 +137,7 @@ const App = () => (
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
+                  <Route path="/trust-center/profile" element={<TrustCenterProfile />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/trust-center/products" element={<TrustCenterProducts />} />
