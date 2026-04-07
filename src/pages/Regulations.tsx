@@ -231,7 +231,12 @@ const Regulations = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Regelverk og etterlevelse</h1>
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                Regelverk og etterlevelse
+                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
+                  {activeFrameworks.length}
+                </span>
+              </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Velg et regelverk for å se status og håndtere krav
               </p>
