@@ -67,6 +67,7 @@ import DemoLibrary from "./pages/DemoLibrary";
 import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
+import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 
 const queryClient = new QueryClient();
 
