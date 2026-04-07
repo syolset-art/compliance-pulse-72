@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, Lock, Brain, Scale, CheckCircle2, AlertTriangle, ArrowRight } from "lucide-react";
 import { frameworks, categories, getCategoryById } from "@/lib/frameworkDefinitions";
+import { ReportActionButtons } from "@/components/reports/ReportActionButtons";
+import type { ReportData } from "@/components/reports/DownloadReportDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 
