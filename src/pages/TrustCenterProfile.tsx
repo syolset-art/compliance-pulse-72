@@ -32,6 +32,9 @@ const TrustCenterProfile = () => {
   const isNb = i18n.language === "nb";
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
+  const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-profile"],
