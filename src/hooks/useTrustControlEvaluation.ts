@@ -79,6 +79,58 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
         const val = meta.incident_handling;
         return val === "yes" ? "implemented" : val === "partial" ? "partial" : (meta.incident_reporting_defined ? "implemented" : "missing");
       },
+      access_control: () => {
+        const val = meta.access_control;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      mfa_org: () => {
+        const val = meta.mfa_org;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      encryption_org: () => {
+        const val = meta.encryption_org;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      logging_monitoring: () => {
+        const val = meta.logging_monitoring;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      security_testing: () => {
+        const val = meta.security_testing;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      ropa: () => {
+        const val = meta.ropa;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      dpa_org: () => {
+        const val = meta.dpa_org;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      dpia: () => {
+        const val = meta.dpia;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      data_subject_rights: () => {
+        const val = meta.data_subject_rights;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      data_storage_control: () => {
+        const val = meta.data_storage_control;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      vendor_inventory: () => {
+        const val = meta.vendor_inventory;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      vendor_risk_assessment: () => {
+        const val = meta.vendor_risk_assessment;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      vendor_followup: () => {
+        const val = meta.vendor_followup;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
     },
   };
   return maps[assetType]?.[key]?.() ?? "missing";
@@ -121,7 +173,9 @@ export function useTrustControlEvaluation(assetId: string) {
       metadata: (asset.metadata as Record<string, any>) || null,
     };
 
-    const evaluatedGeneric: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
+    // For "self" type, use only ORG_CONTROLS (all 17 trust controls); skip generic controls
+    const isSelf = effectiveType === "self";
+    const evaluatedGeneric: EvaluatedControl[] = isSelf ? [] : GENERIC_CONTROLS.map((c) => ({
       ...c,
       status: evaluateGenericControl(c.key, assetLike, docsCount),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),

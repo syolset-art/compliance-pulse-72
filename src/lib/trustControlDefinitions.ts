@@ -93,12 +93,29 @@ export const HARDWARE_CONTROLS: TrustControlDefinition[] = [
   { key: "patch_management", labelEn: "Patch management active", labelNb: "Patchhåndtering aktiv", weight: 1, area: "security_posture" },
 ];
 
-// ── Organizational unit / self (Governance) ──────────────────────────
+// ── Organizational unit / self — all 17 trust controls ───────────────
 export const ORG_CONTROLS: TrustControlDefinition[] = [
+  // Governance & Accountability (gov-1 to gov-4)
   { key: "security_responsibility", labelEn: "Security & privacy responsibility", labelNb: "Ansvar for sikkerhet og personvern", descriptionEn: "Is it clearly defined who is responsible?", descriptionNb: "Er det tydelig definert hvem som har ansvaret?", weight: 1, area: "governance" },
   { key: "documented_policies", labelEn: "Documented policies", labelNb: "Dokumenterte policyer", descriptionEn: "Does the organization have documented security policies?", descriptionNb: "Har virksomheten dokumenterte sikkerhetspolicyer?", weight: 1, area: "governance" },
   { key: "risk_assessment_recent", labelEn: "Risk assessment last 12 months", labelNb: "Risikovurdering siste 12 mnd", descriptionEn: "Has a formal risk assessment been conducted?", descriptionNb: "Er det gjennomført en formell risikovurdering?", weight: 1, area: "governance" },
   { key: "incident_handling", labelEn: "Incident handling", labelNb: "Hendelseshåndtering", descriptionEn: "Is there a documented procedure for incident handling?", descriptionNb: "Finnes det en dokumentert prosedyre for hendelseshåndtering?", weight: 1, area: "governance" },
+  // Security (sec-1 to sec-5)
+  { key: "access_control", labelEn: "Access control (least privilege)", labelNb: "Tilgangsstyring (least privilege)", descriptionEn: "Does access control follow the principle of least privilege?", descriptionNb: "Følger tilgangsstyringen prinsippet om minste privilegium?", weight: 1, area: "risk_compliance" },
+  { key: "mfa_org", labelEn: "Multi-factor authentication", labelNb: "MFA", descriptionEn: "Is multi-factor authentication implemented?", descriptionNb: "Er flerfaktorautentisering implementert?", weight: 1, area: "risk_compliance" },
+  { key: "encryption_org", labelEn: "Encryption", labelNb: "Kryptering", descriptionEn: "Is data encrypted in transit and at rest?", descriptionNb: "Er data kryptert i transit og i hvile?", weight: 1, area: "risk_compliance" },
+  { key: "logging_monitoring", labelEn: "Logging and monitoring", labelNb: "Logging og overvåking", descriptionEn: "Is logging implemented for critical systems?", descriptionNb: "Er logging implementert for kritiske systemer?", weight: 1, area: "risk_compliance" },
+  { key: "security_testing", labelEn: "Security testing", labelNb: "Sikkerhetstesting", descriptionEn: "Is regular security testing performed (e.g. vulnerability scanning or penetration testing)?", descriptionNb: "Gjennomføres det regelmessig sikkerhetstesting (f.eks. sårbarhetsskanning eller penetrasjonstesting)?", weight: 1, area: "risk_compliance" },
+  // Privacy & Data Handling (priv-1 to priv-5)
+  { key: "ropa", labelEn: "Record of processing activities (ROPA)", labelNb: "Behandlingsoversikt (ROPA)", descriptionEn: "Does the organization have an up-to-date record of processing activities?", descriptionNb: "Har virksomheten en oppdatert behandlingsoversikt?", weight: 1, area: "security_posture" },
+  { key: "dpa_org", labelEn: "Data processing agreement (DPA)", labelNb: "Databehandleravtale (DPA)", descriptionEn: "Are DPAs in place with all relevant third parties?", descriptionNb: "Er det inngått DPA med alle relevante tredjeparter?", weight: 1, area: "security_posture" },
+  { key: "dpia", labelEn: "Data protection impact assessment (DPIA)", labelNb: "DPIA", descriptionEn: "Has a DPIA been conducted where required?", descriptionNb: "Er det gjennomført DPIA der det er påkrevd?", weight: 1, area: "security_posture" },
+  { key: "data_subject_rights", labelEn: "Data subject rights", labelNb: "Registrertes rettigheter", descriptionEn: "Are there processes for access, deletion, etc.?", descriptionNb: "Er det prosesser for innsyn, sletting, etc.?", weight: 1, area: "security_posture" },
+  { key: "data_storage_control", labelEn: "Data storage location control", labelNb: "Kontroll over datalagringssted", descriptionEn: "Does the organization control where data is stored, including international transfers?", descriptionNb: "Har virksomheten kontroll over hvor data lagres, inkludert internasjonale overføringer?", weight: 1, area: "security_posture" },
+  // Third-Party & Supply Chain (sup-1 to sup-3)
+  { key: "vendor_inventory", labelEn: "Vendor inventory", labelNb: "Leverandøroversikt (inventory)", descriptionEn: "Is there an up-to-date and complete overview of all third parties and sub-processors?", descriptionNb: "Finnes det en oppdatert og komplett oversikt over alle tredjeparter og underleverandører?", weight: 1, area: "supplier_governance" },
+  { key: "vendor_risk_assessment", labelEn: "Vendor risk assessment", labelNb: "Risikovurdering av leverandører", descriptionEn: "Are risk assessments and security evaluations of vendors performed before and during the contract period?", descriptionNb: "Gjennomføres det risikovurdering og sikkerhetsevaluering av leverandører før og under avtaleperioden?", weight: 1, area: "supplier_governance" },
+  { key: "vendor_followup", labelEn: "Regular vendor follow-up", labelNb: "Jevnlig oppfølging", descriptionEn: "Is regular evaluation and follow-up of vendors performed?", descriptionNb: "Gjennomføres det regelmessig evaluering og oppfølging av leverandører?", weight: 1, area: "supplier_governance" },
 ];
 
 // ── Risk mapping: control key → risk when missing/partial ────────────
@@ -120,6 +137,19 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
   incident_handling: { severity: "medium", titleEn: "No incident handling procedure — response gap", titleNb: "Ingen hendelseshåndteringsprosedyre — responsgap" },
   security_contact: { severity: "low", titleEn: "Security contact not defined — communication gap", titleNb: "Sikkerhetskontakt ikke definert — kommunikasjonsgap" },
   patch_management: { severity: "medium", titleEn: "Patch management not active — vulnerability risk", titleNb: "Patchhåndtering ikke aktiv — sårbarhetssrisiko" },
+  access_control: { severity: "high", titleEn: "Access control not following least privilege — unauthorized access risk", titleNb: "Tilgangsstyring følger ikke minste privilegium — risiko for uautorisert tilgang" },
+  mfa_org: { severity: "high", titleEn: "MFA not implemented — account compromise risk", titleNb: "MFA ikke implementert — risiko for kontokompromittering" },
+  encryption_org: { severity: "high", titleEn: "Encryption not enabled — data exposure risk", titleNb: "Kryptering ikke aktivert — risiko for dataeksponering" },
+  logging_monitoring: { severity: "medium", titleEn: "Logging and monitoring not implemented — incident detection risk", titleNb: "Logging og overvåking ikke implementert — risiko for manglende deteksjon" },
+  security_testing: { severity: "medium", titleEn: "No regular security testing — unknown vulnerability risk", titleNb: "Ingen regelmessig sikkerhetstesting — ukjent sårbarhet" },
+  ropa: { severity: "medium", titleEn: "No record of processing activities — GDPR compliance risk", titleNb: "Ingen behandlingsoversikt — GDPR-samsvarsrisiko" },
+  dpa_org: { severity: "high", titleEn: "No data processing agreements — GDPR compliance risk", titleNb: "Ingen databehandleravtaler — GDPR-samsvarsrisiko" },
+  dpia: { severity: "medium", titleEn: "No DPIA conducted — privacy risk", titleNb: "Ingen DPIA gjennomført — personvernrisiko" },
+  data_subject_rights: { severity: "medium", titleEn: "No processes for data subject rights — GDPR compliance risk", titleNb: "Ingen prosesser for registrertes rettigheter — GDPR-samsvarsrisiko" },
+  data_storage_control: { severity: "medium", titleEn: "No control over data storage location — transfer risk", titleNb: "Ingen kontroll over datalagringssted — overføringsrisiko" },
+  vendor_inventory: { severity: "medium", titleEn: "No vendor inventory — supply chain risk", titleNb: "Ingen leverandøroversikt — leverandørkjederisiko" },
+  vendor_risk_assessment: { severity: "medium", titleEn: "No vendor risk assessment — third-party risk", titleNb: "Ingen risikovurdering av leverandører — tredjepartsrisiko" },
+  vendor_followup: { severity: "low", titleEn: "No regular vendor follow-up — oversight gap", titleNb: "Ingen jevnlig leverandøroppfølging — oppfølgingsgap" },
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
@@ -141,6 +171,19 @@ const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
   incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering" },
   security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt" },
   patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering" },
+  access_control: { titleEn: "Implement least privilege access control", titleNb: "Implementer tilgangsstyring etter minste privilegium" },
+  mfa_org: { titleEn: "Implement multi-factor authentication", titleNb: "Implementer flerfaktorautentisering" },
+  encryption_org: { titleEn: "Enable encryption for data in transit and at rest", titleNb: "Aktiver kryptering for data i transit og i hvile" },
+  logging_monitoring: { titleEn: "Implement logging and monitoring", titleNb: "Implementer logging og overvåking" },
+  security_testing: { titleEn: "Perform regular security testing", titleNb: "Gjennomfør regelmessig sikkerhetstesting" },
+  ropa: { titleEn: "Create record of processing activities", titleNb: "Opprett behandlingsoversikt" },
+  dpa_org: { titleEn: "Establish data processing agreements", titleNb: "Inngå databehandleravtaler" },
+  dpia: { titleEn: "Conduct data protection impact assessment", titleNb: "Gjennomfør DPIA" },
+  data_subject_rights: { titleEn: "Establish processes for data subject rights", titleNb: "Etabler prosesser for registrertes rettigheter" },
+  data_storage_control: { titleEn: "Establish control over data storage locations", titleNb: "Etabler kontroll over datalagringssted" },
+  vendor_inventory: { titleEn: "Create vendor inventory", titleNb: "Opprett leverandøroversikt" },
+  vendor_risk_assessment: { titleEn: "Perform vendor risk assessments", titleNb: "Gjennomfør risikovurdering av leverandører" },
+  vendor_followup: { titleEn: "Establish regular vendor follow-up", titleNb: "Etabler jevnlig leverandøroppfølging" },
 };
 
 /**
