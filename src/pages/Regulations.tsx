@@ -743,6 +743,20 @@ const Regulations = () => {
                                     <Button
                                       variant="ghost"
                                       size="sm"
+                                      className="h-7 gap-1 text-xs text-primary hover:text-primary px-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/regulations/${framework.id}`);
+                                      }}
+                                    >
+                                      <ChevronRight className="h-3.5 w-3.5" />
+                                      Se krav
+                                    </Button>
+                                  )}
+                                  {isActive && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
                                       className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground px-2"
                                       onClick={(e) => {
                                         e.stopPropagation();
