@@ -1,44 +1,45 @@
 
 
-## Plan: Security Foundations modenhetsoversikt på dashbordet
+## Plan: Risk → Cost visning med tiltakskostnad og besparelse
 
 ### Hva
-Erstatt «Krever oppmerksomhet» og «Dine oppgaver»-widgetene med en ny **Security Foundations**-widget som viser organisasjonens modenhet fordelt på de fire pilarene (Styring, Drift, Identitet og tilgang, Leverandør og økosystem). Designet matcher skjermbildet: en overordnet fremdriftslinje med teller for dokumenterte kontroller, og et 2x2-rutenett med hvert område som eget kort med prosent, fremdriftslinje og modenhetsnivå (Lav/Middels/Høy).
+Utvid BusinessRiskExposureWidget og lag en detaljside som viser ledere den fulle "Risk → Cost"-historien: hva risikoen koster, hva tiltaket koster, og hva organisasjonen sparer.
 
-### Datakilde
-Gjenbruk `useComplianceRequirements` — dette gir allerede `stats.byDomainArea` med score per pilar (governance, operations, identity_access, supplier_ecosystem) og `stats.overallScore` for totalbildet. Ingen nye database-tabeller trengs.
+### Datamodell (demodata, ingen ny tabell)
+Utvid `RISK_DATA` med tre nye felter per risiko:
+
+```text
+mitigation_cost   — hva tiltaket koster (engangskostnad)
+mitigation_label  — kort beskrivelse av tiltak ("Signer DPA", "Aktiver MFA")
+residual_exposure — resteksponering etter tiltak
+```
+
+Besparelse beregnes: `exposure - residual_exposure - mitigation_cost`
 
 ### Endringer
 
-**Ny fil: `src/components/widgets/SecurityFoundationsWidget.tsx`**
-- Henter data fra `useComplianceRequirements`
-- Viser overordnet kort med:
-  - Tittel «Security Foundations» + Demodata-badge
-  - Samlet fremdriftslinje (lilla)
-  - Teller: «X/Y kontroller dokumentert» (fra `stats.overallScore.assessed` / `total`)
-- 2x2-rutenett med fire pilar-kort, hvert med:
-  - Ikon (Shield for Styring, Settings/Cog for Drift, Key for Identitet, Users for Leverandør)
-  - Pilar-navn (norsk/engelsk)
-  - Prosent fra `stats.byDomainArea[key].score`
-  - Fargekodert fremdriftslinje (lilla)
-  - Modenhetsnivå-label: Lav (0-33%, rød/oransje), Middels (34-66%, oransje), Høy (67-100%, grønn)
-  - Ekspanderbar «X målepunkter» med chevron (viser antall krav i pilar)
+**`BusinessRiskExposureWidget.tsx`** — Oppdater:
+- Endre undertekst til: "Se hvor du taper penger på risiko"
+- Legg til en liten "besparelse"-kolonne per rad som viser potensiell besparelse i grønt
+- Gjør hver rad klikkbar → navigerer til `/risk`
+- Footer-knapp: "Se prioriterte tiltak" → `/risk`
 
-**Redigert fil: `src/pages/Index.tsx`**
-- Fjern `immediate-attention` og `user-actions` fra `WIDGET_DEFS` og `WIDGET_COMPONENTS`
-- Legg til `security-foundations` som ny widget med size `"full"` (tar hele bredden)
-- Plasser den øverst i `DEFAULT_ORDER`
+**Ny fil: `src/pages/BusinessRiskDetail.tsx`** — Detaljside:
+- Sammendragskort øverst: Total ALE, Total tiltakskostnad, Total besparelse (3 MetricCards)
+- Prioritert liste med alle 5 risikoer, hver som et utvidbart kort:
+  - Prosess / System / Kategori-badge
+  - Tre kolonner: "Årlig risikokostnad" | "Tiltakskostnad" | "Besparelse"
+  - Tiltaksbeskrivelse (hva som må gjøres)
+  - Knapp: "Opprett oppgave" (toast, demo)
+- Visuell: Stacked bar per risiko som viser eksponering vs. restrisiko vs. besparelse
 
-### Visuell stil
-- Lilla fremdriftslinjer (matcher eksisterende merkevare)
-- Modenhetsnivå som fargede tekstlabels: Lav=oransje/rød, Middels=oransje, Høy=grønn
-- Hvite/card bakgrunn med subtil border for hvert pilar-kort
-- Konsistent med skjermbildet brukeren viste
+**`src/App.tsx`** — Legg til route `/risk` → `BusinessRiskDetail`
 
 ### Filer
 
 | Fil | Endring |
 |-----|---------|
-| `src/components/widgets/SecurityFoundationsWidget.tsx` | Ny — hele widgeten |
-| `src/pages/Index.tsx` | Erstatt immediate-attention + user-actions med security-foundations |
+| `src/components/widgets/BusinessRiskExposureWidget.tsx` | Utvid demodata, klikkbare rader, ny tekst |
+| `src/pages/BusinessRiskDetail.tsx` | Ny detaljside med ROI-oversikt |
+| `src/App.tsx` | Ny route `/risk` |
 
