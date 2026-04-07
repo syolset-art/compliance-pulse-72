@@ -30,10 +30,11 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
   { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
-const TrustCenterProfile = () => {
+const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const isServiceProfile = !!propAssetId;
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
@@ -45,8 +46,17 @@ const TrustCenterProfile = () => {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
-    queryKey: ["self-asset-profile"],
+    queryKey: propAssetId ? ["asset-profile", propAssetId] : ["self-asset-profile"],
     queryFn: async () => {
+      if (propAssetId) {
+        const { data, error } = await supabase
+          .from("assets")
+          .select("*")
+          .eq("id", propAssetId)
+          .maybeSingle();
+        if (error) throw error;
+        return data;
+      }
       const { data, error } = await supabase
         .from("assets")
         .select("*")
@@ -226,12 +236,28 @@ const TrustCenterProfile = () => {
               <Badge variant="outline" className="text-xs">Free Plan</Badge>
             </div>
 
+            {isServiceProfile && (
+              <button
+                onClick={() => navigate("/trust-center/products")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+              >
+                <ChevronUp className="h-4 w-4 -rotate-90" />
+                {isNb ? "Tilbake til produkter" : "Back to products"}
+              </button>
+            )}
+
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Trust Profile</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isServiceProfile ? (asset?.name || "Trust Profile") : "Trust Profile"}
+              </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {isNb
-                  ? "Din organisasjons sikkerhets- og compliance-profil slik den vises for kunder og partnere."
-                  : "Your organization's security and compliance profile as seen by customers and partners."}
+                {isServiceProfile
+                  ? (isNb
+                    ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
+                    : "Product or service profile as seen by customers and partners.")
+                  : (isNb
+                    ? "Din organisasjons sikkerhets- og compliance-profil slik den vises for kunder og partnere."
+                    : "Your organization's security and compliance profile as seen by customers and partners.")}
               </p>
             </div>
 
