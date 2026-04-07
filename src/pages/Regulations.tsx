@@ -275,15 +275,6 @@ const Regulations = () => {
   const toggleFramework = async (frameworkId: string, currentlySelected: boolean) => {
     const existingFramework = selectedFrameworks.find(f => f.framework_id === frameworkId);
     
-    if (existingFramework?.is_mandatory) {
-      toast({
-        title: "Obligatorisk regelverk",
-        description: "Dette regelverket er obligatorisk og kan ikke deaktiveres",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setUpdating(frameworkId);
     
     try {
