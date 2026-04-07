@@ -173,7 +173,9 @@ export function useTrustControlEvaluation(assetId: string) {
       metadata: (asset.metadata as Record<string, any>) || null,
     };
 
-    const evaluatedGeneric: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
+    // For "self" type, use only ORG_CONTROLS (all 17 trust controls); skip generic controls
+    const isSelf = effectiveType === "self";
+    const evaluatedGeneric: EvaluatedControl[] = isSelf ? [] : GENERIC_CONTROLS.map((c) => ({
       ...c,
       status: evaluateGenericControl(c.key, assetLike, docsCount),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
