@@ -90,7 +90,8 @@ const administrationMenu = [
 ];
 
 const TrustCenterMenu = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const location = useLocation();
   const navigate = useNavigate();
   const [selfAssetId, setSelfAssetId] = useState<string | null>(null);
