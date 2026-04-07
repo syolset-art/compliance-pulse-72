@@ -163,15 +163,27 @@ const TrustCenterProfile = () => {
   };
 
   const handlePublish = async () => {
+    setIsPublishing(true);
+    setPublishStep("publishing");
+    // Simulate a brief processing delay
+    await new Promise(r => setTimeout(r, 2000));
     const { error } = await supabase
       .from("assets")
       .update({ publish_mode: "all" } as any)
       .eq("id", asset!.id);
+    setIsPublishing(false);
     if (error) {
       toast.error(isNb ? "Kunne ikke publisere" : "Could not publish");
+      setPublishDialogOpen(false);
+      setPublishStep("confirm");
     } else {
-      toast.success(isNb ? "Trust Center publisert!" : "Trust Center published!");
+      setPublishStep("success");
     }
+  };
+
+  const openPublishDialog = () => {
+    setPublishStep("confirm");
+    setPublishDialogOpen(true);
   };
 
   const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
