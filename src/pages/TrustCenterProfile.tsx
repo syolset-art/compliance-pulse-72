@@ -40,6 +40,9 @@ const TrustCenterProfile = () => {
   const [isEditingSlug, setIsEditingSlug] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishStep, setPublishStep] = useState<"confirm" | "publishing" | "success">("confirm");
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-profile"],
