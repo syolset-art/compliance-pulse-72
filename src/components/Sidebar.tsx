@@ -70,6 +70,7 @@ const organisationNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
 // Moduler section (data modules)
