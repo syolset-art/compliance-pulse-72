@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
-import { TrustProfilePublishing } from "@/components/asset-profile/TrustProfilePublishing";
+
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
