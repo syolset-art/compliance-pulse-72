@@ -327,25 +327,81 @@ const TrustCenterProfile = () => {
                     <div className="space-y-2">
                       {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
                         const score = evaluation?.areaScore(area) ?? 0;
-                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-primary" : "bg-destructive";
+                        const isExpanded = expandedArea === area;
+                        const areaControls = evaluation?.grouped[area] ?? [];
+
                         return (
-                          <div key={area} className="rounded-lg border border-border p-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2.5">
-                                <Icon className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
+                          <div key={area} className="rounded-lg border border-border overflow-hidden">
+                            <button
+                              onClick={() => setExpandedArea(isExpanded ? null : area)}
+                              className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Icon className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                                  {isExpanded
+                                    ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                                    : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold tabular-nums text-foreground">{score}%</span>
-                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                                  style={{ width: `${score}%` }}
+                                />
                               </div>
-                            </div>
-                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${barColor} transition-all duration-500`}
-                                style={{ width: `${score}%` }}
-                              />
-                            </div>
+                            </button>
+
+                            {/* Expanded control details */}
+                            {isExpanded && areaControls.length > 0 && (
+                              <div className="border-t border-border">
+                                {areaControls.map((control) => {
+                                  const statusIcon = control.status === "implemented"
+                                    ? <CheckCircle2 className="h-4 w-4 text-success" />
+                                    : control.status === "partial"
+                                      ? <AlertTriangle className="h-4 w-4 text-warning" />
+                                      : <XCircle className="h-4 w-4 text-destructive" />;
+
+                                  const statusBadgeLabel = control.status === "implemented" ? "Yes"
+                                    : control.status === "partial" ? "Partial" : "No";
+                                  const statusBadgeClass = control.status === "implemented"
+                                    ? "bg-success/10 text-success border-success/20"
+                                    : control.status === "partial"
+                                      ? "bg-warning/10 text-warning border-warning/20"
+                                      : "bg-destructive/10 text-destructive border-destructive/20";
+
+                                  const verificationLabel = control.verificationSource === "third_party_verified"
+                                    ? (isNb ? "Verifisert" : "Verified")
+                                    : control.verificationSource === "vendor_verified"
+                                      ? (isNb ? "Dokumentert" : "Documented")
+                                      : control.verificationSource === "customer_asserted"
+                                        ? (isNb ? "Dokumentert" : "Documented")
+                                        : (isNb ? "Egenerklæring" : "Self-declared");
+
+                                  return (
+                                    <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
+                                      <div className="flex items-center gap-3">
+                                        {statusIcon}
+                                        <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <Badge variant="outline" className={`text-[10px] ${statusBadgeClass}`}>
+                                          {statusBadgeLabel}
+                                        </Badge>
+                                        <span className="text-[10px] text-muted-foreground">{verificationLabel}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
