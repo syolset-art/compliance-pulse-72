@@ -109,18 +109,17 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
   mfa_enabled: { severity: "high", titleEn: "MFA not enabled — account compromise risk", titleNb: "MFA ikke aktivert — risiko for kontokompromittering" },
   vendor_security_review: { severity: "medium", titleEn: "Vendor security review missing — third-party security risk", titleNb: "Leverandørsikkerhetsgjennomgang mangler — tredjepartsrisiko" },
   risk_assessment: { severity: "medium", titleEn: "Risk assessment not performed — unknown risk exposure", titleNb: "Risikovurdering ikke utført — ukjent risikoeksponering" },
+  risk_assessment_recent: { severity: "medium", titleEn: "No recent risk assessment — unknown risk exposure", titleNb: "Ingen nylig risikovurdering — ukjent risikoeksponering" },
   sub_processors_disclosed: { severity: "medium", titleEn: "Sub-processors not disclosed — supply chain risk", titleNb: "Underleverandører ikke oppgitt — leverandørkjederisiko" },
   security_logging: { severity: "medium", titleEn: "Security logging not enabled — incident detection risk", titleNb: "Sikkerhetslogging ikke aktivert — risiko for manglende hendelsesdeteksjon" },
   backup_configured: { severity: "medium", titleEn: "Backup not configured — data loss risk", titleNb: "Sikkerhetskopiering ikke konfigurert — risiko for datatap" },
   endpoint_protection: { severity: "medium", titleEn: "Endpoint protection missing — malware risk", titleNb: "Endepunktbeskyttelse mangler — risiko for skadevare" },
   documentation_available: { severity: "low", titleEn: "Documentation missing — audit readiness risk", titleNb: "Dokumentasjon mangler — risiko for manglende revisjonsberedskap" },
-  review_cycle: { severity: "low", titleEn: "Review cycle not defined — compliance drift risk", titleNb: "Gjennomgangssyklus ikke definert — risiko for samsvarsavvik" },
-  owner_assigned: { severity: "low", titleEn: "No owner assigned — accountability gap", titleNb: "Ingen eier tilordnet — manglende ansvarsplassering" },
-  responsible_person: { severity: "low", titleEn: "Responsible person not defined — governance gap", titleNb: "Ansvarlig person ikke definert — styringsmangler" },
+  security_responsibility: { severity: "high", titleEn: "Security responsibility not defined — accountability gap", titleNb: "Ansvar for sikkerhet ikke definert — manglende ansvarsplassering" },
+  documented_policies: { severity: "medium", titleEn: "No documented security policies — governance gap", titleNb: "Ingen dokumenterte sikkerhetspolicyer — styringsmangler" },
+  incident_handling: { severity: "medium", titleEn: "No incident handling procedure — response gap", titleNb: "Ingen hendelseshåndteringsprosedyre — responsgap" },
   security_contact: { severity: "low", titleEn: "Security contact not defined — communication gap", titleNb: "Sikkerhetskontakt ikke definert — kommunikasjonsgap" },
   patch_management: { severity: "medium", titleEn: "Patch management not active — vulnerability risk", titleNb: "Patchhåndtering ikke aktiv — sårbarhetssrisiko" },
-  security_training: { severity: "low", titleEn: "Security training not completed — awareness gap", titleNb: "Sikkerhetsopplæring ikke gjennomført — bevissthetsgap" },
-  incident_reporting: { severity: "medium", titleEn: "Incident reporting process not defined — response gap", titleNb: "Hendelsesrapporteringsprosess ikke definert — responsgap" },
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
