@@ -350,44 +350,157 @@ const TrustCenterProfile = () => {
 
                 {/* Vendor Hub sub-tab */}
                 {publishSubTab === "vendor" && (
-                  <Card className="p-8 text-center space-y-3">
-                    <Building2 className="h-10 w-10 mx-auto text-muted-foreground/50" />
-                    <h3 className="text-base font-semibold text-foreground">Vendor Hub</h3>
+                  <Card className="p-10 text-center space-y-4">
+                    <Users className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                    <h3 className="text-lg font-semibold text-foreground">Vendor Network Visibility</h3>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto">
                       {isNb
-                        ? "Gjør din Trust Profile tilgjengelig i Mynders Vendor Hub slik at potensielle kunder kan finne deg."
-                        : "Make your Trust Profile available in Mynder's Vendor Hub so potential customers can find you."}
+                        ? "Leverandørnettverkets synlighet hjelper organisasjoner med å finne pålitelige leverandører. Tilgjengelig i Trust Profile Pro."
+                        : "Vendor network visibility helps organizations discover trusted suppliers. Available in Trust Profile Pro."}
                     </p>
-                    <Badge variant="outline" className="text-xs">{isNb ? "Kommer snart" : "Coming soon"}</Badge>
+                    <Button className="gap-2 bg-primary hover:bg-primary/90">
+                      <Settings className="h-4 w-4" />
+                      {isNb ? "Oppgrader til Pro" : "Upgrade to Pro"}
+                    </Button>
                   </Card>
                 )}
 
                 {/* Website Badge sub-tab */}
                 {publishSubTab === "badge" && (
-                  <Card className="p-6 space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Nettside-badge" : "Website Badge"}
+                  <div className="space-y-6">
+                    {/* Badge tiers */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Free Badge */}
+                      <Card className="p-5 border-primary ring-1 ring-primary/20 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-base font-semibold text-foreground">Free Badge</h3>
+                            <p className="text-xs text-muted-foreground">{isNb ? "Inkludert i ditt abonnement" : "Included in your plan"}</p>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">Current</Badge>
+                        </div>
+                        <div className="flex justify-center py-4">
+                          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background text-sm font-medium text-foreground shadow-sm">
+                            <Shield className="h-4 w-4 text-primary" />
+                            Mynder Verified
+                          </span>
+                        </div>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          {[
+                            isNb ? 'Enkel "Mynder Verified" badge' : 'Basic "Mynder Verified" badge',
+                            isNb ? "Embed-kode inkludert" : "Embed code included",
+                            isNb ? "Lenker til ditt Trust Center" : "Links to your Trust Center",
+                          ].map(item => (
+                            <div key={item} className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </Card>
+
+                      {/* Pro Badge */}
+                      <Card className="p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-base font-semibold text-foreground">Pro Badge</h3>
+                            <p className="text-xs text-muted-foreground">{isNb ? "Full tilpasning" : "Full customization"}</p>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] gap-1">
+                            <Settings className="h-3 w-3" />
+                            Pro
+                          </Badge>
+                        </div>
+                        <div className="flex justify-center py-3">
+                          <div className="rounded-lg border border-border bg-background p-4 space-y-2 min-w-[200px]">
+                            <div className="flex items-center gap-2">
+                              <Shield className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-semibold text-foreground">Trust Profile</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Verified by Mynder</p>
+                            <div className="flex flex-wrap gap-1">
+                              {(frameworks.length > 0 ? frameworks.slice(0, 3) : [{ framework_name: "GDPR" }, { framework_name: "Personopplysningsloven" }, { framework_name: "ISO 27001" }]).map((fw: any, i: number) => (
+                                <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          {[
+                            isNb ? "Standard og detaljerte stiler" : "Standard and detailed styles",
+                            isNb ? "Tilpasset tema (lys / mørk / auto)" : "Custom theme (light / dark / auto)",
+                            isNb ? "Vis regelverk og compliance-info" : "Show regulations & compliance info",
+                            isNb ? "Firmanavn på badge" : "Company name on badge",
+                          ].map(item => (
+                            <div key={item} className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <Button className="w-full gap-2 bg-primary hover:bg-primary/90">
+                          <Settings className="h-4 w-4" />
+                          {isNb ? "Oppgrader for å tilpasse badge" : "Upgrade to customize badge"}
+                        </Button>
+                      </Card>
+                    </div>
+
+                    {/* Integration method */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <Code2 className="h-4 w-4 text-muted-foreground" />
+                        {isNb ? "Velg integrasjonsmetode" : "Choose integration method"}
                       </h3>
+                      <div className="rounded-lg border border-border overflow-hidden">
+                        <div className="flex border-b border-border">
+                          <button className="flex-1 px-4 py-2.5 text-sm font-medium text-foreground bg-muted/30 border-b-2 border-primary">
+                            Script ({isNb ? "anbefalt" : "recommended"})
+                          </button>
+                          <button className="flex-1 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                            Iframe
+                          </button>
+                        </div>
+                        <div className="relative p-4 bg-muted/20">
+                          <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed">{`<!-- Mynder Trust Badge -->
+<div id="mynder-trust-badge"
+     data-profile="${slug}${orgSuffix}"
+     data-style="compact"
+     data-theme="auto">
+</div>
+<script src="https://trust.mynder.com/badge.js" async></script>`}</pre>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 w-8 p-0"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`<!-- Mynder Trust Badge -->\n<div id="mynder-trust-badge"\n     data-profile="${slug}${orgSuffix}"\n     data-style="compact"\n     data-theme="auto">\n</div>\n<script src="https://trust.mynder.com/badge.js" async></script>`);
+                              toast.success(isNb ? "Kode kopiert" : "Code copied");
+                            }}
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <p className="px-4 py-2.5 text-xs text-muted-foreground border-t border-border">
+                          {isNb
+                            ? "Script-metoden gir best brukeropplevelse og oppdateres automatisk."
+                            : "The script method provides the best user experience and updates automatically."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info banner */}
+                    <div className="flex items-start gap-3 rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
+                      <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                       <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold text-foreground">
+                          {isNb ? "Trust Badge erstatter tradisjonelle dokumenter." : "Trust Badge replaces traditional documents."}
+                        </span>{" "}
                         {isNb
-                          ? "Legg til en badge på nettsiden din som lenker til din Trust Profile."
-                          : "Add a badge to your website that links directly to your Trust Profile."}
+                          ? "Besøkende kan klikke på badgen for å se din fullstendige Trust Profile med personvern, databehandleravtale og sikkerhetsdokumentasjon."
+                          : "Visitors can click the badge to view your complete Trust Profile with privacy policy, data processing agreement and security documentation."}
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {[
-                        { key: "shield", preview: <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-medium text-foreground shadow-sm"><Shield className="h-3.5 w-3.5 text-primary" />Verified by Mynder</span>, label: isNb ? "Skjold" : "Shield" },
-                        { key: "minimal", preview: <span className="text-xs text-muted-foreground">🛡️ Trust Profile on Mynder</span>, label: "Minimal" },
-                        { key: "banner", preview: <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-medium">🔒 View our Trust Profile</span>, label: "Banner" },
-                      ].map(b => (
-                        <button key={b.key} className="rounded-lg border border-border p-4 text-center hover:border-primary/40 transition-all">
-                          <div className="flex justify-center mb-2">{b.preview}</div>
-                          <p className="text-[10px] text-muted-foreground">{b.label}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </Card>
+                  </div>
                 )}
               </div>
             ) : (
