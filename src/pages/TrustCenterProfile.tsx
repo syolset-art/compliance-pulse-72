@@ -39,6 +39,7 @@ const TrustCenterProfile = () => {
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
   const [isEditingSlug, setIsEditingSlug] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-profile"],
