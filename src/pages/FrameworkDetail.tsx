@@ -119,7 +119,7 @@ const FrameworkDetailPage = () => {
         <div className="p-6 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-6">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/regulations")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/trust-center/regulations")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-3 flex-1">
