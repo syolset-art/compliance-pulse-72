@@ -275,15 +275,6 @@ const Regulations = () => {
   const toggleFramework = async (frameworkId: string, currentlySelected: boolean) => {
     const existingFramework = selectedFrameworks.find(f => f.framework_id === frameworkId);
     
-    if (existingFramework?.is_mandatory) {
-      toast({
-        title: "Obligatorisk regelverk",
-        description: "Dette regelverket er obligatorisk og kan ikke deaktiveres",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setUpdating(frameworkId);
     
     try {
@@ -330,9 +321,13 @@ const Regulations = () => {
           setShowActivationDialog(true);
         }
       } else {
+        const framework = frameworks.find(f => f.id === frameworkId);
+        const wasMandatory = existingFramework?.is_mandatory || framework?.isMandatory;
         toast({
-          title: "Regelverk deaktivert",
-          description: "Regelverket er fjernet fra listen din"
+          title: wasMandatory ? "⚠️ Obligatorisk regelverk deaktivert" : "Regelverk deaktivert",
+          description: wasMandatory 
+            ? `${framework?.name || 'Regelverket'} er lovpålagt, men er nå fjernet fra ditt scope. Du kan aktivere det igjen når som helst.`
+            : "Regelverket er fjernet fra listen din"
         });
       }
     } catch (error) {
@@ -776,7 +771,7 @@ const Regulations = () => {
                                   <Switch
                                     checked={isActive}
                                     onCheckedChange={() => toggleFramework(framework.id, isActive)}
-                                    disabled={isMandatory || updating === framework.id}
+                                    disabled={updating === framework.id}
                                   />
                                 </div>
                               </div>
