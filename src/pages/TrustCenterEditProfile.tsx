@@ -1,0 +1,736 @@
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { Sidebar } from "@/components/Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
+  Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
+  ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
+  Info, Settings, Package,
+} from "lucide-react";
+import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
+import type { ControlArea } from "@/lib/trustControlDefinitions";
+import { toast } from "sonner";
+
+const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
+  { area: "governance", icon: Shield, labelNb: "Governance & Accountability", labelEn: "Governance & Accountability" },
+  { area: "risk_compliance", icon: Lock, labelNb: "Security", labelEn: "Security" },
+  { area: "security_posture", icon: Globe, labelNb: "Privacy & Data Handling", labelEn: "Privacy & Data Handling" },
+  { area: "supplier_governance", icon: Layers, labelNb: "Third-Party & Supply Chain", labelEn: "Third-Party & Supply Chain" },
+];
+
+const BUSINESS_AREAS = [
+  "Kommunikasjon", "HR og personell", "Sikkerhet", "Økonomi og regnskap", "Drift og IT",
+  "Salg og markedsføring", "Juridisk og compliance", "Kundeservice", "Lagring og backup", "Utdanning",
+];
+
+const SERVICE_CATEGORIES = [
+  { key: "saas", labelNb: "SaaS / Skybasert programvare", labelEn: "SaaS / Cloud Software" },
+  { key: "digital", labelNb: "Digitale tjenester", labelEn: "Digital Services" },
+  { key: "consulting", labelNb: "Konsulent / Rådgivning", labelEn: "Consulting / Advisory" },
+  { key: "infra", labelNb: "Infrastruktur / Hosting", labelEn: "Infrastructure / Hosting" },
+];
+
+const TrustCenterEditProfile = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
+
+  const { data: asset, isLoading } = useQuery({
+    queryKey: ["self-asset-edit"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("assets").select("*").eq("asset_type", "self").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company_profile_edit"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_profile").select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-edit"],
+    queryFn: async () => {
+      const { data } = await supabase.from("selected_frameworks").select("framework_id, framework_name").eq("is_selected", true);
+      return data || [];
+    },
+  });
+
+  const { data: linkedProducts = [] } = useQuery({
+    queryKey: ["linked-products-edit", asset?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id, description, assets!asset_relationships_target_asset_id_fkey(id, name, asset_type)")
+        .eq("source_asset_id", asset!.id)
+        .eq("relationship_type", "service_of");
+      return data || [];
+    },
+    enabled: !!asset?.id,
+  });
+
+  const evaluation = useTrustControlEvaluation(asset?.id || "");
+
+  const slug = useMemo(() => {
+    const base = (companyProfile?.name || asset?.name || "")
+      .toLowerCase().replace(/[^a-z0-9æøå\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 40);
+    const suffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
+    return `${base}${suffix}`;
+  }, [companyProfile?.name, asset?.name, companyProfile?.org_number]);
+
+  const publicUrl = `https://trust.mynder.com/${slug}`;
+  const trustScore = evaluation?.trustScore ?? 0;
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(publicUrl);
+    setCopiedUrl(true);
+    toast.success(isNb ? "Lenke kopiert" : "Link copied");
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <Sidebar />
+          <main className="flex-1 p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 w-48 bg-muted rounded" />
+              <div className="h-64 bg-muted rounded" />
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
+  if (!asset) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <Sidebar />
+          <main className="flex-1 p-6 text-center py-20">
+            <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold">{isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}</h2>
+            <Button className="mt-4" onClick={() => navigate("/onboarding")}>Start onboarding</Button>
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
+  const meta = (asset.metadata || {}) as Record<string, any>;
+  const selectedAreas: string[] = meta.business_areas || [];
+  const selectedServiceCats: string[] = meta.service_categories || [];
+  const gdprRole: string = meta.gdpr_data_role || "processor";
+
+  const frameworkBadgeClass = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
+    if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
+    if (n.includes("iso")) return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300";
+    return "bg-muted text-muted-foreground border-border";
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+            {/* Page Header */}
+            <div>
+              <button
+                onClick={() => navigate("/trust-center/profile")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Trust Profile
+              </button>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isNb
+                  ? "Fyll ut seksjonene for å styrke din tillitsprofil."
+                  : "Fill in the sections to strengthen your trust profile."}
+              </p>
+            </div>
+
+            {/* Total Score Bar */}
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-foreground">{isNb ? "Total fremdrift" : "Total progress"}</span>
+                <span className="text-sm font-semibold text-foreground">{trustScore}%</span>
+              </div>
+              <Progress value={trustScore} className="h-2" />
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {[
+                  isNb ? "Offentlig profil" : "Public profile",
+                  isNb ? "Sikkerhet" : "Security",
+                  isNb ? "Dokumentasjon og bevis" : "Documentation & evidence",
+                  isNb ? "Offentlig profil" : "Public profile",
+                ].map((label, i) => (
+                  <Badge key={i} variant="secondary" className="text-[10px]">{label}</Badge>
+                ))}
+              </div>
+            </Card>
+
+            {/* Quick nav tabs */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
+                { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
+                { icon: Package, label: isNb ? "Koblede profiler" : "Linked profiles", anchor: "#linked" },
+                { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
+                { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
+              ].map(tab => (
+                <button
+                  key={tab.anchor}
+                  onClick={() => document.querySelector(tab.anchor)?.scrollIntoView({ behavior: "smooth" })}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+                >
+                  <tab.icon className="h-3 w-3" />
+                  {tab.label}
+                </button>
+              ))}
+              <button
+                onClick={() => navigate(`/assets/${asset.id}`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+              >
+                <Settings className="h-3 w-3" />
+                {isNb ? "Detaljinnstillinger og basis" : "Detail settings"}
+              </button>
+            </div>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Offentlig profil */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="public" className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isNb ? "Offentlig profil" : "Public Profile"}
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb
+                  ? "Din offentlige Trust Center-lenke som du kan dele med kunder og partnere."
+                  : "Your public Trust Center link that you can share with customers and partners."}
+              </p>
+
+              {/* Trust Center URL */}
+              <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
+                <div className="flex items-center gap-2 text-sm">
+                  <Link2 className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Dette er din offentlige lenke til din Trust Center-profil."
+                    : "This is your public link to your Trust Center profile."}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5">
+                    <code className="text-sm font-mono text-foreground">{publicUrl}</code>
+                  </div>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
+                    {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </Card>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Virksomhet */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="company" className="space-y-5">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isNb ? "Virksomhet" : "Company"}
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Grunnleggende informasjon om din virksomhet."
+                  : "Basic information about your company."}
+              </p>
+
+              {/* Selskapsinformasjon */}
+              <Card className="p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isNb ? "Selskapsinformasjon" : "Company Information"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Informasjonen hentes fra onboarding – du kan redigere firmanavn, stamsdata og adresse."
+                    : "Information is fetched from onboarding – you can edit company name, metadata and address."}
+                </p>
+
+                {/* Logo */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-foreground">Logo</label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+                      {asset.logo_url ? (
+                        <img src={asset.logo_url} className="h-12 w-12 rounded object-contain" alt="" />
+                      ) : (
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div>
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                        <Upload className="h-3 w-3" />
+                        {isNb ? "Last opp logo" : "Upload logo"}
+                      </Button>
+                      <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fields grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Organisasjonsnummer" : "Organization Number"}
+                    </label>
+                    <Input value={companyProfile?.org_number || ""} readOnly className="bg-muted/30 text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Hentet fra onboarding" : "Fetched from onboarding"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Selskapsnavn" : "Company Name"}
+                    </label>
+                    <Input value={companyProfile?.name || ""} readOnly className="bg-muted/30 text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Hentet fra Brønnøysundregistrene" : "Fetched from registry"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Organisasjonsform" : "Organization Type"}
+                    </label>
+                    <Input value={companyProfile?.brreg_industry?.split(" ")[0] || "AS"} readOnly className="bg-muted/30 text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Hentet fra Brønnøysundregistrene" : "From registry"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Stiftet" : "Founded"}
+                    </label>
+                    <Input value="—" readOnly className="bg-muted/30 text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Hentet fra Brønnøysundregistrene" : "From registry"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Nettside" : "Website"}
+                    </label>
+                    <Input defaultValue={companyProfile?.domain || ""} placeholder="www.example.com" className="text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Forhåndsutfylt fra onboarding · kan endres" : "Pre-filled from onboarding · editable"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Bransje" : "Industry"}
+                    </label>
+                    <Input defaultValue={companyProfile?.industry || ""} className="text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Forhåndsutfylt fra Brønnøysundregistrene" : "From registry"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Antall ansatte" : "Employees"}
+                    </label>
+                    <Input defaultValue={companyProfile?.employees || ""} className="text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Forhåndsutfylt fra onboarding · kan endres" : "Editable"}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Adresse" : "Address"}
+                    </label>
+                    <Input defaultValue="" placeholder={isNb ? "Eksempel Gata vei 1C" : "Street address"} className="text-sm" />
+                    <p className="text-[10px] text-muted-foreground">{isNb ? "Forhåndsutfylt fra Brønnøysundregistrene · kan endres" : "From registry · editable"}</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-foreground">
+                      {isNb ? "Beskrivelse av virksomheten" : "Company Description"}
+                    </label>
+                    <Badge variant="outline" className="text-[9px] gap-1 text-primary border-primary/30">
+                      <Shield className="h-2.5 w-2.5" />
+                      {isNb ? "Publiseres med AI" : "Published via AI"}
+                    </Badge>
+                  </div>
+                  <Textarea
+                    defaultValue={asset.description || ""}
+                    placeholder={isNb
+                      ? "Beskriv kort hva virksomheten gjør, hvilke tjenester dere leverer og hvem som er målgruppen..."
+                      : "Briefly describe what your company does, what services you provide and who your target audience is..."}
+                    rows={3}
+                    className="text-sm"
+                  />
+                </div>
+              </Card>
+
+              {/* Virksomhetsbruksområder */}
+              <Card className="p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {isNb ? "Virksomhetsbruksområder" : "Business Areas"}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb ? "Hvilke områder dekker virksomheten?" : "Which areas does the company cover?"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {BUSINESS_AREAS.map(area => {
+                    const isSelected = selectedAreas.includes(area);
+                    return (
+                      <Badge
+                        key={area}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`cursor-pointer text-xs ${isSelected ? "bg-primary text-primary-foreground" : ""}`}
+                      >
+                        {area}
+                      </Badge>
+                    );
+                  })}
+                  <Badge variant="outline" className="text-xs cursor-pointer">{isNb ? "Annet" : "Other"}</Badge>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {isNb ? "Velg én eller flere kategorier som beskriver virksomheten." : "Select one or more categories."}
+                </p>
+              </Card>
+
+              {/* Kontaktperson */}
+              <Card className="p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {isNb ? "Kontaktperson" : "Contact Person"}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb ? "Hvem er hovedkontakt for sikkerhet og etterlevelse?" : "Who is the main contact for security and compliance?"}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">{isNb ? "Navn" : "Name"}</label>
+                    <Input defaultValue={companyProfile?.compliance_officer || ""} className="text-sm" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">E-post</label>
+                    <Input defaultValue={companyProfile?.compliance_officer_email || ""} className="text-sm" />
+                  </div>
+                </div>
+              </Card>
+
+              {/* Leverandørprofil */}
+              <Card className="p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {isNb ? "Leverandørprofil" : "Vendor Profile"}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb ? "Hva slags tjenester eller produkter leverer virksomheten?" : "What kind of services or products does the company provide?"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {SERVICE_CATEGORIES.map(cat => {
+                    const isSelected = selectedServiceCats.includes(cat.key);
+                    return (
+                      <Badge
+                        key={cat.key}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`cursor-pointer text-xs ${isSelected ? "bg-primary text-primary-foreground" : ""}`}
+                      >
+                        {isNb ? cat.labelNb : cat.labelEn}
+                      </Badge>
+                    );
+                  })}
+                  <Badge variant="outline" className="text-xs cursor-pointer">{isNb ? "Annet" : "Other"}</Badge>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {isNb ? "Forhåndsutfylt fra onboarding · Maks for å endre" : "Pre-filled from onboarding · editable"}
+                </p>
+              </Card>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Koblede profiler */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="linked" className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isNb ? "Koblede profiler" : "Linked Profiles"}
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Organisasjonens Trust Profile kobles til produkter dere leverer og leverandører dere bruker."
+                  : "Your organization's Trust Profile is linked to your products and vendors."}
+              </p>
+
+              {/* GDPR Data Role */}
+              <Card className="p-5 space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isNb ? "Din rolle i datahåndtering" : "Your role in data handling"}
+                </h3>
+                <RadioGroup defaultValue={gdprRole} className="space-y-2">
+                  {[
+                    { value: "processor", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Vi bestemmer formål og middel for behandling av personopplysninger.", descEn: "We determine the purpose and means of processing personal data." },
+                    { value: "sub_processor", labelNb: "Databehandler", labelEn: "Data Processor", descNb: "Vi behandler personopplysninger på vegne av andre virksomheter.", descEn: "We process personal data on behalf of other organizations." },
+                    { value: "both", labelNb: "Begge roller", labelEn: "Both roles", descNb: "Vi har begge roller avhengig av tjeneste eller kundeavtale.", descEn: "We have both roles depending on service or agreement." },
+                  ].map(role => (
+                    <label
+                      key={role.value}
+                      className="flex items-start gap-3 rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+                    >
+                      <RadioGroupItem value={role.value} className="mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
+                        <p className="text-xs text-muted-foreground">{isNb ? role.descNb : role.descEn}</p>
+                      </div>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </Card>
+
+              {/* Products & Services */}
+              <Card className="p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-muted-foreground" />
+                    {isNb ? "Produkter og tjenester" : "Products & Services"}
+                  </h3>
+                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate("/trust-center/products")}>
+                    <Plus className="h-3 w-3" />
+                    {isNb ? "Ny produktprofil" : "New product profile"}
+                  </Button>
+                </div>
+
+                {linkedProducts.length === 0 ? (
+                  <div className="text-center py-8 space-y-3">
+                    <Package className="h-8 w-8 mx-auto text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground">{isNb ? "Ingen produktprofiler ennå" : "No product profiles yet"}</p>
+                    <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate("/trust-center/products")}>
+                      <Plus className="h-3 w-3" />
+                      {isNb ? "Opprett din første produktprofil" : "Create your first product profile"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {linkedProducts.map((lp: any) => (
+                      <button
+                        key={lp.target_asset_id}
+                        onClick={() => navigate(`/assets/${lp.target_asset_id}`)}
+                        className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
+                      >
+                        <span className="text-sm font-medium text-foreground">{lp.assets?.name || "–"}</span>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Sikkerhet og kontroller */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="security" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-semibold text-foreground">
+                    {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
+                  </h2>
+                </div>
+                <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
+              </div>
+
+              {/* Info box */}
+              <Card className="p-4 border-primary/20 bg-primary/5 space-y-2">
+                <div className="flex items-start gap-2">
+                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{isNb ? "Hvordan fungerer dette?" : "How does this work?"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isNb
+                        ? "For å henest kontrollstatus, sørg for at det er på plass i din virksomhet. Definer din regelverkssamling, last inn dine sertifiseringer og dokumenter."
+                        : "To achieve control status, make sure it is in place in your organization. Define your regulations, upload certifications and documents."}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isNb
+                        ? "Resultatet vises i din Trust Center-profil slik at dine kunder og partnere kan se den."
+                        : "The result is shown in your Trust Center profile for your customers and partners to see."}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Control areas */}
+              <div className="space-y-2">
+                {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
+                  const score = evaluation?.areaScore(area) ?? 0;
+                  const isExpanded = expandedArea === area;
+                  const areaControls = evaluation?.grouped[area] ?? [];
+
+                  return (
+                    <Card key={area} className="overflow-hidden">
+                      <button
+                        onClick={() => setExpandedArea(isExpanded ? null : area)}
+                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                            {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                          </div>
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-primary" : "bg-destructive"}`}
+                            style={{ width: `${score}%` }}
+                          />
+                        </div>
+                      </button>
+                      {isExpanded && areaControls.length > 0 && (
+                        <div className="border-t border-border">
+                          {areaControls.map(control => {
+                            const sIcon = control.status === "implemented"
+                              ? <CheckCircle2 className="h-4 w-4 text-success" />
+                              : control.status === "partial"
+                                ? <AlertTriangle className="h-4 w-4 text-warning" />
+                                : <Shield className="h-4 w-4 text-muted-foreground" />;
+                            return (
+                              <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
+                                <div className="flex items-center gap-3">
+                                  {sIcon}
+                                  <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                                </div>
+                                <Badge variant="outline" className={`text-[10px] ${
+                                  control.status === "implemented" ? "bg-success/10 text-success border-success/20"
+                                    : control.status === "partial" ? "bg-warning/10 text-warning border-warning/20"
+                                      : "bg-muted text-muted-foreground"
+                                }`}>
+                                  {control.status === "implemented" ? "Yes" : control.status === "partial" ? "Partial" : "No"}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Regelverk */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="regulations" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Scale className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-semibold text-foreground">
+                    {isNb ? "Regelverk" : "Regulations"}
+                  </h2>
+                </div>
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground" onClick={() => navigate("/trust-center/regulations")}>
+                  {isNb ? "Administrer" : "Manage"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Regelverk og standarder virksomheten etterlever."
+                  : "Regulations and standards the organization complies with."}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {frameworks.length > 0 ? frameworks.map((fw: any) => (
+                  <Badge key={fw.framework_id} variant="outline" className={`text-xs font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
+                    {fw.framework_name}
+                  </Badge>
+                )) : (
+                  <p className="text-xs text-muted-foreground">{isNb ? "Ingen regelverk valgt ennå." : "No regulations selected yet."}</p>
+                )}
+              </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Dokumentasjon og bevis */}
+            {/* ═══════════════════════════════════════════ */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Administrer policies, sertifiseringer, databehandling og dokumenter."
+                  : "Manage policies, certifications, data handling and documents."}
+              </p>
+              <div className="space-y-2">
+                {[
+                  { icon: FileText, label: "Policies", href: "/trust-center/policies" },
+                  { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", href: "/trust-center/certifications" },
+                ].map(item => (
+                  <button
+                    key={item.label}
+                    onClick={() => navigate(item.href)}
+                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">{item.label}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Spacer */}
+            <div className="h-8" />
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default TrustCenterEditProfile;
