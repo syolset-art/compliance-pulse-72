@@ -130,18 +130,17 @@ const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
   mfa_enabled: { titleEn: "Enable multi-factor authentication", titleNb: "Aktiver flerfaktorautentisering" },
   vendor_security_review: { titleEn: "Complete vendor security review", titleNb: "Fullfør leverandørsikkerhetsgjennomgang" },
   risk_assessment: { titleEn: "Complete risk assessment", titleNb: "Fullfør risikovurdering" },
+  risk_assessment_recent: { titleEn: "Conduct a formal risk assessment", titleNb: "Gjennomfør en formell risikovurdering" },
   sub_processors_disclosed: { titleEn: "Request sub-processor disclosure from vendor", titleNb: "Be om underleverandøroversikt fra leverandør" },
   security_logging: { titleEn: "Enable security logging", titleNb: "Aktiver sikkerhetslogging" },
   backup_configured: { titleEn: "Configure backup solution", titleNb: "Konfigurer sikkerhetskopiering" },
   endpoint_protection: { titleEn: "Install endpoint protection", titleNb: "Installer endepunktbeskyttelse" },
   documentation_available: { titleEn: "Upload security documentation", titleNb: "Last opp sikkerhetsdokumentasjon" },
-  review_cycle: { titleEn: "Define review cycle", titleNb: "Definer gjennomgangssyklus" },
-  owner_assigned: { titleEn: "Assign an owner", titleNb: "Tilordne en eier" },
-  responsible_person: { titleEn: "Define responsible person", titleNb: "Definer ansvarlig person" },
+  security_responsibility: { titleEn: "Define security and privacy responsibility", titleNb: "Definer ansvar for sikkerhet og personvern" },
+  documented_policies: { titleEn: "Document security policies", titleNb: "Dokumenter sikkerhetspolicyer" },
+  incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering" },
   security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt" },
   patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering" },
-  security_training: { titleEn: "Complete security training", titleNb: "Fullfør sikkerhetsopplæring" },
-  incident_reporting: { titleEn: "Define incident reporting process", titleNb: "Definer hendelsesrapporteringsprosess" },
 };
 
 /**
