@@ -137,6 +137,19 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
   incident_handling: { severity: "medium", titleEn: "No incident handling procedure — response gap", titleNb: "Ingen hendelseshåndteringsprosedyre — responsgap" },
   security_contact: { severity: "low", titleEn: "Security contact not defined — communication gap", titleNb: "Sikkerhetskontakt ikke definert — kommunikasjonsgap" },
   patch_management: { severity: "medium", titleEn: "Patch management not active — vulnerability risk", titleNb: "Patchhåndtering ikke aktiv — sårbarhetssrisiko" },
+  access_control: { severity: "high", titleEn: "Access control not following least privilege — unauthorized access risk", titleNb: "Tilgangsstyring følger ikke minste privilegium — risiko for uautorisert tilgang" },
+  mfa_org: { severity: "high", titleEn: "MFA not implemented — account compromise risk", titleNb: "MFA ikke implementert — risiko for kontokompromittering" },
+  encryption_org: { severity: "high", titleEn: "Encryption not enabled — data exposure risk", titleNb: "Kryptering ikke aktivert — risiko for dataeksponering" },
+  logging_monitoring: { severity: "medium", titleEn: "Logging and monitoring not implemented — incident detection risk", titleNb: "Logging og overvåking ikke implementert — risiko for manglende deteksjon" },
+  security_testing: { severity: "medium", titleEn: "No regular security testing — unknown vulnerability risk", titleNb: "Ingen regelmessig sikkerhetstesting — ukjent sårbarhet" },
+  ropa: { severity: "medium", titleEn: "No record of processing activities — GDPR compliance risk", titleNb: "Ingen behandlingsoversikt — GDPR-samsvarsrisiko" },
+  dpa_org: { severity: "high", titleEn: "No data processing agreements — GDPR compliance risk", titleNb: "Ingen databehandleravtaler — GDPR-samsvarsrisiko" },
+  dpia: { severity: "medium", titleEn: "No DPIA conducted — privacy risk", titleNb: "Ingen DPIA gjennomført — personvernrisiko" },
+  data_subject_rights: { severity: "medium", titleEn: "No processes for data subject rights — GDPR compliance risk", titleNb: "Ingen prosesser for registrertes rettigheter — GDPR-samsvarsrisiko" },
+  data_storage_control: { severity: "medium", titleEn: "No control over data storage location — transfer risk", titleNb: "Ingen kontroll over datalagringssted — overføringsrisiko" },
+  vendor_inventory: { severity: "medium", titleEn: "No vendor inventory — supply chain risk", titleNb: "Ingen leverandøroversikt — leverandørkjederisiko" },
+  vendor_risk_assessment: { severity: "medium", titleEn: "No vendor risk assessment — third-party risk", titleNb: "Ingen risikovurdering av leverandører — tredjepartsrisiko" },
+  vendor_followup: { severity: "low", titleEn: "No regular vendor follow-up — oversight gap", titleNb: "Ingen jevnlig leverandøroppfølging — oppfølgingsgap" },
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
@@ -158,6 +171,19 @@ const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
   incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering" },
   security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt" },
   patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering" },
+  access_control: { titleEn: "Implement least privilege access control", titleNb: "Implementer tilgangsstyring etter minste privilegium" },
+  mfa_org: { titleEn: "Implement multi-factor authentication", titleNb: "Implementer flerfaktorautentisering" },
+  encryption_org: { titleEn: "Enable encryption for data in transit and at rest", titleNb: "Aktiver kryptering for data i transit og i hvile" },
+  logging_monitoring: { titleEn: "Implement logging and monitoring", titleNb: "Implementer logging og overvåking" },
+  security_testing: { titleEn: "Perform regular security testing", titleNb: "Gjennomfør regelmessig sikkerhetstesting" },
+  ropa: { titleEn: "Create record of processing activities", titleNb: "Opprett behandlingsoversikt" },
+  dpa_org: { titleEn: "Establish data processing agreements", titleNb: "Inngå databehandleravtaler" },
+  dpia: { titleEn: "Conduct data protection impact assessment", titleNb: "Gjennomfør DPIA" },
+  data_subject_rights: { titleEn: "Establish processes for data subject rights", titleNb: "Etabler prosesser for registrertes rettigheter" },
+  data_storage_control: { titleEn: "Establish control over data storage locations", titleNb: "Etabler kontroll over datalagringssted" },
+  vendor_inventory: { titleEn: "Create vendor inventory", titleNb: "Opprett leverandøroversikt" },
+  vendor_risk_assessment: { titleEn: "Perform vendor risk assessments", titleNb: "Gjennomfør risikovurdering av leverandører" },
+  vendor_followup: { titleEn: "Establish regular vendor follow-up", titleNb: "Etabler jevnlig leverandøroppfølging" },
 };
 
 /**
