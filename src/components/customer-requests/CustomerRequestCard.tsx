@@ -4,8 +4,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Shield, FileCheck, Send, Clock, Settings2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FileText, Shield, FileCheck, Send, Clock, Settings2, Mail, ShieldCheck, ChevronDown } from "lucide-react";
 import { ManageSharingDialog } from "./ManageSharingDialog";
+import { toast } from "sonner";
 
 const REQUEST_TYPE_ICONS: Record<string, typeof FileText> = {
   vendor_assessment: FileText,
@@ -77,6 +84,14 @@ export function CustomerRequestCard({ request, onShare }: CustomerRequestCardPro
     onShare?.(request.id, mode, customers);
   };
 
+  const handleAddToTrustProfile = () => {
+    toast.success(
+      isNb
+        ? "Dokumentet er lagt til som berikelse av Trust Profilen"
+        : "Document added as enrichment to Trust Profile"
+    );
+  };
+
   return (
     <>
       <Card className="p-4 hover:shadow-md transition-shadow">
@@ -119,10 +134,25 @@ export function CustomerRequestCard({ request, onShare }: CustomerRequestCardPro
 
             <div className="flex items-center gap-2 pt-1">
               {request.status !== "completed" && request.status !== "archived" && (
-                <Button size="sm" className="h-7 text-xs" onClick={() => setDialogOpen(true)}>
-                  <Send className="h-3 w-3 mr-1" />
-                  {t("customerRequests.share", "Del ferdig")}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="h-7 text-xs gap-1">
+                      <Send className="h-3 w-3" />
+                      {isNb ? "Del" : "Share"}
+                      <ChevronDown className="h-3 w-3 ml-0.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+                      <Mail className="h-3.5 w-3.5" />
+                      {isNb ? "Del med partner" : "Share with partner"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleAddToTrustProfile} className="gap-2 text-xs">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      {isNb ? "Legg til i Trust Profile" : "Add to Trust Profile"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               {request.status === "completed" && (
                 <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setDialogOpen(true)}>
