@@ -767,7 +767,7 @@ const Regulations = () => {
                                   <Switch
                                     checked={isActive}
                                     onCheckedChange={() => toggleFramework(framework.id, isActive)}
-                                    disabled={isMandatory || updating === framework.id}
+                                    disabled={updating === framework.id}
                                   />
                                 </div>
                               </div>
