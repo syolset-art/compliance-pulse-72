@@ -414,16 +414,27 @@ const TrustCenterEditProfile = () => {
                       <Badge
                         key={area}
                         variant={isSelected ? "default" : "outline"}
-                        className={`cursor-pointer text-xs ${isSelected ? "bg-primary text-primary-foreground" : ""}`}
+                        className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
+                        onClick={async () => {
+                          const newAreas = isSelected
+                            ? selectedAreas.filter((a: string) => a !== area)
+                            : [...selectedAreas, area];
+                          const newMeta = { ...meta, business_areas: newAreas };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          toast.success(isSelected
+                            ? (isNb ? `${area} fjernet` : `${area} removed`)
+                            : (isNb ? `${area} lagt til` : `${area} added`));
+                        }}
                       >
+                        {isSelected && <Check className="h-3 w-3 mr-1" />}
                         {area}
                       </Badge>
                     );
                   })}
-                  <Badge variant="outline" className="text-xs cursor-pointer">{isNb ? "Annet" : "Other"}</Badge>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  {isNb ? "Velg én eller flere kategorier som beskriver virksomheten." : "Select one or more categories."}
+                  {isNb ? "Klikk for å velge eller fjerne kategorier." : "Click to select or remove categories."}
                 </p>
               </Card>
 
