@@ -463,10 +463,10 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
           const bgRingColor = "hsl(var(--muted))";
           const confLabel = conf >= 80 ? (isNb ? "Høy tillit" : "High confidence") : conf >= 50 ? (isNb ? "Middels tillit" : "Medium confidence") : (isNb ? "Lav tillit" : "Low confidence");
           return (
-            <div className="hidden md:flex flex-col items-center gap-2 shrink-0 pl-6 border-l border-border">
-              {/* Circular gauge */}
-              <div className="relative flex items-center justify-center">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
+             <div className="hidden md:flex flex-col items-center gap-3 shrink-0 pl-8 border-l border-border min-w-[200px]">
+               {/* Circular gauge */}
+               <div className="relative flex items-center justify-center">
+                 <svg width="128" height="128" viewBox="0 0 96 96" className="-rotate-90">
                   {/* Background ring */}
                   <circle
                     cx="48" cy="48" r={radius}
@@ -486,11 +486,11 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                   />
                 </svg>
                 {/* Score number inside */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-3xl font-bold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
-                    {score}
-                  </span>
-                  <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">/100</span>
+                 <div className="absolute inset-0 flex flex-col items-center justify-center">
+                   <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
+                     {score}
+                   </span>
+                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
                 </div>
               </div>
 
