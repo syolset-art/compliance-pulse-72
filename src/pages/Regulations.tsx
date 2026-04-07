@@ -588,7 +588,7 @@ const Regulations = () => {
               const activeInCategory = categoryFrameworks.filter(f => isFrameworkActive(f.id));
               const isExpanded = expandedCategories.has(category.id);
               const CategoryIcon = category.icon;
-              const isComingSoon = category.id === 'other';
+              const isComingSoon = false;
 
               if (activeInCategory.length === 0 && !showAvailable && !isComingSoon) return null;
 
