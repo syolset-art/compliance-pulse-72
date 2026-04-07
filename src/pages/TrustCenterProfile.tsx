@@ -808,7 +808,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     </div>
                   </section>
 
-                  <Separator />
+                  <div className="border-t border-border" />
 
                   {/* ── Dokumentasjon og bevis ── */}
                   <section className="space-y-3">
