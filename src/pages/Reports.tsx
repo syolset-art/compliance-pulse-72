@@ -360,7 +360,7 @@ const Reports = () => {
           </Card>
 
           {/* Report Tabs */}
-          <Tabs defaultValue="gdpr" className="space-y-4">
+          <Tabs defaultValue="organisasjon" className="space-y-4">
             <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
               <TabsTrigger value="organisasjon" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
