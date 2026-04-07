@@ -58,6 +58,7 @@ const Regulations = () => {
   const [showActivationDialog, setShowActivationDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
 
   // Fetch frameworks
@@ -268,11 +269,12 @@ const Regulations = () => {
           {selectedFramework && (
             <div className="mt-6 space-y-4">
               <FrameworkDetailCard framework={selectedFramework} counts={currentCounts} />
-              <ComplianceHistoryChart frameworkId={selectedFramework.id} />
+              <ComplianceHistoryChart frameworkId={selectedFramework.id} onEventClick={(reqId) => setHighlightReqId(reqId)} />
               <FrameworkRequirementsList
                 key={selectedFramework.id}
                 frameworkId={selectedFramework.id}
                 onCountsChange={handleCountsChange}
+                highlightRequirementId={highlightReqId}
               />
             </div>
           )}
