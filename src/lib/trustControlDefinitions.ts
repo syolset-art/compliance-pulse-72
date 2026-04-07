@@ -27,6 +27,8 @@ export interface TrustControlDefinition {
   key: string;
   labelEn: string;
   labelNb: string;
+  descriptionEn?: string;
+  descriptionNb?: string;
   weight: number;
   area: ControlArea;
 }
@@ -62,14 +64,10 @@ const VERIFICATION_WEIGHTS: Record<VerificationSource, number> = {
 
 // ── Generic controls (Governance area) ───────────────────────────────
 export const GENERIC_CONTROLS: TrustControlDefinition[] = [
-  { key: "owner_assigned", labelEn: "Owner assigned", labelNb: "Eier tilordnet", weight: 1, area: "governance" },
-  { key: "responsible_person", labelEn: "Responsible person defined", labelNb: "Ansvarlig person definert", weight: 1, area: "governance" },
-  { key: "description_defined", labelEn: "Description defined", labelNb: "Beskrivelse definert", weight: 1, area: "governance" },
-  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", weight: 1, area: "risk_compliance" },
-  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", weight: 1, area: "risk_compliance" },
-  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", weight: 1, area: "risk_compliance" },
-  { key: "review_cycle", labelEn: "Review cycle defined", labelNb: "Gjennomgangssyklus definert", weight: 1, area: "governance" },
-  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", weight: 1, area: "governance" },
+  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", descriptionEn: "Has a risk level been assessed for the asset?", descriptionNb: "Er det vurdert et risikonivå for eiendelen?", weight: 1, area: "risk_compliance" },
+  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", descriptionEn: "Has the criticality been determined?", descriptionNb: "Er kritikaliteten bestemt?", weight: 1, area: "risk_compliance" },
+  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", descriptionEn: "Has a risk assessment been performed?", descriptionNb: "Er det utført en risikovurdering?", weight: 1, area: "risk_compliance" },
+  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", descriptionEn: "Is relevant documentation uploaded?", descriptionNb: "Er relevant dokumentasjon lastet opp?", weight: 1, area: "governance" },
 ];
 
 // ── Vendor-specific (Supplier Governance) ────────────────────────────
@@ -97,9 +95,10 @@ export const HARDWARE_CONTROLS: TrustControlDefinition[] = [
 
 // ── Organizational unit / self (Governance) ──────────────────────────
 export const ORG_CONTROLS: TrustControlDefinition[] = [
-  { key: "responsible_manager", labelEn: "Responsible manager assigned", labelNb: "Ansvarlig leder tilordnet", weight: 1, area: "governance" },
-  { key: "security_training", labelEn: "Security training completed", labelNb: "Sikkerhetsopplæring gjennomført", weight: 1, area: "governance" },
-  { key: "incident_reporting", labelEn: "Incident reporting process defined", labelNb: "Hendelsesrapporteringsprosess definert", weight: 1, area: "risk_compliance" },
+  { key: "security_responsibility", labelEn: "Security & privacy responsibility", labelNb: "Ansvar for sikkerhet og personvern", descriptionEn: "Is it clearly defined who is responsible?", descriptionNb: "Er det tydelig definert hvem som har ansvaret?", weight: 1, area: "governance" },
+  { key: "documented_policies", labelEn: "Documented policies", labelNb: "Dokumenterte policyer", descriptionEn: "Does the organization have documented security policies?", descriptionNb: "Har virksomheten dokumenterte sikkerhetspolicyer?", weight: 1, area: "governance" },
+  { key: "risk_assessment_recent", labelEn: "Risk assessment last 12 months", labelNb: "Risikovurdering siste 12 mnd", descriptionEn: "Has a formal risk assessment been conducted?", descriptionNb: "Er det gjennomført en formell risikovurdering?", weight: 1, area: "governance" },
+  { key: "incident_handling", labelEn: "Incident handling", labelNb: "Hendelseshåndtering", descriptionEn: "Is there a documented procedure for incident handling?", descriptionNb: "Finnes det en dokumentert prosedyre for hendelseshåndtering?", weight: 1, area: "governance" },
 ];
 
 // ── Risk mapping: control key → risk when missing/partial ────────────
@@ -110,18 +109,17 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
   mfa_enabled: { severity: "high", titleEn: "MFA not enabled — account compromise risk", titleNb: "MFA ikke aktivert — risiko for kontokompromittering" },
   vendor_security_review: { severity: "medium", titleEn: "Vendor security review missing — third-party security risk", titleNb: "Leverandørsikkerhetsgjennomgang mangler — tredjepartsrisiko" },
   risk_assessment: { severity: "medium", titleEn: "Risk assessment not performed — unknown risk exposure", titleNb: "Risikovurdering ikke utført — ukjent risikoeksponering" },
+  risk_assessment_recent: { severity: "medium", titleEn: "No recent risk assessment — unknown risk exposure", titleNb: "Ingen nylig risikovurdering — ukjent risikoeksponering" },
   sub_processors_disclosed: { severity: "medium", titleEn: "Sub-processors not disclosed — supply chain risk", titleNb: "Underleverandører ikke oppgitt — leverandørkjederisiko" },
   security_logging: { severity: "medium", titleEn: "Security logging not enabled — incident detection risk", titleNb: "Sikkerhetslogging ikke aktivert — risiko for manglende hendelsesdeteksjon" },
   backup_configured: { severity: "medium", titleEn: "Backup not configured — data loss risk", titleNb: "Sikkerhetskopiering ikke konfigurert — risiko for datatap" },
   endpoint_protection: { severity: "medium", titleEn: "Endpoint protection missing — malware risk", titleNb: "Endepunktbeskyttelse mangler — risiko for skadevare" },
   documentation_available: { severity: "low", titleEn: "Documentation missing — audit readiness risk", titleNb: "Dokumentasjon mangler — risiko for manglende revisjonsberedskap" },
-  review_cycle: { severity: "low", titleEn: "Review cycle not defined — compliance drift risk", titleNb: "Gjennomgangssyklus ikke definert — risiko for samsvarsavvik" },
-  owner_assigned: { severity: "low", titleEn: "No owner assigned — accountability gap", titleNb: "Ingen eier tilordnet — manglende ansvarsplassering" },
-  responsible_person: { severity: "low", titleEn: "Responsible person not defined — governance gap", titleNb: "Ansvarlig person ikke definert — styringsmangler" },
+  security_responsibility: { severity: "high", titleEn: "Security responsibility not defined — accountability gap", titleNb: "Ansvar for sikkerhet ikke definert — manglende ansvarsplassering" },
+  documented_policies: { severity: "medium", titleEn: "No documented security policies — governance gap", titleNb: "Ingen dokumenterte sikkerhetspolicyer — styringsmangler" },
+  incident_handling: { severity: "medium", titleEn: "No incident handling procedure — response gap", titleNb: "Ingen hendelseshåndteringsprosedyre — responsgap" },
   security_contact: { severity: "low", titleEn: "Security contact not defined — communication gap", titleNb: "Sikkerhetskontakt ikke definert — kommunikasjonsgap" },
   patch_management: { severity: "medium", titleEn: "Patch management not active — vulnerability risk", titleNb: "Patchhåndtering ikke aktiv — sårbarhetssrisiko" },
-  security_training: { severity: "low", titleEn: "Security training not completed — awareness gap", titleNb: "Sikkerhetsopplæring ikke gjennomført — bevissthetsgap" },
-  incident_reporting: { severity: "medium", titleEn: "Incident reporting process not defined — response gap", titleNb: "Hendelsesrapporteringsprosess ikke definert — responsgap" },
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
@@ -132,18 +130,17 @@ const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
   mfa_enabled: { titleEn: "Enable multi-factor authentication", titleNb: "Aktiver flerfaktorautentisering" },
   vendor_security_review: { titleEn: "Complete vendor security review", titleNb: "Fullfør leverandørsikkerhetsgjennomgang" },
   risk_assessment: { titleEn: "Complete risk assessment", titleNb: "Fullfør risikovurdering" },
+  risk_assessment_recent: { titleEn: "Conduct a formal risk assessment", titleNb: "Gjennomfør en formell risikovurdering" },
   sub_processors_disclosed: { titleEn: "Request sub-processor disclosure from vendor", titleNb: "Be om underleverandøroversikt fra leverandør" },
   security_logging: { titleEn: "Enable security logging", titleNb: "Aktiver sikkerhetslogging" },
   backup_configured: { titleEn: "Configure backup solution", titleNb: "Konfigurer sikkerhetskopiering" },
   endpoint_protection: { titleEn: "Install endpoint protection", titleNb: "Installer endepunktbeskyttelse" },
   documentation_available: { titleEn: "Upload security documentation", titleNb: "Last opp sikkerhetsdokumentasjon" },
-  review_cycle: { titleEn: "Define review cycle", titleNb: "Definer gjennomgangssyklus" },
-  owner_assigned: { titleEn: "Assign an owner", titleNb: "Tilordne en eier" },
-  responsible_person: { titleEn: "Define responsible person", titleNb: "Definer ansvarlig person" },
+  security_responsibility: { titleEn: "Define security and privacy responsibility", titleNb: "Definer ansvar for sikkerhet og personvern" },
+  documented_policies: { titleEn: "Document security policies", titleNb: "Dokumenter sikkerhetspolicyer" },
+  incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering" },
   security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt" },
   patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering" },
-  security_training: { titleEn: "Complete security training", titleNb: "Fullfør sikkerhetsopplæring" },
-  incident_reporting: { titleEn: "Define incident reporting process", titleNb: "Definer hendelsesrapporteringsprosess" },
 };
 
 /**
@@ -326,13 +323,9 @@ export function groupControlsByArea(controls: EvaluatedControl[]): Record<Contro
  * Navigation map: control key → profile tab (or "_header:field" for header-level fields).
  */
 export const CONTROL_NAV_MAP: Record<string, string> = {
-  owner_assigned: "_header:work_area",
-  responsible_person: "_header:asset_manager",
-  description_defined: "_header:description",
   risk_level_defined: "riskManagement",
   criticality_defined: "riskManagement",
   risk_assessment: "riskManagement",
-  review_cycle: "validation",
   documentation_available: "documents",
   dpa_verified: "documents",
   security_contact: "_header:contact",
@@ -345,7 +338,8 @@ export const CONTROL_NAV_MAP: Record<string, string> = {
   device_encryption: "controls",
   endpoint_protection: "controls",
   patch_management: "controls",
-  responsible_manager: "_header:asset_manager",
-  security_training: "controls",
-  incident_reporting: "incidents",
+  security_responsibility: "controls",
+  documented_policies: "controls",
+  risk_assessment_recent: "riskManagement",
+  incident_handling: "incidents",
 };
