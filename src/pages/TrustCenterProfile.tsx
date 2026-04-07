@@ -363,8 +363,8 @@ const TrustCenterProfile = () => {
                         ? "Leverandørnettverkets synlighet hjelper organisasjoner med å finne pålitelige leverandører. Tilgjengelig i Trust Profile Pro."
                         : "Vendor network visibility helps organizations discover trusted suppliers. Available in Trust Profile Pro."}
                     </p>
-                    <Button className="gap-2 bg-primary hover:bg-primary/90">
-                      <Settings className="h-4 w-4" />
+                    <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => setUpgradeDialogOpen(true)}>
+                      <Zap className="h-4 w-4" />
                       {isNb ? "Oppgrader til Pro" : "Upgrade to Pro"}
                     </Button>
                   </Card>
@@ -443,8 +443,8 @@ const TrustCenterProfile = () => {
                             </div>
                           ))}
                         </div>
-                        <Button className="w-full gap-2 bg-primary hover:bg-primary/90">
-                          <Settings className="h-4 w-4" />
+                        <Button className="w-full gap-2 bg-primary hover:bg-primary/90" onClick={() => setUpgradeDialogOpen(true)}>
+                          <Sparkles className="h-4 w-4" />
                           {isNb ? "Oppgrader for å tilpasse badge" : "Upgrade to customize badge"}
                         </Button>
                       </Card>
