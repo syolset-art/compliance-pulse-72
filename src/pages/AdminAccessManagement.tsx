@@ -1,0 +1,265 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Sidebar } from "@/components/Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil, Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: "active" | "invited" | "deactivated";
+  lastSeen?: string;
+}
+
+const KEY_ROLES = [
+  { key: "admin", labelNb: "Administrator", labelEn: "Administrator", descNb: "Full tilgang til alle moduler og innstillinger", descEn: "Full access to all modules and settings", icon: Crown },
+  { key: "compliance_officer", labelNb: "Compliance Officer", labelEn: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks", icon: Shield },
+  { key: "ciso", labelNb: "CISO", labelEn: "CISO", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security", icon: Shield },
+  { key: "dpo", labelNb: "Personvernombud (DPO)", labelEn: "Data Protection Officer (DPO)", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR", icon: Eye },
+  { key: "system_owner", labelNb: "Systemeier", labelEn: "System Owner", descNb: "Ansvarlig for systemer og applikasjoner", descEn: "Responsible for systems and applications", icon: Settings },
+  { key: "viewer", labelNb: "Leser", labelEn: "Viewer", descNb: "Kan se informasjon, men ikke redigere", descEn: "Can view information but not edit", icon: Eye },
+];
+
+const DEMO_MEMBERS: TeamMember[] = [
+  { id: "1", name: "Kari Nordmann", email: "kari@acme.no", role: "admin", status: "active", lastSeen: "I dag" },
+  { id: "2", name: "Ola Hansen", email: "ola@acme.no", role: "compliance_officer", status: "active", lastSeen: "I går" },
+  { id: "3", name: "Per Olsen", email: "per@acme.no", role: "ciso", status: "active", lastSeen: "3 dager siden" },
+  { id: "4", name: "Line Berg", email: "line@acme.no", role: "viewer", status: "invited" },
+];
+
+const AdminAccessManagement = () => {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteName, setInviteName] = useState("");
+  const [inviteRole, setInviteRole] = useState("viewer");
+  const [members] = useState<TeamMember[]>(DEMO_MEMBERS);
+
+  const getRoleDef = (key: string) => KEY_ROLES.find(r => r.key === key) || KEY_ROLES[KEY_ROLES.length - 1];
+
+  const handleInvite = () => {
+    if (!inviteEmail) {
+      toast.error(isNb ? "E-post er påkrevd" : "Email is required");
+      return;
+    }
+    toast.success(isNb ? `Invitasjon sendt til ${inviteEmail}` : `Invitation sent to ${inviteEmail}`);
+    setInviteOpen(false);
+    setInviteEmail("");
+    setInviteName("");
+    setInviteRole("viewer");
+  };
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="container max-w-5xl mx-auto p-4 md:p-6 space-y-6">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Users className="h-6 w-6 text-primary" />
+                  {isNb ? "Tilganger" : "Access Management"}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isNb
+                    ? "Inviter brukere og tilordne nøkkelroller i organisasjonen."
+                    : "Invite users and assign key roles in your organization."}
+                </p>
+              </div>
+              <Button onClick={() => setInviteOpen(true)} className="gap-2">
+                <UserPlus className="h-4 w-4" />
+                {isNb ? "Inviter bruker" : "Invite user"}
+              </Button>
+            </div>
+
+            {/* Role overview */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "Nøkkelroller" : "Key Roles"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {KEY_ROLES.map(role => {
+                    const assigned = members.filter(m => m.role === role.key && m.status !== "deactivated");
+                    const Icon = role.icon;
+                    return (
+                      <div
+                        key={role.key}
+                        className="flex items-start gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="mt-0.5 p-1.5 rounded-lg bg-primary/10">
+                          <Icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
+                          <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            {assigned.length > 0 ? (
+                              <Badge variant="secondary" className="text-[10px]">
+                                {assigned.length} {isNb ? "tildelt" : "assigned"}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-[10px] text-warning border-warning/30">
+                                {isNb ? "Ikke tildelt" : "Not assigned"}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Team members */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                    {isNb ? "Teammedlemmer" : "Team Members"}
+                  </CardTitle>
+                  <Badge variant="secondary" className="text-xs">{members.length} {isNb ? "brukere" : "users"}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border">
+                  {members.map(member => {
+                    const roleDef = getRoleDef(member.role);
+                    return (
+                      <div key={member.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                            {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-foreground truncate">{member.name}</span>
+                              {member.status === "invited" && (
+                                <Badge variant="outline" className="text-[10px] gap-1 text-warning border-warning/30">
+                                  <Clock className="h-2.5 w-2.5" />
+                                  {isNb ? "Invitert" : "Invited"}
+                                </Badge>
+                              )}
+                              {member.status === "active" && (
+                                <Badge variant="outline" className="text-[10px] gap-1 text-success border-success/30">
+                                  <CheckCircle2 className="h-2.5 w-2.5" />
+                                  {isNb ? "Aktiv" : "Active"}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <Badge variant="secondary" className="text-[10px]">
+                            {isNb ? roleDef.labelNb : roleDef.labelEn}
+                          </Badge>
+                          {member.lastSeen && (
+                            <span className="text-[10px] text-muted-foreground hidden md:inline">
+                              {member.lastSeen}
+                            </span>
+                          )}
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
+
+      {/* Invite dialog */}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              {isNb ? "Inviter bruker" : "Invite user"}
+            </DialogTitle>
+            <DialogDescription>
+              {isNb
+                ? "Send en invitasjon til en ny bruker og tilordne en rolle."
+                : "Send an invitation to a new user and assign a role."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">{isNb ? "Navn" : "Name"}</label>
+              <Input
+                value={inviteName}
+                onChange={e => setInviteName(e.target.value)}
+                placeholder={isNb ? "Fullt navn" : "Full name"}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">E-post</label>
+              <Input
+                type="email"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                placeholder="bruker@firma.no"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">{isNb ? "Rolle" : "Role"}</label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {KEY_ROLES.map(role => (
+                    <SelectItem key={role.key} value={role.key}>
+                      <div className="flex items-center gap-2">
+                        <span>{isNb ? role.labelNb : role.labelEn}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground">
+                {isNb
+                  ? getRoleDef(inviteRole).descNb
+                  : getRoleDef(inviteRole).descEn}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button onClick={handleInvite} className="gap-2">
+              <Mail className="h-4 w-4" />
+              {isNb ? "Send invitasjon" : "Send invitation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </SidebarProvider>
+  );
+};
+
+export default AdminAccessManagement;
