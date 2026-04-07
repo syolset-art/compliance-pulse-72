@@ -32,15 +32,11 @@ interface AssetLike {
 }
 
 function evaluateGenericControl(key: string, asset: AssetLike, docsCount: number): TrustControlStatus {
+  const meta = (asset.metadata || {}) as Record<string, any>;
   switch (key) {
-    case "owner_assigned": return asset.asset_owner || asset.work_area_id ? "implemented" : "missing";
-    case "responsible_person": return asset.asset_manager ? "implemented" : "missing";
-    case "description_defined":
-      return asset.description && asset.description.length > 10 ? "implemented" : asset.description ? "partial" : "missing";
     case "risk_level_defined": return asset.risk_level ? "implemented" : "missing";
     case "criticality_defined": return asset.criticality ? "implemented" : "missing";
     case "risk_assessment": return asset.risk_level ? "partial" : "missing";
-    case "review_cycle": return asset.next_review_date ? "implemented" : "missing";
     case "documentation_available": return docsCount >= 3 ? "implemented" : docsCount > 0 ? "partial" : "missing";
     default: return "missing";
   }
@@ -67,9 +63,22 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
       patch_management: () => meta.patch_management ? "implemented" : "missing",
     },
     self: {
-      responsible_manager: () => asset.asset_manager ? "implemented" : "missing",
-      security_training: () => meta.security_training_completed ? "implemented" : "missing",
-      incident_reporting: () => meta.incident_reporting_defined ? "implemented" : "missing",
+      security_responsibility: () => {
+        const val = meta.security_responsibility;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : (asset.asset_manager || meta.security_responsibility_defined) ? "implemented" : "missing";
+      },
+      documented_policies: () => {
+        const val = meta.documented_policies;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      risk_assessment_recent: () => {
+        const val = meta.risk_assessment_recent;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+      },
+      incident_handling: () => {
+        const val = meta.incident_handling;
+        return val === "yes" ? "implemented" : val === "partial" ? "partial" : (meta.incident_reporting_defined ? "implemented" : "missing");
+      },
     },
   };
   return maps[assetType]?.[key]?.() ?? "missing";
