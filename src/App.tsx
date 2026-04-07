@@ -67,6 +67,7 @@ import DemoLibrary from "./pages/DemoLibrary";
 import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
+import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 
 const queryClient = new QueryClient();
 
@@ -143,6 +144,7 @@ const App = () => (
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
                   <Route path="/admin/notifications" element={<AdminNotifications />} />
+                  <Route path="/risk" element={<BusinessRiskDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
