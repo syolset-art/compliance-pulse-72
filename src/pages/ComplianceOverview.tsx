@@ -116,6 +116,16 @@ const ComplianceOverview = () => {
     }).filter(Boolean) as FrameworkScore[];
   }, []);
 
+  const reportData: ReportData = useMemo(() => ({
+    overallScore,
+    pillars: PILLARS.map(p => ({ name: p.name, score: p.score, level: p.level, measures: p.measures })),
+    improvements: IMPROVEMENTS,
+    measures: MEASURES,
+    frameworks: frameworkScores.map(fw => ({
+      id: fw.id, name: fw.name, score: fw.score, level: fw.level, fulfilled: fw.fulfilled, total: fw.total,
+    })),
+  }), [overallScore, frameworkScores]);
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -126,12 +136,17 @@ const ComplianceOverview = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/reports")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">Samsvar</h1>
               <p className="text-muted-foreground text-sm">
                 Organisasjonsnivå på tvers av fire kategorier og valgte regelverk
               </p>
             </div>
+            <ReportActionButtons
+              reportName="Samsvarsrapport"
+              reportId="compliance-overview"
+              reportData={reportData}
+            />
           </div>
 
           {/* Maturity hero */}
