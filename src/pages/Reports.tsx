@@ -360,8 +360,12 @@ const Reports = () => {
           </Card>
 
           {/* Report Tabs */}
-          <Tabs defaultValue="gdpr" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <Tabs defaultValue="organisasjon" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="organisasjon" className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Organisasjon
+              </TabsTrigger>
               <TabsTrigger value="gdpr" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 GDPR
@@ -382,6 +386,36 @@ const Reports = () => {
                 AI Act
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="organisasjon" className="space-y-4">
+              <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => navigate('/reports/compliance')}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Shield className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Samsvar</CardTitle>
+                        <CardDescription className="mt-1">
+                          Organisasjonsnivå på tvers av fire kategorier og valgte regelverk
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-500/10 text-green-600 border-green-500/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Modenhetsoversikt, forbedringspunkter og regelverk</span>
+                    <Button variant="ghost" size="sm" className="h-7 px-2 gap-1 text-primary">
+                      Åpne
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="gdpr" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
