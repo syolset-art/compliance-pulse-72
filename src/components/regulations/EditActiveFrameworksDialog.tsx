@@ -2,8 +2,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Lock } from "lucide-react";
-import { frameworks, categories, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
+import { Lock, AlertTriangle } from "lucide-react";
+import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import {
   Tooltip,
   TooltipContent,
@@ -52,32 +52,54 @@ export const EditActiveFrameworksDialog = ({
                   {categoryFrameworks.map((fw) => {
                     const isActive = activeFrameworkIds.has(fw.id);
                     const isMandatory = fw.isMandatory;
+                    const isMandatoryButOff = isMandatory && !isActive;
 
                     return (
                       <div
                         key={fw.id}
                         className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
-                          isActive ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
+                          isMandatoryButOff
+                            ? "bg-destructive/5 border-destructive/30"
+                            : isActive
+                              ? "bg-primary/5 border-primary/20"
+                              : "bg-muted/30 border-border"
                         }`}
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-sm">{fw.name}</span>
+                            <span className={`font-medium text-sm ${isMandatoryButOff ? "text-destructive" : ""}`}>
+                              {fw.name}
+                            </span>
                             {isMandatory && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-1">
+                                  <Badge
+                                    variant={isMandatoryButOff ? "destructive" : "secondary"}
+                                    className="text-[10px] px-1.5 py-0 gap-1"
+                                  >
                                     <Lock className="h-2.5 w-2.5" />
                                     Obligatorisk
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="text-xs">Lovpålagt for alle norske virksomheter</p>
+                                  <p className="text-xs">
+                                    {isMandatoryButOff
+                                      ? "⚠️ Dette regelverket er lovpålagt men er deaktivert. Du bør aktivere det."
+                                      : "Lovpålagt for alle norske virksomheter"}
+                                  </p>
                                 </TooltipContent>
                               </Tooltip>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fw.description}</p>
+                          {isMandatoryButOff && (
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
+                              <span className="text-[11px] text-destructive font-medium">
+                                Lovpålagt regelverk er deaktivert — anbefales å aktivere
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <Switch
                           checked={isActive}
