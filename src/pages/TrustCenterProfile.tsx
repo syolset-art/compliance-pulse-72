@@ -30,6 +30,7 @@ const TrustCenterProfile = () => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
+  const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-profile"],
