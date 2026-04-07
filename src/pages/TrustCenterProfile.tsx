@@ -242,13 +242,154 @@ const TrustCenterProfile = () => {
             </div>
 
             {activeTab === "publish" ? (
-              <TrustProfilePublishing
-                assetId={asset.id}
-                assetName={asset.name}
-                orgNumber={(asset as any).org_number || ""}
-                publishMode={(asset as any).publish_mode || "private"}
-                publishToCustomers={(asset as any).publish_to_customers || []}
-              />
+              <div className="space-y-5">
+                {/* Sub-tabs */}
+                <div className="flex border-b border-border">
+                  {([
+                    { key: "link" as const, icon: Link2, label: isNb ? "Del lenke" : "Share Link" },
+                    { key: "vendor" as const, icon: Building2, label: "Vendor Hub" },
+                    { key: "badge" as const, icon: Code2, label: isNb ? "Nettside-badge" : "Website Badge" },
+                  ] as const).map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setPublishSubTab(tab.key)}
+                      className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                        publishSubTab === tab.key
+                          ? "border-primary text-foreground"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <tab.icon className="h-3.5 w-3.5" />
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Share Link sub-tab */}
+                {publishSubTab === "link" && (
+                  <div className="space-y-5">
+                    <Card className="p-6 space-y-4">
+                      <div className="space-y-1">
+                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                          <Link2 className="h-4 w-4 text-primary" />
+                          {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {isNb
+                            ? "Dette er din unike adresse – som en LinkedIn-profil for virksomhetens sikkerhet."
+                            : "This is your unique address – like a LinkedIn profile for your organization's security posture."}
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-1">
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Public URL</p>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 text-sm font-mono text-foreground">{publicUrl}</code>
+                          <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 shrink-0" onClick={() => setIsEditingSlug(true)}>
+                            <Pencil className="h-3 w-3" />
+                            Edit
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0" onClick={handleCopyLink}>
+                            {copiedLink ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        {isNb
+                          ? "Du kan endre denne når som helst. Del denne lenken med kunder og partnere."
+                          : "You can change this at any time. Share this link with customers and partners."}
+                      </p>
+                    </Card>
+
+                    {/* Ready to publish / Published section */}
+                    <Card className="p-8 text-center space-y-4">
+                      <Globe className="h-10 w-10 mx-auto text-muted-foreground" />
+                      {isPublished ? (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground">{isNb ? "Publisert" : "Published"}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {isNb ? "Din Trust Center er tilgjengelig på" : "Your Trust Center is available at"}{" "}
+                              <span className="font-medium text-foreground">{publicUrl}</span>
+                            </p>
+                          </div>
+                          <Button variant="outline" onClick={handlePublish} className="gap-2">
+                            <Share2 className="h-4 w-4" />
+                            {isNb ? "Oppdater publisering" : "Update publishing"}
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground">{isNb ? "Klar til publisering" : "Ready to publish"}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {isNb ? "Publiser din Trust Center for å gjøre den tilgjengelig på" : "Publish your Trust Center to make it available at"}{" "}
+                              <span className="font-medium text-foreground">{publicUrl}</span>
+                            </p>
+                          </div>
+                          <Button onClick={handlePublish} className="gap-2 bg-primary hover:bg-primary/90">
+                            <Share2 className="h-4 w-4" />
+                            {isNb ? "Publiser Trust Center" : "Publish Trust Center"}
+                          </Button>
+                        </>
+                      )}
+                    </Card>
+
+                    {/* Info banner */}
+                    <div className="flex items-start gap-3 rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
+                      <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <p className="text-sm text-muted-foreground">
+                        {isNb
+                          ? "Din Trust Center erstatter behovet for å sende separate dokumenter som personvernerklæringer og databehandleravtaler."
+                          : "Your Trust Center replaces the need to send separate documents like privacy policies and data processing agreements."}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Vendor Hub sub-tab */}
+                {publishSubTab === "vendor" && (
+                  <Card className="p-8 text-center space-y-3">
+                    <Building2 className="h-10 w-10 mx-auto text-muted-foreground/50" />
+                    <h3 className="text-base font-semibold text-foreground">Vendor Hub</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      {isNb
+                        ? "Gjør din Trust Profile tilgjengelig i Mynders Vendor Hub slik at potensielle kunder kan finne deg."
+                        : "Make your Trust Profile available in Mynder's Vendor Hub so potential customers can find you."}
+                    </p>
+                    <Badge variant="outline" className="text-xs">{isNb ? "Kommer snart" : "Coming soon"}</Badge>
+                  </Card>
+                )}
+
+                {/* Website Badge sub-tab */}
+                {publishSubTab === "badge" && (
+                  <Card className="p-6 space-y-4">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-semibold text-foreground">
+                        {isNb ? "Nettside-badge" : "Website Badge"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {isNb
+                          ? "Legg til en badge på nettsiden din som lenker til din Trust Profile."
+                          : "Add a badge to your website that links directly to your Trust Profile."}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {[
+                        { key: "shield", preview: <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-medium text-foreground shadow-sm"><Shield className="h-3.5 w-3.5 text-primary" />Verified by Mynder</span>, label: isNb ? "Skjold" : "Shield" },
+                        { key: "minimal", preview: <span className="text-xs text-muted-foreground">🛡️ Trust Profile on Mynder</span>, label: "Minimal" },
+                        { key: "banner", preview: <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-medium">🔒 View our Trust Profile</span>, label: "Banner" },
+                      ].map(b => (
+                        <button key={b.key} className="rounded-lg border border-border p-4 text-center hover:border-primary/40 transition-all">
+                          <div className="flex justify-center mb-2">{b.preview}</div>
+                          <p className="text-[10px] text-muted-foreground">{b.label}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+              </div>
             ) : (
               /* ── PREVIEW TAB ── */
               <Card className="overflow-hidden">
