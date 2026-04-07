@@ -824,6 +824,70 @@ const TrustCenterProfile = () => {
           </div>
         </main>
       </div>
+
+      {/* Upgrade to Pro Dialog */}
+      <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {isNb ? "Oppgrader til Trust Profile Pro" : "Upgrade to Trust Profile Pro"}
+            </DialogTitle>
+            <DialogDescription>
+              {isNb
+                ? "Få tilgang til avanserte funksjoner for din Trust Center."
+                : "Get access to advanced features for your Trust Center."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            {/* Price */}
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
+              <p className="text-3xl font-bold text-foreground">990 kr<span className="text-sm font-normal text-muted-foreground"> / {isNb ? "mnd" : "mo"}</span></p>
+              <p className="text-xs text-muted-foreground mt-1">{isNb ? "Faktureres årlig. Ingen bindingstid." : "Billed annually. Cancel anytime."}</p>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-foreground">{isNb ? "Alt i Free, pluss:" : "Everything in Free, plus:"}</p>
+              {[
+                { icon: Shield, text: isNb ? "Tilpasset Trust Badge med firmanavn og regelverk" : "Custom Trust Badge with company name and regulations" },
+                { icon: Eye, text: isNb ? "Tilpasset tema (lys / mørk / auto)" : "Custom theme (light / dark / auto)" },
+                { icon: Users, text: isNb ? "Vendor Network synlighet – la kunder finne deg" : "Vendor Network visibility – let customers find you" },
+                { icon: Globe, text: isNb ? "Egendefinert Trust Center URL" : "Custom Trust Center URL" },
+                { icon: FileText, text: isNb ? "Avansert dokumentdeling med tilgangskontroll" : "Advanced document sharing with access control" },
+                { icon: Award, text: isNb ? "Prioritert support og onboarding" : "Priority support and onboarding" },
+              ].map(feature => (
+                <div key={feature.text} className="flex items-start gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <feature.icon className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="text-sm text-foreground">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="space-y-3 pt-2">
+              <Button
+                className="w-full gap-2 bg-primary hover:bg-primary/90 h-11 text-base"
+                onClick={() => {
+                  setUpgradeDialogOpen(false);
+                  toast.success(isNb ? "Takk for interessen! Vi tar kontakt snart." : "Thanks for your interest! We'll be in touch soon.");
+                }}
+              >
+                <Sparkles className="h-4 w-4" />
+                {isNb ? "Oppgrader nå" : "Upgrade now"}
+              </Button>
+              <p className="text-[11px] text-center text-muted-foreground">
+                {isNb
+                  ? "Du kan når som helst nedgradere til gratisplanen."
+                  : "You can downgrade to the free plan at any time."}
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };
