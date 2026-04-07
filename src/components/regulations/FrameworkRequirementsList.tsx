@@ -48,9 +48,10 @@ const capabilityLabel: Record<AgentCapability, { label: string; color: string }>
 interface FrameworkRequirementsListProps {
   frameworkId: string;
   onCountsChange?: (counts: { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }) => void;
+  highlightRequirementId?: string | null;
 }
 
-export const FrameworkRequirementsList = ({ frameworkId, onCountsChange }: FrameworkRequirementsListProps) => {
+export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlightRequirementId }: FrameworkRequirementsListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
