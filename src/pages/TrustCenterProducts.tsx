@@ -273,7 +273,7 @@ const TrustCenterProducts = () => {
             <Card
               key={svc.id}
               className="group hover:shadow-sm transition-shadow cursor-pointer"
-              onClick={() => navigate(`/assets/${svc.id}`)}
+              onClick={() => navigate(`/trust-center/profile/${svc.id}`)}
             >
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
