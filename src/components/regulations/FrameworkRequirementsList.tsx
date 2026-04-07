@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -55,6 +55,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
+  const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Handle highlight from chart event click
+  useEffect(() => {
+    if (highlightRequirementId) {
+      setFilter("all");
+      setExpandedId(highlightRequirementId);
+      setTimeout(() => {
+        reqRefs.current[highlightRequirementId]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [highlightRequirementId]);
 
   const requirements = useMemo(() => {
     const main = getRequirementsByFramework(frameworkId);
