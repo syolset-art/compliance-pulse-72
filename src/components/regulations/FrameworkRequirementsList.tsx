@@ -149,7 +149,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const cap = capabilityLabel[req.agent_capability];
 
           return (
-            <div key={req.requirement_id} className="rounded-lg border bg-card transition-colors">
+            <div
+              key={req.requirement_id}
+              ref={(el) => { reqRefs.current[req.requirement_id] = el; }}
+              className={`rounded-lg border bg-card transition-all ${highlightRequirementId === req.requirement_id ? "ring-2 ring-primary/50" : ""}`}
+            >
               <button
                 onClick={() => setExpandedId(isExpanded ? null : req.requirement_id)}
                 className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
