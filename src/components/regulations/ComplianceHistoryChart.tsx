@@ -151,25 +151,6 @@ export const ComplianceHistoryChart = ({ frameworkId, onEventClick }: Compliance
           </LineChart>
         </ResponsiveContainer>
 
-        {/* Event timeline */}
-        {recentEvents.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Siste hendelser</p>
-            {recentEvents.map((ev, i) => (
-              <button
-                key={i}
-                onClick={() => onEventClick?.(ev.requirementId)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left hover:bg-muted/50 transition-colors text-xs group"
-              >
-                <EventIcon type={ev.type} />
-                <span className="font-mono text-muted-foreground text-[10px] shrink-0">{ev.requirementId}</span>
-                <span className="truncate text-foreground group-hover:text-primary transition-colors">{ev.requirementName}</span>
-                <span className={`ml-auto shrink-0 font-medium ${eventTypeColor[ev.type]}`}>{eventTypeLabel[ev.type]}</span>
-                <span className="text-muted-foreground shrink-0">{ev.date}</span>
-              </button>
-            ))}
-          </div>
-        )}
       </CardContent>
     </Card>
   );
