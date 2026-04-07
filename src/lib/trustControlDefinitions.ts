@@ -27,6 +27,8 @@ export interface TrustControlDefinition {
   key: string;
   labelEn: string;
   labelNb: string;
+  descriptionEn?: string;
+  descriptionNb?: string;
   weight: number;
   area: ControlArea;
 }
@@ -62,14 +64,10 @@ const VERIFICATION_WEIGHTS: Record<VerificationSource, number> = {
 
 // ── Generic controls (Governance area) ───────────────────────────────
 export const GENERIC_CONTROLS: TrustControlDefinition[] = [
-  { key: "owner_assigned", labelEn: "Owner assigned", labelNb: "Eier tilordnet", weight: 1, area: "governance" },
-  { key: "responsible_person", labelEn: "Responsible person defined", labelNb: "Ansvarlig person definert", weight: 1, area: "governance" },
-  { key: "description_defined", labelEn: "Description defined", labelNb: "Beskrivelse definert", weight: 1, area: "governance" },
-  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", weight: 1, area: "risk_compliance" },
-  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", weight: 1, area: "risk_compliance" },
-  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", weight: 1, area: "risk_compliance" },
-  { key: "review_cycle", labelEn: "Review cycle defined", labelNb: "Gjennomgangssyklus definert", weight: 1, area: "governance" },
-  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", weight: 1, area: "governance" },
+  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", descriptionEn: "Has a risk level been assessed for the asset?", descriptionNb: "Er det vurdert et risikonivå for eiendelen?", weight: 1, area: "risk_compliance" },
+  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", descriptionEn: "Has the criticality been determined?", descriptionNb: "Er kritikaliteten bestemt?", weight: 1, area: "risk_compliance" },
+  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", descriptionEn: "Has a risk assessment been performed?", descriptionNb: "Er det utført en risikovurdering?", weight: 1, area: "risk_compliance" },
+  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", descriptionEn: "Is relevant documentation uploaded?", descriptionNb: "Er relevant dokumentasjon lastet opp?", weight: 1, area: "governance" },
 ];
 
 // ── Vendor-specific (Supplier Governance) ────────────────────────────
@@ -97,9 +95,10 @@ export const HARDWARE_CONTROLS: TrustControlDefinition[] = [
 
 // ── Organizational unit / self (Governance) ──────────────────────────
 export const ORG_CONTROLS: TrustControlDefinition[] = [
-  { key: "responsible_manager", labelEn: "Responsible manager assigned", labelNb: "Ansvarlig leder tilordnet", weight: 1, area: "governance" },
-  { key: "security_training", labelEn: "Security training completed", labelNb: "Sikkerhetsopplæring gjennomført", weight: 1, area: "governance" },
-  { key: "incident_reporting", labelEn: "Incident reporting process defined", labelNb: "Hendelsesrapporteringsprosess definert", weight: 1, area: "risk_compliance" },
+  { key: "security_responsibility", labelEn: "Security & privacy responsibility", labelNb: "Ansvar for sikkerhet og personvern", descriptionEn: "Is it clearly defined who is responsible?", descriptionNb: "Er det tydelig definert hvem som har ansvaret?", weight: 1, area: "governance" },
+  { key: "documented_policies", labelEn: "Documented policies", labelNb: "Dokumenterte policyer", descriptionEn: "Does the organization have documented security policies?", descriptionNb: "Har virksomheten dokumenterte sikkerhetspolicyer?", weight: 1, area: "governance" },
+  { key: "risk_assessment_recent", labelEn: "Risk assessment last 12 months", labelNb: "Risikovurdering siste 12 mnd", descriptionEn: "Has a formal risk assessment been conducted?", descriptionNb: "Er det gjennomført en formell risikovurdering?", weight: 1, area: "governance" },
+  { key: "incident_handling", labelEn: "Incident handling", labelNb: "Hendelseshåndtering", descriptionEn: "Is there a documented procedure for incident handling?", descriptionNb: "Finnes det en dokumentert prosedyre for hendelseshåndtering?", weight: 1, area: "governance" },
 ];
 
 // ── Risk mapping: control key → risk when missing/partial ────────────
