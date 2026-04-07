@@ -68,6 +68,7 @@ import AdminOrganisation from "./pages/AdminOrganisation";
 import AdminDocuments from "./pages/AdminDocuments";
 import AdminNotifications from "./pages/AdminNotifications";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
+import FrameworkDetail from "./pages/FrameworkDetail";
 
 const queryClient = new QueryClient();
 
