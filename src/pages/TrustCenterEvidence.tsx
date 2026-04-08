@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, ExternalLink, Award, Calendar, CheckCircle2, AlertTriangle, Upload, FolderOpen, Loader2 } from "lucide-react";
+import { FileText, Plus, ExternalLink, Award, Calendar, CheckCircle2, AlertTriangle, Upload, FolderOpen, Loader2, Eye, EyeOff, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
 
 const policyTypes = ["policy", "privacy_policy", "acceptable_use", "incident_response", "security_policy", "data_protection_policy"];
 const certTypes = ["certification"];

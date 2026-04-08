@@ -94,8 +94,9 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date")
-        .eq("asset_id", asset!.id);
+        .select("id, document_type, file_name, status, created_at, expiry_date, visibility")
+        .eq("asset_id", asset!.id)
+        .eq("visibility", "published");
       return data || [];
     },
     enabled: !!asset?.id,
