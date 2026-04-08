@@ -97,9 +97,9 @@ const TrustCenterMenu = () => {
   const navigate = useNavigate();
   const [selfAssetId, setSelfAssetId] = useState<string | null>(null);
   const [open, setOpen] = useState(() => 
+    location.pathname.startsWith("/trust-center") || 
     location.pathname.startsWith("/assets/") || 
-    location.pathname === "/customer-requests" ||
-    location.pathname === "/trust-center"
+    location.pathname === "/customer-requests"
   );
 
   useEffect(() => {
