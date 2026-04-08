@@ -96,7 +96,7 @@ export const ProcessAITab = ({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(t("processAI.draftAccepted", "AI-bruk dokumentert!"));
+      toast.success(t("processAI.draftAccepted", "KI-bruk dokumentert!"));
       queryClient.invalidateQueries({ queryKey: ["process-ai-usage"] });
       setShowGuidedWizard(false);
     },
@@ -145,17 +145,17 @@ export const ProcessAITab = ({
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Bot className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">
-                {t("processAI.notDocumented", "AI-bruk ikke dokumentert")}
+                {t("processAI.notDocumented", "KI-bruk ikke dokumentert")}
               </h3>
               <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
                 {t(
                   "processAI.notDocumentedDescription",
-                  "Dokumenter om denne prosessen bruker AI for å sikre compliance med AI Act."
+                  "Dokumenter om denne prosessen bruker KI for å sikre compliance med KI-forordningen."
                 )}
               </p>
               <Button onClick={() => setDialogOpen(true)}>
                 <Bot className="h-4 w-4 mr-2" />
-                {t("processAI.startDocumentation", "Dokumenter AI-bruk")}
+                {t("processAI.startDocumentation", "Dokumenter KI-bruk")}
               </Button>
             </CardContent>
           </Card>
@@ -223,7 +223,7 @@ export const ProcessAITab = ({
                 {aiDraft.hasAI && (
                   <Badge variant="default" className="ml-auto text-xs">
                     <Bot className="h-3 w-3 mr-1" />
-                    Bruker AI
+                    Bruker KI
                   </Badge>
                 )}
               </div>
@@ -234,7 +234,7 @@ export const ProcessAITab = ({
               <div className="p-3 bg-muted/50 rounded-lg border space-y-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">AI-funksjoner</span>
+                  <span className="text-sm font-medium">KI-funksjoner</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {aiDraft.suggestedFeatures.map((feature, idx) => (
@@ -265,7 +265,7 @@ export const ProcessAITab = ({
               </div>
             )}
 
-            {/* AI Act note */}
+            {/* KI-forordningen note */}
             {aiDraft.aiActNote && (
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                 <p className="text-sm text-amber-700 dark:text-amber-300">
