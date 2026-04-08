@@ -3102,6 +3102,7 @@ export type Database = {
           valid_from: string | null
           valid_to: string | null
           version: string | null
+          visibility: string
         }
         Insert: {
           asset_id: string
@@ -3123,6 +3124,7 @@ export type Database = {
           valid_from?: string | null
           valid_to?: string | null
           version?: string | null
+          visibility?: string
         }
         Update: {
           asset_id?: string
@@ -3144,6 +3146,7 @@ export type Database = {
           valid_from?: string | null
           valid_to?: string | null
           version?: string | null
+          visibility?: string
         }
         Relationships: [
           {

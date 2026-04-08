@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, ExternalLink, Award, Calendar, CheckCircle2, AlertTriangle, Upload, FolderOpen, Loader2 } from "lucide-react";
+import { FileText, Plus, ExternalLink, Award, Calendar, CheckCircle2, AlertTriangle, Upload, FolderOpen, Loader2, Eye, EyeOff, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
 
 const policyTypes = ["policy", "privacy_policy", "acceptable_use", "incident_response", "security_policy", "data_protection_policy"];
 const certTypes = ["certification"];
@@ -28,11 +30,22 @@ const getStatusBadge = (status: string | null, isNb: boolean) => {
       return status ? <Badge variant="outline" className="text-[10px]">{status}</Badge> : null;
   }
 };
+const getVisibilityIcon = (visibility: string | null) => {
+  switch (visibility) {
+    case "published":
+      return <Eye className="h-3.5 w-3.5 text-success" />;
+    case "hidden":
+      return <Lock className="h-3.5 w-3.5 text-warning" />;
+    default:
+      return <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />;
+  }
+};
 
 const TrustCenterEvidence = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
@@ -51,7 +64,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date, display_name, category")
+        .select("id, document_type, file_name, status, created_at, expiry_date, display_name, category, visibility")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -65,15 +78,21 @@ const TrustCenterEvidence = () => {
 
   const content = (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-8 md:pt-10">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
-          {isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence"}
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          {isNb
-            ? "Samlet oversikt over retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance."
-            : "Overview of policies, certifications and documents supporting your organization's compliance."}
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
+            {isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence"}
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            {isNb
+              ? "Samlet oversikt over retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance."
+              : "Overview of policies, certifications and documents supporting your organization's compliance."}
+          </p>
+        </div>
+        <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          {isNb ? "Legg til" : "Add"}
+        </Button>
       </div>
 
       <Tabs defaultValue="policies" className="space-y-6">
@@ -100,15 +119,9 @@ const TrustCenterEvidence = () => {
           <>
             {/* Policies */}
             <TabsContent value="policies" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Plus className="h-4 w-4" />
-                  {isNb ? "Ny policy" : "New policy"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
+              </p>
               {policies.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen retningslinjer registrert ennå." : "No policies registered yet."}</p>
               ) : (
@@ -129,6 +142,7 @@ const TrustCenterEvidence = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {getStatusBadge(doc.status, isNb)}
+                          {getVisibilityIcon(doc.visibility)}
                           <Button variant="ghost" size="sm">
                             <ExternalLink className="h-3.5 w-3.5" />
                           </Button>
@@ -142,15 +156,9 @@ const TrustCenterEvidence = () => {
 
             {/* Certifications */}
             <TabsContent value="certifications" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Plus className="h-4 w-4" />
-                  {isNb ? "Legg til" : "Add"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
+              </p>
               {certifications.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen sertifiseringer registrert ennå." : "No certifications registered yet."}</p>
               ) : (
@@ -166,6 +174,7 @@ const TrustCenterEvidence = () => {
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-medium">{cert.display_name || cert.file_name}</p>
                               {getStatusBadge(cert.status, isNb)}
+                              {getVisibilityIcon(cert.visibility)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                               {isNb ? "Opprettet" : "Created"} {new Date(cert.created_at).toLocaleDateString()}
@@ -187,15 +196,9 @@ const TrustCenterEvidence = () => {
 
             {/* Documents */}
             <TabsContent value="documents" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Upload className="h-4 w-4" />
-                  {isNb ? "Last opp" : "Upload"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
+              </p>
               {documents.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
               ) : (
@@ -214,7 +217,10 @@ const TrustCenterEvidence = () => {
                             </p>
                           </div>
                         </div>
-                        {getStatusBadge(doc.status, isNb)}
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(doc.status, isNb)}
+                          {getVisibilityIcon(doc.visibility)}
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -224,6 +230,7 @@ const TrustCenterEvidence = () => {
           </>
         )}
       </Tabs>
+      {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
     </div>
   );
 
