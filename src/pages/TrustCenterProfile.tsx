@@ -44,6 +44,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishStep, setPublishStep] = useState<"confirm" | "publishing" | "success">("confirm");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: propAssetId ? ["asset-profile", propAssetId] : ["self-asset-profile"],
