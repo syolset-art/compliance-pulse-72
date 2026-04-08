@@ -790,12 +790,6 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     </section>
                   )}
 
-                  {/* Last updated */}
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span>Last updated: {lastUpdated}</span>
-                  </div>
-
                   {/* ── Sammendrag og kontakt ── */}
                   <section className="space-y-5">
                     <div className="flex items-center gap-2">
