@@ -499,7 +499,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   };
 
   const setChecklistAnswer = (itemId: string, answer: ChecklistAnswer) => {
-    setChecklist(checklist.map(c => c.id === itemId ? { ...c, answer, systems: answer === 'yes' ? c.systems : undefined } : c));
+    setChecklist(checklist.map(c => {
+      if (c.id !== itemId) return c;
+      const status = answer === 'yes' ? 'ok' as const
+        : answer === 'no' ? 'action_required' as const
+        : answer === 'unsure' ? 'needs_clarification' as const
+        : undefined;
+      return { ...c, answer, status, systems: answer === 'yes' ? c.systems : undefined };
+    }));
   };
 
   const toggleChecklistSystem = (itemId: string, systemId: string) => {
