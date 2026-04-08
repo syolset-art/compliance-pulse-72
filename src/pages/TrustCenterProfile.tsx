@@ -781,6 +781,40 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     </section>
                   )}
 
+                  {/* ── Products & Services ── */}
+                  {services.length > 0 && (
+                    <section>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-base font-semibold text-foreground">
+                          {isNb ? "Produkter og tjenester" : "Products & Services"}
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {services.map((svc: any) => (
+                          <div key={svc.id} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors">
+                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              {svc.asset_type === "saas" ? (
+                                <Globe className="h-5 w-5 text-primary" />
+                              ) : (
+                                <Server className="h-5 w-5 text-primary" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-foreground truncate">{svc.name}</p>
+                              {svc.description && (
+                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{svc.description}</p>
+                              )}
+                            </div>
+                            <Badge variant={svc.asset_type === "saas" ? "default" : "secondary"} className="text-[10px] shrink-0">
+                              {svc.asset_type === "saas" ? "SaaS" : "Service"}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
                   {/* Last updated */}
                   <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
