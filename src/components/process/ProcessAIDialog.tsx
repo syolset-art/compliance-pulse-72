@@ -124,6 +124,9 @@ export const ProcessAIDialog = ({
   const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
   const [isGeneratingPurpose, setIsGeneratingPurpose] = useState(false);
   const [isGeneratingFeatures, setIsGeneratingFeatures] = useState(false);
+  const [isGeneratingRisk, setIsGeneratingRisk] = useState(false);
+  const [riskKeyFactors, setRiskKeyFactors] = useState<string[]>([]);
+  const [riskAutoSuggested, setRiskAutoSuggested] = useState(false);
   const [transparencyStatus, setTransparencyStatus] = useState("not_required");
   const [transparencyDescription, setTransparencyDescription] = useState("");
   const [humanOversightRequired, setHumanOversightRequired] = useState(false);
@@ -408,6 +411,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
     setAiIntegrationLevel("");
     setAiDependencyLevel("");
     setFailureConsequence("");
+    setRiskKeyFactors([]);
+    setRiskAutoSuggested(false);
   };
 
   const handleSuggestPurpose = async () => {
@@ -487,6 +492,48 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
     }
   };
 
+  const suggestProcessRisk = async () => {
+    setIsGeneratingRisk(true);
+    try {
+      const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
+      
+      // Build checklist summary
+      const checklistSummary = checklist
+        .filter(c => c.answer)
+        .map(c => {
+          const answerLabel = c.answer === 'yes' ? 'Ja' : c.answer === 'no' ? 'Nei' : 'Vet ikke';
+          return `- ${c.question}: ${answerLabel}`;
+        })
+        .join('\n');
+
+      const { data, error } = await supabase.functions.invoke('suggest-process-risk', {
+        body: {
+          processName,
+          processDescription,
+          aiPurpose,
+          aiFeatures: selectedFeatureNames,
+          checklistSummary: checklistSummary || undefined,
+          affectedPersons,
+          automatedDecisions,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.risk_category) {
+        setRiskCategory(data.risk_category);
+        setRiskAutoSuggested(true);
+        if (data.reasoning) setRiskJustification(data.reasoning);
+        if (data.key_factors) setRiskKeyFactors(data.key_factors);
+        toast.success('Lara har foreslått et risikonivå basert på din registrering');
+      }
+    } catch (e) {
+      console.error('suggest-process-risk error:', e);
+      toast.error('Kunne ikke foreslå risikonivå automatisk. Velg manuelt nedenfor.');
+    } finally {
+      setIsGeneratingRisk(false);
+    }
+  };
+
   const addCustomFeature = () => {
     if (customFeature.trim()) {
       setAiFeatures([...aiFeatures, { id: `custom-${Date.now()}`, name: customFeature.trim(), selected: true }]);
@@ -549,6 +596,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
             answer: null,
           })));
         }
+      }
+      // Auto-suggest risk when entering risk step (step 3) if not already done
+      if (nextIdx === 3 && !riskAutoSuggested && !existingData?.risk_category) {
+        suggestProcessRisk();
       }
       setCurrentStep(nextIdx);
     }
@@ -1141,12 +1192,24 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
               <div>
                 <Label className="text-base font-medium">Risikovurdering</Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Lara har foreslått et risikonivå basert på KI-funksjoner og prosesstype
+                  Lara analyserer KI-bruken og foreslår et risikonivå basert på det du har registrert
                 </p>
               </div>
 
+              {/* ── Loading state while AI is analyzing ── */}
+              {isGeneratingRisk && (
+                <div className="p-6 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 text-center space-y-3">
+                  <div className="flex justify-center">
+                    <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+                  </div>
+                  <p className="text-sm font-medium">Lara analyserer risikonivå...</p>
+                  <p className="text-xs text-muted-foreground">Vurderer KI-funksjoner, sjekklistesvar og berørte personer</p>
+                  <Progress value={45} className="w-48 mx-auto" />
+                </div>
+              )}
+
               {/* ── Result card: prominent risk classification ── */}
-              {riskCategory && selectedRiskLevel ? (
+              {!isGeneratingRisk && riskCategory && selectedRiskLevel ? (
                 <div className={`p-4 rounded-lg border-2 ${
                   riskCategory === 'unacceptable' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' :
                   riskCategory === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' :
@@ -1163,26 +1226,49 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="text-lg font-bold">{selectedRiskLevel.label}</p>
-                        {isFieldAutoFilled('risk_category', riskCategory) && (
+                        {riskAutoSuggested && (
                           <AIGeneratedBadge variant="suggested" size="sm" />
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {riskCategory === 'unacceptable' && 'Forbudt under KI-forordningen — må avvikles umiddelbart.'}
                         {riskCategory === 'high' && 'Strenge krav: samsvarsvurdering, risikovurdering og løpende overvåking.'}
-                        {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med AI.'}
+                        {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med KI.'}
                         {riskCategory === 'minimal' && 'Frivillige retningslinjer — ingen obligatoriske krav.'}
                       </p>
                     </div>
                   </div>
+
+                  {/* Key factors from AI */}
+                  {riskKeyFactors.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Nøkkelfaktorer i vurderingen:</p>
+                      <ul className="space-y-1">
+                        {riskKeyFactors.map((factor, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                            <Check className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
+                            <span>{factor}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center">
+              ) : !isGeneratingRisk ? (
+                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center space-y-2">
                   <Shield className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">Ingen risikovurdering foreslått ennå</p>
-                  <p className="text-xs text-muted-foreground mt-1">Velg et risikonivå nedenfor</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={suggestProcessRisk}
+                    className="gap-1.5"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    La Lara foreslå risikonivå
+                  </Button>
                 </div>
-              )}
+              ) : null}
 
               {/* ── Collapsible risk selector ── */}
               <Collapsible open={isRiskSelectorOpen} onOpenChange={setIsRiskSelectorOpen}>
