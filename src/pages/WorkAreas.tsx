@@ -983,14 +983,14 @@ export default function WorkAreas() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {allAssets.length === 0 ? (
+                      {filteredAssets.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                             {t("myWorkAreas.noAssets")}
                           </TableCell>
                         </TableRow>
                       ) : (
-                        allAssets.map((asset) => (
+                        filteredAssets.map((asset) => (
                           <TableRow 
                             key={asset.id}
                             className="cursor-pointer hover:bg-muted/50"
