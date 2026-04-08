@@ -588,7 +588,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 <button
                   key={step.id}
                   type="button"
-                  onClick={() => index <= currentStep && setCurrentStep(index)}
+                  onClick={() => (index <= currentStep || isStepComplete(index) || existingData) && setCurrentStep(index)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-primary text-primary-foreground'
