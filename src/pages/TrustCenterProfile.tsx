@@ -766,12 +766,12 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
 
 
 
-                  {/* ── Sammendrag og kontakt ── */}
+                  {/* ── Sammendrag ── */}
                   <section className="space-y-5">
                     <div className="flex items-center gap-2">
                       <Zap className="h-4 w-4 text-primary" />
                       <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Sammendrag og kontakt" : "Summary and Contact"}
+                        {isNb ? "Sammendrag" : "Summary"}
                       </h3>
                     </div>
 
@@ -787,23 +787,6 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                           <p className="text-[11px] text-muted-foreground mt-0.5">{item.label}</p>
                         </div>
                       ))}
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border">
-                      <div className="space-y-0.5">
-                        <p className="text-sm font-semibold text-foreground">
-                          {isNb ? "Trenger du mer informasjon?" : "Need more information?"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isNb
-                            ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling."
-                            : "Contact us for questions about security, compliance or data handling."}
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
-                        <MessageSquare className="h-4 w-4" />
-                        {isNb ? "Kontakt oss" : "Contact us"}
-                      </Button>
                     </div>
                   </section>
 
@@ -874,6 +857,26 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                       ))}
                     </div>
                   </section>
+
+                  <div className="border-t border-border" />
+
+                  {/* ── Trenger du mer informasjon? ── */}
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-semibold text-foreground">
+                        {isNb ? "Trenger du mer informasjon?" : "Need more information?"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {isNb
+                          ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling."
+                          : "Contact us for questions about security, compliance or data handling."}
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
+                      <MessageSquare className="h-4 w-4" />
+                      {isNb ? "Kontakt oss" : "Contact us"}
+                    </Button>
+                  </div>
 
                   {/* ── Products & Services — compact link ── */}
                   {services.length > 0 && (
