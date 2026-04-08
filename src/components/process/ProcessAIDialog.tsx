@@ -1052,97 +1052,78 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               ) : (
                 <>
-                  {/* Transparency */}
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium">Transparens</Label>
-                    <Select value={transparencyStatus} onValueChange={setTransparencyStatus}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="not_required">Ikke påkrevd</SelectItem>
-                        <SelectItem value="required">Påkrevd, ikke implementert</SelectItem>
-                        <SelectItem value="implemented">Implementert</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <StepContextSummary>
+                    Svar på tre enkle påstander om hvordan AI brukes i denne prosessen.
+                  </StepContextSummary>
 
-                    {transparencyStatus !== 'not_required' && (
+                  {/* Toggle 1: Users know about AI */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="transparency-toggle" className="text-sm font-medium cursor-pointer">
+                        Brukerne vet at de interagerer med AI
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        F.eks. via informasjonsbanner, personvernerklæring eller muntlig informasjon
+                      </p>
+                    </div>
+                    <Switch
+                      id="transparency-toggle"
+                      checked={transparencyStatus === 'implemented'}
+                      onCheckedChange={(checked) => setTransparencyStatus(checked ? 'implemented' : 'required')}
+                    />
+                  </div>
+
+                  {/* Toggle 2: Someone can override */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="oversight-toggle" className="text-sm font-medium cursor-pointer">
+                        Noen kan overstyre AI-beslutninger
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        En person kan korrigere, avvise eller endre det AI-en foreslår
+                      </p>
+                    </div>
+                    <Switch
+                      id="oversight-toggle"
+                      checked={humanOversightRequired}
+                      onCheckedChange={setHumanOversightRequired}
+                    />
+                  </div>
+
+                  {/* Toggle 3: Automated decisions */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="automated-toggle" className="text-sm font-medium cursor-pointer">
+                        AI tar beslutninger uten at en person ser over
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        AI-en handler automatisk uten at et menneske godkjenner først
+                      </p>
+                    </div>
+                    <Switch
+                      id="automated-toggle"
+                      checked={automatedDecisions}
+                      onCheckedChange={setAutomatedDecisions}
+                    />
+                  </div>
+
+                  {/* Collapsible: optional description */}
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                        <Edit2 className="h-3.5 w-3.5 mr-1" />
+                        Legg til beskrivelse (valgfritt)
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-2 space-y-3">
                       <Textarea
                         value={transparencyDescription}
                         onChange={(e) => setTransparencyDescription(e.target.value)}
-                        placeholder="Beskriv hvordan brukere informeres om AI-bruk..."
-                        rows={2}
+                        placeholder="Utdyp eventuelt hvordan transparens og tilsyn håndteres..."
+                        rows={3}
                       />
-                    )}
-                  </div>
-
-                  {/* Human oversight as toggle */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="oversight-toggle" className="text-base font-medium cursor-pointer">
-                          Menneskelig tilsyn
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Er det en person som kan overstyre eller korrigere AI-beslutningene?
-                        </p>
-                      </div>
-                      <Switch
-                        id="oversight-toggle"
-                        checked={humanOversightRequired}
-                        onCheckedChange={setHumanOversightRequired}
-                      />
-                    </div>
-
-                    {humanOversightRequired && (
-                      <div className="space-y-3 pl-0">
-                        <Select value={humanOversightLevel} onValueChange={setHumanOversightLevel}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Velg tilsynsnivå" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="review">Gjennomgang</SelectItem>
-                            <SelectItem value="approval">Godkjenning</SelectItem>
-                            <SelectItem value="full_control">Full kontroll</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Textarea
-                          value={humanOversightDescription}
-                          onChange={(e) => setHumanOversightDescription(e.target.value)}
-                          placeholder="Beskriv hvordan tilsyn gjennomføres..."
-                          rows={2}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Automated decisions as toggle */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="automated-toggle" className="text-base font-medium cursor-pointer">
-                          Automatiserte beslutninger
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Tar AI beslutninger uten menneskelig innblanding?
-                        </p>
-                      </div>
-                      <Switch
-                        id="automated-toggle"
-                        checked={automatedDecisions}
-                        onCheckedChange={setAutomatedDecisions}
-                      />
-                    </div>
-
-                    {automatedDecisions && (
-                      <Textarea
-                        value={decisionImpact}
-                        onChange={(e) => setDecisionImpact(e.target.value)}
-                        placeholder="Beskriv konsekvensen av automatiserte beslutninger..."
-                        rows={2}
-                      />
-                    )}
-                  </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </>
               )}
             </div>
@@ -1151,60 +1132,97 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {/* Step 6: KI-avhengighet */}
           {currentStep === 5 && hasAI && (() => {
             const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
-            const affectedLabels = affectedPersons.map(p => p === 'Andre' && affectedPersonsOther ? affectedPersonsOther : p);
-            const affectedPreview = affectedLabels.length > 0 ? affectedLabels.join(' og ').toLowerCase() : '';
 
-            // Suggest dependency based on integration + features + risk
+            // Suggest dependency based on features + risk
             const suggestDependency = (): string => {
-              if (aiIntegrationLevel === 'core' || (selectedFeatureNames.length >= 3 && riskCategory === 'high')) return 'critically_dependent';
-              if (aiIntegrationLevel === 'partial' || selectedFeatureNames.length >= 2) return 'partially_dependent';
+              if (selectedFeatureNames.length >= 3 && riskCategory === 'high') return 'critically_dependent';
+              if (selectedFeatureNames.length >= 2) return 'partially_dependent';
               return 'not_dependent';
             };
 
             const suggestedDependency = suggestDependency();
 
-            // Overall dependency grade
-            const getOverallGrade = () => {
-              const integrationScore = aiIntegrationLevel === 'core' ? 3 : aiIntegrationLevel === 'partial' ? 2 : 1;
-              const dependencyScore = aiDependencyLevel === 'critically_dependent' ? 3 : aiDependencyLevel === 'partially_dependent' ? 2 : 1;
-              const avg = (integrationScore + dependencyScore) / 2;
-              if (avg >= 2.5) return { label: 'Høy avhengighet', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' };
-              if (avg >= 1.5) return { label: 'Moderat avhengighet', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800' };
-              return { label: 'Lav avhengighet', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' };
+            const DEPENDENCY_OPTIONS = [
+              { 
+                id: 'not_dependent', 
+                label: 'Ingenting spesielt', 
+                desc: 'Vi klarer oss fint uten, det tar kanskje litt lenger tid',
+                icon: '✅',
+                integrationLevel: 'supplement',
+              },
+              { 
+                id: 'partially_dependent', 
+                label: 'Det merkes', 
+                desc: 'Vi må jobbe annerledes, men får gjort jobben',
+                icon: '⚠️',
+                integrationLevel: 'partial',
+              },
+              { 
+                id: 'critically_dependent', 
+                label: 'Stopper opp', 
+                desc: 'Prosessen stopper eller kvaliteten blir vesentlig dårligere',
+                icon: '🔴',
+                integrationLevel: 'core',
+              },
+            ];
+
+            const handleSelectDependency = (optionId: string) => {
+              setAiDependencyLevel(optionId);
+              const option = DEPENDENCY_OPTIONS.find(o => o.id === optionId);
+              if (option) setAiIntegrationLevel(option.integrationLevel);
             };
 
-            const INTEGRATION_LEVELS = [
-              { id: 'supplement', label: 'Supplement', desc: 'AI er et hjelpemiddel, prosessen fungerer uten', icon: '🔧' },
-              { id: 'partial', label: 'Delvis integrert', desc: 'AI håndterer vesentlige deler, men kan erstattes manuelt', icon: '⚙️' },
-              { id: 'core', label: 'Kjernekomponent', desc: 'AI er selve motoren i prosessen', icon: '🧠' },
-            ];
-
-            const DEPENDENCY_LEVELS = [
-              { id: 'not_dependent', label: 'Ikke avhengig', desc: 'Prosessen kan kjøre uten AI uten merkbar konsekvens', icon: '✅' },
-              { id: 'partially_dependent', label: 'Delvis avhengig', desc: 'Prosessen påvirkes, men kan gjennomføres manuelt med mer tid/ressurser', icon: '⚠️' },
-              { id: 'critically_dependent', label: 'Kritisk avhengig', desc: 'Prosessen stopper eller gir vesentlig forringet kvalitet uten AI', icon: '🔴' },
-            ];
-
             return (
-            <div className="space-y-6">
+            <div className="space-y-5">
 
               <StepContextSummary>
-                Her vurderer vi hva som skjer om AI-en i denne prosessen slutter å fungere. 
-                Basert på det du har oppgitt hjelper vi deg å forstå avhengigheten.
+                Hva skjer om AI-en i denne prosessen slutter å fungere?
               </StepContextSummary>
 
-              {/* Card 1: Omfang */}
-              <Card variant="flat">
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">1. Omfang</Label>
-                  </div>
-                  {affectedPreview && (
-                    <p className="text-xs text-muted-foreground">
-                      Du har oppgitt at <span className="font-medium text-foreground">{affectedPreview}</span> berøres av AI-bruken.
-                    </p>
-                  )}
+              {/* Lara suggestion */}
+              {!aiDependencyLevel && suggestedDependency && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                  <p className="text-sm text-muted-foreground">
+                    Basert på {selectedFeatureNames.length} AI-funksjoner foreslår Lara:{' '}
+                    <button type="button" className="font-medium text-primary hover:underline" onClick={() => handleSelectDependency(suggestedDependency)}>
+                      {DEPENDENCY_OPTIONS.find(d => d.id === suggestedDependency)?.label}
+                    </button>
+                  </p>
+                </div>
+              )}
+
+              {/* Three simple choices */}
+              <div className="space-y-2">
+                {DEPENDENCY_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handleSelectDependency(option.id)}
+                    className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
+                      aiDependencyLevel === option.id
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                        : 'hover:bg-muted/50'
+                    }`}
+                  >
+                    <span className="text-lg mt-0.5">{option.icon}</span>
+                    <div>
+                      <p className="text-sm font-semibold">{option.label}</p>
+                      <p className="text-xs text-muted-foreground">{option.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Collapsible: optional details */}
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                    <Edit2 className="h-3.5 w-3.5 mr-1" />
+                    Vil du utdype? (valgfritt)
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2 space-y-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground">Estimert antall berørte per gang</Label>
                     <Input
@@ -1214,111 +1232,17 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                       placeholder="f.eks. 1–5"
                     />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Card 2: Integrasjon */}
-              <Card variant="flat">
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Server className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">2. Integrasjon</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Beskriv konsekvensen ved bortfall</Label>
+                    <Textarea
+                      value={failureConsequence}
+                      onChange={(e) => setFailureConsequence(e.target.value)}
+                      placeholder="f.eks. Manuell onboarding tar 3x lengre tid og gir inkonsistent kvalitet"
+                      rows={2}
+                    />
                   </div>
-                  {selectedFeatureNames.length > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      Du har registrert <span className="font-medium text-foreground">{selectedFeatureNames.length} AI-funksjon{selectedFeatureNames.length > 1 ? 'er' : ''}</span> i denne prosessen.
-                      Hvor stor del av prosessen er AI-drevet?
-                    </p>
-                  )}
-                  <div className="space-y-2">
-                    {INTEGRATION_LEVELS.map((level) => (
-                      <button
-                        key={level.id}
-                        type="button"
-                        onClick={() => setAiIntegrationLevel(level.id)}
-                        className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
-                          aiIntegrationLevel === level.id
-                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                            : 'hover:bg-muted/50'
-                        }`}
-                      >
-                        <span className="text-lg mt-0.5">{level.icon}</span>
-                        <div>
-                          <p className="text-sm font-medium">{level.label}</p>
-                          <p className="text-xs text-muted-foreground">{level.desc}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Card 3: Kritikalitet ved bortfall */}
-              <Card variant="flat">
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">3. Kritikalitet ved bortfall</Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Hva skjer om AI-en i denne prosessen slutter å fungere?
-                  </p>
-                  {!aiDependencyLevel && suggestedDependency && (
-                    <div className="flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10">
-                      <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground">
-                        Basert på {selectedFeatureNames.length} funksjoner og integrasjonsnivå foreslår Lara: <button type="button" className="font-medium text-primary hover:underline" onClick={() => setAiDependencyLevel(suggestedDependency)}>{DEPENDENCY_LEVELS.find(d => d.id === suggestedDependency)?.label}</button>
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    {DEPENDENCY_LEVELS.map((level) => (
-                      <button
-                        key={level.id}
-                        type="button"
-                        onClick={() => setAiDependencyLevel(level.id)}
-                        className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
-                          aiDependencyLevel === level.id
-                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                            : 'hover:bg-muted/50'
-                        }`}
-                      >
-                        <span className="text-lg mt-0.5">{level.icon}</span>
-                        <div>
-                          <p className="text-sm font-medium">{level.label}</p>
-                          <p className="text-xs text-muted-foreground">{level.desc}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  {aiDependencyLevel && aiDependencyLevel !== 'not_dependent' && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Beskriv konsekvensen ved bortfall</Label>
-                      <Textarea
-                        value={failureConsequence}
-                        onChange={(e) => setFailureConsequence(e.target.value)}
-                        placeholder="f.eks. Manuell onboarding tar 3x lengre tid og gir inkonsistent kvalitet"
-                        rows={2}
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Overall dependency indicator */}
-              {aiIntegrationLevel && aiDependencyLevel && (
-                <div className={`p-3 rounded-lg border ${getOverallGrade().bg}`}>
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span className={`text-sm font-semibold ${getOverallGrade().color}`}>
-                      Samlet: {getOverallGrade().label}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Beregnet fra integrasjonsnivå og kritikalitet ved bortfall.
-                  </p>
-                </div>
-              )}
+                </CollapsibleContent>
+              </Collapsible>
 
             </div>
             );
