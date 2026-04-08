@@ -1,53 +1,43 @@
 
 
-## Redesign av Eiendeler-fanen i arbeidsområdevisningen
+## Plan: Arbeidsområde-tilknytning og tiltaksansvarlig i avviksdialogen
 
-### Problemet
-Fanen "Eiendeler" er for generisk — brukere forstår ikke at den dekker systemer, leverandører, lokasjoner, nettverk og enheter. Filtreringen og "Legg til"-menyen er allerede på plass, men selve fanenavnet og den visuelle presentasjonen kommuniserer ikke godt nok hva som finnes her.
+### Oversikt
+Utvide "Legg til avvik"-dialogen slik at brukeren kan knytte avviket til arbeidsområder, velge tiltaksansvarlig basert på arbeidsområdenes ansvarlige personer, og eventuelt sette seg selv som tiltaksansvarlig for å se foreslåtte tiltak.
 
-### Løsning: Visuelt kategori-dashboard med ikoner
+### Endringer
 
-Erstatt den nåværende raden med filterknapper (Alle / System / Lokasjon / Nettverk) med **klikkbare kategori-kort** som fungerer som både filter og visuell oversikt. Hver kategori viser ikon, navn og antall.
+**1. Nytt steg/seksjon i AddDeviationDialog.tsx (confirm-steget)**
 
-```text
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  🖥 Systemer │ │ 🏢 Levera-  │ │ 📍 Loka-    │ │ 🌐 Nettverk │ │ 💻 Enheter  │
-│     4        │ │  ndører  2  │ │  sjoner  1  │ │      0      │ │      0      │
-│              │ │             │ │             │ │   (kommer)  │ │   (kommer)  │
-└──────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
-         ↑ klikk = filtrer tabellen under
-```
+- Legg til et spørsmål: "Er avviket tilknyttet arbeidsområder?" med tre valg:
+  - **Alle arbeidsområder**
+  - **Spesifikke arbeidsområder** (viser multi-select med arbeidsområder fra `work_areas`-tabellen)
+  - **Ingen spesifikke**
+- Hent arbeidsområder via `useQuery` fra `work_areas`-tabellen (id, name, responsible_person)
+- Når spesifikke arbeidsområder velges, populer "Tiltaksansvarlig"-dropdown med `responsible_person` fra de valgte arbeidsområdene (deduplisert)
+- Endre label fra "Ansvarlig" til "Tiltaksansvarlig"
+- Legg til en "Meg selv"-knapp/valg som setter innlogget bruker som tiltaksansvarlig
+- Når brukeren setter seg selv som tiltaksansvarlig, vis en info-boks med tekst om at foreslåtte tiltak vil bli tilgjengelige etter opprettelse
 
-### Konkrete endringer
+**2. Database: Nye kolonner på system_incidents**
 
-**Fil: `src/pages/WorkAreas.tsx`**
+- `work_area_scope` (text, default null) — verdier: `all`, `specific`, `none`
+- `linked_work_area_ids` (uuid[], default '{}') — liste over tilknyttede arbeidsområder
 
-1. **Erstatt filterknapp-raden** (linje ~903-936) med et grid av 5 kategori-kort:
-   - **Systemer** (Server-ikon) — aktiv, filtrerer `asset_type === "system"`
-   - **Leverandører** (Building2-ikon) — aktiv, filtrerer `asset_type === "vendor"`
-   - **Lokasjoner** (MapPin-ikon) — aktiv, filtrerer `asset_type === "location"`
-   - **Nettverk** (Network-ikon) — disabled med "Kommer"-badge
-   - **Enheter** (Monitor-ikon) — disabled med "Kommer"-badge
+**3. Lagring**
 
-2. **Hvert kort viser:**
-   - Ikon øverst
-   - Kategorinavn
-   - Antall assets i den kategorien (live count fra `allAssets`)
-   - Valgt-tilstand med `border-primary bg-primary/5`
-   - "Alle"-filter aktiveres ved å klikke på det allerede valgte kortet (toggle av)
+- Oppdater insert-logikken til å inkludere `work_area_scope` og `linked_work_area_ids`
+- Feltet `responsible` brukes fortsatt for tiltaksansvarlig
 
-3. **Legg til `vendor` i assetTypeFilter**-typene, og oppdater filtreringslogikken til å inkludere vendor-assets.
+**4. Oppdater formData state**
 
-4. **Endre fanenavnet** fra "Eiendeler" / "Eien" til **"Verdier"** med Package-ikon beholdt — et mer dekkende norsk begrep.
+- Legg til `workAreaScope: "none" | "all" | "specific"`
+- Legg til `linkedWorkAreaIds: string[]`
+- Oppdater reset-logikk i `handleClose`
 
-5. **Flytt "+ Legg til"-knappen** opp til høyre for kategori-kortene, slik at den er visuelt knyttet til oversikten.
+### Tekniske detaljer
 
-### UI-detaljer
-- Kortene bruker `grid grid-cols-2 sm:grid-cols-5 gap-2` for responsivitet
-- Valgt kort: `border-primary bg-primary/5 shadow-sm`
-- Disabled kort: `opacity-50 cursor-not-allowed` med liten "Kommer"-tekst
-- Hover på aktive kort: `hover:border-primary/50`
-- Animasjon: `transition-all duration-150`
-
-Ingen database- eller backend-endringer nødvendig.
+- Arbeidsområder hentes med: `supabase.from("work_areas").select("id, name, responsible_person")`
+- Tiltaksansvarlig-listen bygges dynamisk fra valgte arbeidsområders `responsible_person` + hardkodet personliste + "Meg selv"
+- DB-migrasjon: `ALTER TABLE system_incidents ADD COLUMN work_area_scope text, ADD COLUMN linked_work_area_ids uuid[] DEFAULT '{}'`
 
