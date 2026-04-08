@@ -898,8 +898,6 @@ export default function WorkAreas() {
               )}
 
               <TabsContent value="assets" className="mt-4">
-                {/* Asset summary dashboard */}
-                <AssetSummaryDashboard assets={allAssets} />
 
                 {/* Category cards grid */}
                 <div className="flex items-center justify-between mb-4">
