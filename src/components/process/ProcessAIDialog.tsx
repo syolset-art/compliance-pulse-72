@@ -130,6 +130,7 @@ export const ProcessAIDialog = ({
   const [aiIntegrationLevel, setAiIntegrationLevel] = useState<string>("");
   const [aiDependencyLevel, setAiDependencyLevel] = useState<string>("");
   const [failureConsequence, setFailureConsequence] = useState("");
+  const [isRiskSelectorOpen, setIsRiskSelectorOpen] = useState(false);
 
   const [suggestions, setSuggestions] = useState<ProcessAISuggestion | null>(null);
   const { data: systemAI } = useSystemAIFeatures(systemId || null);
