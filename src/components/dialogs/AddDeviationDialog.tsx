@@ -47,7 +47,10 @@ import {
   PenLine,
   CalendarIcon,
   Info,
+  Building2,
+  User,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AddDeviationDialogProps {
   open: boolean;
