@@ -138,6 +138,38 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     },
   });
 
+  // Active regulatory frameworks
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
+    },
+  });
+
+  const FRAMEWORK_COLORS: Record<string, string> = {
+    gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+    personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+    nis2: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
+    iso27001: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+    "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+  };
+
+  const frameworkBadgeClass = (id: string) => {
+    const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
+      if (lower.includes(key.replace("-", ""))) return cls;
+    }
+    return "bg-muted text-muted-foreground border-border";
+  };
+
   // Get people list based on the asset's work area
   const selectedWorkAreaName = workAreas.find((a: any) => a.id === asset.work_area_id)?.name || "";
   const peopleList = DEMO_PEOPLE[selectedWorkAreaName] || DEFAULT_PEOPLE;
