@@ -53,6 +53,7 @@ const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> 
   operations: { label_no: "Operations", label_en: "Operations" },
   identity_access: { label_no: "Identity & Access", label_en: "Identity & Access" },
   supplier_ecosystem: { label_no: "Supplier & Ecosystem", label_en: "Supplier & Ecosystem" },
+  privacy_data: { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
 };
 
 export default function DashboardV2() {
@@ -99,7 +100,7 @@ export default function DashboardV2() {
   // Focus areas (Governance / Operations / Identity & Access / Supplier & Ecosystem)
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
-    return ["governance", "operations", "identity_access", "supplier_ecosystem"].map((key) => ({
+    return ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"].map((key) => ({
       label_no: FOCUS_AREA_LABELS[key]?.label_no || key,
       label_en: FOCUS_AREA_LABELS[key]?.label_en || key,
       percent: byDomain[key]?.score || 0,
