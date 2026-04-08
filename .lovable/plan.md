@@ -1,52 +1,50 @@
 
 
-## Forenkle Trust Center-undermenyen
+## Forenkling av AI-bruksveiviseren (Transparens + KI-avhengighet)
 
-### Nåværende struktur (sidebar)
-Trust Center har i dag 8 separate menypunkter:
-1. Trust Profile
-2. Rediger profil
-3. Products & Services
-4. Compliance Status
-5. **Regelverk**
-6. **Policies**
-7. **Certifications**
-8. Contact & Requests
+### Problemet
+Testbrukerne sliter med de to siste stegene:
+- **Transparens (steg 5)**: Tre separate seksjoner (transparens-dropdown, menneskelig tilsyn-toggle med undernivåer, automatiserte beslutninger-toggle) — brukerne vet ikke hva som er "riktig"
+- **KI-avhengighet (steg 6)**: Tre kort med abstrakte konsepter (Omfang, Integrasjon, Kritikalitet) — brukerne forstår ikke hva de skal svare
 
-### Problem
-Policies, Certifications og delvis Compliance Status overlapper — de handler alle om dokumentasjon og bevis. Separate sider for hver gir unødvendig navigasjon.
+### Løsning: Erstatt med enkle ja/nei-spørsmål og Lara-forslag
 
-### Forslag: Slå sammen til "Dokumentasjon & Evidens"
+**Steg 5 (Transparens) — forenklet til 3 enkle toggle-spørsmål:**
 
-Ny struktur (6 punkter i stedet for 8):
+Fjern dropdown og fritekstfelt. Erstatt med tre konkrete ja/nei-påstander som brukerne bare krysser av:
 
-1. **Trust Profile** — `/trust-center/profile`
-2. **Rediger profil** — `/trust-center/edit`
-3. **Products & Services** — `/trust-center/products`
-4. **Regelverk** — `/trust-center/regulations`
-5. **Dokumentasjon & Evidens** — `/trust-center/evidence` *(ny samleside)*
-6. **Contact & Requests** — `/customer-requests`
+1. "Brukerne vet at de interagerer med AI" — toggle (ja/nei)
+2. "Noen kan overstyre AI-beslutninger" — toggle (ja/nei)  
+3. "AI tar beslutninger uten at en person ser over" — toggle (ja/nei)
 
-"Compliance Status" fjernes som eget punkt (dekkes av Regelverk + Trust Profile).
+Hvis risikonivå er "minimal" → vis fortsatt grønt "ingen krav"-kort som i dag. Ellers vises de tre togglene. Ingen fritekstfelt med mindre brukeren aktivt vil utdype (collapsible "Legg til beskrivelse").
 
-### Ny samleside: Dokumentasjon & Evidens
+**Steg 6 (KI-avhengighet) — forenklet til ett enkelt spørsmål:**
 
-Én side (`/trust-center/evidence`) med tre kategorier vist som seksjoner eller faner:
+Fjern de tre separate kortene (Omfang, Integrasjon, Kritikalitet). Erstatt med ett enkelt spørsmål:
 
-- **Retningslinjer** (Policies) — eksisterende innhold fra `TrustCenterPolicies`
-- **Sertifiseringer** (Certifications) — eksisterende innhold fra `TrustCenterCertifications`
-- **Dokumenter** (Documents) — generelle dokumenter og bevis
+> "Hva skjer om AI-en slutter å fungere?"
 
-Hver seksjon viser en kompakt liste med mulighet for å legge til nye elementer.
+Tre valg med tydelige, hverdagslige beskrivelser:
+- **Ingenting spesielt** — "Vi klarer oss fint uten, det tar kanskje litt lenger tid"
+- **Det merkes** — "Vi må jobbe annerledes, men får gjort jobben"
+- **Stopper opp** — "Prosessen stopper eller kvaliteten blir vesentlig dårligere"
+
+Lara foreslår svar basert på antall funksjoner og risikonivå (som i dag, men enklere presentert). "Estimert berørte" og "konsekvens-fritekst" flyttes inn i en collapsible "Vil du utdype?" seksjon.
 
 ### Tekniske endringer
 
 | Fil | Endring |
 |-----|---------|
-| `src/components/Sidebar.tsx` | Erstatt Policies, Certifications og Compliance Status med ett punkt: "Dokumentasjon & Evidens" (`/trust-center/evidence`) |
-| `src/pages/TrustCenterEvidence.tsx` | **Ny side** — samler policies, sertifiseringer og dokumenter med 3 faner/seksjoner. Gjenbruker innhold fra eksisterende sider. |
-| `src/App.tsx` (router) | Legg til route for `/trust-center/evidence` |
-| `src/pages/TrustCenterEditProfile.tsx` | Oppdater "Dokumentasjon og bevis"-seksjonen: lenke til `/trust-center/evidence` i stedet for separate sider |
+| `src/components/process/ProcessAIDialog.tsx` | Erstatt steg 5-innhold (linje 1040-1148) med tre enkle toggles. Erstatt steg 6-innhold (linje 1152-1325) med ett spørsmål + tre valg. Fjern ubrukte state-variabler (`humanOversightLevel`, `transparencyStatus`). Behold lagring mot eksisterende felt. |
 
-Eksisterende sider (`TrustCenterPolicies.tsx`, `TrustCenterCertifications.tsx`) beholdes som fallback/routes men sidebar peker kun til den nye samlede siden.
+### Mapping til eksisterende databasefelt
+
+De forenklede svarene mappes til de samme feltene i `process_ai_usage`:
+- Toggle 1 → `transparency_status` ("implemented" / "required")
+- Toggle 2 → `human_oversight_required` (true/false)
+- Toggle 3 → `automated_decisions` (true/false)
+- Hovedspørsmål → `ai_dependency_level` + `ai_integration_level` (utledet)
+
+Ingen databaseendringer nødvendig.
 
