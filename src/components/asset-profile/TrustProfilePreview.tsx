@@ -10,7 +10,7 @@ import {
   X, Shield, Lock, Layers, Target, Globe, CheckCircle2,
   AlertTriangle, FileCheck, ExternalLink, Award, Building2,
   ShieldCheck, Clock, TriangleAlert, Mail, FileText, Users,
-  TrendingUp, Info,
+  TrendingUp, Info, Server, Package,
 } from "lucide-react";
 import {
   GENERIC_CONTROLS,
@@ -129,6 +129,25 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
         .eq("asset_id", assetId)
         .in("document_type", ["iso_certificate", "soc2_report", "certification"]);
       return data || [];
+    },
+    enabled: open,
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ["preview-services", assetId],
+    queryFn: async () => {
+      const { data: rels } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id")
+        .eq("source_asset_id", assetId)
+        .eq("relationship_type", "service_of");
+      if (!rels || rels.length === 0) return [];
+      const ids = rels.map((r) => r.target_asset_id);
+      const { data: assets } = await supabase
+        .from("assets")
+        .select("id, name, description, asset_type, compliance_score")
+        .in("id", ids);
+      return assets || [];
     },
     enabled: open,
   });
@@ -511,7 +530,39 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
             </div>
           </Card>
 
-          {/* ── Certifications ── */}
+          {/* ── Products & Services ── */}
+          {services.length > 0 && (
+            <Card className="p-5">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+                <Package className="h-3.5 w-3.5" />
+                {isNb ? "Produkter og tjenester" : "Products & Services"}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {services.map((svc: any) => (
+                  <div key={svc.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-muted/30 transition-colors">
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      {svc.asset_type === "saas" ? (
+                        <Globe className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Server className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{svc.name}</p>
+                      {svc.description && (
+                        <p className="text-[10px] text-muted-foreground line-clamp-1">{svc.description}</p>
+                      )}
+                    </div>
+                    <Badge variant={svc.asset_type === "saas" ? "default" : "secondary"} className="text-[9px] shrink-0">
+                      {svc.asset_type === "saas" ? "SaaS" : "Service"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+
           <Card className="p-5">
             <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
               <Award className="h-3.5 w-3.5" />
