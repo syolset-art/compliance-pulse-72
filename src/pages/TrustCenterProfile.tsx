@@ -763,23 +763,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     </div>
                   </section>
 
-                  {/* ── Key Risk Insights ── */}
-                  {highRisks.length > 0 && (
-                    <section>
-                      <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="h-4 w-4 text-warning" />
-                        <h3 className="text-sm font-semibold text-foreground">Key Risk Insights</h3>
-                      </div>
-                      <div className="space-y-2">
-                        {highRisks.slice(0, 5).map(risk => (
-                          <div key={risk.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-destructive/5 border border-destructive/10">
-                            <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
-                            <span className="text-sm text-foreground">{isNb ? risk.titleNb : risk.titleEn}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
+
 
                   {/* ── Products & Services link ── */}
                   {services.length > 0 && (
