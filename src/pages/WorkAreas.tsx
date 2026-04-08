@@ -126,6 +126,8 @@ export default function WorkAreas() {
   const [isAssignAssetDialogOpen, setIsAssignAssetDialogOpen] = useState(false);
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
   const [activeWorkAreaTab, setActiveWorkAreaTab] = useState("assets");
+  const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
+  const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -166,6 +168,34 @@ export default function WorkAreas() {
     },
     enabled: !!selectedWorkArea?.id,
   });
+
+  // Fetch all assets with work_area_id to compute risk per work area
+  const { data: allWorkAreaAssets = [] } = useQuery({
+    queryKey: ["all-work-area-assets-risk"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("work_area_id, risk_level");
+      if (error) throw error;
+      return (data || []) as { work_area_id: string | null; risk_level: string | null }[];
+    },
+  });
+
+  // Compute highest risk per work area
+  const workAreaRiskMap = useMemo(() => {
+    const riskOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+    const map: Record<string, string> = {};
+    for (const asset of allWorkAreaAssets) {
+      if (!asset.work_area_id) continue;
+      const current = map[asset.work_area_id];
+      const currentLevel = current ? (riskOrder[current] || 0) : 0;
+      const newLevel = riskOrder[asset.risk_level || ""] || 0;
+      if (newLevel > currentLevel) {
+        map[asset.work_area_id] = asset.risk_level!;
+      }
+    }
+    return map;
+  }, [allWorkAreaAssets]);
 
   const { data: ownedAssets = [] } = useQuery({
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
@@ -487,7 +517,33 @@ export default function WorkAreas() {
     return <IconComponent className="h-8 w-8" />;
   };
 
-  const displayedAreas = showAllAreas ? workAreas : workAreas.slice(0, 6);
+  const filteredAreas = useMemo(() => {
+    let areas = [...workAreas];
+    
+    // Ownership filter
+    if (ownershipFilter === "mine") {
+      areas = areas.filter(a => a.responsible_person);
+    } else if (ownershipFilter === "member") {
+      areas = areas.filter(a => !a.responsible_person);
+    }
+    
+    // Risk filter
+    if (riskFilter === "high") {
+      areas = areas.filter(a => {
+        const risk = workAreaRiskMap[a.id];
+        return risk === "high" || risk === "critical";
+      });
+    } else if (riskFilter === "low") {
+      areas = areas.filter(a => {
+        const risk = workAreaRiskMap[a.id];
+        return !risk || risk === "low" || risk === "medium";
+      });
+    }
+    
+    return areas;
+  }, [workAreas, ownershipFilter, riskFilter, workAreaRiskMap]);
+
+  const displayedAreas = showAllAreas ? filteredAreas : filteredAreas.slice(0, 6);
 
   if (mode === "chat") {
     return null;
@@ -513,7 +569,7 @@ export default function WorkAreas() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                {t("myWorkAreas.title")} ({workAreas.length})
+                {t("myWorkAreas.title")} ({filteredAreas.length !== workAreas.length ? `${filteredAreas.length} av ${workAreas.length}` : workAreas.length})
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {t("myWorkAreas.subtitle")}
@@ -535,12 +591,62 @@ export default function WorkAreas() {
             )}
           </div>
 
-          {/* Filter Button */}
-          <div className="mb-3 sm:mb-4">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" />
-              {t("myWorkAreas.filter")}
-            </Button>
+          {/* Filters */}
+          <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 items-center">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            
+            {/* Ownership filter */}
+            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+              {([
+                { value: "all", label: "Alle" },
+                { value: "mine", label: "Mine" },
+                { value: "member", label: "Medlem" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setOwnershipFilter(opt.value)}
+                  className={cn(
+                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
+                    ownershipFilter === opt.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Risk filter */}
+            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+              {([
+                { value: "all", label: "Alle risikonivåer" },
+                { value: "high", label: "Høy risiko" },
+                { value: "low", label: "Lav risiko" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setRiskFilter(opt.value)}
+                  className={cn(
+                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
+                    riskFilter === opt.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {(ownershipFilter !== "all" || riskFilter !== "all") && (
+              <button
+                onClick={() => { setOwnershipFilter("all"); setRiskFilter("all"); }}
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                Nullstill
+              </button>
+            )}
           </div>
 
           {/* Work Area Chips - Horizontal scroll on mobile */}
@@ -580,12 +686,12 @@ export default function WorkAreas() {
             </div>
           </div>
 
-          {workAreas.length > 6 && (
+          {filteredAreas.length > 6 && (
             <button
               onClick={() => setShowAllAreas(!showAllAreas)}
               className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-6"
             >
-              {showAllAreas ? t("myWorkAreas.showLess") : t("myWorkAreas.showMore")}
+              {showAllAreas ? t("myWorkAreas.showLess") : `${t("myWorkAreas.showMore")} (${filteredAreas.length - 6})`}
               <ChevronDown className={cn("h-4 w-4 transition-transform", showAllAreas && "rotate-180")} />
             </button>
           )}
