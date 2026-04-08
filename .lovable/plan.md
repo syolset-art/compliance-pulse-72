@@ -1,31 +1,53 @@
 
 
-## Hjelpe nye brukere å forstå arbeidsområder
+## Redesign av Eiendeler-fanen i arbeidsområdevisningen
 
 ### Problemet
-Nye brukere som kommer til "Mine arbeidsområder" for første gang forstår ikke hva et arbeidsområde er eller hvorfor de skal opprette dem. Lara (chatten) kan svare, men brukeren ønsker hjelp direkte i grensesnittet.
+Fanen "Eiendeler" er for generisk — brukere forstår ikke at den dekker systemer, leverandører, lokasjoner, nettverk og enheter. Filtreringen og "Legg til"-menyen er allerede på plass, men selve fanenavnet og den visuelle presentasjonen kommuniserer ikke godt nok hva som finnes her.
 
-### Løsning: Dismissable intro-banner for nye brukere
+### Løsning: Visuelt kategori-dashboard med ikoner
 
-En informativ velkomst-seksjon som vises øverst på siden, mellom headeren og filtrene, kun for brukere som ikke har sett den før (dismiss-state lagres i `localStorage`).
+Erstatt den nåværende raden med filterknapper (Alle / System / Lokasjon / Nettverk) med **klikkbare kategori-kort** som fungerer som både filter og visuell oversikt. Hver kategori viser ikon, navn og antall.
 
-**Innhold i banneret:**
+```text
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  🖥 Systemer │ │ 🏢 Levera-  │ │ 📍 Loka-    │ │ 🌐 Nettverk │ │ 💻 Enheter  │
+│     4        │ │  ndører  2  │ │  sjoner  1  │ │      0      │ │      0      │
+│              │ │             │ │             │ │   (kommer)  │ │   (kommer)  │
+└──────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+         ↑ klikk = filtrer tabellen under
+```
 
-> **Hva er et arbeidsområde?**
-> Et arbeidsområde representerer en avdeling, funksjon eller ansvarsområde i organisasjonen din — for eksempel «HR», «IT-drift» eller «Kundeservice». Hvert arbeidsområde samler systemene, prosessene og leverandørene som hører til, slik at du får oversikt over risiko og etterlevelse på ett sted.
+### Konkrete endringer
 
-Under teksten: tre korte eksempel-kort med ikoner som viser hva et arbeidsområde inneholder:
-1. **Systemer** — "Legg til systemer og verktøy som brukes"
-2. **Prosesser** — "Dokumenter behandlingsaktiviteter og AI-bruk"
-3. **Leverandører** — "Hold oversikt over tredjeparter"
+**Fil: `src/pages/WorkAreas.tsx`**
 
-En "Lukk"-knapp (X) øverst til høyre som setter `localStorage`-flagg `workarea-intro-dismissed` og skjuler banneret permanent.
+1. **Erstatt filterknapp-raden** (linje ~903-936) med et grid av 5 kategori-kort:
+   - **Systemer** (Server-ikon) — aktiv, filtrerer `asset_type === "system"`
+   - **Leverandører** (Building2-ikon) — aktiv, filtrerer `asset_type === "vendor"`
+   - **Lokasjoner** (MapPin-ikon) — aktiv, filtrerer `asset_type === "location"`
+   - **Nettverk** (Network-ikon) — disabled med "Kommer"-badge
+   - **Enheter** (Monitor-ikon) — disabled med "Kommer"-badge
 
-### Tekniske endringer
+2. **Hvert kort viser:**
+   - Ikon øverst
+   - Kategorinavn
+   - Antall assets i den kategorien (live count fra `allAssets`)
+   - Valgt-tilstand med `border-primary bg-primary/5`
+   - "Alle"-filter aktiveres ved å klikke på det allerede valgte kortet (toggle av)
 
-| Fil | Endring |
-|-----|---------|
-| `src/pages/WorkAreas.tsx` | Legg til state `showIntroBanner` basert på `localStorage`. Render en Card-komponent mellom header og filtre med forklaringstekst, tre illustrative mini-kort, og en dismiss-knapp. Skjul banneret når `workAreas.length > 0 && introDismissed`, men vis alltid for tom-tilstand. |
+3. **Legg til `vendor` i assetTypeFilter**-typene, og oppdater filtreringslogikken til å inkludere vendor-assets.
+
+4. **Endre fanenavnet** fra "Eiendeler" / "Eien" til **"Verdier"** med Package-ikon beholdt — et mer dekkende norsk begrep.
+
+5. **Flytt "+ Legg til"-knappen** opp til høyre for kategori-kortene, slik at den er visuelt knyttet til oversikten.
+
+### UI-detaljer
+- Kortene bruker `grid grid-cols-2 sm:grid-cols-5 gap-2` for responsivitet
+- Valgt kort: `border-primary bg-primary/5 shadow-sm`
+- Disabled kort: `opacity-50 cursor-not-allowed` med liten "Kommer"-tekst
+- Hover på aktive kort: `hover:border-primary/50`
+- Animasjon: `transition-all duration-150`
 
 Ingen database- eller backend-endringer nødvendig.
 
