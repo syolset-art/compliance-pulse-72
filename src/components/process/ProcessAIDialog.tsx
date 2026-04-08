@@ -602,8 +602,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
           setChecklist([...generated, ...customItems]);
         }
       }
-      // Auto-suggest risk when entering risk step (step 3) if not already done
-      if (nextIdx === 3 && !riskAutoSuggested && !existingData?.risk_category) {
+      // Always auto-suggest risk when entering risk step
+      if (nextIdx === 3) {
         suggestProcessRisk();
       }
       setCurrentStep(nextIdx);
@@ -1264,20 +1264,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                       </CollapsibleContent>
                     </Collapsible>
                   )}
-                </div>
-              ) : !isGeneratingRisk ? (
-                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center space-y-2">
-                  <Shield className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Ingen risikovurdering foreslått ennå</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={suggestProcessRisk}
-                    className="gap-1.5"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    La Lara foreslå risikonivå
-                  </Button>
                 </div>
               ) : null}
 
