@@ -786,7 +786,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     <section>
                       <div
                         className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer"
-                        onClick={() => navigate("/trust-center/products")}
+                        onClick={() => navigate("/trust-center/products/public")}
                       >
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                           <Package className="h-5 w-5 text-primary" />
