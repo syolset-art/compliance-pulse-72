@@ -2515,6 +2515,7 @@ export type Database = {
           id: string
           is_ai_related: boolean | null
           last_updated: string | null
+          linked_work_area_ids: string[] | null
           measures_completed: number | null
           measures_count: number | null
           processes_count: number | null
@@ -2529,6 +2530,7 @@ export type Database = {
           systems_count: number | null
           time_hours: number | null
           title: string
+          work_area_scope: string | null
         }
         Insert: {
           ai_system_id?: string | null
@@ -2542,6 +2544,7 @@ export type Database = {
           id?: string
           is_ai_related?: boolean | null
           last_updated?: string | null
+          linked_work_area_ids?: string[] | null
           measures_completed?: number | null
           measures_count?: number | null
           processes_count?: number | null
@@ -2556,6 +2559,7 @@ export type Database = {
           systems_count?: number | null
           time_hours?: number | null
           title: string
+          work_area_scope?: string | null
         }
         Update: {
           ai_system_id?: string | null
@@ -2569,6 +2573,7 @@ export type Database = {
           id?: string
           is_ai_related?: boolean | null
           last_updated?: string | null
+          linked_work_area_ids?: string[] | null
           measures_completed?: number | null
           measures_count?: number | null
           processes_count?: number | null
@@ -2583,6 +2588,7 @@ export type Database = {
           systems_count?: number | null
           time_hours?: number | null
           title?: string
+          work_area_scope?: string | null
         }
         Relationships: [
           {

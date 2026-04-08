@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +47,10 @@ import {
   PenLine,
   CalendarIcon,
   Info,
+  Building2,
+  User,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AddDeviationDialogProps {
   open: boolean;
@@ -65,6 +69,7 @@ type Step = "category" | "suggestions" | "confirm";
 
 export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("category");
   const [selectedCategory, setSelectedCategory] = useState<DeviationCategory | null>(null);
   const [suggestions, setSuggestions] = useState<DeviationSuggestion[]>([]);
@@ -81,6 +86,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     frameworks: [] as string[],
     discoveredAt: new Date(),
     dueDate: null as Date | null,
+    workAreaScope: "none" as "all" | "specific" | "none",
+    linkedWorkAreaIds: [] as string[],
   });
 
   const people = [
@@ -102,6 +109,16 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     },
   });
 
+  // Fetch work areas
+  const { data: workAreas = [] } = useQuery({
+    queryKey: ["work-areas-for-deviations"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("work_areas").select("id, name, responsible_person");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Fetch company profile for industry context
   const { data: companyProfile } = useQuery({
     queryKey: ["company-profile"],
@@ -111,6 +128,25 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       return data;
     },
   });
+
+  // Build dynamic responsible person list based on selected work areas
+  const responsiblePersonOptions = useMemo(() => {
+    const persons = new Set<string>();
+    if (formData.workAreaScope === "specific" && formData.linkedWorkAreaIds.length > 0) {
+      workAreas
+        .filter((wa) => formData.linkedWorkAreaIds.includes(wa.id))
+        .forEach((wa) => {
+          if (wa.responsible_person) persons.add(wa.responsible_person);
+        });
+    } else if (formData.workAreaScope === "all") {
+      workAreas.forEach((wa) => {
+        if (wa.responsible_person) persons.add(wa.responsible_person);
+      });
+    }
+    // Always include the hardcoded people list
+    people.forEach((p) => persons.add(p));
+    return Array.from(persons);
+  }, [formData.workAreaScope, formData.linkedWorkAreaIds, workAreas, people]);
 
   // Create deviation mutation
   const createDeviation = useMutation({
@@ -124,7 +160,9 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         description: formData.description,
         category: selectedCategory?.id || "annet",
         criticality: formData.criticality,
-        responsible: formData.responsible || null,
+        responsible: formData.responsible === "__myself__"
+          ? (user?.email || "Meg selv")
+          : (formData.responsible || null),
         relevant_frameworks: formData.frameworks,
         status: "open",
         measures_count: 0,
@@ -133,6 +171,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         processes_count: 0,
         due_date: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd") : null,
         discovered_at: format(formData.discoveredAt, "yyyy-MM-dd"),
+        work_area_scope: formData.workAreaScope,
+        linked_work_area_ids: formData.linkedWorkAreaIds,
       });
       if (error) throw error;
     },
@@ -161,6 +201,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: [],
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     onOpenChange(false);
   };
@@ -202,6 +244,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: suggestion.suggestedFrameworks,
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     setStep("confirm");
   };
@@ -216,6 +260,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: selectedCategory?.defaultFrameworks || [],
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     setStep("confirm");
   };
@@ -563,18 +609,96 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
                 </div>
               </div>
 
-              {/* Responsible */}
+              {/* Work Area Scope */}
               <div className="space-y-2">
-                <Label>Ansvarlig (valgfritt)</Label>
+                <Label className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Er avviket tilknyttet arbeidsområder?
+                </Label>
+                <div className="flex gap-2">
+                  {([
+                    { value: "all", label: "Alle arbeidsområder" },
+                    { value: "specific", label: "Spesifikke" },
+                    { value: "none", label: "Ingen spesifikke" },
+                  ] as const).map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          workAreaScope: option.value,
+                          linkedWorkAreaIds: option.value !== "specific" ? [] : prev.linkedWorkAreaIds,
+                          responsible: "",
+                        }))
+                      }
+                      className={cn(
+                        "px-3 py-1.5 rounded-md text-sm font-medium border transition-all",
+                        formData.workAreaScope === option.value
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border text-muted-foreground hover:border-primary/50"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Specific work areas multi-select */}
+              {formData.workAreaScope === "specific" && (
+                <div className="space-y-2">
+                  <Label>Velg arbeidsområder</Label>
+                  <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {workAreas.length > 0 ? (
+                      workAreas.map((wa) => (
+                        <label key={wa.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                          <Checkbox
+                            checked={formData.linkedWorkAreaIds.includes(wa.id)}
+                            onCheckedChange={(checked) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                linkedWorkAreaIds: checked
+                                  ? [...prev.linkedWorkAreaIds, wa.id]
+                                  : prev.linkedWorkAreaIds.filter((id) => id !== wa.id),
+                                responsible: "",
+                              }));
+                            }}
+                          />
+                          <span>{wa.name}</span>
+                          {wa.responsible_person && (
+                            <span className="text-xs text-muted-foreground ml-auto">
+                              ({wa.responsible_person})
+                            </span>
+                          )}
+                        </label>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Ingen arbeidsområder funnet</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tiltaksansvarlig */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Tiltaksansvarlig
+                </Label>
                 <Select
                   value={formData.responsible}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, responsible: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg ansvarlig person" />
+                    <SelectValue placeholder="Velg tiltaksansvarlig" />
                   </SelectTrigger>
                   <SelectContent>
-                    {people.map((person) => (
+                    <SelectItem value="__myself__">
+                      <span className="flex items-center gap-2">
+                        👤 Meg selv
+                      </span>
+                    </SelectItem>
+                    {responsiblePersonOptions.map((person) => (
                       <SelectItem key={person} value={person}>
                         {person}
                       </SelectItem>
@@ -582,6 +706,19 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Info when user selects themselves */}
+              {formData.responsible === "__myself__" && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-accent/50 border border-border">
+                  <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-foreground">Du er tiltaksansvarlig</p>
+                    <p className="text-muted-foreground mt-0.5">
+                      Etter opprettelse vil du kunne se foreslåtte tiltak og starte arbeidet med å rapportere på disse.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter>
