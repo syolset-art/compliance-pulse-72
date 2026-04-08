@@ -480,6 +480,21 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
+
+          {/* Regulatory frameworks */}
+          {frameworks.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {frameworks.map((fw: any) => (
+                <span
+                  key={fw.framework_id}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
+                >
+                  <FileCheck className="h-3 w-3" />
+                  {fw.framework_name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Trust Score Seal — right side */}
