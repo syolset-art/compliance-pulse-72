@@ -174,6 +174,7 @@ const TrustCenterEvidence = () => {
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-medium">{cert.display_name || cert.file_name}</p>
                               {getStatusBadge(cert.status, isNb)}
+                              {getVisibilityIcon(cert.visibility)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                               {isNb ? "Opprettet" : "Created"} {new Date(cert.created_at).toLocaleDateString()}
