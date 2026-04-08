@@ -46,6 +46,7 @@ export function SecurityFoundationsWidget() {
         </div>
         <Progress value={overall.score} className="h-2 mt-2 [&>div]:bg-primary" />
       </CardHeader>
+      <CardContent className="px-4 pb-4 pt-0 space-y-4">
 
         {/* 2x2 pillar grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
