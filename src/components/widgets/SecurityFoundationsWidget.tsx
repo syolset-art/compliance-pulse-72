@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance" },
-  { key: "operations", icon: Settings, label_no: "Drift", label_en: "Operations" },
+  { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations" },
   { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
   { key: "supplier_ecosystem", icon: Users, label_no: "Leverandør og økosystem", label_en: "Supplier & Ecosystem" },
   { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
