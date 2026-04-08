@@ -57,6 +57,7 @@ import TrustCenterShared from "./pages/TrustCenterShared";
 import TrustCenterCompliance from "./pages/TrustCenterCompliance";
 import TrustCenterPolicies from "./pages/TrustCenterPolicies";
 import TrustCenterCertifications from "./pages/TrustCenterCertifications";
+import TrustCenterEvidence from "./pages/TrustCenterEvidence";
 import TrustCenterProducts from "./pages/TrustCenterProducts";
 import TrustCenterProductsPublic from "./pages/TrustCenterProductsPublic";
 import TrustCenterRegulations from "./pages/TrustCenterRegulations";
@@ -151,6 +152,7 @@ const App = () => (
                   <Route path="/trust-center/compliance" element={<TrustCenterCompliance />} />
                   <Route path="/trust-center/policies" element={<TrustCenterPolicies />} />
                   <Route path="/trust-center/certifications" element={<TrustCenterCertifications />} />
+                  <Route path="/trust-center/evidence" element={<TrustCenterEvidence />} />
                   <Route path="/trust-center/regulations" element={<Regulations />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
                   <Route path="/demo-library" element={<DemoLibrary />} />
