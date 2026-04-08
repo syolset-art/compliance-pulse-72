@@ -1,50 +1,31 @@
 
 
-## Forenkling av AI-bruksveiviseren (Transparens + KI-avhengighet)
+## Hjelpe nye brukere å forstå arbeidsområder
 
 ### Problemet
-Testbrukerne sliter med de to siste stegene:
-- **Transparens (steg 5)**: Tre separate seksjoner (transparens-dropdown, menneskelig tilsyn-toggle med undernivåer, automatiserte beslutninger-toggle) — brukerne vet ikke hva som er "riktig"
-- **KI-avhengighet (steg 6)**: Tre kort med abstrakte konsepter (Omfang, Integrasjon, Kritikalitet) — brukerne forstår ikke hva de skal svare
+Nye brukere som kommer til "Mine arbeidsområder" for første gang forstår ikke hva et arbeidsområde er eller hvorfor de skal opprette dem. Lara (chatten) kan svare, men brukeren ønsker hjelp direkte i grensesnittet.
 
-### Løsning: Erstatt med enkle ja/nei-spørsmål og Lara-forslag
+### Løsning: Dismissable intro-banner for nye brukere
 
-**Steg 5 (Transparens) — forenklet til 3 enkle toggle-spørsmål:**
+En informativ velkomst-seksjon som vises øverst på siden, mellom headeren og filtrene, kun for brukere som ikke har sett den før (dismiss-state lagres i `localStorage`).
 
-Fjern dropdown og fritekstfelt. Erstatt med tre konkrete ja/nei-påstander som brukerne bare krysser av:
+**Innhold i banneret:**
 
-1. "Brukerne vet at de interagerer med AI" — toggle (ja/nei)
-2. "Noen kan overstyre AI-beslutninger" — toggle (ja/nei)  
-3. "AI tar beslutninger uten at en person ser over" — toggle (ja/nei)
+> **Hva er et arbeidsområde?**
+> Et arbeidsområde representerer en avdeling, funksjon eller ansvarsområde i organisasjonen din — for eksempel «HR», «IT-drift» eller «Kundeservice». Hvert arbeidsområde samler systemene, prosessene og leverandørene som hører til, slik at du får oversikt over risiko og etterlevelse på ett sted.
 
-Hvis risikonivå er "minimal" → vis fortsatt grønt "ingen krav"-kort som i dag. Ellers vises de tre togglene. Ingen fritekstfelt med mindre brukeren aktivt vil utdype (collapsible "Legg til beskrivelse").
+Under teksten: tre korte eksempel-kort med ikoner som viser hva et arbeidsområde inneholder:
+1. **Systemer** — "Legg til systemer og verktøy som brukes"
+2. **Prosesser** — "Dokumenter behandlingsaktiviteter og AI-bruk"
+3. **Leverandører** — "Hold oversikt over tredjeparter"
 
-**Steg 6 (KI-avhengighet) — forenklet til ett enkelt spørsmål:**
-
-Fjern de tre separate kortene (Omfang, Integrasjon, Kritikalitet). Erstatt med ett enkelt spørsmål:
-
-> "Hva skjer om AI-en slutter å fungere?"
-
-Tre valg med tydelige, hverdagslige beskrivelser:
-- **Ingenting spesielt** — "Vi klarer oss fint uten, det tar kanskje litt lenger tid"
-- **Det merkes** — "Vi må jobbe annerledes, men får gjort jobben"
-- **Stopper opp** — "Prosessen stopper eller kvaliteten blir vesentlig dårligere"
-
-Lara foreslår svar basert på antall funksjoner og risikonivå (som i dag, men enklere presentert). "Estimert berørte" og "konsekvens-fritekst" flyttes inn i en collapsible "Vil du utdype?" seksjon.
+En "Lukk"-knapp (X) øverst til høyre som setter `localStorage`-flagg `workarea-intro-dismissed` og skjuler banneret permanent.
 
 ### Tekniske endringer
 
 | Fil | Endring |
 |-----|---------|
-| `src/components/process/ProcessAIDialog.tsx` | Erstatt steg 5-innhold (linje 1040-1148) med tre enkle toggles. Erstatt steg 6-innhold (linje 1152-1325) med ett spørsmål + tre valg. Fjern ubrukte state-variabler (`humanOversightLevel`, `transparencyStatus`). Behold lagring mot eksisterende felt. |
+| `src/pages/WorkAreas.tsx` | Legg til state `showIntroBanner` basert på `localStorage`. Render en Card-komponent mellom header og filtre med forklaringstekst, tre illustrative mini-kort, og en dismiss-knapp. Skjul banneret når `workAreas.length > 0 && introDismissed`, men vis alltid for tom-tilstand. |
 
-### Mapping til eksisterende databasefelt
-
-De forenklede svarene mappes til de samme feltene i `process_ai_usage`:
-- Toggle 1 → `transparency_status` ("implemented" / "required")
-- Toggle 2 → `human_oversight_required` (true/false)
-- Toggle 3 → `automated_decisions` (true/false)
-- Hovedspørsmål → `ai_dependency_level` + `ai_integration_level` (utledet)
-
-Ingen databaseendringer nødvendig.
+Ingen database- eller backend-endringer nødvendig.
 
