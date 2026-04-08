@@ -61,6 +61,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
+  const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Handle highlight from chart event click
   useEffect(() => {
