@@ -281,6 +281,7 @@ const Regulations = () => {
                 </Button>
               );
             })}
+          </div>
 
           {/* Framework chip selector */}
           {activeFrameworks.length > 0 ? (
