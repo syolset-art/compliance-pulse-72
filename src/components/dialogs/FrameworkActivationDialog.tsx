@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -10,16 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   CheckCircle2,
-  ListTodo,
-  FileText,
-  Server,
+  TrendingDown,
   MessageCircle,
   ArrowRight,
-  Sparkles,
-  ExternalLink,
 } from "lucide-react";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 
@@ -31,78 +24,18 @@ interface FrameworkActivationDialogProps {
   onOpenChat?: (message: string) => void;
 }
 
-interface ConsequenceItem {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  navigateTo?: string;
-  navigateLabel?: string;
-}
-
 export function FrameworkActivationDialog({
   open,
   onOpenChange,
   framework,
-  onNavigate,
   onOpenChat,
 }: FrameworkActivationDialogProps) {
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   if (!framework) return null;
 
   const category = getCategoryById(framework.category);
   const CategoryIcon = category?.icon;
-
-  const getConsequences = (): ConsequenceItem[] => {
-    const baseConsequences: ConsequenceItem[] = [
-      {
-        icon: <ListTodo className="h-5 w-5 text-primary" />,
-        title: "Oppgaver genereres",
-        description: `Relevante compliance-oppgaver for ${framework.name} vil vises i oppgavelisten din.`,
-        navigateTo: "/tasks",
-        navigateLabel: "Gå til Oppgaver",
-      },
-      {
-        icon: <Server className="h-5 w-5 text-blue-500" />,
-        title: "Systemer vurderes",
-        description: "Dine systemer vil bli evaluert mot kravene i dette regelverket.",
-        navigateTo: "/systems",
-        navigateLabel: "Se Systemer",
-      },
-      {
-        icon: <FileText className="h-5 w-5 text-green-500" />,
-        title: "Rapporter oppdateres",
-        description: "Compliance-rapporter vil nå inkludere status for dette regelverket.",
-        navigateTo: "/reports",
-        navigateLabel: "Se Rapporter",
-      },
-    ];
-
-    // Add AI-specific consequences for AI frameworks
-    if (framework.category === 'ai') {
-      baseConsequences.push({
-        icon: <Sparkles className="h-5 w-5 text-purple-500" />,
-        title: "AI-systemer kartlegges",
-        description: "Prosesser og systemer med AI-bruk vil bli vurdert mot AI Act-krav.",
-        navigateTo: "/processing-records",
-        navigateLabel: "Se Behandlinger",
-      });
-    }
-
-    return baseConsequences;
-  };
-
-  const consequences = getConsequences();
-
-  const handleNavigate = (path: string) => {
-    onOpenChange(false);
-    if (onNavigate) {
-      onNavigate(path);
-    } else {
-      navigate(path);
-    }
-  };
 
   const handleAskLara = () => {
     onOpenChange(false);
@@ -114,7 +47,7 @@ export function FrameworkActivationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className={`p-2.5 rounded-xl ${category?.bgColor || 'bg-primary/10'}`}>
@@ -129,85 +62,58 @@ export function FrameworkActivationDialog({
               <DialogTitle className="text-xl">{framework.name} aktivert</DialogTitle>
             </div>
           </div>
-          <DialogDescription className="text-base">
-            Regelverket er nå en del av din compliance-portefølje. Her er hva som skjer videre.
+          <DialogDescription className="sr-only">
+            Informasjon om aktivering av {framework.name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Success indicator */}
+        <div className="space-y-4 py-2">
+          {/* Success */}
           <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
             <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
             <p className="text-sm text-green-700 dark:text-green-400">
-              {framework.name} er nå aktivt og vil bli inkludert i alle relevante vurderinger.
+              {framework.name} er nå aktivt i din compliance-portefølje.
             </p>
           </div>
 
-          <Separator />
-
-          {/* Consequences list */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Dette skjer automatisk:</h4>
-            {consequences.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <div className="mt-0.5 flex-shrink-0">{item.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-                </div>
-                {item.navigateTo && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-shrink-0 text-xs h-8 px-2"
-                    onClick={() => handleNavigate(item.navigateTo!)}
-                  >
-                    {item.navigateLabel}
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </Button>
-                )}
-              </div>
-            ))}
+          {/* Score impact warning */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+            <TrendingDown className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-orange-700 dark:text-orange-400">
+              <p className="font-medium mb-1">Compliance-skåren din vil gå ned</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400/80">
+                Når du legger til et nytt regelverk, beregnes skåren på nytt med de nye kravene inkludert. 
+                Skåren vil stige igjen etter hvert som du dokumenterer status på kravene.
+              </p>
+            </div>
           </div>
 
-          <Separator />
-
-          {/* Lara integration */}
-          <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full bg-primary/20">
-                <MessageCircle className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Trenger du hjelp?</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Lara kan hjelpe deg med å forstå kravene i {framework.name} og guide deg gjennom de første stegene.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-3 gap-2"
-                  onClick={handleAskLara}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Spør Lara om {framework.name}
-                </Button>
-              </div>
+          {/* Lara help */}
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <MessageCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm text-foreground">
+                Lara hjelper deg med å etablere en baseline for {framework.name} — bare spør, 
+                så guider hun deg gjennom kravene steg for steg.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 gap-2"
+                onClick={handleAskLara}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Spør Lara
+                <ArrowRight className="h-3 w-3" />
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Footer actions */}
-        <div className="flex justify-between items-center pt-2">
+        {/* Footer */}
+        <div className="flex justify-end pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Lukk
-          </Button>
-          <Button onClick={() => handleNavigate("/tasks")} className="gap-2">
-            Se oppgaver
-            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </DialogContent>
