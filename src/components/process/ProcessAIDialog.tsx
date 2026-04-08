@@ -536,7 +536,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
         const featureChecks = generateFeatureBasedChecks(selectedFeatureNames);
         if (featureChecks.length > 0) {
           setChecklist(featureChecks.map((c, i) => ({
-            id: `gen-${i}`, question: c.question, helpText: c.helpText, answer: null,
+            id: `gen-${i}`, question: c.question, helpText: c.helpText,
+            consequence: c.consequence, aiActReference: c.aiActReference,
+            responsibility: c.responsibility, suggestedAction: c.suggestedAction,
+            answer: null,
           })));
         }
       }
