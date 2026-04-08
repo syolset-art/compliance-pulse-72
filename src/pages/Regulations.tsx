@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { frameworks, type Framework } from "@/lib/frameworkDefinitions";
+import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { FrameworkChipSelector } from "@/components/regulations/FrameworkChipSelector";
 import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
