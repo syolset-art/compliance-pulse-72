@@ -480,11 +480,13 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                               <span className="text-sm font-semibold text-foreground">Trust Profile</span>
                             </div>
                             <p className="text-xs text-muted-foreground">Verified by Mynder</p>
-                            <div className="flex flex-wrap gap-1">
-                              {(frameworks.length > 0 ? frameworks.slice(0, 3) : [{ framework_name: "GDPR" }, { framework_name: "Personopplysningsloven" }, { framework_name: "ISO 27001" }]).map((fw: any, i: number) => (
-                                <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
-                              ))}
-                            </div>
+                            {frameworks.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {frameworks.slice(0, 3).map((fw: any, i: number) => (
+                                  <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
