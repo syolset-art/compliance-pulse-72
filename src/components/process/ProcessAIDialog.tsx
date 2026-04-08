@@ -523,7 +523,20 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   };
 
   const nextStep = () => {
-    if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1);
+    if (currentStep < STEPS.length - 1) {
+      const nextIdx = currentStep + 1;
+      // Auto-generate feature-based checks when entering checklist step
+      if (nextIdx === 2 && checklist.length === 0) {
+        const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
+        const featureChecks = generateFeatureBasedChecks(selectedFeatureNames);
+        if (featureChecks.length > 0) {
+          setChecklist(featureChecks.map((c, i) => ({
+            id: `gen-${i}`, question: c.question, helpText: c.helpText, answer: null,
+          })));
+        }
+      }
+      setCurrentStep(nextIdx);
+    }
   };
 
   const prevStep = () => {
