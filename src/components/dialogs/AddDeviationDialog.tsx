@@ -242,6 +242,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: suggestion.suggestedFrameworks,
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     setStep("confirm");
   };
