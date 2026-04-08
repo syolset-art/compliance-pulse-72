@@ -587,16 +587,19 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
     if (currentStep < STEPS.length - 1) {
       const nextIdx = currentStep + 1;
       // Auto-generate feature-based checks when entering checklist step
-      if (nextIdx === 2 && checklist.length === 0) {
+      if (nextIdx === 2) {
         const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
         const featureChecks = generateFeatureBasedChecks(selectedFeatureNames);
         if (featureChecks.length > 0) {
-          setChecklist(featureChecks.map((c, i) => ({
+          // Merge: keep existing custom items, replace generated ones
+          const customItems = checklist.filter(c => c.isCustom);
+          const generated = featureChecks.map((c, i) => ({
             id: `gen-${i}`, question: c.question, helpText: c.helpText,
             consequence: c.consequence, aiActReference: c.aiActReference,
             responsibility: c.responsibility, suggestedAction: c.suggestedAction,
-            answer: null,
-          })));
+            answer: null as ChecklistAnswer,
+          }));
+          setChecklist([...generated, ...customItems]);
         }
       }
       // Auto-suggest risk when entering risk step (step 3) if not already done
