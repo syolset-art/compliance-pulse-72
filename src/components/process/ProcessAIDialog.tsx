@@ -74,6 +74,11 @@ interface ChecklistItem {
   question: string;
   answer: ChecklistAnswer;
   helpText?: string;
+  consequence?: string;
+  aiActReference?: string;
+  responsibility?: 'tilbyder' | 'bruker' | 'begge';
+  suggestedAction?: string;
+  status?: 'ok' | 'action_required' | 'needs_clarification';
   isCustom?: boolean;
   systems?: string[];
 }
