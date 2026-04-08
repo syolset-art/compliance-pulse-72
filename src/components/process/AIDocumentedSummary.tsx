@@ -84,9 +84,9 @@ export const AIDocumentedSummary = ({
               <Bot className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-medium">Ingen AI-bruk</p>
+              <p className="font-medium">Ingen KI-bruk</p>
               <p className="text-sm text-muted-foreground">
-                Prosessen bruker ikke AI-funksjoner
+                Prosessen bruker ikke KI-funksjoner
               </p>
             </div>
           </div>
@@ -106,7 +106,7 @@ export const AIDocumentedSummary = ({
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-            AI-bruk dokumentert
+            KI-bruk dokumentert
           </span>
         </div>
         <Button variant="ghost" size="sm" onClick={onEdit} className="h-8 px-3">

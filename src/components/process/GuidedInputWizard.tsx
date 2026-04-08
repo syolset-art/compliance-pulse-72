@@ -42,14 +42,14 @@ interface StepConfig {
 const STEP_CONFIGS: Record<string, StepConfig> = {
   affectedPersons: {
     field: "affectedPersons",
-    title: "Hvem påvirkes av AI-bruken?",
+    title: "Hvem påvirkes av KI-bruken?",
     subtitle: "Velg alle relevante grupper",
     icon: <Users className="h-5 w-5" />,
   },
   transparencyDescription: {
     field: "transparencyDescription",
     title: "Hvordan informeres de berørte?",
-    subtitle: "Beskriv hvordan brukere får vite om AI-bruken",
+    subtitle: "Beskriv hvordan brukere får vite om KI-bruken",
     icon: <Eye className="h-5 w-5" />,
   },
   humanOversightDescription: {
