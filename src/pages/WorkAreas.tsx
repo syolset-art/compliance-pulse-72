@@ -197,7 +197,7 @@ export default function WorkAreas() {
     return map;
   }, [allWorkAreaAssets]);
 
-
+  const { data: ownedAssets = [] } = useQuery({
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
     queryFn: async () => {
       if (!selectedWorkArea?.id) return [];
