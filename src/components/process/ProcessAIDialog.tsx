@@ -1041,10 +1041,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               )}
             </div>
           )}
-                <p className="text-center text-muted-foreground py-8">Ingen spesifikke sjekkpunkter for denne prosesstypen</p>
-              )}
-            </div>
-          )}
 
           {/* Step 4: Risk Classification — REDESIGNED */}
           {currentStep === 3 && hasAI && (
