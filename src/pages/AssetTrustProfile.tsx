@@ -287,8 +287,41 @@ const AssetTrustProfile = () => {
               />
             )}
 
-            {/* ═══ INFORMATION TABS ════════════════════════════════════ */}
-            {(!isSelf || orgSection === "trust-profile") && (
+            {/* ═══ VENDOR TABS (simplified 4-tab layout) ═══ */}
+            {isVendor && (
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+                <nav aria-label={isNb ? "Leverandør-faner" : "Vendor tabs"}>
+                  <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
+                    {vendorTabDefs.map((tab) => (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap"
+                        role="tab"
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </nav>
+
+                <TabsContent value="overview" className="mt-6">
+                  <VendorOverviewTab assetId={asset.id} />
+                </TabsContent>
+                <TabsContent value="dataHandling" className="mt-6">
+                  <DataHandlingTab assetId={asset.id} />
+                </TabsContent>
+                <TabsContent value="riskAudit" className="mt-6">
+                  <VendorRiskAuditTab assetId={asset.id} />
+                </TabsContent>
+                <TabsContent value="documents" className="mt-6">
+                  <VendorDocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                </TabsContent>
+              </Tabs>
+            )}
+
+            {/* ═══ SELF TABS (full tab set) ════════════════════════════ */}
+            {isSelf && orgSection === "trust-profile" && (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
                 <nav aria-label={isNb ? "Trust Profile-faner" : "Trust Profile tabs"}>
                   <div className="flex items-center gap-1">
@@ -346,58 +379,41 @@ const AssetTrustProfile = () => {
                   </div>
                 </nav>
 
-                {isSelf && (
-                  <TabsContent value="nis2" className="mt-6">
-                    <NIS2AssessmentTab
-                      assetId={asset.id}
-                      metadata={(asset.metadata as Record<string, any>) || {}}
-                    />
-                  </TabsContent>
-                )}
-
-                {/* Standard tabs */}
+                <TabsContent value="nis2" className="mt-6">
+                  <NIS2AssessmentTab assetId={asset.id} metadata={(asset.metadata as Record<string, any>) || {}} />
+                </TabsContent>
                 <TabsContent value="validation" className="mt-6">
                   <ValidationTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="controls" className="mt-6">
                   <ControlsTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="dataHandling" className="mt-6">
                   <DataHandlingTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="riskManagement" className="mt-6">
                   <RiskManagementTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="incidents" className="mt-6">
                   <IncidentManagementTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="relations" className="mt-6">
                   <RelationsTab assetId={asset.id} />
                 </TabsContent>
-
                 <TabsContent value="documents" className="mt-6">
                   <DocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
                 </TabsContent>
-
-                {/* Overflow tabs */}
                 <TabsContent value="inbox" className="mt-6">
                   <LaraInboxTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
-
-                {isSelf && (
-                  <TabsContent value="security-services" className="mt-6">
-                    <SecurityServicesSection isSelfProfile={true} />
-                  </TabsContent>
-                )}
-                {isSelf && (
-                  <TabsContent value="requests" className="mt-6">
-                    <CustomerRequestsTab />
-                  </TabsContent>
+                <TabsContent value="security-services" className="mt-6">
+                  <SecurityServicesSection isSelfProfile={true} />
+                </TabsContent>
+                <TabsContent value="requests" className="mt-6">
+                  <CustomerRequestsTab />
+                </TabsContent>
+              </Tabs>
+            )}
                 )}
               </Tabs>
             )}
