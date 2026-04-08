@@ -10,7 +10,7 @@ import {
   X, Shield, Lock, Layers, Target, Globe, CheckCircle2,
   AlertTriangle, FileCheck, ExternalLink, Award, Building2,
   ShieldCheck, Clock, TriangleAlert, Mail, FileText, Users,
-  TrendingUp, Info,
+  TrendingUp, Info, Server, Package,
 } from "lucide-react";
 import {
   GENERIC_CONTROLS,
