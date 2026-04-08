@@ -121,9 +121,14 @@ const Regulations = () => {
     [selectedFrameworks]
   );
 
-  const activeFrameworks = useMemo(
+  const allActiveFrameworks = useMemo(
     () => frameworks.filter((fw) => isFrameworkActive(fw.id)),
     [isFrameworkActive]
+  );
+
+  const activeFrameworks = useMemo(
+    () => categoryFilter ? allActiveFrameworks.filter((fw) => fw.category === categoryFilter) : allActiveFrameworks,
+    [allActiveFrameworks, categoryFilter]
   );
 
   const activeFrameworkIds = useMemo(
