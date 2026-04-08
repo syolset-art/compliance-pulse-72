@@ -40,6 +40,7 @@ import {
   ShieldCheck,
   Pencil,
   Sparkles,
+  FileCheck,
 } from "lucide-react";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
