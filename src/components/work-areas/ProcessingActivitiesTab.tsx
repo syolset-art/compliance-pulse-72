@@ -273,7 +273,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
             <Card
               key={record.id}
               className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/processing-records/${record.id}`)}
+              onClick={() => navigate(`/processes/${record.id}`)}
             >
               <div className="flex items-start gap-3 mb-3">
                 <Checkbox
@@ -365,6 +365,9 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
         onOpenChange={setIsAddDialogOpen}
         workAreaId={workAreaId}
         workAreaName={workAreaName}
+        onProcessAdded={() => {
+          // refetch handled by queryClient invalidation in the dialog
+        }}
       />
     </div>
   );
