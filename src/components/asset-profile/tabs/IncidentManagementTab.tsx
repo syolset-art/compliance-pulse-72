@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, AlertTriangle, CheckCircle, Clock, AlertCircle, RefreshCw, ShieldAlert, CheckCircle2, X } from "lucide-react";
+import { Plus, AlertTriangle, CheckCircle, Clock, AlertCircle, RefreshCw, ShieldAlert, CheckCircle2, X, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
+import { EditDeviationDialog } from "@/components/dialogs/EditDeviationDialog";
 
 interface IncidentManagementTabProps {
   assetId: string;
@@ -40,6 +42,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
+  const [editingIncident, setEditingIncident] = useState<any>(null);
 
   const { data: incidents } = useQuery({
     queryKey: ["system-incidents", assetId],
