@@ -147,6 +147,7 @@ const App = () => (
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/trust-center/products" element={<TrustCenterProducts />} />
+                  <Route path="/trust-center/products/public" element={<TrustCenterProductsPublic />} />
                   <Route path="/trust-center/compliance" element={<TrustCenterCompliance />} />
                   <Route path="/trust-center/policies" element={<TrustCenterPolicies />} />
                   <Route path="/trust-center/certifications" element={<TrustCenterCertifications />} />
