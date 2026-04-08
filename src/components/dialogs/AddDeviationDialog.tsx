@@ -258,6 +258,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: selectedCategory?.defaultFrameworks || [],
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     setStep("confirm");
   };
