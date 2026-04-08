@@ -2510,6 +2510,7 @@ export type Database = {
           created_at: string | null
           criticality: string | null
           description: string | null
+          discovered_at: string | null
           due_date: string | null
           id: string
           is_ai_related: boolean | null
@@ -2536,6 +2537,7 @@ export type Database = {
           created_at?: string | null
           criticality?: string | null
           description?: string | null
+          discovered_at?: string | null
           due_date?: string | null
           id?: string
           is_ai_related?: boolean | null
@@ -2562,6 +2564,7 @@ export type Database = {
           created_at?: string | null
           criticality?: string | null
           description?: string | null
+          discovered_at?: string | null
           due_date?: string | null
           id?: string
           is_ai_related?: boolean | null

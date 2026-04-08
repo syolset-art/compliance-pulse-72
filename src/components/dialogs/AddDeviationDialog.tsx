@@ -14,9 +14,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 import {
   deviationCategories,
   criticalityOptions,
@@ -29,6 +44,8 @@ import {
   Loader2,
   Check,
   PenLine,
+  CalendarIcon,
+  Info,
 } from "lucide-react";
 
 interface AddDeviationDialogProps {
@@ -62,7 +79,18 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     criticality: "medium" as "critical" | "high" | "medium" | "low",
     responsible: "",
     frameworks: [] as string[],
+    discoveredAt: new Date(),
+    dueDate: null as Date | null,
   });
+
+  const people = [
+    "Kari Nordmann",
+    "Ola Hansen",
+    "Maria Johansen",
+    "Erik Solberg",
+    "Ingrid Bakken",
+    "Thomas Berg",
+  ];
 
   // Fetch systems
   const { data: systems = [] } = useQuery({
@@ -103,6 +131,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         measures_completed: 0,
         systems_count: 1,
         processes_count: 0,
+        due_date: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd") : null,
+        discovered_at: format(formData.discoveredAt, "yyyy-MM-dd"),
       });
       if (error) throw error;
     },
@@ -129,6 +159,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: "medium",
       responsible: "",
       frameworks: [],
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     onOpenChange(false);
   };
@@ -168,6 +200,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: suggestion.suggestedCriticality,
       responsible: "",
       frameworks: suggestion.suggestedFrameworks,
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     setStep("confirm");
   };
@@ -180,6 +214,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: "medium",
       responsible: "",
       frameworks: selectedCategory?.defaultFrameworks || [],
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     setStep("confirm");
   };
@@ -458,15 +494,92 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
                 </div>
               </div>
 
+              {/* Framework help info */}
+              {selectedCategory && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+                  <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-foreground mb-1">Hvilke regelverk kan være påvirket?</p>
+                    <p className="text-muted-foreground">
+                      For <span className="font-medium">{selectedCategory.label.toLowerCase()}</span> er typisk {selectedCategory.defaultFrameworks.join(", ")} relevante. Du kan justere valget over.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Dates row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Oppdaget dato</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(formData.discoveredAt, "d. MMM yyyy", { locale: nb })}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.discoveredAt}
+                        onSelect={(date) => date && setFormData((prev) => ({ ...prev, discoveredAt: date }))}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Frist for utbedring (valgfritt)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.dueDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.dueDate
+                          ? format(formData.dueDate, "d. MMM yyyy", { locale: nb })
+                          : "Velg dato"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.dueDate ?? undefined}
+                        onSelect={(date) => setFormData((prev) => ({ ...prev, dueDate: date ?? null }))}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
               {/* Responsible */}
               <div className="space-y-2">
-                <Label htmlFor="responsible">Ansvarlig (valgfritt)</Label>
-                <Input
-                  id="responsible"
+                <Label>Ansvarlig (valgfritt)</Label>
+                <Select
                   value={formData.responsible}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, responsible: e.target.value }))}
-                  placeholder="Navn på ansvarlig person"
-                />
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, responsible: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg ansvarlig person" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {people.map((person) => (
+                      <SelectItem key={person} value={person}>
+                        {person}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
