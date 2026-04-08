@@ -110,7 +110,26 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     enabled: !!asset?.id,
   });
 
-  const evaluation = useTrustControlEvaluation(asset?.id || "");
+  const { data: services = [] } = useQuery({
+    queryKey: ["trust-center-services", asset?.id],
+    queryFn: async () => {
+      const { data: rels } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id")
+        .eq("source_asset_id", asset!.id)
+        .eq("relationship_type", "service_of");
+      if (!rels || rels.length === 0) return [];
+      const ids = rels.map((r) => r.target_asset_id);
+      const { data: assets } = await supabase
+        .from("assets")
+        .select("id, name, description, asset_type, compliance_score")
+        .in("id", ids);
+      return assets || [];
+    },
+    enabled: !!asset?.id,
+  });
+
+
 
   if (isLoading) {
     return (
