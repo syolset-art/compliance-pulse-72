@@ -264,13 +264,14 @@ export default function WorkAreas() {
       return true;
     });
     
-    // Filter by type
-    if (assetTypeFilter !== "all") {
-      combined = combined.filter(a => a.asset_type === assetTypeFilter);
-    }
-    
     return combined;
-  }, [ownedAssets, usedAssets, assetTypeFilter]);
+  }, [ownedAssets, usedAssets]);
+
+  // Filtered assets for table display
+  const filteredAssets = useMemo(() => {
+    if (assetTypeFilter === "all") return allAssets;
+    return allAssets.filter(a => a.asset_type === assetTypeFilter);
+  }, [allAssets, assetTypeFilter]);
 
   // Helper to get asset type icon
   const getAssetTypeIcon = (assetType: string) => {
