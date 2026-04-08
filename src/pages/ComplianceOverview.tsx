@@ -140,7 +140,7 @@ const ComplianceOverview = () => {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">Samsvar</h1>
               <p className="text-muted-foreground text-sm">
-                Organisasjonsnivå på tvers av fire kategorier og valgte regelverk
+                Organisasjonsnivå på tvers av fem kategorier og valgte regelverk
               </p>
             </div>
             <ReportActionButtons
