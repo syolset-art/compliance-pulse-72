@@ -126,6 +126,8 @@ export default function WorkAreas() {
   const [isAssignAssetDialogOpen, setIsAssignAssetDialogOpen] = useState(false);
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
   const [activeWorkAreaTab, setActiveWorkAreaTab] = useState("assets");
+  const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
+  const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
