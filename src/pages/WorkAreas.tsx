@@ -901,68 +901,74 @@ export default function WorkAreas() {
                 {/* Asset summary dashboard */}
                 <AssetSummaryDashboard assets={allAssets} />
 
-                {/* Asset type filter */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    <Button 
-                      variant={assetTypeFilter === "all" ? "default" : "outline"} 
-                      size="sm"
-                      onClick={() => setAssetTypeFilter("all")}
-                    >
-                      {t("myWorkAreas.filterAll")}
-                    </Button>
-                    <Button 
-                      variant={assetTypeFilter === "system" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAssetTypeFilter("system")}
-                    >
-                      <Server className="h-4 w-4 mr-1" />
-                      {t("myWorkAreas.assetTypes.system")}
-                    </Button>
-                    <Button 
-                      variant={assetTypeFilter === "location" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAssetTypeFilter("location")}
-                    >
-                      <Building2 className="h-4 w-4 mr-1" />
-                      {t("myWorkAreas.assetTypes.location")}
-                    </Button>
-                    <Button 
-                      variant={assetTypeFilter === "network" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAssetTypeFilter("network")}
-                    >
-                      <Network className="h-4 w-4 mr-1" />
-                      {t("myWorkAreas.assetTypes.network")}
-                    </Button>
+                {/* Category cards grid */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
+                    {[
+                      { key: "system", icon: Server, label: "Systemer", enabled: true },
+                      { key: "vendor", icon: Building2, label: "Leverandører", enabled: true },
+                      { key: "location", icon: MapPin, label: "Lokasjoner", enabled: true },
+                      { key: "network", icon: Network, label: "Nettverk", enabled: false },
+                      { key: "device", icon: Monitor, label: "Enheter", enabled: false },
+                    ].map(({ key, icon: Icon, label, enabled }) => {
+                      const count = allAssets.filter(a => a.asset_type === key).length;
+                      const isSelected = assetTypeFilter === key;
+                      return (
+                        <div
+                          key={key}
+                          className={cn(
+                            "flex flex-col items-center p-3 border rounded-lg transition-all duration-150",
+                            enabled
+                              ? isSelected
+                                ? "border-primary bg-primary/5 shadow-sm cursor-pointer"
+                                : "border-border hover:border-primary/50 cursor-pointer"
+                              : "opacity-50 cursor-not-allowed border-border"
+                          )}
+                          onClick={() => {
+                            if (!enabled) return;
+                            setAssetTypeFilter(isSelected ? "all" : key);
+                          }}
+                        >
+                          <Icon className={cn("h-5 w-5 mb-1.5", isSelected ? "text-primary" : "text-muted-foreground")} />
+                          <span className="text-xs font-medium">{label}</span>
+                          {enabled ? (
+                            <span className="text-xs text-muted-foreground">{count}</span>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">Kommer</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="sm" className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Legg til
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setIsAssignAssetDialogOpen(true)}>
-                        <Server className="h-4 w-4 mr-2" />
-                        System
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/assets?type=vendor&addNew=true')}>
-                        <Building2 className="h-4 w-4 mr-2" />
-                        Leverandør
-                      </DropdownMenuItem>
-                      <DropdownMenuItem disabled>
-                        <Network className="h-4 w-4 mr-2" />
-                        Nettverk <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem disabled>
-                        <Package className="h-4 w-4 mr-2" />
-                        PC og mobiler <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="ml-3 self-start">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Legg til
+                          <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsAssignAssetDialogOpen(true)}>
+                          <Server className="h-4 w-4 mr-2" />
+                          System
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate('/assets?type=vendor&addNew=true')}>
+                          <Building2 className="h-4 w-4 mr-2" />
+                          Leverandør
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                          <Network className="h-4 w-4 mr-2" />
+                          Nettverk <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                          <Monitor className="h-4 w-4 mr-2" />
+                          PC og mobiler <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
 
                 <Card>
