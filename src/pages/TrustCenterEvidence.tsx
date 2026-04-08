@@ -30,8 +30,17 @@ const getStatusBadge = (status: string | null, isNb: boolean) => {
       return status ? <Badge variant="outline" className="text-[10px]">{status}</Badge> : null;
   }
 };
+const getVisibilityIcon = (visibility: string | null) => {
+  switch (visibility) {
+    case "published":
+      return <Eye className="h-3.5 w-3.5 text-success" />;
+    case "hidden":
+      return <Lock className="h-3.5 w-3.5 text-warning" />;
+    default:
+      return <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />;
+  }
+};
 
-const TrustCenterEvidence = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
