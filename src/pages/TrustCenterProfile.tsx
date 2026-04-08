@@ -88,27 +88,22 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     },
   });
 
-  const { data: docsCount = 0 } = useQuery({
-    queryKey: ["vendor-documents-count-tc", asset?.id],
+  const { data: vendorDocs = [] } = useQuery({
+    queryKey: ["vendor-documents-tc", asset?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("vendor_documents").select("id").eq("asset_id", asset!.id);
-      return data?.length || 0;
+      const { data } = await supabase
+        .from("vendor_documents")
+        .select("id, document_type, file_name, status, created_at, expiry_date")
+        .eq("asset_id", asset!.id);
+      return data || [];
     },
     enabled: !!asset?.id,
   });
 
-  const { data: certsCount = 0 } = useQuery({
-    queryKey: ["certs-count-tc", asset?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("vendor_documents")
-        .select("id")
-        .eq("asset_id", asset!.id)
-        .eq("document_type", "certification");
-      return data?.length || 0;
-    },
-    enabled: !!asset?.id,
-  });
+  const policies = vendorDocs.filter((d: any) => d.document_type !== "certification");
+  const certs = vendorDocs.filter((d: any) => d.document_type === "certification");
+  const docsCount = policies.length;
+  const certsCount = certs.length;
 
   const { data: services = [] } = useQuery({
     queryKey: ["trust-center-services", asset?.id],
