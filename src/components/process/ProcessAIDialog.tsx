@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Bot,
   AlertTriangle,
@@ -39,8 +40,9 @@ import {
   FileText,
   Server,
   AlertCircle,
-  ShieldAlert,
-  Check
+   ShieldAlert,
+   Check,
+   Edit2,
 } from "lucide-react";
 import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
@@ -946,17 +948,22 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               )}
 
-              {/* ── Compact horizontal risk selector ── */}
-              <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">
-                  Velg risikonivå:
-                </Label>
-                <AIRiskSelector
-                  selectedRisk={riskCategory}
-                  onSelectRisk={setRiskCategory}
-                  interactive={true}
-                />
-              </div>
+              {/* ── Collapsible risk selector ── */}
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                    <Edit2 className="h-3.5 w-3.5 mr-1" />
+                    Endre risikonivå
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <AIRiskSelector
+                    selectedRisk={riskCategory}
+                    onSelectRisk={setRiskCategory}
+                    interactive={true}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* ── Collapsible pyramid explainer ── */}
               <AIRiskPyramidExplainer />
