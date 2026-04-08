@@ -198,6 +198,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: suggestion.suggestedCriticality,
       responsible: "",
       frameworks: suggestion.suggestedFrameworks,
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     setStep("confirm");
   };
