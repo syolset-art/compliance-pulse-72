@@ -133,6 +133,25 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
     enabled: open,
   });
 
+  const { data: services = [] } = useQuery({
+    queryKey: ["preview-services", assetId],
+    queryFn: async () => {
+      const { data: rels } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id")
+        .eq("source_asset_id", assetId)
+        .eq("relationship_type", "service_of");
+      if (!rels || rels.length === 0) return [];
+      const ids = rels.map((r) => r.target_asset_id);
+      const { data: assets } = await supabase
+        .from("assets")
+        .select("id, name, description, asset_type, compliance_score")
+        .in("id", ids);
+      return assets || [];
+    },
+    enabled: open,
+  });
+
   if (!asset) return null;
 
   // Compute scores
