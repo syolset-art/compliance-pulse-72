@@ -340,15 +340,15 @@ export const ProcessAIDialog = ({
           messages: [
             {
               role: "user",
-              content: `Du er en compliance-rådgiver som hjelper med EU AI Act dokumentasjon. Skriv en kort og presis begrunnelse (2-4 setninger) for hvorfor AI-bruken i prosessen "${processName}" er klassifisert som "${riskLabel}" risikonivå under EU AI Act.
+              content: `Du er en compliance-rådgiver som hjelper med EU KI-forordningen dokumentasjon. Skriv en kort og presis begrunnelse (2-4 setninger) for hvorfor KI-bruken i prosessen "${processName}" er klassifisert som "${riskLabel}" risikonivå under EU KI-forordningen.
 
 Kontekst:
 - Prosess: ${processName}${processDescription ? ` - ${processDescription}` : ''}
-- AI-funksjoner i bruk: ${selectedFeatureNames.length > 0 ? selectedFeatureNames.join(', ') : 'Ikke spesifisert'}
+- KI-funksjoner i bruk: ${selectedFeatureNames.length > 0 ? selectedFeatureNames.join(', ') : 'Ikke spesifisert'}
 - Valgt risikonivå: ${riskLabel}
 - Berørte personer: ${affectedPersons.length > 0 ? affectedPersons.join(', ') : 'Ikke spesifisert'}
 
-Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i AI Act der det er naturlig.`
+Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i KI-forordningen der det er naturlig.`
             }
           ]
         }
@@ -471,7 +471,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
         if (newFeatures.length > 0) {
           setAiFeatures(prev => [...prev, ...newFeatures]);
           toast.success(i18n.language === 'nb'
-            ? `Lara foreslo ${newFeatures.length} AI-funksjoner`
+            ? `Lara foreslo ${newFeatures.length} KI-funksjoner`
             : `Lara suggested ${newFeatures.length} AI features`);
         } else {
           toast.info(i18n.language === 'nb' ? 'Ingen nye forslag – alle er allerede i listen' : 'No new suggestions – all are already in the list');
@@ -577,7 +577,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     const featureList = aiFeatures.filter(f => f.selected).map(f => f.name).join(', ');
     if (hasDecisionFeatures) {
       return {
-        label: 'Hvem påvirkes av AI-beslutningene?',
+        label: 'Hvem påvirkes av KI-beslutningene?',
         hint: `Basert på ${featureList} — hvem kan bli direkte påvirket av disse beslutningene?`,
       };
     }
@@ -667,7 +667,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                       <div className="flex items-center gap-2 mb-2">
                         <Server className="h-4 w-4 text-primary" />
                         <span className="text-sm text-muted-foreground">
-                          Lara har oppdaget AI-bruk i{' '}
+                          Lara har oppdaget KI-bruk i{' '}
                           <button
                             type="button"
                             className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
@@ -770,7 +770,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   <RadioGroupItem value="no" id="ai-no" />
                   <div>
                     <p className="font-medium">Nei</p>
-                    <p className="text-sm text-muted-foreground">Ingen AI-bruk</p>
+                    <p className="text-sm text-muted-foreground">Ingen KI-bruk</p>
                   </div>
                 </Label>
               </RadioGroup>
@@ -784,7 +784,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   <Textarea
                     value={aiPurpose}
                     onChange={(e) => setAiPurpose(e.target.value)}
-                    placeholder="Beskriv hva AI brukes til i denne prosessen..."
+                    placeholder="Beskriv hva KI brukes til i denne prosessen..."
                     rows={3}
                     className={isFieldAutoFilled('ai_purpose') ? 'border-purple-300 dark:border-purple-700' : ''}
                   />
@@ -819,7 +819,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               {hasAI && !isFieldAutoFilled('ai_purpose') && !aiPurpose && (
                 <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>Beskriv formålet med AI-bruk i denne prosessen</span>
+                  <span>Beskriv formålet med KI-bruk i denne prosessen</span>
                 </div>
               )}
             </div>
@@ -829,8 +829,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {currentStep === 1 && hasAI && (
             <div className="space-y-4">
               <div>
-                <Label className="text-base font-medium">Velg AI-funksjoner som brukes</Label>
-                <p className="text-sm text-muted-foreground mt-1">Marker alle AI-funksjoner som er aktive i denne prosessen</p>
+                <Label className="text-base font-medium">Velg KI-funksjoner som brukes</Label>
+                <p className="text-sm text-muted-foreground mt-1">Marker alle KI-funksjoner som er aktive i denne prosessen</p>
               </div>
 
               {/* Suggest AI features button */}
@@ -849,14 +849,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    Foreslå AI-funksjoner
+                    Foreslå KI-funksjoner
                   </>
                 )}
               </Button>
 
               {aiFeatures.length === 0 && !isGeneratingFeatures && (
                 <div className="text-center py-4 text-sm text-muted-foreground">
-                  <p>Ingen AI-funksjoner lagt til ennå.</p>
+                  <p>Ingen KI-funksjoner lagt til ennå.</p>
                   <p className="text-xs mt-1">Bruk knappen over for å få forslag, eller legg til manuelt nedenfor.</p>
                 </div>
               )}
@@ -1141,7 +1141,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               <div>
                 <Label className="text-base font-medium">Risikovurdering</Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Lara har foreslått et risikonivå basert på AI-funksjoner og prosesstype
+                  Lara har foreslått et risikonivå basert på KI-funksjoner og prosesstype
                 </p>
               </div>
 
@@ -1168,7 +1168,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {riskCategory === 'unacceptable' && 'Forbudt under AI Act — må avvikles umiddelbart.'}
+                        {riskCategory === 'unacceptable' && 'Forbudt under KI-forordningen — må avvikles umiddelbart.'}
                         {riskCategory === 'high' && 'Strenge krav: samsvarsvurdering, risikovurdering og løpende overvåking.'}
                         {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med AI.'}
                         {riskCategory === 'minimal' && 'Frivillige retningslinjer — ingen obligatoriske krav.'}
@@ -1290,13 +1290,13 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   <CheckCircle2 className="h-10 w-10 text-green-500 mb-3" />
                   <p className="font-medium">Ingen obligatoriske transparenskrav</p>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    For minimal risiko anbefales det likevel å informere brukere om AI-bruk som god praksis.
+                    For minimal risiko anbefales det likevel å informere brukere om KI-bruk som god praksis.
                   </p>
                 </div>
               ) : (
                 <>
                   <StepContextSummary>
-                    Svar på tre enkle påstander om hvordan AI brukes i denne prosessen.
+                    Svar på tre enkle påstander om hvordan KI brukes i denne prosessen.
                   </StepContextSummary>
 
                   {/* Toggle 1: Users know about AI */}
@@ -1320,7 +1320,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
                     <div className="space-y-0.5 pr-4">
                       <Label htmlFor="oversight-toggle" className="text-sm font-medium cursor-pointer">
-                        Noen kan overstyre AI-beslutninger
+                        Noen kan overstyre KI-beslutninger
                       </Label>
                       <p className="text-xs text-muted-foreground">
                         En person kan korrigere, avvise eller endre det AI-en foreslår
@@ -1337,7 +1337,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
                     <div className="space-y-0.5 pr-4">
                       <Label htmlFor="automated-toggle" className="text-sm font-medium cursor-pointer">
-                        AI tar beslutninger uten at en person ser over
+                        KI tar beslutninger uten at en person ser over
                       </Label>
                       <p className="text-xs text-muted-foreground">
                         AI-en handler automatisk uten at et menneske godkjenner først
@@ -1419,7 +1419,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
             <div className="space-y-5">
 
               <StepContextSummary>
-                Hva skjer om AI-en i denne prosessen slutter å fungere?
+                Hva skjer om KI-en i denne prosessen slutter å fungere?
               </StepContextSummary>
 
               {/* Lara suggestion */}
@@ -1427,7 +1427,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
                   <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
                   <p className="text-sm text-muted-foreground">
-                    Basert på {selectedFeatureNames.length} AI-funksjoner foreslår Lara:{' '}
+                    Basert på {selectedFeatureNames.length} KI-funksjoner foreslår Lara:{' '}
                     <button type="button" className="font-medium text-primary hover:underline" onClick={() => handleSelectDependency(suggestedDependency)}>
                       {DEPENDENCY_OPTIONS.find(d => d.id === suggestedDependency)?.label}
                     </button>
@@ -1495,9 +1495,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {currentStep > 0 && !hasAI && (
             <div className="flex flex-col items-center justify-center py-12">
               <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
-              <p className="text-lg font-medium">Ingen AI-bruk registrert</p>
+              <p className="text-lg font-medium">Ingen KI-bruk registrert</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Denne prosessen bruker ikke AI og krever ingen AI Act-dokumentasjon
+                Denne prosessen bruker ikke KI og krever ingen KI-forordningen-dokumentasjon
               </p>
             </div>
           )}
