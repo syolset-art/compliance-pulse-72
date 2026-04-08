@@ -68,15 +68,21 @@ const TrustCenterEvidence = () => {
 
   const content = (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-8 md:pt-10">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
-          {isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence"}
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          {isNb
-            ? "Samlet oversikt over retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance."
-            : "Overview of policies, certifications and documents supporting your organization's compliance."}
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
+            {isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence"}
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            {isNb
+              ? "Samlet oversikt over retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance."
+              : "Overview of policies, certifications and documents supporting your organization's compliance."}
+          </p>
+        </div>
+        <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          {isNb ? "Legg til" : "Add"}
+        </Button>
       </div>
 
       <Tabs defaultValue="policies" className="space-y-6">
