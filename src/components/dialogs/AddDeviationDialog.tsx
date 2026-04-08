@@ -69,6 +69,7 @@ type Step = "category" | "suggestions" | "confirm";
 
 export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("category");
   const [selectedCategory, setSelectedCategory] = useState<DeviationCategory | null>(null);
   const [suggestions, setSuggestions] = useState<DeviationSuggestion[]>([]);
@@ -85,6 +86,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     frameworks: [] as string[],
     discoveredAt: new Date(),
     dueDate: null as Date | null,
+    workAreaScope: "none" as "all" | "specific" | "none",
+    linkedWorkAreaIds: [] as string[],
   });
 
   const people = [
