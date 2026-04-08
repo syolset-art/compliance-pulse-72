@@ -686,12 +686,12 @@ export default function WorkAreas() {
             </div>
           </div>
 
-          {workAreas.length > 6 && (
+          {filteredAreas.length > 6 && (
             <button
               onClick={() => setShowAllAreas(!showAllAreas)}
               className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-6"
             >
-              {showAllAreas ? t("myWorkAreas.showLess") : t("myWorkAreas.showMore")}
+              {showAllAreas ? t("myWorkAreas.showLess") : `${t("myWorkAreas.showMore")} (${filteredAreas.length - 6})`}
               <ChevronDown className={cn("h-4 w-4 transition-transform", showAllAreas && "rotate-180")} />
             </button>
           )}
