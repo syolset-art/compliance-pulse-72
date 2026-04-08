@@ -35,6 +35,7 @@ const TrustCenterEvidence = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
@@ -53,7 +54,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date, display_name, category")
+        .select("id, document_type, file_name, status, created_at, expiry_date, display_name, category, visibility")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
