@@ -604,6 +604,7 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
             </DialogFooter>
           </>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );
