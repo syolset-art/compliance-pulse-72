@@ -41,6 +41,7 @@ const getVisibilityIcon = (visibility: string | null) => {
   }
 };
 
+const TrustCenterEvidence = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -225,6 +226,7 @@ const getVisibilityIcon = (visibility: string | null) => {
           </>
         )}
       </Tabs>
+      {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
     </div>
   );
 
