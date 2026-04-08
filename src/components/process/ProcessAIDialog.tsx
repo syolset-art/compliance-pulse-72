@@ -113,6 +113,7 @@ export const ProcessAIDialog = ({
   const [aiFeatures, setAiFeatures] = useState<AIFeature[]>([]);
   const [customFeature, setCustomFeature] = useState("");
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  const [customCheckQuestion, setCustomCheckQuestion] = useState("");
   const [riskCategory, setRiskCategory] = useState<string>("");
   const [riskJustification, setRiskJustification] = useState("");
   const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
@@ -868,52 +869,178 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
             </div>
           )}
 
-          {/* Step 3: Checklist */}
+          {/* Step 3: Checklist — Ja / Nei / Vet ikke */}
           {currentStep === 2 && hasAI && (
             <div className="space-y-4">
 
               <div>
                 <Label className="text-base font-medium">Sjekkliste</Label>
-                <p className="text-sm text-muted-foreground mt-1">Bekreft at følgende punkter stemmer for denne prosessen</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Basert på AI-funksjonene du har valgt — svar på om følgende er ivaretatt
+                </p>
               </div>
 
-              <div className="space-y-2">
-                {checklist.map((item) => {
-                  const isAISuggested = isFieldAutoFilled('compliance_checklist', item.question);
-                  return (
-                    <div key={item.id} className="space-y-0">
-                      <Label
-                        className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                          item.checked ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'hover:bg-muted/50'
-                        } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}
-                        ${item.checked && linkedSystems && linkedSystems.length > 0 ? 'rounded-b-none' : ''}`}
-                      >
-                        <Checkbox checked={item.checked} onCheckedChange={() => toggleChecklistItem(item.id)} className="mt-0.5" />
-                        <span className="text-sm flex-1">{item.question}</span>
-                        {isAISuggested && <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} />}
-                      </Label>
-                      {item.checked && linkedSystems && linkedSystems.length > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-2 border border-t-0 rounded-b-lg bg-muted/30 flex-wrap">
-                          <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          <span className="text-xs text-muted-foreground shrink-0">System:</span>
-                          {linkedSystems.map((sys) => (
-                            <Badge
-                              key={sys.id}
-                              variant={item.systems?.includes(sys.id) ? 'default' : 'outline'}
-                              className="text-xs cursor-pointer"
-                              onClick={() => toggleChecklistSystem(item.id, sys.id)}
-                            >
-                              {sys.name}
-                            </Badge>
-                          ))}
+              {checklist.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Ingen spesifikke sjekkpunkter for denne prosesstypen</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => {
+                      const featureChecks = generateFeatureBasedChecks(
+                        aiFeatures.filter(f => f.selected).map(f => f.name)
+                      );
+                      if (featureChecks.length > 0) {
+                        setChecklist(featureChecks.map((c, i) => ({
+                          id: `gen-${i}`, question: c.question, helpText: c.helpText, answer: null,
+                        })));
+                      }
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generer sjekkpunkter fra funksjoner
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {checklist.map((item) => {
+                    const isAISuggested = isFieldAutoFilled('compliance_checklist', item.question);
+                    return (
+                      <div key={item.id} className="space-y-0">
+                        <div
+                          className={`p-3 border rounded-lg transition-all ${
+                            item.answer === 'yes' ? 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/20' :
+                            item.answer === 'no' ? 'border-red-500/50 bg-red-50/50 dark:bg-red-950/20' :
+                            item.answer === 'unsure' ? 'border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20' :
+                            'hover:bg-muted/50'
+                          } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}
+                          ${item.answer === 'yes' && linkedSystems && linkedSystems.length > 0 ? 'rounded-b-none' : ''}`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{item.question}</p>
+                              {isAISuggested && <AIGeneratedBadge variant="suggested" size="sm" showTooltip={false} className="mt-1" />}
+                            </div>
+                            {item.isCustom && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                                onClick={() => setChecklist(checklist.filter(c => c.id !== item.id))}
+                              >
+                                ×
+                              </Button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-2.5">
+                            {[
+                              { value: 'yes' as const, label: 'Ja', variant: 'emerald' },
+                              { value: 'no' as const, label: 'Nei', variant: 'red' },
+                              { value: 'unsure' as const, label: 'Vet ikke', variant: 'amber' },
+                            ].map((opt) => (
+                              <Button
+                                key={opt.value}
+                                type="button"
+                                size="sm"
+                                variant={item.answer === opt.value ? 'default' : 'outline'}
+                                className={`h-7 text-xs px-3 ${
+                                  item.answer === opt.value
+                                    ? opt.variant === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                    : opt.variant === 'red' ? 'bg-red-600 hover:bg-red-700 text-white'
+                                    : 'bg-amber-500 hover:bg-amber-600 text-white'
+                                    : ''
+                                }`}
+                                onClick={() => setChecklistAnswer(item.id, item.answer === opt.value ? null : opt.value)}
+                              >
+                                {opt.label}
+                              </Button>
+                            ))}
+                          </div>
+                          {/* Help text for "Vet ikke" */}
+                          {item.answer === 'unsure' && item.helpText && (
+                            <div className="mt-2 p-2 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                              <p className="text-xs text-amber-700 dark:text-amber-300">💡 {item.helpText}</p>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        {item.answer === 'yes' && linkedSystems && linkedSystems.length > 0 && (
+                          <div className="flex items-center gap-2 px-3 py-2 border border-t-0 rounded-b-lg bg-muted/30 flex-wrap">
+                            <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="text-xs text-muted-foreground shrink-0">System:</span>
+                            {linkedSystems.map((sys) => (
+                              <Badge
+                                key={sys.id}
+                                variant={item.systems?.includes(sys.id) ? 'default' : 'outline'}
+                                className="text-xs cursor-pointer"
+                                onClick={() => toggleChecklistSystem(item.id, sys.id)}
+                              >
+                                {sys.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Add custom checklist item */}
+              <div className="pt-2 border-t">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Legg til eget sjekkpunkt</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="F.eks. «Er det utført en DPIA?»"
+                    value={customCheckQuestion}
+                    onChange={(e) => setCustomCheckQuestion(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customCheckQuestion.trim()) {
+                        e.preventDefault();
+                        setChecklist([...checklist, {
+                          id: `custom-${Date.now()}`,
+                          question: customCheckQuestion.trim(),
+                          answer: null,
+                          isCustom: true,
+                        }]);
+                        setCustomCheckQuestion("");
+                      }
+                    }}
+                    className="text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!customCheckQuestion.trim()}
+                    onClick={() => {
+                      setChecklist([...checklist, {
+                        id: `custom-${Date.now()}`,
+                        question: customCheckQuestion.trim(),
+                        answer: null,
+                        isCustom: true,
+                      }]);
+                      setCustomCheckQuestion("");
+                    }}
+                  >
+                    Legg til
+                  </Button>
+                </div>
               </div>
 
-              {checklist.length === 0 && (
+              {/* Summary */}
+              {checklist.length > 0 && (
+                <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                  <span className="text-emerald-600">{checklist.filter(c => c.answer === 'yes').length} Ja</span>
+                  <span className="text-red-600">{checklist.filter(c => c.answer === 'no').length} Nei</span>
+                  <span className="text-amber-600">{checklist.filter(c => c.answer === 'unsure').length} Vet ikke</span>
+                  <span>{checklist.filter(c => c.answer === null).length} ubesvart</span>
+                </div>
+              )}
+            </div>
+          )}
                 <p className="text-center text-muted-foreground py-8">Ingen spesifikke sjekkpunkter for denne prosesstypen</p>
               )}
             </div>
