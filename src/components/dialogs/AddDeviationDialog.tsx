@@ -199,6 +199,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       frameworks: [],
       discoveredAt: new Date(),
       dueDate: null,
+      workAreaScope: "none",
+      linkedWorkAreaIds: [],
     });
     onOpenChange(false);
   };
