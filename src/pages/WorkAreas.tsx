@@ -889,10 +889,33 @@ export default function WorkAreas() {
                       {t("myWorkAreas.assetTypes.network")}
                     </Button>
                   </div>
-                  <Button onClick={() => setIsAssignAssetDialogOpen(true)} size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    {t("myWorkAreas.addAsset")}
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Legg til
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setIsAssignAssetDialogOpen(true)}>
+                        <Server className="h-4 w-4 mr-2" />
+                        System
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/assets?type=vendor&addNew=true')}>
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Leverandør
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled>
+                        <Network className="h-4 w-4 mr-2" />
+                        Nettverk <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled>
+                        <Package className="h-4 w-4 mr-2" />
+                        PC og mobiler <Badge variant="outline" className="ml-2 text-[10px] py-0">Kommer</Badge>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 <Card>
