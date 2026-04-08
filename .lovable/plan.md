@@ -1,50 +1,37 @@
 
 
-## Forenkling av leverandør Trust Profile-faner
+## Notatfelt for delvis oppfylte kontroller
 
-### Nåværende fanestruktur (for leverandører/vendors)
+### Problem
+Når en kontroll har status «delvis oppfylt» (uansett om den er automatisk eller manuell), kan brukeren ikke legge til et notat uten å gå via «Dokumenter manuelt»-dialogen.
 
-Primærfaner:
-1. Validering fra Mynder
-2. Kontroller
-3. Datahåndtering
-4. Revisjon og risiko
-5. Avvik og hendelser
-6. Relasjoner
-7. Dokumenter
-
-Overflow-faner:
-8. Innboks
-9. NIS2 Vurdering (kun for self)
-10. Sikkerhetstjenester (kun for self)
-11. Forespørsler (kun for self)
-
-### Hva ISO 27001 og PESB krever for leverandørstyring
-
-ISO 27001 Annex A.15 (Leverandørrelasjoner) og tilhørende kontroller krever i praksis fire dimensjoner:
-
-1. **Kontroller og samsvar** — Dokumentert vurdering av leverandørens sikkerhetskontroller mot kravsettet (A.15.1.1, A.15.2.1)
-2. **Datahåndtering** — Personvernvilkår, databehandleravtale, overføringsmekanismer (A.15.1.2, GDPR Art. 28)
-3. **Risiko og revisjon** — Risikovurdering, revisjonsrettigheter, hendelseshåndtering (A.15.2.1, A.15.2.2)
-4. **Dokumentasjon** — Avtaler, sertifiseringer, policies, SLA-er (A.15.1.2)
-
-### Foreslått forenklet struktur — 4 faner
-
-| Ny fane | Innhold | Dekker |
-|---|---|---|
-| **Oversikt** | Validering fra Mynder + kontrollstatus sammendrag + relasjoner | Fane 1, 2, 6 |
-| **Datahåndtering** | DPA-status, personvern, dataflyt | Fane 3 |
-| **Risiko og revisjon** | Risikovurdering, avvik, hendelser, revisjonslogg | Fane 4, 5 |
-| **Dokumenter** | Avtaler, policies, sertifiseringer, innboks | Fane 7, 8 |
+### Løsning
+Legg til et inline notatfelt i den utvidede visningen for kontroller med status `partial`. Feltet vises direkte under statusen, med en Textarea og en Lagre-knapp. Notater lagres i lokal state (per requirement_id).
 
 ### Teknisk endring
 
-**Fil:** `src/pages/AssetTrustProfile.tsx`
+**Fil: `src/components/regulations/FrameworkRequirementsList.tsx`**
 
-- Slå sammen «Validering fra Mynder», «Kontroller» og «Relasjoner» til en **Oversikt**-fane
-- Slå sammen «Revisjon og risiko» og «Avvik og hendelser» til én fane
-- Flytte «Innboks» inn under «Dokumenter»-fanen
-- Fjerne overflow-meny for leverandører (NIS2/Sikkerhetstjenester/Forespørsler er kun for self)
+1. Legg til state `reqNotes: Record<string, string>` for å holde notater per krav-ID
+2. I den utvidede seksjonen (linje 188-216), for kontroller med `state.status === "partial"`:
+   - Vis et amber-farget info-panel (likt det grønne for "met") som viser at kontrollen er delvis oppfylt
+   - Under panelet: en `Textarea` med placeholder "Legg til notat om hva som gjenstår..."
+   - En liten "Lagre notat"-knapp som lagrer til `reqNotes` state og viser en toast-bekreftelse
+   - Hvis et notat allerede er lagret, vis det som tekst med en "Rediger"-knapp
+3. Denne funksjonaliteten gjelder **alle** kontroller med partial-status, inkludert automatiske (agent_capability === "full")
 
-Dette reduserer fra 7+4 faner til 4 tydelige faner som speiler ISO-strukturen.
+### UI-skisse
+```text
+┌─────────────────────────────────────────────────────┐
+│ ⚠ REQ-03  Kravnavn                  AUTOMATISK 50% │
+│   Beskrivelse...                                    │
+│ ─────────────────────────────────────────────────── │
+│   ⚠ Delvis oppfylt                                 │
+│   ┌───────────────────────────────────────────┐     │
+│   │ Legg til notat om hva som gjenstår...     │     │
+│   └───────────────────────────────────────────┘     │
+│                                  [Lagre notat]      │
+│   [Dokumenter manuelt]                              │
+└─────────────────────────────────────────────────────┘
+```
 
