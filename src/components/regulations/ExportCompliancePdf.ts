@@ -27,11 +27,12 @@ function getStatusLabel(req: ComplianceRequirement, index: number): string {
   return "Ikke oppfylt";
 }
 
-export function exportCompliancePdf(framework: Framework, counts: ExportCounts) {
+export function exportCompliancePdf(framework: Framework, counts: ExportCounts, companyName?: string) {
   const doc = new jsPDF();
   const category = getCategoryById(framework.category);
   const pct = counts.total > 0 ? Math.round((counts.met / counts.total) * 100) : 0;
   const now = new Date().toLocaleDateString("nb-NO", { day: "2-digit", month: "long", year: "numeric" });
+  const company = companyName || "Ukjent virksomhet";
 
   // Header
   doc.setFontSize(20);
@@ -40,29 +41,48 @@ export function exportCompliancePdf(framework: Framework, counts: ExportCounts) 
 
   doc.setFontSize(11);
   doc.setTextColor(100, 100, 100);
-  doc.text(`Generert ${now}`, 14, 30);
+  doc.text(`${company}  •  Generert ${now}`, 14, 30);
+
+  // Executive Summary
+  doc.setFontSize(13);
+  doc.setTextColor(30, 30, 30);
+  doc.text("Sammendrag", 14, 44);
+
+  const statusWord = pct >= 80 ? "god" : pct >= 50 ? "moderat" : "lav";
+  const summaryText = `Denne rapporten oppsummerer etterlevelsesstatusen for ${framework.name} hos ${company}. `
+    + `Virksomheten har en ${statusWord} etterlevelsesgrad på ${pct}%, med ${counts.met} av ${counts.total} krav oppfylt. `
+    + `${counts.partial} krav er delvis oppfylt og ${counts.notMet} krav er ikke oppfylt. `
+    + `${counts.auto} krav evalueres automatisk og ${counts.manual} manuelt.`;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  const summaryLines = doc.splitTextToSize(summaryText, 180);
+  doc.text(summaryLines, 14, 52);
+
+  let currentY = 52 + summaryLines.length * 5 + 6;
 
   // Framework info
   doc.setFontSize(15);
   doc.setTextColor(30, 30, 30);
-  doc.text(framework.name, 14, 44);
+  doc.text(framework.name, 14, currentY);
+  currentY += 8;
 
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
   const descLines = doc.splitTextToSize(framework.description || "", 180);
-  doc.text(descLines, 14, 52);
-
-  const descY = 52 + descLines.length * 5;
+  doc.text(descLines, 14, currentY);
+  currentY += descLines.length * 5;
 
   // Category
   if (category) {
+    currentY += 6;
     doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
-    doc.text(`Kategori: ${category.name}`, 14, descY + 6);
+    doc.text(`Kategori: ${category.name}`, 14, currentY);
   }
 
   // Summary box
-  const boxY = descY + 14;
+  const boxY = currentY + 8;
   doc.setDrawColor(200, 200, 200);
   doc.setFillColor(248, 249, 250);
   doc.roundedRect(14, boxY, 182, 28, 3, 3, "FD");

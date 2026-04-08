@@ -29,9 +29,10 @@ function getEvaluatorName(index: number): string {
   return names[index % names.length];
 }
 
-export function generateFullComplianceReport(data: ReportData, options: Options) {
+export function generateFullComplianceReport(data: ReportData, options: Options, companyName?: string) {
   const doc = new jsPDF();
   const now = new Date().toLocaleDateString("nb-NO", { day: "2-digit", month: "long", year: "numeric" });
+  const company = companyName || "Ukjent virksomhet";
 
   // ── Header ──
   doc.setFontSize(20);
@@ -40,16 +41,36 @@ export function generateFullComplianceReport(data: ReportData, options: Options)
 
   doc.setFontSize(11);
   doc.setTextColor(100, 100, 100);
-  doc.text(`Generert ${now}`, 14, 30);
+  doc.text(`${company}  •  Generert ${now}`, 14, 30);
+
+  // ── Executive Summary ──
+  doc.setFontSize(13);
+  doc.setTextColor(30, 30, 30);
+  doc.text("Sammendrag", 14, 44);
+
+  const fwCount = data.frameworks.length;
+  const totalImprovements = data.improvements.length;
+  const highSev = data.improvements.filter(i => i.severity === "high").length;
+  const levelWord = data.overallScore >= 80 ? "høy" : data.overallScore >= 50 ? "moderat" : "lav";
+  const summaryText = `Denne rapporten gir en samlet oversikt over samsvarsstatus for ${company}. `
+    + `Virksomheten har en ${levelWord} modenhetsscore på ${data.overallScore}% basert på ${fwCount} aktive regelverk. `
+    + `Det er identifisert ${totalImprovements} forbedringspunkter, hvorav ${highSev} har høy alvorlighetsgrad.`;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  const summaryLines = doc.splitTextToSize(summaryText, 180);
+  doc.text(summaryLines, 14, 52);
+
+  const summaryEndY = 52 + summaryLines.length * 5 + 6;
 
   // ── Overall score ──
   doc.setFontSize(14);
   doc.setTextColor(30, 30, 30);
-  doc.text(`Samlet modenhet: ${data.overallScore}%`, 14, 44);
+  doc.text(`Samlet modenhet: ${data.overallScore}%`, 14, summaryEndY);
 
   // Pillar summary table
   autoTable(doc, {
-    startY: 50,
+    startY: summaryEndY + 6,
     head: [["Kategori", "Score", "Nivå", "Målepunkter"]],
     body: data.pillars.map((p) => [p.name, `${p.score}%`, p.level, String(p.measures)]),
     styles: { fontSize: 9, cellPadding: 3 },
