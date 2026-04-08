@@ -592,7 +592,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                   className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-primary text-primary-foreground'
-                      : isDone
+                      : isDone || existingData
                       ? 'text-primary hover:bg-primary/10 cursor-pointer'
                       : 'text-muted-foreground cursor-default'
                   }`}
