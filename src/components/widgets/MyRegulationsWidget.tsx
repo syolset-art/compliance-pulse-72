@@ -193,7 +193,7 @@ export function MyRegulationsWidget() {
             </Button>
           </div>
         ) : (
-          <FrameworkList frameworks={frameworks} navigate={navigate} getStatusBadge={getStatusBadge} getProgressColor={getProgressColor} />
+          <FrameworkListSection frameworks={frameworks} navigate={navigate} getStatusBadge={getStatusBadge} getProgressColor={getProgressColor} />
         )}
       </CardContent>
     </Card>
