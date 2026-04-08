@@ -569,7 +569,7 @@ export default function WorkAreas() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                {t("myWorkAreas.title")} ({workAreas.length})
+                {t("myWorkAreas.title")} ({filteredAreas.length !== workAreas.length ? `${filteredAreas.length} av ${workAreas.length}` : workAreas.length})
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {t("myWorkAreas.subtitle")}
