@@ -259,19 +259,20 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-0">
         {/* Progress bar */}
-        <div className="mb-2">
-          <Progress value={getStepProgress()} className="h-1" />
+        <div className="px-6 pt-6 pb-0">
+          <Progress value={getStepProgress()} className="h-1.5 rounded-full" />
         </div>
 
+        <div className="px-6 pb-6 pt-4">
         {/* Back button */}
         {step !== "category" && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleBack}
-            className="absolute left-4 top-4 gap-1 text-muted-foreground"
+            className="gap-1 text-muted-foreground mb-3 -ml-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Tilbake
@@ -603,6 +604,7 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
             </DialogFooter>
           </>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );
