@@ -18,6 +18,7 @@ import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
+import { MessageSquare, Save, Pencil } from "lucide-react";
 
 type DemoStatus = "not_met" | "partial" | "met";
 
