@@ -40,8 +40,9 @@ import {
   FileText,
   Server,
   AlertCircle,
-  ShieldAlert,
-  Check
+   ShieldAlert,
+   Check,
+   Edit2,
 } from "lucide-react";
 import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
