@@ -836,24 +836,61 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     </h3>
                     <div className="space-y-2.5">
                       {[
-                        { icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount, color: "text-primary" },
-                        { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500" },
-                        { icon: Globe, label: isNb ? "Datahåndtering" : "Data Handling", count: null, color: "text-muted-foreground" },
-                        { icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: null, color: "text-muted-foreground" },
+                        { key: "policies", icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount, color: "text-primary", items: policies },
+                        { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500", items: certs },
                       ].map(item => (
-                        <button
-                          key={item.label}
-                          className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl border border-border hover:bg-muted/40 hover:border-border/80 transition-all text-left group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <item.icon className={`h-4 w-4 ${item.color}`} />
-                            <span className="text-sm font-medium text-foreground">{item.label}</span>
-                            {item.count !== null && item.count > 0 && (
-                              <Badge variant="secondary" className="text-[10px] rounded-full px-2 font-semibold">{item.count}</Badge>
+                        <div key={item.key}>
+                          <button
+                            onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}
+                            className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl border border-border hover:bg-muted/40 hover:border-border/80 transition-all text-left group"
+                          >
+                            <div className="flex items-center gap-3">
+                              <item.icon className={`h-4 w-4 ${item.color}`} />
+                              <span className="text-sm font-medium text-foreground">{item.label}</span>
+                              {item.count > 0 && (
+                                <Badge variant="secondary" className="text-[10px] rounded-full px-2 font-semibold">{item.count}</Badge>
+                              )}
+                            </div>
+                            {expandedDoc === item.key ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                             )}
-                          </div>
-                          <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </button>
+                          </button>
+                          {expandedDoc === item.key && (
+                            <div className="mt-1.5 ml-5 space-y-1">
+                              {item.items.length === 0 ? (
+                                <p className="text-xs text-muted-foreground px-4 py-3">
+                                  {isNb ? "Ingen registrert ennå" : "None registered yet"}
+                                </p>
+                              ) : (
+                                item.items.map((doc: any) => (
+                                  <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="text-xs font-medium text-foreground truncate">{doc.file_name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {doc.status && (
+                                        <Badge
+                                          variant={doc.status === "verified" ? "default" : "outline"}
+                                          className="text-[9px]"
+                                        >
+                                          {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
+                                        </Badge>
+                                      )}
+                                      {doc.expiry_date && (
+                                        <span className="text-[10px] text-muted-foreground">
+                                          {isNb ? "Utløper" : "Expires"} {new Date(doc.expiry_date).toLocaleDateString()}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </section>
