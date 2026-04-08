@@ -14,9 +14,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 import {
   deviationCategories,
   criticalityOptions,
@@ -29,6 +44,8 @@ import {
   Loader2,
   Check,
   PenLine,
+  CalendarIcon,
+  Info,
 } from "lucide-react";
 
 interface AddDeviationDialogProps {
