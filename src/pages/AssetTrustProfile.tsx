@@ -414,9 +414,6 @@ const AssetTrustProfile = () => {
                 </TabsContent>
               </Tabs>
             )}
-                )}
-              </Tabs>
-            )}
           </div>
         </main>
       </div>
