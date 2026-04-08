@@ -586,6 +586,56 @@ export default function WorkAreas() {
             </div>
           </div>
 
+          {/* Intro banner for new users */}
+          {(!introDismissed || workAreas.length === 0) && !selectedWorkArea && (
+            <Card className="mb-4 sm:mb-6 p-5 sm:p-6 border-primary/20 bg-primary/5 relative">
+              <button
+                onClick={() => {
+                  setIntroDismissed(true);
+                  localStorage.setItem("workarea-intro-dismissed", "true");
+                }}
+                className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Lukk"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <div className="flex items-start gap-3 mb-4">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Layers className="h-5 w-5 text-primary" />
+                </div>
+                <div className="pr-6">
+                  <h3 className="font-semibold text-foreground mb-1">Hva er et arbeidsområde?</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Et arbeidsområde representerer en avdeling, funksjon eller ansvarsområde i organisasjonen din — for eksempel «HR», «IT-drift» eller «Kundeservice». Hvert arbeidsområde samler systemene, prosessene og leverandørene som hører til, slik at du får oversikt over risiko og etterlevelse på ett sted.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <Server className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Systemer</p>
+                    <p className="text-xs text-muted-foreground">Legg til systemer og verktøy som brukes</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <ClipboardList className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Prosesser</p>
+                    <p className="text-xs text-muted-foreground">Dokumenter behandlingsaktiviteter og AI-bruk</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <Handshake className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Leverandører</p>
+                    <p className="text-xs text-muted-foreground">Hold oversikt over tredjeparter</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Filters */}
           <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 items-center">
             <Filter className="h-4 w-4 text-muted-foreground" />
