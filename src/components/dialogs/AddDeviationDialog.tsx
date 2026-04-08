@@ -160,7 +160,9 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         description: formData.description,
         category: selectedCategory?.id || "annet",
         criticality: formData.criticality,
-        responsible: formData.responsible || null,
+        responsible: formData.responsible === "__myself__"
+          ? (user?.email || "Meg selv")
+          : (formData.responsible || null),
         relevant_frameworks: formData.frameworks,
         status: "open",
         measures_count: 0,
