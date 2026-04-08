@@ -27,6 +27,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Bot,
   AlertTriangle,
@@ -129,6 +130,7 @@ export const ProcessAIDialog = ({
   const [aiIntegrationLevel, setAiIntegrationLevel] = useState<string>("");
   const [aiDependencyLevel, setAiDependencyLevel] = useState<string>("");
   const [failureConsequence, setFailureConsequence] = useState("");
+  const [isRiskSelectorOpen, setIsRiskSelectorOpen] = useState(false);
 
   const [suggestions, setSuggestions] = useState<ProcessAISuggestion | null>(null);
   const { data: systemAI } = useSystemAIFeatures(systemId || null);
@@ -949,13 +951,20 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               )}
 
               {/* ── Collapsible risk selector ── */}
-              <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
-                    <Edit2 className="h-3.5 w-3.5 mr-1" />
-                    Endre risikonivå
-                  </Button>
-                </CollapsibleTrigger>
+              <Collapsible open={isRiskSelectorOpen} onOpenChange={setIsRiskSelectorOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                        <Edit2 className="h-3.5 w-3.5 mr-1" />
+                        {isRiskSelectorOpen ? "Klikk for å lukke" : "Endre risikonivå"}
+                      </Button>
+                    </CollapsibleTrigger>
+                  </TooltipTrigger>
+                  {!isRiskSelectorOpen && (
+                    <TooltipContent>Klikk for å redigere</TooltipContent>
+                  )}
+                </Tooltip>
                 <CollapsibleContent className="pt-2">
                   <AIRiskSelector
                     selectedRisk={riskCategory}
