@@ -121,27 +121,35 @@ const AssetTrustProfile = () => {
     }
   }, []);
 
-  // Tab definitions following the new structure
+  // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
+  const vendorTabDefs = [
+    { value: 'overview', label: isNb ? 'Oversikt' : 'Overview' },
+    { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling' },
+    { value: 'riskAudit', label: isNb ? 'Risiko og revisjon' : 'Risk & Audit' },
+    { value: 'documents', label: isNb ? 'Dokumenter' : 'Documents' },
+  ];
+
+  // ── Self tabs: full tab set ──
   const primaryTabDefs = [
     // Hardware-specific
     { value: 'compliance', label: isNb ? 'ISO 27001 Samsvar' : 'ISO 27001 Compliance', show: isHardware },
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isHardware },
-    // Standard tabs
-    { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: !isHardware },
-    { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: !isHardware },
-    { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: !isHardware },
+    // Standard tabs (self)
+    { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: isSelf },
+    { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: isSelf },
+    { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: isSelf },
     { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
     { value: 'incidents', label: isNb ? 'Avvik og hendelser' : 'Deviations & Incidents', show: true },
-    { value: 'relations', label: isNb ? 'Relasjoner' : 'Relations', show: !isHardware },
+    { value: 'relations', label: isNb ? 'Relasjoner' : 'Relations', show: isSelf },
     { value: 'documents', label: isNb ? 'Dokumenter' : 'Documents', show: true },
   ].filter(t => t.show);
 
-  const overflowTabDefs = [
+  const overflowTabDefs = isSelf ? [
     { value: 'inbox', label: isNb ? 'Innboks' : 'Inbox', show: true, badge: inboxCount },
-    { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isSelf },
-    { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: isSelf },
-    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: isSelf },
-  ].filter(t => t.show);
+    { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: true },
+    { value: 'security-services', label: isNb ? 'Sikkerhetstjenester' : 'Security Services', show: true },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', show: true },
+  ] : [];
 
   // Overflow button label
   const moreLabel = isNb ? "Mer" : "More";
