@@ -579,17 +579,6 @@ export default function WorkAreas() {
                 )}
               </p>
             </div>
-            {companyProfile && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setIsCompanyProfileDialogOpen(true)}
-                className="gap-2 w-full sm:w-auto"
-              >
-                <Settings className="h-4 w-4" />
-                <span className="sm:inline">Selskapsinnstillinger</span>
-              </Button>
-            )}
           </div>
 
           {/* Filters */}
