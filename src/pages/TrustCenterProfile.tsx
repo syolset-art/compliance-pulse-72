@@ -872,6 +872,23 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                       ))}
                     </div>
                   </section>
+
+                  {/* ── Products & Services — compact link ── */}
+                  {services.length > 0 && (
+                    <div className="border-t border-border pt-4">
+                      <button
+                        onClick={() => navigate("/trust-center/products/public")}
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Package className="h-4 w-4" />
+                        <span>
+                          {isNb ? "Produkter og tjenester" : "Products & Services"}
+                          <span className="ml-1.5 text-xs">({services.length})</span>
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
