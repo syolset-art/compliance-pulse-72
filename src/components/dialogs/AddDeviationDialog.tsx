@@ -607,18 +607,96 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
                 </div>
               </div>
 
-              {/* Responsible */}
+              {/* Work Area Scope */}
               <div className="space-y-2">
-                <Label>Ansvarlig (valgfritt)</Label>
+                <Label className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Er avviket tilknyttet arbeidsområder?
+                </Label>
+                <div className="flex gap-2">
+                  {([
+                    { value: "all", label: "Alle arbeidsområder" },
+                    { value: "specific", label: "Spesifikke" },
+                    { value: "none", label: "Ingen spesifikke" },
+                  ] as const).map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          workAreaScope: option.value,
+                          linkedWorkAreaIds: option.value !== "specific" ? [] : prev.linkedWorkAreaIds,
+                          responsible: "",
+                        }))
+                      }
+                      className={cn(
+                        "px-3 py-1.5 rounded-md text-sm font-medium border transition-all",
+                        formData.workAreaScope === option.value
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border text-muted-foreground hover:border-primary/50"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Specific work areas multi-select */}
+              {formData.workAreaScope === "specific" && (
+                <div className="space-y-2">
+                  <Label>Velg arbeidsområder</Label>
+                  <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {workAreas.length > 0 ? (
+                      workAreas.map((wa) => (
+                        <label key={wa.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                          <Checkbox
+                            checked={formData.linkedWorkAreaIds.includes(wa.id)}
+                            onCheckedChange={(checked) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                linkedWorkAreaIds: checked
+                                  ? [...prev.linkedWorkAreaIds, wa.id]
+                                  : prev.linkedWorkAreaIds.filter((id) => id !== wa.id),
+                                responsible: "",
+                              }));
+                            }}
+                          />
+                          <span>{wa.name}</span>
+                          {wa.responsible_person && (
+                            <span className="text-xs text-muted-foreground ml-auto">
+                              ({wa.responsible_person})
+                            </span>
+                          )}
+                        </label>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Ingen arbeidsområder funnet</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tiltaksansvarlig */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Tiltaksansvarlig
+                </Label>
                 <Select
                   value={formData.responsible}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, responsible: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg ansvarlig person" />
+                    <SelectValue placeholder="Velg tiltaksansvarlig" />
                   </SelectTrigger>
                   <SelectContent>
-                    {people.map((person) => (
+                    <SelectItem value="__myself__">
+                      <span className="flex items-center gap-2">
+                        👤 Meg selv
+                      </span>
+                    </SelectItem>
+                    {responsiblePersonOptions.map((person) => (
                       <SelectItem key={person} value={person}>
                         {person}
                       </SelectItem>
@@ -626,6 +704,19 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Info when user selects themselves */}
+              {formData.responsible === "__myself__" && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-blue-800 dark:text-blue-300">Du er tiltaksansvarlig</p>
+                    <p className="text-blue-700 dark:text-blue-400 mt-0.5">
+                      Etter opprettelse vil du kunne se foreslåtte tiltak og starte arbeidet med å rapportere på disse.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter>
