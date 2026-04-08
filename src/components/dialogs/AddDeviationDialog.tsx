@@ -109,6 +109,16 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     },
   });
 
+  // Fetch work areas
+  const { data: workAreas = [] } = useQuery({
+    queryKey: ["work-areas-for-deviations"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("work_areas").select("id, name, responsible_person");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Fetch company profile for industry context
   const { data: companyProfile } = useQuery({
     queryKey: ["company-profile"],
@@ -118,6 +128,25 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       return data;
     },
   });
+
+  // Build dynamic responsible person list based on selected work areas
+  const responsiblePersonOptions = useMemo(() => {
+    const persons = new Set<string>();
+    if (formData.workAreaScope === "specific" && formData.linkedWorkAreaIds.length > 0) {
+      workAreas
+        .filter((wa) => formData.linkedWorkAreaIds.includes(wa.id))
+        .forEach((wa) => {
+          if (wa.responsible_person) persons.add(wa.responsible_person);
+        });
+    } else if (formData.workAreaScope === "all") {
+      workAreas.forEach((wa) => {
+        if (wa.responsible_person) persons.add(wa.responsible_person);
+      });
+    }
+    // Always include the hardcoded people list
+    people.forEach((p) => persons.add(p));
+    return Array.from(persons);
+  }, [formData.workAreaScope, formData.linkedWorkAreaIds, workAreas, people]);
 
   // Create deviation mutation
   const createDeviation = useMutation({
