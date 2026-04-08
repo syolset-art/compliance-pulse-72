@@ -96,6 +96,11 @@ export const FOUNDATION_CONTROLS: FoundationControlDef[] = [
   { id: "sup_2", label_en: "DPA management", label_no: "Databehandleravtaler", domain: "supplier_ecosystem" },
   { id: "sup_3", label_en: "Vendor risk assessment", label_no: "Leverandørrisikovurdering", domain: "supplier_ecosystem" },
   { id: "sup_4", label_en: "Subprocessor oversight", label_no: "Underleverandørkontroll", domain: "supplier_ecosystem" },
+  // Privacy & Data Handling
+  { id: "prv_1", label_en: "Privacy policy", label_no: "Personvernerklæring", domain: "privacy_data" },
+  { id: "prv_2", label_en: "Data processing records", label_no: "Behandlingsprotokoll", domain: "privacy_data" },
+  { id: "prv_3", label_en: "Data subject rights process", label_no: "Rettigheter for registrerte", domain: "privacy_data" },
+  { id: "prv_4", label_en: "Data retention & deletion", label_no: "Oppbevaring og sletting", domain: "privacy_data" },
 ];
 
 // ─── Core Scoring Functions ───────────────────────────────────
@@ -188,7 +193,7 @@ export function calculateScoreByRegulationDomain(
 export function calculateFoundation(
   controlLevels: Record<string, MaturityLevel>
 ): FoundationResult {
-  const domains: SLACategory[] = ["governance", "operations", "identity_access", "supplier_ecosystem"];
+  const domains: SLACategory[] = ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"];
   
   const domainResults: FoundationDomainResult[] = domains.map(domain => {
     const domainControls = FOUNDATION_CONTROLS.filter(c => c.domain === domain);

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { Shield, Server, KeyRound, Link2 } from "lucide-react";
+import { Shield, Server, KeyRound, Link2, FileText } from "lucide-react";
 import type { RequirementWithStatus } from "@/hooks/useComplianceRequirements";
 import type { SLACategory } from "@/lib/certificationPhases";
 
@@ -23,6 +23,7 @@ const MOCK_TRENDS: Record<SLACategory, number> = {
   operations: 23,
   identity_access: -5,
   supplier_ecosystem: -15,
+  privacy_data: 8,
 };
 
 const CATEGORY_ICONS: Record<SLACategory, React.ReactNode> = {
@@ -30,6 +31,7 @@ const CATEGORY_ICONS: Record<SLACategory, React.ReactNode> = {
   operations: <Server className="h-4 w-4" />,
   identity_access: <KeyRound className="h-4 w-4" />,
   supplier_ecosystem: <Link2 className="h-4 w-4" />,
+  privacy_data: <FileText className="h-4 w-4" />,
 };
 
 const CATEGORY_COLORS: Record<SLACategory, string> = {
@@ -37,12 +39,13 @@ const CATEGORY_COLORS: Record<SLACategory, string> = {
   operations: "text-emerald-600 dark:text-emerald-400",
   identity_access: "text-amber-600 dark:text-amber-400",
   supplier_ecosystem: "text-purple-600 dark:text-purple-400",
+  privacy_data: "text-rose-600 dark:text-rose-400",
 };
 
 export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps) {
   const { t } = useTranslation();
 
-  const categories: SLAData[] = (['governance', 'operations', 'identity_access', 'supplier_ecosystem'] as SLACategory[]).map(cat => {
+  const categories: SLAData[] = (['governance', 'operations', 'identity_access', 'supplier_ecosystem', 'privacy_data'] as SLACategory[]).map(cat => {
     const reqs = requirements.filter(r => r.sla_category === cat);
     const completed = reqs.filter(r => r.status === 'completed').length;
     const total = reqs.length;

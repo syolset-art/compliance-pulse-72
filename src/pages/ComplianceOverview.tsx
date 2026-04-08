@@ -25,6 +25,7 @@ const PILLARS = [
   { id: 'operations', name: 'Drift og bruk', score: 77, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 5 },
   { id: 'identity_access', name: 'Identitet og tilgang', score: 92, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 5 },
   { id: 'supplier', name: 'Leverandører og økosystem', score: 61, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 3 },
+  { id: 'privacy_data', name: 'Personvern og datahåndtering', score: 68, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 4 },
 ];
 
 interface FrameworkScore {

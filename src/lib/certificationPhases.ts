@@ -7,7 +7,7 @@ export type CertificationPhase =
   | 'audit'
   | 'certification';
 
-export type SLACategory = 'governance' | 'operations' | 'identity_access' | 'supplier_ecosystem';
+export type SLACategory = 'governance' | 'operations' | 'identity_access' | 'supplier_ecosystem' | 'privacy_data';
 
 export type MaturityLevel = 'initial' | 'defined' | 'implemented' | 'measured' | 'optimized';
 
