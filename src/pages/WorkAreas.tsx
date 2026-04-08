@@ -517,7 +517,33 @@ export default function WorkAreas() {
     return <IconComponent className="h-8 w-8" />;
   };
 
-  const displayedAreas = showAllAreas ? workAreas : workAreas.slice(0, 6);
+  const filteredAreas = useMemo(() => {
+    let areas = [...workAreas];
+    
+    // Ownership filter
+    if (ownershipFilter === "mine") {
+      areas = areas.filter(a => a.responsible_person);
+    } else if (ownershipFilter === "member") {
+      areas = areas.filter(a => !a.responsible_person);
+    }
+    
+    // Risk filter
+    if (riskFilter === "high") {
+      areas = areas.filter(a => {
+        const risk = workAreaRiskMap[a.id];
+        return risk === "high" || risk === "critical";
+      });
+    } else if (riskFilter === "low") {
+      areas = areas.filter(a => {
+        const risk = workAreaRiskMap[a.id];
+        return !risk || risk === "low" || risk === "medium";
+      });
+    }
+    
+    return areas;
+  }, [workAreas, ownershipFilter, riskFilter, workAreaRiskMap]);
+
+  const displayedAreas = showAllAreas ? filteredAreas : filteredAreas.slice(0, 6);
 
   if (mode === "chat") {
     return null;
