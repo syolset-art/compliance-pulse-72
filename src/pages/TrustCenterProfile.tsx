@@ -679,7 +679,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                       </h3>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
                         const score = evaluation?.areaScore(area) ?? 0;
                         const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-primary" : "bg-destructive";
