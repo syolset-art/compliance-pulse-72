@@ -46,7 +46,8 @@ import {
   ClipboardList,
   Handshake,
   MapPin,
-  Monitor
+  Monitor,
+  HelpCircle
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
@@ -587,10 +588,24 @@ export default function WorkAreas() {
                 )}
               </p>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground hover:text-foreground self-start sm:self-auto"
+              onClick={() => {
+                setIntroDismissed(!introDismissed);
+                if (introDismissed) {
+                  localStorage.removeItem("workarea-intro-dismissed");
+                }
+              }}
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm">Hvordan fungerer dette?</span>
+            </Button>
           </div>
 
           {/* Intro banner for new users */}
-          {(!introDismissed || workAreas.length === 0) && !selectedWorkArea && (
+          {!introDismissed && !selectedWorkArea && (
             <Card className="mb-4 sm:mb-6 p-5 sm:p-6 border-primary/20 bg-primary/5 relative">
               <button
                 onClick={() => {
