@@ -81,7 +81,7 @@ export const ProcessAITab = ({
         compliance_checklist: draft.suggestedChecks.map((q, i) => ({
           id: `check-${i}`,
           question: q,
-          checked: false,
+          answer: null,
         })) as unknown as null,
         compliance_status: 'not_assessed',
         last_review_date: new Date().toISOString().split('T')[0],

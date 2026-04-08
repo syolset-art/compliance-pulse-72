@@ -7,6 +7,78 @@ export interface ProcessAISuggestion {
   suggestedAIFeatures: string[];
 }
 
+// Feature-based checklist questions — maps AI feature keywords to relevant questions
+const FEATURE_CHECKLIST_MAP: Record<string, { question: string; helpText: string }[]> = {
+  'screening': [
+    { question: 'Blir brukere informert om at AI brukes i screeningprosessen?', helpText: 'AI Act krever transparens når AI brukes til å vurdere personer. Dokumenter hvordan berørte informeres.' },
+    { question: 'Kan et menneske overprøve AI-anbefalingene?', helpText: 'For høy-risiko AI kreves menneskelig tilsyn. Sørg for at ansvarlige personer kan overstyre AI-beslutninger.' },
+  ],
+  'rangering': [
+    { question: 'Er rangeringskriteriene dokumentert og forklarbare?', helpText: 'AI Act krever at beslutningskriterier er sporbare. Dokumenter hvordan AI rangerer og hvilke faktorer som vektes.' },
+    { question: 'Overvåkes AI-rangeringen for diskriminering eller skjevhet?', helpText: 'AI Act forbyr diskriminerende AI. Regelmessig testing for bias er nødvendig.' },
+  ],
+  'kandidat': [
+    { question: 'Informeres kandidater om at AI brukes i prosessen?', helpText: 'Kandidater har rett til å vite at AI er involvert i vurderingen av dem.' },
+  ],
+  'chatbot': [
+    { question: 'Informeres brukerne om at de kommuniserer med AI?', helpText: 'AI Act Art. 50 krever at brukere vet når de interagerer med en AI.' },
+    { question: 'Kan brukere enkelt nå et menneske ved behov?', helpText: 'God praksis tilsier at det alltid skal finnes en vei til menneskelig kontakt.' },
+  ],
+  'beslutning': [
+    { question: 'Er det dokumentert hvordan AI-beslutningen tas?', helpText: 'Forklarbarhet er viktig for å oppfylle transparenskravene i AI Act.' },
+    { question: 'Kan berørte personer klage på eller bestride AI-beslutninger?', helpText: 'Berørte har rett til innsyn og mulighet for overprøving av automatiserte avgjørelser.' },
+  ],
+  'analyse': [
+    { question: 'Er formålet med AI-analysen klart definert?', helpText: 'Formålsbegrensning er et grunnleggende prinsipp i GDPR og AI Act.' },
+  ],
+  'automatiser': [
+    { question: 'Er det klart hva som skjer hvis AI-automatiseringen feiler?', helpText: 'En fallback-plan sikrer at prosessen kan fortsette selv om AI-systemet er utilgjengelig.' },
+  ],
+  'prediksjon': [
+    { question: 'Valideres AI-prediksjonene regelmessig mot faktiske resultater?', helpText: 'Nøyaktighet og ytelsesovervåking er krav for høy-risiko AI under AI Act.' },
+  ],
+  'score': [
+    { question: 'Er scoringsmodellen transparent og forklarbar?', helpText: 'AI Act krever at scoringsalgoritmer kan forklares og begrunnes.' },
+  ],
+  'generert': [
+    { question: 'Merkes AI-generert innhold tydelig?', helpText: 'AI Act Art. 50 krever merking av innhold som er generert av AI.' },
+  ],
+  'overvåk': [
+    { question: 'Er det gjort en vurdering av personvernkonsekvenser (DPIA)?', helpText: 'GDPR Art. 35 krever DPIA for systematisk overvåking.' },
+  ],
+};
+
+// Generate checklist questions based on selected features
+export function generateFeatureBasedChecks(selectedFeatures: string[]): { question: string; helpText: string }[] {
+  const checks: { question: string; helpText: string }[] = [];
+  const addedQuestions = new Set<string>();
+
+  for (const feature of selectedFeatures) {
+    const featureLower = feature.toLowerCase();
+    for (const [keyword, questions] of Object.entries(FEATURE_CHECKLIST_MAP)) {
+      if (featureLower.includes(keyword)) {
+        for (const q of questions) {
+          if (!addedQuestions.has(q.question)) {
+            addedQuestions.add(q.question);
+            checks.push(q);
+          }
+        }
+      }
+    }
+  }
+
+  // If no specific matches, add general questions
+  if (checks.length === 0) {
+    checks.push(
+      { question: 'Er det dokumentert hvordan AI brukes i denne prosessen?', helpText: 'Grunnleggende dokumentasjon er nødvendig for å oppfylle AI Act-kravene.' },
+      { question: 'Finnes det en ansvarlig person for AI-bruken?', helpText: 'En tydelig ansvarslinje sikrer at noen følger opp compliance og håndterer hendelser.' },
+    );
+  }
+
+  // Cap at max 5 to keep it manageable
+  return checks.slice(0, 5);
+}
+
 // Keywords that suggest AI Act high-risk categories based on Annex III
 const HIGH_RISK_KEYWORDS = [
   'rekruttering', 'ansettelse', 'hiring', 'recruitment',
