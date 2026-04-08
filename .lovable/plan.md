@@ -1,59 +1,50 @@
 
 
-## Plan: Skille Trust Center-visning fra intern asset-visning
+## Forenkling av leverandør Trust Profile-faner
 
-### Problemet i dag
-Når brukeren åpner «Trust Profile» fra Trust Center-menyen, leder den til `/assets/{selfId}` — den samme siden som brukes for interne leverandør-/systemvurderinger, med alle operasjonelle arkfaner (Validering, Kontroller, Datahåndtering, etc.). Trust Center er ment å være organisasjonens **utadrettede profil**, ikke et internt arbeidsverktøy.
+### Nåværende fanestruktur (for leverandører/vendors)
 
-### Konsept
+Primærfaner:
+1. Validering fra Mynder
+2. Kontroller
+3. Datahåndtering
+4. Revisjon og risiko
+5. Avvik og hendelser
+6. Relasjoner
+7. Dokumenter
 
-**To ulike visninger av samme data:**
+Overflow-faner:
+8. Innboks
+9. NIS2 Vurdering (kun for self)
+10. Sikkerhetstjenester (kun for self)
+11. Forespørsler (kun for self)
 
-```text
-┌──────────────────────────────┐     ┌──────────────────────────────┐
-│  Trust Center Profile        │     │  Asset Trust Profile         │
-│  /trust-center/profile       │     │  /assets/{id}                │
-│                              │     │                              │
-│  Utadrettet, samlet visning  │     │  Internt arbeidsverktøy      │
-│  Ingen arkfaner              │     │  Med arkfaner                │
-│  Scrollbar seksjonslayout    │     │  Validering, Kontroller...   │
-│  Publisering + forhåndsvisn. │     │  Innboks, Forespørsler...    │
-└──────────────────────────────┘     └──────────────────────────────┘
-```
+### Hva ISO 27001 og PESB krever for leverandørstyring
 
-### Hva Trust Center-profilen skal vise (basert på referansebildene)
+ISO 27001 Annex A.15 (Leverandørrelasjoner) og tilhørende kontroller krever i praksis fire dimensjoner:
 
-Én sammenhengende side med seksjoner i rekkefølge:
-1. **Header** — Firmanavn, logo, verifisert-badge, Trust Score gauge, metadata (org.nr, land, bransje, nettside)
-2. **Nøkkeltall-stripe** — Trust Score, Sertifiseringer, DPA-status, Dokumenter
-3. **Trust Score-detaljer** — Donut-gauge med domene-kort (Sikkerhet, Personvern, DPA, etc.) + styrker/bekymringer/anbefalinger
-4. **Modenhetsvurdering** — 4 pilarer med prosentpoeng og nivå-badges
-5. **Nøkkelroller + Organisasjonsdekning** — Side-om-side visning
-6. **Publiseringspanel** — Toolbar for publisering, forhåndsvisning, lagring (kun for eier)
+1. **Kontroller og samsvar** — Dokumentert vurdering av leverandørens sikkerhetskontroller mot kravsettet (A.15.1.1, A.15.2.1)
+2. **Datahåndtering** — Personvernvilkår, databehandleravtale, overføringsmekanismer (A.15.1.2, GDPR Art. 28)
+3. **Risiko og revisjon** — Risikovurdering, revisjonsrettigheter, hendelseshåndtering (A.15.2.1, A.15.2.2)
+4. **Dokumentasjon** — Avtaler, sertifiseringer, policies, SLA-er (A.15.1.2)
 
-### Endringer
+### Foreslått forenklet struktur — 4 faner
 
-**1. Ny side: `TrustCenterProfile.tsx`**
-- Ny rute: `/trust-center/profile`
-- Henter organisasjonens `self`-asset og bygger opp en seksjonbasert visning (ikke faner)
-- Gjenbruker eksisterende komponenter: `AssetHeader`, `AssetMetrics`, `TrustProfilePublishing`
-- Legger til nye seksjoner for modenhet, nøkkelroller og organisasjonsdekning som scrollbare kort
-- Inkluderer «Rediger detaljer»-lenke til `/assets/{selfId}` for brukere som trenger den interne visningen
+| Ny fane | Innhold | Dekker |
+|---|---|---|
+| **Oversikt** | Validering fra Mynder + kontrollstatus sammendrag + relasjoner | Fane 1, 2, 6 |
+| **Datahåndtering** | DPA-status, personvern, dataflyt | Fane 3 |
+| **Risiko og revisjon** | Risikovurdering, avvik, hendelser, revisjonslogg | Fane 4, 5 |
+| **Dokumenter** | Avtaler, policies, sertifiseringer, innboks | Fane 7, 8 |
 
-**2. Oppdater `Sidebar.tsx`**
-- Trust Profile-lenken endres fra `/assets/{selfId}` → `/trust-center/profile`
-- Fallback beholdes for når self-asset ikke finnes
+### Teknisk endring
 
-**3. Oppdater `App.tsx`**
-- Ny rute: `/trust-center/profile` → `TrustCenterProfile`
+**Fil:** `src/pages/AssetTrustProfile.tsx`
 
-**4. Beholde `/assets/{id}` uendret**
-- Den interne asset-visningen med arkfaner forblir som den er
-- Brukes for leverandører, systemer, og som «avansert redigering» for self-profilen
+- Slå sammen «Validering fra Mynder», «Kontroller» og «Relasjoner» til en **Oversikt**-fane
+- Slå sammen «Revisjon og risiko» og «Avvik og hendelser» til én fane
+- Flytte «Innboks» inn under «Dokumenter»-fanen
+- Fjerne overflow-meny for leverandører (NIS2/Sikkerhetstjenester/Forespørsler er kun for self)
 
-### Tekniske detaljer
-- `TrustCenterProfile` henter self-asset via `assets`-tabellen (`asset_type = 'self'`)
-- Gjenbruker `ValidationTab`-logikken (Trust Score-detaljer) og `AssetMetrics` inline — uten å wrappe i `<Tabs>`
-- Modenhetsvurdering-seksjonen gjenbruker pilarer fra compliance-logikken
-- Layouten er en enkel vertikal stack med `<Card>`-seksjoner — ingen fanenavigasjon
+Dette reduserer fra 7+4 faner til 4 tydelige faner som speiler ISO-strukturen.
 
