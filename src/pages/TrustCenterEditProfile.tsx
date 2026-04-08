@@ -767,10 +767,10 @@ const TrustCenterEditProfile = () => {
               </p>
               <div className="space-y-2">
                 {[
-                  { icon: FileText, label: isNb ? "Retningslinjer" : "Policies", href: "/trust-center/policies" },
-                  { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", href: "/trust-center/certifications" },
-                  { icon: Eye, label: isNb ? "Datahåndtering" : "Data Handling", href: "/trust-center/edit" },
-                  { icon: FileText, label: isNb ? "Dokumenter" : "Documents", href: "/trust-center/edit" },
+                  { icon: FileText, label: isNb ? "Retningslinjer" : "Policies", href: "/trust-center/evidence" },
+                  { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", href: "/trust-center/evidence" },
+                  { icon: Eye, label: isNb ? "Datahåndtering" : "Data Handling", href: "/trust-center/evidence" },
+                  { icon: FileText, label: isNb ? "Dokumenter" : "Documents", href: "/trust-center/evidence" },
                 ].map(item => (
                   <button
                     key={item.label}
