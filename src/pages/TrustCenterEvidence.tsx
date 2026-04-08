@@ -109,15 +109,9 @@ const TrustCenterEvidence = () => {
           <>
             {/* Policies */}
             <TabsContent value="policies" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Plus className="h-4 w-4" />
-                  {isNb ? "Ny policy" : "New policy"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
+              </p>
               {policies.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen retningslinjer registrert ennå." : "No policies registered yet."}</p>
               ) : (
@@ -138,6 +132,7 @@ const TrustCenterEvidence = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {getStatusBadge(doc.status, isNb)}
+                          {getVisibilityIcon(doc.visibility)}
                           <Button variant="ghost" size="sm">
                             <ExternalLink className="h-3.5 w-3.5" />
                           </Button>
@@ -151,15 +146,9 @@ const TrustCenterEvidence = () => {
 
             {/* Certifications */}
             <TabsContent value="certifications" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Plus className="h-4 w-4" />
-                  {isNb ? "Legg til" : "Add"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
+              </p>
               {certifications.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen sertifiseringer registrert ennå." : "No certifications registered yet."}</p>
               ) : (
@@ -196,15 +185,9 @@ const TrustCenterEvidence = () => {
 
             {/* Documents */}
             <TabsContent value="documents" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
-                </p>
-                <Button size="sm" className="gap-1.5">
-                  <Upload className="h-4 w-4" />
-                  {isNb ? "Last opp" : "Upload"}
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
+              </p>
               {documents.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
               ) : (
