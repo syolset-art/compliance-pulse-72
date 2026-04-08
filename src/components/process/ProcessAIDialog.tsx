@@ -44,6 +44,7 @@ import {
    ShieldAlert,
    Check,
    Edit2,
+   Info,
 } from "lucide-react";
 import { getProcessAISuggestion, generateFeatureBasedChecks, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
@@ -1259,19 +1260,26 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                     </div>
                   </div>
 
-                  {/* Key factors from AI */}
+                  {/* Key factors — collapsible */}
                   {riskKeyFactors.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-border/50">
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Nøkkelfaktorer i vurderingen:</p>
-                      <ul className="space-y-1">
-                        {riskKeyFactors.map((factor, i) => (
-                          <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                            <Check className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
-                            <span>{factor}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <Collapsible className="mt-3 pt-3 border-t border-border/50">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-sm text-muted-foreground px-0 h-auto py-1 hover:text-foreground w-full justify-start">
+                          <Info className="h-3.5 w-3.5 mr-1.5" />
+                          Vis nøkkelfaktorer i vurderingen
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pt-2">
+                        <ul className="space-y-1.5">
+                          {riskKeyFactors.map((factor, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                              <Check className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
+                              <span>{factor}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CollapsibleContent>
+                    </Collapsible>
                   )}
                 </div>
               ) : !isGeneratingRisk ? (
