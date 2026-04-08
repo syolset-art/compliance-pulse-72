@@ -761,30 +761,8 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
 
 
 
-                  {/* ── Products & Services link ── */}
-                  {services.length > 0 && (
-                    <section>
-                      <div
-                        className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors cursor-pointer"
-                        onClick={() => navigate("/trust-center/products/public")}
-                      >
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <Package className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-foreground">
-                            {isNb ? "Produkter og tjenester" : "Products & Services"}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {isNb
-                              ? `${services.length} ${services.length === 1 ? "profil" : "profiler"} tilgjengelig`
-                              : `${services.length} ${services.length === 1 ? "profile" : "profiles"} available`}
-                          </p>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                      </div>
-                    </section>
-                  )}
+
+
 
                   {/* ── Sammendrag og kontakt ── */}
                   <section className="space-y-5">
@@ -894,6 +872,23 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                       ))}
                     </div>
                   </section>
+
+                  {/* ── Products & Services — compact link ── */}
+                  {services.length > 0 && (
+                    <div className="border-t border-border pt-4">
+                      <button
+                        onClick={() => navigate("/trust-center/products/public")}
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Package className="h-4 w-4" />
+                        <span>
+                          {isNb ? "Produkter og tjenester" : "Products & Services"}
+                          <span className="ml-1.5 text-xs">({services.length})</span>
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
