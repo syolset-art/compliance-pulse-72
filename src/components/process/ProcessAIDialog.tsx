@@ -81,6 +81,7 @@ interface ChecklistItem {
   status?: 'ok' | 'action_required' | 'needs_clarification';
   isCustom?: boolean;
   systems?: string[];
+  comment?: string;
 }
 
 const STEPS = [
@@ -1109,6 +1110,25 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                             </div>
                           )}
                         </div>
+                        {/* Comment field for "Ja" on documentation-related questions */}
+                        {item.answer === 'yes' && /dokumentert|dokumentasjon|dokumenter|loggføring|registrert/i.test(item.question) && (
+                          <div className="px-3 py-2.5 border border-t-0 bg-green-50/50 dark:bg-green-950/10 space-y-1.5">
+                            <Label className="text-xs font-medium flex items-center gap-1.5 text-green-800 dark:text-green-300">
+                              <FileText className="h-3.5 w-3.5" />
+                              Beskriv dokumentasjonen (hva og hvor)
+                            </Label>
+                            <Input
+                              value={item.comment || ''}
+                              onChange={(e) => {
+                                setChecklist(checklist.map(c =>
+                                  c.id === item.id ? { ...c, comment: e.target.value } : c
+                                ));
+                              }}
+                              placeholder="F.eks. «Intern rutinebeskrivelse i Confluence, oppdatert mars 2026»"
+                              className="text-xs h-8"
+                            />
+                          </div>
+                        )}
                         {item.answer === 'yes' && linkedSystems && linkedSystems.length > 0 && (
                           <div className="flex items-center gap-2 px-3 py-2 border border-t-0 rounded-b-lg bg-muted/30 flex-wrap">
                             <Server className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
