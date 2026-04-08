@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Shield, Settings, KeyRound, Users } from "lucide-react";
+import { Shield, Settings, KeyRound, Users, FileText } from "lucide-react";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const PILLARS = [
   { key: "operations", icon: Settings, label_no: "Drift", label_en: "Operations" },
   { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
   { key: "supplier_ecosystem", icon: Users, label_no: "Leverandør og økosystem", label_en: "Supplier & Ecosystem" },
+  { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
 ] as const;
 
 function maturityLabel(percent: number, isNb: boolean) {
