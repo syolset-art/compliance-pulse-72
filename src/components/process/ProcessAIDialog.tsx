@@ -966,29 +966,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
 
               {checklist.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Ingen spesifikke sjekkpunkter for denne prosesstypen</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => {
-                        const featureChecks = generateFeatureBasedChecks(
-                        aiFeatures.filter(f => f.selected).map(f => f.name)
-                      );
-                      if (featureChecks.length > 0) {
-                        setChecklist(featureChecks.map((c, i) => ({
-                          id: `gen-${i}`, question: c.question, helpText: c.helpText,
-                          consequence: c.consequence, aiActReference: c.aiActReference,
-                          responsibility: c.responsibility, suggestedAction: c.suggestedAction,
-                          answer: null,
-                        })));
-                      }
-                    }}
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generer sjekkpunkter fra funksjoner
-                  </Button>
+                  <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">Ingen spesifikke sjekkpunkter for valgte funksjoner.</p>
+                  <p className="text-sm text-muted-foreground mt-1">Du kan legge til egne sjekkpunkter nedenfor.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
