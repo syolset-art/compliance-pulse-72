@@ -95,8 +95,9 @@ const AssetTrustProfile = () => {
 
   const isSelf = asset?.asset_type === 'self';
   const isHardware = asset?.asset_type === 'hardware';
+  const isVendor = !isSelf && !isHardware;
 
-  const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : "validation");
+  const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : (isVendor ? "overview" : "validation"));
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
