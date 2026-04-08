@@ -347,44 +347,8 @@ export function TrustControlsPanel({
         </div>
       </Card>
 
-      {/* ━━━ Regulatory Scope + Risk ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ Risk ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-4 space-y-4">
-        {/* Frameworks */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Gjeldende regelverk" : "Regulatory Scope"}
-            </h3>
-            {asset.asset_type === "self" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground gap-1"
-                onClick={() => navigate("/trust-center/regulations")}
-              >
-                <Pencil className="h-2.5 w-2.5" />
-                {isNb ? "Rediger" : "Edit"}
-              </Button>
-            )}
-          </div>
-          {frameworks.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {frameworks.map((fw) => (
-                <span
-                  key={fw.framework_id}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
-                >
-                  <FileCheck className="h-2.5 w-2.5" />
-                  {fw.framework_name}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground/60 italic">
-              {isNb ? "Ingen rammeverk valgt ennå" : "No frameworks selected yet"}
-            </p>
-          )}
-        </div>
 
         {/* Risk */}
         <div>
