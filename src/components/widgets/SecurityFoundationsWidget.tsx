@@ -33,7 +33,7 @@ export function SecurityFoundationsWidget() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" />
-            Security Foundations
+            {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
           </CardTitle>
           <Badge variant="outline" className="text-[10px] h-5">
             {isNb ? "Demodata" : "Demo data"}

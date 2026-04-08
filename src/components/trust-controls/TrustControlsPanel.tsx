@@ -253,7 +253,7 @@ export function TrustControlsPanel({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {/* ━━━ Security Foundations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* ━━━ Sikkerhet og kontroller ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-4 md:col-span-2">
         <div className="flex items-center gap-2.5 mb-1">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -261,7 +261,7 @@ export function TrustControlsPanel({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">Security Foundations</h3>
+              <h3 className="text-sm font-semibold text-foreground">{isNb ? "Sikkerhet og kontroller" : "Security and Controls"}</h3>
               <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-warning/50 text-warning">Demodata</Badge>
               <span className="text-xs text-muted-foreground ml-auto">{totalImplemented}/{allControls.length} {isNb ? "kontroller dokumentert" : "controls documented"}</span>
             </div>
