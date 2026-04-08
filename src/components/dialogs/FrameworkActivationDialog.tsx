@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
 
 interface FrameworkActivationDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ export function FrameworkActivationDialog({
   onOpenChat,
 }: FrameworkActivationDialogProps) {
   const { t } = useTranslation();
+  const { openChatWithMessage } = useGlobalChat();
 
   if (!framework) return null;
 
@@ -39,9 +41,11 @@ export function FrameworkActivationDialog({
 
   const handleAskLara = () => {
     onOpenChange(false);
-    const message = t("chatPanel.helpWithDomain", { domain: framework.name });
+    const message = `Hjelp meg å etablere en baseline for ${framework.name}. Hva er de viktigste kravene jeg må dokumentere?`;
     if (onOpenChat) {
       onOpenChat(message);
+    } else {
+      openChatWithMessage(message);
     }
   };
 
