@@ -175,8 +175,8 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="relative">
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Søk etter tittel eller formål"
@@ -185,34 +185,11 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
             className="pl-10"
           />
         </div>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrer etter behandlingsgrunnlag" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="consent">Samtykke</SelectItem>
-            <SelectItem value="contract">Avtale</SelectItem>
-            <SelectItem value="legal">Rettslig forpliktelse</SelectItem>
-            <SelectItem value="legitimate">Berettiget interesse</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrer etter arbeidsområde" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle arbeidsområder</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <Select
           value={riskFilter}
           onValueChange={setRiskFilter}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filtrer etter risikonivå" />
           </SelectTrigger>
           <SelectContent>
@@ -220,24 +197,6 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
             <SelectItem value="low">Lav risiko</SelectItem>
             <SelectItem value="medium">Moderat risiko</SelectItem>
             <SelectItem value="high">Høy risiko</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrer etter databehandlere" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle databehandlere</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Filtrer etter sensitivitet" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="ordinary">Ordinær</SelectItem>
-            <SelectItem value="special">Særlig kategori</SelectItem>
           </SelectContent>
         </Select>
       </div>
