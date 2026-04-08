@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, AlertTriangle, CheckCircle, Clock, AlertCircle, RefreshCw, ShieldAlert, CheckCircle2, X } from "lucide-react";
+import { Plus, AlertTriangle, CheckCircle, Clock, AlertCircle, RefreshCw, ShieldAlert, CheckCircle2, X, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { toast } from "sonner";
+import { EditDeviationDialog } from "@/components/dialogs/EditDeviationDialog";
 
 interface IncidentManagementTabProps {
   assetId: string;
@@ -40,6 +42,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
+  const [editingIncident, setEditingIncident] = useState<any>(null);
 
   const { data: incidents } = useQuery({
     queryKey: ["system-incidents", assetId],
@@ -319,8 +322,10 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                   <TableHead>{isNb ? "Kilde" : "Source"}</TableHead>
                   <TableHead>{t("trustProfile.riskLevel")}</TableHead>
                   <TableHead>{t("trustProfile.responsible")}</TableHead>
-                  <TableHead>{t("trustProfile.lastUpdated")}</TableHead>
+                  <TableHead>{isNb ? "Oppdaget" : "Discovered"}</TableHead>
+                  <TableHead>{isNb ? "Frist" : "Due"}</TableHead>
                   <TableHead>{t("trustProfile.status")}</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -333,6 +338,9 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                           <p className="text-sm text-muted-foreground truncate max-w-xs">
                             {incident.description}
                           </p>
+                        )}
+                        {incident.category && (
+                          <Badge variant="outline" className="text-[10px] mt-1">{incident.category}</Badge>
                         )}
                       </div>
                     </TableCell>
@@ -347,12 +355,36 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                     </TableCell>
                     <TableCell>{getRiskLevelBadge(incident.risk_level)}</TableCell>
                     <TableCell>{incident.responsible || "-"}</TableCell>
-                    <TableCell>{formatDate(incident.last_updated)}</TableCell>
+                    <TableCell className="text-sm">
+                      {incident.discovered_at
+                        ? format(new Date(incident.discovered_at), "dd.MM.yyyy", { locale: nb })
+                        : formatDate(incident.created_at)}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {incident.due_date ? (
+                        <span className={new Date(incident.due_date) < new Date() ? "text-destructive font-medium" : ""}>
+                          {format(new Date(incident.due_date), "dd.MM.yyyy", { locale: nb })}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(incident.status)}
                         <span className="text-sm capitalize">{incident.status}</span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setEditingIncident(incident)}
+                        title={isNb ? "Rediger avvik" : "Edit deviation"}
+                      >
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -363,6 +395,12 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
           )}
         </CardContent>
       </Card>
+
+      <EditDeviationDialog
+        open={!!editingIncident}
+        onOpenChange={(open) => !open && setEditingIncident(null)}
+        incident={editingIncident}
+      />
     </div>
   );
 };
