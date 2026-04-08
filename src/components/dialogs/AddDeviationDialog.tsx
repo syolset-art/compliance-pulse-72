@@ -709,11 +709,11 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
 
               {/* Info when user selects themselves */}
               {formData.responsible === "__myself__" && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-accent/50 border border-border">
+                  <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium text-blue-800 dark:text-blue-300">Du er tiltaksansvarlig</p>
-                    <p className="text-blue-700 dark:text-blue-400 mt-0.5">
+                    <p className="font-medium text-foreground">Du er tiltaksansvarlig</p>
+                    <p className="text-muted-foreground mt-0.5">
                       Etter opprettelse vil du kunne se foreslåtte tiltak og starte arbeidet med å rapportere på disse.
                     </p>
                   </div>
