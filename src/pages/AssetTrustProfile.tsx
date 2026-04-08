@@ -28,6 +28,9 @@ import { NIS2AssessmentTab } from "@/components/devices/NIS2AssessmentTab";
 import { OrganizationServicesPanel } from "@/components/asset-profile/OrganizationServicesPanel";
 import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
+import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOverviewTab";
+import { VendorRiskAuditTab } from "@/components/asset-profile/tabs/VendorRiskAuditTab";
+import { VendorDocumentsTab } from "@/components/asset-profile/tabs/VendorDocumentsTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
