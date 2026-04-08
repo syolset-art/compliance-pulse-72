@@ -490,6 +490,48 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
     }
   };
 
+  const suggestProcessRisk = async () => {
+    setIsGeneratingRisk(true);
+    try {
+      const selectedFeatureNames = aiFeatures.filter(f => f.selected).map(f => f.name);
+      
+      // Build checklist summary
+      const checklistSummary = checklist
+        .filter(c => c.answer)
+        .map(c => {
+          const answerLabel = c.answer === 'yes' ? 'Ja' : c.answer === 'no' ? 'Nei' : 'Vet ikke';
+          return `- ${c.question}: ${answerLabel}`;
+        })
+        .join('\n');
+
+      const { data, error } = await supabase.functions.invoke('suggest-process-risk', {
+        body: {
+          processName,
+          processDescription,
+          aiPurpose,
+          aiFeatures: selectedFeatureNames,
+          checklistSummary: checklistSummary || undefined,
+          affectedPersons,
+          automatedDecisions,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.risk_category) {
+        setRiskCategory(data.risk_category);
+        setRiskAutoSuggested(true);
+        if (data.reasoning) setRiskJustification(data.reasoning);
+        if (data.key_factors) setRiskKeyFactors(data.key_factors);
+        toast.success('Lara har foreslått et risikonivå basert på din registrering');
+      }
+    } catch (e) {
+      console.error('suggest-process-risk error:', e);
+      toast.error('Kunne ikke foreslå risikonivå automatisk. Velg manuelt nedenfor.');
+    } finally {
+      setIsGeneratingRisk(false);
+    }
+  };
+
   const addCustomFeature = () => {
     if (customFeature.trim()) {
       setAiFeatures([...aiFeatures, { id: `custom-${Date.now()}`, name: customFeature.trim(), selected: true }]);
