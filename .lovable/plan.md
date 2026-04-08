@@ -1,43 +1,64 @@
 
 
-## Plan: Arbeidsområde-tilknytning og tiltaksansvarlig i avviksdialogen
+## Plan: Konsekvensvarsel og tiltak ved «Nei» / «Vet ikke» i KI-sjekklisten
 
-### Oversikt
-Utvide "Legg til avvik"-dialogen slik at brukeren kan knytte avviket til arbeidsområder, velge tiltaksansvarlig basert på arbeidsområdenes ansvarlige personer, og eventuelt sette seg selv som tiltaksansvarlig for å se foreslåtte tiltak.
+### Hva endres
 
-### Endringer
+Når brukeren svarer **Nei** eller **Vet ikke** på et sjekklistepunkt, vises umiddelbart et kontekstuelt varsel som inneholder:
 
-**1. Nytt steg/seksjon i AddDeviationDialog.tsx (confirm-steget)**
+1. **Mulige hendelser/konsekvenser** — hva kan gå galt (f.eks. «Brudd på AI Act Art. 50 — risiko for bøter opptil 3% av omsetning»)
+2. **Ansvarsplassering iht. AI Act** — hvem har ansvaret (tilbyder, bruker, importør)
+3. **Tiltaksforslag** — konkret handling som bør gjennomføres
+4. **Rapportflagg** — markering om at dette blir synlig som et åpent tiltak i samsvarsrapporten
 
-- Legg til et spørsmål: "Er avviket tilknyttet arbeidsområder?" med tre valg:
-  - **Alle arbeidsområder**
-  - **Spesifikke arbeidsområder** (viser multi-select med arbeidsområder fra `work_areas`-tabellen)
-  - **Ingen spesifikke**
-- Hent arbeidsområder via `useQuery` fra `work_areas`-tabellen (id, name, responsible_person)
-- Når spesifikke arbeidsområder velges, populer "Tiltaksansvarlig"-dropdown med `responsible_person` fra de valgte arbeidsområdene (deduplisert)
-- Endre label fra "Ansvarlig" til "Tiltaksansvarlig"
-- Legg til en "Meg selv"-knapp/valg som setter innlogget bruker som tiltaksansvarlig
-- Når brukeren setter seg selv som tiltaksansvarlig, vis en info-boks med tekst om at foreslåtte tiltak vil bli tilgjengelige etter opprettelse
+### Tekniske endringer
 
-**2. Database: Nye kolonner på system_incidents**
+**1. Utvide `FEATURE_CHECKLIST_MAP` i `src/lib/processAISuggestions.ts`**
 
-- `work_area_scope` (text, default null) — verdier: `all`, `specific`, `none`
-- `linked_work_area_ids` (uuid[], default '{}') — liste over tilknyttede arbeidsområder
+Hvert sjekkpunkt får nye felter i tillegg til `question` og `helpText`:
 
-**3. Lagring**
+```text
+consequence: string     — Hva kan skje ved manglende etterlevelse
+aiActReference: string  — Artikkelhenvisning i AI Act
+responsibility: string  — Hvem har ansvaret (tilbyder/bruker/begge)
+suggestedAction: string — Konkret tiltak
+```
 
-- Oppdater insert-logikken til å inkludere `work_area_scope` og `linked_work_area_ids`
-- Feltet `responsible` brukes fortsatt for tiltaksansvarlig
+**2. Oppdatere `ChecklistItem`-interface i `ProcessAIDialog.tsx`**
 
-**4. Oppdater formData state**
+Legge til de nye feltene slik at de følger med fra generering til visning.
 
-- Legg til `workAreaScope: "none" | "all" | "specific"`
-- Legg til `linkedWorkAreaIds: string[]`
-- Oppdater reset-logikk i `handleClose`
+**3. Ny UI-blokk for «Nei» og «Vet ikke» i sjekklisten**
 
-### Tekniske detaljer
+- **Nei**: Rød varselblokk med konsekvens, AI Act-referanse, ansvar og foreslått tiltak. Badge: «Kommer i rapport som åpent tiltak».
+- **Vet ikke**: Beholder eksisterende gul hjelpetekst, men legger til en mildere versjon av konsekvens og anbefaling om å avklare.
 
-- Arbeidsområder hentes med: `supabase.from("work_areas").select("id, name, responsible_person")`
-- Tiltaksansvarlig-listen bygges dynamisk fra valgte arbeidsområders `responsible_person` + hardkodet personliste + "Meg selv"
-- DB-migrasjon: `ALTER TABLE system_incidents ADD COLUMN work_area_scope text, ADD COLUMN linked_work_area_ids uuid[] DEFAULT '{}'`
+**4. Lagre flaggede tiltak ved fullføring**
+
+Når veiviseren fullføres, inkluderes sjekkpunkter med «Nei»/«Vet ikke» i `compliance_checklist`-feltet med status `action_required` / `needs_clarification`, slik at rapporten kan plukke dem opp.
+
+**5. Erstatte «AI» med «KI» i alle norske strenger**
+
+Alle brukersynlige tekster i de berørte filene oppdateres til å bruke «KI» i stedet for «AI».
+
+### Eksempel på brukeropplevelse
+
+Spørsmål: *«Informeres brukerne om at de kommuniserer med KI?»*
+Bruker svarer **Nei** →
+
+```text
+⚠️ Mulig konsekvens
+Brudd på KI-forordningen Art. 50 — brukere har rett til å vite
+at de samhandler med et KI-system. Manglende informasjon kan
+medføre bøter opptil 3% av global omsetning.
+
+📋 Ansvar: Tilbyder (deployer) av KI-systemet
+🔧 Foreslått tiltak: Implementer tydelig merking i brukergrensesnittet
+
+🔴 Dette vil vises som et åpent tiltak i samsvarsrapporten
+```
+
+### Berørte filer
+- `src/lib/processAISuggestions.ts` — utvide datamodell med konsekvenser og ansvar
+- `src/components/process/ProcessAIDialog.tsx` — ny UI for Nei/Vet ikke, oppdatere interface og lagring
 
