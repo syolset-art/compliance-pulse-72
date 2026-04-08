@@ -40,7 +40,11 @@ import {
   Building2,
   Network,
   Package,
-  ExternalLink
+  ExternalLink,
+  X,
+  Layers,
+  ClipboardList,
+  Handshake
 } from "lucide-react";
 import { useNavigationMode } from "@/hooks/useNavigationMode";
 import { useTranslation } from "react-i18next";
@@ -129,6 +133,7 @@ export default function WorkAreas() {
   const [activeWorkAreaTab, setActiveWorkAreaTab] = useState("assets");
   const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
   const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
+  const [introDismissed, setIntroDismissed] = useState(() => localStorage.getItem("workarea-intro-dismissed") === "true");
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
