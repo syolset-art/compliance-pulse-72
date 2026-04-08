@@ -949,7 +949,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
               {/* ── Compact horizontal risk selector ── */}
               <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">
-                  {riskCategory ? 'Endre klassifisering:' : 'Velg risikonivå:'}
+                  Velg risikonivå:
                 </Label>
                 <AIRiskSelector
                   selectedRisk={riskCategory}
