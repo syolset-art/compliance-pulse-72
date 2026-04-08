@@ -212,6 +212,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: "medium",
       responsible: "",
       frameworks: selectedCategory?.defaultFrameworks || [],
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     setStep("confirm");
   };
