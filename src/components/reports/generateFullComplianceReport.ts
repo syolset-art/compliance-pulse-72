@@ -70,7 +70,7 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
 
   // Pillar summary table
   autoTable(doc, {
-    startY: 50,
+    startY: summaryEndY + 6,
     head: [["Kategori", "Score", "Nivå", "Målepunkter"]],
     body: data.pillars.map((p) => [p.name, `${p.score}%`, p.level, String(p.measures)]),
     styles: { fontSize: 9, cellPadding: 3 },

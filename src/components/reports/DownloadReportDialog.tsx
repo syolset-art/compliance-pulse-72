@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Download, Loader2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateFullComplianceReport } from "./generateFullComplianceReport";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PillarData {
   name: string;
@@ -69,13 +70,18 @@ export const DownloadReportDialog = ({
   const [includeEvaluators, setIncludeEvaluators] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+
+  useEffect(() => {
+    supabase.from("company_profile").select("name").limit(1).maybeSingle()
+      .then(({ data }) => { if (data?.name) setCompanyName(data.name); });
+  }, []);
 
   const handleDownload = async () => {
     setGenerating(true);
     try {
-      // Small delay so UI updates
       await new Promise((r) => setTimeout(r, 100));
-      generateFullComplianceReport(reportData, { includeRequirements, includeEvaluators });
+      generateFullComplianceReport(reportData, { includeRequirements, includeEvaluators }, companyName);
       setDone(true);
       toast({ title: "PDF generert", description: "Rapporten er lastet ned." });
       setTimeout(() => {
