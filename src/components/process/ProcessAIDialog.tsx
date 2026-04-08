@@ -1059,8 +1059,15 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           {currentStep === 3 && hasAI && (
             <div className="space-y-5">
 
+              <div>
+                <Label className="text-base font-medium">Risikovurdering</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Lara har foreslått et risikonivå basert på AI-funksjoner og prosesstype
+                </p>
+              </div>
+
               {/* ── Result card: prominent risk classification ── */}
-              {riskCategory && selectedRiskLevel && (
+              {riskCategory && selectedRiskLevel ? (
                 <div className={`p-4 rounded-lg border-2 ${
                   riskCategory === 'unacceptable' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' :
                   riskCategory === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' :
@@ -1075,7 +1082,12 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                       {riskCategory === 'minimal' && <CheckCircle2 className="h-6 w-6" />}
                     </div>
                     <div className="flex-1">
-                      <p className="text-lg font-bold">{selectedRiskLevel.label}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg font-bold">{selectedRiskLevel.label}</p>
+                        {isFieldAutoFilled('risk_category', riskCategory) && (
+                          <AIGeneratedBadge variant="suggested" size="sm" />
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {riskCategory === 'unacceptable' && 'Forbudt under AI Act — må avvikles umiddelbart.'}
                         {riskCategory === 'high' && 'Strenge krav: samsvarsvurdering, risikovurdering og løpende overvåking.'}
@@ -1083,10 +1095,13 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                         {riskCategory === 'minimal' && 'Frivillige retningslinjer — ingen obligatoriske krav.'}
                       </p>
                     </div>
-                    {isFieldAutoFilled('risk_category', riskCategory) && (
-                      <AIGeneratedBadge variant="suggested" size="sm" />
-                    )}
                   </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center">
+                  <Shield className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">Ingen risikovurdering foreslått ennå</p>
+                  <p className="text-xs text-muted-foreground mt-1">Velg et risikonivå nedenfor</p>
                 </div>
               )}
 
