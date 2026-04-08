@@ -680,7 +680,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
                         const score = evaluation?.areaScore(area) ?? 0;
-                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-primary" : "bg-destructive";
+                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
                         const isExpanded = expandedArea === area;
                         const areaControls = evaluation?.grouped[area] ?? [];
 

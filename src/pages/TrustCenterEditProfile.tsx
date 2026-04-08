@@ -650,7 +650,7 @@ const TrustCenterEditProfile = () => {
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-primary" : "bg-destructive"}`}
+                            className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"}`}
                             style={{ width: `${score}%` }}
                           />
                         </div>
