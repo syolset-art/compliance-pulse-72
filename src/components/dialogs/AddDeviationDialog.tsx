@@ -169,6 +169,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         processes_count: 0,
         due_date: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd") : null,
         discovered_at: format(formData.discoveredAt, "yyyy-MM-dd"),
+        work_area_scope: formData.workAreaScope,
+        linked_work_area_ids: formData.linkedWorkAreaIds,
       });
       if (error) throw error;
     },
