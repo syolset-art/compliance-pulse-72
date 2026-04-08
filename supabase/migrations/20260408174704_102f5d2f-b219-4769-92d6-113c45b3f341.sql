@@ -1,0 +1,1 @@
+ALTER TABLE public.system_incidents ADD COLUMN discovered_at date DEFAULT CURRENT_DATE;
