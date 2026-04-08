@@ -169,7 +169,35 @@ export default function WorkAreas() {
     enabled: !!selectedWorkArea?.id,
   });
 
-  const { data: ownedAssets = [] } = useQuery({
+  // Fetch all assets with work_area_id to compute risk per work area
+  const { data: allWorkAreaAssets = [] } = useQuery({
+    queryKey: ["all-work-area-assets-risk"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("work_area_id, risk_level");
+      if (error) throw error;
+      return (data || []) as { work_area_id: string | null; risk_level: string | null }[];
+    },
+  });
+
+  // Compute highest risk per work area
+  const workAreaRiskMap = useMemo(() => {
+    const riskOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+    const map: Record<string, string> = {};
+    for (const asset of allWorkAreaAssets) {
+      if (!asset.work_area_id) continue;
+      const current = map[asset.work_area_id];
+      const currentLevel = current ? (riskOrder[current] || 0) : 0;
+      const newLevel = riskOrder[asset.risk_level || ""] || 0;
+      if (newLevel > currentLevel) {
+        map[asset.work_area_id] = asset.risk_level!;
+      }
+    }
+    return map;
+  }, [allWorkAreaAssets]);
+
+
     queryKey: ["work-area-assets-owned", selectedWorkArea?.id],
     queryFn: async () => {
       if (!selectedWorkArea?.id) return [];
