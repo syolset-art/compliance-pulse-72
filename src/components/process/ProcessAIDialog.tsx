@@ -1390,91 +1390,87 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
           {currentStep === 4 && hasAI && (
             <div className="space-y-5">
 
-              {/* Minimal risk: no requirements */}
-              {riskCategory === 'minimal' ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <CheckCircle2 className="h-10 w-10 text-green-500 mb-3" />
-                  <p className="font-medium">Ingen obligatoriske transparenskrav</p>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                    For minimal risiko anbefales det likevel å informere brukere om KI-bruk som god praksis.
+              {riskCategory === 'minimal' && (
+                <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                  <p className="text-sm text-muted-foreground">
+                    Ingen obligatoriske transparenskrav for minimal risiko. Anbefales likevel som god praksis.
                   </p>
                 </div>
-              ) : (
-                <>
-                  <StepContextSummary>
-                    Svar på tre enkle påstander om hvordan KI brukes i denne prosessen.
-                  </StepContextSummary>
-
-                  {/* Toggle 1: Users know about AI */}
-                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-                    <div className="space-y-0.5 pr-4">
-                      <Label htmlFor="transparency-toggle" className="text-sm font-medium cursor-pointer">
-                        Brukerne vet at de interagerer med AI
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        F.eks. via informasjonsbanner, personvernerklæring eller muntlig informasjon
-                      </p>
-                    </div>
-                    <Switch
-                      id="transparency-toggle"
-                      checked={transparencyStatus === 'implemented'}
-                      onCheckedChange={(checked) => setTransparencyStatus(checked ? 'implemented' : 'required')}
-                    />
-                  </div>
-
-                  {/* Toggle 2: Someone can override */}
-                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-                    <div className="space-y-0.5 pr-4">
-                      <Label htmlFor="oversight-toggle" className="text-sm font-medium cursor-pointer">
-                        Noen kan overstyre KI-beslutninger
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        En person kan korrigere, avvise eller endre det AI-en foreslår
-                      </p>
-                    </div>
-                    <Switch
-                      id="oversight-toggle"
-                      checked={humanOversightRequired}
-                      onCheckedChange={setHumanOversightRequired}
-                    />
-                  </div>
-
-                  {/* Toggle 3: Automated decisions */}
-                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-                    <div className="space-y-0.5 pr-4">
-                      <Label htmlFor="automated-toggle" className="text-sm font-medium cursor-pointer">
-                        KI tar beslutninger uten at en person ser over
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        AI-en handler automatisk uten at et menneske godkjenner først
-                      </p>
-                    </div>
-                    <Switch
-                      id="automated-toggle"
-                      checked={automatedDecisions}
-                      onCheckedChange={setAutomatedDecisions}
-                    />
-                  </div>
-
-                  {/* Collapsible: optional description */}
-                  <Collapsible>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
-                        <Edit2 className="h-3.5 w-3.5 mr-1" />
-                        Legg til beskrivelse (valgfritt)
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-2 space-y-3">
-                      <Textarea
-                        value={transparencyDescription}
-                        onChange={(e) => setTransparencyDescription(e.target.value)}
-                        placeholder="Utdyp eventuelt hvordan transparens og tilsyn håndteres..."
-                        rows={3}
-                      />
-                    </CollapsibleContent>
-                  </Collapsible>
-                </>
               )}
+
+              <StepContextSummary>
+                Svar på tre enkle påstander om hvordan KI brukes i denne prosessen.
+              </StepContextSummary>
+
+              {/* Toggle 1: Users know about AI */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                <div className="space-y-0.5 pr-4">
+                  <Label htmlFor="transparency-toggle" className="text-sm font-medium cursor-pointer">
+                    Brukerne vet at de interagerer med AI
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    F.eks. via informasjonsbanner, personvernerklæring eller muntlig informasjon
+                  </p>
+                </div>
+                <Switch
+                  id="transparency-toggle"
+                  checked={transparencyStatus === 'implemented'}
+                  onCheckedChange={(checked) => setTransparencyStatus(checked ? 'implemented' : 'required')}
+                />
+              </div>
+
+              {/* Toggle 2: Someone can override */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                <div className="space-y-0.5 pr-4">
+                  <Label htmlFor="oversight-toggle" className="text-sm font-medium cursor-pointer">
+                    Noen kan overstyre KI-beslutninger
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    En person kan korrigere, avvise eller endre det AI-en foreslår
+                  </p>
+                </div>
+                <Switch
+                  id="oversight-toggle"
+                  checked={humanOversightRequired}
+                  onCheckedChange={setHumanOversightRequired}
+                />
+              </div>
+
+              {/* Toggle 3: Automated decisions */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                <div className="space-y-0.5 pr-4">
+                  <Label htmlFor="automated-toggle" className="text-sm font-medium cursor-pointer">
+                    KI tar beslutninger uten at en person ser over
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    AI-en handler automatisk uten at et menneske godkjenner først
+                  </p>
+                </div>
+                <Switch
+                  id="automated-toggle"
+                  checked={automatedDecisions}
+                  onCheckedChange={setAutomatedDecisions}
+                />
+              </div>
+
+              {/* Collapsible: optional description */}
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                    <Edit2 className="h-3.5 w-3.5 mr-1" />
+                    Legg til beskrivelse (valgfritt)
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2 space-y-3">
+                  <Textarea
+                    value={transparencyDescription}
+                    onChange={(e) => setTransparencyDescription(e.target.value)}
+                    placeholder="Utdyp eventuelt hvordan transparens og tilsyn håndteres..."
+                    rows={3}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           )}
 
