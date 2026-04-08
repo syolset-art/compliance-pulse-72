@@ -81,6 +81,7 @@ interface ChecklistItem {
   status?: 'ok' | 'action_required' | 'needs_clarification';
   isCustom?: boolean;
   systems?: string[];
+  comment?: string;
 }
 
 const STEPS = [
