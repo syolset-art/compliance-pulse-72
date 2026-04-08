@@ -216,7 +216,10 @@ const TrustCenterEvidence = () => {
                             </p>
                           </div>
                         </div>
-                        {getStatusBadge(doc.status, isNb)}
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(doc.status, isNb)}
+                          {getVisibilityIcon(doc.visibility)}
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
