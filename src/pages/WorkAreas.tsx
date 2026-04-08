@@ -591,12 +591,62 @@ export default function WorkAreas() {
             )}
           </div>
 
-          {/* Filter Button */}
-          <div className="mb-3 sm:mb-4">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" />
-              {t("myWorkAreas.filter")}
-            </Button>
+          {/* Filters */}
+          <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 items-center">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            
+            {/* Ownership filter */}
+            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+              {([
+                { value: "all", label: "Alle" },
+                { value: "mine", label: "Mine" },
+                { value: "member", label: "Medlem" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setOwnershipFilter(opt.value)}
+                  className={cn(
+                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
+                    ownershipFilter === opt.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Risk filter */}
+            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+              {([
+                { value: "all", label: "Alle risikonivåer" },
+                { value: "high", label: "Høy risiko" },
+                { value: "low", label: "Lav risiko" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setRiskFilter(opt.value)}
+                  className={cn(
+                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
+                    riskFilter === opt.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {(ownershipFilter !== "all" || riskFilter !== "all") && (
+              <button
+                onClick={() => { setOwnershipFilter("all"); setRiskFilter("all"); }}
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                Nullstill
+              </button>
+            )}
           </div>
 
           {/* Work Area Chips - Horizontal scroll on mobile */}
