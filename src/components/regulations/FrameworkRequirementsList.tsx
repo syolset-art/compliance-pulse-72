@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -16,6 +18,7 @@ import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
+import { MessageSquare, Save, Pencil } from "lucide-react";
 
 type DemoStatus = "not_met" | "partial" | "met";
 
@@ -55,6 +58,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
+  const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [draftNote, setDraftNote] = useState<string>("");
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Handle highlight from chart event click
@@ -194,6 +200,72 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     }`}>
                       {state.status === "met" ? "Oppfylt" : state.status === "partial" ? "Delvis oppfylt" : "Ikke oppfylt"}
                     </p>
+
+                    {/* Inline note for partial status */}
+                    {state.status === "partial" && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                          <CircleAlert className="h-4 w-4 text-amber-500 shrink-0" />
+                          <span className="text-sm text-amber-700 dark:text-amber-400">
+                            Delvis oppfylt — legg til et notat om hva som gjenstår.
+                          </span>
+                        </div>
+                        {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
+                          <div className="p-3 rounded-lg bg-muted/50 border">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2 min-w-0">
+                                <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{reqNotes[req.requirement_id]}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 gap-1 text-xs shrink-0"
+                                onClick={() => {
+                                  setEditingNoteId(req.requirement_id);
+                                  setDraftNote(reqNotes[req.requirement_id]);
+                                }}
+                              >
+                                <Pencil className="h-3 w-3" />
+                                Rediger
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editingNoteId === req.requirement_id ? draftNote : draftNote}
+                              onChange={(e) => setDraftNote(e.target.value)}
+                              placeholder="Legg til notat om hva som gjenstår..."
+                              className="min-h-[80px] text-sm"
+                              onFocus={() => {
+                                if (editingNoteId !== req.requirement_id) {
+                                  setEditingNoteId(req.requirement_id);
+                                  setDraftNote(reqNotes[req.requirement_id] || "");
+                                }
+                              }}
+                            />
+                            <div className="flex justify-end">
+                              <Button
+                                size="sm"
+                                className="h-8 gap-1.5 text-xs"
+                                disabled={!draftNote.trim()}
+                                onClick={() => {
+                                  setReqNotes((prev) => ({ ...prev, [req.requirement_id]: draftNote.trim() }));
+                                  setEditingNoteId(null);
+                                  setDraftNote("");
+                                  toast.success("Notat lagret", { description: `Notat for ${req.name_no} er oppdatert` });
+                                }}
+                              >
+                                <Save className="h-3.5 w-3.5" />
+                                Lagre notat
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {state.status !== "met" && (
                       <Button
                         className="w-full gap-2"
