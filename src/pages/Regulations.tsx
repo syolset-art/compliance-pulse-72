@@ -242,7 +242,7 @@ const Regulations = () => {
               <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
                 Regelverk og etterlevelse
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
-                  {activeFrameworks.length}
+                  {allActiveFrameworks.length}
                 </span>
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -254,6 +254,33 @@ const Regulations = () => {
               Rediger aktive regelverk
             </Button>
           </div>
+
+          {/* Category filter */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Button
+              variant={categoryFilter === null ? "default" : "outline"}
+              size="sm"
+              className="text-xs h-8"
+              onClick={() => setCategoryFilter(null)}
+            >
+              Alle ({allActiveFrameworks.length})
+            </Button>
+            {categories.filter(c => allActiveFrameworks.some(fw => fw.category === c.id)).map((cat) => {
+              const count = allActiveFrameworks.filter(fw => fw.category === cat.id).length;
+              const CatIcon = cat.icon;
+              return (
+                <Button
+                  key={cat.id}
+                  variant={categoryFilter === cat.id ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-8 gap-1.5"
+                  onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
+                >
+                  <CatIcon className="h-3.5 w-3.5" />
+                  {cat.name} ({count})
+                </Button>
+              );
+            })}
 
           {/* Framework chip selector */}
           {activeFrameworks.length > 0 ? (
