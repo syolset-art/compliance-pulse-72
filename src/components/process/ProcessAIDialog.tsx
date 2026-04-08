@@ -67,10 +67,14 @@ interface AIFeature {
   selected: boolean;
 }
 
+type ChecklistAnswer = 'yes' | 'no' | 'unsure' | null;
+
 interface ChecklistItem {
   id: string;
   question: string;
-  checked: boolean;
+  answer: ChecklistAnswer;
+  helpText?: string;
+  isCustom?: boolean;
   systems?: string[];
 }
 
