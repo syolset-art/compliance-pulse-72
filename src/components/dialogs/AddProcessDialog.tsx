@@ -146,6 +146,7 @@ export function AddProcessDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["work-area-processes", workAreaId] });
+      queryClient.invalidateQueries({ queryKey: ["wa-processing-activities", workAreaId] });
       toast({
         title: t("common.success"),
         description: "Prosess(er) ble opprettet",
