@@ -1190,12 +1190,24 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
               <div>
                 <Label className="text-base font-medium">Risikovurdering</Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Lara har foreslått et risikonivå basert på KI-funksjoner og prosesstype
+                  Lara analyserer KI-bruken og foreslår et risikonivå basert på det du har registrert
                 </p>
               </div>
 
+              {/* ── Loading state while AI is analyzing ── */}
+              {isGeneratingRisk && (
+                <div className="p-6 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 text-center space-y-3">
+                  <div className="flex justify-center">
+                    <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+                  </div>
+                  <p className="text-sm font-medium">Lara analyserer risikonivå...</p>
+                  <p className="text-xs text-muted-foreground">Vurderer KI-funksjoner, sjekklistesvar og berørte personer</p>
+                  <Progress value={45} className="w-48 mx-auto" />
+                </div>
+              )}
+
               {/* ── Result card: prominent risk classification ── */}
-              {riskCategory && selectedRiskLevel ? (
+              {!isGeneratingRisk && riskCategory && selectedRiskLevel ? (
                 <div className={`p-4 rounded-lg border-2 ${
                   riskCategory === 'unacceptable' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' :
                   riskCategory === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' :
@@ -1212,26 +1224,49 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="text-lg font-bold">{selectedRiskLevel.label}</p>
-                        {isFieldAutoFilled('risk_category', riskCategory) && (
+                        {riskAutoSuggested && (
                           <AIGeneratedBadge variant="suggested" size="sm" />
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {riskCategory === 'unacceptable' && 'Forbudt under KI-forordningen — må avvikles umiddelbart.'}
                         {riskCategory === 'high' && 'Strenge krav: samsvarsvurdering, risikovurdering og løpende overvåking.'}
-                        {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med AI.'}
+                        {riskCategory === 'limited' && 'Brukere må informeres om at de samhandler med KI.'}
                         {riskCategory === 'minimal' && 'Frivillige retningslinjer — ingen obligatoriske krav.'}
                       </p>
                     </div>
                   </div>
+
+                  {/* Key factors from AI */}
+                  {riskKeyFactors.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Nøkkelfaktorer i vurderingen:</p>
+                      <ul className="space-y-1">
+                        {riskKeyFactors.map((factor, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                            <Check className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
+                            <span>{factor}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center">
+              ) : !isGeneratingRisk ? (
+                <div className="p-4 rounded-lg border-2 border-dashed border-muted-foreground/30 text-center space-y-2">
                   <Shield className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">Ingen risikovurdering foreslått ennå</p>
-                  <p className="text-xs text-muted-foreground mt-1">Velg et risikonivå nedenfor</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={suggestProcessRisk}
+                    className="gap-1.5"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    La Lara foreslå risikonivå
+                  </Button>
                 </div>
-              )}
+              ) : null}
 
               {/* ── Collapsible risk selector ── */}
               <Collapsible open={isRiskSelectorOpen} onOpenChange={setIsRiskSelectorOpen}>
