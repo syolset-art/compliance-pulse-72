@@ -983,10 +983,71 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                               </Button>
                             ))}
                           </div>
-                          {/* Help text for "Vet ikke" */}
-                          {item.answer === 'unsure' && item.helpText && (
-                            <div className="mt-2 p-2 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                              <p className="text-xs text-amber-700 dark:text-amber-300">💡 {item.helpText}</p>
+                          {/* Consequence block for "Nei" */}
+                          {item.answer === 'no' && item.consequence && (
+                            <div className="mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 space-y-2">
+                              <div className="flex items-start gap-2">
+                                <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                                <div className="space-y-1.5">
+                                  <p className="text-xs font-semibold text-red-700 dark:text-red-300">Mulig konsekvens</p>
+                                  <p className="text-xs text-red-700 dark:text-red-300">{item.consequence}</p>
+                                </div>
+                              </div>
+                              <div className="pl-6 space-y-1.5 text-xs">
+                                <p className="text-red-600 dark:text-red-400">
+                                  <span className="font-medium">📋 Ansvar:</span>{' '}
+                                  {item.responsibility === 'tilbyder' ? 'Tilbyder (provider) av KI-systemet' :
+                                   item.responsibility === 'bruker' ? 'Bruker (deployer) av KI-systemet' :
+                                   'Delt ansvar mellom tilbyder og bruker'}
+                                </p>
+                                {item.aiActReference && (
+                                  <p className="text-red-600 dark:text-red-400">
+                                    <span className="font-medium">📖 Referanse:</span> {item.aiActReference}
+                                  </p>
+                                )}
+                                {item.suggestedAction && (
+                                  <p className="text-red-600 dark:text-red-400">
+                                    <span className="font-medium">🔧 Foreslått tiltak:</span> {item.suggestedAction}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 pt-1">
+                                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                                  Åpent tiltak i rapport
+                                </Badge>
+                              </div>
+                            </div>
+                          )}
+                          {/* Guidance block for "Vet ikke" */}
+                          {item.answer === 'unsure' && (
+                            <div className="mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 space-y-2">
+                              {item.helpText && (
+                                <p className="text-xs text-amber-700 dark:text-amber-300">💡 {item.helpText}</p>
+                              )}
+                              {item.consequence && (
+                                <div className="flex items-start gap-2 pt-1 border-t border-amber-200 dark:border-amber-700">
+                                  <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                                  <div className="space-y-1 text-xs text-amber-700 dark:text-amber-300">
+                                    <p className="font-medium">Dersom svaret viser seg å være «Nei»:</p>
+                                    <p>{item.consequence}</p>
+                                    {item.suggestedAction && (
+                                      <p><span className="font-medium">Anbefaling:</span> {item.suggestedAction}</p>
+                                    )}
+                                    {item.responsibility && (
+                                      <p className="text-[11px]">
+                                        Ansvar:{' '}
+                                        {item.responsibility === 'tilbyder' ? 'Tilbyder' :
+                                         item.responsibility === 'bruker' ? 'Bruker (deployer)' : 'Delt (tilbyder og bruker)'}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1.5 pt-1">
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-700 dark:text-amber-300">
+                                  Må avklares — synlig i rapport
+                                </Badge>
+                              </div>
                             </div>
                           )}
                         </div>
