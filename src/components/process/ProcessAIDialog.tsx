@@ -779,7 +779,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                 <AIFieldWrapper 
                   isAIGenerated={!!isFieldAutoFilled('ai_purpose')} 
                   source={getFieldSource('ai_purpose')}
-                  label="Formål med AI i prosessen"
+                  label="Formål med KI i prosessen"
                 >
                   <Textarea
                     value={aiPurpose}
