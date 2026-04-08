@@ -44,6 +44,7 @@ import {
    ShieldAlert,
    Check,
    Edit2,
+   Info,
 } from "lucide-react";
 import { getProcessAISuggestion, generateFeatureBasedChecks, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
