@@ -152,34 +152,33 @@ const ComplianceOverview = () => {
 
           {/* Maturity hero */}
           <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Overall score */}
-                <div className="lg:col-span-1 space-y-2">
+            <CardContent className="p-6 space-y-5">
+              {/* Overall score row */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-baseline gap-3">
+                  <p className="text-5xl font-bold text-foreground">{overallScore}%</p>
                   <p className="text-sm font-medium text-primary">Samlet modenhet</p>
-                  <p className="text-6xl font-bold text-foreground">{overallScore}%</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Scoren bygger på eksplisitte org-målepunkter. Målepunkter som ikke er relevante for valgte regelverk eller mangler aktuelt grunnlag markeres som ikke relevante.
-                  </p>
                 </div>
+                <p className="text-xs text-muted-foreground ml-auto max-w-xs text-right leading-relaxed hidden lg:block">
+                  Scoren bygger på eksplisitte org-målepunkter på tvers av fem domener.
+                </p>
+              </div>
 
-                {/* Pillars */}
+              {/* Pillars grid - 5 columns */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {PILLARS.map((pillar) => (
                   <Card key={pillar.id} className="border">
-                    <CardContent className="p-4 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-foreground">{pillar.name}</p>
-                        <Badge className={`text-[10px] px-1.5 py-0 ${pillar.badgeColor} border-0`}>
+                    <CardContent className="p-3 space-y-1.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <p className="text-xs font-semibold text-foreground leading-tight">{pillar.name}</p>
+                        <Badge className={`text-[10px] px-1.5 py-0 ${pillar.badgeColor} border-0 shrink-0`}>
                           {pillar.level}
                         </Badge>
                       </div>
-                      <p className="text-3xl font-bold text-foreground">{pillar.score}%</p>
-                      <Progress
-                        value={pillar.score}
-                        className="h-1.5"
-                      />
-                      <p className="text-[11px] text-muted-foreground">
-                        {pillar.measures} målepunkter inngår i scoren
+                      <p className="text-2xl font-bold text-foreground">{pillar.score}%</p>
+                      <Progress value={pillar.score} className="h-1" />
+                      <p className="text-[10px] text-muted-foreground">
+                        {pillar.measures} målepunkter
                       </p>
                     </CardContent>
                   </Card>
