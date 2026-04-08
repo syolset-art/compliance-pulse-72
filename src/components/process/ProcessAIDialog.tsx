@@ -1052,97 +1052,78 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 </div>
               ) : (
                 <>
-                  {/* Transparency */}
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium">Transparens</Label>
-                    <Select value={transparencyStatus} onValueChange={setTransparencyStatus}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="not_required">Ikke påkrevd</SelectItem>
-                        <SelectItem value="required">Påkrevd, ikke implementert</SelectItem>
-                        <SelectItem value="implemented">Implementert</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <StepContextSummary>
+                    Svar på tre enkle påstander om hvordan AI brukes i denne prosessen.
+                  </StepContextSummary>
 
-                    {transparencyStatus !== 'not_required' && (
+                  {/* Toggle 1: Users know about AI */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="transparency-toggle" className="text-sm font-medium cursor-pointer">
+                        Brukerne vet at de interagerer med AI
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        F.eks. via informasjonsbanner, personvernerklæring eller muntlig informasjon
+                      </p>
+                    </div>
+                    <Switch
+                      id="transparency-toggle"
+                      checked={transparencyStatus === 'implemented'}
+                      onCheckedChange={(checked) => setTransparencyStatus(checked ? 'implemented' : 'required')}
+                    />
+                  </div>
+
+                  {/* Toggle 2: Someone can override */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="oversight-toggle" className="text-sm font-medium cursor-pointer">
+                        Noen kan overstyre AI-beslutninger
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        En person kan korrigere, avvise eller endre det AI-en foreslår
+                      </p>
+                    </div>
+                    <Switch
+                      id="oversight-toggle"
+                      checked={humanOversightRequired}
+                      onCheckedChange={setHumanOversightRequired}
+                    />
+                  </div>
+
+                  {/* Toggle 3: Automated decisions */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+                    <div className="space-y-0.5 pr-4">
+                      <Label htmlFor="automated-toggle" className="text-sm font-medium cursor-pointer">
+                        AI tar beslutninger uten at en person ser over
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        AI-en handler automatisk uten at et menneske godkjenner først
+                      </p>
+                    </div>
+                    <Switch
+                      id="automated-toggle"
+                      checked={automatedDecisions}
+                      onCheckedChange={setAutomatedDecisions}
+                    />
+                  </div>
+
+                  {/* Collapsible: optional description */}
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground px-0 h-auto py-1 hover:text-foreground">
+                        <Edit2 className="h-3.5 w-3.5 mr-1" />
+                        Legg til beskrivelse (valgfritt)
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-2 space-y-3">
                       <Textarea
                         value={transparencyDescription}
                         onChange={(e) => setTransparencyDescription(e.target.value)}
-                        placeholder="Beskriv hvordan brukere informeres om AI-bruk..."
-                        rows={2}
+                        placeholder="Utdyp eventuelt hvordan transparens og tilsyn håndteres..."
+                        rows={3}
                       />
-                    )}
-                  </div>
-
-                  {/* Human oversight as toggle */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="oversight-toggle" className="text-base font-medium cursor-pointer">
-                          Menneskelig tilsyn
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Er det en person som kan overstyre eller korrigere AI-beslutningene?
-                        </p>
-                      </div>
-                      <Switch
-                        id="oversight-toggle"
-                        checked={humanOversightRequired}
-                        onCheckedChange={setHumanOversightRequired}
-                      />
-                    </div>
-
-                    {humanOversightRequired && (
-                      <div className="space-y-3 pl-0">
-                        <Select value={humanOversightLevel} onValueChange={setHumanOversightLevel}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Velg tilsynsnivå" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="review">Gjennomgang</SelectItem>
-                            <SelectItem value="approval">Godkjenning</SelectItem>
-                            <SelectItem value="full_control">Full kontroll</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Textarea
-                          value={humanOversightDescription}
-                          onChange={(e) => setHumanOversightDescription(e.target.value)}
-                          placeholder="Beskriv hvordan tilsyn gjennomføres..."
-                          rows={2}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Automated decisions as toggle */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="automated-toggle" className="text-base font-medium cursor-pointer">
-                          Automatiserte beslutninger
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Tar AI beslutninger uten menneskelig innblanding?
-                        </p>
-                      </div>
-                      <Switch
-                        id="automated-toggle"
-                        checked={automatedDecisions}
-                        onCheckedChange={setAutomatedDecisions}
-                      />
-                    </div>
-
-                    {automatedDecisions && (
-                      <Textarea
-                        value={decisionImpact}
-                        onChange={(e) => setDecisionImpact(e.target.value)}
-                        placeholder="Beskriv konsekvensen av automatiserte beslutninger..."
-                        rows={2}
-                      />
-                    )}
-                  </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </>
               )}
             </div>
