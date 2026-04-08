@@ -131,6 +131,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
         measures_completed: 0,
         systems_count: 1,
         processes_count: 0,
+        due_date: formData.dueDate ? format(formData.dueDate, "yyyy-MM-dd") : null,
+        discovered_at: format(formData.discoveredAt, "yyyy-MM-dd"),
       });
       if (error) throw error;
     },
