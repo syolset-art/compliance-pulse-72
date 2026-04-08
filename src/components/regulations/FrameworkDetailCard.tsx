@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,6 +6,7 @@ import { FileText, Bot, Users, CheckCircle2, CircleAlert, Circle, Share2, Loader
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
@@ -25,11 +26,17 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
   const pct = counts.total > 0 ? Math.round((counts.met / counts.total) * 100) : 0;
   const [exporting, setExporting] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [companyName, setCompanyName] = useState<string>("");
+
+  useEffect(() => {
+    supabase.from("company_profile").select("name").limit(1).maybeSingle()
+      .then(({ data }) => { if (data?.name) setCompanyName(data.name); });
+  }, []);
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      exportCompliancePdf(framework, counts);
+      exportCompliancePdf(framework, counts, companyName);
     } finally {
       setTimeout(() => setExporting(false), 600);
     }
