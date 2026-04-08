@@ -264,13 +264,14 @@ export default function WorkAreas() {
       return true;
     });
     
-    // Filter by type
-    if (assetTypeFilter !== "all") {
-      combined = combined.filter(a => a.asset_type === assetTypeFilter);
-    }
-    
     return combined;
-  }, [ownedAssets, usedAssets, assetTypeFilter]);
+  }, [ownedAssets, usedAssets]);
+
+  // Filtered assets for table display
+  const filteredAssets = useMemo(() => {
+    if (assetTypeFilter === "all") return allAssets;
+    return allAssets.filter(a => a.asset_type === assetTypeFilter);
+  }, [allAssets, assetTypeFilter]);
 
   // Helper to get asset type icon
   const getAssetTypeIcon = (assetType: string) => {
@@ -982,14 +983,14 @@ export default function WorkAreas() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {allAssets.length === 0 ? (
+                      {filteredAssets.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                             {t("myWorkAreas.noAssets")}
                           </TableCell>
                         </TableRow>
                       ) : (
-                        allAssets.map((asset) => (
+                        filteredAssets.map((asset) => (
                           <TableRow 
                             key={asset.id}
                             className="cursor-pointer hover:bg-muted/50"
