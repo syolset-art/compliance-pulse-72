@@ -35,26 +35,17 @@ export function SecurityFoundationsWidget() {
             <Shield className="h-4 w-4 text-primary" />
             {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
           </CardTitle>
-          <Badge variant="outline" className="text-[10px] h-5">
-            {isNb ? "Demodata" : "Demo data"}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="px-4 pb-4 pt-0 space-y-4">
-        {/* Overall progress */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              {isNb ? "Samlet modenhet" : "Overall maturity"}
+          <div className="flex items-center gap-2">
+            <span className={cn("text-lg font-bold tabular-nums", maturityLabel(Math.round(overall.score), isNb).className)}>
+              {Math.round(overall.score)}%
             </span>
-            <span className="font-semibold text-foreground">
-              {overall.assessed}/{overall.total}{" "}
-              {isNb ? "kontroller dokumentert" : "controls documented"}
-            </span>
+            <Badge variant="outline" className={cn("text-[10px] h-5", maturityLabel(Math.round(overall.score), isNb).className)}>
+              {maturityLabel(Math.round(overall.score), isNb).label}
+            </Badge>
           </div>
-          <Progress value={overall.score} className="h-2.5 [&>div]:bg-primary" />
-          <p className="text-right text-xs font-medium text-primary">{Math.round(overall.score)}%</p>
         </div>
+        <Progress value={overall.score} className="h-2 mt-2 [&>div]:bg-primary" />
+      </CardHeader>
 
         {/* 2x2 pillar grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
