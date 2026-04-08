@@ -602,8 +602,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
           setChecklist([...generated, ...customItems]);
         }
       }
-      // Auto-suggest risk when entering risk step (step 3) if not already done
-      if (nextIdx === 3 && !riskAutoSuggested && !existingData?.risk_category) {
+      // Always auto-suggest risk when entering risk step
+      if (nextIdx === 3) {
         suggestProcessRisk();
       }
       setCurrentStep(nextIdx);
