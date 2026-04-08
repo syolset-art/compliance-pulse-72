@@ -43,6 +43,102 @@ const categoryConfig: Record<string, { icon: typeof Shield; color: string; bgCol
   other: { icon: Scale, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
 };
 
+const ITEMS_PER_PAGE = 3;
+
+function FrameworkListSection({ 
+  frameworks, 
+  navigate, 
+  getStatusBadge, 
+  getProgressColor 
+}: { 
+  frameworks: FrameworkWithProgress[]; 
+  navigate: (path: string) => void;
+  getStatusBadge: (status: 'on_track' | 'needs_attention' | 'not_started') => React.ReactNode;
+  getProgressColor: (progress: number) => string;
+}) {
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const visibleFrameworks = frameworks.slice(0, visibleCount);
+  const hasMore = visibleCount < frameworks.length;
+
+  return (
+    <>
+      <div className="space-y-3">
+        {visibleFrameworks.map((framework) => {
+          const config = categoryConfig[framework.category] || categoryConfig.other;
+          const CategoryIcon = config.icon;
+
+          return (
+            <div
+              key={framework.id}
+              className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => navigate('/regulations')}
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className={`p-1.5 rounded-lg ${config.bgColor} flex-shrink-0`}>
+                    <CategoryIcon className={`h-3.5 w-3.5 ${config.color}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-sm font-medium text-foreground truncate">
+                        {framework.framework_name}
+                      </span>
+                      {framework.is_mandatory && (
+                        <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {getStatusBadge(framework.status)}
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Fremgang</span>
+                  <span>{framework.progress}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${getProgressColor(framework.progress)}`}
+                    style={{ width: `${framework.progress}%` }}
+                  />
+                </div>
+                {framework.totalTasks > 0 && (
+                  <p className="text-[10px] text-muted-foreground">
+                    {framework.completedTasks} av {framework.totalTasks} oppgaver fullført
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {hasMore && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground"
+          onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
+        >
+          Vis flere ({frameworks.length - visibleCount} til)
+        </Button>
+      )}
+
+      <div className="pt-3 mt-3 border-t">
+        <Button
+          variant="ghost"
+          className="w-full text-primary hover:text-primary/80 hover:bg-primary/10"
+          onClick={() => navigate('/regulations')}
+        >
+          Administrer regelverk
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
+    </>
+  );
+}
+
 export function MyRegulationsWidget() {
   const navigate = useNavigate();
   const { t } = useTranslation();
