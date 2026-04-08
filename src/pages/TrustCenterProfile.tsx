@@ -13,7 +13,7 @@ import {
   Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
   ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
-  Sparkles, Zap,
+  Sparkles, Zap, Server, Package,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -110,7 +110,27 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     enabled: !!asset?.id,
   });
 
+  const { data: services = [] } = useQuery({
+    queryKey: ["trust-center-services", asset?.id],
+    queryFn: async () => {
+      const { data: rels } = await supabase
+        .from("asset_relationships")
+        .select("target_asset_id")
+        .eq("source_asset_id", asset!.id)
+        .eq("relationship_type", "service_of");
+      if (!rels || rels.length === 0) return [];
+      const ids = rels.map((r) => r.target_asset_id);
+      const { data: assets } = await supabase
+        .from("assets")
+        .select("id, name, description, asset_type, compliance_score")
+        .in("id", ids);
+      return assets || [];
+    },
+    enabled: !!asset?.id,
+  });
+
   const evaluation = useTrustControlEvaluation(asset?.id || "");
+
 
   if (isLoading) {
     return (
@@ -755,6 +775,40 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                           <div key={risk.id} className="flex items-center gap-3 px-4 py-3 rounded-lg bg-destructive/5 border border-destructive/10">
                             <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
                             <span className="text-sm text-foreground">{isNb ? risk.titleNb : risk.titleEn}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* ── Products & Services ── */}
+                  {services.length > 0 && (
+                    <section>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="text-base font-semibold text-foreground">
+                          {isNb ? "Produkter og tjenester" : "Products & Services"}
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {services.map((svc: any) => (
+                          <div key={svc.id} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors">
+                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              {svc.asset_type === "saas" ? (
+                                <Globe className="h-5 w-5 text-primary" />
+                              ) : (
+                                <Server className="h-5 w-5 text-primary" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-foreground truncate">{svc.name}</p>
+                              {svc.description && (
+                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{svc.description}</p>
+                              )}
+                            </div>
+                            <Badge variant={svc.asset_type === "saas" ? "default" : "secondary"} className="text-[10px] shrink-0">
+                              {svc.asset_type === "saas" ? "SaaS" : "Service"}
+                            </Badge>
                           </div>
                         ))}
                       </div>
