@@ -81,11 +81,13 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
         asset_id: assetId,
         document_type: docType,
         file_name: displayName,
+        file_path: "",
         display_name: displayName,
         status: "draft",
         visibility,
-        expiry_date: expiryDate || null,
+        valid_to: expiryDate || null,
         category: subType || null,
+        notes: notes || null,
       });
       if (error) throw error;
     },
