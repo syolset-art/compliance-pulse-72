@@ -45,7 +45,7 @@ import {
    Check,
    Edit2,
 } from "lucide-react";
-import { getProcessAISuggestion, type ProcessAISuggestion } from "@/lib/processAISuggestions";
+import { getProcessAISuggestion, generateFeatureBasedChecks, type ProcessAISuggestion } from "@/lib/processAISuggestions";
 import { useSystemAIFeatures, type AggregatedSystemAI } from "@/hooks/useSystemAIFeatures";
 import { useProcessAIDraft, type AutoFilledField } from "@/hooks/useProcessAIDraft";
 import { AIGeneratedBadge, AIFieldWrapper, AIBadgeLegend } from "./AIGeneratedBadge";
@@ -247,7 +247,7 @@ export const ProcessAIDialog = ({
         }
         if (processSuggestions.suggestedChecks.length > 0) {
           setChecklist(processSuggestions.suggestedChecks.map((q, i) => ({
-            id: `check-${i}`, question: q, checked: false,
+            id: `check-${i}`, question: q, answer: null,
           })));
         }
         if (aiDraft.suggestedRisk) setRiskCategory(aiDraft.suggestedRisk);
@@ -311,9 +311,9 @@ export const ProcessAIDialog = ({
 
   const calculateComplianceStatus = () => {
     if (!hasAI) return "not_assessed";
-    const checkedCount = checklist.filter(c => c.checked).length;
+    const answeredYes = checklist.filter(c => c.answer === 'yes').length;
     if (checklist.length === 0) return "not_assessed";
-    const ratio = checkedCount / checklist.length;
+    const ratio = answeredYes / checklist.length;
     if (ratio === 1) return "compliant";
     if (ratio >= 0.5) return "partial";
     return "non_compliant";
@@ -492,8 +492,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     setAiFeatures(aiFeatures.map(f => f.id === featureId ? { ...f, selected: !f.selected } : f));
   };
 
-  const toggleChecklistItem = (itemId: string) => {
-    setChecklist(checklist.map(c => c.id === itemId ? { ...c, checked: !c.checked, systems: !c.checked ? c.systems : undefined } : c));
+  const setChecklistAnswer = (itemId: string, answer: ChecklistAnswer) => {
+    setChecklist(checklist.map(c => c.id === itemId ? { ...c, answer, systems: answer === 'yes' ? c.systems : undefined } : c));
   };
 
   const toggleChecklistSystem = (itemId: string, systemId: string) => {
@@ -530,7 +530,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   };
 
   const selectedFeaturesCount = aiFeatures.filter(f => f.selected).length;
-  const checkedChecklistCount = checklist.filter(c => c.checked).length;
+  const answeredChecklistCount = checklist.filter(c => c.answer !== null).length;
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   // ── Decision-keyword detection for contextual labels ──
@@ -564,7 +564,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   const isStepComplete = (index: number) => {
     if (index === 0) return hasAI !== null;
     if (index === 1) return selectedFeaturesCount > 0;
-    if (index === 2) return checklist.length > 0 && checkedChecklistCount > 0;
+    if (index === 2) return checklist.length > 0 && answeredChecklistCount > 0;
     if (index === 3) return !!riskCategory;
     if (index === 4) return true; // optional
     if (index === 5) return !!aiDependencyLevel;
