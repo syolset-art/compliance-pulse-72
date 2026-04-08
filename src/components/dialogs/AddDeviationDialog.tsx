@@ -79,7 +79,18 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
     criticality: "medium" as "critical" | "high" | "medium" | "low",
     responsible: "",
     frameworks: [] as string[],
+    discoveredAt: new Date(),
+    dueDate: null as Date | null,
   });
+
+  const people = [
+    "Kari Nordmann",
+    "Ola Hansen",
+    "Maria Johansen",
+    "Erik Solberg",
+    "Ingrid Bakken",
+    "Thomas Berg",
+  ];
 
   // Fetch systems
   const { data: systems = [] } = useQuery({
