@@ -595,6 +595,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
           })));
         }
       }
+      // Auto-suggest risk when entering risk step (step 3) if not already done
+      if (nextIdx === 3 && !riskAutoSuggested && !existingData?.risk_category) {
+        suggestProcessRisk();
+      }
       setCurrentStep(nextIdx);
     }
   };
