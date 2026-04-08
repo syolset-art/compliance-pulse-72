@@ -129,6 +129,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     enabled: !!asset?.id,
   });
 
+  const evaluation = useTrustControlEvaluation(asset?.id || "");
 
 
   if (isLoading) {
