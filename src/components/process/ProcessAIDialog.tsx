@@ -928,7 +928,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                       <span className="flex-1">{feature.name}</span>
                       {isAIGenerated && <AIGeneratedBadge variant="from-system" source={autoFilledFeature?.source} size="sm" />}
                       {!isAIGenerated && feature.id.startsWith('custom-') && (
-                        <Badge variant="outline" className="text-[10px]">Egendefinert</Badge>
+                        <Badge variant="outline" className="text-xs">Egendefinert</Badge>
                       )}
                     </Label>
                   );
@@ -1071,7 +1071,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                                 )}
                               </div>
                               <div className="flex items-center gap-1.5 pt-1">
-                                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                                <Badge variant="destructive" className="text-xs px-1.5 py-0">
                                   Åpent tiltak i rapport
                                 </Badge>
                               </div>
@@ -1093,7 +1093,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                                       <p><span className="font-medium">Anbefaling:</span> {item.suggestedAction}</p>
                                     )}
                                     {item.responsibility && (
-                                      <p className="text-[11px]">
+                                      <p className="text-xs">
                                         Ansvar:{' '}
                                         {item.responsibility === 'tilbyder' ? 'Tilbyder' :
                                          item.responsibility === 'bruker' ? 'Bruker (deployer)' : 'Delt (tilbyder og bruker)'}
@@ -1103,7 +1103,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                                 </div>
                               )}
                               <div className="flex items-center gap-1.5 pt-1">
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-700 dark:text-amber-300">
+                                <Badge variant="outline" className="text-xs px-1.5 py-0 border-amber-400 text-amber-700 dark:text-amber-300">
                                   Må avklares — synlig i rapport
                                 </Badge>
                               </div>
