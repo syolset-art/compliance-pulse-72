@@ -411,6 +411,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
     setAiIntegrationLevel("");
     setAiDependencyLevel("");
     setFailureConsequence("");
+    setRiskKeyFactors([]);
+    setRiskAutoSuggested(false);
   };
 
   const handleSuggestPurpose = async () => {
