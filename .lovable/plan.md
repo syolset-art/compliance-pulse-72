@@ -1,64 +1,62 @@
 
 
-## Plan: Konsekvensvarsel og tiltak ved «Nei» / «Vet ikke» i KI-sjekklisten
+## Unified "Legg til" dialog for Dokumentasjon & Evidens
 
-### Hva endres
+### Summary
+Replace the three separate add-buttons (one per tab) with a single "+ Legg til" button in the page header. Clicking it opens a multi-step dialog where the user first chooses document category, then fills in details and sets visibility for the Trust Profile.
 
-Når brukeren svarer **Nei** eller **Vet ikke** på et sjekklistepunkt, vises umiddelbart et kontekstuelt varsel som inneholder:
-
-1. **Mulige hendelser/konsekvenser** — hva kan gå galt (f.eks. «Brudd på AI Act Art. 50 — risiko for bøter opptil 3% av omsetning»)
-2. **Ansvarsplassering iht. AI Act** — hvem har ansvaret (tilbyder, bruker, importør)
-3. **Tiltaksforslag** — konkret handling som bør gjennomføres
-4. **Rapportflagg** — markering om at dette blir synlig som et åpent tiltak i samsvarsrapporten
-
-### Tekniske endringer
-
-**1. Utvide `FEATURE_CHECKLIST_MAP` i `src/lib/processAISuggestions.ts`**
-
-Hvert sjekkpunkt får nye felter i tillegg til `question` og `helpText`:
-
-```text
-consequence: string     — Hva kan skje ved manglende etterlevelse
-aiActReference: string  — Artikkelhenvisning i AI Act
-responsibility: string  — Hvem har ansvaret (tilbyder/bruker/begge)
-suggestedAction: string — Konkret tiltak
+### Database change
+Add a `visibility` column to `vendor_documents`:
+```sql
+ALTER TABLE public.vendor_documents 
+  ADD COLUMN IF NOT EXISTS visibility text NOT NULL DEFAULT 'visible';
 ```
+Values: `published` (shown on public Trust Profile), `visible` (internal only), `hidden` (hidden everywhere except admin).
 
-**2. Oppdatere `ChecklistItem`-interface i `ProcessAIDialog.tsx`**
+### New component: `AddEvidenceDialog.tsx`
 
-Legge til de nye feltene slik at de følger med fra generering til visning.
+A 3-step dialog flow:
 
-**3. Ny UI-blokk for «Nei» og «Vet ikke» i sjekklisten**
+**Step 1 - Choose type**
+Three clickable cards:
+- Retningslinje (Policy) - icon: FileText
+- Sertifisering (Certification) - icon: Award  
+- Dokument (Document) - icon: FolderOpen
 
-- **Nei**: Rød varselblokk med konsekvens, AI Act-referanse, ansvar og foreslått tiltak. Badge: «Kommer i rapport som åpent tiltak».
-- **Vet ikke**: Beholder eksisterende gul hjelpetekst, men legger til en mildere versjon av konsekvens og anbefaling om å avklare.
+Selecting one moves to step 2.
 
-**4. Lagre flaggede tiltak ved fullføring**
+**Step 2 - Details**
+- Display name (text input, required)
+- File upload (drag & drop or click)
+- Document sub-type dropdown (contextual based on step 1 choice):
+  - Policy: policy, privacy_policy, acceptable_use, incident_response, security_policy, data_protection_policy
+  - Certification: ISO 27001, ISO 9001, SOC 2, etc.
+  - Document: DPA, report, agreement, other
+- Expiry date (date picker, optional, shown prominently for certifications)
+- Notes (textarea, optional)
 
-Når veiviseren fullføres, inkluderes sjekkpunkter med «Nei»/«Vet ikke» i `compliance_checklist`-feltet med status `action_required` / `needs_clarification`, slik at rapporten kan plukke dem opp.
+**Step 3 - Visibility & publish**
+Three radio-style options with descriptions:
+- **Publisert** - "Synlig i Trust Profilen for alle som ser den"
+- **Intern** - "Kun synlig internt i organisasjonen"
+- **Skjult** - "Skjules helt, kun for administratorer"
 
-**5. Erstatte «AI» med «KI» i alle norske strenger**
+A visual preview showing where the document will appear (Trust Profile badge).
+Confirm button saves to `vendor_documents` with the chosen visibility.
 
-Alle brukersynlige tekster i de berørte filene oppdateres til å bruke «KI» i stedet for «AI».
+### Changes to `TrustCenterEvidence.tsx`
+1. Remove the three per-tab add buttons
+2. Add a single "+ Legg til" button next to the page title
+3. Wire it to open `AddEvidenceDialog`
+4. After successful save, invalidate queries and optionally switch to the relevant tab
+5. Show a visibility badge on each document card (eye icon for published, lock for hidden)
 
-### Eksempel på brukeropplevelse
+### Changes to `TrustCenterProfile.tsx` (public view)
+Filter document queries to only show documents where `visibility = 'published'` in the expandable policies/certifications sections.
 
-Spørsmål: *«Informeres brukerne om at de kommuniserer med KI?»*
-Bruker svarer **Nei** →
-
-```text
-⚠️ Mulig konsekvens
-Brudd på KI-forordningen Art. 50 — brukere har rett til å vite
-at de samhandler med et KI-system. Manglende informasjon kan
-medføre bøter opptil 3% av global omsetning.
-
-📋 Ansvar: Tilbyder (deployer) av KI-systemet
-🔧 Foreslått tiltak: Implementer tydelig merking i brukergrensesnittet
-
-🔴 Dette vil vises som et åpent tiltak i samsvarsrapporten
-```
-
-### Berørte filer
-- `src/lib/processAISuggestions.ts` — utvide datamodell med konsekvenser og ansvar
-- `src/components/process/ProcessAIDialog.tsx` — ny UI for Nei/Vet ikke, oppdatere interface og lagring
+### File structure
+- `src/components/trust-center/AddEvidenceDialog.tsx` (new)
+- `src/pages/TrustCenterEvidence.tsx` (modified)
+- `src/pages/TrustCenterProfile.tsx` (modified - filter by visibility)
+- Migration for `visibility` column
 
