@@ -152,8 +152,10 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
                   <TableHead>{t("trustProfile.incident")}</TableHead>
                   <TableHead>{t("trustProfile.riskLevel")}</TableHead>
                   <TableHead>{t("trustProfile.responsible")}</TableHead>
-                  <TableHead>{t("trustProfile.lastUpdated")}</TableHead>
+                  <TableHead>{i18n.language === "nb" ? "Oppdaget" : "Discovered"}</TableHead>
+                  <TableHead>{i18n.language === "nb" ? "Frist" : "Due"}</TableHead>
                   <TableHead>{t("trustProfile.status")}</TableHead>
+                  <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -167,16 +169,43 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
                             {incident.description}
                           </p>
                         )}
+                        {incident.category && (
+                          <Badge variant="outline" className="text-[10px] mt-1">{incident.category}</Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>{getRiskLevelBadge(incident.risk_level)}</TableCell>
                     <TableCell>{incident.responsible || "-"}</TableCell>
-                    <TableCell>{formatDate(incident.last_updated)}</TableCell>
+                    <TableCell className="text-sm">
+                      {incident.discovered_at
+                        ? format(new Date(incident.discovered_at), "dd.MM.yyyy", { locale: nb })
+                        : formatDate(incident.created_at)}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {incident.due_date ? (
+                        <span className={new Date(incident.due_date) < new Date() ? "text-destructive font-medium" : ""}>
+                          {format(new Date(incident.due_date), "dd.MM.yyyy", { locale: nb })}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(incident.status)}
                         <span className="text-sm capitalize">{incident.status}</span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setEditingIncident(incident)}
+                        title={i18n.language === "nb" ? "Rediger avvik" : "Edit deviation"}
+                      >
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -187,6 +216,12 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
           )}
         </CardContent>
       </Card>
+
+      <EditDeviationDialog
+        open={!!editingIncident}
+        onOpenChange={(open) => !open && setEditingIncident(null)}
+        incident={editingIncident}
+      />
     </div>
   );
 };
