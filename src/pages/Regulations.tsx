@@ -60,6 +60,7 @@ const Regulations = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
 
   // Fetch frameworks
