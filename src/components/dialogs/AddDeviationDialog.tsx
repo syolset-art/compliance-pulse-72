@@ -157,6 +157,8 @@ export function AddDeviationDialog({ open, onOpenChange }: AddDeviationDialogPro
       criticality: "medium",
       responsible: "",
       frameworks: [],
+      discoveredAt: new Date(),
+      dueDate: null,
     });
     onOpenChange(false);
   };
