@@ -1,37 +1,52 @@
 
 
-## Notatfelt for delvis oppfylte kontroller
+## Forenkle Trust Center-undermenyen
+
+### Nåværende struktur (sidebar)
+Trust Center har i dag 8 separate menypunkter:
+1. Trust Profile
+2. Rediger profil
+3. Products & Services
+4. Compliance Status
+5. **Regelverk**
+6. **Policies**
+7. **Certifications**
+8. Contact & Requests
 
 ### Problem
-Når en kontroll har status «delvis oppfylt» (uansett om den er automatisk eller manuell), kan brukeren ikke legge til et notat uten å gå via «Dokumenter manuelt»-dialogen.
+Policies, Certifications og delvis Compliance Status overlapper — de handler alle om dokumentasjon og bevis. Separate sider for hver gir unødvendig navigasjon.
 
-### Løsning
-Legg til et inline notatfelt i den utvidede visningen for kontroller med status `partial`. Feltet vises direkte under statusen, med en Textarea og en Lagre-knapp. Notater lagres i lokal state (per requirement_id).
+### Forslag: Slå sammen til "Dokumentasjon & Evidens"
 
-### Teknisk endring
+Ny struktur (6 punkter i stedet for 8):
 
-**Fil: `src/components/regulations/FrameworkRequirementsList.tsx`**
+1. **Trust Profile** — `/trust-center/profile`
+2. **Rediger profil** — `/trust-center/edit`
+3. **Products & Services** — `/trust-center/products`
+4. **Regelverk** — `/trust-center/regulations`
+5. **Dokumentasjon & Evidens** — `/trust-center/evidence` *(ny samleside)*
+6. **Contact & Requests** — `/customer-requests`
 
-1. Legg til state `reqNotes: Record<string, string>` for å holde notater per krav-ID
-2. I den utvidede seksjonen (linje 188-216), for kontroller med `state.status === "partial"`:
-   - Vis et amber-farget info-panel (likt det grønne for "met") som viser at kontrollen er delvis oppfylt
-   - Under panelet: en `Textarea` med placeholder "Legg til notat om hva som gjenstår..."
-   - En liten "Lagre notat"-knapp som lagrer til `reqNotes` state og viser en toast-bekreftelse
-   - Hvis et notat allerede er lagret, vis det som tekst med en "Rediger"-knapp
-3. Denne funksjonaliteten gjelder **alle** kontroller med partial-status, inkludert automatiske (agent_capability === "full")
+"Compliance Status" fjernes som eget punkt (dekkes av Regelverk + Trust Profile).
 
-### UI-skisse
-```text
-┌─────────────────────────────────────────────────────┐
-│ ⚠ REQ-03  Kravnavn                  AUTOMATISK 50% │
-│   Beskrivelse...                                    │
-│ ─────────────────────────────────────────────────── │
-│   ⚠ Delvis oppfylt                                 │
-│   ┌───────────────────────────────────────────┐     │
-│   │ Legg til notat om hva som gjenstår...     │     │
-│   └───────────────────────────────────────────┘     │
-│                                  [Lagre notat]      │
-│   [Dokumenter manuelt]                              │
-└─────────────────────────────────────────────────────┘
-```
+### Ny samleside: Dokumentasjon & Evidens
+
+Én side (`/trust-center/evidence`) med tre kategorier vist som seksjoner eller faner:
+
+- **Retningslinjer** (Policies) — eksisterende innhold fra `TrustCenterPolicies`
+- **Sertifiseringer** (Certifications) — eksisterende innhold fra `TrustCenterCertifications`
+- **Dokumenter** (Documents) — generelle dokumenter og bevis
+
+Hver seksjon viser en kompakt liste med mulighet for å legge til nye elementer.
+
+### Tekniske endringer
+
+| Fil | Endring |
+|-----|---------|
+| `src/components/Sidebar.tsx` | Erstatt Policies, Certifications og Compliance Status med ett punkt: "Dokumentasjon & Evidens" (`/trust-center/evidence`) |
+| `src/pages/TrustCenterEvidence.tsx` | **Ny side** — samler policies, sertifiseringer og dokumenter med 3 faner/seksjoner. Gjenbruker innhold fra eksisterende sider. |
+| `src/App.tsx` (router) | Legg til route for `/trust-center/evidence` |
+| `src/pages/TrustCenterEditProfile.tsx` | Oppdater "Dokumentasjon og bevis"-seksjonen: lenke til `/trust-center/evidence` i stedet for separate sider |
+
+Eksisterende sider (`TrustCenterPolicies.tsx`, `TrustCenterCertifications.tsx`) beholdes som fallback/routes men sidebar peker kun til den nye samlede siden.
 
