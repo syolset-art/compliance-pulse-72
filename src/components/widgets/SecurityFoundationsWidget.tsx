@@ -75,9 +75,9 @@ export function SecurityFoundationsWidget() {
           })}
         </div>
 
-        {/* Desktop: 2x2 pillar grid */}
+        {/* Desktop: 2x2 pillar grid + last one full width */}
         <div className="hidden sm:grid sm:grid-cols-2 gap-3">
-          {PILLARS.map((pillar) => {
+          {PILLARS.map((pillar, index) => {
             const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
             const percent = Math.round(domainData.score || 0);
             const maturity = maturityLabel(percent, isNb);
@@ -86,7 +86,10 @@ export function SecurityFoundationsWidget() {
             return (
               <div
                 key={pillar.key}
-                className="rounded-lg border border-border bg-card p-3 space-y-2"
+                className={cn(
+                  "rounded-lg border border-border bg-card p-3 space-y-2",
+                  index === PILLARS.length - 1 && PILLARS.length % 2 !== 0 && "col-span-2"
+                )}
               >
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-md bg-primary/10">
