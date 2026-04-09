@@ -78,8 +78,8 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
       variant="flat"
       onClick={onClick}
       className={cn(
-        "p-3 cursor-pointer hover:shadow-md transition-all hover:border-primary/30",
-        compact && "p-2.5"
+        "px-4 py-3.5 cursor-pointer hover:shadow-md transition-all hover:border-primary/30",
+        compact && "px-3 py-2.5"
       )}
     >
       <div className="flex items-center justify-between gap-3">
