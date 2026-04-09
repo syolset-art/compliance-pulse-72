@@ -1310,15 +1310,15 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               <DropdownMenuContent align="start" className="w-56">
                 <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
                   <Upload className="mr-2 h-4 w-4" />
-                  {isNb ? "Last opp dokument" : "Upload document"}
+                  {i18n.language === 'nb' ? "Last opp dokument" : "Upload document"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
-                  handleSend(isNb
+                  handleSend(i18n.language === 'nb'
                     ? "Jeg vil legge til en ny verdi (eiendel) med bilde i et arbeidsområde for risikovurdering"
                     : "I want to add a new asset with a photo to a work area for risk assessment");
                 }}>
                   <Server className="mr-2 h-4 w-4" />
-                  {isNb ? "Legg til verdi med bilde" : "Add asset with photo"}
+                  {i18n.language === 'nb' ? "Legg til verdi med bilde" : "Add asset with photo"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
