@@ -34,7 +34,7 @@ export function SecurityFoundationsWidget() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" />
-            {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
+            {isNb ? "Sikkerhetsgrunnlag" : "Security Foundations"}
           </CardTitle>
           <div className="flex items-center gap-2">
             <span className={cn("text-lg font-bold tabular-nums", maturityLabel(Math.round(overall.score), isNb).className)}>
