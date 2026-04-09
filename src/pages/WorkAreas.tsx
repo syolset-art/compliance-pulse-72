@@ -138,6 +138,7 @@ export default function WorkAreas() {
   const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
   const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const [introDismissed, setIntroDismissed] = useState(() => localStorage.getItem("workarea-intro-dismissed") === "true");
+  const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
