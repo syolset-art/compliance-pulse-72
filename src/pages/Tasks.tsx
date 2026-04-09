@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ClipboardCheck, ListTodo } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -16,7 +16,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
-import { ISOReadinessView } from "@/components/tasks/ISOReadinessView";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ClipboardList as ClipboardListHelp, Zap, Users as UsersHelp } from "lucide-react";
 
 interface Task {
   id: string;
