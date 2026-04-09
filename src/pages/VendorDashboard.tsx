@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { Handshake, FileText, Shield, HelpCircle, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";

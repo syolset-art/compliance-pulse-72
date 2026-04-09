@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { HelpCircle, ClipboardList as ClipboardListIcon, Scale, Lock, Users as UsersIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
