@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { HelpCircle, Shield, Server as ServerIcon, Layers } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +38,7 @@ export default function Assets() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleSeedDevices = async () => {
     setIsSeeding(true);
@@ -174,9 +177,15 @@ export default function Assets() {
       <main className="flex-1 overflow-auto pt-16 md:pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">
-              {t("nav.assetsDevices", "Assets")}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl md:text-2xl font-bold text-primary">
+                {t("nav.assetsDevices", "Assets")}
+              </h1>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -318,6 +327,28 @@ export default function Assets() {
         onOpenChange={setIsAddDialogOpen}
         onAssetAdded={() => queryClient.invalidateQueries({ queryKey: ["device-assets"] })}
         assetTypeTemplates={assetTypeTemplates}
+      />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={ServerIcon}
+        title="Hva er enheter og assets?"
+        description="Her får du oversikt over fysiske enheter, servere og andre eiendeler i organisasjonen. Du kan spore eierskap, livssyklus-status og knytte dem til arbeidsområder for bedre risikostyring."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: Layers, title: "Organiser eiendeler", description: "Kategoriser enheter etter type og knytt dem til arbeidsområder." },
+          { icon: Shield, title: "Spor livssyklus", description: "Hold oversikt over status — aktiv, under evaluering, fases ut eller arkivert." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Oversikt over fysiske og digitale eiendeler er sentralt for informasjonssikkerhet og risikostyring. Det sikrer at alt utstyr har en eier og følges opp."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Legg til enheter og andre eiendeler" },
+          { text: "Knytt hver eiendel til et arbeidsområde" },
+          { text: "Sett livssyklus-status og eierskap" },
+        ]}
+        laraSuggestion="Hjelp meg med å kartlegge enheter og eiendeler i organisasjonen"
       />
     </div>
   );

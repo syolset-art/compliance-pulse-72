@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { Cpu, Shield as ShieldIcon, FileCheck, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -150,6 +152,7 @@ export default function Systems() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -569,9 +572,15 @@ export default function Systems() {
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">
-              {t("systems.title", "Systemer")}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                {t("systems.title", "Systemer")}
+              </h1>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -685,6 +694,30 @@ export default function Systems() {
             setStatusFilter(status);
           }
         }}
+      />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Cpu}
+        title="Hva er systemregisteret?"
+        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, risikonivå, compliance-status og koble systemer til arbeidsområder."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: ShieldIcon, title: "Vurder risiko og modenhet", description: "Se compliance-score og risikonivå for hvert system." },
+          { icon: FileCheck, title: "Dokumenter eierskap", description: "Knytt hvert system til et arbeidsområde og tildel ansvarlig person." },
+          { icon: ClipboardList, title: "Spor AI-bruk", description: "Registrer om systemer bruker kunstig intelligens og dokumenter formål." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Et oppdatert systemregister er grunnlaget for god informasjonssikkerhet og etterlevelse av GDPR, NIS2 og AI Act. Det gir ledelsen oversikt og gjør det enklere å prioritere tiltak."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Legg til systemer organisasjonen bruker" },
+          { text: "Knytt hvert system til riktig arbeidsområde" },
+          { text: "Vurder risikonivå og compliance-status" },
+          { text: "Dokumenter AI-bruk der det er relevant" },
+        ]}
+        laraSuggestion="Hjelp meg med å kartlegge og vurdere systemene mine"
       />
     </div>
   );
