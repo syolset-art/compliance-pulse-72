@@ -706,7 +706,7 @@
     "owner": "Owner",
     "selectOwner": "Select owner",
     "noOwner": "No owner",
-    "systemManager": "System Manager",
+    "systemManager": "Vendor Manager",
     "enterManager": "Enter name",
     "assignManager": "Assign manager",
     "updateSuccess": "System updated",
