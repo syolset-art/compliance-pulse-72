@@ -3,14 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, FileDown, FileSpreadsheet, Scale } from "lucide-react";
+import { Search, FileDown, FileSpreadsheet, Scale, X, ChevronDown } from "lucide-react";
 import { CompareRadarChart } from "./CompareRadarChart";
 import { CompareTable } from "./CompareTable";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -39,7 +39,6 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     });
   };
 
-  // Fetch analyses for selected vendors
   const { data: analyses = [] } = useQuery({
     queryKey: ["vendor-compare-analyses", selectedIds],
     queryFn: async () => {
@@ -54,7 +53,6 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     enabled: selectedIds.length >= 2,
   });
 
-  // Fetch documents for DPA & expiry check
   const { data: documents = [] } = useQuery({
     queryKey: ["vendor-compare-docs", selectedIds],
     queryFn: async () => {
@@ -68,22 +66,17 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     enabled: selectedIds.length >= 2,
   });
 
-  // Build comparison data
   const compareData = useMemo(() => {
     return selectedIds.map((id) => {
       const vendor = vendors.find((v) => v.id === id);
-      // Latest analysis
       const analysis = analyses.find((a) => a.asset_id === id);
       const catScores = (analysis?.category_scores as Record<string, number>) || {};
-      // Documents
       const vendorDocs = documents.filter((d) => d.asset_id === id);
       const hasDPA = vendorDocs.some(
         (d) => d.document_type?.toLowerCase().includes("dpa") || d.document_type?.toLowerCase().includes("databehandleravtale")
       );
       const now = new Date();
-      const expiredDocs = vendorDocs.filter(
-        (d) => d.valid_to && new Date(d.valid_to) < now
-      ).length;
+      const expiredDocs = vendorDocs.filter((d) => d.valid_to && new Date(d.valid_to) < now).length;
 
       return {
         id,
@@ -120,10 +113,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text(isNb ? "Leverandørsammenligning" : "Vendor Comparison", 14, 20);
-    const headers = [
-      isNb ? "Dimensjon" : "Dimension",
-      ...compareData.map((v) => v.name),
-    ];
+    const headers = [isNb ? "Dimensjon" : "Dimension", ...compareData.map((v) => v.name)];
     const rows = [
       [isNb ? "Compliance" : "Compliance", ...compareData.map((v) => v.compliance_score != null ? `${v.compliance_score}%` : "—")],
       [isNb ? "Sikkerhet" : "Security", ...compareData.map((v) => v.categoryScores.security != null ? `${v.categoryScores.security}%` : "—")],
@@ -159,134 +149,124 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
   };
 
   const showComparison = selectedIds.length >= 2;
+  const selectedVendors = selectedIds.map((id) => vendors.find((v) => v.id === id)).filter(Boolean);
 
   return (
-    <div className="space-y-6">
-      {/* Vendor selector */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Scale className="h-4 w-4" />
-              {isNb ? "Velg leverandører (2–5)" : "Select vendors (2–5)"}
-            </CardTitle>
-            <Badge variant="outline">{selectedIds.length}/5</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={isNb ? "Søk leverandør..." : "Search vendor..."}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <ScrollArea className="h-[220px]">
-            <div className="space-y-1">
+    <div className="space-y-4">
+      {/* Compact vendor picker */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Scale className="h-3.5 w-3.5" />
+              {isNb ? "Velg leverandører" : "Select vendors"}
+              <ChevronDown className="h-3 w-3 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-64 p-2">
+            <div className="relative mb-2">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder={isNb ? "Søk..." : "Search..."}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8 h-8 text-xs"
+              />
+            </div>
+            <div className="max-h-48 overflow-y-auto space-y-0.5">
               {filteredVendors.map((v) => {
                 const checked = selectedIds.includes(v.id);
                 const disabled = !checked && selectedIds.length >= 5;
                 return (
-                  <label
+                  <button
                     key={v.id}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors ${
-                      checked ? "bg-accent" : "hover:bg-muted/50"
-                    } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  >
-                    <Checkbox
-                      checked={checked}
-                      disabled={disabled}
-                      onCheckedChange={() => toggleVendor(v.id)}
-                    />
-                    <span className="flex-1 text-sm font-medium">{v.name}</span>
-                    {v.compliance_score != null && (
-                      <span className="text-xs text-muted-foreground">
-                        {v.compliance_score}%
-                      </span>
+                    onClick={() => !disabled && toggleVendor(v.id)}
+                    disabled={disabled}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left text-sm transition-colors",
+                      checked ? "bg-primary/10 text-primary" : "hover:bg-muted/50",
+                      disabled && "opacity-40 cursor-not-allowed"
                     )}
-                  </label>
+                  >
+                    <div className={cn(
+                      "h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0",
+                      checked ? "bg-primary border-primary" : "border-border"
+                    )}>
+                      {checked && <span className="text-primary-foreground text-[9px]">✓</span>}
+                    </div>
+                    <span className="truncate flex-1">{v.name}</span>
+                    {v.compliance_score != null && (
+                      <span className="text-[11px] text-muted-foreground">{v.compliance_score}%</span>
+                    )}
+                  </button>
                 );
               })}
               {filteredVendors.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  {isNb ? "Ingen treff" : "No matches"}
-                </p>
+                <p className="text-xs text-muted-foreground text-center py-3">{isNb ? "Ingen treff" : "No matches"}</p>
               )}
             </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          </PopoverContent>
+        </Popover>
 
-      {/* Comparison view */}
+        {selectedVendors.map((v: any) => (
+          <Badge key={v.id} variant="secondary" className="text-xs gap-1 pl-2 pr-1 py-0.5">
+            {v.name}
+            <button onClick={() => toggleVendor(v.id)}><X className="h-3 w-3" /></button>
+          </Badge>
+        ))}
+
+        {selectedIds.length < 2 && (
+          <span className="text-xs text-muted-foreground">
+            {isNb ? "Velg minst 2 for å sammenligne" : "Select at least 2 to compare"}
+          </span>
+        )}
+
+        {showComparison && (
+          <div className="ml-auto flex items-center gap-1.5">
+            <Button variant="ghost" size="sm" onClick={exportPDF} className="h-7 px-2 text-xs gap-1">
+              <FileDown className="h-3 w-3" /> PDF
+            </Button>
+            <Button variant="ghost" size="sm" onClick={exportExcel} className="h-7 px-2 text-xs gap-1">
+              <FileSpreadsheet className="h-3 w-3" /> Excel
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Comparison results */}
       {showComparison && (
-        <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <CompareRadarChart vendors={radarData} />
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  {isNb ? "Totaloversikt" : "Overview"}
-                </CardTitle>
+                <CardTitle className="text-sm">{isNb ? "Totaloversikt" : "Overview"}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {compareData.map((v) => (
-                    <div
-                      key={v.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                    >
-                      <span className="font-medium text-sm">{v.name}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground">
-                          {isNb ? "Compliance" : "Compliance"}
-                        </span>
-                        <span className="font-bold text-sm">
-                          {v.compliance_score != null ? `${v.compliance_score}%` : "—"}
-                        </span>
-                      </div>
+                    <div key={v.id} className="flex items-center justify-between p-2.5 rounded-md bg-muted/30">
+                      <span className="text-sm font-medium">{v.name}</span>
+                      <span className="text-sm font-bold">
+                        {v.compliance_score != null ? `${v.compliance_score}%` : "—"}
+                      </span>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
           </div>
-
           <CompareTable vendors={compareData} />
-
-          {/* Export */}
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={exportPDF}>
-              <FileDown className="h-4 w-4 mr-2" />
-              {isNb ? "Eksporter PDF" : "Export PDF"}
-            </Button>
-            <Button variant="outline" onClick={exportExcel}>
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              {isNb ? "Eksporter Excel" : "Export Excel"}
-            </Button>
-          </div>
-        </>
-      )}
-
-      {!showComparison && selectedIds.length > 0 && (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          {isNb
-            ? "Velg minst 2 leverandører for å starte sammenligning"
-            : "Select at least 2 vendors to start comparing"}
-        </p>
+        </div>
       )}
 
       {selectedIds.length === 0 && (
-        <div className="text-center py-12 space-y-2">
-          <Scale className="h-12 w-12 text-muted-foreground mx-auto" />
-          <h3 className="font-semibold">
-            {isNb ? "Sammenlign leverandører" : "Compare Vendors"}
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+        <div className="text-center py-16 text-muted-foreground">
+          <Scale className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">
             {isNb
-              ? "Velg 2–5 leverandører fra listen for å sammenligne compliance-modenhet side ved side"
-              : "Select 2–5 vendors from the list to compare compliance maturity side by side"}
+              ? "Velg 2–5 leverandører for å sammenligne compliance-modenhet side ved side"
+              : "Select 2–5 vendors to compare compliance maturity side by side"}
           </p>
         </div>
       )}
