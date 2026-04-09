@@ -1,5 +1,6 @@
 import { AlertTriangle, ShieldCheck, TrendingUp, Cpu, ListTodo, FileWarning } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 /* ── tiny reusable donut ── */
 function MiniDonut({ segments, size = 100, strokeWidth = 10 }: {
@@ -90,7 +91,7 @@ export function DashboardHeroCards() {
       </div>
 
       {/* ── Card 2: Compliance status ── */}
-      <div className="rounded-xl border border-border bg-card p-5 flex gap-5 items-center">
+      <div className="rounded-xl border border-border bg-card p-5 flex gap-5 items-center cursor-pointer hover:border-primary/40 transition-colors" onClick={() => navigate('/trust-center/regulations')}>
         <div className="relative shrink-0">
           <MiniDonut
             size={110}
