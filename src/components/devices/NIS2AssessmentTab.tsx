@@ -75,10 +75,10 @@ const capabilityBadge = (cap: NIS2AgentCapability) => {
           <Zap className="h-3 w-3" /> Kan aktiveres
         </Badge>
       );
-    case "hybrid":
+    case "assisted":
       return (
         <Badge variant="outline" className="text-[10px] h-5 gap-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800">
-          <Sparkles className="h-3 w-3" /> Hybrid
+          <Sparkles className="h-3 w-3" /> Assistert
         </Badge>
       );
     case "manual":
@@ -390,13 +390,13 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                 <CollapsibleContent>
                   <div className="border-t px-4 py-4 space-y-4 bg-muted/10">
                     {/* Agent action panel */}
-                    {(req.agentCapability === "ai_ready" || req.agentCapability === "hybrid") && (
+                    {(req.agentCapability === "ai_ready" || req.agentCapability === "assisted") && (
                       <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/50">
                         <Bot className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Lara AI-agent</p>
                           <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">{req.agentAction}</p>
-                          {req.agentCapability === "hybrid" && (
+                          {req.agentCapability === "assisted" && (
                             <Button
                               variant="outline"
                               size="sm"

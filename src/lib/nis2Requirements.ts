@@ -190,7 +190,7 @@ export const nis2Requirements: NIS2Requirement[] = [
       if (m.nis2_mfa_enabled === false || m.mfa_enabled === false) return "fail";
       return null;
     },
-    agentCapability: "hybrid",
+    agentCapability: "assisted",
     agentAction: "Lara verifiserer MFA-status automatisk, men aktivering må gjøres manuelt i AD/IdP.",
   },
 ];
@@ -229,17 +229,17 @@ export function computeNIS2Summary(
 export function computeNIS2AgentBreakdown(requirements: NIS2Requirement[]) {
   let aiReady = 0;
   let activatable = 0;
-  let hybrid = 0;
+  let assisted = 0;
   let manual = 0;
 
   for (const req of requirements) {
     switch (req.agentCapability) {
       case "ai_ready": aiReady++; break;
       case "activatable": activatable++; break;
-      case "hybrid": hybrid++; break;
+      case "assisted": assisted++; break;
       case "manual": manual++; break;
     }
   }
 
-  return { aiReady, activatable, hybrid, manual };
+  return { aiReady, activatable, assisted, manual };
 }
