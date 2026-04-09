@@ -98,7 +98,7 @@ export default function Subscriptions() {
         </div>
       )}
       {isMobile && <Sidebar />}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
         <div>

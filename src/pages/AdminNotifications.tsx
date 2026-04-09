@@ -181,7 +181,7 @@ export default function AdminNotifications() {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">{content}</main>
+        <main className="flex-1 overflow-y-auto md:pt-11">{content}</main>
       </div>
     );
   }
