@@ -160,7 +160,7 @@ export default function VendorDashboard() {
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="all">{t("vendorDashboard.tabs.all")}</TabsTrigger>
-              <TabsTrigger value="overview">{t("vendorDashboard.tabs.needsAction", "Krever handling")}</TabsTrigger>
+              <TabsTrigger value="overview">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
               <TabsTrigger value="map">{t("vendorDashboard.tabs.map")}</TabsTrigger>
               <TabsTrigger value="supplyChain">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
               <TabsTrigger value="compare">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
