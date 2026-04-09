@@ -707,7 +707,7 @@
     "owner": "Eier",
     "selectOwner": "Velg eier",
     "noOwner": "Ingen eier",
-    "systemManager": "Systemansvarlig",
+    "systemManager": "Leverandøransvarlig",
     "enterManager": "Skriv inn navn",
     "assignManager": "Tildel ansvarlig",
     "updateSuccess": "System oppdatert",
