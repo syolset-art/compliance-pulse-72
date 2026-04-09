@@ -733,7 +733,29 @@ export default function Tasks() {
           })}
         </div>
           </>
-        )}
+
+        <PageHelpDrawer
+          open={helpOpen}
+          onOpenChange={setHelpOpen}
+          icon={ClipboardListHelp}
+          title="Hva er oppgaveoversikten?"
+          description="Oppgaveoversikten samler alle handlinger som krever din oppmerksomhet — fra systemrevisjoner og risikovurderinger til godkjenninger og dokumentasjonskrav. Lara AI kan utføre mange oppgaver automatisk basert på autonominivået du har satt."
+          itemsHeading="Hva kan du gjøre her?"
+          items={[
+            { icon: Zap, title: "La AI håndtere oppgaver", description: "Oppgaver innenfor ditt innstilte autonominivå kan utføres automatisk av Lara." },
+            { icon: ClipboardListHelp, title: "Filtrer og prioriter", description: "Bruk filtrene for å fokusere på riktig område, type eller prioritet." },
+            { icon: UsersHelp, title: "Tildel ansvar", description: "Se hvem som er ansvarlig og følg opp at oppgaver fullføres i tide." },
+          ]}
+          whyTitle="Hvorfor er dette viktig?"
+          whyDescription="Systematisk oppgavehåndtering sikrer at ingenting faller mellom stolene. Ved å la AI håndtere rutineoppgaver kan du fokusere på det som krever menneskelig vurdering."
+          stepsHeading="Kom i gang"
+          steps={[
+            { text: "Se gjennom oppgavene og filtrer etter prioritet" },
+            { text: "La Lara håndtere oppgaver hun kan utføre automatisk" },
+            { text: "Følg opp manuelt der det trengs menneskelig vurdering" },
+          ]}
+          laraSuggestion="Hjelp meg med å prioritere og håndtere oppgavene mine"
+        />
         </div>
       </main>
     </div>
