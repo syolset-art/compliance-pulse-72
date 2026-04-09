@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList, Shield, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
