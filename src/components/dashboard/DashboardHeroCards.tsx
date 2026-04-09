@@ -1,6 +1,10 @@
-import { AlertTriangle, ShieldCheck, TrendingUp, Cpu, ListTodo, FileWarning } from "lucide-react";
+import { AlertTriangle, ShieldCheck, TrendingUp, Cpu, ListTodo, FileWarning, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
+import { ROLE_HERO_CTAS } from "@/lib/roleContentConfig";
+import { ROLE_LABELS } from "@/hooks/useUserRole";
+import { Button } from "@/components/ui/button";
 
 /* ── tiny reusable donut ── */
 function MiniDonut({ segments, size = 100, strokeWidth = 10 }: {
@@ -56,11 +60,12 @@ function MetricPill({ icon: Icon, label, value, color }: {
 export function DashboardHeroCards() {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
+  const { primaryRole } = useUserRole();
   const isNb = i18n.language === "nb";
 
-  // Demo data – replace with real queries later
   const riskScore = 68;
   const complianceScore = 74;
+  const ctas = ROLE_HERO_CTAS[primaryRole] || ROLE_HERO_CTAS.compliance_ansvarlig;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -91,7 +96,7 @@ export function DashboardHeroCards() {
         </div>
       </div>
 
-      {/* ── Card 2: Compliance status ── */}
+      {/* ── Card 2: Compliance status + Role CTAs ── */}
       <div className="rounded-xl border border-border bg-card p-5 flex gap-5 items-center cursor-pointer hover:border-primary/40 transition-colors" onClick={() => navigate('/trust-center/regulations')}>
         <div className="relative shrink-0">
           <MiniDonut
@@ -134,6 +139,24 @@ export function DashboardHeroCards() {
                   />
                 </div>
               </div>
+            ))}
+          </div>
+          {/* Role-specific quick actions */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            {ctas.map((cta) => (
+              <Button
+                key={cta.route + cta.labelNb}
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-primary hover:text-primary/80 hover:bg-primary/10 px-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(cta.route);
+                }}
+              >
+                {isNb ? cta.labelNb : cta.labelEn}
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
             ))}
           </div>
         </div>
