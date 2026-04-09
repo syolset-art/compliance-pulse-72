@@ -196,7 +196,7 @@ const Index = () => {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-mynder">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-background/95 backdrop-blur-sm">
+        <main className="flex-1 overflow-y-auto md:pt-11 bg-background/95 backdrop-blur-sm">
           {contentView ? (
             <ContentViewer contentType={contentView.type} filter={contentView.filter}
               viewMode={contentView.options?.viewMode} sortBy={contentView.options?.sortBy}
@@ -214,7 +214,7 @@ const Index = () => {
   return (
     <div className="flex min-h-screen max-h-screen bg-gradient-mynder overflow-hidden">
       <div className="w-64 flex-shrink-0"><Sidebar /></div>
-      <main className="flex-1 h-screen overflow-y-auto bg-background/95 backdrop-blur-sm">
+      <main className="flex-1 h-screen overflow-y-auto md:pt-11 bg-background/95 backdrop-blur-sm">
         {contentView ? (
           <ContentViewer contentType={contentView.type} filter={contentView.filter}
             viewMode={contentView.options?.viewMode} sortBy={contentView.options?.sortBy}
