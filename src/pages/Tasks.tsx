@@ -417,36 +417,25 @@ export default function Tasks() {
       
       <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container mx-auto p-6 max-w-7xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
-          <p className="text-muted-foreground">{t("tasks.subtitle")}</p>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-2 mb-6">
-          <Button
-            variant={viewMode === "tasks" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("tasks")}
-            className="gap-2"
-          >
-            <ListTodo className="w-4 h-4" />
-            {t("tasks.viewModes.tasks")}
-          </Button>
-          <Button
-            variant={viewMode === "readiness" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("readiness")}
-            className="gap-2"
-          >
-            <ClipboardCheck className="w-4 h-4" />
-            {t("tasks.viewModes.readiness")}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground">{t("tasks.title")}</h1>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+            </Button>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
+            <FolderKanban className="h-4 w-4" />
+            Prosjekter
+            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
+              <Crown className="h-2.5 w-2.5 mr-0.5" />
+              Premium
+            </Badge>
           </Button>
         </div>
+        <p className="text-muted-foreground mb-6">{t("tasks.subtitle")}</p>
 
-        {viewMode === "readiness" ? (
-          <ISOReadinessView />
-        ) : (
           <>
         {/* Action Filter Banner - Shows when navigating from dashboard widget */}
         {activeActionFilter && (
