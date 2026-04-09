@@ -471,9 +471,8 @@ export default function Tasks() {
         {/* Consolidated Filter Bar */}
         {!activeActionFilter && (
           <div className="mb-6 space-y-3">
-            {/* Row 1: Domain chips */}
+            {/* Single row: Domain chips + compact type/priority toggles */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Område</span>
               <button
                 onClick={() => setDomainFilter(null)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
@@ -498,11 +497,9 @@ export default function Tasks() {
                   {domain.name} ({getTaskCountForDomain(key)})
                 </button>
               ))}
-            </div>
 
-            {/* Row 2: Type & Priority chips */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Type</span>
+              <div className="w-px h-4 bg-border mx-1" />
+
               {["System", "Prosess"].map(filter => (
                 <button
                   key={filter}
@@ -519,7 +516,6 @@ export default function Tasks() {
 
               <div className="w-px h-4 bg-border mx-1" />
 
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Prioritet</span>
               {[
                 { label: "Høy", value: "HØY PRIORITET" },
                 { label: "Middels", value: "MIDDELS PRIORITET" },
