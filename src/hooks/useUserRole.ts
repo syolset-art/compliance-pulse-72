@@ -153,7 +153,7 @@ export function useUserRole() {
         .from('user_roles')
         .select('id')
         .eq('user_id', user.id)
-        .eq('role', role)
+        .eq('role', role as any)
         .single();
 
       if (existing) {
@@ -164,7 +164,7 @@ export function useUserRole() {
       } else {
         await supabase
           .from('user_roles')
-          .insert({ user_id: user.id, role, is_primary: true });
+          .insert({ user_id: user.id, role: role as any, is_primary: true } as any);
       }
 
       return { role, isDemo: false };
@@ -188,7 +188,7 @@ export function useUserRole() {
 
       await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role, is_primary: false });
+        .insert({ user_id: user.id, role: role as any, is_primary: false } as any);
 
       return { role, isDemo: false };
     },
