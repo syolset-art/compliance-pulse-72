@@ -324,7 +324,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
             </div>
             <div className="flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span><strong className="text-foreground">{agentBreakdown.hybrid}</strong> hybrid</span>
+              <span><strong className="text-foreground">{agentBreakdown.assisted}</strong> assistert</span>
             </div>
             <div className="flex items-center gap-1.5">
               <User className="h-3.5 w-3.5 text-slate-400" />
