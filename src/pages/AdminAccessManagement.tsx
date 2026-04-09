@@ -50,7 +50,7 @@ const AdminAccessManagement = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
-  const [inviteRole, setInviteRole] = useState("viewer");
+  const [inviteRole, setInviteRole] = useState("member");
   const [members] = useState<TeamMember[]>(DEMO_MEMBERS);
 
   const getRoleDef = (key: string) => KEY_ROLES.find(r => r.key === key) || KEY_ROLES[KEY_ROLES.length - 1];
@@ -64,7 +64,7 @@ const AdminAccessManagement = () => {
     setInviteOpen(false);
     setInviteEmail("");
     setInviteName("");
-    setInviteRole("viewer");
+    setInviteRole("member");
   };
 
   return (
