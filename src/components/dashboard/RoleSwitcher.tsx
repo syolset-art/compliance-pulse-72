@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid } from "lucide-react";
+import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid, AlertTriangle, FileSearch, Leaf, MonitorCog, GraduationCap, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
