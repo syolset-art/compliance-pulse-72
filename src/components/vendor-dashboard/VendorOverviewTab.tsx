@@ -206,31 +206,16 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
   if (vendors.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={onAddVendor} className="gap-2">
-            <Plus className="h-4 w-4" />
-            {t("vendorDashboard.addVendor", "Legg til leverandør")}
-          </Button>
-        </div>
-        <div className="text-center py-16 text-muted-foreground">
-          <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
-          <p className="text-lg mb-2">{t("vendorDashboard.noVendors", "Ingen leverandører ennå")}</p>
-          <p className="text-sm">{t("vendorDashboard.noVendorsDesc", "Legg til din første leverandør for å komme i gang")}</p>
-        </div>
+      <div className="text-center py-16 text-muted-foreground">
+        <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
+        <p className="text-lg mb-2">{t("vendorDashboard.noVendors", "Ingen leverandører ennå")}</p>
+        <p className="text-sm">{t("vendorDashboard.noVendorsDesc", "Legg til din første leverandør for å komme i gang")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={onAddVendor} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t("vendorDashboard.addVendor", "Legg til leverandør")}
-        </Button>
-      </div>
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
