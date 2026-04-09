@@ -7,7 +7,14 @@ export type AppRole =
   | 'sikkerhetsansvarlig'
   | 'compliance_ansvarlig'
   | 'ai_governance'
-  | 'operativ_bruker';
+  | 'operativ_bruker'
+  | 'risk_owner'
+  | 'internal_auditor'
+  | 'esg_officer'
+  | 'incident_manager'
+  | 'system_owner'
+  | 'training_officer'
+  | 'vendor_manager';
 
 export interface UserRole {
   id: string;
@@ -23,7 +30,14 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   sikkerhetsansvarlig: "Sikkerhetsansvarlig (CISO)",
   compliance_ansvarlig: "Compliance-ansvarlig",
   ai_governance: "AI Governance-ansvarlig",
-  operativ_bruker: "Operativ bruker"
+  operativ_bruker: "Operativ bruker",
+  risk_owner: "Risikoeier",
+  internal_auditor: "Internrevisor",
+  esg_officer: "Bærekraftsansvarlig (ESG)",
+  incident_manager: "Hendelsesansvarlig",
+  system_owner: "Systemeier",
+  training_officer: "Opplæringsansvarlig",
+  vendor_manager: "Leverandøransvarlig",
 };
 
 export const ROLE_ICONS: Record<AppRole, string> = {
@@ -32,7 +46,14 @@ export const ROLE_ICONS: Record<AppRole, string> = {
   sikkerhetsansvarlig: "Lock",
   compliance_ansvarlig: "ClipboardCheck",
   ai_governance: "Bot",
-  operativ_bruker: "User"
+  operativ_bruker: "User",
+  risk_owner: "AlertTriangle",
+  internal_auditor: "FileSearch",
+  esg_officer: "Leaf",
+  incident_manager: "AlertTriangle",
+  system_owner: "MonitorCog",
+  training_officer: "GraduationCap",
+  vendor_manager: "Truck",
 };
 
 export const ROLE_COLORS: Record<AppRole, string> = {
@@ -41,7 +62,14 @@ export const ROLE_COLORS: Record<AppRole, string> = {
   sikkerhetsansvarlig: "text-red-600",
   compliance_ansvarlig: "text-green-600",
   ai_governance: "text-purple-600",
-  operativ_bruker: "text-gray-600"
+  operativ_bruker: "text-gray-600",
+  risk_owner: "text-orange-600",
+  internal_auditor: "text-indigo-600",
+  esg_officer: "text-emerald-600",
+  incident_manager: "text-rose-600",
+  system_owner: "text-cyan-600",
+  training_officer: "text-teal-600",
+  vendor_manager: "text-violet-600",
 };
 
 // Demo mode: Store selected role in localStorage when not authenticated
@@ -77,21 +105,14 @@ export function useUserRole() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['user-roles'],
     queryFn: async () => {
-      // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        // Demo mode: use localStorage
         const primaryRole = getDemoRole();
         const allRoles = getDemoRoles();
-        return {
-          primaryRole,
-          allRoles,
-          isDemo: true
-        };
+        return { primaryRole, allRoles, isDemo: true };
       }
 
-      // Authenticated: fetch from database
       const { data: roles, error } = await supabase
         .from('user_roles')
         .select('*')
@@ -105,13 +126,9 @@ export function useUserRole() {
       
       const allRoles = roles?.map(r => r.role as AppRole) || ['compliance_ansvarlig'];
 
-      return {
-        primaryRole,
-        allRoles,
-        isDemo: false
-      };
+      return { primaryRole, allRoles, isDemo: false };
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   const setPrimaryRole = useMutation({
@@ -119,7 +136,6 @@ export function useUserRole() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        // Demo mode
         setDemoRole(role);
         const currentRoles = getDemoRoles();
         if (!currentRoles.includes(role)) {
@@ -128,13 +144,11 @@ export function useUserRole() {
         return { role, isDemo: true };
       }
 
-      // First, unset all primary roles
       await supabase
         .from('user_roles')
         .update({ is_primary: false })
         .eq('user_id', user.id);
 
-      // Check if role exists
       const { data: existing } = await supabase
         .from('user_roles')
         .select('id')
@@ -143,13 +157,11 @@ export function useUserRole() {
         .single();
 
       if (existing) {
-        // Update existing role to primary
         await supabase
           .from('user_roles')
           .update({ is_primary: true })
           .eq('id', existing.id);
       } else {
-        // Insert new role as primary
         await supabase
           .from('user_roles')
           .insert({ user_id: user.id, role, is_primary: true });
@@ -167,7 +179,6 @@ export function useUserRole() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        // Demo mode
         const currentRoles = getDemoRoles();
         if (!currentRoles.includes(role)) {
           setDemoRoles([...currentRoles, role]);
