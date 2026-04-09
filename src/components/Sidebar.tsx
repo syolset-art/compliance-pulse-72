@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { TopBar } from "@/components/TopBar";
 import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
@@ -662,8 +663,11 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar shadow-luxury border-r border-sidebar-border">
-      <SidebarContent />
-    </div>
+    <>
+      <div className="flex h-screen w-64 flex-shrink-0 flex-col bg-sidebar shadow-luxury border-r border-sidebar-border">
+        <SidebarContent />
+      </div>
+      <TopBar />
+    </>
   );
 }
