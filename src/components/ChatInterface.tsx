@@ -10,7 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Paperclip, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X, ListChecks, Clock, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Send, Loader2, Undo2, Home, MessageSquarePlus, Share2, Plus, Upload, FileText, AlertTriangle, Shield, Link, ShoppingBag, ThumbsUp, ThumbsDown, Brain, MoreHorizontal, Zap, Search, ListTodo, FileCheck, Database, Check, ChevronRight, Building2, Server, Building, HelpCircle, X, ListChecks, Clock, TrendingUp, CheckCircle2, MessageCircleWarning } from "lucide-react";
+import { FeedbackDialog } from "@/components/chat/FeedbackDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import laraButterfly from "@/assets/lara-butterfly.png";
@@ -352,6 +353,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(true);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
@@ -1345,106 +1347,36 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
               }}
             />
 
-            {/* Mode indicator */}
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-muted px-2.5 py-1.5 rounded-md">
-              <Zap className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Auto</span>
-            </div>
-
-            {/* More options menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  disabled={isLoading}
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={onBackToDashboard}>
-                  <Home className="mr-2 h-4 w-4" />
-                  {t("chat.menu.goToDashboard")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleNewConversation}>
-                  <MessageSquarePlus className="mr-2 h-4 w-4" />
-                  {t("chat.menu.newConversation")}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setShopDialogOpen(true)}>
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  {t("chat.menu.additionalModules")}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleUndoLastMessage}
-                  disabled={messages.length < 2}
-                >
-                  <Undo2 className="mr-2 h-4 w-4" />
-                  {t("chat.menu.undoLastMessage")}
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={handleShareConversation}
-                  disabled={messages.length === 0}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  {t("chat.menu.shareConversation")}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    handleSend(t("chat.prompts.gapAnalysis"));
-                  }}
-                >
-                  <FileText className="mr-2 h-4 w-4" />
-                  {t("chat.menu.gapAnalysis")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    handleSend(t("chat.prompts.riskAssessment"));
-                  }}
-                >
-                  <AlertTriangle className="mr-2 h-4 w-4" />
-                  {t("chat.menu.riskAssessment")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    handleSend(t("chat.prompts.complianceReport"));
-                  }}
-                >
-                  <Shield className="mr-2 h-4 w-4" />
-                  {t("chat.menu.complianceReport")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    toast({
-                      title: t("chat.integrationsToast.title"),
-                      description: t("chat.integrationsToast.description"),
-                    });
-                  }}
-                >
-                  <Link className="mr-2 h-4 w-4" />
-                  {t("chat.menu.integrations")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Send button */}
-            <Button 
-              type="submit" 
-              size="icon" 
-              disabled={isLoading || !input.trim()}
-              className="h-8 w-8 rounded-lg"
+            {/* Feedback button */}
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={() => setFeedbackDialogOpen(true)}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground flex-shrink-0"
+              title={i18n.language === 'nb' ? "Gi tilbakemelding" : "Give feedback"}
             >
-              <Send className="h-4 w-4" />
+              <MessageCircleWarning className="h-4 w-4" />
             </Button>
+
+            {/* Send button - only visible when there's input */}
+            {input.trim() && (
+              <Button 
+                type="submit" 
+                size="icon" 
+                disabled={isLoading}
+                className="h-8 w-8 rounded-lg flex-shrink-0"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            )}
           </form>
         </div>
       </div>
     </div>
+
+    {/* Feedback Dialog */}
+    <FeedbackDialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen} />
 
     {/* Share Dialog */}
     <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
