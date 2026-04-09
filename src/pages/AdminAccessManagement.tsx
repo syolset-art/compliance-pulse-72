@@ -26,18 +26,22 @@ interface TeamMember {
 
 const KEY_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator", descNb: "Full tilgang til alle moduler og innstillinger", descEn: "Full access to all modules and settings", icon: Crown },
-  { key: "compliance_officer", labelNb: "Compliance Officer", labelEn: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks", icon: Shield },
-  { key: "ciso", labelNb: "CISO", labelEn: "CISO", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security", icon: Shield },
-  { key: "dpo", labelNb: "Personvernombud (DPO)", labelEn: "Data Protection Officer (DPO)", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR", icon: Eye },
-  { key: "system_owner", labelNb: "Systemeier", labelEn: "System Owner", descNb: "Ansvarlig for systemer og applikasjoner", descEn: "Responsible for systems and applications", icon: Settings },
-  { key: "viewer", labelNb: "Leser", labelEn: "Viewer", descNb: "Kan se informasjon, men ikke redigere", descEn: "Can view information but not edit", icon: Eye },
+  { key: "compliance_officer", labelNb: "Compliance-ansvarlig", labelEn: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks", icon: Shield },
+  { key: "data_controller", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Ansvarlig for behandling av personopplysninger", descEn: "Responsible for processing of personal data", icon: Shield },
+  { key: "ciso", labelNb: "CISO / Sikkerhetsansvarlig", labelEn: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security", icon: Shield },
+  { key: "dpo", labelNb: "DPO / Personvernkontakt", labelEn: "DPO / Privacy Contact", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR", icon: Eye },
+  { key: "it_manager", labelNb: "IT-ansvarlig", labelEn: "IT Manager", descNb: "Ansvarlig for IT-drift og systemer", descEn: "Responsible for IT operations and systems", icon: Settings },
+  { key: "member", labelNb: "Medlem", labelEn: "Member", descNb: "Standard tilgang — alle brukere er medlem med mindre de tildeles en nøkkelrolle", descEn: "Default access — all users are members unless assigned a key role", icon: Eye },
 ];
 
 const DEMO_MEMBERS: TeamMember[] = [
   { id: "1", name: "Kari Nordmann", email: "kari@acme.no", role: "admin", status: "active", lastSeen: "I dag" },
-  { id: "2", name: "Ola Hansen", email: "ola@acme.no", role: "compliance_officer", status: "active", lastSeen: "I går" },
-  { id: "3", name: "Per Olsen", email: "per@acme.no", role: "ciso", status: "active", lastSeen: "3 dager siden" },
-  { id: "4", name: "Line Berg", email: "line@acme.no", role: "viewer", status: "invited" },
+  { id: "2", name: "Synne Olsetten", email: "synne@acme.no", role: "compliance_officer", status: "active", lastSeen: "I går" },
+  { id: "3", name: "Sebastian Hernandez", email: "sebastian@acme.no", role: "ciso", status: "active", lastSeen: "3 dager siden" },
+  { id: "4", name: "Samti Ahmed", email: "samti@acme.no", role: "dpo", status: "active", lastSeen: "I dag" },
+  { id: "5", name: "Truls Kristoffersen", email: "truls@acme.no", role: "data_controller", status: "active", lastSeen: "2 dager siden" },
+  { id: "6", name: "Synnøve Olset", email: "synnove@acme.no", role: "it_manager", status: "active", lastSeen: "I dag" },
+  { id: "7", name: "Line Berg", email: "line@acme.no", role: "member", status: "invited" },
 ];
 
 const AdminAccessManagement = () => {
@@ -46,7 +50,7 @@ const AdminAccessManagement = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
-  const [inviteRole, setInviteRole] = useState("viewer");
+  const [inviteRole, setInviteRole] = useState("member");
   const [members] = useState<TeamMember[]>(DEMO_MEMBERS);
 
   const getRoleDef = (key: string) => KEY_ROLES.find(r => r.key === key) || KEY_ROLES[KEY_ROLES.length - 1];
@@ -60,7 +64,7 @@ const AdminAccessManagement = () => {
     setInviteOpen(false);
     setInviteEmail("");
     setInviteName("");
-    setInviteRole("viewer");
+    setInviteRole("member");
   };
 
   return (
