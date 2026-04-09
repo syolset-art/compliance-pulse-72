@@ -41,7 +41,9 @@ import {
   Pencil,
   Sparkles,
   FileCheck,
+  Info,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 
@@ -592,9 +594,23 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                 <Users className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-                  {t("trustProfile.owner")}
-                </p>
+                <TooltipProvider>
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                      {t("trustProfile.owner")}
+                    </p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        {i18n.language === "nb"
+                          ? "Arbeidsområdet som eier denne leverandøren. Arbeidsområdeansvarlig blir automatisk satt som leverandøransvarlig."
+                          : "The work area that owns this vendor. The work area manager is automatically set as vendor manager."}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
                 <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
                   <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                     <SelectValue placeholder={t("trustProfile.selectOwner")} />
@@ -606,6 +622,11 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedWorkArea?.responsible_person && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {i18n.language === "nb" ? "Ansvarlig" : "Manager"}: {selectedWorkArea.responsible_person}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
