@@ -26,6 +26,9 @@ import { LayoutGrid, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 import { DashboardCriticalTasks } from "@/components/dashboard/DashboardCriticalTasks";
+import { useUserRole } from "@/hooks/useUserRole";
+import { ROLE_WIDGET_DEFAULTS } from "@/lib/roleContentConfig";
+import { ROLE_LABELS } from "@/hooks/useUserRole";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
@@ -68,13 +71,35 @@ const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "nis2": <NIS2ReadinessWidget />,
 };
 
+const ROLE_HIDDEN_KEY = "mynder_dashboard_role_initialized";
+
 const Index = () => {
   const isMobile = useIsMobile();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { primaryRole } = useUserRole();
 
-  const [hiddenWidgets, setHiddenWidgets] = useState<string[]>(() => loadFromStorage(HIDDEN_KEY, []));
+  // Initialize hidden widgets from role defaults if user hasn't customized
+  const [hiddenWidgets, setHiddenWidgets] = useState<string[]>(() => {
+    const customized = localStorage.getItem(HIDDEN_KEY);
+    const roleInit = localStorage.getItem(ROLE_HIDDEN_KEY);
+    if (customized && roleInit === primaryRole) return JSON.parse(customized);
+    // Apply role defaults
+    const defaults = ROLE_WIDGET_DEFAULTS[primaryRole]?.hidden || [];
+    return defaults;
+  });
   const [widgetOrder, setWidgetOrder] = useState<string[]>(() => loadFromStorage(ORDER_KEY, DEFAULT_ORDER));
+
+  // Re-apply role defaults when role changes
+  useEffect(() => {
+    const roleInit = localStorage.getItem(ROLE_HIDDEN_KEY);
+    if (roleInit !== primaryRole) {
+      const defaults = ROLE_WIDGET_DEFAULTS[primaryRole]?.hidden || [];
+      setHiddenWidgets(defaults);
+      localStorage.setItem(HIDDEN_KEY, JSON.stringify(defaults));
+      localStorage.setItem(ROLE_HIDDEN_KEY, primaryRole);
+    }
+  }, [primaryRole]);
   const [editMode, setEditMode] = useState(false);
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
@@ -149,9 +174,14 @@ const Index = () => {
     <>
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-          {isNb ? `Hei${companyName ? `, ${companyName}` : ""}` : `Hi${companyName ? `, ${companyName}` : ""}`}
-        </h1>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+            {isNb ? `Hei${companyName ? `, ${companyName}` : ""}` : `Hi${companyName ? `, ${companyName}` : ""}`}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {ROLE_LABELS[primaryRole]}
+          </p>
+        </div>
         <div className="flex items-center gap-1.5">
           <Button
             variant={editMode ? "default" : "ghost"}
