@@ -118,18 +118,6 @@ export default function VendorDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
-              <button
-                onClick={() => navigate("/lara-inbox")}
-                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-                title={t("vendorDashboard.laraInbox", "Lara Inbox")}
-              >
-                <Inbox className="h-5 w-5 text-muted-foreground" />
-                {totalInboxCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    {totalInboxCount}
-                  </span>
-                )}
-              </button>
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
