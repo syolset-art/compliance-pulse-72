@@ -6,17 +6,116 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, FileDown, FileSpreadsheet, Scale, X, ChevronDown } from "lucide-react";
-import { CompareRadarChart } from "./CompareRadarChart";
-import { CompareTable } from "./CompareTable";
+import { Progress } from "@/components/ui/progress";
+import { Search, FileDown, FileSpreadsheet, Scale, X, ChevronDown, Shield, Settings, Key, Users, CheckCircle2, AlertCircle, MinusCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import {
+  GENERIC_CONTROLS,
+  getTypeSpecificControls,
+  calculateTrustScore,
+  groupControlsByArea,
+  type EvaluatedControl,
+  type ControlArea,
+  type TrustControlStatus,
+} from "@/lib/trustControlDefinitions";
 
 interface VendorCompareTabProps {
   vendors: any[];
+}
+
+// Re-use evaluation logic from TrustControlsPanel
+function evaluateGenericControl(key: string, asset: any, docsCount: number): TrustControlStatus {
+  switch (key) {
+    case "owner_assigned": return asset.asset_owner || asset.work_area_id ? "implemented" : "missing";
+    case "responsible_person": return asset.asset_manager ? "implemented" : "missing";
+    case "description_defined":
+      return asset.description && asset.description.length > 10 ? "implemented" : asset.description ? "partial" : "missing";
+    case "risk_level_defined": return asset.risk_level ? "implemented" : "missing";
+    case "criticality_defined": return asset.criticality ? "implemented" : "missing";
+    case "risk_assessment": return asset.risk_level ? "partial" : "missing";
+    case "review_cycle": return asset.next_review_date ? "implemented" : "missing";
+    case "documentation_available": return docsCount >= 3 ? "implemented" : docsCount > 0 ? "partial" : "missing";
+    default: return "missing";
+  }
+}
+
+function evaluateTypeControl(key: string, asset: any, docsCount: number): TrustControlStatus {
+  const meta = (asset.metadata || {}) as Record<string, any>;
+  const maps: Record<string, () => TrustControlStatus> = {
+    dpa_verified: () => meta.dpa_verified ? "implemented" : docsCount > 0 ? "partial" : "missing",
+    security_contact: () => asset.contact_email ? "implemented" : asset.contact_person ? "partial" : "missing",
+    sub_processors_disclosed: () => meta.sub_processors_disclosed ? "implemented" : "missing",
+    vendor_security_review: () => meta.vendor_security_review ? "implemented" : "missing",
+  };
+  return maps[key]?.() ?? "missing";
+}
+
+function evaluateVendorControls(vendor: any, docsCount: number) {
+  const generic: EvaluatedControl[] = GENERIC_CONTROLS.map((c) => ({
+    ...c,
+    status: evaluateGenericControl(c.key, vendor, docsCount),
+  }));
+  const typeControls = getTypeSpecificControls("vendor");
+  const typeEval: EvaluatedControl[] = typeControls.map((c) => ({
+    ...c,
+    status: evaluateTypeControl(c.key, vendor, docsCount),
+  }));
+  const all = [...generic, ...typeEval];
+  const grouped = groupControlsByArea(all);
+  const trustScore = calculateTrustScore(all);
+
+  const areaScore = (area: ControlArea) => {
+    const controls = grouped[area];
+    if (!controls || controls.length === 0) return null;
+    const impl = controls.filter(c => c.status === "implemented").length;
+    const partial = controls.filter(c => c.status === "partial").length;
+    return Math.round(((impl + partial * 0.5) / controls.length) * 100);
+  };
+
+  return {
+    trustScore,
+    areas: {
+      governance: areaScore("governance"),
+      risk_compliance: areaScore("risk_compliance"),
+      security_posture: areaScore("security_posture"),
+      supplier_governance: areaScore("supplier_governance"),
+    },
+    controls: all,
+    grouped,
+  };
+}
+
+const AREA_CONFIG: { area: ControlArea; icon: any; labelNb: string; labelEn: string }[] = [
+  { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
+  { area: "risk_compliance", icon: Settings, labelNb: "Drift og sikkerhet", labelEn: "Operations" },
+  { area: "security_posture", icon: Key, labelNb: "Identitet og tilgang", labelEn: "Identity & Access" },
+  { area: "supplier_governance", icon: Users, labelNb: "Leverandør og økosystem", labelEn: "Supplier & Ecosystem" },
+];
+
+function StatusIcon({ status }: { status: TrustControlStatus }) {
+  if (status === "implemented") return <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />;
+  if (status === "partial") return <MinusCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />;
+  return <AlertCircle className="h-4 w-4 text-destructive" />;
+}
+
+function ScoreBar({ score, compact }: { score: number | null; compact?: boolean }) {
+  if (score === null) return <span className="text-xs text-muted-foreground">–</span>;
+  const color = score >= 75 ? "bg-green-500" : score >= 50 ? "bg-orange-500" : "bg-destructive";
+  return (
+    <div className={cn("flex items-center gap-2", compact ? "w-full" : "w-full")}>
+      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+        <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${score}%` }} />
+      </div>
+      <span className={cn("text-xs font-semibold tabular-nums", score >= 75 ? "text-green-600 dark:text-green-400" : score >= 50 ? "text-orange-500" : "text-destructive")}>
+        {score}%
+      </span>
+    </div>
+  );
 }
 
 export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
@@ -24,6 +123,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
   const isNb = i18n.language === "nb";
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
 
   const filteredVendors = useMemo(() => {
     if (!search) return vendors;
@@ -39,29 +139,20 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     });
   };
 
-  const { data: analyses = [] } = useQuery({
-    queryKey: ["vendor-compare-analyses", selectedIds],
+  // Fetch document counts per vendor
+  const { data: docCounts = {} } = useQuery({
+    queryKey: ["vendor-compare-doc-counts", selectedIds],
     queryFn: async () => {
-      if (selectedIds.length === 0) return [];
-      const { data } = await supabase
-        .from("vendor_analyses")
-        .select("asset_id, overall_score, category_scores, created_at")
-        .in("asset_id", selectedIds)
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: selectedIds.length >= 2,
-  });
-
-  const { data: documents = [] } = useQuery({
-    queryKey: ["vendor-compare-docs", selectedIds],
-    queryFn: async () => {
-      if (selectedIds.length === 0) return [];
+      if (selectedIds.length === 0) return {};
       const { data } = await supabase
         .from("vendor_documents")
-        .select("asset_id, document_type, valid_to")
+        .select("asset_id")
         .in("asset_id", selectedIds);
-      return data || [];
+      const counts: Record<string, number> = {};
+      (data || []).forEach((d: any) => {
+        counts[d.asset_id] = (counts[d.asset_id] || 0) + 1;
+      });
+      return counts;
     },
     enabled: selectedIds.length >= 2,
   });
@@ -69,97 +160,65 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
   const compareData = useMemo(() => {
     return selectedIds.map((id) => {
       const vendor = vendors.find((v) => v.id === id);
-      const analysis = analyses.find((a) => a.asset_id === id);
-      const catScores = (analysis?.category_scores as Record<string, number>) || {};
-      const vendorDocs = documents.filter((d) => d.asset_id === id);
-      const hasDPA = vendorDocs.some(
-        (d) => d.document_type?.toLowerCase().includes("dpa") || d.document_type?.toLowerCase().includes("databehandleravtale")
-      );
-      const now = new Date();
-      const expiredDocs = vendorDocs.filter((d) => d.valid_to && new Date(d.valid_to) < now).length;
-
+      if (!vendor) return null;
+      const docsCount = docCounts[id] || 0;
+      const evaluation = evaluateVendorControls(vendor, docsCount);
       return {
         id,
-        name: vendor?.name || id,
-        compliance_score: vendor?.compliance_score ?? null,
-        risk_level: vendor?.risk_level ?? null,
-        gdpr_role: vendor?.gdpr_role ?? null,
-        vendor_category: vendor?.vendor_category ?? null,
-        country: vendor?.country ?? null,
-        hasDPA,
-        categoryScores: {
-          security: catScores.security ?? null,
-          data_handling: catScores.data_handling ?? null,
-          privacy: catScores.privacy ?? null,
-          availability: catScores.availability ?? null,
-        },
-        overall_score: analysis?.overall_score ?? null,
-        expiredDocs,
+        name: vendor.name,
+        risk_level: vendor.risk_level,
+        country: vendor.country,
+        ...evaluation,
       };
-    });
-  }, [selectedIds, vendors, analyses, documents]);
-
-  const radarData = compareData.map((v) => ({
-    name: v.name,
-    scores: {
-      security: v.categoryScores.security ?? 0,
-      data_handling: v.categoryScores.data_handling ?? 0,
-      privacy: v.categoryScores.privacy ?? 0,
-      availability: v.categoryScores.availability ?? 0,
-    },
-  }));
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(isNb ? "Leverandørsammenligning" : "Vendor Comparison", 14, 20);
-    const headers = [isNb ? "Dimensjon" : "Dimension", ...compareData.map((v) => v.name)];
-    const rows = [
-      [isNb ? "Compliance" : "Compliance", ...compareData.map((v) => v.compliance_score != null ? `${v.compliance_score}%` : "—")],
-      [isNb ? "Sikkerhet" : "Security", ...compareData.map((v) => v.categoryScores.security != null ? `${v.categoryScores.security}%` : "—")],
-      [isNb ? "Datahåndtering" : "Data Handling", ...compareData.map((v) => v.categoryScores.data_handling != null ? `${v.categoryScores.data_handling}%` : "—")],
-      [isNb ? "Personvern" : "Privacy", ...compareData.map((v) => v.categoryScores.privacy != null ? `${v.categoryScores.privacy}%` : "—")],
-      [isNb ? "Tilgjengelighet" : "Availability", ...compareData.map((v) => v.categoryScores.availability != null ? `${v.categoryScores.availability}%` : "—")],
-      [isNb ? "Risiko" : "Risk", ...compareData.map((v) => v.risk_level || "—")],
-      ["DPA", ...compareData.map((v) => v.hasDPA ? (isNb ? "Ja" : "Yes") : (isNb ? "Nei" : "No"))],
-      [isNb ? "GDPR-rolle" : "GDPR Role", ...compareData.map((v) => v.gdpr_role || "—")],
-    ];
-    autoTable(doc, { head: [headers], body: rows, startY: 30 });
-    doc.save("vendor-comparison.pdf");
-  };
-
-  const exportExcel = () => {
-    const headers = [isNb ? "Dimensjon" : "Dimension", ...compareData.map((v) => v.name)];
-    const rows = [
-      [isNb ? "Compliance-score" : "Compliance Score", ...compareData.map((v) => v.compliance_score ?? "")],
-      [isNb ? "Sikkerhet" : "Security", ...compareData.map((v) => v.categoryScores.security ?? "")],
-      [isNb ? "Datahåndtering" : "Data Handling", ...compareData.map((v) => v.categoryScores.data_handling ?? "")],
-      [isNb ? "Personvern" : "Privacy", ...compareData.map((v) => v.categoryScores.privacy ?? "")],
-      [isNb ? "Tilgjengelighet" : "Availability", ...compareData.map((v) => v.categoryScores.availability ?? "")],
-      [isNb ? "Risiko" : "Risk", ...compareData.map((v) => v.risk_level ?? "")],
-      ["DPA", ...compareData.map((v) => v.hasDPA ? (isNb ? "Ja" : "Yes") : (isNb ? "Nei" : "No"))],
-      [isNb ? "GDPR-rolle" : "GDPR Role", ...compareData.map((v) => v.gdpr_role ?? "")],
-      [isNb ? "Land" : "Country", ...compareData.map((v) => v.country ?? "")],
-      [isNb ? "Utdaterte dok." : "Expired Docs", ...compareData.map((v) => v.expiredDocs)],
-    ];
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Comparison");
-    XLSX.writeFile(wb, "vendor-comparison.xlsx");
-  };
+    }).filter(Boolean) as any[];
+  }, [selectedIds, vendors, docCounts]);
 
   const showComparison = selectedIds.length >= 2;
   const selectedVendors = selectedIds.map((id) => vendors.find((v) => v.id === id)).filter(Boolean);
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(isNb ? "Sammenligning av sikkerhetskontroller" : "Security Controls Comparison", 14, 20);
+    const headers = [isNb ? "Kontrollområde" : "Control Area", ...compareData.map((v: any) => v.name)];
+    const rows = [
+      [isNb ? "Trust Score" : "Trust Score", ...compareData.map((v: any) => `${v.trustScore}%`)],
+      ...AREA_CONFIG.map((a) => [
+        isNb ? a.labelNb : a.labelEn,
+        ...compareData.map((v: any) => v.areas[a.area] != null ? `${v.areas[a.area]}%` : "–"),
+      ]),
+    ];
+    autoTable(doc, { head: [headers], body: rows, startY: 30 });
+    doc.save("vendor-security-comparison.pdf");
+  };
+
+  const exportExcel = () => {
+    const headers = [isNb ? "Kontrollområde" : "Control Area", ...compareData.map((v: any) => v.name)];
+    const rows = [
+      ["Trust Score", ...compareData.map((v: any) => v.trustScore)],
+      ...AREA_CONFIG.map((a) => [
+        isNb ? a.labelNb : a.labelEn,
+        ...compareData.map((v: any) => v.areas[a.area] ?? ""),
+      ]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Security Comparison");
+    XLSX.writeFile(wb, "vendor-security-comparison.xlsx");
+  };
+
   return (
     <div className="space-y-4">
-      {/* Compact vendor picker */}
+      {/* Vendor picker */}
       <div className="flex items-center gap-2 flex-wrap">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5">
               <Scale className="h-3.5 w-3.5" />
               {isNb ? "Velg leverandører" : "Select vendors"}
+              {selectedIds.length > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">{selectedIds.length}</Badge>
+              )}
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -195,15 +254,9 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                       {checked && <span className="text-primary-foreground text-[9px]">✓</span>}
                     </div>
                     <span className="truncate flex-1">{v.name}</span>
-                    {v.compliance_score != null && (
-                      <span className="text-[11px] text-muted-foreground">{v.compliance_score}%</span>
-                    )}
                   </button>
                 );
               })}
-              {filteredVendors.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-3">{isNb ? "Ingen treff" : "No matches"}</p>
-              )}
             </div>
           </PopoverContent>
         </Popover>
@@ -217,7 +270,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
 
         {selectedIds.length < 2 && (
           <span className="text-xs text-muted-foreground">
-            {isNb ? "Velg minst 2 for å sammenligne" : "Select at least 2 to compare"}
+            {isNb ? "Velg minst 2 for å sammenligne sikkerhetskontroller" : "Select at least 2 to compare security controls"}
           </span>
         )}
 
@@ -236,27 +289,135 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
       {/* Comparison results */}
       {showComparison && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <CompareRadarChart vendors={radarData} />
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">{isNb ? "Totaloversikt" : "Overview"}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {compareData.map((v) => (
-                    <div key={v.id} className="flex items-center justify-between p-2.5 rounded-md bg-muted/30">
-                      <span className="text-sm font-medium">{v.name}</span>
-                      <span className="text-sm font-bold">
-                        {v.compliance_score != null ? `${v.compliance_score}%` : "—"}
+          {/* Trust Score overview */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{isNb ? "Samlet Trust Score" : "Overall Trust Score"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(compareData.length, 5)}, 1fr)` }}>
+                {compareData.map((v: any) => (
+                  <div key={v.id} className="text-center space-y-2">
+                    <p className="text-sm font-medium truncate">{v.name}</p>
+                    <div className="relative mx-auto w-16 h-16">
+                      <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15.5" fill="none" strokeWidth="3" className="stroke-muted" />
+                        <circle
+                          cx="18" cy="18" r="15.5" fill="none" strokeWidth="3"
+                          strokeDasharray={`${v.trustScore * 0.975} 100`}
+                          strokeLinecap="round"
+                          className={cn(
+                            v.trustScore >= 75 ? "stroke-green-500" : v.trustScore >= 50 ? "stroke-orange-500" : "stroke-destructive"
+                          )}
+                        />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">
+                        {v.trustScore}
                       </span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <CompareTable vendors={compareData} />
+                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[10px]">
+                      {v.risk_level || "–"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Security pillar comparison */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{isNb ? "Sikkerhetskontroller per område" : "Security Controls by Area"}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0">
+              <TooltipProvider>
+                {AREA_CONFIG.map((areaConf) => {
+                  const Icon = areaConf.icon;
+                  const isExpanded = expandedArea === areaConf.area;
+                  return (
+                    <div key={areaConf.area} className="border-b last:border-b-0 border-border/50">
+                      <button
+                        onClick={() => setExpandedArea(isExpanded ? null : areaConf.area)}
+                        className="w-full px-3 py-3 flex items-start gap-3 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 w-40 shrink-0 pt-0.5">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-left">{isNb ? areaConf.labelNb : areaConf.labelEn}</span>
+                        </div>
+                        <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${compareData.length}, 1fr)` }}>
+                          {compareData.map((v: any) => (
+                            <ScoreBar key={v.id} score={v.areas[areaConf.area]} />
+                          ))}
+                        </div>
+                        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform mt-0.5", isExpanded && "rotate-180")} />
+                      </button>
+
+                      {/* Expanded: individual control statuses */}
+                      {isExpanded && (
+                        <div className="bg-muted/20 px-3 pb-3 space-y-1">
+                          {/* Header row */}
+                          <div className="flex items-center gap-3 px-0 py-1">
+                            <div className="w-40 shrink-0" />
+                            <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${compareData.length}, 1fr)` }}>
+                              {compareData.map((v: any) => (
+                                <span key={v.id} className="text-[10px] font-medium text-muted-foreground text-center truncate">{v.name}</span>
+                              ))}
+                            </div>
+                            <div className="w-3.5" />
+                          </div>
+                          {/* Control rows */}
+                          {compareData[0]?.grouped[areaConf.area]?.map((ctrl: EvaluatedControl) => (
+                            <div key={ctrl.key} className="flex items-center gap-3 px-0 py-1 rounded hover:bg-muted/30">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="w-40 shrink-0 text-xs text-muted-foreground truncate cursor-help">
+                                    {isNb ? ctrl.labelNb : ctrl.labelEn}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="left" className="max-w-xs text-xs">
+                                  {isNb ? (ctrl.descriptionNb || ctrl.labelNb) : (ctrl.descriptionEn || ctrl.labelEn)}
+                                </TooltipContent>
+                              </Tooltip>
+                              <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${compareData.length}, 1fr)` }}>
+                                {compareData.map((v: any) => {
+                                  const vendorCtrl = v.grouped[areaConf.area]?.find((c: EvaluatedControl) => c.key === ctrl.key);
+                                  return (
+                                    <div key={v.id} className="flex justify-center">
+                                      <StatusIcon status={vendorCtrl?.status || "missing"} />
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <div className="w-3.5" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </TooltipProvider>
+            </CardContent>
+          </Card>
+
+          {/* Quick info row */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="grid gap-2" style={{ gridTemplateColumns: `160px repeat(${compareData.length}, 1fr)` }}>
+                <span className="text-xs font-medium text-muted-foreground">{isNb ? "Land" : "Country"}</span>
+                {compareData.map((v: any) => <span key={v.id} className="text-xs text-center">{v.country || "–"}</span>)}
+
+                <span className="text-xs font-medium text-muted-foreground">{isNb ? "Risikonivå" : "Risk Level"}</span>
+                {compareData.map((v: any) => (
+                  <div key={v.id} className="flex justify-center">
+                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[10px]">
+                      {v.risk_level || "–"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -265,8 +426,8 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
           <Scale className="h-10 w-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">
             {isNb
-              ? "Velg 2–5 leverandører for å sammenligne compliance-modenhet side ved side"
-              : "Select 2–5 vendors to compare compliance maturity side by side"}
+              ? "Velg 2–5 leverandører for å sammenligne sikkerhetskontroller side ved side"
+              : "Select 2–5 vendors to compare security controls side by side"}
           </p>
         </div>
       )}
