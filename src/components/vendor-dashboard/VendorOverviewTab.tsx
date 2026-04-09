@@ -207,11 +207,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   if (vendors.length === 0) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={onAddVendor} className="gap-2">
-            <Plus className="h-4 w-4" />
-            {t("vendorDashboard.addVendor", "Legg til leverandør")}
-          </Button>
         </div>
         <div className="text-center py-16 text-muted-foreground">
           <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
@@ -225,11 +220,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   return (
     <div className="space-y-6">
       {/* Quick Actions */}
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={onAddVendor} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t("vendorDashboard.addVendor", "Legg til leverandør")}
-        </Button>
       </div>
 
       {/* KPI Row */}
