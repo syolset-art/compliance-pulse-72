@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import { LayoutGrid, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
+import { DashboardCriticalTasks } from "@/components/dashboard/DashboardCriticalTasks";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
