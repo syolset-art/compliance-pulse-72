@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ChevronDown,
   ChevronUp,
@@ -181,7 +182,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <p className="text-xs text-muted-foreground line-clamp-2">{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className={`text-[10px] font-bold tracking-wider ${cap.color}`}>{cap.label}</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className={`text-[10px] font-bold tracking-wider cursor-help ${cap.color}`}>{cap.label}</span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[220px]">
+                      <p className="text-xs">{cap.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <span className={`text-xs font-semibold ${
                     state.progress === 100 ? "text-emerald-600" : state.progress > 0 ? "text-amber-600" : "text-muted-foreground"
                   }`}>
