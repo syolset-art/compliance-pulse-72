@@ -43,7 +43,8 @@
     "administration": "Administration",
     "adminOrganisation": "Organisation",
 "adminDocuments": "Documents",
-    "adminNotifications": "Notifications",
+   "adminNotifications": "Notifications",
+    "accessManagement": "Access Management",
     "coming": "Coming"
   },
   "customerRequests": {
