@@ -1,40 +1,61 @@
 
 
-## Plan: Utvidbar rolleliste for compliance og risikostyring
+## Plan: Rollebasert innholdstilpasning
 
-### Kontekst
-Dagens roller: Administrator, Compliance-ansvarlig, Behandlingsansvarlig, CISO, DPO, IT-ansvarlig, Medlem.
+### Sammendrag
+Tilpasse dashboardet, sidebar-navigasjonen og widgetene basert på brukerens aktive rolle, slik at hver rolle ser innhold som er relevant for deres ansvarsområde.
 
-### Foreslåtte tilleggsroller
-
-Basert på ISO 27001, GDPR, NIS2, AI Act og ESG-rammeverk er disse rollene relevante:
-
-| Rolle | Nøkkel | Begrunnelse |
-|---|---|---|
-| **Risikoeier** | `risk_owner` | Eier og følger opp risikoer i risikoregisteret. Sentral i ISO 27001 og NIS2. |
-| **Internrevisor** | `internal_auditor` | Utfører interne revisjoner og kontroller. Krav i ISO 27001 og SOC 2. |
-| **AI Governance-ansvarlig** | `ai_governance` | Styring av AI-systemer iht. AI Act. Allerede definert i `useUserRole.ts`. |
-| **Bærekraftsansvarlig (ESG)** | `esg_officer` | ESG-rapportering og CSRD-compliance. Allerede foreslått i `rolesSuggestions.ts`. |
-| **Hendelsesansvarlig** | `incident_manager` | Håndterer sikkerhets- og personvernhendelser. Kritisk for NIS2 (72t rapportering). |
-| **Systemeier** | `system_owner` | Ansvarlig for spesifikke systemer/assets. Vanlig i ISO 27001-kontekst. |
-| **HR / Opplæringsansvarlig** | `training_officer` | Ansvarlig for sikkerhetsopplæring og bevisstgjøring av ansatte. |
-| **Leverandøransvarlig** | `vendor_manager` | Tredjepartsstyring, DPA-oppfølging og leverandørvurderinger. |
-
-### Implementasjon
-
-1. **Utvide rollelisten** i `AdminAccessManagement.tsx` med de nye rollene, inkludert ikon, norsk/engelsk label og beskrivelse.
-
-2. **Gjøre roller aktiverbare** — Legge til en «Administrer roller»-seksjon der brukeren kan aktivere/deaktivere hvilke roller som er tilgjengelige i sin organisasjon. Roller som ikke er aktivert vises ikke i rollelisten ved invitasjon.
-
-3. **Oppdatere `useUserRole.ts`** — Synkronisere `AppRole`-typen og labels med de nye rollene.
-
-4. **Oppdatere `rolesSuggestions.ts`** — Koble foreslåtte roller til de nye nøklene slik at onboarding-forslag matcher.
-
-5. **Lagre aktiverte roller** — Enten i `company_profile` (som en `active_roles`-array) eller i en ny tabell, slik at valget persisteres.
+### Hva endres for brukeren
+- **Dashboardet (Index)** viser ulike widgets og hero-kort basert på rolle. Personvernombud ser behandlingsaktiviteter og DPIA, sikkerhetsansvarlig ser prosesser og kritikalitet, compliance-ansvarlig ser regelverk og modenhet.
+- **Sidebar** fremhever og prioriterer menyelementer som er relevante for rollen. Irrelevante seksjoner kollapses eller dimmes.
+- **Kritiske oppgaver** filtreres per rolle slik at hver bruker ser handlinger som faktisk angår dem.
+- Rollebytteren (allerede i sidebar) forblir tilgjengelig for å bytte perspektiv.
 
 ### Teknisk tilnærming
-- Legge til et `active_roles` text[]-felt på `company_profile`-tabellen via migrasjon
-- Bygge en toggle-basert UI for å aktivere/deaktivere roller
-- Filtrere rollelisten i invitasjonsdialogen basert på aktiverte roller
-- Medlem forblir alltid aktiv og kan ikke deaktiveres
+
+**1. Definere rolle-til-innhold-mapping (ny fil `src/lib/roleContentConfig.ts`)**
+
+Én konfigurasjon per rolle som styrer:
+- Hvilke dashboard-widgets som er synlige (koble til eksisterende `DASHBOARD_LAYOUTS`)
+- Hvilke sidebar-nav-items som fremheves vs. dimmes
+- Hvilke hero-cards / CTA-er som vises
+- Hvilke kritiske oppgaver som er relevante
+
+```text
+Rolle               | Primært innhold                        | Sekundært
+────────────────────┼────────────────────────────────────────┼──────────────
+personvernombud     | Behandlingsaktiviteter, DPIA, ROPA     | Avvik, Leverandører
+sikkerhetsansvarlig | Prosesser, Kritikalitet, Kontroller     | Systemer, Hendelser
+compliance_ansvarlig| Regelverk, Modenhet, Oppgaver           | Alt
+daglig_leder        | KPI, Risiko, Status                     | Rapporter
+ai_governance       | AI-systemer, AI Act, Risikovurdering    | Compliance
+operativ_bruker     | Mine oppgaver, Systemer                 | Minimalt
+```
+
+**2. Oppdatere `Index.tsx` (Dashboard)**
+- Importere `useUserRole` og hente `primaryRole`
+- Bruke rolle til å filtrere `WIDGET_DEFS` — vise kun relevante widgets som standard
+- Vise rollespesifikke hero-kort (f.eks. personvernombud ser "Opprett behandlingsaktivitet", sikkerhetsansvarlig ser "Se risikoer")
+- Beholde "Tilpass"-knappen slik at brukere kan legge til widgets manuelt
+
+**3. Oppdatere `Sidebar.tsx`**
+- Bruke `primaryRole` til å sortere/fremheve relevante nav-items
+- Dimme (opacity + smaller font) items som er mindre relevante for rollen
+- Ikke skjule noe helt — bare visuell prioritering
+
+**4. Oppdatere `DashboardCriticalTasks.tsx`**
+- Filtrere oppgavene basert på rolle (f.eks. personvernombud ser DPA-mangler, sikkerhetsansvarlig ser NIS2)
+
+**5. Oppdatere `DashboardHeroCards.tsx`**
+- Vise rollespesifikke snarveier/CTA-er (personvernombud: "Ny behandlingsaktivitet", sikkerhetsansvarlig: "Se prosessoversikt")
+
+### Filer som endres
+- `src/lib/roleContentConfig.ts` (ny) — rolle-til-innhold-mapping
+- `src/pages/Index.tsx` — rollebasert widget-filtrering
+- `src/components/Sidebar.tsx` — visuell prioritering av nav
+- `src/components/dashboard/DashboardCriticalTasks.tsx` — rollefiltrerte oppgaver
+- `src/components/dashboard/DashboardHeroCards.tsx` — rollespesifikke CTA-er
+
+### Ingen databaseendringer
+Alt er konfigurasjonsbasert og bruker eksisterende `useUserRole`-hook.
 
