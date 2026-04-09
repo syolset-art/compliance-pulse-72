@@ -16,14 +16,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   LayoutGrid,
   List,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   Building2,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Asset {
   id: string;
@@ -193,68 +201,133 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
     return null;
   };
 
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter]
+    .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setCategoryFilter("");
+    setRiskFilter("");
+    setVendorCategoryFilter("");
+    setGdprRoleFilter("");
+    setShowAll(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <div className="flex flex-wrap gap-3 flex-1">
-          <Input
-            placeholder={t("assets.filterByName")}
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-            className="bg-muted/50 border-border w-full sm:w-48"
-          />
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-40">
-              <SelectValue placeholder={t("assets.filterByCategory")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("assets.allCategories")}</SelectItem>
-              {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={riskFilter} onValueChange={setRiskFilter}>
-            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-36">
-              <SelectValue placeholder={t("assets.risk")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("vendorDashboard.allRisks", "All")}</SelectItem>
-              <SelectItem value="high">{t("vendorDashboard.risk.high", "High")}</SelectItem>
-              <SelectItem value="medium">{t("vendorDashboard.risk.medium", "Medium")}</SelectItem>
-              <SelectItem value="low">{t("vendorDashboard.risk.low", "Low")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={vendorCategoryFilter} onValueChange={setVendorCategoryFilter}>
-            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-40">
-              <SelectValue placeholder={t("vendorDashboard.vendorType", "Type")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("vendorDashboard.allTypes", "Alle typer")}</SelectItem>
-              <SelectItem value="saas">SaaS</SelectItem>
-              <SelectItem value="infrastructure">{t("vendorDashboard.infrastructure", "Infrastruktur")}</SelectItem>
-              <SelectItem value="consulting">{t("vendorDashboard.consulting", "Rådgivning")}</SelectItem>
-              <SelectItem value="it_operations">{t("vendorDashboard.itOperations", "IT-drift")}</SelectItem>
-              <SelectItem value="facilities">{t("vendorDashboard.facilities", "Kontor")}</SelectItem>
-              <SelectItem value="other">{t("vendorDashboard.other", "Annet")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={gdprRoleFilter} onValueChange={setGdprRoleFilter}>
-            <SelectTrigger className="bg-muted/50 border-border w-full sm:w-44">
-              <SelectValue placeholder={t("vendorDashboard.gdprRole", "GDPR-rolle")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("vendorDashboard.allRoles", "Alle roller")}</SelectItem>
-              <SelectItem value="databehandler">{t("vendorDashboard.dataProcessor", "Databehandler")}</SelectItem>
-              <SelectItem value="underdatabehandler">{t("vendorDashboard.subProcessor", "Underdatabehandler")}</SelectItem>
-              <SelectItem value="ingen">{t("vendorDashboard.noPersonalData", "Ingen persondata")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" checked={showAll} onChange={e => setShowAll(e.target.checked)} className="rounded" />
-            {t("vendorDashboard.showAllAssets", "Show all asset types")}
-          </label>
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder={t("assets.filterByName")}
+          value={nameFilter}
+          onChange={(e) => setNameFilter(e.target.value)}
+          className="bg-muted/50 border-border w-full sm:w-56"
+        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5 shrink-0">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Filter
+              {activeFilterCount > 0 && (
+                <Badge className="h-4 min-w-4 px-1 text-[10px] rounded-full bg-primary text-primary-foreground">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-64 space-y-3 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Filtrer</span>
+              {activeFilterCount > 0 && (
+                <button onClick={clearAllFilters} className="text-xs text-primary hover:underline">Nullstill</button>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Select value={riskFilter} onValueChange={setRiskFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Risiko" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle risikonivåer</SelectItem>
+                  <SelectItem value="high">Høy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Lav</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={vendorCategoryFilter} onValueChange={setVendorCategoryFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle typer</SelectItem>
+                  <SelectItem value="saas">SaaS</SelectItem>
+                  <SelectItem value="infrastructure">Infrastruktur</SelectItem>
+                  <SelectItem value="consulting">Rådgivning</SelectItem>
+                  <SelectItem value="it_operations">IT-drift</SelectItem>
+                  <SelectItem value="facilities">Kontor</SelectItem>
+                  <SelectItem value="other">Annet</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={gdprRoleFilter} onValueChange={setGdprRoleFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="GDPR-rolle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle roller</SelectItem>
+                  <SelectItem value="databehandler">Databehandler</SelectItem>
+                  <SelectItem value="underdatabehandler">Underdatabehandler</SelectItem>
+                  <SelectItem value="ingen">Ingen persondata</SelectItem>
+                </SelectContent>
+              </Select>
+              {categories.length > 0 && (
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle kategorier</SelectItem>
+                    {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
+              <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                <input type="checkbox" checked={showAll} onChange={e => setShowAll(e.target.checked)} className="rounded" />
+                Vis alle verdier
+              </label>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {activeFilterCount > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {riskFilter && riskFilter !== "all" && (
+              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+                {riskFilter === "high" ? "Høy" : riskFilter === "medium" ? "Medium" : "Lav"} risiko
+                <button onClick={() => setRiskFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+            {vendorCategoryFilter && vendorCategoryFilter !== "all" && (
+              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+                {vendorCategoryFilter}
+                <button onClick={() => setVendorCategoryFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+            {gdprRoleFilter && gdprRoleFilter !== "all" && (
+              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+                {gdprRoleFilter}
+                <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+            {categoryFilter && categoryFilter !== "all" && (
+              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+                {categoryFilter}
+                <button onClick={() => setCategoryFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+          </div>
+        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} leverandører</span>
           <div className="flex border border-border rounded-lg">
             <Button variant={viewMode === "card" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("card")}>
               <LayoutGrid className="h-4 w-4" />
