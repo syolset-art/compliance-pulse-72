@@ -287,7 +287,7 @@ export default function Tasks() {
   const [taskProgress, setTaskProgress] = useState<Record<string, number>>({});
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
-  const [viewMode, setViewMode] = useState<"tasks" | "readiness">(viewParam === "readiness" ? "readiness" : "tasks");
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
