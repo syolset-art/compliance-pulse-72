@@ -1294,18 +1294,34 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
             }}
             className="flex items-start gap-2 px-4 pb-3"
           >
-            {/* Attachment button */}
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              onClick={() => setUploadDialogOpen(true)}
-              disabled={isLoading}
-              className="h-10 w-10 text-muted-foreground hover:text-foreground flex-shrink-0"
-              aria-label={t("chat.upload.title")}
-            >
-              <Paperclip className="h-5 w-5" />
-            </Button>
+            {/* Plus menu: upload & add asset */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  disabled={isLoading}
+                  className="h-10 w-10 text-muted-foreground hover:text-foreground flex-shrink-0"
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  {i18n.language === 'nb' ? "Last opp dokument" : "Upload document"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  handleSend(i18n.language === 'nb'
+                    ? "Jeg vil legge til en ny verdi (eiendel) med bilde i et arbeidsområde for risikovurdering"
+                    : "I want to add a new asset with a photo to a work area for risk assessment");
+                }}>
+                  <Server className="mr-2 h-4 w-4" />
+                  {i18n.language === 'nb' ? "Legg til verdi med bilde" : "Add asset with photo"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Textarea field - expandable */}
             <textarea
