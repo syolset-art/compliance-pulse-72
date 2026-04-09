@@ -1,21 +1,40 @@
 
 
-## Endre SecurityFoundationsWidget
+## Plan: Utvidbar rolleliste for compliance og risikostyring
 
-### Hva skal gjøres
+### Kontekst
+Dagens roller: Administrator, Compliance-ansvarlig, Behandlingsansvarlig, CISO, DPO, IT-ansvarlig, Medlem.
 
-1. **Endre navn** fra "Sikkerhet og kontroller" / "Security and Controls" til "Sikkerhetsgrunnlag" / "Security Foundations"
+### Foreslåtte tilleggsroller
 
-2. **Fiks mobilvisning** - alle 5 pilarer vises. Nå bruker grid `grid-cols-1 sm:grid-cols-2` som gir en 2x2+1 layout kun på `sm+`. På mobil (375px) stables de vertikalt og tar mye plass. Løsning: komprimere pilar-kortene til en tettere listevisning på mobil slik at alle 5 synes uten for mye scrolling. Bruk en kompakt rad-layout (ikon + navn + progress bar + prosent) i stedet for de store kortene på mobil.
+Basert på ISO 27001, GDPR, NIS2, AI Act og ESG-rammeverk er disse rollene relevante:
 
-### Teknisk endring
+| Rolle | Nøkkel | Begrunnelse |
+|---|---|---|
+| **Risikoeier** | `risk_owner` | Eier og følger opp risikoer i risikoregisteret. Sentral i ISO 27001 og NIS2. |
+| **Internrevisor** | `internal_auditor` | Utfører interne revisjoner og kontroller. Krav i ISO 27001 og SOC 2. |
+| **AI Governance-ansvarlig** | `ai_governance` | Styring av AI-systemer iht. AI Act. Allerede definert i `useUserRole.ts`. |
+| **Bærekraftsansvarlig (ESG)** | `esg_officer` | ESG-rapportering og CSRD-compliance. Allerede foreslått i `rolesSuggestions.ts`. |
+| **Hendelsesansvarlig** | `incident_manager` | Håndterer sikkerhets- og personvernhendelser. Kritisk for NIS2 (72t rapportering). |
+| **Systemeier** | `system_owner` | Ansvarlig for spesifikke systemer/assets. Vanlig i ISO 27001-kontekst. |
+| **HR / Opplæringsansvarlig** | `training_officer` | Ansvarlig for sikkerhetsopplæring og bevisstgjøring av ansatte. |
+| **Leverandøransvarlig** | `vendor_manager` | Tredjepartsstyring, DPA-oppfølging og leverandørvurderinger. |
 
-**Fil:** `src/components/widgets/SecurityFoundationsWidget.tsx`
+### Implementasjon
 
-- Linje 37: Endre tittel til `"Sikkerhetsgrunnlag"` / `"Security Foundations"`
-- Linje 53-88: Legg til responsiv visning:
-  - **Mobil (`< sm`):** Kompakt listeformat - hver pilar er én rad med ikon, navn, smal progress bar og prosent/maturity på én linje
-  - **Desktop (`sm+`):** Behold nåværende 2-kolonners rutenett med kort
+1. **Utvide rollelisten** i `AdminAccessManagement.tsx` med de nye rollene, inkludert ikon, norsk/engelsk label og beskrivelse.
 
-Ingen andre filer eller databaseendringer.
+2. **Gjøre roller aktiverbare** — Legge til en «Administrer roller»-seksjon der brukeren kan aktivere/deaktivere hvilke roller som er tilgjengelige i sin organisasjon. Roller som ikke er aktivert vises ikke i rollelisten ved invitasjon.
+
+3. **Oppdatere `useUserRole.ts`** — Synkronisere `AppRole`-typen og labels med de nye rollene.
+
+4. **Oppdatere `rolesSuggestions.ts`** — Koble foreslåtte roller til de nye nøklene slik at onboarding-forslag matcher.
+
+5. **Lagre aktiverte roller** — Enten i `company_profile` (som en `active_roles`-array) eller i en ny tabell, slik at valget persisteres.
+
+### Teknisk tilnærming
+- Legge til et `active_roles` text[]-felt på `company_profile`-tabellen via migrasjon
+- Bygge en toggle-basert UI for å aktivere/deaktivere roller
+- Filtrere rollelisten i invitasjonsdialogen basert på aktiverte roller
+- Medlem forblir alltid aktiv og kan ikke deaktiveres
 
