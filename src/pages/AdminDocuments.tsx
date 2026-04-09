@@ -57,7 +57,7 @@ export default function AdminDocuments() {
   return (
     <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
       <div className="w-64 flex-shrink-0"><Sidebar /></div>
-      <main className="flex-1 h-screen overflow-y-auto">{content}</main>
+      <main className="flex-1 h-screen overflow-y-auto md:pt-11">{content}</main>
     </div>
   );
 }

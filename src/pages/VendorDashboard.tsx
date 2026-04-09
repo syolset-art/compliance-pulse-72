@@ -113,7 +113,7 @@ export default function VendorDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto pt-16 md:pt-0">
+      <main className="flex-1 overflow-auto pt-16 md:pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
