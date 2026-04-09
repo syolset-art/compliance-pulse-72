@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addMynderFooter } from "@/lib/pdfBranding";
 import * as XLSX from "xlsx";
 import {
   GENERIC_CONTROLS,
@@ -189,6 +190,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
       ]),
     ];
     autoTable(doc, { head: [headers], body: rows, startY: 30 });
+    addMynderFooter(doc);
     doc.save("vendor-security-comparison.pdf");
   };
 

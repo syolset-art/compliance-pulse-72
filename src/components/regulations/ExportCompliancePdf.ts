@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addMynderFooter } from "@/lib/pdfBranding";
 import { type Framework, getCategoryById } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -140,5 +141,6 @@ export function exportCompliancePdf(framework: Framework, counts: ExportCounts, 
     doc.text("Generert av Mynder.ai", 196, 290, { align: "right" });
   }
 
+  addMynderFooter(doc);
   doc.save(`${framework.id}-etterlevelsesrapport.pdf`);
 }

@@ -11,6 +11,7 @@ import {
 import { LICENSE_TIERS } from "@/lib/mspLicenseUtils";
 import { FileDown, TrendingDown, Clock, CalendarCheck, Sparkles } from "lucide-react";
 import jsPDF from "jspdf";
+import { addMynderFooter } from "@/lib/pdfBranding";
 
 const formatKr = (v: number) =>
   new Intl.NumberFormat("nb-NO", { style: "currency", currency: "NOK", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
@@ -74,6 +75,7 @@ export default function MSPCustomerROI() {
     doc.text("Beregningen er basert på 80 % automatisering av manuelt compliance-arbeid.", 20, y + 12);
     doc.text("Generert av Mynder – mynder.io", 20, y + 18);
 
+    addMynderFooter(doc);
     doc.save(`Mynder-besparelsesanalyse-${name.replace(/\s+/g, "-")}.pdf`);
   };
 

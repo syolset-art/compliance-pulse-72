@@ -1,4 +1,5 @@
 import { useState } from "react";
+import mynderLogo from "@/assets/mynder-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -895,6 +896,16 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                       </button>
                     </div>
                   )}
+
+                  {/* ── Mynder branding footer ── */}
+                  <div className="border-t border-border pt-4 mt-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img src={mynderLogo} alt="Mynder" className="h-4 opacity-50" />
+                    </div>
+                    <div className="text-[10px] text-muted-foreground/60">
+                      Org.nr 933 036 729 &middot; mynder.io
+                    </div>
+                  </div>
                 </div>
               </Card>
             )}

@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { addMynderFooter } from "@/lib/pdfBranding";
 
 interface InvoiceData {
   invoice_number: string;
@@ -91,5 +92,6 @@ export function generateInvoicePdf(invoice: InvoiceData) {
   doc.setTextColor(150, 150, 150);
   doc.text("Denne fakturaen er generert av Mynder-plattformen.", 20, 270);
 
+  addMynderFooter(doc);
   doc.save(`faktura-${invoice.invoice_number}.pdf`);
 }
