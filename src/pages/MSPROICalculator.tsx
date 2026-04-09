@@ -10,6 +10,7 @@ import { Download, TrendingUp, Wallet, Rocket, Users, BarChart3, Info, ShieldChe
 import { LICENSE_TIERS, type LicenseTier } from "@/lib/mspLicenseUtils";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
+import { addMynderFooter } from "@/lib/pdfBranding";
 
 type CustomerSize = "S" | "M" | "L";
 type SalesModel = "standard" | "bulk";
@@ -107,6 +108,7 @@ export default function MSPROICalculator() {
     doc.text(`Netto fortjeneste år 1: ${fmtKr(profitYear1)}`, 25, y3 + 7);
     doc.text(`Netto fortjeneste år 2+: ${fmtKr(profitYear2)}`, 25, y3 + 14);
 
+    addMynderFooter(doc);
     doc.save("mynder-partnerkalkyl.pdf");
   };
 
