@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Inbox, Database, Trash2, Loader2, Plus } from "lucide-react";
+import { Database, Trash2, Loader2, Plus } from "lucide-react";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -53,16 +53,6 @@ export default function VendorDashboard() {
     }
   };
 
-  const { data: totalInboxCount = 0 } = useQuery({
-    queryKey: ["lara-inbox-total"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("lara_inbox")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["new", "auto_matched"]);
-      return count || 0;
-    },
-  });
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
