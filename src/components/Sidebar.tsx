@@ -501,27 +501,13 @@ const SidebarContent = () => {
               className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-sidebar-accent transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-sm font-medium text-sidebar-primary">
-                    {companyName.substring(0, 2).toUpperCase()}
-                  </span>
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[120px]">
-                    {companyName}
-                  </p>
-                  <p className="text-xs text-sidebar-foreground/60 truncate max-w-[120px]">
-                    {user?.email || t("nav.company")}
-                  </p>
-                </div>
+                <Building2 className="h-5 w-5 text-sidebar-foreground/70" />
+                <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[140px]">
+                  {companyName}
+                </p>
               </div>
               <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/60 transition-transform", companyOpen && "rotate-180")} />
             </button>
-
-      {/* RoleSwitcher - always visible */}
-            <div className="mt-2 px-2">
-              <RoleSwitcher showAllOption={true} className="w-full justify-between" />
-            </div>
 
             {/* Company submenu */}
             {companyOpen && (
