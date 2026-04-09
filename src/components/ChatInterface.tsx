@@ -353,6 +353,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [isOnboardingDismissed, setIsOnboardingDismissed] = useState(true);
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
   const [currentThinkingTime, setCurrentThinkingTime] = useState<number>(0);
