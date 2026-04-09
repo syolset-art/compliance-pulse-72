@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ChevronDown,
   ChevronUp,
@@ -42,10 +43,10 @@ function generateDemoStates(requirements: ComplianceRequirement[]): Record<strin
   return states;
 }
 
-const capabilityLabel: Record<AgentCapability, { label: string; color: string }> = {
-  full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400" },
-  assisted: { label: "ASSISTERT", color: "text-amber-600 dark:text-amber-400" },
-  manual: { label: "MANUELL", color: "text-muted-foreground" },
+const capabilityLabel: Record<AgentCapability, { label: string; color: string; tooltip: string }> = {
+  full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400", tooltip: "Plattformen verifiserer og fyller ut dette kravet automatisk basert på data og handlinger i systemet." },
+  assisted: { label: "ASSISTERT", color: "text-amber-600 dark:text-amber-400", tooltip: "Lara AI forbereder et utkast eller forslag som du gjennomgår og godkjenner." },
+  manual: { label: "MANUELL", color: "text-muted-foreground", tooltip: "Dette kravet må dokumenteres og bekreftes manuelt av en person." },
 };
 
 interface FrameworkRequirementsListProps {
@@ -181,7 +182,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <p className="text-xs text-muted-foreground line-clamp-2">{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className={`text-[10px] font-bold tracking-wider ${cap.color}`}>{cap.label}</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className={`text-[10px] font-bold tracking-wider cursor-help ${cap.color}`}>{cap.label}</span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[220px]">
+                      <p className="text-xs">{cap.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <span className={`text-xs font-semibold ${
                     state.progress === 100 ? "text-emerald-600" : state.progress > 0 ? "text-amber-600" : "text-muted-foreground"
                   }`}>
