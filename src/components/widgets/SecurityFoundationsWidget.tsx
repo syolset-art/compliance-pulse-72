@@ -49,8 +49,34 @@ export function SecurityFoundationsWidget() {
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-0 space-y-4">
 
-        {/* 2x2 pillar grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Mobile: compact list */}
+        <div className="flex flex-col gap-2 sm:hidden">
+          {PILLARS.map((pillar) => {
+            const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
+            const percent = Math.round(domainData.score || 0);
+            const maturity = maturityLabel(percent, isNb);
+            const Icon = pillar.icon;
+
+            return (
+              <div key={pillar.key} className="flex items-center gap-2">
+                <div className="p-1 rounded-md bg-primary/10 shrink-0">
+                  <Icon className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <span className="text-xs font-medium text-foreground w-24 shrink-0 truncate">
+                  {isNb ? pillar.label_no : pillar.label_en}
+                </span>
+                <Progress value={percent} className="h-1.5 flex-1 [&>div]:bg-primary" />
+                <span className="text-xs font-semibold text-foreground w-8 text-right shrink-0">{percent}%</span>
+                <span className={cn("text-[10px] font-medium w-10 text-right shrink-0", maturity.className)}>
+                  {maturity.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop: 2x2 pillar grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 gap-3">
           {PILLARS.map((pillar) => {
             const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
             const percent = Math.round(domainData.score || 0);
