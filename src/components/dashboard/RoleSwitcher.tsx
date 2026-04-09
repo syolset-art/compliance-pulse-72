@@ -20,6 +20,13 @@ const ROLE_ICONS: Record<AppRole | 'all', React.ReactNode> = {
   compliance_ansvarlig: <ClipboardCheck className="h-4 w-4" />,
   ai_governance: <Bot className="h-4 w-4" />,
   operativ_bruker: <User className="h-4 w-4" />,
+  risk_owner: <AlertTriangle className="h-4 w-4" />,
+  internal_auditor: <FileSearch className="h-4 w-4" />,
+  esg_officer: <Leaf className="h-4 w-4" />,
+  incident_manager: <AlertTriangle className="h-4 w-4" />,
+  system_owner: <MonitorCog className="h-4 w-4" />,
+  training_officer: <GraduationCap className="h-4 w-4" />,
+  vendor_manager: <Truck className="h-4 w-4" />,
   all: <LayoutGrid className="h-4 w-4" />
 };
 

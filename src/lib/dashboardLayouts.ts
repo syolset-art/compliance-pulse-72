@@ -114,6 +114,62 @@ export const DASHBOARD_LAYOUTS: Record<AppRole, DashboardLayout> = {
     primaryWidgets: ['critical-tasks', 'upcoming-tasks', 'status-overview'],
     secondaryWidgets: [],
     hiddenWidgets: ['roi', 'activity-report', 'controls', 'domain-compliance']
+  },
+  risk_owner: {
+    role: 'risk_owner',
+    title: 'Risikoeier-visning',
+    description: 'Risikoregister, vurderinger og oppfølging',
+    primaryWidgets: ['inherent-risk', 'critical-tasks', 'status-overview'],
+    secondaryWidgets: ['task-progress', 'critical-processes'],
+    hiddenWidgets: ['roi', 'ropa-status', 'ai-governance']
+  },
+  internal_auditor: {
+    role: 'internal_auditor',
+    title: 'Revisor-visning',
+    description: 'Revisjoner, kontroller og funn',
+    primaryWidgets: ['controls', 'critical-tasks', 'status-overview'],
+    secondaryWidgets: ['domain-compliance', 'task-progress'],
+    hiddenWidgets: ['roi', 'ai-governance']
+  },
+  esg_officer: {
+    role: 'esg_officer',
+    title: 'ESG-visning',
+    description: 'Bærekraft, ESG-rapportering og CSRD',
+    primaryWidgets: ['status-overview', 'critical-tasks'],
+    secondaryWidgets: ['domain-compliance', 'task-progress'],
+    hiddenWidgets: ['roi', 'controls', 'ai-governance']
+  },
+  incident_manager: {
+    role: 'incident_manager',
+    title: 'Hendelsesvisning',
+    description: 'Sikkerhetshendelser, respons og rapportering',
+    primaryWidgets: ['security-posture', 'critical-tasks', 'status-overview'],
+    secondaryWidgets: ['sla', 'task-progress'],
+    hiddenWidgets: ['roi', 'ropa-status', 'ai-governance']
+  },
+  system_owner: {
+    role: 'system_owner',
+    title: 'Systemeier-visning',
+    description: 'Dine systemer, status og oppfølging',
+    primaryWidgets: ['system-library', 'systems-in-use', 'critical-tasks'],
+    secondaryWidgets: ['status-overview', 'third-party'],
+    hiddenWidgets: ['roi', 'ropa-status']
+  },
+  training_officer: {
+    role: 'training_officer',
+    title: 'Opplæringsvisning',
+    description: 'Kurs, bevisstgjøring og opplæringsstatus',
+    primaryWidgets: ['critical-tasks', 'status-overview'],
+    secondaryWidgets: ['task-progress'],
+    hiddenWidgets: ['roi', 'controls', 'ai-governance']
+  },
+  vendor_manager: {
+    role: 'vendor_manager',
+    title: 'Leverandørvisning',
+    description: 'Leverandøroversikt, DPA-er og vurderinger',
+    primaryWidgets: ['third-party', 'critical-tasks', 'status-overview'],
+    secondaryWidgets: ['data-transfer', 'task-progress'],
+    hiddenWidgets: ['roi', 'controls', 'ai-governance']
   }
 };
 
