@@ -1,62 +1,21 @@
 
 
-## Unified "Legg til" dialog for Dokumentasjon & Evidens
+## Endre SecurityFoundationsWidget
 
-### Summary
-Replace the three separate add-buttons (one per tab) with a single "+ Legg til" button in the page header. Clicking it opens a multi-step dialog where the user first chooses document category, then fills in details and sets visibility for the Trust Profile.
+### Hva skal gjøres
 
-### Database change
-Add a `visibility` column to `vendor_documents`:
-```sql
-ALTER TABLE public.vendor_documents 
-  ADD COLUMN IF NOT EXISTS visibility text NOT NULL DEFAULT 'visible';
-```
-Values: `published` (shown on public Trust Profile), `visible` (internal only), `hidden` (hidden everywhere except admin).
+1. **Endre navn** fra "Sikkerhet og kontroller" / "Security and Controls" til "Sikkerhetsgrunnlag" / "Security Foundations"
 
-### New component: `AddEvidenceDialog.tsx`
+2. **Fiks mobilvisning** - alle 5 pilarer vises. Nå bruker grid `grid-cols-1 sm:grid-cols-2` som gir en 2x2+1 layout kun på `sm+`. På mobil (375px) stables de vertikalt og tar mye plass. Løsning: komprimere pilar-kortene til en tettere listevisning på mobil slik at alle 5 synes uten for mye scrolling. Bruk en kompakt rad-layout (ikon + navn + progress bar + prosent) i stedet for de store kortene på mobil.
 
-A 3-step dialog flow:
+### Teknisk endring
 
-**Step 1 - Choose type**
-Three clickable cards:
-- Retningslinje (Policy) - icon: FileText
-- Sertifisering (Certification) - icon: Award  
-- Dokument (Document) - icon: FolderOpen
+**Fil:** `src/components/widgets/SecurityFoundationsWidget.tsx`
 
-Selecting one moves to step 2.
+- Linje 37: Endre tittel til `"Sikkerhetsgrunnlag"` / `"Security Foundations"`
+- Linje 53-88: Legg til responsiv visning:
+  - **Mobil (`< sm`):** Kompakt listeformat - hver pilar er én rad med ikon, navn, smal progress bar og prosent/maturity på én linje
+  - **Desktop (`sm+`):** Behold nåværende 2-kolonners rutenett med kort
 
-**Step 2 - Details**
-- Display name (text input, required)
-- File upload (drag & drop or click)
-- Document sub-type dropdown (contextual based on step 1 choice):
-  - Policy: policy, privacy_policy, acceptable_use, incident_response, security_policy, data_protection_policy
-  - Certification: ISO 27001, ISO 9001, SOC 2, etc.
-  - Document: DPA, report, agreement, other
-- Expiry date (date picker, optional, shown prominently for certifications)
-- Notes (textarea, optional)
-
-**Step 3 - Visibility & publish**
-Three radio-style options with descriptions:
-- **Publisert** - "Synlig i Trust Profilen for alle som ser den"
-- **Intern** - "Kun synlig internt i organisasjonen"
-- **Skjult** - "Skjules helt, kun for administratorer"
-
-A visual preview showing where the document will appear (Trust Profile badge).
-Confirm button saves to `vendor_documents` with the chosen visibility.
-
-### Changes to `TrustCenterEvidence.tsx`
-1. Remove the three per-tab add buttons
-2. Add a single "+ Legg til" button next to the page title
-3. Wire it to open `AddEvidenceDialog`
-4. After successful save, invalidate queries and optionally switch to the relevant tab
-5. Show a visibility badge on each document card (eye icon for published, lock for hidden)
-
-### Changes to `TrustCenterProfile.tsx` (public view)
-Filter document queries to only show documents where `visibility = 'published'` in the expandable policies/certifications sections.
-
-### File structure
-- `src/components/trust-center/AddEvidenceDialog.tsx` (new)
-- `src/pages/TrustCenterEvidence.tsx` (modified)
-- `src/pages/TrustCenterProfile.tsx` (modified - filter by visibility)
-- Migration for `visibility` column
+Ingen andre filer eller databaseendringer.
 
