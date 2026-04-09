@@ -179,7 +179,12 @@ const Index = () => {
       </p>
 
       {/* Graphical hero cards – max 2 wide */}
-      {!editMode && <DashboardHeroCards />}
+      {!editMode && (
+        <>
+          <DashboardCriticalTasks />
+          <DashboardHeroCards />
+        </>
+      )}
 
       {/* Widget grid */}
       <DashboardGrid
