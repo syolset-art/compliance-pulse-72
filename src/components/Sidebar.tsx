@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
+import { useUserRole } from "@/hooks/useUserRole";
+import { ROLE_SIDEBAR_HIGHLIGHTS } from "@/lib/roleContentConfig";
 import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
@@ -200,6 +202,8 @@ const SidebarContent = () => {
   const { t } = useTranslation();
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
+  const { primaryRole } = useUserRole();
+  const highlights = ROLE_SIDEBAR_HIGHLIGHTS[primaryRole] || [];
   
   const [devOpen, setDevOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
