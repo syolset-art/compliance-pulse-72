@@ -212,10 +212,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             <Plus className="h-4 w-4" />
             {t("vendorDashboard.addVendor", "Legg til leverandør")}
           </Button>
-          <Button variant="outline" onClick={onDiscoverAI} className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            {t("vendorDashboard.discoverAI", "Oppdag med AI")}
-          </Button>
         </div>
         <div className="text-center py-16 text-muted-foreground">
           <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
@@ -233,10 +229,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         <Button onClick={onAddVendor} className="gap-2">
           <Plus className="h-4 w-4" />
           {t("vendorDashboard.addVendor", "Legg til leverandør")}
-        </Button>
-        <Button variant="outline" onClick={onDiscoverAI} className="gap-2">
-          <Sparkles className="h-4 w-4" />
-          {t("vendorDashboard.discoverAI", "Oppdag med AI")}
         </Button>
       </div>
 
