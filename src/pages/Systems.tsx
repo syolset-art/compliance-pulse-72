@@ -695,6 +695,30 @@ export default function Systems() {
           }
         }}
       />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Cpu}
+        title="Hva er systemregisteret?"
+        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, risikonivå, compliance-status og koble systemer til arbeidsområder."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: ShieldIcon, title: "Vurder risiko og modenhet", description: "Se compliance-score og risikonivå for hvert system." },
+          { icon: FileCheck, title: "Dokumenter eierskap", description: "Knytt hvert system til et arbeidsområde og tildel ansvarlig person." },
+          { icon: ClipboardList, title: "Spor AI-bruk", description: "Registrer om systemer bruker kunstig intelligens og dokumenter formål." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Et oppdatert systemregister er grunnlaget for god informasjonssikkerhet og etterlevelse av GDPR, NIS2 og AI Act. Det gir ledelsen oversikt og gjør det enklere å prioritere tiltak."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Legg til systemer organisasjonen bruker" },
+          { text: "Knytt hvert system til riktig arbeidsområde" },
+          { text: "Vurder risikonivå og compliance-status" },
+          { text: "Dokumenter AI-bruk der det er relevant" },
+        ]}
+        laraSuggestion="Hjelp meg med å kartlegge og vurdere systemene mine"
+      />
     </div>
   );
 }
