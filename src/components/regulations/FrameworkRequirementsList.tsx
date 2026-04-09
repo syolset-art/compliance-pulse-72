@@ -44,7 +44,7 @@ function generateDemoStates(requirements: ComplianceRequirement[]): Record<strin
 
 const capabilityLabel: Record<AgentCapability, { label: string; color: string }> = {
   full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400" },
-  assisted: { label: "HYBRID", color: "text-amber-600 dark:text-amber-400" },
+  assisted: { label: "ASSISTERT", color: "text-amber-600 dark:text-amber-400" },
   manual: { label: "MANUELL", color: "text-muted-foreground" },
 };
 

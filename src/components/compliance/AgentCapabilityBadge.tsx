@@ -29,9 +29,9 @@ const capabilityConfig: Record<AgentCapability, {
   },
   assisted: {
     icon: Sparkles,
-    label: 'Hybrid',
-    labelNo: 'Hybrid',
-    description: 'Agent assists with this requirement, human approves',
+    label: 'Assisted',
+    labelNo: 'Assistert',
+    description: 'AI prepares and suggests, human reviews and approves',
     colorClass: 'text-amber-600 dark:text-amber-400',
     bgClass: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
   },
