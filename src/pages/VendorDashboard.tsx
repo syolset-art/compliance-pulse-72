@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Inbox, Database, Trash2, Loader2, Plus } from "lucide-react";
+import { Database, Trash2, Loader2, Plus } from "lucide-react";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -53,16 +53,6 @@ export default function VendorDashboard() {
     }
   };
 
-  const { data: totalInboxCount = 0 } = useQuery({
-    queryKey: ["lara-inbox-total"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("lara_inbox")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["new", "auto_matched"]);
-      return count || 0;
-    },
-  });
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
@@ -113,23 +103,11 @@ export default function VendorDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto pt-16 md:pt-0">
+      <main className="flex-1 overflow-auto pt-16 md:pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
-              <button
-                onClick={() => navigate("/lara-inbox")}
-                className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-                title={t("vendorDashboard.laraInbox", "Lara Inbox")}
-              >
-                <Inbox className="h-5 w-5 text-muted-foreground" />
-                {totalInboxCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    {totalInboxCount}
-                  </span>
-                )}
-              </button>
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">

@@ -414,7 +414,7 @@ export default function Tasks() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>

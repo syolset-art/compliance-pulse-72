@@ -47,7 +47,7 @@ export default function MSPCustomerTrustProfile() {
     return (
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto md:pt-11">
           {/* Partner banner */}
           <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
             <div className="container max-w-7xl mx-auto flex items-center gap-3">
@@ -76,7 +76,7 @@ export default function MSPCustomerTrustProfile() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto md:pt-11">
         {/* Partner banner */}
         <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
           <div className="container max-w-7xl mx-auto flex items-center gap-3">

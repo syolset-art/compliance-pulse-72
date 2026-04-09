@@ -70,7 +70,7 @@ export default function AISystemRegistry() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto md:pt-11">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">

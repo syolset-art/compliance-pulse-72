@@ -355,7 +355,7 @@ export default function Deviations() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className={cn("flex-1 overflow-auto", isMobile ? "pb-24" : "")}>
+      <main className={cn("flex-1 overflow-auto md:pt-11", isMobile ? "pb-24" : "")}>
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

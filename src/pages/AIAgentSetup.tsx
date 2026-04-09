@@ -106,7 +106,7 @@ const AIAgentSetup = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container max-w-6xl mx-auto p-8">
           {/* Header */}
           <div className="mb-8">

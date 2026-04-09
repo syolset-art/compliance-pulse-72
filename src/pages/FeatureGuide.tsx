@@ -60,7 +60,7 @@ const FeatureGuidePage = () => {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto md:pt-11">
         <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
           {/* Back */}
           <Button variant="ghost" onClick={() => navigate("/resources")} className="gap-2">

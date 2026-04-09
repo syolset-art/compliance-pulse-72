@@ -118,7 +118,7 @@ export default function ComplianceChecklist() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container mx-auto p-6 max-w-7xl space-y-6">
           {/* Hero Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

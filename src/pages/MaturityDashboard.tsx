@@ -74,7 +74,7 @@ export default function MaturityDashboard() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto md:pt-11">
         <div className="container max-w-5xl mx-auto p-6 lg:p-8 space-y-6">
           {/* Compact header */}
           <div className="flex items-center justify-between">

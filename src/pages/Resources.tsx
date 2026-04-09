@@ -174,7 +174,7 @@ const Resources = () => {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto md:pt-11">
         <div className={`${isMobile ? 'px-4 pb-6' : 'max-w-4xl mx-auto px-6 py-10'} space-y-6`}>
 
           {/* Header */}
