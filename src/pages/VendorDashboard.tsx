@@ -28,6 +28,7 @@ export default function VendorDashboard() {
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleSeedDemo = async () => {
     setIsSeeding(true);
@@ -110,6 +111,10 @@ export default function VendorDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
@@ -191,6 +196,30 @@ export default function VendorDashboard() {
           queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
           queryClient.invalidateQueries({ queryKey: ["assets"] });
         }}
+      />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Handshake}
+        title="Hva er leverandørstyring?"
+        description="Leverandørstyring gir deg full oversikt over alle tredjeparter og databehandlere organisasjonen bruker. Du kan spore avtaler, compliance-status, risikonivå og sørge for at alle leverandører oppfyller kravene i GDPR, NIS2 og andre regelverk."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: FileText, title: "Dokumenter avtaler", description: "Hold oversikt over databehandleravtaler (DPA), SLA-er og andre kontrakter." },
+          { icon: Shield, title: "Vurder risiko", description: "Se risikonivå, compliance-score og identifiser leverandører som trenger oppfølging." },
+          { icon: AlertTriangle, title: "Følg opp mangler", description: "Finn leverandører med manglende dokumentasjon og send forespørsler direkte." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Manglende oversikt over tredjeparter er en av de vanligste årsakene til brudd på personvernregelverket. God leverandørstyring reduserer risikoen og sikrer etterlevelse."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Legg til leverandører manuelt eller via integrasjon" },
+          { text: "Last opp eller be om databehandleravtaler" },
+          { text: "Gjennomgå risikovurdering og compliance-status" },
+          { text: "Sett opp automatiske påminnelser for utløpende avtaler" },
+        ]}
+        laraSuggestion="Hjelp meg med å få oversikt over leverandørene mine og identifisere de som mangler avtaler"
       />
     </div>
   );
