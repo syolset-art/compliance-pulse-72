@@ -55,6 +55,7 @@ function MetricPill({ icon: Icon, label, value, color }: {
 
 export function DashboardHeroCards() {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNb = i18n.language === "nb";
 
   // Demo data – replace with real queries later
