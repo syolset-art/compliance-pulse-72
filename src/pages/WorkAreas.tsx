@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { getSystemIcon } from "@/lib/systemIcons";
+import { WorkAreaHelpDrawer } from "@/components/work-areas/WorkAreaHelpDrawer";
 
 interface WorkArea {
   id: string;
