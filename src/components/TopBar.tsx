@@ -3,16 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
-import { Inbox, Bell } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export function TopBar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
 
   const { data: inboxCount = 0 } = useQuery({
     queryKey: ["lara-inbox-total"],
@@ -25,12 +23,10 @@ export function TopBar() {
     },
   });
 
-  if (isMobile) return null;
-
   const initials = user?.email?.substring(0, 2).toUpperCase() || "??";
 
   return (
-    <div className="h-12 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-end gap-1 px-4 shrink-0">
+    <div className="fixed top-0 right-0 left-64 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm hidden md:flex items-center justify-end gap-1 px-4">
       <LanguageSwitcher />
       <ThemeToggle />
 
