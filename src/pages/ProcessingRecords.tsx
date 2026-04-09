@@ -88,6 +88,7 @@ export default function ProcessingRecords() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const metrics = [
     { 
@@ -165,9 +166,15 @@ export default function ProcessingRecords() {
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t("processingRecords.title")}</h1>
-            <p className="text-muted-foreground">{t("processingRecords.subtitle")}</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{t("processingRecords.title")}</h1>
+              <p className="text-muted-foreground">{t("processingRecords.subtitle")}</p>
+            </div>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+            </Button>
           </div>
           <Button variant="outline" className="gap-2">
             <Download className="h-4 w-4" />
@@ -435,6 +442,30 @@ export default function ProcessingRecords() {
         </div>
         </div>
       </main>
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={ClipboardListIcon}
+        title="Hva er behandlingsoversikten?"
+        description="Behandlingsoversikten (protokollen) dokumenterer alle aktiviteter der organisasjonen behandler personopplysninger. Dette er et lovpålagt krav etter GDPR artikkel 30."
+        itemsHeading="Hva dokumenteres?"
+        items={[
+          { icon: UsersIcon, title: "Berørte personer", description: "Hvem sine data behandles — ansatte, kunder, leverandører etc." },
+          { icon: Scale, title: "Rettslig grunnlag", description: "Hvilket rettslig grunnlag behandlingen bygger på (samtykke, avtale, berettiget interesse m.m.)." },
+          { icon: Lock, title: "Sikkerhetstiltak", description: "Hvordan dataene beskyttes — kryptering, tilgangsstyring, logging." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="En oppdatert behandlingsprotokoll er et lovkrav og grunnlaget for å vise at organisasjonen tar personvern på alvor. Datatilsynet kan kreve innsyn når som helst."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Identifiser alle aktiviteter som behandler persondata" },
+          { text: "Dokumenter formål, rettslig grunnlag og berørte personer" },
+          { text: "Vurder risiko og sikkerhetstiltak for hver aktivitet" },
+          { text: "Gjennomgå og oppdater protokollen regelmessig" },
+        ]}
+        laraSuggestion="Hjelp meg med å dokumentere behandlingsaktivitetene i organisasjonen"
+      />
     </div>
   );
 }
