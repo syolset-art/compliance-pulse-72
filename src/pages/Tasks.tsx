@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ClipboardCheck, ListTodo } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -16,7 +16,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
-import { ISOReadinessView } from "@/components/tasks/ISOReadinessView";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ClipboardList as ClipboardListHelp, Zap, Users as UsersHelp } from "lucide-react";
 
 interface Task {
   id: string;
@@ -286,7 +287,7 @@ export default function Tasks() {
   const [taskProgress, setTaskProgress] = useState<Record<string, number>>({});
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
-  const [viewMode, setViewMode] = useState<"tasks" | "readiness">(viewParam === "readiness" ? "readiness" : "tasks");
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
@@ -416,36 +417,25 @@ export default function Tasks() {
       
       <main className="flex-1 overflow-y-auto md:pt-11">
         <div className="container mx-auto p-6 max-w-7xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t("tasks.title")}</h1>
-          <p className="text-muted-foreground">{t("tasks.subtitle")}</p>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-2 mb-6">
-          <Button
-            variant={viewMode === "tasks" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("tasks")}
-            className="gap-2"
-          >
-            <ListTodo className="w-4 h-4" />
-            {t("tasks.viewModes.tasks")}
-          </Button>
-          <Button
-            variant={viewMode === "readiness" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("readiness")}
-            className="gap-2"
-          >
-            <ClipboardCheck className="w-4 h-4" />
-            {t("tasks.viewModes.readiness")}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground">{t("tasks.title")}</h1>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+            </Button>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
+            <FolderKanban className="h-4 w-4" />
+            Prosjekter
+            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
+              <Crown className="h-2.5 w-2.5 mr-0.5" />
+              Premium
+            </Badge>
           </Button>
         </div>
+        <p className="text-muted-foreground mb-6">{t("tasks.subtitle")}</p>
 
-        {viewMode === "readiness" ? (
-          <ISOReadinessView />
-        ) : (
           <>
         {/* Action Filter Banner - Shows when navigating from dashboard widget */}
         {activeActionFilter && (
@@ -481,9 +471,8 @@ export default function Tasks() {
         {/* Consolidated Filter Bar */}
         {!activeActionFilter && (
           <div className="mb-6 space-y-3">
-            {/* Row 1: Domain chips */}
+            {/* Single row: Domain chips + compact type/priority toggles */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Område</span>
               <button
                 onClick={() => setDomainFilter(null)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
@@ -508,11 +497,9 @@ export default function Tasks() {
                   {domain.name} ({getTaskCountForDomain(key)})
                 </button>
               ))}
-            </div>
 
-            {/* Row 2: Type & Priority chips */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Type</span>
+              <div className="w-px h-4 bg-border mx-1" />
+
               {["System", "Prosess"].map(filter => (
                 <button
                   key={filter}
@@ -529,7 +516,6 @@ export default function Tasks() {
 
               <div className="w-px h-4 bg-border mx-1" />
 
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-1">Prioritet</span>
               {[
                 { label: "Høy", value: "HØY PRIORITET" },
                 { label: "Middels", value: "MIDDELS PRIORITET" },
@@ -743,7 +729,29 @@ export default function Tasks() {
           })}
         </div>
           </>
-        )}
+
+        <PageHelpDrawer
+          open={helpOpen}
+          onOpenChange={setHelpOpen}
+          icon={ClipboardListHelp}
+          title="Hva er oppgaveoversikten?"
+          description="Oppgaveoversikten samler alle handlinger som krever din oppmerksomhet — fra systemrevisjoner og risikovurderinger til godkjenninger og dokumentasjonskrav. Lara AI kan utføre mange oppgaver automatisk basert på autonominivået du har satt."
+          itemsHeading="Hva kan du gjøre her?"
+          items={[
+            { icon: Zap, title: "La AI håndtere oppgaver", description: "Oppgaver innenfor ditt innstilte autonominivå kan utføres automatisk av Lara." },
+            { icon: ClipboardListHelp, title: "Filtrer og prioriter", description: "Bruk filtrene for å fokusere på riktig område, type eller prioritet." },
+            { icon: UsersHelp, title: "Tildel ansvar", description: "Se hvem som er ansvarlig og følg opp at oppgaver fullføres i tide." },
+          ]}
+          whyTitle="Hvorfor er dette viktig?"
+          whyDescription="Systematisk oppgavehåndtering sikrer at ingenting faller mellom stolene. Ved å la AI håndtere rutineoppgaver kan du fokusere på det som krever menneskelig vurdering."
+          stepsHeading="Kom i gang"
+          steps={[
+            { text: "Se gjennom oppgavene og filtrer etter prioritet" },
+            { text: "La Lara håndtere oppgaver hun kan utføre automatisk" },
+            { text: "Følg opp manuelt der det trengs menneskelig vurdering" },
+          ]}
+          laraSuggestion="Hjelp meg med å prioritere og håndtere oppgavene mine"
+        />
         </div>
       </main>
     </div>
