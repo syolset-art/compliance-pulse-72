@@ -1261,6 +1261,8 @@ export default function WorkAreas() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <WorkAreaHelpDrawer open={helpDrawerOpen} onOpenChange={setHelpDrawerOpen} />
     </div>
   );
 }
