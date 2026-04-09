@@ -1,5 +1,5 @@
 export type NIS2Status = "pass" | "fail" | "partial" | "not_assessed";
-export type NIS2AgentCapability = "ai_ready" | "activatable" | "hybrid" | "manual";
+export type NIS2AgentCapability = "ai_ready" | "activatable" | "assisted" | "manual";
 
 export interface NIS2Requirement {
   id: string;
@@ -42,7 +42,7 @@ export const nis2Requirements: NIS2Requirement[] = [
       "Gjennomfør en formell risikovurdering for denne enheten. Dokumenter identifiserte risikoer, sannsynlighet og konsekvens, og definer tiltak.",
     documentTypes: ["Risikovurdering", "Trusselvurdering", "ROS-analyse"],
     autoCheck: () => null,
-    agentCapability: "hybrid",
+    agentCapability: "assisted",
     agentAction: "Lara kan generere et risikorapport-utkast basert på virksomhetens metadata og registrerte systemer.",
   },
   {
