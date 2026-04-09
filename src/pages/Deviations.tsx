@@ -107,6 +107,7 @@ export default function Deviations() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [liveEnabled, setLiveEnabled] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
 
@@ -361,9 +362,13 @@ export default function Deviations() {
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
+           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-foreground">Avviksregister</h1>
             <p className="text-sm text-muted-foreground">Administrer og følg opp alle avvik</p>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+            </Button>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -793,6 +798,29 @@ export default function Deviations() {
         />
         </div>
       </main>
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={AlertTriangleHelp}
+        title="Hva er avviksregisteret?"
+        description="Avviksregisteret samler alle hendelser, brudd og avvik som organisasjonen oppdager. Her dokumenterer du hva som skjedde, vurderer alvorlighetsgrad og følger opp med tiltak for å forhindre gjentakelse."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: ClipboardListHelp, title: "Registrer avvik", description: "Dokumenter hendelser med kategori, alvorlighetsgrad og ansvarlig person." },
+          { icon: AlertTriangleHelp, title: "Vurder risiko", description: "Bruk risikomatrisen til å vurdere sannsynlighet og konsekvens for hvert avvik." },
+          { icon: UsersHelp, title: "Tildel ansvar", description: "Sett tiltaksansvarlig og følg opp at korrigerende tiltak gjennomføres." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Systematisk avvikshåndtering er et krav i GDPR, ISO 27001 og NIS2. Det sikrer at hendelser håndteres korrekt og at organisasjonen lærer av feil for å unngå gjentakelse."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Registrer avviket med tittel, kategori og alvorlighetsgrad" },
+          { text: "Tildel en tiltaksansvarlig" },
+          { text: "Gjennomfør risikovurdering og definer tiltak" },
+          { text: "Følg opp til avviket er lukket" },
+        ]}
+        laraSuggestion="Hjelp meg med å registrere og følge opp et avvik"
+      />
     </div>
   );
 }
