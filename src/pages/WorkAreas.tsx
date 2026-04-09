@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { getSystemIcon } from "@/lib/systemIcons";
+import { WorkAreaHelpDrawer } from "@/components/work-areas/WorkAreaHelpDrawer";
 
 interface WorkArea {
   id: string;
@@ -137,6 +138,7 @@ export default function WorkAreas() {
   const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
   const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const [introDismissed, setIntroDismissed] = useState(() => localStorage.getItem("workarea-intro-dismissed") === "true");
+  const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -592,12 +594,7 @@ export default function WorkAreas() {
               variant="ghost"
               size="sm"
               className="gap-1.5 text-muted-foreground hover:text-foreground self-start sm:self-auto"
-              onClick={() => {
-                setIntroDismissed(!introDismissed);
-                if (introDismissed) {
-                  localStorage.removeItem("workarea-intro-dismissed");
-                }
-              }}
+              onClick={() => setHelpDrawerOpen(true)}
             >
               <HelpCircle className="h-4 w-4" />
               <span className="text-sm">Hvordan fungerer dette?</span>
@@ -1264,6 +1261,8 @@ export default function WorkAreas() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <WorkAreaHelpDrawer open={helpDrawerOpen} onOpenChange={setHelpDrawerOpen} />
     </div>
   );
 }
