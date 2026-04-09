@@ -594,12 +594,7 @@ export default function WorkAreas() {
               variant="ghost"
               size="sm"
               className="gap-1.5 text-muted-foreground hover:text-foreground self-start sm:self-auto"
-              onClick={() => {
-                setIntroDismissed(!introDismissed);
-                if (introDismissed) {
-                  localStorage.removeItem("workarea-intro-dismissed");
-                }
-              }}
+              onClick={() => setHelpDrawerOpen(true)}
             >
               <HelpCircle className="h-4 w-4" />
               <span className="text-sm">Hvordan fungerer dette?</span>
