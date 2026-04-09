@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { addMynderFooter } from "@/lib/pdfBranding";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -224,5 +225,6 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
     doc.text("Generert av Mynder.ai", 196, 290, { align: "right" });
   }
 
+  addMynderFooter(doc);
   doc.save("samsvarsrapport.pdf");
 }

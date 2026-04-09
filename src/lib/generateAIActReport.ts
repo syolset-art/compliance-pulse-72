@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { addMynderFooter } from '@/lib/pdfBranding';
 import type { AIActReportData, AISystemData, AIProcessData } from '@/hooks/useAIActReportData';
 
 const RISK_LABELS: Record<string, string> = {
@@ -404,5 +405,6 @@ export function generateAIActReport(data: AIActReportData): void {
 
   // Download
   const fileName = `AI-Act-Rapport_${data.companyName.replace(/\s+/g, '-')}_${new Date().toISOString().split('T')[0]}.pdf`;
+  addMynderFooter(doc);
   doc.save(fileName);
 }
