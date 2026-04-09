@@ -650,6 +650,7 @@ export type Database = {
       }
       company_profile: {
         Row: {
+          active_roles: string[] | null
           brreg_employees: number | null
           brreg_industry: string | null
           ciso_email: string | null
@@ -682,6 +683,7 @@ export type Database = {
           use_cases: string[] | null
         }
         Insert: {
+          active_roles?: string[] | null
           brreg_employees?: number | null
           brreg_industry?: string | null
           ciso_email?: string | null
@@ -714,6 +716,7 @@ export type Database = {
           use_cases?: string[] | null
         }
         Update: {
+          active_roles?: string[] | null
           brreg_employees?: number | null
           brreg_industry?: string | null
           ciso_email?: string | null

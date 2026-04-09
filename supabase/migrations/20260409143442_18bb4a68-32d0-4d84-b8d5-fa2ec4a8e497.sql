@@ -1,0 +1,1 @@
+ALTER TABLE public.company_profile ADD COLUMN active_roles text[] DEFAULT '{}'::text[];

@@ -2,6 +2,7 @@ export interface SuggestedRole {
   name: string;
   description: string;
   responsibilities: string[];
+  roleKey?: string;
 }
 
 export interface CompanyContext {
@@ -14,18 +15,17 @@ export interface CompanyContext {
 export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[] => {
   const roles: SuggestedRole[] = [];
   
-  // If single user, no roles needed
   if (context.team_size === "bare-meg") {
     return [];
   }
   
   const useCases = context.use_cases || [];
   
-  // Based on use cases
   if (useCases.includes("personvern")) {
     roles.push({
       name: "Personvernombud (DPO)",
       description: "Ansvarlig for GDPR-etterlevelse og personvern",
+      roleKey: "dpo",
       responsibilities: [
         "Håndtere personvernforespørsler (innsyn, sletting)",
         "Utføre DPIA for nye behandlinger",
@@ -39,11 +39,23 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "IT-sikkerhetsansvarlig (CISO)",
       description: "Ansvarlig for informasjonssikkerhet",
+      roleKey: "ciso",
       responsibilities: [
         "Risikostyring og -vurdering",
         "Utarbeide sikkerhetspolicyer",
         "Hendelseshåndtering og respons",
         "Sikkerhetsrevisjoner"
+      ]
+    });
+    roles.push({
+      name: "Hendelsesansvarlig",
+      description: "Håndterer sikkerhets- og personvernhendelser",
+      roleKey: "incident_manager",
+      responsibilities: [
+        "Mottak og klassifisering av hendelser",
+        "Koordinere respons og eskalering",
+        "NIS2 72-timers rapportering",
+        "Hendelseslogg og oppfølging"
       ]
     });
   }
@@ -52,6 +64,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "AI Governance-ansvarlig",
       description: "Ansvarlig for styring av AI-systemer",
+      roleKey: "ai_governance",
       responsibilities: [
         "Overvåke AI-risiko og etterlevelse",
         "Dokumentere AI-systemer iht. AI Act",
@@ -65,6 +78,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "Bærekraftsansvarlig (ESG)",
       description: "Ansvarlig for bærekraft og ESG-rapportering",
+      roleKey: "esg_officer",
       responsibilities: [
         "ESG-rapportering",
         "Bærekraftsmål og tiltak",
@@ -76,8 +90,9 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
   
   if (useCases.includes("risikostyring")) {
     roles.push({
-      name: "Risiko-eier",
+      name: "Risikoeier",
       description: "Overordnet ansvar for risikostyring",
+      roleKey: "risk_owner",
       responsibilities: [
         "Identifisere og vurdere risikoer",
         "Rapportere til ledelsen",
@@ -92,6 +107,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "IKT-sikkerhetsansvarlig (OT)",
       description: "Ansvarlig for sikkerhet i operasjonelle systemer",
+      roleKey: "ciso",
       responsibilities: [
         "SCADA- og OT-sikkerhet",
         "NVE-rapportering",
@@ -105,6 +121,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "Personvernrådgiver Helse",
       description: "Spesialisert på helseopplysninger",
+      roleKey: "dpo",
       responsibilities: [
         "Helseregisterloven",
         "Pasientjournalloven",
@@ -118,6 +135,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
     roles.push({
       name: "Compliance Officer",
       description: "Ansvarlig for finansiell compliance",
+      roleKey: "compliance_officer",
       responsibilities: [
         "Finanstilsynet-rapportering",
         "AML/KYC",
@@ -137,7 +155,6 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
   const mediumTeam = context.team_size === "middels" || context.team_size === "stort";
   
   if (largeCompany || mediumTeam) {
-    // Only add if not already present
     const hasComplianceRole = roles.some(r => 
       r.name.toLowerCase().includes("compliance") || 
       r.name.toLowerCase().includes("etterlevelse")
@@ -147,6 +164,7 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
       roles.push({
         name: "Compliance Manager",
         description: "Overordnet ansvar for etterlevelse",
+        roleKey: "compliance_officer",
         responsibilities: [
           "Koordinere compliance-arbeid",
           "Rapportere til ledelsen",
@@ -155,6 +173,30 @@ export const suggestRolesForCompany = (context: CompanyContext): SuggestedRole[]
         ]
       });
     }
+
+    roles.push({
+      name: "Internrevisor",
+      description: "Utfører interne revisjoner og kontroller",
+      roleKey: "internal_auditor",
+      responsibilities: [
+        "Planlegge og gjennomføre interne revisjoner",
+        "Rapportere funn og anbefalinger",
+        "Oppfølging av korrigerende tiltak",
+        "ISO 27001 / SOC 2 kontroller"
+      ]
+    });
+
+    roles.push({
+      name: "Leverandøransvarlig",
+      description: "Tredjepartsstyring og leverandørvurderinger",
+      roleKey: "vendor_manager",
+      responsibilities: [
+        "DPA-oppfølging",
+        "Leverandørvurderinger og due diligence",
+        "Kontraktsoppfølging",
+        "Underleverandørstyring"
+      ]
+    });
   }
   
   return roles;

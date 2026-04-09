@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -6,14 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil, Trash2,
+  Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil,
+  AlertTriangle, Bot, Leaf, ClipboardCheck, MonitorCog, GraduationCap, Truck, FileSearch,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TeamMember {
   id: string;
@@ -24,14 +27,22 @@ interface TeamMember {
   lastSeen?: string;
 }
 
-const KEY_ROLES = [
-  { key: "admin", labelNb: "Administrator", labelEn: "Administrator", descNb: "Full tilgang til alle moduler og innstillinger", descEn: "Full access to all modules and settings", icon: Crown },
-  { key: "compliance_officer", labelNb: "Compliance-ansvarlig", labelEn: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks", icon: Shield },
-  { key: "data_controller", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Ansvarlig for behandling av personopplysninger", descEn: "Responsible for processing of personal data", icon: Shield },
-  { key: "ciso", labelNb: "CISO / Sikkerhetsansvarlig", labelEn: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security", icon: Shield },
-  { key: "dpo", labelNb: "DPO / Personvernkontakt", labelEn: "DPO / Privacy Contact", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR", icon: Eye },
-  { key: "it_manager", labelNb: "IT-ansvarlig", labelEn: "IT Manager", descNb: "Ansvarlig for IT-drift og systemer", descEn: "Responsible for IT operations and systems", icon: Settings },
-  { key: "member", labelNb: "Medlem", labelEn: "Member", descNb: "Standard tilgang — alle brukere er medlem med mindre de tildeles en nøkkelrolle", descEn: "Default access — all users are members unless assigned a key role", icon: Eye },
+const ALL_ROLES = [
+  { key: "admin", labelNb: "Administrator", labelEn: "Administrator", descNb: "Full tilgang til alle moduler og innstillinger", descEn: "Full access to all modules and settings", icon: Crown, alwaysActive: true },
+  { key: "compliance_officer", labelNb: "Compliance-ansvarlig", labelEn: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks", icon: Shield, alwaysActive: true },
+  { key: "data_controller", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Ansvarlig for behandling av personopplysninger", descEn: "Responsible for processing of personal data", icon: Shield, alwaysActive: false },
+  { key: "ciso", labelNb: "CISO / Sikkerhetsansvarlig", labelEn: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security", icon: Shield, alwaysActive: false },
+  { key: "dpo", labelNb: "DPO / Personvernkontakt", labelEn: "DPO / Privacy Contact", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR", icon: Eye, alwaysActive: false },
+  { key: "it_manager", labelNb: "IT-ansvarlig", labelEn: "IT Manager", descNb: "Ansvarlig for IT-drift og systemer", descEn: "Responsible for IT operations and systems", icon: Settings, alwaysActive: false },
+  { key: "risk_owner", labelNb: "Risikoeier", labelEn: "Risk Owner", descNb: "Eier og følger opp risikoer i risikoregisteret", descEn: "Owns and follows up risks in the risk register", icon: AlertTriangle, alwaysActive: false },
+  { key: "internal_auditor", labelNb: "Internrevisor", labelEn: "Internal Auditor", descNb: "Utfører interne revisjoner og kontroller (ISO 27001 / SOC 2)", descEn: "Performs internal audits and controls (ISO 27001 / SOC 2)", icon: FileSearch, alwaysActive: false },
+  { key: "ai_governance", labelNb: "AI Governance-ansvarlig", labelEn: "AI Governance Officer", descNb: "Styring av AI-systemer iht. AI Act", descEn: "AI system governance per AI Act", icon: Bot, alwaysActive: false },
+  { key: "esg_officer", labelNb: "Bærekraftsansvarlig (ESG)", labelEn: "ESG Officer", descNb: "ESG-rapportering og CSRD-compliance", descEn: "ESG reporting and CSRD compliance", icon: Leaf, alwaysActive: false },
+  { key: "incident_manager", labelNb: "Hendelsesansvarlig", labelEn: "Incident Manager", descNb: "Håndterer sikkerhets- og personvernhendelser (NIS2 72t-krav)", descEn: "Manages security & privacy incidents (NIS2 72h requirement)", icon: AlertTriangle, alwaysActive: false },
+  { key: "system_owner", labelNb: "Systemeier", labelEn: "System Owner", descNb: "Ansvarlig for spesifikke systemer og assets", descEn: "Responsible for specific systems and assets", icon: MonitorCog, alwaysActive: false },
+  { key: "training_officer", labelNb: "Opplæringsansvarlig", labelEn: "Training Officer", descNb: "Ansvarlig for sikkerhetsopplæring og bevisstgjøring", descEn: "Responsible for security training and awareness", icon: GraduationCap, alwaysActive: false },
+  { key: "vendor_manager", labelNb: "Leverandøransvarlig", labelEn: "Vendor Manager", descNb: "Tredjepartsstyring, DPA-oppfølging og leverandørvurderinger", descEn: "Third-party management, DPA follow-up and vendor assessments", icon: Truck, alwaysActive: false },
+  { key: "member", labelNb: "Medlem", labelEn: "Member", descNb: "Standard tilgang — alle brukere er medlem med mindre de tildeles en nøkkelrolle", descEn: "Default access — all users are members unless assigned a key role", icon: Eye, alwaysActive: true },
 ];
 
 const DEMO_MEMBERS: TeamMember[] = [
@@ -48,12 +59,69 @@ const AdminAccessManagement = () => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [manageRolesOpen, setManageRolesOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [members] = useState<TeamMember[]>(DEMO_MEMBERS);
+  const [activeRoles, setActiveRoles] = useState<string[]>([]);
+  const [savingRoles, setSavingRoles] = useState(false);
 
-  const getRoleDef = (key: string) => KEY_ROLES.find(r => r.key === key) || KEY_ROLES[KEY_ROLES.length - 1];
+  useEffect(() => {
+    fetchActiveRoles();
+  }, []);
+
+  const fetchActiveRoles = async () => {
+    const { data } = await supabase.from("company_profile").select("active_roles").limit(1).single();
+    if (data?.active_roles && data.active_roles.length > 0) {
+      setActiveRoles(data.active_roles);
+    } else {
+      // Default: activate the original roles
+      const defaults = ["admin", "compliance_officer", "data_controller", "ciso", "dpo", "it_manager", "member"];
+      setActiveRoles(defaults);
+    }
+  };
+
+  const isRoleActive = (key: string) => {
+    const role = ALL_ROLES.find(r => r.key === key);
+    if (role?.alwaysActive) return true;
+    return activeRoles.includes(key);
+  };
+
+  const toggleRole = async (key: string) => {
+    const role = ALL_ROLES.find(r => r.key === key);
+    if (role?.alwaysActive) return;
+
+    const newRoles = activeRoles.includes(key)
+      ? activeRoles.filter(r => r !== key)
+      : [...activeRoles, key];
+    
+    setActiveRoles(newRoles);
+  };
+
+  const saveActiveRoles = async () => {
+    setSavingRoles(true);
+    // Ensure always-active roles are included
+    const alwaysActiveKeys = ALL_ROLES.filter(r => r.alwaysActive).map(r => r.key);
+    const finalRoles = [...new Set([...alwaysActiveKeys, ...activeRoles])];
+
+    const { error } = await supabase
+      .from("company_profile")
+      .update({ active_roles: finalRoles })
+      .not("id", "is", null);
+
+    setSavingRoles(false);
+    if (error) {
+      toast.error(isNb ? "Kunne ikke lagre roller" : "Could not save roles");
+    } else {
+      toast.success(isNb ? "Roller oppdatert" : "Roles updated");
+      setManageRolesOpen(false);
+    }
+  };
+
+  const visibleRoles = ALL_ROLES.filter(r => isRoleActive(r.key));
+
+  const getRoleDef = (key: string) => ALL_ROLES.find(r => r.key === key) || ALL_ROLES[ALL_ROLES.length - 1];
 
   const handleInvite = () => {
     if (!inviteEmail) {
@@ -86,22 +154,28 @@ const AdminAccessManagement = () => {
                     : "Invite users and assign key roles in your organization."}
                 </p>
               </div>
-              <Button onClick={() => setInviteOpen(true)} className="gap-2">
-                <UserPlus className="h-4 w-4" />
-                {isNb ? "Inviter bruker" : "Invite user"}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setManageRolesOpen(true)} className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  {isNb ? "Administrer roller" : "Manage Roles"}
+                </Button>
+                <Button onClick={() => setInviteOpen(true)} className="gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  {isNb ? "Inviter bruker" : "Invite user"}
+                </Button>
+              </div>
             </div>
 
             {/* Role overview */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isNb ? "Nøkkelroller" : "Key Roles"}
+                  {isNb ? "Aktive roller" : "Active Roles"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {KEY_ROLES.map(role => {
+                  {visibleRoles.map(role => {
                     const assigned = members.filter(m => m.role === role.key && m.status !== "deactivated");
                     const Icon = role.icon;
                     return (
@@ -235,7 +309,7 @@ const AdminAccessManagement = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {KEY_ROLES.map(role => (
+                  {visibleRoles.map(role => (
                     <SelectItem key={role.key} value={role.key}>
                       <div className="flex items-center gap-2">
                         <span>{isNb ? role.labelNb : role.labelEn}</span>
@@ -258,6 +332,62 @@ const AdminAccessManagement = () => {
             <Button onClick={handleInvite} className="gap-2">
               <Mail className="h-4 w-4" />
               {isNb ? "Send invitasjon" : "Send invitation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Roles dialog */}
+      <Dialog open={manageRolesOpen} onOpenChange={setManageRolesOpen}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5 text-primary" />
+              {isNb ? "Administrer roller" : "Manage Roles"}
+            </DialogTitle>
+            <DialogDescription>
+              {isNb
+                ? "Aktiver eller deaktiver roller som er tilgjengelige i organisasjonen. Deaktiverte roller vises ikke ved invitasjon."
+                : "Enable or disable roles available in your organization. Disabled roles won't appear during invitation."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1 py-2">
+            {ALL_ROLES.map(role => {
+              const Icon = role.icon;
+              const active = isRoleActive(role.key);
+              return (
+                <div
+                  key={role.key}
+                  className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                    active ? "border-border bg-card" : "border-transparent bg-muted/30 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-primary/10">
+                      <Icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
+                      <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={active}
+                    onCheckedChange={() => toggleRole(role.key)}
+                    disabled={role.alwaysActive}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageRolesOpen(false)}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button onClick={saveActiveRoles} disabled={savingRoles}>
+              {savingRoles
+                ? (isNb ? "Lagrer..." : "Saving...")
+                : (isNb ? "Lagre endringer" : "Save changes")}
             </Button>
           </DialogFooter>
         </DialogContent>
