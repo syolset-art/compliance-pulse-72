@@ -19,6 +19,10 @@ import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
+import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
+
+const MAX_FREE_VENDORS = 3;
 
 export default function VendorDashboard() {
   const { t } = useTranslation();
