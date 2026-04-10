@@ -6,8 +6,9 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
-  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight,
+  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
