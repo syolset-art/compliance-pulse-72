@@ -1,61 +1,95 @@
 
 
-## Plan: Rollebasert innholdstilpasning
+## Plan: Komplett prismodell med Gratis-nivå, månedlig/årlig toggle, og regelverk-tillegg
 
 ### Sammendrag
-Tilpasse dashboardet, sidebar-navigasjonen og widgetene basert på brukerens aktive rolle, slik at hver rolle ser innhold som er relevant for deres ansvarsområde.
 
-### Hva endres for brukeren
-- **Dashboardet (Index)** viser ulike widgets og hero-kort basert på rolle. Personvernombud ser behandlingsaktiviteter og DPIA, sikkerhetsansvarlig ser prosesser og kritikalitet, compliance-ansvarlig ser regelverk og modenhet.
-- **Sidebar** fremhever og prioriterer menyelementer som er relevante for rollen. Irrelevante seksjoner kollapses eller dimmes.
-- **Kritiske oppgaver** filtreres per rolle slik at hver bruker ser handlinger som faktisk angår dem.
-- Rollebytteren (allerede i sidebar) forblir tilgjengelig for å bytte perspektiv.
+Bygge en fullstendig prismodell som tydelig viser hva som er gratis, hva som koster, og lar kunden velge mellom månedlig og årlig fakturering. Regelverk prises som årlige tillegg.
 
-### Teknisk tilnærming
-
-**1. Definere rolle-til-innhold-mapping (ny fil `src/lib/roleContentConfig.ts`)**
-
-Én konfigurasjon per rolle som styrer:
-- Hvilke dashboard-widgets som er synlige (koble til eksisterende `DASHBOARD_LAYOUTS`)
-- Hvilke sidebar-nav-items som fremheves vs. dimmes
-- Hvilke hero-cards / CTA-er som vises
-- Hvilke kritiske oppgaver som er relevante
+### Prisstruktur
 
 ```text
-Rolle               | Primært innhold                        | Sekundært
-────────────────────┼────────────────────────────────────────┼──────────────
-personvernombud     | Behandlingsaktiviteter, DPIA, ROPA     | Avvik, Leverandører
-sikkerhetsansvarlig | Prosesser, Kritikalitet, Kontroller     | Systemer, Hendelser
-compliance_ansvarlig| Regelverk, Modenhet, Oppgaver           | Alt
-daglig_leder        | KPI, Risiko, Status                     | Rapporter
-ai_governance       | AI-systemer, AI Act, Risikovurdering    | Compliance
-operativ_bruker     | Mine oppgaver, Systemer                 | Minimalt
+PLATTFORM (systemer + leverandører)
+──────────────────────────────────────────────────────
+Plan          Systemer  Leverandører  Mnd       Årlig (2 mnd gratis)
+Gratis        ≤5        ≤5            0 kr      0 kr
+Basis         ≤20       ≤20           1 490 kr  14 900 kr
+Premium       ≤70       ≤70           2 490 kr  24 900 kr
+Enterprise    >70       >70           Kontakt   Kontakt
+
+INKLUDERT I ALLE PLANER (gratis)
+──────────────────────────────────────────────────────
+- Trust Center (alle undermenyer)
+- GDPR regelverk
+- ISO 27001 regelverk
+
+REGELVERK-TILLEGG (årlig pris)
+──────────────────────────────────────────────────────
+Regelverk       Årspris     Inkluderer
+NIS2            50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
+DORA            50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
+Åpenhetsloven   50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
+EU AI Act       50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
+CRA             50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
 ```
 
-**2. Oppdatere `Index.tsx` (Dashboard)**
-- Importere `useUserRole` og hente `primaryRole`
-- Bruke rolle til å filtrere `WIDGET_DEFS` — vise kun relevante widgets som standard
-- Vise rollespesifikke hero-kort (f.eks. personvernombud ser "Opprett behandlingsaktivitet", sikkerhetsansvarlig ser "Se risikoer")
-- Beholde "Tilpass"-knappen slik at brukere kan legge til widgets manuelt
+### Implementering
 
-**3. Oppdatere `Sidebar.tsx`**
-- Bruke `primaryRole` til å sortere/fremheve relevante nav-items
-- Dimme (opacity + smaller font) items som er mindre relevante for rollen
-- Ikke skjule noe helt — bare visuell prioritering
+**1. Ny fil `src/lib/planConstants.ts`**
+- Definere alle plantier med mnd/årlig priser
+- Definere `FRAMEWORK_ADDON_PRICES` med årlige priser per regelverk (NIS2, DORA, Åpenhetsloven, AI Act, CRA = 50 000 kr/år)
+- Definere `FREE_FRAMEWORKS = ['gdpr', 'iso27001']`
+- Hjelpefunksjoner: `getPrice(tier, interval)`, `getAnnualSavings(tier)`, `formatKr()`
+- Liste over hva som er gratis: Trust Center, 5 systemer, 5 leverandører, GDPR, ISO 27001
 
-**4. Oppdatere `DashboardCriticalTasks.tsx`**
-- Filtrere oppgavene basert på rolle (f.eks. personvernombud ser DPA-mangler, sikkerhetsansvarlig ser NIS2)
+**2. DB-migrasjon: `subscription_plans`**
+- Legge til `price_yearly` kolonne (integer, nullable)
+- Oppdatere planer: starter→free (0), professional→basis (149000 mnd / 1490000 årlig), enterprise→premium (249000 mnd / 2490000 årlig)
+- Legge til ny premium-rad
 
-**5. Oppdatere `DashboardHeroCards.tsx`**
-- Vise rollespesifikke snarveier/CTA-er (personvernombud: "Ny behandlingsaktivitet", sikkerhetsansvarlig: "Se prosessoversikt")
+**3. DB-migrasjon: `company_subscriptions`**
+- Legge til `billing_interval` kolonne (text, default 'monthly')
 
-### Filer som endres
-- `src/lib/roleContentConfig.ts` (ny) — rolle-til-innhold-mapping
-- `src/pages/Index.tsx` — rollebasert widget-filtrering
-- `src/components/Sidebar.tsx` — visuell prioritering av nav
-- `src/components/dashboard/DashboardCriticalTasks.tsx` — rollefiltrerte oppgaver
-- `src/components/dashboard/DashboardHeroCards.tsx` — rollespesifikke CTA-er
+**4. Oppdatere `DOMAIN_ADDON_PRICES` i `useSubscription.ts`**
+- Erstatte eksisterende domenepriser med de nye regelverk-tilleggsprisene
+- NIS2, DORA, Åpenhetsloven, AI Act, CRA = 5 000 000 øre (50 000 kr/år)
+- GDPR og ISO 27001 = 0 (gratis, inkludert)
+- Eksponere `billingInterval` fra subscription
 
-### Ingen databaseendringer
-Alt er konfigurasjonsbasert og bruker eksisterende `useUserRole`-hook.
+**5. Oppdatere `SystemActivateDialog.tsx`**
+- Legge til månedlig/årlig toggle øverst
+- Vise priser dynamisk basert på valgt intervall
+- Vise "Spar 2 mnd"-badge ved årlig
+- Legge til seksjon som viser hva som er gratis (Trust Center, GDPR, ISO 27001)
+
+**6. Oppdatere `VendorActivateDialog` tilsvarende**
+- Samme toggle og prisvisning som SystemActivateDialog
+- Endre MAX_FREE_VENDORS fra 3 til 5
+
+**7. Oppdatere `DomainActivationWizard` og `LockedDomainCard`**
+- Vise årlig pris for regelverk-tillegg (f.eks. "50 000 kr/år")
+- Tydeliggjøre hva som er inkludert: gap-analyse, tiltaksliste, modenhetsvurdering, rapportdeling
+
+**8. Oppdatere Faktura-siden (`MSPInvoices.tsx`)**
+- Vise gjeldende plan med faktureringsintervall
+- Vise aktive regelverk-tillegg med årlig pris
+- Vise samlet kostnad
+
+### Tekniske detaljer
+
+- Regelverk-priser lagres som årlige priser (i øre) i `planConstants.ts` og brukes konsekvent i UI
+- `useSubscription` utvides med `billingInterval`, `getFrameworkPrice(frameworkId)`, og `isFrameworkFree(frameworkId)`
+- Alle prisvisninger bruker sentral `formatKr()`-funksjon
+- Eksisterende `DOMAIN_ADDON_PRICES` refaktoreres til `FRAMEWORK_ADDON_PRICES` med årlige priser
+
+### Filer som endres/opprettes
+- `src/lib/planConstants.ts` (ny)
+- `src/hooks/useSubscription.ts`
+- `src/components/systems/SystemActivateDialog.tsx`
+- `src/components/vendor-dashboard/VendorActivateDialog.tsx`
+- `src/components/regulations/DomainActivationWizard.tsx`
+- `src/components/iso-readiness/LockedDomainCard.tsx`
+- `src/pages/MSPInvoices.tsx`
+- `src/pages/VendorDashboard.tsx` (MAX_FREE_VENDORS → 5)
+- 2 DB-migrasjoner (price_yearly + billing_interval)
 
