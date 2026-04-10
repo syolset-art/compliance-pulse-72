@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { Cpu, Shield as ShieldIcon, FileCheck, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -157,6 +158,7 @@ export default function Systems() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [activateOpen, setActivateOpen] = useState(false);
@@ -582,10 +584,6 @@ export default function Systems() {
               <h1 className="text-xl md:text-2xl font-bold text-foreground">
                 {t("systems.title", "Systemer")}
               </h1>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Button

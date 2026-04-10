@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { Handshake, FileText, Shield, HelpCircle, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,6 +34,7 @@ export default function VendorDashboard() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
 
@@ -117,10 +119,6 @@ export default function VendorDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Button

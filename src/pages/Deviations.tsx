@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList as ClipboardListHelp, Users as UsersHelp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -108,6 +109,7 @@ export default function Deviations() {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [liveInfoExpanded, setLiveInfoExpanded] = useState(false);
   const [selectedDeviation, setSelectedDeviation] = useState<Deviation | null>(null);
 
@@ -365,10 +367,6 @@ export default function Deviations() {
            <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-foreground">Avviksregister</h1>
             <p className="text-sm text-muted-foreground">Administrer og følg opp alle avvik</p>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-              <HelpCircle className="h-4 w-4" />
-              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-            </Button>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />

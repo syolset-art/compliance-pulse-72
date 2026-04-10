@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { HelpCircle, ClipboardList as ClipboardListIcon, Scale, Lock, Users as UsersIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -89,6 +90,7 @@ export default function ProcessingRecords() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
 
   const metrics = [
     { 
@@ -171,10 +173,6 @@ export default function ProcessingRecords() {
               <h1 className="text-2xl font-bold text-foreground">{t("processingRecords.title")}</h1>
               <p className="text-muted-foreground">{t("processingRecords.subtitle")}</p>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-              <HelpCircle className="h-4 w-4" />
-              <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-            </Button>
           </div>
           <Button variant="outline" className="gap-2">
             <Download className="h-4 w-4" />

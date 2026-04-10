@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   CheckCircle2, X, AlertTriangle, Clock, HelpCircle,
@@ -149,6 +150,7 @@ export default function Tasks() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [viewFilter, setViewFilter] = useState<ViewFilter>("alle");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alle");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "alle">("alle");
@@ -193,15 +195,6 @@ export default function Tasks() {
               <Badge variant="secondary" className="text-xs">
                 {autoTasks.filter((t) => t.status !== "fullført").length} åpne
               </Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 text-muted-foreground hover:text-foreground"
-                onClick={() => setHelpOpen(true)}
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hjelp</span>
-              </Button>
             </div>
             <Button
               variant="outline"

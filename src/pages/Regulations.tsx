@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
@@ -64,6 +65,7 @@ const Regulations = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
 
   // Fetch frameworks
   useEffect(() => {
@@ -253,10 +255,6 @@ const Regulations = () => {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-              <HelpCircle className="h-4 w-4" />
-              <span className="text-sm hidden sm:inline">Hjelp og handlinger</span>
-            </Button>
           </div>
 
           {/* Category filter */}
