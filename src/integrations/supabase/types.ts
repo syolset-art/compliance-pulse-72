@@ -3297,6 +3297,7 @@ export type Database = {
     }
     Enums: {
       app_role:
+        | "super_admin"
         | "daglig_leder"
         | "personvernombud"
         | "sikkerhetsansvarlig"
@@ -3436,6 +3437,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: [
+        "super_admin",
         "daglig_leder",
         "personvernombud",
         "sikkerhetsansvarlig",

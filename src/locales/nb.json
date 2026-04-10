@@ -1237,6 +1237,7 @@
     }
   },
   "roles": {
+    "super_admin": "Superbruker",
     "daglig_leder": "Daglig leder",
     "personvernombud": "Personvernombud (DPO)",
     "sikkerhetsansvarlig": "Sikkerhetsansvarlig (CISO)",
@@ -1249,6 +1250,10 @@
     "switchViewHelp": "Bytt visning for å se widgets tilpasset ulike roller. Dine tilordnede roller er markert."
   },
   "dashboardViews": {
+    "super_admin": {
+      "title": "Superbruker-visning",
+      "description": "Full tilgang til alle moduler og funksjoner"
+    },
     "daglig_leder": {
       "title": "Ledervisning",
       "description": "Overordnet status, KPI-er og beslutningspunkter"

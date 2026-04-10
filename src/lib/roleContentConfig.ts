@@ -2,6 +2,10 @@ import type { AppRole } from "@/hooks/useUserRole";
 
 /** Which dashboard widgets are most relevant per role */
 export const ROLE_WIDGET_DEFAULTS: Record<AppRole, { primary: string[]; hidden: string[] }> = {
+  super_admin: {
+    primary: ["security-foundations", "nis2", "business-risk-exposure", "vendor-requests", "environment", "vulnerability-map", "ai-dependencies", "ai-activity", "critical-processes", "ai-docs", "data-geography"],
+    hidden: [],
+  },
   personvernombud: {
     primary: ["vendor-requests", "data-geography", "environment", "ai-docs"],
     hidden: ["vulnerability-map", "ai-dependencies", "ai-activity", "critical-processes"],
@@ -62,6 +66,7 @@ export const ROLE_WIDGET_DEFAULTS: Record<AppRole, { primary: string[]; hidden: 
 
 /** Sidebar nav routes that are "primary" (highlighted) per role */
 export const ROLE_SIDEBAR_HIGHLIGHTS: Record<AppRole, string[]> = {
+  super_admin: ["/", "/work-areas", "/deviations", "/tasks", "/regulations", "/reports", "/vendors", "/systems", "/assets", "/customer-requests", "/ai-registry", "/subscriptions", "/trust-center/profile", "/compliance", "/quality"],
   personvernombud: ["/", "/vendors", "/deviations", "/customer-requests", "/regulations"],
   sikkerhetsansvarlig: ["/", "/systems", "/assets", "/deviations", "/tasks"],
   compliance_ansvarlig: ["/", "/regulations", "/tasks", "/deviations", "/vendors", "/systems"],
@@ -179,6 +184,10 @@ export interface RoleHeroCTA {
 }
 
 export const ROLE_HERO_CTAS: Record<AppRole, RoleHeroCTA[]> = {
+  super_admin: [
+    { labelNb: "Alle moduler", labelEn: "All modules", route: "/systems" },
+    { labelNb: "Administrasjon", labelEn: "Administration", route: "/admin/access" },
+  ],
   personvernombud: [
     { labelNb: "Ny behandlingsaktivitet", labelEn: "New processing activity", route: "/vendors" },
     { labelNb: "Se DPIA-oversikt", labelEn: "View DPIA overview", route: "/vendors" },
