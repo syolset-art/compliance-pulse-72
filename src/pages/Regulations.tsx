@@ -252,14 +252,10 @@ const Regulations = () => {
                   Velg et regelverk for å se status og håndtere krav
                 </p>
               </div>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-              </Button>
             </div>
-            <Button variant="outline" className="gap-2" onClick={() => setShowEditDialog(true)}>
-              <Settings2 className="h-4 w-4" />
-              Rediger aktive regelverk
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hjelp og handlinger</span>
             </Button>
           </div>
 
