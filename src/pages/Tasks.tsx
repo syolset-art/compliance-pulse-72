@@ -808,7 +808,10 @@ export default function Tasks() {
           ]}
           laraSuggestion="Hjelp meg med å prioritere og håndtere oppgavene mine"
         />
+          </>
+        )}
         </div>
+
       </main>
     </div>
   );
