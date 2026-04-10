@@ -2,8 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MaturityProgressCard } from "@/components/company/MaturityProgressCard";
-import { MilestoneTimeline } from "@/components/company/MilestoneTimeline";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { Sidebar } from "@/components/Sidebar";
 
@@ -26,14 +24,8 @@ export default function CompanySettings() {
             </div>
           </div>
 
-          {/* Maturity Progress Card */}
-          <MaturityProgressCard />
-
           {/* Company Info — shared component */}
           <CompanyInfoForm showEditControls />
-
-          {/* Milestones Timeline */}
-          <MilestoneTimeline />
 
           {/* Info Section */}
           <Card className="border-primary/20 bg-primary/5">
