@@ -3,8 +3,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Settings2, HelpCircle, Scale, Shield, CheckCircle2, BookOpen } from "lucide-react";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { Settings2, HelpCircle, Scale, Shield, CheckCircle2, BookOpen, FileText, RefreshCw, Layers } from "lucide-react";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
@@ -252,14 +252,10 @@ const Regulations = () => {
                   Velg et regelverk for å se status og håndtere krav
                 </p>
               </div>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-              </Button>
             </div>
-            <Button variant="outline" className="gap-2" onClick={() => setShowEditDialog(true)}>
-              <Settings2 className="h-4 w-4" />
-              Rediger aktive regelverk
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Hjelp og handlinger</span>
             </Button>
           </div>
 
@@ -344,11 +340,11 @@ const Regulations = () => {
         }}
       />
 
-      <PageHelpDrawer
+      <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={Scale}
-        title="Hva er Regelverk og etterlevelse?"
+        title="Regelverk og etterlevelse"
         description="Her administrerer du hvilke regelverk som gjelder for din virksomhet. Du kan aktivere og deaktivere rammeverk, se status på krav, og følge opp etterlevelse på tvers av alle aktive regelverk."
         itemsHeading="Hva kan du gjøre her?"
         items={[
@@ -363,6 +359,18 @@ const Regulations = () => {
           { text: "Se gjennom obligatoriske regelverk som allerede er aktivert" },
           { text: "Aktiver frivillige regelverk som er relevante for din bransje" },
           { text: "Jobb med kravene i hvert regelverk for å øke etterlevelsen" },
+        ]}
+        actions={[
+          { icon: Settings2, title: "Rediger aktive regelverk", description: "Legg til eller fjern regelverk fra ditt aktive scope.", onClick: () => setShowEditDialog(true) },
+          { icon: FileText, title: "Eksporter samsvarsrapport", description: "Generer en PDF-rapport over status for alle aktive regelverk.", onClick: () => navigate("/reports/compliance") },
+          { icon: RefreshCw, title: "Oppdater kravstatus", description: "Synkroniser status for alle krav med siste data.", onClick: () => { toast({ title: "Oppdaterer...", description: "Kravstatus synkroniseres." }); } },
+          { icon: Layers, title: "Se alle kategorier", description: "Filtrer regelverk etter Personvern, Sikkerhet, AI eller annet.", onClick: () => setCategoryFilter(null) },
+        ]}
+        laraSuggestions={[
+          { label: "Hvilke regelverk bør vi fokusere på?", message: "Hvilke regelverk bør vi fokusere på basert på vår bransje?" },
+          { label: "Hjelp meg forstå GDPR-kravene", message: "Kan du forklare de viktigste GDPR-kravene for oss?" },
+          { label: "Hva mangler vi for ISO 27001?", message: "Hva mangler vi for å oppnå ISO 27001-samsvar?" },
+          { label: "Lag en etterlevelsesplan", message: "Hjelp meg med å lage en etterlevelsesplan for de neste 6 månedene." },
         ]}
         laraSuggestion="Hvilke regelverk bør vi fokusere på basert på vår bransje?"
       />
