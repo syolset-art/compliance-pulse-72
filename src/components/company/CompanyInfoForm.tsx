@@ -50,6 +50,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     employees: "",
     brreg_industry: "",
     description: "",
+    compliance_officer: "",
+    compliance_officer_email: "",
   });
 
   useEffect(() => {
@@ -62,6 +64,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         employees: companyProfile.employees || "",
         brreg_industry: companyProfile.brreg_industry || "",
         description: selfAsset?.description || "",
+        compliance_officer: companyProfile.compliance_officer || "",
+        compliance_officer_email: companyProfile.compliance_officer_email || "",
       });
     }
   }, [companyProfile, selfAsset]);
@@ -73,10 +77,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       const { error: profileErr } = await supabase
         .from("company_profile")
         .update({
-          name: form.name,
+        name: form.name,
           domain: form.domain,
           industry: form.industry,
           employees: form.employees,
+          compliance_officer: form.compliance_officer,
+          compliance_officer_email: form.compliance_officer_email,
         })
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
@@ -112,6 +118,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         employees: companyProfile.employees || "",
         brreg_industry: companyProfile.brreg_industry || "",
         description: selfAsset?.description || "",
+        compliance_officer: companyProfile.compliance_officer || "",
+        compliance_officer_email: companyProfile.compliance_officer_email || "",
       });
     }
     setIsEditing(false);
@@ -229,6 +237,33 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         <FieldBlock label="Adresse" hint="Forhåndsutfylt fra Brønnøysundregistrene · kan endres">
           <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
         </FieldBlock>
+      </div>
+
+      {/* Kontaktperson */}
+      <div className="space-y-2 pt-2 border-t border-border">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <div>
+            <label className="text-xs font-semibold text-foreground">Kontaktperson</label>
+            <p className="text-[10px] text-muted-foreground">Hvem er hovedkontakt for sikkerhet og etterlevelse?</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FieldBlock label="Navn" hint="Ansvarlig for compliance">
+            {isEditing ? (
+              <Input value={form.compliance_officer} onChange={(e) => update("compliance_officer", e.target.value)} placeholder="Ola Nordmann" className="text-sm" />
+            ) : (
+              <Input value={form.compliance_officer || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+          <FieldBlock label="E-post" hint="Kontaktadresse for henvendelser">
+            {isEditing ? (
+              <Input value={form.compliance_officer_email} onChange={(e) => update("compliance_officer_email", e.target.value)} placeholder="ola@firma.no" className="text-sm" type="email" />
+            ) : (
+              <Input value={form.compliance_officer_email || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+        </div>
       </div>
 
       {/* Description */}
