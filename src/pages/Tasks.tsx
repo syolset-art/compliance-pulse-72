@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown, ClipboardList, BarChart3, Users, Bell } from "lucide-react";
+import { TasksPremiumDialog } from "@/components/tasks/TasksPremiumDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
