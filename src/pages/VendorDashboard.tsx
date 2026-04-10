@@ -22,6 +22,7 @@ import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVend
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
 import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
+import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
 
 const MAX_FREE_VENDORS = 5;
 
@@ -121,6 +122,7 @@ export default function VendorDashboard() {
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
             </div>
             <div className="flex items-center gap-2">
+              <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={() => {
                   if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
