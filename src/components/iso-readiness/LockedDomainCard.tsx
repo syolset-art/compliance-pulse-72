@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { DOMAIN_STANDARDS } from "@/lib/certificationPhases";
 import { cn } from "@/lib/utils";
+import { formatKr, isFrameworkFree, getFrameworkYearlyPrice } from "@/lib/planConstants";
 import type { RequirementDomain } from "@/lib/complianceRequirementsData";
 
 interface LockedDomainCardProps {
@@ -28,13 +29,9 @@ export function LockedDomainCard({
   const { t } = useTranslation();
   const standards = DOMAIN_STANDARDS[domainId];
 
-  const formatPrice = (ore: number) =>
-    new Intl.NumberFormat("nb-NO", {
-      style: "currency",
-      currency: "NOK",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(ore / 100);
+  // Use framework yearly price if available, otherwise fall back to priceInOre
+  const yearlyPriceKr = getFrameworkYearlyPrice(domainId);
+  const isFree = isFrameworkFree(domainId);
 
   return (
     <Card className={cn("transition-all opacity-75 hover:opacity-90", borderClass)}>
@@ -61,9 +58,20 @@ export function LockedDomainCard({
           <p className="text-xs text-muted-foreground mb-1">
             {t("isoReadiness.locked.notActivated")}
           </p>
-          <p className="text-sm font-semibold text-foreground">
-            {t("isoReadiness.locked.fromPrice", { price: formatPrice(priceInOre) })}
-          </p>
+          {isFree ? (
+            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+              Inkludert gratis
+            </p>
+          ) : (
+            <p className="text-sm font-semibold text-foreground">
+              {formatKr(yearlyPriceKr)}/år
+            </p>
+          )}
+          {!isFree && yearlyPriceKr > 0 && (
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              Inkl. gap-analyse, tiltaksliste, modenhet og rapport
+            </p>
+          )}
         </div>
 
         <div className="flex gap-2 mt-3">

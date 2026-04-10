@@ -38,7 +38,8 @@ interface DomainActivationWizardProps {
   domainIcon: LucideIcon;
   domainColor: string;
   domainBgColor: string;
-  monthlyPrice: number; // in øre
+  monthlyPrice: number; // in øre (legacy, now used as yearly for framework addons)
+  yearlyPriceKr?: number; // yearly price in kr
   onActivate: () => void;
   isActivating?: boolean;
   nextBillingDate?: string;
@@ -56,6 +57,7 @@ export function DomainActivationWizard({
   domainColor,
   domainBgColor,
   monthlyPrice,
+  yearlyPriceKr,
   onActivate,
   isActivating = false,
   nextBillingDate = "1. februar 2026",
@@ -177,14 +179,19 @@ export function DomainActivationWizard({
         {/* Pricing box */}
         <div className="p-5 rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-muted-foreground">Månedlig tillegg til ditt abonnement</span>
+            <span className="text-sm text-muted-foreground">Årlig tillegg til ditt abonnement</span>
           </div>
           <div className="flex items-baseline gap-1 mb-3">
             <span className="text-3xl font-bold text-foreground">
-              + {formatPrice(monthlyPrice)}
+              {yearlyPriceKr ? `${new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yearlyPriceKr)}` : `+ ${formatPrice(monthlyPrice)}`}
             </span>
-            <span className="text-muted-foreground">/mnd</span>
+            <span className="text-muted-foreground">/år</span>
           </div>
+          {yearlyPriceKr && yearlyPriceKr > 0 && (
+            <p className="text-xs text-muted-foreground mb-2">
+              Inkluderer gap-analyse, tiltaksliste, modenhetsvurdering og rapportdeling
+            </p>
+          )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <CreditCard className="h-4 w-4" />
             <span>Faktureres fra {nextBillingDate}</span>
@@ -200,7 +207,7 @@ export function DomainActivationWizard({
             className="mt-0.5"
           />
           <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
-            Jeg godtar tillegget på <span className="font-semibold text-foreground">{formatPrice(monthlyPrice)}/mnd</span> som legges til mitt eksisterende abonnement. Jeg forstår at jeg kan avbestille når som helst.
+            Jeg godtar tillegget på <span className="font-semibold text-foreground">{yearlyPriceKr ? `${new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yearlyPriceKr)}/år` : `${formatPrice(monthlyPrice)}/mnd`}</span> som legges til mitt eksisterende abonnement. Jeg forstår at jeg kan avbestille når som helst.
           </label>
         </div>
 
@@ -268,7 +275,9 @@ export function DomainActivationWizard({
               <Zap className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-foreground">{domainName}</span>
             </div>
-            <span className="text-sm font-bold text-foreground">+ {formatPrice(monthlyPrice)}/mnd</span>
+            <span className="text-sm font-bold text-foreground">
+              {yearlyPriceKr ? `+ ${new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yearlyPriceKr)}/år` : `+ ${formatPrice(monthlyPrice)}/mnd`}
+            </span>
           </div>
         </div>
 

@@ -22,7 +22,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
 import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
 
-const MAX_FREE_VENDORS = 3;
+const MAX_FREE_VENDORS = 5;
 
 export default function VendorDashboard() {
   const { t } = useTranslation();

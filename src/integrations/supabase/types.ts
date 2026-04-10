@@ -752,6 +752,7 @@ export type Database = {
       }
       company_subscriptions: {
         Row: {
+          billing_interval: string
           company_id: string | null
           created_at: string | null
           current_period_end: string | null
@@ -763,6 +764,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          billing_interval?: string
           company_id?: string | null
           created_at?: string | null
           current_period_end?: string | null
@@ -774,6 +776,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          billing_interval?: string
           company_id?: string | null
           created_at?: string | null
           current_period_end?: string | null
@@ -2396,6 +2399,7 @@ export type Database = {
           included_domains: string[]
           name: string
           price_monthly: number | null
+          price_yearly: number | null
           sort_order: number | null
           updated_at: string | null
         }
@@ -2407,6 +2411,7 @@ export type Database = {
           included_domains?: string[]
           name: string
           price_monthly?: number | null
+          price_yearly?: number | null
           sort_order?: number | null
           updated_at?: string | null
         }
@@ -2418,6 +2423,7 @@ export type Database = {
           included_domains?: string[]
           name?: string
           price_monthly?: number | null
+          price_yearly?: number | null
           sort_order?: number | null
           updated_at?: string | null
         }
