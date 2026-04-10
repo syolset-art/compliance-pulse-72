@@ -434,16 +434,37 @@ export default function Tasks() {
               <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
             </Button>
           </div>
-          <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
-            <FolderKanban className="h-4 w-4" />
-            Prosjekter
-            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
-              <Crown className="h-2.5 w-2.5 mr-0.5" />
-              Premium
-            </Badge>
-          </Button>
+          <div className="flex items-center gap-2">
+            <CreateUserTaskDialog
+              onSubmit={(task) => createTask.mutate(task)}
+              isLoading={createTask.isPending}
+            />
+            <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
+              <FolderKanban className="h-4 w-4" />
+              Prosjekter
+              <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
+                <Crown className="h-2.5 w-2.5 mr-0.5" />
+                Premium
+              </Badge>
+            </Button>
+          </div>
         </div>
         <p className="text-muted-foreground mb-6">{t("tasks.subtitle")}</p>
+
+        {/* User-created tasks section */}
+        {userTasks.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-foreground mb-3">Mine oppgaver</h2>
+            <UserTasksList
+              tasks={userTasks}
+              isLoading={userTasksLoading}
+              onStatusChange={(id, status) => updateTaskStatus.mutate({ id, status })}
+              onDelete={(id) => deleteTask.mutate(id)}
+            />
+          </div>
+        )}
+
+        <h2 className="text-lg font-semibold text-foreground mb-3">Automatisk genererte oppgaver</h2>
 
         <TasksPremiumDialog 
           open={premiumDialogOpen} 
