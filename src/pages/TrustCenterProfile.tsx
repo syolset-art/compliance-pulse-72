@@ -273,9 +273,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                   ? (isNb
                     ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
                     : "Product or service profile as seen by customers and partners.")
-                  : (isNb
-                    ? "Din organisasjons sikkerhets- og compliance-profil slik den vises for kunder og partnere."
-                    : "Your organization's security and compliance profile as seen by customers and partners.")}
+                  : "Shareable compliance profile for due diligence"}
               </p>
             </div>
 
