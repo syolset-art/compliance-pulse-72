@@ -122,7 +122,6 @@ export default function VendorDashboard() {
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={() => {
                   if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
@@ -166,13 +165,18 @@ export default function VendorDashboard() {
           />
 
           <Tabs defaultValue="all" className="space-y-4">
-            <TabsList className="h-9 p-0.5">
-              <TabsTrigger value="all" className="text-xs px-3">{t("vendorDashboard.tabs.all")}</TabsTrigger>
-              <TabsTrigger value="overview" className="text-xs px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
-              <TabsTrigger value="map" className="text-xs px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
-              <TabsTrigger value="supplyChain" className="text-xs px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
-              <TabsTrigger value="compare" className="text-xs px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between">
+              <TabsList className="h-9 p-0.5">
+                <TabsTrigger value="all" className="text-xs px-3">{t("vendorDashboard.tabs.all")}</TabsTrigger>
+                <TabsTrigger value="overview" className="text-xs px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                <TabsTrigger value="map" className="text-xs px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
+                <TabsTrigger value="supplyChain" className="text-xs px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
+                <TabsTrigger value="compare" className="text-xs px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
+              </TabsList>
+              <div className="flex items-center gap-2">
+                <VendorPortfolioActions vendors={vendors} />
+              </div>
+            </div>
 
             <TabsContent value="overview">
               <VendorOverviewTab
