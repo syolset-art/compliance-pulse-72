@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown, ClipboardList, BarChart3, Users, Bell } from "lucide-react";
+import { TasksPremiumDialog } from "@/components/tasks/TasksPremiumDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -288,6 +289,10 @@ export default function Tasks() {
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  const [isPremiumActivated, setIsPremiumActivated] = useState(() => 
+    localStorage.getItem("tasks_premium_activated") === "true"
+  );
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
@@ -436,6 +441,57 @@ export default function Tasks() {
         </div>
         <p className="text-muted-foreground mb-6">{t("tasks.subtitle")}</p>
 
+        <TasksPremiumDialog 
+          open={premiumDialogOpen} 
+          onOpenChange={setPremiumDialogOpen}
+          onActivated={() => setIsPremiumActivated(true)}
+        />
+
+        {!isPremiumActivated ? (
+          /* Premium gate – show feature overview */
+          <div className="flex flex-col items-center justify-center py-16 max-w-lg mx-auto text-center space-y-6">
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <ClipboardList className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Oppgaver</h2>
+              <p className="text-muted-foreground">
+                Få automatisk genererte compliance-oppgaver basert på dine systemer og regelverk. 
+                La AI-agenten håndtere rutinearbeid mens du fokuserer på det som krever menneskelig vurdering.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+              {[
+                { icon: ClipboardList, label: "Auto-genererte oppgaver" },
+                { icon: Bot, label: "AI-agent utfører oppgaver" },
+                { icon: BarChart3, label: "Prioritering etter risiko" },
+                { icon: FolderKanban, label: "Prosjekter og milepæler" },
+                { icon: Users, label: "Flerbruker med seats" },
+                { icon: Bell, label: "Varsler og påminnelser" },
+              ].map((f, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm text-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  {f.label}
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-lg border bg-muted/30 p-4 w-full">
+              <p className="text-lg font-bold text-foreground">kr 2 900 <span className="text-sm font-normal text-muted-foreground">/ mnd per seat</span></p>
+              <p className="text-xs text-muted-foreground mt-1">Velg antall seats ved aktivering</p>
+            </div>
+
+            <Button
+              onClick={() => setPremiumDialogOpen(true)}
+              className="gap-2 bg-gradient-to-r from-blue-600 to-primary hover:from-blue-700 hover:to-primary/90 text-white px-8"
+              size="lg"
+            >
+              <Sparkles className="h-4 w-4" />
+              Aktiver Oppgaver
+            </Button>
+          </div>
+        ) : (
           <>
         {/* Action Filter Banner - Shows when navigating from dashboard widget */}
         {activeActionFilter && (
@@ -728,7 +784,6 @@ export default function Tasks() {
           );
           })}
         </div>
-          </>
 
         <PageHelpDrawer
           open={helpOpen}
@@ -752,6 +807,8 @@ export default function Tasks() {
           ]}
           laraSuggestion="Hjelp meg med å prioritere og håndtere oppgavene mine"
         />
+          </>
+        )}
         </div>
       </main>
     </div>
