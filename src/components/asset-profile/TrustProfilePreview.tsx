@@ -58,20 +58,32 @@ function evaluateTypeControl(key: string, assetType: string, asset: any): TrustC
   return maps[assetType]?.[key]?.() ?? "missing";
 }
 
-const FRAMEWORK_COLORS: Record<string, string> = {
-  gdpr: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  personopplysningsloven: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  nis2: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-  iso27001: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  "ai-act": "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+const FRAMEWORK_META: Record<string, { color: string; type: "standard" | "regulation" }> = {
+  gdpr: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
+  personopplysningsloven: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
+  nis2: { color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300", type: "regulation" },
+  iso27001: { color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300", type: "standard" },
+  "ai-act": { color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300", type: "regulation" },
+  dora: { color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300", type: "regulation" },
+  cra: { color: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300", type: "regulation" },
+  soc2: { color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300", type: "standard" },
+  iso9001: { color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300", type: "standard" },
 };
 
-function frameworkBadgeClass(id: string): string {
+function getFrameworkMeta(id: string): { color: string; type: "standard" | "regulation" } | null {
   const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
-  for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
-    if (lower.includes(key.replace("-", ""))) return cls;
+  for (const [key, meta] of Object.entries(FRAMEWORK_META)) {
+    if (lower.includes(key.replace("-", ""))) return meta;
   }
-  return "bg-muted text-muted-foreground";
+  return null;
+}
+
+function frameworkBadgeClass(id: string): string {
+  return getFrameworkMeta(id)?.color ?? "bg-muted text-muted-foreground";
+}
+
+function frameworkType(id: string): "standard" | "regulation" {
+  return getFrameworkMeta(id)?.type ?? "regulation";
 }
 
 export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfilePreviewProps) {
