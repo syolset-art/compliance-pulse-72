@@ -230,21 +230,23 @@ export default function VendorDashboard() {
         onOpenChange={setHelpOpen}
         icon={Handshake}
         title="Hva er leverandørstyring?"
-        description="Leverandørstyring gir deg full oversikt over alle tredjeparter og databehandlere organisasjonen bruker. Du kan spore avtaler, compliance-status, risikonivå og sørge for at alle leverandører oppfyller kravene i GDPR, NIS2 og andre regelverk."
+        description="Leverandørstyring gir deg oversikt over alle tredjeparter og databehandlere dere bruker. Du kan vurdere risiko, følge opp dokumentasjon og jobbe strukturert med etterlevelse av krav som GDPR, NIS2 og ISO 27001."
         itemsHeading="Hva kan du gjøre her?"
         items={[
-          { icon: FileText, title: "Dokumenter avtaler", description: "Hold oversikt over databehandleravtaler (DPA), SLA-er og andre kontrakter." },
-          { icon: Shield, title: "Vurder risiko", description: "Se risikonivå, compliance-score og identifiser leverandører som trenger oppfølging." },
-          { icon: AlertTriangle, title: "Følg opp mangler", description: "Finn leverandører med manglende dokumentasjon og send forespørsler direkte." },
+          { icon: FileText, title: "Dokumenter avtaler", description: "Samle, last opp og administrer DPA-er, SLA-er og annen dokumentasjon." },
+          { icon: Shield, title: "Analyser dokumenter", description: "La AI-agenter vurdere kvaliteten på dokumenter og oppdatere profilen automatisk med relevant informasjon." },
+          { icon: Shield, title: "Vurder risiko", description: "Få oversikt over risiko og compliance-score – basert på dokumentasjon og hva som mangler." },
+          { icon: AlertTriangle, title: "Følg opp mangler", description: "Identifiser mangler og send forespørsler med sporbarhet og historikk." },
+          { icon: Handshake, title: "Del og samarbeid", description: "Del rapporter og innsikt med relevante parter. Du styrer hva som deles, slik at sensitiv informasjon håndteres trygt." },
         ]}
         whyTitle="Hvorfor er dette viktig?"
-        whyDescription="Manglende oversikt over tredjeparter er en av de vanligste årsakene til brudd på personvernregelverket. God leverandørstyring reduserer risikoen og sikrer etterlevelse."
+        whyDescription="Manglende kontroll på leverandører er en av de største risikofaktorene. Med automatisert analyse og strukturert oppfølging får du bedre oversikt, oppdatert risikobilde og mer effektivt samarbeid."
         stepsHeading="Kom i gang"
         steps={[
-          { text: "Legg til leverandører manuelt eller via integrasjon" },
-          { text: "Last opp eller be om databehandleravtaler" },
-          { text: "Gjennomgå risikovurdering og compliance-status" },
-          { text: "Sett opp automatiske påminnelser for utløpende avtaler" },
+          { text: "Legg til leverandører, en og en eller last opp et dokument" },
+          { text: "Last opp eller be om dokumentasjon" },
+          { text: "Få automatisk analyse og oppdatert risikobilde" },
+          { text: "Følg opp mangler, del innsikt og sett påminnelser" },
         ]}
         laraSuggestion="Hjelp meg med å få oversikt over leverandørene mine og identifisere de som mangler avtaler"
       />
