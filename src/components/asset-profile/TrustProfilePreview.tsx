@@ -58,20 +58,32 @@ function evaluateTypeControl(key: string, assetType: string, asset: any): TrustC
   return maps[assetType]?.[key]?.() ?? "missing";
 }
 
-const FRAMEWORK_COLORS: Record<string, string> = {
-  gdpr: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  personopplysningsloven: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  nis2: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-  iso27001: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  "ai-act": "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+const FRAMEWORK_META: Record<string, { color: string; type: "standard" | "regulation" }> = {
+  gdpr: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
+  personopplysningsloven: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
+  nis2: { color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300", type: "regulation" },
+  iso27001: { color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300", type: "standard" },
+  "ai-act": { color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300", type: "regulation" },
+  dora: { color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300", type: "regulation" },
+  cra: { color: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300", type: "regulation" },
+  soc2: { color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300", type: "standard" },
+  iso9001: { color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300", type: "standard" },
 };
 
-function frameworkBadgeClass(id: string): string {
+function getFrameworkMeta(id: string): { color: string; type: "standard" | "regulation" } | null {
   const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
-  for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
-    if (lower.includes(key.replace("-", ""))) return cls;
+  for (const [key, meta] of Object.entries(FRAMEWORK_META)) {
+    if (lower.includes(key.replace("-", ""))) return meta;
   }
-  return "bg-muted text-muted-foreground";
+  return null;
+}
+
+function frameworkBadgeClass(id: string): string {
+  return getFrameworkMeta(id)?.color ?? "bg-muted text-muted-foreground";
+}
+
+function frameworkType(id: string): "standard" | "regulation" {
+  return getFrameworkMeta(id)?.type ?? "regulation";
 }
 
 export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfilePreviewProps) {
@@ -111,7 +123,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
       const { data } = await supabase.from("selected_frameworks").select("framework_id, framework_name").eq("is_selected", true);
       // Only show frameworks that have a recognized color/badge — these are the ones
       // the user would intentionally want to display on a public Trust Profile
-      const recognized = Object.keys(FRAMEWORK_COLORS);
+      const recognized = Object.keys(FRAMEWORK_META);
       return (data || []).filter((fw) => {
         const lower = fw.framework_id.toLowerCase().replace(/[^a-z0-9]/g, "");
         return recognized.some((key) => lower.includes(key.replace("-", "")));
@@ -441,28 +453,85 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
               </div>
             </Card>
 
-            {/* Regulatory Scope */}
+             {/* Regulatory Scope — split into Standards & Regulations */}
             <Card className="p-5 flex flex-col">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                <FileCheck className="h-3.5 w-3.5" />
-                {isNb ? "Gjeldende regelverk" : "Regulatory Scope"}
-              </h3>
-              {frameworks.length > 0 ? (
-                <div className="flex flex-col gap-2 flex-1">
-                  {frameworks.map((fw: any) => (
-                    <div key={fw.framework_id}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${frameworkBadgeClass(fw.framework_id)}`}
-                    >
-                      <FileCheck className="h-3.5 w-3.5 shrink-0" />
-                      {fw.framework_name}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground/60 italic flex-1 flex items-center">
-                  {isNb ? "Ingen rammeverk spesifisert" : "No frameworks specified"}
-                </p>
-              )}
+              {(() => {
+                const standards = frameworks.filter((fw: any) => frameworkType(fw.framework_id) === "standard");
+                const regulations = frameworks.filter((fw: any) => frameworkType(fw.framework_id) === "regulation");
+                const getStatusInfo = (fw: any) => {
+                  const lower = fw.framework_id.toLowerCase().replace(/[^a-z0-9]/g, "");
+                  // Use compliance score or trust score as proxy for status
+                  const score = trustScore;
+                  if (score >= 70) return { icon: CheckCircle2, label: isNb ? "Implementert" : "Implemented", cls: "text-success" };
+                  if (score >= 40) return { icon: AlertTriangle, label: isNb ? "Delvis" : "Partial", cls: "text-warning" };
+                  return { icon: AlertTriangle, label: isNb ? "Under arbeid" : "In progress", cls: "text-muted-foreground" };
+                };
+                return (
+                  <div className="space-y-4 flex-1">
+                    {standards.length > 0 && (
+                      <div>
+                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
+                          <Award className="h-3.5 w-3.5" />
+                          {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                          {standards.map((fw: any) => {
+                            const status = getStatusInfo(fw);
+                            const StatusIcon = status.icon;
+                            return (
+                              <div key={fw.framework_id}
+                                className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium ${frameworkBadgeClass(fw.framework_id)}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileCheck className="h-3.5 w-3.5 shrink-0" />
+                                  {fw.framework_name}
+                                </div>
+                                <div className={`flex items-center gap-1 text-[10px] ${status.cls}`}>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {regulations.length > 0 && (
+                      <div>
+                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
+                          <FileCheck className="h-3.5 w-3.5" />
+                          {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                          {regulations.map((fw: any) => {
+                            const status = getStatusInfo(fw);
+                            const StatusIcon = status.icon;
+                            return (
+                              <div key={fw.framework_id}
+                                className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium ${frameworkBadgeClass(fw.framework_id)}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileCheck className="h-3.5 w-3.5 shrink-0" />
+                                  {fw.framework_name}
+                                </div>
+                                <div className={`flex items-center gap-1 text-[10px] ${status.cls}`}>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {standards.length === 0 && regulations.length === 0 && (
+                      <p className="text-xs text-muted-foreground/60 italic flex-1 flex items-center">
+                        {isNb ? "Ingen rammeverk spesifisert" : "No frameworks specified"}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </Card>
           </div>
 
