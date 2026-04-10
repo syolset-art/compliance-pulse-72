@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid, AlertTriangle, FileSearch, Leaf, MonitorCog, GraduationCap, Truck, Settings } from "lucide-react";
+import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid, AlertTriangle, FileSearch, Leaf, MonitorCog, GraduationCap, Truck, Settings, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import { useUserRole, AppRole } from "@/hooks/useUserRole";
 import { DASHBOARD_LAYOUTS } from "@/lib/dashboardLayouts";
 
 const ROLE_ICONS: Record<AppRole | 'all', React.ReactNode> = {
+  super_admin: <ShieldCheck className="h-4 w-4" />,
   daglig_leder: <Crown className="h-4 w-4" />,
   personvernombud: <Shield className="h-4 w-4" />,
   sikkerhetsansvarlig: <Lock className="h-4 w-4" />,

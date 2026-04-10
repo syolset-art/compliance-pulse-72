@@ -67,6 +67,14 @@ export const ALL_WIDGETS: WidgetConfig[] = [
 
 // Layout configurations per role
 export const DASHBOARD_LAYOUTS: Record<AppRole, DashboardLayout> = {
+  super_admin: {
+    role: 'super_admin',
+    title: 'Superbruker-visning',
+    description: 'Full tilgang til alle moduler og funksjoner',
+    primaryWidgets: ['executive-summary', 'status-overview', 'critical-tasks', 'security-posture'],
+    secondaryWidgets: ['roi', 'activity-report', 'controls', 'third-party', 'ai-governance', 'system-library'],
+    hiddenWidgets: []
+  },
   daglig_leder: {
     role: 'daglig_leder',
     title: 'Ledervisning',
