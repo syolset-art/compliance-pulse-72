@@ -235,9 +235,22 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
     if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
     if (n.includes("nis2")) return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300";
     if (n.includes("iso")) return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300";
+    if (n.includes("soc")) return "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300";
     if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
-    return "bg-muted text-muted-foreground border-border";
+    if (n.includes("dora")) return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300";
+    if (n.includes("ai") || n.includes("ki-forordning")) return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
+    if (n.includes("cra")) return "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300";
+    return null; // unrecognized — will be filtered out
   };
+
+  const isStandard = (name: string) => {
+    const n = name.toLowerCase();
+    return n.includes("iso") || n.includes("soc");
+  };
+
+  const recognizedFrameworks = frameworks.filter((fw: any) => frameworkBadgeClass(fw.framework_name) !== null);
+  const standardFrameworks = recognizedFrameworks.filter((fw: any) => isStandard(fw.framework_name));
+  const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
 
   return (
     <SidebarProvider>
@@ -480,9 +493,9 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                               <span className="text-sm font-semibold text-foreground">Trust Profile</span>
                             </div>
                             <p className="text-xs text-muted-foreground">Verified by Mynder</p>
-                            {frameworks.length > 0 && (
+                            {recognizedFrameworks.length > 0 && (
                               <div className="flex flex-wrap gap-1">
-                                {frameworks.slice(0, 3).map((fw: any, i: number) => (
+                                {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
                                   <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
                                 ))}
                               </div>
@@ -606,18 +619,45 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                           : `${companyProfile?.name || asset.name} has established a digital trust profile to document security, privacy, and regulatory compliance.`)}
                       </p>
 
-                      {/* Framework badges */}
-                      {frameworks.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {frameworks.map((fw: any) => (
-                            <Badge
-                              key={fw.framework_id}
-                              variant="outline"
-                              className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
-                            >
-                              {fw.framework_name}
-                            </Badge>
-                          ))}
+                      {/* Framework badges — split into Standards & Regulations */}
+                      {recognizedFrameworks.length > 0 && (
+                        <div className="space-y-3">
+                          {standardFrameworks.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {standardFrameworks.map((fw: any) => (
+                                  <Badge
+                                    key={fw.framework_id}
+                                    variant="outline"
+                                    className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
+                                  >
+                                    {fw.framework_name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {regulationFrameworks.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {regulationFrameworks.map((fw: any) => (
+                                  <Badge
+                                    key={fw.framework_id}
+                                    variant="outline"
+                                    className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
+                                  >
+                                    {fw.framework_name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -777,7 +817,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
-                        { value: String(frameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
+                        { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
                         { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Sikkerhet og kontroller" : "Security & Controls", color: "text-warning" },
                         { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
                         { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
