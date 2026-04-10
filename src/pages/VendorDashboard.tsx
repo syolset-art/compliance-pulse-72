@@ -33,6 +33,8 @@ export default function VendorDashboard() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
 
   const handleSeedDemo = async () => {
     setIsSeeding(true);
