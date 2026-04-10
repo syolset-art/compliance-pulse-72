@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
   ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
