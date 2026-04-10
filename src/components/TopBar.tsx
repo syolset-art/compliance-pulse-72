@@ -89,6 +89,21 @@ export function TopBar() {
 
   return (
     <div className="fixed top-0 right-0 left-64 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm hidden md:flex items-center justify-end gap-1 px-4">
+      {/* Help */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-page-help"))}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+          >
+            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p className="text-xs">{isNb ? "Hjelp og handlinger" : "Help & actions"}</p>
+        </TooltipContent>
+      </Tooltip>
+
       {/* Inbox */}
       <button
         onClick={() => navigate("/lara-inbox")}
