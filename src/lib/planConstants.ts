@@ -84,6 +84,25 @@ export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
     yearlyPriceKr: 50000,
     includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
   },
+  apenhetsloven: {
+    id: "apenhetsloven",
+    name: "Åpenhetsloven",
+    yearlyPriceKr: 50000,
+    includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
+  },
+  "ai-act": {
+    id: "ai-act",
+    name: "EU AI Act",
+    yearlyPriceKr: 50000,
+    includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
+  },
+  cra: {
+    id: "cra",
+    name: "CRA",
+    yearlyPriceKr: 50000,
+    includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
+  },
+  // Legacy aliases
   transparency_act: {
     id: "transparency_act",
     name: "Åpenhetsloven",
@@ -93,12 +112,6 @@ export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
   ai_act: {
     id: "ai_act",
     name: "EU AI Act",
-    yearlyPriceKr: 50000,
-    includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
-  },
-  cra: {
-    id: "cra",
-    name: "CRA",
     yearlyPriceKr: 50000,
     includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
   },
