@@ -1,55 +1,7 @@
-import { useState } from "react";
-import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
-import { ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
-
-interface FrameworkChipProps {
-  framework: Framework;
-  metCount: number;
-  totalCount: number;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
-const FrameworkChip = ({ framework, metCount, totalCount, isSelected, onClick }: FrameworkChipProps) => {
-  const pct = totalCount > 0 ? Math.round((metCount / totalCount) * 100) : 0;
-  const radius = 14;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (pct / 100) * circumference;
-
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full border whitespace-nowrap transition-all text-sm font-medium shrink-0 ${
-        isSelected
-          ? "border-primary bg-primary/10 text-primary shadow-sm"
-          : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted/50"
-      }`}
-    >
-      <span>{framework.name}</span>
-      <span className="text-xs text-muted-foreground">{metCount}/{totalCount} krav</span>
-      <svg width="32" height="32" className="shrink-0 -mr-1">
-        <circle cx="16" cy="16" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-        <circle
-          cx="16" cy="16" r={radius}
-          fill="none"
-          stroke={pct >= 70 ? "hsl(var(--primary))" : pct >= 30 ? "hsl(45 93% 47%)" : "hsl(var(--destructive))"}
-          strokeWidth="3"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform="rotate(-90 16 16)"
-          className="transition-all duration-500"
-        />
-        <text x="16" y="16" textAnchor="middle" dominantBaseline="central" className="fill-foreground text-[8px] font-bold">
-          {pct}%
-        </text>
-      </svg>
-    </button>
-  );
-};
+import { useState, useMemo } from "react";
+import { getCategoryById, categories, type Framework } from "@/lib/frameworkDefinitions";
+import { ChevronDown, ChevronRight, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
@@ -58,139 +10,187 @@ interface FrameworkChipSelectorProps {
   getStats: (frameworkId: string) => { met: number; total: number };
 }
 
-const VISIBLE_KEY = "regulations_visible_frameworks";
+const ProgressRing = ({ pct, size = 36 }: { pct: number; size?: number }) => {
+  const radius = (size - 6) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (pct / 100) * circumference;
+  const center = size / 2;
 
-function getStoredVisible(): string[] | null {
-  try {
-    const raw = localStorage.getItem(VISIBLE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
+  return (
+    <svg width={size} height={size} className="shrink-0">
+      <circle cx={center} cy={center} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+      <circle
+        cx={center} cy={center} r={radius}
+        fill="none"
+        stroke={pct >= 70 ? "hsl(var(--primary))" : pct >= 30 ? "hsl(45 93% 47%)" : "hsl(var(--destructive))"}
+        strokeWidth="3"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${center} ${center})`}
+        className="transition-all duration-500"
+      />
+      <text x={center} y={center} textAnchor="middle" dominantBaseline="central" className="fill-foreground text-[9px] font-bold">
+        {pct}%
+      </text>
+    </svg>
+  );
+};
 
-function setStoredVisible(ids: string[]) {
-  localStorage.setItem(VISIBLE_KEY, JSON.stringify(ids));
-}
+const CategorySection = ({
+  categoryId,
+  frameworkItems,
+  selectedId,
+  onSelect,
+}: {
+  categoryId: string;
+  frameworkItems: { fw: Framework; met: number; total: number; pct: number }[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) => {
+  const cat = getCategoryById(categoryId);
+  if (!cat) return null;
+  const CatIcon = cat.icon;
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <CatIcon className={cn("h-4 w-4", cat.color)} />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{cat.name}</span>
+        <span className="text-[10px] text-muted-foreground">({frameworkItems.length})</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {frameworkItems.map(({ fw, met, total, pct }) => {
+          const isSelected = selectedId === fw.id;
+          return (
+            <button
+              key={fw.id}
+              onClick={() => onSelect(fw.id)}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-all",
+                isSelected
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                  : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
+              )}
+            >
+              <ProgressRing pct={pct} size={36} />
+              <div className="flex-1 min-w-0">
+                <p className={cn(
+                  "text-sm font-medium truncate",
+                  isSelected ? "text-primary" : "text-foreground"
+                )}>
+                  {fw.name}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {met} av {total} krav oppfylt
+                </p>
+              </div>
+              {fw.isMandatory && (
+                <span className="text-[9px] font-medium text-destructive/70 uppercase tracking-wider shrink-0">Påkrevd</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats }: FrameworkChipSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [visibleIds, setVisibleIds] = useState<string[]>(() => {
-    const stored = getStoredVisible();
-    // Default: show first 3
-    return stored ?? frameworks.slice(0, 3).map((f) => f.id);
-  });
 
-  const visibleFrameworks = frameworks.filter((fw) => visibleIds.includes(fw.id));
-  const displayedFrameworks = expanded ? frameworks : visibleFrameworks;
-  const hiddenCount = frameworks.length - visibleFrameworks.length;
+  const enriched = useMemo(
+    () =>
+      frameworks.map((fw) => {
+        const s = getStats(fw.id);
+        return { fw, met: s.met, total: s.total, pct: s.total > 0 ? Math.round((s.met / s.total) * 100) : 0 };
+      }),
+    [frameworks, getStats]
+  );
 
-  const toggleVisibility = (fwId: string) => {
-    setVisibleIds((prev) => {
-      const next = prev.includes(fwId) ? prev.filter((id) => id !== fwId) : [...prev, fwId];
-      setStoredVisible(next);
-      return next;
+  const selectedItem = enriched.find((e) => e.fw.id === selectedId);
+
+  const grouped = useMemo(() => {
+    const map: Record<string, typeof enriched> = {};
+    enriched.forEach((item) => {
+      const cat = item.fw.category;
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(item);
     });
-  };
+    // Sort by category order
+    const order = categories.map((c) => c.id);
+    return order
+      .filter((catId) => map[catId]?.length > 0)
+      .map((catId) => ({ categoryId: catId, items: map[catId] }));
+  }, [enriched]);
+
+  const overallMet = enriched.reduce((s, e) => s + e.met, 0);
+  const overallTotal = enriched.reduce((s, e) => s + e.total, 0);
+  const overallPct = overallTotal > 0 ? Math.round((overallMet / overallTotal) * 100) : 0;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin flex-1">
-          {displayedFrameworks.map((fw) => {
-            const stats = getStats(fw.id);
+    <div className="space-y-3">
+      {/* Summary bar — always visible */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-4 px-4 py-3 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors"
+      >
+        <ProgressRing pct={overallPct} size={44} />
+        <div className="flex-1 text-left">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-foreground">
+              {frameworks.length} aktive regelverk
+            </span>
+            <span className="text-xs text-muted-foreground">
+              · {overallMet} av {overallTotal} krav oppfylt
+            </span>
+          </div>
+          {selectedItem && !expanded && (
+            <p className="text-xs text-primary mt-0.5 flex items-center gap-1">
+              <ChevronRight className="h-3 w-3" />
+              Viser: {selectedItem.fw.name}
+            </p>
+          )}
+        </div>
+
+        {/* Category dots */}
+        <div className="hidden sm:flex items-center gap-3">
+          {grouped.map(({ categoryId, items }) => {
+            const cat = getCategoryById(categoryId);
+            if (!cat) return null;
+            const catPct = items.reduce((s, e) => s + e.met, 0) / Math.max(items.reduce((s, e) => s + e.total, 0), 1);
             return (
-              <FrameworkChip
-                key={fw.id}
-                framework={fw}
-                metCount={stats.met}
-                totalCount={stats.total}
-                isSelected={selectedId === fw.id}
-                onClick={() => onSelect(fw.id)}
-              />
+              <div key={categoryId} className="flex items-center gap-1.5">
+                <div className={cn("h-2.5 w-2.5 rounded-full", cat.bgColor, cat.color.replace("text-", "bg-").replace("500", "500"))} />
+                <span className="text-[11px] text-muted-foreground">{cat.name.split(' ')[0]}</span>
+                <span className="text-[11px] font-medium text-foreground">{Math.round(catPct * 100)}%</span>
+              </div>
             );
           })}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          {/* Toggle expand/collapse */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 text-xs text-muted-foreground hover:text-foreground h-8"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? (
-              <>
-                <ChevronUp className="h-3.5 w-3.5" />
-                Skjul
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-3.5 w-3.5" />
-                Vis alle ({frameworks.length})
-              </>
-            )}
-          </Button>
+        <ChevronDown className={cn(
+          "h-4 w-4 text-muted-foreground transition-transform shrink-0",
+          expanded && "rotate-180"
+        )} />
+      </button>
 
-          {/* Visibility picker */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                <Eye className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-64 p-3">
-              <p className="text-sm font-medium text-foreground mb-2">Velg synlige regelverk</p>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {frameworks.map((fw) => (
-                  <label
-                    key={fw.id}
-                    className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 rounded px-1.5 py-1 transition-colors"
-                  >
-                    <Checkbox
-                      checked={visibleIds.includes(fw.id)}
-                      onCheckedChange={() => toggleVisibility(fw.id)}
-                    />
-                    <span className="text-sm text-foreground">{fw.name}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="border-t mt-2 pt-2 flex justify-between">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => {
-                    const all = frameworks.map((f) => f.id);
-                    setVisibleIds(all);
-                    setStoredVisible(all);
-                  }}
-                >
-                  Velg alle
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => {
-                    const first3 = frameworks.slice(0, 3).map((f) => f.id);
-                    setVisibleIds(first3);
-                    setStoredVisible(first3);
-                  }}
-                >
-                  Tilbakestill
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+      {/* Expanded grid */}
+      {expanded && (
+        <div className="space-y-5 px-1 animate-in slide-in-from-top-2 duration-200">
+          {grouped.map(({ categoryId, items }) => (
+            <CategorySection
+              key={categoryId}
+              categoryId={categoryId}
+              frameworkItems={items}
+              selectedId={selectedId}
+              onSelect={(id) => {
+                onSelect(id);
+                setExpanded(false);
+              }}
+            />
+          ))}
         </div>
-      </div>
-
-      {!expanded && hiddenCount > 0 && (
-        <p className="text-xs text-muted-foreground pl-1">
-          Viser {visibleFrameworks.length} av {frameworks.length} regelverk
-        </p>
       )}
     </div>
   );
