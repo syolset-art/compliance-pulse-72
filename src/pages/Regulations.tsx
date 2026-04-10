@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
+import { Settings2, HelpCircle, Scale, Shield, CheckCircle2, BookOpen } from "lucide-react";
+import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
@@ -62,6 +63,7 @@ const Regulations = () => {
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Fetch frameworks
   useEffect(() => {
@@ -238,16 +240,22 @@ const Regulations = () => {
         <div className="p-6 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                Regelverk og etterlevelse
-                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
-                  {allActiveFrameworks.length}
-                </span>
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Velg et regelverk for å se status og håndtere krav
-              </p>
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  Regelverk og etterlevelse
+                  <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
+                    {allActiveFrameworks.length}
+                  </span>
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Velg et regelverk for å se status og håndtere krav
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+              </Button>
             </div>
             <Button variant="outline" className="gap-2" onClick={() => setShowEditDialog(true)}>
               <Settings2 className="h-4 w-4" />
@@ -334,6 +342,29 @@ const Regulations = () => {
         onOpenChat={(message) => {
           navigate("/", { state: { openChat: true, chatMessage: message } });
         }}
+      />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Scale}
+        title="Hva er Regelverk og etterlevelse?"
+        description="Her administrerer du hvilke regelverk som gjelder for din virksomhet. Du kan aktivere og deaktivere rammeverk, se status på krav, og følge opp etterlevelse på tvers av alle aktive regelverk."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: Shield, title: "Aktiver regelverk", description: "Velg hvilke rammeverk som er relevante — GDPR og ISO 27001 er inkludert gratis." },
+          { icon: CheckCircle2, title: "Følg opp krav", description: "Se status på hvert enkelt krav og jobb systematisk mot full etterlevelse." },
+          { icon: BookOpen, title: "Kategoriser og filtrer", description: "Filtrer etter Personvern, Informasjonssikkerhet, AI Governance eller Øvrige regelverk." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Systematisk regelverk-styring sikrer at organisasjonen etterlever alle relevante lover og standarder. Det gir oversikt, reduserer risiko og bygger tillit hos kunder og partnere."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Se gjennom obligatoriske regelverk som allerede er aktivert" },
+          { text: "Aktiver frivillige regelverk som er relevante for din bransje" },
+          { text: "Jobb med kravene i hvert regelverk for å øke etterlevelsen" },
+        ]}
+        laraSuggestion="Hvilke regelverk bør vi fokusere på basert på vår bransje?"
       />
     </div>
   );
