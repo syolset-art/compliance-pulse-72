@@ -784,7 +784,6 @@ export default function Tasks() {
           );
           })}
         </div>
-          </>
 
         <PageHelpDrawer
           open={helpOpen}
