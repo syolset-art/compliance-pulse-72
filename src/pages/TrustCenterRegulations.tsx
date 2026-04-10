@@ -338,6 +338,51 @@ export default function TrustCenterRegulations() {
             </Card>
           </div>
 
+          {/* Pricing info */}
+          <Card className="border-border/50">
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <CreditCard className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Regelverk og priser</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Noen regelverk er inkludert gratis, mens andre krever et årlig tillegg.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="rounded-lg bg-muted/30 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5">INKLUDERT GRATIS</p>
+                  <div className="space-y-1">
+                    {FREE_INCLUSIONS.map((item) => (
+                      <div key={item} className="flex items-center gap-1.5 text-xs text-foreground">
+                        <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-lg bg-muted/30 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5">TILLEGG (ÅRSPRIS)</p>
+                  <div className="space-y-1">
+                    {Object.values(FRAMEWORK_ADDONS)
+                      .filter((a, i, arr) => arr.findIndex(b => b.name === a.name) === i)
+                      .slice(0, 5)
+                      .map((addon) => (
+                      <div key={addon.id} className="flex items-center justify-between text-xs">
+                        <span className="text-foreground">{addon.name}</span>
+                        <span className="text-muted-foreground font-medium">{formatKr(addon.yearlyPriceKr)}/år</span>
+                      </div>
+                    ))}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Inkl. gap-analyse, tiltaksliste, modenhet og rapport
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Recommendations */}
           {recommendations.length > 0 && (
             <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
