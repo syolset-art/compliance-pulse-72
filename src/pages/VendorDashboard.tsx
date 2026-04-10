@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
-import { Handshake, FileText, Shield, HelpCircle, AlertTriangle, Plus, Upload, BarChart3, Send, Share2 } from "lucide-react";
+import { Handshake, FileText, Shield, HelpCircle, AlertTriangle, Upload, BarChart3, Send, Share2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
