@@ -21,6 +21,7 @@ import {
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
+import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Governance & Accountability", labelEn: "Governance & Accountability" },
