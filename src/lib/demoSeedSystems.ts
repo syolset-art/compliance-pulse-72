@@ -208,8 +208,11 @@ export async function seedDemoSystems(): Promise<number> {
     throw new Error("Det finnes allerede systemer. Slett eksisterende først.");
   }
 
+  // Only seed 4 systems so users can try adding one more before hitting the free limit
+  const demoSubset = DEMO_SYSTEMS.slice(0, 4);
+
   // 1. Insert systems
-  const systemRows = DEMO_SYSTEMS.map(({ vendorAssetName, relatedDevices, trustMeta, trustGov, ...rest }) => rest);
+  const systemRows = demoSubset.map(({ vendorAssetName, relatedDevices, trustMeta, trustGov, ...rest }) => rest);
   const { data: insertedSystems, error: sysErr } = await supabase
     .from("systems")
     .insert(systemRows)
