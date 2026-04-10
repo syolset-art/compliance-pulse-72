@@ -19,6 +19,7 @@ import {
   FileText,
   ShieldCheck,
   ToggleRight,
+  CreditCard,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,10 @@ import {
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { FrameworkDocumentsDialog } from "@/components/regulations/FrameworkDocumentsDialog";
 import { LaraAgent } from "@/components/LaraAgent";
+import {
+  FREE_FRAMEWORKS, FRAMEWORK_ADDONS, FREE_INCLUSIONS,
+  isFrameworkFree, getFrameworkYearlyPrice, formatKr,
+} from "@/lib/planConstants";
 
 interface SelectedFramework {
   id: string;
