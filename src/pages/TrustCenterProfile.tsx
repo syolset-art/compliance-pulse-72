@@ -493,9 +493,9 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                               <span className="text-sm font-semibold text-foreground">Trust Profile</span>
                             </div>
                             <p className="text-xs text-muted-foreground">Verified by Mynder</p>
-                            {frameworks.length > 0 && (
+                            {recognizedFrameworks.length > 0 && (
                               <div className="flex flex-wrap gap-1">
-                                {frameworks.slice(0, 3).map((fw: any, i: number) => (
+                                {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
                                   <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
                                 ))}
                               </div>
@@ -817,7 +817,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
-                        { value: String(frameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
+                        { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
                         { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Sikkerhet og kontroller" : "Security & Controls", color: "text-warning" },
                         { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
                         { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
