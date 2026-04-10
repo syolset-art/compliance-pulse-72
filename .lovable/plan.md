@@ -1,95 +1,67 @@
 
 
-## Plan: Komplett prismodell med Gratis-nivå, månedlig/årlig toggle, og regelverk-tillegg
+## Plan: Redesign av Abonnementssiden med kundereise-fokus
 
-### Sammendrag
+### Konsept
 
-Bygge en fullstendig prismodell som tydelig viser hva som er gratis, hva som koster, og lar kunden velge mellom månedlig og årlig fakturering. Regelverk prises som årlige tillegg.
+Bygge om siden fra en flat modulliste til en **kundereise-orientert opplevelse** som speiler den naturlige brukerreisen: Trust Center (gratis) → Regelverk-tillegg → Moduler (System/Leverandør). Designet skal selge verdien av Trust Center som unikt produkt og tydelig vise hvordan moduler automatiserer og oppdaterer Trust Center via AI.
 
-### Prisstruktur
+### Ny sidestruktur
 
 ```text
-PLATTFORM (systemer + leverandører)
-──────────────────────────────────────────────────────
-Plan          Systemer  Leverandører  Mnd       Årlig (2 mnd gratis)
-Gratis        ≤5        ≤5            0 kr      0 kr
-Basis         ≤20       ≤20           1 490 kr  14 900 kr
-Premium       ≤70       ≤70           2 490 kr  24 900 kr
-Enterprise    >70       >70           Kontakt   Kontakt
-
-INKLUDERT I ALLE PLANER (gratis)
-──────────────────────────────────────────────────────
-- Trust Center (alle undermenyer)
-- GDPR regelverk
-- ISO 27001 regelverk
-
-REGELVERK-TILLEGG (årlig pris)
-──────────────────────────────────────────────────────
-Regelverk       Årspris     Inkluderer
-NIS2            50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
-DORA            50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
-Åpenhetsloven   50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
-EU AI Act       50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
-CRA             50 000 kr   Gap-analyse, tiltaksliste, modenhet, rapport
+┌─────────────────────────────────────────────────────┐
+│  "Din compliance-reise"  (hero/heading)             │
+│  Subtekst om verdiforslaget                         │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  STEG 1: TRUST CENTER (Gratis)                      │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ ✅ Aktiv  •  Shareable Trust Profile          │  │
+│  │ Inkludert: GDPR, ISO 27001, 5 systemer,       │  │
+│  │ 5 leverandører, alle Trust Center-sider       │  │
+│  │                                    [Gå til →] │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                     │
+│  STEG 2: UTVID MED REGELVERK                        │
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐     │
+│  │ NIS2 │ │ DORA │ │Åpen. │ │AI Act│ │ CRA  │     │
+│  │50k/år│ │50k/år│ │50k/år│ │50k/år│ │50k/år│     │
+│  │[Legg]│ │[Legg]│ │[Legg]│ │[Legg]│ │[Legg]│     │
+│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘     │
+│  Info: "Utvid compliance uten moduler"              │
+│                                                     │
+│  STEG 3: AUTOMATISER MED MODULER                    │
+│  "Moduler kobler inn AI som automatisk oppdaterer   │
+│   Trust Center, genererer oppgaver og arbeidsområder"│
+│                                                     │
+│  [Månedlig / Årlig toggle + Spar 2 mnd badge]      │
+│                                                     │
+│  ┌─── Systemmodul ───┐  ┌─ Leverandørmodul ──┐     │
+│  │ Basis   │ Premium  │  │ Basis   │ Premium  │     │
+│  │ 1490/m  │ 2490/m   │  │ 1490/m  │ 2490/m   │     │
+│  │ ≤20 sys │ ≤70 sys  │  │ ≤20 lev │ ≤70 lev  │     │
+│  │ +Arb.omr│ +Priorit │  │ +DPA    │ +Priorit │     │
+│  └─────────┴──────────┘  └─────────┴──────────┘     │
+│                                                     │
+│  ┌── Enterprise (dashed) ──────────────────────┐    │
+│  │ Ubegrenset  •  Kontakt salg                 │    │
+│  └─────────────────────────────────────────────┘    │
+│                                                     │
+│  OPPSUMMERING / BETALINGSMETODE                     │
+│  (kun synlig om noe er valgt/aktivt)                │
+└─────────────────────────────────────────────────────┘
 ```
 
-### Implementering
+### Viktige designvalg
 
-**1. Ny fil `src/lib/planConstants.ts`**
-- Definere alle plantier med mnd/årlig priser
-- Definere `FRAMEWORK_ADDON_PRICES` med årlige priser per regelverk (NIS2, DORA, Åpenhetsloven, AI Act, CRA = 50 000 kr/år)
-- Definere `FREE_FRAMEWORKS = ['gdpr', 'iso27001']`
-- Hjelpefunksjoner: `getPrice(tier, interval)`, `getAnnualSavings(tier)`, `formatKr()`
-- Liste over hva som er gratis: Trust Center, 5 systemer, 5 leverandører, GDPR, ISO 27001
+1. **Steg-basert layout med nummererte seksjoner** — visuell fremdriftsindikator (1-2-3) som guider kunden gjennom reisen
+2. **Trust Center-kortet** har grønn kant og checkmark, fremhever at det allerede er aktivt og gratis — med lenke til Trust Profile
+3. **Regelverk-seksjonen kommer FØR moduler** — viser at man kan utvide compliance uten å kjøpe moduler
+4. **Modul-seksjonen** har en tydelig value proposition om AI-automatisering av Trust Center, arbeidsområder og oppgaver
+5. **Billing toggle** flyttes ned til modul-seksjonen (irrelevant for gratis Trust Center og årlig-prisede regelverk)
+6. **Oppsummering** viser totalkostnad bare når det er aktive betalte elementer
 
-**2. DB-migrasjon: `subscription_plans`**
-- Legge til `price_yearly` kolonne (integer, nullable)
-- Oppdatere planer: starter→free (0), professional→basis (149000 mnd / 1490000 årlig), enterprise→premium (249000 mnd / 2490000 årlig)
-- Legge til ny premium-rad
+### Filer som endres
 
-**3. DB-migrasjon: `company_subscriptions`**
-- Legge til `billing_interval` kolonne (text, default 'monthly')
-
-**4. Oppdatere `DOMAIN_ADDON_PRICES` i `useSubscription.ts`**
-- Erstatte eksisterende domenepriser med de nye regelverk-tilleggsprisene
-- NIS2, DORA, Åpenhetsloven, AI Act, CRA = 5 000 000 øre (50 000 kr/år)
-- GDPR og ISO 27001 = 0 (gratis, inkludert)
-- Eksponere `billingInterval` fra subscription
-
-**5. Oppdatere `SystemActivateDialog.tsx`**
-- Legge til månedlig/årlig toggle øverst
-- Vise priser dynamisk basert på valgt intervall
-- Vise "Spar 2 mnd"-badge ved årlig
-- Legge til seksjon som viser hva som er gratis (Trust Center, GDPR, ISO 27001)
-
-**6. Oppdatere `VendorActivateDialog` tilsvarende**
-- Samme toggle og prisvisning som SystemActivateDialog
-- Endre MAX_FREE_VENDORS fra 3 til 5
-
-**7. Oppdatere `DomainActivationWizard` og `LockedDomainCard`**
-- Vise årlig pris for regelverk-tillegg (f.eks. "50 000 kr/år")
-- Tydeliggjøre hva som er inkludert: gap-analyse, tiltaksliste, modenhetsvurdering, rapportdeling
-
-**8. Oppdatere Faktura-siden (`MSPInvoices.tsx`)**
-- Vise gjeldende plan med faktureringsintervall
-- Vise aktive regelverk-tillegg med årlig pris
-- Vise samlet kostnad
-
-### Tekniske detaljer
-
-- Regelverk-priser lagres som årlige priser (i øre) i `planConstants.ts` og brukes konsekvent i UI
-- `useSubscription` utvides med `billingInterval`, `getFrameworkPrice(frameworkId)`, og `isFrameworkFree(frameworkId)`
-- Alle prisvisninger bruker sentral `formatKr()`-funksjon
-- Eksisterende `DOMAIN_ADDON_PRICES` refaktoreres til `FRAMEWORK_ADDON_PRICES` med årlige priser
-
-### Filer som endres/opprettes
-- `src/lib/planConstants.ts` (ny)
-- `src/hooks/useSubscription.ts`
-- `src/components/systems/SystemActivateDialog.tsx`
-- `src/components/vendor-dashboard/VendorActivateDialog.tsx`
-- `src/components/regulations/DomainActivationWizard.tsx`
-- `src/components/iso-readiness/LockedDomainCard.tsx`
-- `src/pages/MSPInvoices.tsx`
-- `src/pages/VendorDashboard.tsx` (MAX_FREE_VENDORS → 5)
-- 2 DB-migrasjoner (price_yearly + billing_interval)
+- `src/pages/Subscriptions.tsx` — fullstendig omskriving av UI-strukturen
 
