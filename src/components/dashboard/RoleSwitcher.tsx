@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid, AlertTriangle, FileSearch, Leaf, MonitorCog, GraduationCap, Truck } from "lucide-react";
+import { Check, ChevronDown, Crown, Shield, Lock, ClipboardCheck, Bot, User, LayoutGrid, AlertTriangle, FileSearch, Leaf, MonitorCog, GraduationCap, Truck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,6 +27,7 @@ const ROLE_ICONS: Record<AppRole | 'all', React.ReactNode> = {
   system_owner: <MonitorCog className="h-4 w-4" />,
   training_officer: <GraduationCap className="h-4 w-4" />,
   vendor_manager: <Truck className="h-4 w-4" />,
+  it_manager: <Settings className="h-4 w-4" />,
   all: <LayoutGrid className="h-4 w-4" />
 };
 

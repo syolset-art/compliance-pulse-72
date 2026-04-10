@@ -170,6 +170,14 @@ export const DASHBOARD_LAYOUTS: Record<AppRole, DashboardLayout> = {
     primaryWidgets: ['third-party', 'critical-tasks', 'status-overview'],
     secondaryWidgets: ['data-transfer', 'task-progress'],
     hiddenWidgets: ['roi', 'controls', 'ai-governance']
+  },
+  it_manager: {
+    role: 'it_manager',
+    title: 'IT-ansvarlig-visning',
+    description: 'Systemer, aktiva, forespørsler og rapporter',
+    primaryWidgets: ['system-library', 'systems-in-use', 'critical-tasks', 'status-overview'],
+    secondaryWidgets: ['third-party', 'task-progress'],
+    hiddenWidgets: ['roi', 'ropa-status', 'ai-governance']
   }
 };
 
