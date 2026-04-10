@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, Shield, Server as ServerIcon, Layers } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -327,7 +327,7 @@ export default function Assets() {
         assetTypeTemplates={assetTypeTemplates}
       />
 
-      <PageHelpDrawer
+      <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={ServerIcon}

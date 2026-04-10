@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, ClipboardList as ClipboardListIcon, Scale, Lock, Users as UsersIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
@@ -441,7 +441,7 @@ export default function ProcessingRecords() {
         </div>
       </main>
 
-      <PageHelpDrawer
+      <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={ClipboardListIcon}

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList as ClipboardListHelp, Users as UsersHelp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/Sidebar";
@@ -796,7 +796,7 @@ export default function Deviations() {
         />
         </div>
       </main>
-      <PageHelpDrawer
+      <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={AlertTriangleHelp}
