@@ -249,7 +249,7 @@ const ComplianceOverview = () => {
                     <Card
                       key={fw.id}
                       className="hover:border-primary/30 transition-colors cursor-pointer group"
-                      onClick={() => navigate(`/regulations/${fw.id}`)}
+                      onClick={() => navigate(`/trust-center/regulations`)}
                     >
                       <CardContent className="p-5">
                         <div className="flex items-center gap-4">
