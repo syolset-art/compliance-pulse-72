@@ -3002,6 +3002,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tasks: {
+        Row: {
+          asset_id: string | null
+          assignee: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_id?: string | null
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_id?: string | null
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_analyses: {
         Row: {
           analysis_result: Json
