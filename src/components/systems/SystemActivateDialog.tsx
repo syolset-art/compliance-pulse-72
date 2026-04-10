@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  Check, Sparkles, Cpu, FolderKanban, ClipboardList, Shield,
-  BarChart3, Zap, CheckCircle2,
-} from "lucide-react";
+import { Check, Sparkles, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  PLAN_TIERS, ORDERED_TIERS, FREE_INCLUSIONS, formatKr,
-  getAnnualSavingsKr, type BillingInterval, type PlanTier,
+  MODULES, FREE_INCLUSIONS, formatKr, getModulePrice, getModuleAnnualSavingsKr,
+  type BillingInterval, type ModuleTier,
 } from "@/lib/planConstants";
 
 interface SystemActivateDialogProps {
@@ -22,47 +19,24 @@ interface SystemActivateDialogProps {
   onActivated: (tier: string) => void;
 }
 
-const TIER_FEATURES: Record<string, { icon: typeof Cpu; label: string }[]> = {
-  basis: [
-    { icon: Cpu, label: "Inntil 20 systemer / leverandører" },
-    { icon: FolderKanban, label: "Arbeidsområder" },
-    { icon: ClipboardList, label: "Oppgaver" },
-    { icon: Shield, label: "Risikovurdering" },
-    { icon: BarChart3, label: "Compliance-oversikt" },
-  ],
-  premium: [
-    { icon: Cpu, label: "Inntil 70 systemer / leverandører" },
-    { icon: FolderKanban, label: "Arbeidsområder" },
-    { icon: ClipboardList, label: "Oppgaver" },
-    { icon: Shield, label: "Risikovurdering" },
-    { icon: BarChart3, label: "Compliance-oversikt" },
-    { icon: Zap, label: "Prioritert support" },
-  ],
-};
-
 export function SystemActivateDialog({ open, onOpenChange, onActivated }: SystemActivateDialogProps) {
-  const [selectedTier, setSelectedTier] = useState<PlanTier>("basis");
+  const [selectedTier, setSelectedTier] = useState<ModuleTier>("basis");
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [isActivating, setIsActivating] = useState(false);
+
+  const mod = MODULES.systems;
 
   const handleActivate = async () => {
     setIsActivating(true);
     await new Promise((r) => setTimeout(r, 1200));
     localStorage.setItem("system_premium_activated", "true");
     localStorage.setItem("system_premium_tier", selectedTier);
-    const tier = PLAN_TIERS[selectedTier];
-    toast.success(`${tier.displayName}-plan aktivert! Du kan nå legge til opptil ${tier.maxSystems} systemer.`);
+    const config = mod.tiers[selectedTier];
+    toast.success(`Systemmodul (${selectedTier === "premium" ? "Premium" : "Basis"}) aktivert! Du kan nå legge til opptil ${config.maxItems} systemer.`);
     onActivated(selectedTier);
     onOpenChange(false);
     setIsActivating(false);
   };
-
-  const getPrice = (tier: PlanTier) => {
-    const plan = PLAN_TIERS[tier];
-    return billingInterval === "yearly" ? plan.yearly : plan.monthly;
-  };
-
-  const tiers = (["basis", "premium"] as PlanTier[]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,16 +44,16 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Oppgrader planen din
+            Oppgrader Systemmodulen
           </DialogTitle>
           <DialogDescription>
-            Velg den planen som passer din organisasjon. GDPR og ISO 27001 er inkludert gratis i alle planer.
+            Velg nivået som passer din organisasjon. Inkluderer arbeidsområder, oppgaver, risikovurdering og compliance-oversikt.
           </DialogDescription>
         </DialogHeader>
 
         {/* Free inclusions */}
         <div className="rounded-lg border bg-muted/30 p-3">
-          <p className="text-xs font-semibold text-muted-foreground mb-2">INKLUDERT GRATIS I ALLE PLANER</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-2">INKLUDERT GRATIS</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {FREE_INCLUSIONS.map((item) => (
               <div key={item} className="flex items-center gap-1.5 text-xs text-foreground">
@@ -111,21 +85,20 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
 
         {/* Tier cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {tiers.map((tierId) => {
-            const tier = PLAN_TIERS[tierId];
-            const features = TIER_FEATURES[tierId] || [];
-            const price = getPrice(tierId);
-            const isRecommended = tierId === "premium";
+          {(["basis", "premium"] as ModuleTier[]).map((tier) => {
+            const config = mod.tiers[tier];
+            const price = getModulePrice("systems", tier, billingInterval);
+            const isRecommended = tier === "premium";
 
             return (
               <Card
-                key={tierId}
+                key={tier}
                 className={`p-5 cursor-pointer transition-all relative ${
-                  selectedTier === tierId
+                  selectedTier === tier
                     ? "border-primary ring-2 ring-primary/20"
                     : "border-border hover:border-primary/40"
                 }`}
-                onClick={() => setSelectedTier(tierId)}
+                onClick={() => setSelectedTier(tier)}
               >
                 {isRecommended && (
                   <Badge className="absolute -top-2.5 right-4 bg-primary text-primary-foreground text-[10px]">
@@ -134,27 +107,27 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
                 )}
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">{tier.displayName}</h3>
+                    <h3 className="text-lg font-bold text-foreground">
+                      {tier === "basis" ? "Basis" : "Premium"}
+                    </h3>
                     <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl font-bold text-foreground">
-                        {formatKr(price)}
-                      </span>
+                      <span className="text-2xl font-bold text-foreground">{formatKr(price)}</span>
                       <span className="text-sm text-muted-foreground">
                         {billingInterval === "yearly" ? "/år" : "/mnd"}
                       </span>
                     </div>
                     {billingInterval === "yearly" && (
                       <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
-                        Spar {formatKr(getAnnualSavingsKr(tierId))} per år
+                        Spar {formatKr(getModuleAnnualSavingsKr("systems", tier))} per år
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-2.5">
-                    {features.map((feature, i) => (
+                    {config.features.map((feature, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-primary shrink-0" />
-                        <span className="text-sm text-foreground">{feature.label}</span>
+                        <span className="text-sm text-foreground">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -176,7 +149,7 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
             <Sparkles className="h-4 w-4" />
             {isActivating
               ? "Aktiverer..."
-              : `Aktiver ${PLAN_TIERS[selectedTier].displayName} – ${formatKr(getPrice(selectedTier))}${billingInterval === "yearly" ? "/år" : "/mnd"}`}
+              : `Aktiver ${selectedTier === "basis" ? "Basis" : "Premium"} – ${formatKr(getModulePrice("systems", selectedTier, billingInterval))}${billingInterval === "yearly" ? "/år" : "/mnd"}`}
           </Button>
         </div>
       </DialogContent>

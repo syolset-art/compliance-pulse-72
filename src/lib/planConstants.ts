@@ -1,16 +1,103 @@
-// ─── Unified pricing model ───────────────────────────────────────────
+// ─── Unified module-based pricing model ──────────────────────────────
 
 export type BillingInterval = "monthly" | "yearly";
 
+export type ModuleTier = "basis" | "premium";
+
 export type PlanTier = "free" | "basis" | "premium" | "enterprise";
+
+export type ModuleId = "systems" | "vendors";
+
+export interface ModuleDefinition {
+  id: ModuleId;
+  displayName: string;
+  description: string;
+  tiers: Record<ModuleTier, ModuleTierConfig>;
+}
+
+export interface ModuleTierConfig {
+  maxItems: number;
+  monthly: number; // kr
+  yearly: number;  // kr
+  features: string[];
+}
+
+export const MODULES: Record<ModuleId, ModuleDefinition> = {
+  systems: {
+    id: "systems",
+    displayName: "Systemmodul",
+    description: "Systemer, arbeidsområder, oppgaver, risikovurdering og compliance-oversikt",
+    tiers: {
+      basis: {
+        maxItems: 20,
+        monthly: 1490,
+        yearly: 14900,
+        features: [
+          "Inntil 20 systemer",
+          "Arbeidsområder",
+          "Oppgaver",
+          "Risikovurdering",
+          "Compliance-oversikt",
+        ],
+      },
+      premium: {
+        maxItems: 70,
+        monthly: 2490,
+        yearly: 24900,
+        features: [
+          "Inntil 70 systemer",
+          "Arbeidsområder",
+          "Oppgaver",
+          "Risikovurdering",
+          "Compliance-oversikt",
+          "Prioritert support",
+        ],
+      },
+    },
+  },
+  vendors: {
+    id: "vendors",
+    displayName: "Leverandørmodul",
+    description: "Leverandørstyring, DPA-sporing, risikoanalyse og varsler",
+    tiers: {
+      basis: {
+        maxItems: 20,
+        monthly: 1490,
+        yearly: 14900,
+        features: [
+          "Inntil 20 leverandører",
+          "Automatisk DPA-sporing",
+          "Risikoanalyse",
+          "Compliance-scoring",
+          "Varsler ved utløp",
+        ],
+      },
+      premium: {
+        maxItems: 70,
+        monthly: 2490,
+        yearly: 24900,
+        features: [
+          "Inntil 70 leverandører",
+          "Automatisk DPA-sporing",
+          "Risikoanalyse",
+          "Compliance-scoring",
+          "Varsler ved utløp",
+          "Prioritert support",
+        ],
+      },
+    },
+  },
+};
+
+// ─── Legacy PlanTier support (for backward compat) ──────────────────
 
 export interface PlanDefinition {
   id: PlanTier;
   displayName: string;
   maxSystems: number;
   maxVendors: number;
-  monthly: number; // kr
-  yearly: number; // kr
+  monthly: number;
+  yearly: number;
   includesWorkAreas: boolean;
   prioritySupport: boolean;
 }
@@ -102,7 +189,6 @@ export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
     yearlyPriceKr: 50000,
     includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"],
   },
-  // Legacy aliases
   transparency_act: {
     id: "transparency_act",
     name: "Åpenhetsloven",
@@ -129,6 +215,16 @@ export const FREE_INCLUSIONS = [
 
 // ─── Helper functions ────────────────────────────────────────────────
 
+export function getModulePrice(moduleId: ModuleId, tier: ModuleTier, interval: BillingInterval): number {
+  const config = MODULES[moduleId].tiers[tier];
+  return interval === "yearly" ? config.yearly : config.monthly;
+}
+
+export function getModuleAnnualSavingsKr(moduleId: ModuleId, tier: ModuleTier): number {
+  const config = MODULES[moduleId].tiers[tier];
+  return config.monthly * 2; // 2 months free
+}
+
 export function getPlanPrice(tier: PlanTier, interval: BillingInterval): number {
   const plan = PLAN_TIERS[tier];
   return interval === "yearly" ? plan.yearly : plan.monthly;
@@ -136,7 +232,7 @@ export function getPlanPrice(tier: PlanTier, interval: BillingInterval): number 
 
 export function getAnnualSavingsKr(tier: PlanTier): number {
   const plan = PLAN_TIERS[tier];
-  return plan.monthly * 2; // 2 months free
+  return plan.monthly * 2;
 }
 
 export function isFrameworkFree(frameworkId: string): boolean {
