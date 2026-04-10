@@ -248,6 +248,13 @@ export default function VendorDashboard() {
           { text: "Få automatisk analyse og oppdatert risikobilde" },
           { text: "Følg opp mangler, del innsikt og sett påminnelser" },
         ]}
+        actions={[
+          { icon: Plus, title: "Legg til leverandør", description: "Registrer en ny leverandør eller databehandler.", onClick: () => { setHelpOpen(false); setIsVendorDialogOpen(true); } },
+          { icon: Upload, title: "Last opp dokumentasjon", description: "Last opp DPA, SLA eller annen avtale for en leverandør.", onClick: () => { setHelpOpen(false); setIsVendorDialogOpen(true); } },
+          { icon: BarChart3, title: "Se risikovurdering", description: "Gå gjennom compliance-score og risikostatus for leverandørene.", onClick: () => { setHelpOpen(false); } },
+          { icon: Send, title: "Send forespørsel", description: "Be en leverandør om manglende dokumentasjon eller oppdateringer.", onClick: () => { setHelpOpen(false); } },
+          { icon: Share2, title: "Del rapport", description: "Del leverandøroversikt eller compliance-status med relevante parter.", onClick: () => { setHelpOpen(false); } },
+        ]}
         laraSuggestion="Hjelp meg med å få oversikt over leverandørene mine og identifisere de som mangler avtaler"
       />
     </div>
