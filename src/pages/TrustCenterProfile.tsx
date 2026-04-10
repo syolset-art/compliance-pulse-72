@@ -592,7 +592,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                         </div>
                         <div className="min-w-0">
                           <h2 className="text-xl font-bold text-foreground">{companyProfile?.name || asset.name}</h2>
-                          <p className="text-sm text-muted-foreground">Digital Trust Profile og samsvarsversikt</p>
+                          <p className="text-sm text-muted-foreground">Shareable compliance profile for due diligence</p>
                         </div>
                       </div>
 
