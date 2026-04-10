@@ -296,6 +296,7 @@ export default function Tasks() {
   const [isPremiumActivated, setIsPremiumActivated] = useState(() => 
     localStorage.getItem("tasks_premium_activated") === "true"
   );
+  const { tasks: userTasks, isLoading: userTasksLoading, createTask, updateTaskStatus, deleteTask } = useUserTasks();
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
