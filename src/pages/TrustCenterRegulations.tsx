@@ -496,6 +496,18 @@ export default function TrustCenterRegulations() {
                                     Kommer
                                   </Badge>
                                 )}
+                                {/* Pricing badge */}
+                                {isFrameworkFree(framework.id) ? (
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 border-green-500/30 text-green-600 dark:text-green-400">
+                                    <CheckCircle2 className="h-2.5 w-2.5" />
+                                    Gratis
+                                  </Badge>
+                                ) : FRAMEWORK_ADDONS[framework.id] ? (
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1">
+                                    <CreditCard className="h-2.5 w-2.5" />
+                                    {formatKr(getFrameworkYearlyPrice(framework.id))}/år
+                                  </Badge>
+                                ) : null}
                                 {docs > 0 && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setDocsDialogFramework({ id: framework.id, name: framework.name }); }}
