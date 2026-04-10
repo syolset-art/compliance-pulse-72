@@ -8,6 +8,7 @@ import { DomainActionDialog } from "./DomainActionDialog";
 import { DomainActivationWizard } from "./DomainActivationWizard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscription, DOMAIN_ADDON_PRICES } from "@/hooks/useSubscription";
+import { getFrameworkYearlyPrice } from "@/lib/planConstants";
 
 interface DomainSummarySectionProps {
   onDomainClick?: (domainId: string) => void;
@@ -264,6 +265,7 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
           domainColor={upgradeDialog.domain.color}
           domainBgColor={upgradeDialog.domain.bgColor}
           monthlyPrice={DOMAIN_ADDON_PRICES[upgradeDialog.domain.id] || 0}
+          yearlyPriceKr={getFrameworkYearlyPrice(upgradeDialog.domain.id)}
           onActivate={handleActivateAddon}
           isActivating={isActivatingAddon}
           onOpenChat={onOpenChat}
