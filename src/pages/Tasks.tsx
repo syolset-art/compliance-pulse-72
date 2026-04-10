@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown, ClipboardList, BarChart3, Users, Bell } from "lucide-react";
+import { ChevronDown, Bot, Sparkles, Loader2, CheckCircle2, X, Shield, Lock, AlertTriangle, Clock, ListTodo, HelpCircle, FolderKanban, Crown, ClipboardList, BarChart3, Users, Bell, Plus } from "lucide-react";
 import { TasksPremiumDialog } from "@/components/tasks/TasksPremiumDialog";
+import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
+import { UserTasksList } from "@/components/tasks/UserTasksList";
+import { useUserTasks } from "@/hooks/useUserTasks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -293,6 +296,7 @@ export default function Tasks() {
   const [isPremiumActivated, setIsPremiumActivated] = useState(() => 
     localStorage.getItem("tasks_premium_activated") === "true"
   );
+  const { tasks: userTasks, isLoading: userTasksLoading, createTask, updateTaskStatus, deleteTask } = useUserTasks();
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
@@ -430,16 +434,37 @@ export default function Tasks() {
               <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
             </Button>
           </div>
-          <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
-            <FolderKanban className="h-4 w-4" />
-            Prosjekter
-            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
-              <Crown className="h-2.5 w-2.5 mr-0.5" />
-              Premium
-            </Badge>
-          </Button>
+          <div className="flex items-center gap-2">
+            <CreateUserTaskDialog
+              onSubmit={(task) => createTask.mutate(task)}
+              isLoading={createTask.isPending}
+            />
+            <Button variant="outline" size="sm" className="gap-2 text-muted-foreground" onClick={() => toast({ title: "Prosjekter", description: "Prosjekter er en premium-funksjon. Kontakt oss for å aktivere." })}>
+              <FolderKanban className="h-4 w-4" />
+              Prosjekter
+              <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] px-1.5 py-0">
+                <Crown className="h-2.5 w-2.5 mr-0.5" />
+                Premium
+              </Badge>
+            </Button>
+          </div>
         </div>
         <p className="text-muted-foreground mb-6">{t("tasks.subtitle")}</p>
+
+        {/* User-created tasks section */}
+        {userTasks.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-foreground mb-3">Mine oppgaver</h2>
+            <UserTasksList
+              tasks={userTasks}
+              isLoading={userTasksLoading}
+              onStatusChange={(id, status) => updateTaskStatus.mutate({ id, status })}
+              onDelete={(id) => deleteTask.mutate(id)}
+            />
+          </div>
+        )}
+
+        <h2 className="text-lg font-semibold text-foreground mb-3">Automatisk genererte oppgaver</h2>
 
         <TasksPremiumDialog 
           open={premiumDialogOpen} 
