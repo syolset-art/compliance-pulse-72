@@ -199,7 +199,8 @@ const TrustCenterMenu = () => {
 const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
   const { primaryRole } = useUserRole();
