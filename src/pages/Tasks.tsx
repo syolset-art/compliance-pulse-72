@@ -289,6 +289,10 @@ export default function Tasks() {
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [overallCompliance, setOverallCompliance] = useState(81);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  const [isPremiumActivated, setIsPremiumActivated] = useState(() => 
+    localStorage.getItem("tasks_premium_activated") === "true"
+  );
 
   // Mock autonomy levels from AI setup (in real app, fetch from storage/context)
   const currentAutonomyLevels = {
