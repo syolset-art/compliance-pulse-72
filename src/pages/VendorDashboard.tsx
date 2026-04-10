@@ -221,6 +221,12 @@ export default function VendorDashboard() {
         }}
       />
 
+      <VendorActivateDialog
+        open={activateOpen}
+        onOpenChange={setActivateOpen}
+        onActivated={() => setIsPremium(true)}
+      />
+
       <PageHelpDrawer
         open={helpOpen}
         onOpenChange={setHelpOpen}
