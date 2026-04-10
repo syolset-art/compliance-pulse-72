@@ -38,13 +38,33 @@ export function TopBar() {
   const { theme, setTheme } = useTheme();
   const isNb = i18n.language === "nb";
 
+  // Mapping from TopBar role keys to AppRole keys used by sidebar/dashboard
+  const TOPBAR_TO_APP_ROLE: Record<string, string> = {
+    admin: "compliance_ansvarlig",
+    compliance_officer: "compliance_ansvarlig",
+    dpo: "personvernombud",
+    ciso: "sikkerhetsansvarlig",
+    it_manager: "it_manager",
+    risk_owner: "risk_owner",
+    member: "operativ_bruker",
+  };
+
   // Active role stored in localStorage
   const activeRole = localStorage.getItem("user_active_role") || "member";
   const setActiveRole = (role: string) => {
     localStorage.setItem("user_active_role", role);
+    // Also update the demo role used by sidebar highlights & dashboard
+    const appRole = TOPBAR_TO_APP_ROLE[role] || "compliance_ansvarlig";
+    localStorage.setItem("mynder_demo_role", appRole);
+    const currentRoles = JSON.parse(localStorage.getItem("mynder_demo_roles") || '["compliance_ansvarlig"]');
+    if (!currentRoles.includes(appRole)) {
+      localStorage.setItem("mynder_demo_roles", JSON.stringify([...currentRoles, appRole]));
+    }
     const r = AVAILABLE_ROLES.find((r) => r.key === role);
     toast.success(isNb ? `Rolle satt til ${r?.labelNb}` : `Role set to ${r?.labelEn}`);
     window.dispatchEvent(new Event("storage"));
+    // Trigger react-query refetch for role-dependent components
+    window.location.reload();
   };
 
   const { data: inboxCount = 0 } = useQuery({
