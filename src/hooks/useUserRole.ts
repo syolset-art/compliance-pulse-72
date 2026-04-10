@@ -14,7 +14,8 @@ export type AppRole =
   | 'incident_manager'
   | 'system_owner'
   | 'training_officer'
-  | 'vendor_manager';
+  | 'vendor_manager'
+  | 'it_manager';
 
 export interface UserRole {
   id: string;
@@ -38,6 +39,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   system_owner: "Systemeier",
   training_officer: "Opplæringsansvarlig",
   vendor_manager: "Leverandøransvarlig",
+  it_manager: "IT-ansvarlig",
 };
 
 export const ROLE_ICONS: Record<AppRole, string> = {
@@ -54,6 +56,7 @@ export const ROLE_ICONS: Record<AppRole, string> = {
   system_owner: "MonitorCog",
   training_officer: "GraduationCap",
   vendor_manager: "Truck",
+  it_manager: "MonitorCog",
 };
 
 export const ROLE_COLORS: Record<AppRole, string> = {
@@ -70,6 +73,7 @@ export const ROLE_COLORS: Record<AppRole, string> = {
   system_owner: "text-cyan-600",
   training_officer: "text-teal-600",
   vendor_manager: "text-violet-600",
+  it_manager: "text-sky-600",
 };
 
 // Demo mode: Store selected role in localStorage when not authenticated
