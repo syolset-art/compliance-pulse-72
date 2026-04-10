@@ -22,6 +22,7 @@ import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVend
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
 import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
+import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
 
 const MAX_FREE_VENDORS = 5;
 
