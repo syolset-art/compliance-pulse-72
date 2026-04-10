@@ -240,16 +240,22 @@ const Regulations = () => {
         <div className="p-6 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                Regelverk og etterlevelse
-                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
-                  {allActiveFrameworks.length}
-                </span>
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Velg et regelverk for å se status og håndtere krav
-              </p>
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  Regelverk og etterlevelse
+                  <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
+                    {allActiveFrameworks.length}
+                  </span>
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Velg et regelverk for å se status og håndtere krav
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
+              </Button>
             </div>
             <Button variant="outline" className="gap-2" onClick={() => setShowEditDialog(true)}>
               <Settings2 className="h-4 w-4" />
