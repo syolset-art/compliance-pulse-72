@@ -19,6 +19,10 @@ import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
+import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
+
+const MAX_FREE_VENDORS = 3;
 
 export default function VendorDashboard() {
   const { t } = useTranslation();
@@ -29,6 +33,8 @@ export default function VendorDashboard() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
 
   const handleSeedDemo = async () => {
     setIsSeeding(true);
@@ -117,7 +123,16 @@ export default function VendorDashboard() {
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
+              <Button
+                onClick={() => {
+                  if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
+                    setActivateOpen(true);
+                  } else {
+                    setIsVendorDialogOpen(true);
+                  }
+                }}
+                className="gap-2"
+              >
                 <Plus className="h-4 w-4" />
                 {t("vendorDashboard.addVendor", "Legg til leverandør")}
               </Button>
@@ -141,6 +156,14 @@ export default function VendorDashboard() {
               </DropdownMenu>
             </div>
           </div>
+
+          {/* Premium banner */}
+          <VendorPremiumBanner
+            vendorCount={vendors.length}
+            maxFreeVendors={MAX_FREE_VENDORS}
+            isActivated={isPremium}
+            onActivate={() => setActivateOpen(true)}
+          />
 
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList className="h-9 p-0.5">
@@ -196,6 +219,12 @@ export default function VendorDashboard() {
           queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
           queryClient.invalidateQueries({ queryKey: ["assets"] });
         }}
+      />
+
+      <VendorActivateDialog
+        open={activateOpen}
+        onOpenChange={setActivateOpen}
+        onActivated={() => setIsPremium(true)}
       />
 
       <PageHelpDrawer
