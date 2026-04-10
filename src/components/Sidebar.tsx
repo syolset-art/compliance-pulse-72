@@ -199,7 +199,8 @@ const TrustCenterMenu = () => {
 const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
   const { primaryRole } = useUserRole();
@@ -531,6 +532,13 @@ const SidebarContent = () => {
                 >
                   <Building2 className="h-4 w-4" />
                   {t("nav.companySettings")}
+                </button>
+                <button
+                  onClick={() => navigate('/msp-invoices')}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+                >
+                  <FileText className="h-4 w-4" />
+                  {isNb ? "Faktura" : "Invoices"}
                 </button>
                 <button
                   onClick={() => navigate('/subscriptions')}
