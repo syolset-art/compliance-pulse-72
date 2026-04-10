@@ -58,6 +58,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
+import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
+
+const MAX_FREE_SYSTEMS = 5;
 
 interface System {
   id: string;
@@ -155,6 +159,8 @@ export default function Systems() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
   const [activeChip, setActiveChip] = useState<string | null>(null);
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(() => localStorage.getItem("system_premium_activated") === "true");
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleSeedSystems = async () => {
@@ -582,7 +588,16 @@ export default function Systems() {
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+              <Button
+                onClick={() => {
+                  if (!isPremium && systems.length >= MAX_FREE_SYSTEMS) {
+                    setActivateOpen(true);
+                  } else {
+                    setIsAddDialogOpen(true);
+                  }
+                }}
+                className="gap-2"
+              >
                 <Plus className="h-4 w-4" />
                 Legg til system
               </Button>
@@ -610,6 +625,14 @@ export default function Systems() {
               </DropdownMenu>
             </div>
           </div>
+
+          {/* Premium banner */}
+          <SystemPremiumBanner
+            systemCount={systems.length}
+            maxFreeSystems={MAX_FREE_SYSTEMS}
+            isActivated={isPremium}
+            onActivate={() => setActivateOpen(true)}
+          />
 
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -694,6 +717,12 @@ export default function Systems() {
             setStatusFilter(status);
           }
         }}
+      />
+
+      <SystemActivateDialog
+        open={activateOpen}
+        onOpenChange={setActivateOpen}
+        onActivated={(tier) => setIsPremium(true)}
       />
 
       <PageHelpDrawer
