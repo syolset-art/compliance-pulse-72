@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { HelpCircle, ClipboardList as ClipboardListIcon, Scale, Lock, Users as UsersIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";

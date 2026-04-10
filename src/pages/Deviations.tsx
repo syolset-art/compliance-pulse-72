@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList as ClipboardListHelp, Users as UsersHelp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";

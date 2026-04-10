@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { Cpu, Shield as ShieldIcon, FileCheck, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";

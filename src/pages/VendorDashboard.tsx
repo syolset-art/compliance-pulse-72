@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
 import { Handshake, FileText, Shield, HelpCircle, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
