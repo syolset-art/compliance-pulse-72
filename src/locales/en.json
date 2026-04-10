@@ -1236,6 +1236,7 @@
     }
   },
   "roles": {
+    "super_admin": "Super Admin",
     "daglig_leder": "CEO / Managing Director",
     "personvernombud": "Data Protection Officer (DPO)",
     "sikkerhetsansvarlig": "Chief Information Security Officer (CISO)",
@@ -1248,6 +1249,10 @@
     "switchViewHelp": "Switch view to see widgets tailored to different roles. Your assigned roles are marked."
   },
   "dashboardViews": {
+    "super_admin": {
+      "title": "Super Admin View",
+      "description": "Full access to all modules and features"
+    },
     "daglig_leder": {
       "title": "Executive View",
       "description": "Overall status, KPIs and decision points"
