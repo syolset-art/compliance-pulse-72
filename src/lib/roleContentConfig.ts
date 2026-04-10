@@ -54,6 +54,10 @@ export const ROLE_WIDGET_DEFAULTS: Record<AppRole, { primary: string[]; hidden: 
     primary: ["vendor-requests", "data-geography", "environment"],
     hidden: ["vulnerability-map", "ai-dependencies", "ai-activity", "critical-processes"],
   },
+  it_manager: {
+    primary: ["environment", "critical-processes", "vulnerability-map", "security-foundations"],
+    hidden: ["ai-docs", "ai-activity", "data-geography"],
+  },
 };
 
 /** Sidebar nav routes that are "primary" (highlighted) per role */
@@ -71,6 +75,7 @@ export const ROLE_SIDEBAR_HIGHLIGHTS: Record<AppRole, string[]> = {
   system_owner: ["/", "/systems", "/assets", "/tasks"],
   training_officer: ["/", "/work-areas", "/tasks"],
   vendor_manager: ["/", "/vendors", "/customer-requests", "/tasks"],
+  it_manager: ["/", "/systems", "/assets", "/customer-requests", "/work-areas", "/reports"],
 };
 
 /** Role-specific critical tasks */
@@ -225,5 +230,9 @@ export const ROLE_HERO_CTAS: Record<AppRole, RoleHeroCTA[]> = {
   vendor_manager: [
     { labelNb: "Leverandøroversikt", labelEn: "Vendor overview", route: "/vendors" },
     { labelNb: "Nye forespørsler", labelEn: "New requests", route: "/customer-requests" },
+  ],
+  it_manager: [
+    { labelNb: "Systemoversikt", labelEn: "System overview", route: "/systems" },
+    { labelNb: "Forespørsler", labelEn: "Requests", route: "/customer-requests" },
   ],
 };
