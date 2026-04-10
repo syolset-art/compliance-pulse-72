@@ -609,14 +609,25 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                         </div>
                       </div>
 
-                      <Badge variant="outline" className="text-[10px]">
-                        {isNb ? "Egenerklæring" : "Self-declared"}
-                      </Badge>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-[10px] cursor-help">
+                            {isNb ? "Egenerklæring" : "Self-declared"}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs max-w-[220px]">
+                            {isNb
+                              ? "Selverklæring og compliance-dokumentasjon"
+                              : "Self-declared compliance documentation"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
 
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {asset.description || (isNb
+                        {isNb
                           ? `${companyProfile?.name || asset.name} er registrert i Norge og har etablert en digital tillitsprofil for å dokumentere sikkerhet, personvern og samsvar med relevante regelverk.`
-                          : `${companyProfile?.name || asset.name} has established a digital trust profile to document security, privacy, and regulatory compliance.`)}
+                          : `${companyProfile?.name || asset.name} has established a digital trust profile to document security, privacy, and regulatory compliance.`}
                       </p>
 
                       {/* Framework badges — split into Standards & Regulations */}
