@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = 
+  | 'super_admin'
   | 'daglig_leder'
   | 'personvernombud'
   | 'sikkerhetsansvarlig'
@@ -26,6 +27,7 @@ export interface UserRole {
 }
 
 export const ROLE_LABELS: Record<AppRole, string> = {
+  super_admin: "Superbruker",
   daglig_leder: "Daglig leder",
   personvernombud: "Personvernombud (DPO)",
   sikkerhetsansvarlig: "Sikkerhetsansvarlig (CISO)",
@@ -43,6 +45,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 };
 
 export const ROLE_ICONS: Record<AppRole, string> = {
+  super_admin: "ShieldCheck",
   daglig_leder: "Crown",
   personvernombud: "Shield",
   sikkerhetsansvarlig: "Lock",
@@ -60,6 +63,7 @@ export const ROLE_ICONS: Record<AppRole, string> = {
 };
 
 export const ROLE_COLORS: Record<AppRole, string> = {
+  super_admin: "text-yellow-500",
   daglig_leder: "text-amber-600",
   personvernombud: "text-blue-600",
   sikkerhetsansvarlig: "text-red-600",
