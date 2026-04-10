@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Cpu, Shield as ShieldIcon, FileCheck, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -723,7 +723,7 @@ export default function Systems() {
         onActivated={(tier) => setIsPremium(true)}
       />
 
-      <PageHelpDrawer
+      <ContextualHelpPanel
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={Cpu}

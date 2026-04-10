@@ -1,6 +1,6 @@
 import { Layers, Server, ClipboardList, Handshake } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PageHelpDrawer } from "@/components/shared/PageHelpDrawer";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 
 interface WorkAreaHelpDrawerProps {
   open: boolean;
@@ -12,7 +12,7 @@ export function WorkAreaHelpDrawer({ open, onOpenChange }: WorkAreaHelpDrawerPro
   const isNb = !i18n.language?.startsWith("en");
 
   return (
-    <PageHelpDrawer
+    <ContextualHelpPanel
       open={open}
       onOpenChange={onOpenChange}
       icon={Layers}
