@@ -123,7 +123,16 @@ export default function VendorDashboard() {
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={() => setIsVendorDialogOpen(true)} className="gap-2">
+              <Button
+                onClick={() => {
+                  if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
+                    setActivateOpen(true);
+                  } else {
+                    setIsVendorDialogOpen(true);
+                  }
+                }}
+                className="gap-2"
+              >
                 <Plus className="h-4 w-4" />
                 {t("vendorDashboard.addVendor", "Legg til leverandør")}
               </Button>
@@ -147,6 +156,14 @@ export default function VendorDashboard() {
               </DropdownMenu>
             </div>
           </div>
+
+          {/* Premium banner */}
+          <VendorPremiumBanner
+            vendorCount={vendors.length}
+            maxFreeVendors={MAX_FREE_VENDORS}
+            isActivated={isPremium}
+            onActivate={() => setActivateOpen(true)}
+          />
 
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList className="h-9 p-0.5">
