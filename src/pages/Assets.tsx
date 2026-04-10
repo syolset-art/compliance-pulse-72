@@ -39,6 +39,7 @@ export default function Assets() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
 
   const handleSeedDevices = async () => {
     setIsSeeding(true);
@@ -181,10 +182,6 @@ export default function Assets() {
               <h1 className="text-xl md:text-2xl font-bold text-primary">
                 {t("nav.assetsDevices", "Assets")}
               </h1>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => setHelpOpen(true)}>
-                <HelpCircle className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Hvordan fungerer dette?</span>
-              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">

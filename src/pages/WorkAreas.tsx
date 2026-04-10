@@ -139,6 +139,7 @@ export default function WorkAreas() {
   const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const [introDismissed, setIntroDismissed] = useState(() => localStorage.getItem("workarea-intro-dismissed") === "true");
   const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
+  usePageHelpListener(setHelpDrawerOpen);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
   const { t } = useTranslation();
@@ -590,15 +591,6 @@ export default function WorkAreas() {
                 )}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-muted-foreground hover:text-foreground self-start sm:self-auto"
-              onClick={() => setHelpDrawerOpen(true)}
-            >
-              <HelpCircle className="h-4 w-4" />
-              <span className="text-sm">Hvordan fungerer dette?</span>
-            </Button>
           </div>
 
           {/* Intro banner for new users */}
