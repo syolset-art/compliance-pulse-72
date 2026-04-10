@@ -1,0 +1,282 @@
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Upload, Shield, Save, Pencil, X } from "lucide-react";
+import { toast } from "sonner";
+
+interface CompanyInfoFormProps {
+  /** If true, starts in edit mode */
+  defaultEditing?: boolean;
+  /** Show the edit/save buttons. Set false if parent manages editing state. */
+  showEditControls?: boolean;
+  /** Callback after save completes */
+  onSaved?: () => void;
+}
+
+export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved }: CompanyInfoFormProps) {
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(defaultEditing);
+  const [saving, setSaving] = useState(false);
+
+  const { data: companyProfile, isLoading: loadingProfile } = useQuery({
+    queryKey: ["company-profile-shared"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_profile").select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: selfAsset } = useQuery({
+    queryKey: ["self-asset-shared"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("assets").select("*").eq("asset_type", "self").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Local form state
+  const [form, setForm] = useState({
+    name: "",
+    org_number: "",
+    domain: "",
+    industry: "",
+    employees: "",
+    brreg_industry: "",
+    description: "",
+  });
+
+  useEffect(() => {
+    if (companyProfile) {
+      setForm({
+        name: companyProfile.name || "",
+        org_number: companyProfile.org_number || "",
+        domain: companyProfile.domain || "",
+        industry: companyProfile.industry || "",
+        employees: companyProfile.employees || "",
+        brreg_industry: companyProfile.brreg_industry || "",
+        description: selfAsset?.description || "",
+      });
+    }
+  }, [companyProfile, selfAsset]);
+
+  const handleSave = async () => {
+    if (!companyProfile) return;
+    setSaving(true);
+    try {
+      const { error: profileErr } = await supabase
+        .from("company_profile")
+        .update({
+          name: form.name,
+          domain: form.domain,
+          industry: form.industry,
+          employees: form.employees,
+        })
+        .eq("id", companyProfile.id);
+      if (profileErr) throw profileErr;
+
+      // Update description on self asset
+      if (selfAsset) {
+        await supabase.from("assets").update({ description: form.description }).eq("id", selfAsset.id);
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["company-profile-shared"] });
+      queryClient.invalidateQueries({ queryKey: ["company_profile_edit"] });
+      queryClient.invalidateQueries({ queryKey: ["company-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+
+      setIsEditing(false);
+      toast.success("Selskapsinformasjon lagret");
+      onSaved?.();
+    } catch {
+      toast.error("Kunne ikke lagre endringer");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (companyProfile) {
+      setForm({
+        name: companyProfile.name || "",
+        org_number: companyProfile.org_number || "",
+        domain: companyProfile.domain || "",
+        industry: companyProfile.industry || "",
+        employees: companyProfile.employees || "",
+        brreg_industry: companyProfile.brreg_industry || "",
+        description: selfAsset?.description || "",
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const update = (key: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  if (loadingProfile) {
+    return <div className="animate-pulse h-48 bg-muted rounded-lg" />;
+  }
+
+  const orgType = form.brreg_industry?.split(" ")[0] || "AS";
+
+  return (
+    <Card className="p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Selskapsinformasjon</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Informasjonen hentes fra onboarding – du kan redigere firmanavn, stamsdata og adresse.
+          </p>
+        </div>
+        {showEditControls && (
+          <div>
+            {!isEditing ? (
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-xs">
+                <Pencil className="h-3 w-3" />
+                Rediger
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={handleCancel} className="gap-1.5 text-xs">
+                  <X className="h-3 w-3" />
+                  Avbryt
+                </Button>
+                <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
+                  <Save className="h-3 w-3" />
+                  {saving ? "Lagrer..." : "Lagre"}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Logo */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-foreground">Logo</label>
+        <div className="flex items-center gap-3">
+          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+            {selfAsset?.logo_url ? (
+              <img src={selfAsset.logo_url} className="h-12 w-12 rounded object-contain" alt="" />
+            ) : (
+              <Upload className="h-5 w-5 text-muted-foreground" />
+            )}
+          </div>
+          <div>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+              <Upload className="h-3 w-3" />
+              Last opp logo
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Fields grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FieldBlock label="Organisasjonsnummer" hint="Hentet fra onboarding" readOnly>
+          <Input value={form.org_number || "Ikke registrert"} readOnly className="bg-muted/30 text-sm" />
+        </FieldBlock>
+
+        <FieldBlock label="Selskapsnavn" hint="Hentet fra Brønnøysundregistrene">
+          {isEditing ? (
+            <Input value={form.name} onChange={(e) => update("name", e.target.value)} className="text-sm" />
+          ) : (
+            <Input value={form.name || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Organisasjonsform" hint="Hentet fra Brønnøysundregistrene" readOnly>
+          <Input value={orgType} readOnly className="bg-muted/30 text-sm" />
+        </FieldBlock>
+
+        <FieldBlock label="Stiftet" hint="Hentet fra Brønnøysundregistrene" readOnly>
+          <Input value="—" readOnly className="bg-muted/30 text-sm" />
+        </FieldBlock>
+
+        <FieldBlock label="Nettside" hint="Forhåndsutfylt fra onboarding · kan endres">
+          {isEditing ? (
+            <Input value={form.domain} onChange={(e) => update("domain", e.target.value)} placeholder="www.example.com" className="text-sm" />
+          ) : (
+            <Input value={form.domain || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Bransje" hint="Forhåndsutfylt fra Brønnøysundregistrene">
+          {isEditing ? (
+            <Input value={form.industry} onChange={(e) => update("industry", e.target.value)} className="text-sm" />
+          ) : (
+            <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Antall ansatte" hint="Forhåndsutfylt fra onboarding · kan endres">
+          {isEditing ? (
+            <Input value={form.employees} onChange={(e) => update("employees", e.target.value)} className="text-sm" />
+          ) : (
+            <Input value={form.employees || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Adresse" hint="Forhåndsutfylt fra Brønnøysundregistrene · kan endres">
+          <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
+        </FieldBlock>
+      </div>
+
+      {/* Description */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
+          <Badge variant="outline" className="text-[9px] gap-1 text-primary border-primary/30">
+            <Shield className="h-2.5 w-2.5" />
+            Publiseres med AI
+          </Badge>
+        </div>
+        {isEditing ? (
+          <Textarea
+            value={form.description}
+            onChange={(e) => update("description", e.target.value)}
+            placeholder="Beskriv kort hva virksomheten gjør, hvilke tjenester dere leverer og hvem som er målgruppen..."
+            rows={3}
+            className="text-sm"
+          />
+        ) : (
+          <Textarea
+            value={form.description || ""}
+            readOnly
+            rows={3}
+            className="text-sm bg-muted/30"
+          />
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function FieldBlock({
+  label,
+  hint,
+  readOnly,
+  children,
+}: {
+  label: string;
+  hint: string;
+  readOnly?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-foreground">{label}</label>
+      {children}
+      <p className="text-[10px] text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
