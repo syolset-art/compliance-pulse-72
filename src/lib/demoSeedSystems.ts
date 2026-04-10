@@ -221,7 +221,7 @@ export async function seedDemoSystems(): Promise<number> {
   if (!insertedSystems) return 0;
 
   // 2. Collect unique vendor names and create vendor assets (skip duplicates)
-  const vendorNames = [...new Set(DEMO_SYSTEMS.map(s => s.vendorAssetName).filter(Boolean))] as string[];
+  const vendorNames = [...new Set(demoSubset.map(s => s.vendorAssetName).filter(Boolean))] as string[];
   
   // Check which vendors already exist
   const { data: existingVendors } = await supabase
@@ -252,7 +252,7 @@ export async function seedDemoSystems(): Promise<number> {
   // 3. Create IoT/device assets for systems that have relatedDevices
   const relationships: { source_asset_id: string; target_asset_id: string; relationship_type: string; description: string }[] = [];
 
-  for (const demoDef of DEMO_SYSTEMS) {
+  for (const demoDef of demoSubset) {
     const insertedSystem = insertedSystems.find(s => s.name === demoDef.name);
     if (!insertedSystem) continue;
 
@@ -308,7 +308,7 @@ export async function seedDemoSystems(): Promise<number> {
   }
 
   // 5. Create system-type assets with trust profile metadata
-  const systemAssetInserts = DEMO_SYSTEMS.map((demoDef) => ({
+  const systemAssetInserts = demoSubset.map((demoDef) => ({
     name: demoDef.name,
     asset_type: "system" as const,
     description: demoDef.description,
