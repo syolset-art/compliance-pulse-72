@@ -255,6 +255,10 @@ const Regulations = () => {
                 </p>
               </div>
             </div>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowEditDialog(true)}>
+              <Settings2 className="h-4 w-4" />
+              Endre regelverk
+            </Button>
           </div>
 
           {/* Category filter */}
