@@ -38,7 +38,8 @@ interface DomainActivationWizardProps {
   domainIcon: LucideIcon;
   domainColor: string;
   domainBgColor: string;
-  monthlyPrice: number; // in øre
+  monthlyPrice: number; // in øre (legacy, now used as yearly for framework addons)
+  yearlyPriceKr?: number; // yearly price in kr
   onActivate: () => void;
   isActivating?: boolean;
   nextBillingDate?: string;
@@ -56,6 +57,7 @@ export function DomainActivationWizard({
   domainColor,
   domainBgColor,
   monthlyPrice,
+  yearlyPriceKr,
   onActivate,
   isActivating = false,
   nextBillingDate = "1. februar 2026",
