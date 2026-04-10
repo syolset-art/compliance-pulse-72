@@ -21,8 +21,8 @@ export default function CompanySettings() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">Selskapsinnstillinger</h1>
-              <p className="text-muted-foreground text-sm">Administrer informasjon om din organisasjon</p>
+              <h1 className="text-2xl font-semibold text-foreground">Selskapsinformasjon</h1>
+              <p className="text-muted-foreground text-sm">Basisinformasjon og kontaktperson for din organisasjon</p>
             </div>
           </div>
 

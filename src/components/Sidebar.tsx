@@ -533,6 +533,13 @@ const SidebarContent = () => {
                   {t("nav.companySettings")}
                 </button>
                 <button
+                  onClick={() => navigate('/msp-invoices')}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  {isNb ? "Faktura" : "Invoices"}
+                </button>
+                <button
                   onClick={() => navigate('/subscriptions')}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
