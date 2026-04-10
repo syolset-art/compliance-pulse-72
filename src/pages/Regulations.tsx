@@ -343,6 +343,29 @@ const Regulations = () => {
           navigate("/", { state: { openChat: true, chatMessage: message } });
         }}
       />
+
+      <PageHelpDrawer
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Scale}
+        title="Hva er Regelverk og etterlevelse?"
+        description="Her administrerer du hvilke regelverk som gjelder for din virksomhet. Du kan aktivere og deaktivere rammeverk, se status på krav, og følge opp etterlevelse på tvers av alle aktive regelverk."
+        itemsHeading="Hva kan du gjøre her?"
+        items={[
+          { icon: Shield, title: "Aktiver regelverk", description: "Velg hvilke rammeverk som er relevante — GDPR og ISO 27001 er inkludert gratis." },
+          { icon: CheckCircle2, title: "Følg opp krav", description: "Se status på hvert enkelt krav og jobb systematisk mot full etterlevelse." },
+          { icon: BookOpen, title: "Kategoriser og filtrer", description: "Filtrer etter Personvern, Informasjonssikkerhet, AI Governance eller Øvrige regelverk." },
+        ]}
+        whyTitle="Hvorfor er dette viktig?"
+        whyDescription="Systematisk regelverk-styring sikrer at organisasjonen etterlever alle relevante lover og standarder. Det gir oversikt, reduserer risiko og bygger tillit hos kunder og partnere."
+        stepsHeading="Kom i gang"
+        steps={[
+          { text: "Se gjennom obligatoriske regelverk som allerede er aktivert" },
+          { text: "Aktiver frivillige regelverk som er relevante for din bransje" },
+          { text: "Jobb med kravene i hvert regelverk for å øke etterlevelsen" },
+        ]}
+        laraSuggestion="Hvilke regelverk bør vi fokusere på basert på vår bransje?"
+      />
     </div>
   );
 };
