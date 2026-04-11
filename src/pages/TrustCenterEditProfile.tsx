@@ -517,6 +517,11 @@ const TrustCenterEditProfile = () => {
                         ? "Resultatet vises i din Trust Center-profil slik at dine kunder og partnere kan se den."
                         : "The result is shown in your Trust Center profile for your customers and partners to see."}
                     </p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-2 italic">
+                      {isNb
+                        ? "Alle svar er egenerklærte med mindre annet er angitt."
+                        : "All responses are self-declared unless otherwise noted."}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -541,11 +546,6 @@ const TrustCenterEditProfile = () => {
                             <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {selfDeclaredCount > 0 && (
-                              <Badge variant="outline" className="text-[10px]">
-                                {selfDeclaredCount} {isNb ? "egenerklært" : "self-declared"}
-                              </Badge>
-                            )}
                             <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
                             {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                           </div>
@@ -572,9 +572,6 @@ const TrustCenterEditProfile = () => {
                                       </p>
                                     )}
                                   </div>
-                                  <Badge variant="outline" className="text-[10px] shrink-0">
-                                    {isNb ? "Egenerklæring" : "Self-declaration"}
-                                  </Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   {([
