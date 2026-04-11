@@ -283,6 +283,9 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Virksomhet" : "Company"}
                 </h2>
+                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-[10px] ml-auto">
+                  {sectionCompleteness.company.done}/{sectionCompleteness.company.total}
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {isNb
@@ -410,6 +413,9 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Koblede profiler" : "Linked Profiles"}
                 </h2>
+                <Badge variant={sectionCompleteness.linked.done > 0 ? "action" : "secondary"} className="text-[10px] ml-auto">
+                  {sectionCompleteness.linked.done}/{sectionCompleteness.linked.total}
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {isNb
@@ -625,6 +631,9 @@ const TrustCenterEditProfile = () => {
                   <h2 className="text-base font-semibold text-foreground">
                     {isNb ? "Regelverk" : "Regulations"}
                   </h2>
+                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[10px]">
+                    {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
+                  </Badge>
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground" onClick={() => navigate("/trust-center/regulations")}>
                   {isNb ? "Administrer" : "Manage"}
