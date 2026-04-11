@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
