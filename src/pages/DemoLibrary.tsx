@@ -141,7 +141,7 @@ export default function DemoLibrary() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto md:pt-11">
+      <main className="flex-1 overflow-y-auto pt-11">
         {/* Header */}
         <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-6 py-6">

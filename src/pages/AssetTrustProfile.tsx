@@ -195,7 +195,7 @@ const AssetTrustProfile = () => {
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <Sidebar />
-          <main className="flex-1 overflow-auto md:pt-11">
+          <main className="flex-1 overflow-auto pt-11">
             <DeviceTrustProfile asset={asset} />
           </main>
         </div>
@@ -207,7 +207,7 @@ const AssetTrustProfile = () => {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
-        <main className="flex-1 overflow-auto md:pt-11">
+        <main className="flex-1 overflow-auto pt-11">
           <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
             {/* Back button */}
             <Button variant="ghost" onClick={() => navigate("/assets")} className="mb-1">

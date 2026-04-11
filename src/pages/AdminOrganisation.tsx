@@ -285,7 +285,7 @@ export default function AdminOrganisation() {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto md:pt-11">{content}</main>
+        <main className="flex-1 overflow-y-auto pt-11">{content}</main>
       </div>
     );
   }
@@ -293,7 +293,7 @@ export default function AdminOrganisation() {
   return (
     <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
       <div className="w-64 flex-shrink-0"><Sidebar /></div>
-      <main className="flex-1 h-screen overflow-y-auto md:pt-11">{content}</main>
+      <main className="flex-1 h-screen overflow-y-auto pt-11">{content}</main>
     </div>
   );
 }
