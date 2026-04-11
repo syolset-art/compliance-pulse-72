@@ -22,6 +22,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
+import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Governance & Accountability", labelEn: "Governance & Accountability" },
@@ -177,24 +178,14 @@ const TrustCenterEditProfile = () => {
               </p>
             </div>
 
-            {/* Total Score Bar */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">{isNb ? "Total fremdrift" : "Total progress"}</span>
-                <span className="text-sm font-semibold text-foreground">{trustScore}%</span>
-              </div>
-              <Progress value={trustScore} className="h-2" />
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {[
-                  isNb ? "Offentlig profil" : "Public profile",
-                  isNb ? "Sikkerhet" : "Security",
-                  isNb ? "Dokumentasjon og bevis" : "Documentation & evidence",
-                  isNb ? "Offentlig profil" : "Public profile",
-                ].map((label, i) => (
-                  <Badge key={i} variant="secondary" className="text-[10px]">{label}</Badge>
-                ))}
-              </div>
-            </Card>
+            {/* Readiness Indicator */}
+            <PublishingReadiness
+              trustScore={trustScore}
+              companyProfile={companyProfile}
+              frameworks={frameworks}
+              linkedProducts={linkedProducts}
+              evaluation={evaluation}
+            />
 
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
