@@ -32,7 +32,7 @@ import { ROLE_LABELS } from "@/hooks/useUserRole";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
-  { id: "security-foundations", label: "Security Foundations", labelEn: "Security Foundations", size: "full" },
+  { id: "security-foundations", label: "Modenhet per kontrollområde", labelEn: "Maturity by control areas", size: "full" },
   { id: "business-risk-exposure", label: "Forretningsrisiko (FAIR)", labelEn: "Business Risk (FAIR)", size: "half" },
   { id: "vulnerability-map", label: "Sårbarhetskart", labelEn: "Vulnerability Map", size: "half" },
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
