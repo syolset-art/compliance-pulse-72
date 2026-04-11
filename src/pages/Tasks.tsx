@@ -189,7 +189,7 @@ export default function Tasks() {
       <main className="flex-1 overflow-y-auto pt-11">
         <div className="container mx-auto p-6 max-w-5xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-2">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-foreground">Oppgaver</h1>
               <Badge variant="secondary" className="text-xs">
@@ -199,7 +199,7 @@ export default function Tasks() {
             <Button
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={() =>
                 navigate("/subscriptions")
               }

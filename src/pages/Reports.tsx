@@ -278,12 +278,12 @@ const Reports = () => {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">{t('reports.title', 'Rapporter')}</h1>
               <p className="text-muted-foreground mt-1">{t('reports.subtitle', 'Compliance-rapporter for GDPR, NIS2 og ISO 27001')}</p>
             </div>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <FileText className="h-4 w-4 mr-2" />
               Generer ny rapport
             </Button>
