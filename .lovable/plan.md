@@ -1,54 +1,18 @@
 
 
-## Plan: Publiseringsklar-indikator for Trust Profile-redigering
+## Plan: Fjern gjentatte «Egenerklæring»-badges fra kontrollfelter
 
 ### Problem
-Den nåværende fremdriftsbaren viser bare en generisk "Total progress"-prosent uten kontekst. Brukeren vet ikke hva som mangler, hva som er "godt nok", eller når profilen er klar for publisering.
+Hver kontroll i redigeringsvisningen viser en «Egenerklæring / Self-declaration»-badge, og hvert kontrollområde viser antall egenerklærte. Dette skaper visuelt støy og er unødvendig repetisjon.
 
 ### Løsning
-Erstatt den enkle prosentbaren med en **Readiness Indicator** — en sticky/persistent komponent som følger brukeren gjennom hele skjemaet og gir kontekstuell tilbakemelding.
+Fjern per-kontroll og per-område «Egenerklæring»-badges. Legg til en **enkel, sentral forklaring** øverst i seksjonen «Modenhet per kontroller» som sier at alle svar er egenerklærte.
 
-### Design
+### Endringer i `src/pages/TrustCenterEditProfile.tsx`
 
-**1. Sticky readiness-bar (toppen av innholdsområdet)**
-- Vises som en kompakt bar som er synlig mens brukeren scroller
-- Inneholder: score-prosent, en fargekodet statusmelding, og en visuell indikator
-- Tre nivåer:
-  - **< 50%**: Rød — "Ikke klar for publisering — flere kontroller må fylles ut"
-  - **50–79%**: Oransje — "Nesten klar — noen områder gjenstår"  
-  - **≥ 80%**: Grønn — "Klar for publisering"
+1. **Fjern per-kontroll badge** (linje 575-577): Fjern `<Badge>Egenerklæring</Badge>` som vises ved hvert enkelt kontrollfelt.
 
-**2. Seksjon-spesifikke mini-indikatorer**
-- Hver seksjon (Offentlig profil, Virksomhet, Sikkerhet, Regelverk, Dokumentasjon) får en liten completeness-chip i headeren
-- F.eks. "3 av 5 utfylt" eller en liten sirkulær indikator
-- Beregnes basert på hva som faktisk er fylt ut i den seksjonen
+2. **Fjern per-område badge** (linje 544-548): Fjern `{selfDeclaredCount} egenerklært`-badgen fra hvert område-header.
 
-**3. Readiness-sjekkliste (erstatter de generiske badges i det nåværende progress-kortet)**
-- Viser konkrete sjekkliste-punkter med status:
-  - ✓ Virksomhetsinformasjon utfylt
-  - ✓ Kontaktperson registrert  
-  - ○ Minst 70% kontroller besvart
-  - ○ Minst ett regelverk valgt
-  - ○ Dokumentasjon lastet opp
-- Hvert punkt er klikkbart og scroller til riktig seksjon
-
-### Tekniske endringer
-
-**Fil: `src/pages/TrustCenterEditProfile.tsx`**
-- Erstatt det statiske `Card`-et (linje 181-197) med en ny `PublishingReadiness`-komponent
-- Legg til `sticky top-0 z-10` styling så baren følger med ved scrolling
-- Beregn completeness per seksjon basert på eksisterende data:
-  - Virksomhet: har company name, org number, kontaktperson
-  - Sikkerhet: trustScore fra evaluation-hooken
-  - Regelverk: frameworks.length > 0
-  - Dokumentasjon: sjekk om dokumenter finnes
-
-**Ny fil: `src/components/trust-center/PublishingReadiness.tsx`**
-- Mottar trustScore, companyProfile, frameworks, linkedProducts som props
-- Beregner sjekkliste-status for hver kategori
-- Viser sticky bar med fargekodet melding og utfyllingsgrad
-- Klikkbare sjekkliste-items som scroller til riktig seksjon
-
-**Fil: Seksjon-headere i TrustCenterEditProfile.tsx**
-- Legg til en liten completeness-badge ved siden av hver seksjons-tittel (f.eks. "2/4" eller en liten dot)
+3. **Legg til sentral badge** i info-boksen (linje 505-521): Legg til en liten badge eller tekst i den eksisterende info-boksen som sier f.eks. «Alle svar er egenerklærte med mindre annet er angitt» / «All responses are self-declared unless otherwise noted».
 
