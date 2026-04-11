@@ -118,7 +118,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   if (requirements.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p>Ingen krav registrert for dette regelverket.</p>
+        <p>Ingen krav registrert for denne standarden.</p>
       </div>
     );
   }

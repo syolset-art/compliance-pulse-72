@@ -153,7 +153,7 @@ export function DomainSummaryCard({
           
           {/* Description */}
           <p className="text-sm text-muted-foreground mb-4">
-            {totalCount} regelverk tilgjengelig
+            {totalCount} krav tilgjengelig
           </p>
 
           {/* Activate button */}
