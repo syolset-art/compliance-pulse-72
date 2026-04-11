@@ -144,7 +144,7 @@ export default function AdminOrganisation() {
   };
 
   const content = (
-    <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="container max-w-7xl mx-auto px-4 pt-6 pb-4 md:p-6 space-y-6">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
