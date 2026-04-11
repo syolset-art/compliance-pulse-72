@@ -727,7 +727,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     <div className="flex items-center gap-2 mb-4">
                       <Shield className="h-4 w-4 text-muted-foreground" />
                       <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Sikkerhet og kontroller" : "Security and Controls"}
+                        {isNb ? "Modenhet per kontroller" : "Maturity by Controls"}
                       </h3>
                     </div>
 
@@ -832,7 +832,7 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
                         { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                        { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Sikkerhet og kontroller" : "Security & Controls", color: "text-warning" },
+                        { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Modenhet per kontroller" : "Maturity by Controls", color: "text-warning" },
                         { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
                         { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
                       ].map((item, i) => (
