@@ -81,7 +81,7 @@ const Regulations = () => {
         setSelectedFrameworks(data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast({ title: "Feil ved lasting", description: "Kunne ikke laste regelverk", variant: "destructive" });
+        toast({ title: "Feil ved lasting", description: "Kunne ikke laste krav og standarder", variant: "destructive" });
       } finally {
         setLoading(false);
       }
@@ -212,15 +212,15 @@ const Regulations = () => {
       } else {
         const fw = frameworks.find((f) => f.id === frameworkId);
         toast({
-          title: fw?.isMandatory ? "⚠️ Obligatorisk regelverk deaktivert" : "Regelverk deaktivert",
+          title: fw?.isMandatory ? "⚠️ Obligatorisk krav deaktivert" : "Krav deaktivert",
           description: fw?.isMandatory
             ? `${fw.name} er lovpålagt, men er nå fjernet fra ditt scope.`
-            : "Regelverket er fjernet fra listen din",
+            : "Kravet er fjernet fra listen din",
         });
       }
     } catch (error) {
       console.error("Error toggling framework:", error);
-      toast({ title: "Feil", description: "Kunne ikke oppdatere regelverk", variant: "destructive" });
+      toast({ title: "Feil", description: "Kunne ikke oppdatere krav", variant: "destructive" });
     } finally {
       setUpdating(null);
     }
@@ -247,19 +247,19 @@ const Regulations = () => {
             <div className="flex items-center gap-3">
               <div>
                 <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  Regelverk og etterlevelse
+                  Krav og standarder
                   <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
                     {allActiveFrameworks.length}
                   </span>
                 </h1>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  Velg et regelverk for å se status og håndtere krav
+                  Velg et krav eller en standard for å se status
                 </p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowEditDialog(true)}>
               <Settings2 className="h-4 w-4" />
-              Endre regelverk
+              Endre krav
             </Button>
           </div>
 
@@ -316,9 +316,9 @@ const Regulations = () => {
             />
           ) : (
             <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg">
-              <p>Ingen regelverk er aktivert ennå.</p>
+              <p>Ingen krav eller standarder er aktivert ennå.</p>
               <Button variant="outline" className="mt-3" onClick={() => setShowEditDialog(true)}>
-                Legg til regelverk
+                Legg til krav
               </Button>
             </div>
           )}
@@ -363,30 +363,30 @@ const Regulations = () => {
         open={helpOpen}
         onOpenChange={setHelpOpen}
         icon={Scale}
-        title="Regelverk og etterlevelse"
-        description="Her administrerer du hvilke regelverk som gjelder for din virksomhet. Du kan aktivere og deaktivere rammeverk, se status på krav, og følge opp etterlevelse på tvers av alle aktive regelverk."
+        title="Krav og standarder"
+        description="Her administrerer du hvilke krav og standarder som gjelder for din virksomhet. Du kan aktivere og deaktivere rammeverk, se status på krav, og følge opp etterlevelse."
         itemsHeading="Hva kan du gjøre her?"
         items={[
-          { icon: Shield, title: "Aktiver regelverk", description: "Velg hvilke rammeverk som er relevante — GDPR og ISO 27001 er inkludert gratis." },
+          { icon: Shield, title: "Aktiver krav og standarder", description: "Velg hvilke rammeverk som er relevante — GDPR og ISO 27001 er inkludert gratis." },
           { icon: CheckCircle2, title: "Følg opp krav", description: "Se status på hvert enkelt krav og jobb systematisk mot full etterlevelse." },
-          { icon: BookOpen, title: "Kategoriser og filtrer", description: "Filtrer etter Personvern, Informasjonssikkerhet, AI Governance eller Øvrige regelverk." },
+          { icon: BookOpen, title: "Kategoriser og filtrer", description: "Filtrer etter Personvern, Informasjonssikkerhet, AI Governance eller øvrige." },
         ]}
         whyTitle="Hvorfor er dette viktig?"
-        whyDescription="Systematisk regelverk-styring sikrer at organisasjonen etterlever alle relevante lover og standarder. Det gir oversikt, reduserer risiko og bygger tillit hos kunder og partnere."
+        whyDescription="Systematisk styring av krav og standarder sikrer at organisasjonen etterlever alle relevante lover og standarder. Det gir oversikt, reduserer risiko og bygger tillit hos kunder og partnere."
         stepsHeading="Kom i gang"
         steps={[
-          { text: "Se gjennom obligatoriske regelverk som allerede er aktivert" },
-          { text: "Aktiver frivillige regelverk som er relevante for din bransje" },
-          { text: "Jobb med kravene i hvert regelverk for å øke etterlevelsen" },
+          { text: "Se gjennom obligatoriske krav som allerede er aktivert" },
+          { text: "Aktiver frivillige standarder som er relevante for din bransje" },
+          { text: "Jobb med kravene i hvert rammeverk for å øke etterlevelsen" },
         ]}
         actions={[
-          { icon: Settings2, title: "Rediger aktive regelverk", description: "Legg til eller fjern regelverk fra ditt aktive scope.", onClick: () => setShowEditDialog(true) },
-          { icon: FileText, title: "Eksporter samsvarsrapport", description: "Generer en PDF-rapport over status for alle aktive regelverk.", onClick: () => navigate("/reports/compliance") },
+          { icon: Settings2, title: "Rediger aktive krav", description: "Legg til eller fjern krav og standarder fra ditt aktive scope.", onClick: () => setShowEditDialog(true) },
+          { icon: FileText, title: "Eksporter samsvarsrapport", description: "Generer en PDF-rapport over status for alle aktive krav.", onClick: () => navigate("/reports/compliance") },
           { icon: RefreshCw, title: "Oppdater kravstatus", description: "Synkroniser status for alle krav med siste data.", onClick: () => { toast({ title: "Oppdaterer...", description: "Kravstatus synkroniseres." }); } },
-          { icon: Layers, title: "Se alle kategorier", description: "Filtrer regelverk etter Personvern, Sikkerhet, AI eller annet.", onClick: () => setCategoryFilter(null) },
+          { icon: Layers, title: "Se alle kategorier", description: "Filtrer krav etter Personvern, Sikkerhet, AI eller annet.", onClick: () => setCategoryFilter(null) },
         ]}
         laraSuggestions={[
-          { label: "Hvilke regelverk bør vi fokusere på?", message: "Hvilke regelverk bør vi fokusere på basert på vår bransje?" },
+          { label: "Hvilke krav bør vi fokusere på?", message: "Hvilke krav og standarder bør vi fokusere på basert på vår bransje?" },
           { label: "Hjelp meg forstå GDPR-kravene", message: "Kan du forklare de viktigste GDPR-kravene for oss?" },
           { label: "Hva mangler vi for ISO 27001?", message: "Hva mangler vi for å oppnå ISO 27001-samsvar?" },
           { label: "Lag en etterlevelsesplan", message: "Hjelp meg med å lage en etterlevelsesplan for de neste 6 månedene." },
