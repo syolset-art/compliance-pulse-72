@@ -186,7 +186,7 @@ export default function Tasks() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto md:pt-11">
+      <main className="flex-1 overflow-y-auto pt-11">
         <div className="container mx-auto p-6 max-w-5xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-2">

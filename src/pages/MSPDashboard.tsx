@@ -57,7 +57,7 @@ export default function MSPDashboard() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto md:pt-11">
+      <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>

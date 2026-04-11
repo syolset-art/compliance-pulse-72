@@ -134,7 +134,7 @@ export default function MSPCustomerPortal() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-auto md:pt-11">
+      <main className="flex-1 overflow-auto pt-11">
         {/* Partner mode banner */}
         <div className="sticky top-0 z-20 bg-primary/10 border-b border-primary/20 backdrop-blur-sm">
           <div className="container max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">

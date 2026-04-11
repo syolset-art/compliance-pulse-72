@@ -788,7 +788,7 @@ const Sustainability = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       
-      <main className="flex-1 overflow-y-auto md:pt-11">
+      <main className="flex-1 overflow-y-auto pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-8 pt-6 md:pt-8">
           {/* Header with progress */}
           {currentStep !== "intro" && currentStep !== "complete" && (

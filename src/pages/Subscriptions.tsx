@@ -88,7 +88,7 @@ export default function Subscriptions() {
     <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
       {!isMobile && <div className="w-64 flex-shrink-0"><Sidebar /></div>}
       {isMobile && <Sidebar />}
-      <main className="flex-1 overflow-y-auto md:pt-11">
+      <main className="flex-1 overflow-y-auto pt-11">
         <div className="container max-w-4xl mx-auto p-6 space-y-10 pb-20">
 
           {/* Hero heading */}

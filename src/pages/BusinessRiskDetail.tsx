@@ -25,7 +25,7 @@ export default function BusinessRiskDetail() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto md:pt-11">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pt-11">
         <Button variant="ghost" size="sm" className="mb-4 gap-1 text-muted-foreground" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
           {isNb ? "Tilbake" : "Back"}
