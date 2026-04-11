@@ -1,67 +1,54 @@
 
 
-## Plan: Redesign av Abonnementssiden med kundereise-fokus
+## Plan: Publiseringsklar-indikator for Trust Profile-redigering
 
-### Konsept
+### Problem
+Den nåværende fremdriftsbaren viser bare en generisk "Total progress"-prosent uten kontekst. Brukeren vet ikke hva som mangler, hva som er "godt nok", eller når profilen er klar for publisering.
 
-Bygge om siden fra en flat modulliste til en **kundereise-orientert opplevelse** som speiler den naturlige brukerreisen: Trust Center (gratis) → Regelverk-tillegg → Moduler (System/Leverandør). Designet skal selge verdien av Trust Center som unikt produkt og tydelig vise hvordan moduler automatiserer og oppdaterer Trust Center via AI.
+### Løsning
+Erstatt den enkle prosentbaren med en **Readiness Indicator** — en sticky/persistent komponent som følger brukeren gjennom hele skjemaet og gir kontekstuell tilbakemelding.
 
-### Ny sidestruktur
+### Design
 
-```text
-┌─────────────────────────────────────────────────────┐
-│  "Din compliance-reise"  (hero/heading)             │
-│  Subtekst om verdiforslaget                         │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  STEG 1: TRUST CENTER (Gratis)                      │
-│  ┌───────────────────────────────────────────────┐  │
-│  │ ✅ Aktiv  •  Shareable Trust Profile          │  │
-│  │ Inkludert: GDPR, ISO 27001, 5 systemer,       │  │
-│  │ 5 leverandører, alle Trust Center-sider       │  │
-│  │                                    [Gå til →] │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                     │
-│  STEG 2: UTVID MED REGELVERK                        │
-│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐     │
-│  │ NIS2 │ │ DORA │ │Åpen. │ │AI Act│ │ CRA  │     │
-│  │50k/år│ │50k/år│ │50k/år│ │50k/år│ │50k/år│     │
-│  │[Legg]│ │[Legg]│ │[Legg]│ │[Legg]│ │[Legg]│     │
-│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘     │
-│  Info: "Utvid compliance uten moduler"              │
-│                                                     │
-│  STEG 3: AUTOMATISER MED MODULER                    │
-│  "Moduler kobler inn AI som automatisk oppdaterer   │
-│   Trust Center, genererer oppgaver og arbeidsområder"│
-│                                                     │
-│  [Månedlig / Årlig toggle + Spar 2 mnd badge]      │
-│                                                     │
-│  ┌─── Systemmodul ───┐  ┌─ Leverandørmodul ──┐     │
-│  │ Basis   │ Premium  │  │ Basis   │ Premium  │     │
-│  │ 1490/m  │ 2490/m   │  │ 1490/m  │ 2490/m   │     │
-│  │ ≤20 sys │ ≤70 sys  │  │ ≤20 lev │ ≤70 lev  │     │
-│  │ +Arb.omr│ +Priorit │  │ +DPA    │ +Priorit │     │
-│  └─────────┴──────────┘  └─────────┴──────────┘     │
-│                                                     │
-│  ┌── Enterprise (dashed) ──────────────────────┐    │
-│  │ Ubegrenset  •  Kontakt salg                 │    │
-│  └─────────────────────────────────────────────┘    │
-│                                                     │
-│  OPPSUMMERING / BETALINGSMETODE                     │
-│  (kun synlig om noe er valgt/aktivt)                │
-└─────────────────────────────────────────────────────┘
-```
+**1. Sticky readiness-bar (toppen av innholdsområdet)**
+- Vises som en kompakt bar som er synlig mens brukeren scroller
+- Inneholder: score-prosent, en fargekodet statusmelding, og en visuell indikator
+- Tre nivåer:
+  - **< 50%**: Rød — "Ikke klar for publisering — flere kontroller må fylles ut"
+  - **50–79%**: Oransje — "Nesten klar — noen områder gjenstår"  
+  - **≥ 80%**: Grønn — "Klar for publisering"
 
-### Viktige designvalg
+**2. Seksjon-spesifikke mini-indikatorer**
+- Hver seksjon (Offentlig profil, Virksomhet, Sikkerhet, Regelverk, Dokumentasjon) får en liten completeness-chip i headeren
+- F.eks. "3 av 5 utfylt" eller en liten sirkulær indikator
+- Beregnes basert på hva som faktisk er fylt ut i den seksjonen
 
-1. **Steg-basert layout med nummererte seksjoner** — visuell fremdriftsindikator (1-2-3) som guider kunden gjennom reisen
-2. **Trust Center-kortet** har grønn kant og checkmark, fremhever at det allerede er aktivt og gratis — med lenke til Trust Profile
-3. **Regelverk-seksjonen kommer FØR moduler** — viser at man kan utvide compliance uten å kjøpe moduler
-4. **Modul-seksjonen** har en tydelig value proposition om AI-automatisering av Trust Center, arbeidsområder og oppgaver
-5. **Billing toggle** flyttes ned til modul-seksjonen (irrelevant for gratis Trust Center og årlig-prisede regelverk)
-6. **Oppsummering** viser totalkostnad bare når det er aktive betalte elementer
+**3. Readiness-sjekkliste (erstatter de generiske badges i det nåværende progress-kortet)**
+- Viser konkrete sjekkliste-punkter med status:
+  - ✓ Virksomhetsinformasjon utfylt
+  - ✓ Kontaktperson registrert  
+  - ○ Minst 70% kontroller besvart
+  - ○ Minst ett regelverk valgt
+  - ○ Dokumentasjon lastet opp
+- Hvert punkt er klikkbart og scroller til riktig seksjon
 
-### Filer som endres
+### Tekniske endringer
 
-- `src/pages/Subscriptions.tsx` — fullstendig omskriving av UI-strukturen
+**Fil: `src/pages/TrustCenterEditProfile.tsx`**
+- Erstatt det statiske `Card`-et (linje 181-197) med en ny `PublishingReadiness`-komponent
+- Legg til `sticky top-0 z-10` styling så baren følger med ved scrolling
+- Beregn completeness per seksjon basert på eksisterende data:
+  - Virksomhet: har company name, org number, kontaktperson
+  - Sikkerhet: trustScore fra evaluation-hooken
+  - Regelverk: frameworks.length > 0
+  - Dokumentasjon: sjekk om dokumenter finnes
+
+**Ny fil: `src/components/trust-center/PublishingReadiness.tsx`**
+- Mottar trustScore, companyProfile, frameworks, linkedProducts som props
+- Beregner sjekkliste-status for hver kategori
+- Viser sticky bar med fargekodet melding og utfyllingsgrad
+- Klikkbare sjekkliste-items som scroller til riktig seksjon
+
+**Fil: Seksjon-headere i TrustCenterEditProfile.tsx**
+- Legg til en liten completeness-badge ved siden av hver seksjons-tittel (f.eks. "2/4" eller en liten dot)
 
