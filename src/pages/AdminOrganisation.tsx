@@ -256,9 +256,9 @@ export default function AdminOrganisation() {
       {/* Regelverk section */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
             <div className="flex items-center gap-3">
-              <Scale className="h-6 w-6 text-primary" />
+              <Scale className="h-6 w-6 text-primary flex-shrink-0" />
               <div>
                 <h2 className="text-xl font-bold text-foreground">{isNb ? "Regelverk" : "Regulations"}</h2>
                 <p className="text-sm text-muted-foreground">

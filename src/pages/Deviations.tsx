@@ -363,12 +363,12 @@ export default function Deviations() {
       <main className={cn("flex-1 overflow-auto pt-11", isMobile ? "pb-24" : "")}>
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-           <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+          <div>
             <h1 className="text-2xl font-bold text-foreground">Avviksregister</h1>
-            <p className="text-sm text-muted-foreground">Administrer og følg opp alle avvik</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Administrer og følg opp alle avvik</p>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Legg til avvik
           </Button>
