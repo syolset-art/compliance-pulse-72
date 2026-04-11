@@ -145,6 +145,27 @@ const TrustCenterEditProfile = () => {
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
 
+  // Section completeness for chips
+  const sectionCompleteness = useMemo(() => {
+    const companyChecks = [
+      !!companyProfile?.name,
+      !!companyProfile?.org_number,
+      !!companyProfile?.compliance_officer || !!companyProfile?.dpo_name,
+      selectedAreas.length > 0,
+    ];
+    const companyDone = companyChecks.filter(Boolean).length;
+
+    const linkedDone = linkedProducts.length > 0 ? 1 : 0;
+
+    const regulationsDone = frameworks.length > 0 ? 1 : 0;
+
+    return {
+      company: { done: companyDone, total: companyChecks.length },
+      linked: { done: linkedDone, total: 1 },
+      regulations: { done: regulationsDone, total: 1 },
+    };
+  }, [companyProfile, selectedAreas, linkedProducts, frameworks]);
+
   const frameworkBadgeClass = (name: string) => {
     const n = name.toLowerCase();
     if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
