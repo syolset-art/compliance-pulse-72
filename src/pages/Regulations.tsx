@@ -241,7 +241,7 @@ const Regulations = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto pt-11">
-        <div className="px-4 pt-6 pb-4 sm:p-6 max-w-4xl mx-auto">
+        <div className="px-4 pt-8 pb-4 sm:p-6 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-6">
             <div>

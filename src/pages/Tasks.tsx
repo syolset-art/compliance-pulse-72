@@ -187,7 +187,7 @@ export default function Tasks() {
       <Sidebar />
 
       <main className="flex-1 overflow-y-auto pt-11">
-        <div className="container mx-auto px-4 pt-6 pb-4 sm:p-6 max-w-5xl">
+        <div className="container mx-auto px-4 pt-8 pb-4 sm:p-6 max-w-5xl">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-2">
             <div className="flex items-center gap-3">
