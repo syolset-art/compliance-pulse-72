@@ -293,7 +293,7 @@ const TrustCenterEditProfile = () => {
                   : "Basic information about your company."}
               </p>
 
-              <CompanyInfoForm showEditControls />
+              <CompanyInfoForm defaultEditing showEditControls />
 
               {/* Virksomhetsbruksområder */}
               <Card className="p-5 space-y-3">
