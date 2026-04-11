@@ -1,32 +1,35 @@
 
 
-## Plan: Gjør Organisasjon-sidene mobilvennlige
+## Plan: Vis hjelp-ikonet på mobil
 
 ### Problem
-Sideoverskriftene på Avvik, Oppgaver, Rapporter og Krav bruker en horisontal `flex`-layout som ikke bryter til ny linje på smale skjermer. Overskrift og knapper kolliderer og overlapper.
+`<TopBar />` rendres kun i desktop-visningen av `Sidebar` (linje 677). På mobil vises en egen header (linje 648-666) med logo, språkvelger, tema-toggle og hamburger-meny — men **hjelp-ikonet (?) mangler helt**.
 
 ### Løsning
-Endre header-layouten på alle berørte sider til å **wrappe vertikalt på mobil** (tittel over, knapper under).
+Legg til hjelp-ikonet i den mobile headeren, ved siden av de eksisterende ikonene (språk, tema, hamburger).
 
-### Endringer
+### Teknisk endring
 
-**1. Deviations.tsx (linje 366)**
-- `flex items-center justify-between` → `flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between`
-- Flytt underteksten (`<p>`) fra inne i tittelraden til under `<h1>` med `flex-col`
+**`src/components/Sidebar.tsx` (linje 648-665)**
 
-**2. Tasks.tsx (linje 192)**
-- `flex items-center justify-between` → `flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between`
-- Tittel + badge wrapper over, knappen under på mobil
+Legg til en HelpCircle-knapp i den mobile headeren:
 
-**3. Reports.tsx (linje 281)**
-- `flex items-center justify-between` → `flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between`
-- Knappen "Generer ny rapport" får `w-full sm:w-auto` for full bredde på mobil
+```tsx
+<div className="flex items-center gap-2">
+  {/* Nytt: Hjelp-ikon for mobil */}
+  <button
+    onClick={() => window.dispatchEvent(new CustomEvent("open-page-help"))}
+    className="p-2 hover:bg-accent rounded-lg"
+  >
+    <HelpCircle className="h-5 w-5 text-muted-foreground" />
+  </button>
+  <LanguageSwitcher />
+  <ThemeToggle />
+  <Sheet ...>
+    ...
+  </Sheet>
+</div>
+```
 
-**4. Regulations.tsx (header-seksjon)**
-- Samme mønster: stack vertikalt på mobil
-
-**5. AdminOrganisation.tsx**
-- Sjekk og fiks eventuelle overlappende metrics-kort med `grid-cols-1 sm:grid-cols-2`
-
-Ingen endring i funksjonalitet - kun CSS-klasser for responsiv layout.
+HelpCircle er allerede importert i filen. Ikonet bruker samme event (`open-page-help`) som TopBar, så alle eksisterende `usePageHelpListener`-hooks på sidene vil fungere som før.
 
