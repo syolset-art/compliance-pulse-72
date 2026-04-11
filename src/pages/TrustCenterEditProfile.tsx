@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
+
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
@@ -22,6 +22,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
+import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Governance & Accountability", labelEn: "Governance & Accountability" },
@@ -101,6 +102,22 @@ const TrustCenterEditProfile = () => {
   const publicUrl = `https://trust.mynder.com/${slug}`;
   const trustScore = evaluation?.trustScore ?? 0;
 
+  const assetMeta = (asset?.metadata || {}) as Record<string, any>;
+  const sectionCompleteness = useMemo(() => {
+    const areas: string[] = assetMeta.business_areas || [];
+    const companyChecks = [
+      !!companyProfile?.name,
+      !!companyProfile?.org_number,
+      !!companyProfile?.compliance_officer || !!companyProfile?.dpo_name,
+      areas.length > 0,
+    ];
+    return {
+      company: { done: companyChecks.filter(Boolean).length, total: companyChecks.length },
+      linked: { done: linkedProducts.length > 0 ? 1 : 0, total: 1 },
+      regulations: { done: frameworks.length > 0 ? 1 : 0, total: 1 },
+    };
+  }, [companyProfile, assetMeta, linkedProducts, frameworks]);
+
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
     setCopiedUrl(true);
@@ -139,7 +156,7 @@ const TrustCenterEditProfile = () => {
     );
   }
 
-  const meta = (asset.metadata || {}) as Record<string, any>;
+  const meta = (asset?.metadata || {}) as Record<string, any>;
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
@@ -177,24 +194,14 @@ const TrustCenterEditProfile = () => {
               </p>
             </div>
 
-            {/* Total Score Bar */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">{isNb ? "Total fremdrift" : "Total progress"}</span>
-                <span className="text-sm font-semibold text-foreground">{trustScore}%</span>
-              </div>
-              <Progress value={trustScore} className="h-2" />
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {[
-                  isNb ? "Offentlig profil" : "Public profile",
-                  isNb ? "Sikkerhet" : "Security",
-                  isNb ? "Dokumentasjon og bevis" : "Documentation & evidence",
-                  isNb ? "Offentlig profil" : "Public profile",
-                ].map((label, i) => (
-                  <Badge key={i} variant="secondary" className="text-[10px]">{label}</Badge>
-                ))}
-              </div>
-            </Card>
+            {/* Readiness Indicator */}
+            <PublishingReadiness
+              trustScore={trustScore}
+              companyProfile={companyProfile}
+              frameworks={frameworks}
+              linkedProducts={linkedProducts}
+              evaluation={evaluation}
+            />
 
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
@@ -276,6 +283,9 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Virksomhet" : "Company"}
                 </h2>
+                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-[10px] ml-auto">
+                  {sectionCompleteness.company.done}/{sectionCompleteness.company.total}
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {isNb
@@ -403,6 +413,9 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Koblede profiler" : "Linked Profiles"}
                 </h2>
+                <Badge variant={sectionCompleteness.linked.done > 0 ? "action" : "secondary"} className="text-[10px] ml-auto">
+                  {sectionCompleteness.linked.done}/{sectionCompleteness.linked.total}
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {isNb
@@ -618,6 +631,9 @@ const TrustCenterEditProfile = () => {
                   <h2 className="text-base font-semibold text-foreground">
                     {isNb ? "Regelverk" : "Regulations"}
                   </h2>
+                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[10px]">
+                    {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
+                  </Badge>
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground" onClick={() => navigate("/trust-center/regulations")}>
                   {isNb ? "Administrer" : "Manage"}
