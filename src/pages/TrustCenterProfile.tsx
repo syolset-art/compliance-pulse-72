@@ -625,11 +625,13 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                         </TooltipContent>
                       </Tooltip>
 
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {isNb
-                          ? `${companyProfile?.name || asset.name} er registrert i Norge og har etablert en digital tillitsprofil for å dokumentere sikkerhet, personvern og samsvar med relevante regelverk.`
-                          : `${companyProfile?.name || asset.name} has established a digital trust profile to document security, privacy, and regulatory compliance.`}
-                      </p>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        <span>
+                          {isNb ? "Profilvisninger: " : "Profile views: "}
+                          <span className="font-semibold text-foreground">—</span>
+                        </span>
+                      </div>
 
                       {/* Framework badges — split into Standards & Regulations */}
                       {recognizedFrameworks.length > 0 && (
