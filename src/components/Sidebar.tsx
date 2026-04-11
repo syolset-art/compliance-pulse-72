@@ -144,7 +144,7 @@ const TrustCenterMenu = () => {
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
     { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Settings },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
-    { name: "Regelverk", href: "/regulations", icon: Scale },
+    { name: "Krav og standarder", href: "/regulations", icon: Scale },
     { name: isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence", href: "/trust-center/evidence", icon: FileText },
     { name: "Contact & Requests", href: "/customer-requests", icon: FileQuestion },
   ];

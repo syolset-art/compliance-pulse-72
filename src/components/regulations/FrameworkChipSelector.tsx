@@ -139,7 +139,7 @@ export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getSta
         <div className="flex-1 text-left">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">
-              {frameworks.length} aktive regelverk
+              {frameworks.length} aktive krav
             </span>
             <span className="text-xs text-muted-foreground">
               · {overallMet} av {overallTotal} krav oppfylt
