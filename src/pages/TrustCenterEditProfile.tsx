@@ -102,6 +102,22 @@ const TrustCenterEditProfile = () => {
   const publicUrl = `https://trust.mynder.com/${slug}`;
   const trustScore = evaluation?.trustScore ?? 0;
 
+  const assetMeta = (asset?.metadata || {}) as Record<string, any>;
+  const sectionCompleteness = useMemo(() => {
+    const areas: string[] = assetMeta.business_areas || [];
+    const companyChecks = [
+      !!companyProfile?.name,
+      !!companyProfile?.org_number,
+      !!companyProfile?.compliance_officer || !!companyProfile?.dpo_name,
+      areas.length > 0,
+    ];
+    return {
+      company: { done: companyChecks.filter(Boolean).length, total: companyChecks.length },
+      linked: { done: linkedProducts.length > 0 ? 1 : 0, total: 1 },
+      regulations: { done: frameworks.length > 0 ? 1 : 0, total: 1 },
+    };
+  }, [companyProfile, assetMeta, linkedProducts, frameworks]);
+
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
     setCopiedUrl(true);
