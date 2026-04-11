@@ -648,6 +648,12 @@ export function Sidebar() {
         <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 border-b border-border bg-card">
           <img src={mynderLogo} alt="Mynder" className="h-6" />
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("open-page-help"))}
+              className="p-2 hover:bg-accent rounded-lg"
+            >
+              <HelpCircle className="h-5 w-5 text-muted-foreground" />
+            </button>
             <LanguageSwitcher />
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
