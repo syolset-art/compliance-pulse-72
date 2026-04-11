@@ -140,31 +140,10 @@ const TrustCenterEditProfile = () => {
     );
   }
 
-  const meta = (asset.metadata || {}) as Record<string, any>;
+  const meta = (asset?.metadata || {}) as Record<string, any>;
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
-
-  // Section completeness for chips
-  const sectionCompleteness = useMemo(() => {
-    const companyChecks = [
-      !!companyProfile?.name,
-      !!companyProfile?.org_number,
-      !!companyProfile?.compliance_officer || !!companyProfile?.dpo_name,
-      selectedAreas.length > 0,
-    ];
-    const companyDone = companyChecks.filter(Boolean).length;
-
-    const linkedDone = linkedProducts.length > 0 ? 1 : 0;
-
-    const regulationsDone = frameworks.length > 0 ? 1 : 0;
-
-    return {
-      company: { done: companyDone, total: companyChecks.length },
-      linked: { done: linkedDone, total: 1 },
-      regulations: { done: regulationsDone, total: 1 },
-    };
-  }, [companyProfile, selectedAreas, linkedProducts, frameworks]);
 
   const frameworkBadgeClass = (name: string) => {
     const n = name.toLowerCase();
