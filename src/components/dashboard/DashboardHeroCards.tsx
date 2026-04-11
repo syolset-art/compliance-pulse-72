@@ -123,9 +123,9 @@ export function DashboardHeroCards() {
           </div>
           <div className="space-y-1.5">
             {[
-              { label: isNb ? "Rammeverk aktive" : "Frameworks active", value: 3, max: 5 },
-              { label: isNb ? "Kontroller oppfylt" : "Controls met", value: 42, max: 58 },
-              { label: isNb ? "Dokumenter klare" : "Documents ready", value: 18, max: 24 },
+              { label: isNb ? "Rammeverk aktive" : "Framework active", value: 3, max: 5 },
+              { label: isNb ? "Kontroller vurdert" : "Control assessed", value: 42, max: 58 },
+              { label: isNb ? "Evidensdekning" : "Evidence coverage", value: 18, max: 24 },
             ].map(bar => (
               <div key={bar.label}>
                 <div className="flex justify-between text-[11px] text-muted-foreground mb-0.5">
