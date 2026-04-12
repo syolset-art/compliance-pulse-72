@@ -391,42 +391,68 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       <div className="flex items-start gap-4">
         {/* Owner & Manager — top right for vendor/system profiles */}
         {!isSelf && (
-          <div className="hidden md:flex flex-col gap-1.5 shrink-0 ml-auto order-last min-w-[180px]">
-            {/* Eier */}
-            <div className="flex items-center gap-2">
-              <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.owner")}</p>
-                <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                  <SelectTrigger className="h-6 w-full max-w-[170px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                    <SelectValue placeholder={t("trustProfile.selectOwner")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                    {workAreas.map((area: any) => (
-                      <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <div className="hidden md:flex items-start gap-6 shrink-0 ml-auto order-last">
+            {/* Eier (Arbeidsområde) */}
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  {isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}
+                </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                      {isNb
+                        ? "Arbeidsområdet som eier denne verdien. Arbeidsområdeansvarlig settes som standard leverandøransvarlig."
+                        : "The work area that owns this asset. The area owner is set as default manager."}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
+              <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
+                <SelectTrigger className="h-8 min-w-[160px] text-xs border border-border bg-background rounded-md px-3">
+                  <SelectValue placeholder={t("trustProfile.selectOwner")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
+                  {workAreas.map((area: any) => (
+                    <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {/* Leverandøransvarlig */}
-            <div className="flex items-center gap-2">
-              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.systemManager")}</p>
-                <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
-                  <SelectTrigger className="h-6 w-full max-w-[170px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                    <SelectValue placeholder={t("trustProfile.assignManager")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{isNb ? "— Ikke valgt —" : "— Not assigned —"}</SelectItem>
-                    {peopleList.map((person) => (
-                      <SelectItem key={person} value={person}>{person}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  {isNb ? "Leverandøransvarlig" : "Vendor Manager"}
+                </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                      {isNb
+                        ? "Personen som er ansvarlig for oppfølging av denne leverandøren."
+                        : "The person responsible for managing this vendor."}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
+              <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
+                <SelectTrigger className="h-8 min-w-[160px] text-xs border border-border bg-background rounded-md px-3">
+                  <SelectValue placeholder={t("trustProfile.assignManager")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{isNb ? "— Ikke valgt —" : "— Not assigned —"}</SelectItem>
+                  {peopleList.map((person) => (
+                    <SelectItem key={person} value={person}>{person}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
