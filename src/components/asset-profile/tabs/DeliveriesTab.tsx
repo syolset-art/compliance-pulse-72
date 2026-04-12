@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Package, FileText, Upload, Trash2, Paperclip, CalendarDays } from "lucide-react";
+import { Plus, Package, FileText, Upload, Trash2, Paperclip, CalendarDays, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 interface DeliveriesTabProps {
