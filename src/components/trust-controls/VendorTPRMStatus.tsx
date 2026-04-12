@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, ArrowDown, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 
@@ -244,7 +244,13 @@ export const VendorTPRMStatus = ({
 
             {/* Remaining tasks summary */}
             {missingControls.length > 0 && (
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border">
+              <button
+                onClick={() => {
+                  const el = document.getElementById("vendor-tasks-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors w-full text-left"
+              >
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
@@ -253,8 +259,11 @@ export const VendorTPRMStatus = ({
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {missingControls.map(c => c.label.split(" (")[0]).join(" · ")}
                   </p>
+                  <span className="text-[10px] text-primary mt-1 inline-block">
+                    {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
+                  </span>
                 </div>
-              </div>
+              </button>
             )}
           </div>
 
