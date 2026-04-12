@@ -140,7 +140,7 @@ const AssetTrustProfile = () => {
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit' },
+    { value: 'vendor-audit', label: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
   ];
