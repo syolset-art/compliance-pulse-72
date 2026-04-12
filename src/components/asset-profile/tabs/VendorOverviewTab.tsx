@@ -191,6 +191,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
         <div className="space-y-4">
           {/* Tasks card */}
+          <div ref={tasksRef}>
           <Card>
             <button
               className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
