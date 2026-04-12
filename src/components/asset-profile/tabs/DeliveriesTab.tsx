@@ -133,7 +133,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
         sla_uptime: form.sla_uptime || null,
         sla_response_time: form.sla_response_time || null,
         sla_support_hours: form.sla_support_hours || null,
-        sla_notes: form.sla_notes || null,
+        sla_notes: slaTerms.length > 0 ? JSON.stringify(slaTerms) : (form.sla_notes || null),
       });
       if (error) throw error;
 
