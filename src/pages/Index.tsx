@@ -22,7 +22,7 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { LayoutGrid, Check } from "lucide-react";
+import { LayoutGrid, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 import { DashboardCriticalTasks } from "@/components/dashboard/DashboardCriticalTasks";
