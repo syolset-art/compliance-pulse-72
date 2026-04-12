@@ -58,6 +58,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
+  const [controlsExpanded, setControlsExpanded] = useState(false);
   const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
 
