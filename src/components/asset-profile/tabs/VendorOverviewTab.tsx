@@ -347,49 +347,47 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
           {/* Trust Controls Panel — maturity per control area (collapsed by default) */}
           <div id="maturity-controls-section">
-            <Card>
-              <button
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-lg"
-                onClick={() => setControlsExpanded(!controlsExpanded)}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Shield className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-3">
-                  {evaluation && (
-                    <span className="text-lg font-bold text-foreground tabular-nums">
-                      {evaluation.trustScore}%
-                    </span>
-                  )}
-                  {evaluation && (
-                    <span className="text-xs text-muted-foreground">
-                      {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
-                    </span>
-                  )}
-                  {controlsExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
-              </button>
-              {controlsExpanded && (
-                <CardContent className="pt-0 pb-4 px-4">
-                  <TrustControlsPanel
-                    asset={asset}
-                    docsCount={docsCount}
-                    relationsCount={relationsCount}
-                    hideHeader="title-only"
-                    onTrustMetrics={onTrustMetrics}
-                    frameworks={frameworks}
-                    onNavigateToTab={onNavigateToTab}
-                  />
-                </CardContent>
-              )}
-            </Card>
+            <button
+              className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-all group"
+              onClick={() => setControlsExpanded(!controlsExpanded)}
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
+                </h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {evaluation && (
+                  <span className="text-sm font-bold text-foreground tabular-nums">
+                    {evaluation.trustScore}%
+                  </span>
+                )}
+                {evaluation && (
+                  <span className="text-xs text-muted-foreground">
+                    {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
+                  </span>
+                )}
+                {controlsExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </button>
+            {controlsExpanded && (
+              <div className="pt-3">
+                <TrustControlsPanel
+                  asset={asset}
+                  docsCount={docsCount}
+                  relationsCount={relationsCount}
+                  hideHeader="title-only"
+                  onTrustMetrics={onTrustMetrics}
+                  frameworks={frameworks}
+                  onNavigateToTab={onNavigateToTab}
+                />
+              </div>
+            )}
           </div>
 
 
