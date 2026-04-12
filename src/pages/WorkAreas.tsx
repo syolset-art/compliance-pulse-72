@@ -664,8 +664,6 @@ export default function WorkAreas() {
 
           {/* Filters */}
           <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 items-center">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            
             {/* Ownership filter */}
             <div className="flex gap-1 bg-muted rounded-lg p-0.5">
               {([
