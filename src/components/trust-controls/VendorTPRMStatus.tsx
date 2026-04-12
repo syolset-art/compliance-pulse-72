@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, ArrowDown, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 
@@ -244,7 +244,13 @@ export const VendorTPRMStatus = ({
 
             {/* Remaining tasks summary */}
             {missingControls.length > 0 && (
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border">
+              <button
+                onClick={() => {
+                  const el = document.getElementById("vendor-tasks-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors w-full text-left"
+              >
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
@@ -253,79 +259,14 @@ export const VendorTPRMStatus = ({
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {missingControls.map(c => c.label.split(" (")[0]).join(" · ")}
                   </p>
+                  <span className="text-[10px] text-primary mt-1 inline-block">
+                    {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
+                  </span>
                 </div>
-              </div>
+              </button>
             )}
           </div>
 
-          {/* Control Checklist */}
-          <div className="border-t border-border/50 px-4 py-3 space-y-1.5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">
-              {isNb ? "Oppfølgingskrav" : "Follow-up requirements"} ({controlsMet}/{controls.length})
-            </p>
-            {controls.map((ctrl) => {
-              const matchingTask = findMatchingTask(ctrl.taskKeywords);
-              return (
-                <div
-                  key={ctrl.key}
-                  className={`flex items-center justify-between py-2 px-2.5 rounded-lg transition-colors ${
-                    ctrl.met ? "bg-success/5" : "bg-destructive/5"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 text-sm">
-                    {ctrl.met ? (
-                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-destructive/50 shrink-0" />
-                    )}
-                    <span className={ctrl.met ? "text-foreground" : "text-muted-foreground"}>
-                      {ctrl.label}
-                    </span>
-                  </span>
-                  {ctrl.met ? (
-                    <Badge variant="secondary" className="text-[10px] bg-success/10 text-success border-success/20">
-                      {isNb ? "Oppfylt" : "Met"}
-                    </Badge>
-                  ) : matchingTask ? (
-                    <Badge variant="secondary" className="text-[10px]">
-                      {isNb ? "Oppgave opprettet" : "Task created"}
-                    </Badge>
-                  ) : ctrl.isAudit ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-6 text-[11px] gap-1"
-                      onClick={handleGoToAudit}
-                    >
-                      {ctrl.requestLabel}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-6 text-[11px] gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
-                      onClick={() => handleRequest(ctrl.requestType!)}
-                    >
-                      <Mail className="h-3 w-3" />
-                      {ctrl.requestLabel}
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* All met banner */}
-          {controlsMet === controls.length && (
-            <div className="border-t border-success/20 px-4 py-3">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span className="text-success font-medium">
-                  {isNb ? "Alle oppfølgingskrav er oppfylt" : "All follow-up requirements met"}
-                </span>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
