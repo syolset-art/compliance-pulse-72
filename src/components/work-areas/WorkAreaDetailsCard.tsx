@@ -227,20 +227,17 @@ export const WorkAreaDetailsCard = ({ workArea, onUpdate, onDelete }: WorkAreaDe
         </div>
       </Card>
 
-      {/* Faresone */}
-      <Card className="p-6 border-destructive/30">
-        <h3 className="text-base font-semibold mb-2 flex items-center gap-2 text-destructive">
-          <AlertTriangle className="h-5 w-5" />
-          Faresone
-        </h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Sletting av arbeidsområdet er permanent og kan ikke angres. Alle tilknyttede data vil bli fjernet.
-        </p>
-        <Button variant="destructive" onClick={onDelete} className="gap-2">
-          <Trash2 className="h-4 w-4" />
-          Slett arbeidsområde
+      {/* Avansert */}
+      <div className="flex items-center justify-between rounded-lg border border-muted p-4">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Slett arbeidsområde</p>
+          <p className="text-xs text-muted-foreground">Denne handlingen kan ikke angres</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5">
+          <Trash2 className="h-3.5 w-3.5" />
+          Slett
         </Button>
-      </Card>
+      </div>
     </>
   );
 };
