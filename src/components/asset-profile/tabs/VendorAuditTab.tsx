@@ -208,50 +208,60 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-2">
-                  <div className="rounded-md border p-4 text-sm text-muted-foreground space-y-3">
+                  <div className="rounded-md border p-4 text-sm text-muted-foreground space-y-4">
+                    <p className="text-xs leading-relaxed">
+                      {isNb
+                        ? "Risikobildet er basert på en automatisk evaluering av kontrollpunkter knyttet til leverandøren. Nedenfor vises hvilke mangler som driver risikonivået opp, med forklaring på hvorfor dette er viktig."
+                        : "The risk picture is based on an automatic evaluation of control points linked to the vendor. Below you can see which gaps are driving the risk level up, with an explanation of why this matters."}
+                    </p>
                     {evaluation?.risks.filter(r => {
                       const ctrl = evaluation.allControls.find(c => c.key === r.triggerControlKey);
                       return ctrl && ctrl.status !== "implemented";
-                    }).map((risk) => {
-                      const action = getActionForControl(risk.triggerControlKey);
-                      return (
-                        <div key={risk.id} className="space-y-1">
-                          <div className="flex items-start gap-2">
-                            {risk.severity === "high" ? (
-                              <AlertOctagon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                            ) : risk.severity === "medium" ? (
-                              <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                            ) : (
-                              <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                            )}
-                            <span>{isNb ? risk.titleNb : risk.titleEn}</span>
-                          </div>
-                          {action && (
-                            <div className="ml-6 flex items-center gap-1.5">
-                              <span className="text-xs text-primary font-medium">
-                                {isNb ? "Tiltak" : "Action"}:
-                              </span>
-                              <button
-                                onClick={() => {
-                                  if (action.targetTab) {
-                                    window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: action.targetTab } }));
-                                  }
-                                }}
-                                className="text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer"
-                              >
-                                {isNb ? action.titleNb : action.titleEn}
-                                <ArrowRight className="h-3 w-3" />
-                              </button>
-                            </div>
+                    }).map((risk) => (
+                      <div key={risk.id} className="space-y-1.5 border-l-2 pl-3" style={{
+                        borderColor: risk.severity === "high" ? "hsl(var(--destructive))" : risk.severity === "medium" ? "hsl(var(--warning))" : "hsl(var(--muted-foreground))"
+                      }}>
+                        <div className="flex items-start gap-2">
+                          {risk.severity === "high" ? (
+                            <AlertOctagon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                          ) : risk.severity === "medium" ? (
+                            <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                          ) : (
+                            <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                           )}
+                          <span className="font-medium text-foreground">{isNb ? risk.titleNb : risk.titleEn}</span>
                         </div>
-                      );
-                    })}
+                        {(isNb ? risk.reasonNb : risk.reasonEn) && (
+                          <p className="ml-6 text-xs text-muted-foreground leading-relaxed">
+                            {isNb ? risk.reasonNb : risk.reasonEn}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                     {evaluation?.risks.filter(r => {
                       const ctrl = evaluation.allControls.find(c => c.key === r.triggerControlKey);
                       return ctrl && ctrl.status !== "implemented";
                     }).length === 0 && (
                       <p>{isNb ? "Ingen åpne risikoer identifisert." : "No open risks identified."}</p>
+                    )}
+                    {(evaluation?.risks.filter(r => {
+                      const ctrl = evaluation.allControls.find(c => c.key === r.triggerControlKey);
+                      return ctrl && ctrl.status !== "implemented";
+                    }).length ?? 0) > 0 && (
+                      <div className="pt-2 border-t">
+                        <button
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "overview" } }));
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent("scroll-to-tasks"));
+                            }, 300);
+                          }}
+                          className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline cursor-pointer"
+                        >
+                          <ArrowRight className="h-3.5 w-3.5" />
+                          {isNb ? "Se og følg opp tiltak under Oppgaver" : "View and follow up actions under Tasks"}
+                        </button>
+                      </div>
                     )}
                   </div>
                 </CollapsibleContent>
