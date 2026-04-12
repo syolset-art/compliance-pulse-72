@@ -80,6 +80,8 @@ interface AssetHeaderProps {
     color: string;
   } | null;
   trustMetrics?: TrustMetrics | null;
+  requestDialogOpen?: boolean;
+  onRequestDialogChange?: (open: boolean) => void;
 }
 
 const iconMap: Record<string, LucideIcon> = {
