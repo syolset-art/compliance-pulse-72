@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,8 +145,17 @@ export const VendorTPRMStatus = ({
   const controlsMet = controls.filter((c) => c.met).length;
   const missingControls = controls.filter((c) => !c.met);
   const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
-  const tprmLevel = getTPRMLevel(risk, controlsMet, controls.length);
-  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || tprmLevel;
+  const autoLevel = getTPRMLevel(risk, controlsMet, controls.length, maturityStats);
+  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || autoLevel;
+
+  // Auto-persist status when calculated level changes and differs from stored
+  useEffect(() => {
+    if (!asset) return;
+    const stored = asset.tprm_status as TPRMLevel | null;
+    if (autoLevel !== "not_assessed" && stored !== autoLevel && (!stored || stored === "not_assessed")) {
+      updateStatusMutation.mutate(autoLevel);
+    }
+  }, [autoLevel, asset?.tprm_status]);
 
   const tprmConfig: Record<TPRMLevel, { label: string; bg: string; border: string; text: string; emoji: string }> = {
     approved: { label: isNb ? "Godkjent" : "Approved", bg: "bg-success/10", border: "border-success/30", text: "text-success", emoji: "🟢" },
