@@ -374,6 +374,56 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                 )}
               </Button>
             </div>
+
+            {/* SLA Section */}
+            <Collapsible open={showSla} onOpenChange={setShowSla}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-full justify-between text-sm font-medium px-0 hover:bg-transparent">
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                    {isNb ? "Tjenestenivåavtale (SLA)" : "Service Level Agreement (SLA)"}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${showSla ? "rotate-180" : ""}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isNb ? "Oppetidskrav" : "Uptime requirement"}</Label>
+                    <Input
+                      value={form.sla_uptime}
+                      onChange={(e) => setForm((f) => ({ ...f, sla_uptime: e.target.value }))}
+                      placeholder={isNb ? "F.eks. 99.9%" : "E.g. 99.9%"}
+                    />
+                  </div>
+                  <div>
+                    <Label>{isNb ? "Responstid" : "Response time"}</Label>
+                    <Input
+                      value={form.sla_response_time}
+                      onChange={(e) => setForm((f) => ({ ...f, sla_response_time: e.target.value }))}
+                      placeholder={isNb ? "F.eks. 4 timer" : "E.g. 4 hours"}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>{isNb ? "Støttetider" : "Support hours"}</Label>
+                  <Input
+                    value={form.sla_support_hours}
+                    onChange={(e) => setForm((f) => ({ ...f, sla_support_hours: e.target.value }))}
+                    placeholder={isNb ? "F.eks. 08:00–16:00 hverdager" : "E.g. 08:00–16:00 weekdays"}
+                  />
+                </div>
+                <div>
+                  <Label>{isNb ? "SLA-merknader" : "SLA notes"}</Label>
+                  <Textarea
+                    value={form.sla_notes}
+                    onChange={(e) => setForm((f) => ({ ...f, sla_notes: e.target.value }))}
+                    placeholder={isNb ? "Ytterligere SLA-vilkår eller merknader" : "Additional SLA terms or notes"}
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
