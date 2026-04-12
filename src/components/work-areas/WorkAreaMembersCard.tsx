@@ -68,7 +68,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isEditingOwner, setIsEditingOwner] = useState(false);
   const [showOwnerSuggestions, setShowOwnerSuggestions] = useState(false);
-  const [ownerSearch, setOwnerSearch] = useState("");
+  const [ownerSearch, setOwnerSearch] = useState(ownerName || "");
 
   const fetchMembers = async () => {
     try {
@@ -153,13 +153,27 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
     }
   };
 
+  const handleRoleChange = async (id: string, newRoleValue: string) => {
+    try {
+      const { error } = await supabase
+        .from("work_area_members")
+        .update({ role: newRoleValue })
+        .eq("id", id);
+      if (error) throw error;
+      setMembers(members.map(m => m.id === id ? { ...m, role: newRoleValue } : m));
+      toast.success("Rolle oppdatert");
+    } catch {
+      toast.error("Kunne ikke oppdatere rolle");
+    }
+  };
+
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from("work_area_members")
-        .update({ person_name: editName.trim(), role: editRole })
+        .update({ person_name: editName.trim() })
         .eq("id", id);
       if (error) throw error;
       toast.success("Medlem oppdatert");
@@ -209,65 +223,45 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
           Eier <span className="text-destructive">*</span>
         </div>
-        {isEditingOwner ? (
-          <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
-            <div className="relative">
-              <Input
-                value={ownerSearch}
-                onChange={(e) => { setOwnerSearch(e.target.value); setShowOwnerSuggestions(true); }}
-                onFocus={() => setShowOwnerSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowOwnerSuggestions(false), 200)}
-                placeholder="Søk eller skriv inn navn..."
-                className="h-8 text-sm"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && ownerSearch.trim()) handleOwnerSave(ownerSearch);
-                  if (e.key === "Escape") { setIsEditingOwner(false); setOwnerSearch(""); }
-                }}
-              />
-              {showOwnerSuggestions && ownerSuggestions.length > 0 && (
-                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
-                  {ownerSuggestions.map((name) => (
-                    <button
-                      key={name}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleOwnerSave(name)}
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => { setIsEditingOwner(false); setOwnerSearch(""); }} className="h-7 text-xs">
-                Avbryt
-              </Button>
-              <Button size="sm" onClick={() => handleOwnerSave(ownerSearch)} disabled={!ownerSearch.trim()} className="h-7 text-xs gap-1">
-                <Check className="h-3 w-3" />
-                Lagre
-              </Button>
-            </div>
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+          <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 shrink-0">
+            <Crown className="h-4 w-4 text-primary" />
           </div>
-        ) : (
-          <div
-            className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted/70 transition-colors group"
-            onClick={() => { setIsEditingOwner(true); setOwnerSearch(ownerName || ""); }}
-          >
-            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
-              <Crown className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">
-                {ownerName || <span className="text-muted-foreground italic">Velg eier...</span>}
+          <div className="flex-1 min-w-0 relative">
+            <Input
+              value={ownerSearch}
+              onChange={(e) => { setOwnerSearch(e.target.value); setShowOwnerSuggestions(true); }}
+              onFocus={() => { setShowOwnerSuggestions(true); if (!ownerSearch) setOwnerSearch(ownerName || ""); }}
+              onBlur={() => {
+                setTimeout(() => {
+                  setShowOwnerSuggestions(false);
+                  // If user cleared input, revert
+                  if (!ownerSearch.trim() && ownerName) setOwnerSearch(ownerName);
+                }, 200);
+              }}
+              placeholder="Velg eier..."
+              className="h-8 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && ownerSearch.trim()) handleOwnerSave(ownerSearch);
+              }}
+            />
+            {showOwnerSuggestions && ownerSuggestions.length > 0 && (
+              <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                {ownerSuggestions.map((name) => (
+                  <button
+                    key={name}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { handleOwnerSave(name); setOwnerSearch(name); }}
+                  >
+                    {name}
+                  </button>
+                ))}
               </div>
-              <div className="text-xs text-muted-foreground">Arbeidsområde-eier</div>
-            </div>
-            <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Badge variant="default" className="text-xs shrink-0">Eier</Badge>
+            )}
           </div>
-        )}
+          <Badge variant="default" className="text-xs shrink-0">Eier</Badge>
+        </div>
       </div>
 
       {/* Legg til ny */}
@@ -355,65 +349,65 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
               const RoleIcon = getRoleIcon(member.role);
               const isEditing = editingId === member.id;
 
-              if (isEditing) {
-                return (
-                  <div key={member.id} className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="flex-1 h-7 text-sm"
-                        autoFocus
-                        onKeyDown={(e) => e.key === "Enter" && handleUpdate(member.id)}
-                      />
-                      <Select value={editRole} onValueChange={setEditRole}>
-                        <SelectTrigger className="w-36 h-7 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ROLE_CONFIG.map(r => (
-                            <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
-                        <Check className="h-3 w-3 text-primary" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingId(null)}>
-                        <X className="h-3 w-3 text-muted-foreground" />
-                      </Button>
-                    </div>
-                    {member.email && (
-                      <div className="text-xs text-muted-foreground pl-1">
-                        E-post: {member.email}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
               return (
-                <div key={member.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors group">
-                  <div className="flex items-center justify-center h-9 w-9 rounded-full bg-muted">
-                    <RoleIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{member.person_name}</div>
-                    <div className="text-xs text-muted-foreground">{ROLE_LABELS[member.role] || member.role}</div>
-                  </div>
-                  <div className="flex items-center gap-1">
+                <div key={member.id} className="p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center h-9 w-9 rounded-full bg-muted shrink-0">
+                      <RoleIcon className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {isEditing ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="flex-1 h-7 text-sm"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleUpdate(member.id);
+                              if (e.key === "Escape") setEditingId(null);
+                            }}
+                          />
+                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
+                            <Check className="h-3 w-3 text-primary" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => setEditingId(null)}>
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm truncate">{member.person_name}</div>
+                            {member.email && (
+                              <div className="text-xs text-muted-foreground truncate">{member.email}</div>
+                            )}
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6 shrink-0"
+                            onClick={() => { setEditingId(member.id); setEditName(member.person_name); }}
+                          >
+                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <Select value={member.role} onValueChange={(val) => handleRoleChange(member.id, val)}>
+                      <SelectTrigger className="w-40 h-7 text-xs shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLE_CONFIG.map(r => (
+                          <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-6 w-6"
-                      onClick={() => { setEditingId(member.id); setEditName(member.person_name); setEditRole(member.role); }}
-                    >
-                      <Pencil className="h-3 w-3 text-muted-foreground" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6"
+                      className="h-6 w-6 shrink-0"
                       onClick={() => handleDelete(member.id)}
                     >
                       <Trash2 className="h-3 w-3 text-destructive" />
