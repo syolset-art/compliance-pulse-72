@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 
 interface VendorOverviewTabProps {
   asset: {
