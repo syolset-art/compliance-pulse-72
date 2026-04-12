@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye } from "lucide-react";
