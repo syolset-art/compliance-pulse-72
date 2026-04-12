@@ -149,35 +149,14 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                   </TableCell>
                   <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
                   <TableCell className="py-2.5">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={doc.visibility === "shared" ? "default" : "outline"}
-                            size="sm"
-                            className={`h-7 text-[10px] gap-1 ${doc.visibility === "shared" ? "" : "text-muted-foreground"}`}
-                            onClick={() => toggleVisibility.mutate({ id: doc.id, currentVisibility: doc.visibility || "private" })}
-                          >
-                            {doc.visibility === "shared" ? (
-                              <>
-                                <Globe className="h-3 w-3" />
-                                {isNb ? "Delt" : "Shared"}
-                              </>
-                            ) : (
-                              <>
-                                <EyeOff className="h-3 w-3" />
-                                {isNb ? "Privat" : "Private"}
-                              </>
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-xs max-w-[200px]">
-                          {doc.visibility === "shared"
-                            ? (isNb ? "Klikk for å gjøre privat" : "Click to make private")
-                            : (isNb ? "Klikk for å dele i Trust Profilen" : "Click to share in Trust Profile")}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <DocumentSharingPopover
+                      docId={doc.id}
+                      assetId={assetId}
+                      documentType={doc.document_type}
+                      visibility={doc.visibility || "private"}
+                      sharedWithEmails={(doc as any).shared_with_emails || []}
+                      isNb={isNb}
+                    />
                   </TableCell>
                   <TableCell className="py-2.5">
                     <Button
