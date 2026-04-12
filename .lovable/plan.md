@@ -1,35 +1,32 @@
 
 
-## Plan: Vis hjelp-ikonet på mobil
+## Plan: Rydd opp og mobiloptimer Rapportsiden
 
 ### Problem
-`<TopBar />` rendres kun i desktop-visningen av `Sidebar` (linje 677). På mobil vises en egen header (linje 648-666) med logo, språkvelger, tema-toggle og hamburger-meny — men **hjelp-ikonet (?) mangler helt**.
+1. **5 store oppsummeringskort** tar opp for mye plass — spesielt på mobil der de stables vertikalt
+2. **Fremdriftslinjen** i egen Card tar ekstra plass uten å tilføre mye verdi
+3. **Tab-listen** med 5 faner i `grid-cols-5` brytes dårlig på mobil
+4. **Rapportkortene** har mye padding og kan strammes inn
 
 ### Løsning
-Legg til hjelp-ikonet i den mobile headeren, ved siden av de eksisterende ikonene (språk, tema, hamburger).
 
-### Teknisk endring
+**1. Erstatt 5 store kort med en kompakt inline-oppsummering**
+Fjern de 5 separate Card-komponentene og fremdriftslinjen. Erstatt med en enkelt rad med kompakte tall:
 
-**`src/components/Sidebar.tsx` (linje 648-665)**
-
-Legg til en HelpCircle-knapp i den mobile headeren:
-
-```tsx
-<div className="flex items-center gap-2">
-  {/* Nytt: Hjelp-ikon for mobil */}
-  <button
-    onClick={() => window.dispatchEvent(new CustomEvent("open-page-help"))}
-    className="p-2 hover:bg-accent rounded-lg"
-  >
-    <HelpCircle className="h-5 w-5 text-muted-foreground" />
-  </button>
-  <LanguageSwitcher />
-  <ThemeToggle />
-  <Sheet ...>
-    ...
-  </Sheet>
-</div>
+```
+Totalt 18 · Klare 11 · Utkast 3 · Venter 3 · Forfalt 1   [72% komplett ████░░]
 ```
 
-HelpCircle er allerede importert i filen. Ikonet bruker samme event (`open-page-help`) som TopBar, så alle eksisterende `usePageHelpListener`-hooks på sidene vil fungere som før.
+En liten horisontal stripe med fargedots og tall, ingen store bokser. På mobil wrapper den naturlig.
+
+**2. Gjør tab-listen scrollbar på mobil**
+- Fjern `grid w-full grid-cols-5` og bruk `flex overflow-x-auto` med `whitespace-nowrap` på mobil
+- Skjul badge-tallene på små skjermer for å spare plass
+
+**3. Stram inn ReportCard på mobil**
+- Reduser padding i CardHeader/CardContent
+- Skjul standard-badges på mobil (`hidden sm:flex`)
+
+### Filer som endres
+- `src/pages/Reports.tsx` — erstatt oppsummeringskort, fiks tabs, stram inn layout
 
