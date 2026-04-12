@@ -7,7 +7,7 @@ import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
   Shield, Users, Server, Link2, AlertTriangle,
-  Building2, Briefcase, ChevronDown, ChevronUp,
+  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
