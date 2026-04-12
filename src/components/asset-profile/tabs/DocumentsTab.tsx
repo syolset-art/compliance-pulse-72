@@ -116,23 +116,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
               <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
-                        {isNb ? "Deling" : "Sharing"}
-                        <HelpCircle className="h-3 w-3 text-muted-foreground" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      {isNb
-                        ? "Velg hvilke dokumenter du vil gjøre tilgjengelige i din Trust Profil. Delte dokumenter kan ses av kunder og partnere som har tilgang."
-                        : "Choose which documents to make available in your Trust Profile. Shared documents can be viewed by customers and partners with access."}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Tilgang" : "Access"}</TableHead>
               <TableHead className="w-16" />
             </TableRow>
           </TableHeader>
