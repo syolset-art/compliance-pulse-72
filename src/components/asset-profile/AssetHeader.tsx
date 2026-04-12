@@ -183,8 +183,15 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   });
 
   const hasDPA = vendorDocs.some(d => d.document_type === "dpa");
+  const hasSLA = vendorDocs.some(d => d.document_type === "sla");
   const hasRisk = vendorDocs.some(d => d.document_type === "risk_assessment");
   const riskLevel = (asset as any).risk_level;
+
+  // Build missing docs list
+  const missingDocs: string[] = [];
+  if (!hasDPA) missingDocs.push("DPA");
+  if (!hasSLA) missingDocs.push("SLA");
+  if (!hasRisk) missingDocs.push(isNb ? "risikovurdering" : "risk assessment");
 
   type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
   let tprmLevel: TPRMLevel = "not_assessed";
