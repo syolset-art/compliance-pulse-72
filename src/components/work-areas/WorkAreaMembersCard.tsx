@@ -335,44 +335,12 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange, onOp
                       <RoleIcon className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      {isEditing ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            className="flex-1 h-7 text-sm"
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleUpdate(member.id);
-                              if (e.key === "Escape") setEditingId(null);
-                            }}
-                          />
-                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
-                            <Check className="h-3 w-3 text-primary" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => setEditingId(null)}>
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <div className="min-w-0">
-                            <div className="font-medium text-sm truncate">{member.person_name}</div>
-                            {member.email && (
-                              <div className="text-xs text-muted-foreground truncate">{member.email}</div>
-                            )}
-                          </div>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6 shrink-0"
-                            onClick={() => { setEditingId(member.id); setEditName(member.person_name); }}
-                            aria-label={`Rediger ${member.person_name}`}
-                          >
-                            <Pencil className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
-                          </Button>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-sm truncate">{member.person_name}</span>
+                        {member.email && (
+                          <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+                        )}
+                      </div>
                     </div>
                     <Badge className="text-xs shrink-0 bg-emerald-500/15 text-emerald-700 border-emerald-500/25">Medlem</Badge>
                     <Button
