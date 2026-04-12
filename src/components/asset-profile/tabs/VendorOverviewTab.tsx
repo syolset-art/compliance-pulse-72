@@ -272,7 +272,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
 
           {/* Collapsible Framework Maturity */}
-          {frameworks.length > 0 && (
+          {(vendorFrameworks.length > 0 || allFrameworks.length > 0) && (
             <div className="mt-4">
               <button
                 onClick={() => setFrameworksExpanded(prev => !prev)}
@@ -286,13 +286,41 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
                     {frameworks.length}
                   </Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="inline-flex"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-primary transition-colors cursor-help" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
+                      {isNb
+                        ? "Viser kun regelverk som er relevante for leverandørhåndtering (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Klikk «Vis alle» for å se samtlige aktive regelverk."
+                        : "Only frameworks relevant to vendor management are shown (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Click 'Show all' to see all active frameworks."}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 {frameworksExpanded
                   ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </button>
               {frameworksExpanded && (
-                <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
+                <div className="mt-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  {allFrameworks.length > vendorFrameworks.length && (
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={() => setShowAllFrameworks(prev => !prev)}
+                        className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <Eye className="h-3 w-3" />
+                        {showAllFrameworks
+                          ? (isNb ? `Vis kun relevante (${vendorFrameworks.length})` : `Show relevant only (${vendorFrameworks.length})`)
+                          : (isNb ? `Vis alle regelverk (${allFrameworks.length})` : `Show all frameworks (${allFrameworks.length})`)}
+                      </button>
+                    </div>
+                  )}
                   <FrameworkMaturityGrid frameworks={frameworks} />
                 </div>
               )}
