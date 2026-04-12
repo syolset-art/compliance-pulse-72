@@ -183,22 +183,50 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
             {tasksExpanded && (
               <CardContent className="pt-0 pb-4 px-4">
                 {openTasks.length > 0 ? (
-                  <div className="space-y-2 border-t border-border pt-3">
-                    {openTasks.slice(0, 5).map((task: any) => (
-                      <div key={task.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`h-2 w-2 rounded-full shrink-0 ${
-                            task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
-                          }`} />
-                          <span className="text-sm text-foreground">{task.title}</span>
+                  <div className="space-y-3 border-t border-border pt-3">
+                    {openTasks.slice(0, 5).map((task: any) => {
+                      const isManual = task.source !== "ai" && task.source !== "auto";
+                      const priorityLabel = task.priority === "high"
+                        ? (isNb ? "HØY PRIORITET" : "HIGH PRIORITY")
+                        : task.priority === "medium"
+                        ? (isNb ? "MIDDELS PRIORITET" : "MEDIUM PRIORITY")
+                        : (isNb ? "LAV PRIORITET" : "LOW PRIORITY");
+                      const priorityColor = task.priority === "high"
+                        ? "text-destructive"
+                        : task.priority === "medium"
+                        ? "text-warning"
+                        : "text-muted-foreground";
+
+                      return (
+                        <div key={task.id} className="border rounded-lg p-4 bg-card space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                              {isManual
+                                ? (isNb ? "MANUELL OPPGAVE" : "MANUAL TASK")
+                                : (isNb ? "AUTOMATISK OPPGAVE" : "AUTO TASK")}
+                            </span>
+                            <span className={`text-[10px] font-semibold uppercase tracking-wider ${priorityColor}`}>
+                              {priorityLabel}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-semibold text-foreground">{task.title}</h4>
+                          {task.description && (
+                            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                              {task.description}
+                            </p>
+                          )}
+                          {task.relevant_frameworks && task.relevant_frameworks.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {task.relevant_frameworks.map((fw: string) => (
+                                <Badge key={fw} variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-medium text-primary border-primary/30">
+                                  {fw.toUpperCase()}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        {task.priority && (
-                          <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
-                            {task.priority}
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
