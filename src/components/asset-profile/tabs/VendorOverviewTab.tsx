@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
+import { VendorTPRMStatus } from "@/components/trust-controls/VendorTPRMStatus";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 import { VendorRiskAssessment } from "@/components/trust-controls/VendorRiskAssessment";
