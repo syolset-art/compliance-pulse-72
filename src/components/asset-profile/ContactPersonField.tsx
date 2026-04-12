@@ -67,9 +67,6 @@ export const ContactPersonField = ({
           <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
             {isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}
           </p>
-          <p className="text-[10px] text-muted-foreground/70 mb-1.5">
-            {isNb ? "Navn på kontaktpersonen leverandøren har oppgitt" : "Contact person provided by the vendor"}
-          </p>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
