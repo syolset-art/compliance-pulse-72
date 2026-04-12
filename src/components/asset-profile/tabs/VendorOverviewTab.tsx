@@ -245,6 +245,24 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
       )}
 
+      {/* TPRM Follow-up Status — top of module */}
+      <VendorTPRMStatus
+        assetId={asset.id}
+        assetName={asset.name}
+        vendorName={asset.vendor || undefined}
+        contactPerson={asset.contact_person || undefined}
+        contactEmail={asset.contact_email || undefined}
+        tasks={tasks}
+        onNavigateToTab={onNavigateToTab}
+        maturityStats={evaluation ? {
+          implementedCount: evaluation.implementedCount,
+          partialCount: evaluation.partialCount,
+          missingCount: evaluation.missingCount,
+          totalControls: evaluation.allControls.length,
+          trustScore: evaluation.trustScore,
+        } : null}
+      />
+
       {/* ─── SECTION 1: Our Maturity Work ─── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
@@ -255,23 +273,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
 
         <div className="space-y-4">
-          {/* TPRM Follow-up Status */}
-          <VendorTPRMStatus
-            assetId={asset.id}
-            assetName={asset.name}
-            vendorName={asset.vendor || undefined}
-            contactPerson={asset.contact_person || undefined}
-            contactEmail={asset.contact_email || undefined}
-            tasks={tasks}
-            onNavigateToTab={onNavigateToTab}
-            maturityStats={evaluation ? {
-              implementedCount: evaluation.implementedCount,
-              partialCount: evaluation.partialCount,
-              missingCount: evaluation.missingCount,
-              totalControls: evaluation.allControls.length,
-              trustScore: evaluation.trustScore,
-            } : null}
-          />
           {/* Tasks card */}
           <div ref={tasksRef} id="vendor-tasks-section">
           <Card>
