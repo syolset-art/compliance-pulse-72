@@ -357,11 +357,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <h3 className="text-sm font-semibold text-foreground">
                     {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
                   </h3>
-                  {evaluation && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {evaluation.trustScore}%
-                    </Badge>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {evaluation && (
