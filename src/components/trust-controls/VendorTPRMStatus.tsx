@@ -220,12 +220,7 @@ export const VendorTPRMStatus = ({
                   </span>
                 ) : (
                   <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
-                )}
-              </span>
-              <span className="text-border">|</span>
-              <span className="flex items-center gap-1.5">
-                <span className="text-muted-foreground text-xs">{isNb ? "Kontroll:" : "Control:"}</span>
-                <span className="font-semibold text-foreground">{controlsMet}/{controls.length}</span>
+              )}
               </span>
               {maturityStats && (
                 <>
