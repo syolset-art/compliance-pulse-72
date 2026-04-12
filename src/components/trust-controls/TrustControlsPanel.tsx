@@ -400,6 +400,9 @@ export function TrustControlsPanel({
 
             const isLastOdd = index === securityAreas.length - 1 && securityAreas.length % 2 === 1;
 
+            const isVendorAsset = asset.asset_type !== "self" && asset.asset_type !== "hardware";
+            const auditTab = isVendorAsset ? "vendor-audit" : "riskManagement";
+
             return (
               <div key={area} className={`border border-border rounded-xl p-4 hover:border-primary/30 transition-colors ${isLastOdd ? "sm:col-span-2" : ""}`}>
                 <button
@@ -437,6 +440,17 @@ export function TrustControlsPanel({
                   {/* Stacked progress bar */}
                   <StackedProgress baselinePercent={areaSourceScores.baseline} enrichmentPercent={areaSourceScores.enrichment} />
                 </button>
+
+                {/* Navigate to Audit tab link */}
+                {onNavigateToTab && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onNavigateToTab(auditTab); }}
+                    className="mt-2 flex items-center gap-1 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors pl-[38px]"
+                  >
+                    {isNb ? "Gå til Revisjon" : "Go to Audit"}
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                )}
 
                 {isExpanded && (
                   <div className="mt-3 pt-3 border-t border-border space-y-1 animate-fade-in">
