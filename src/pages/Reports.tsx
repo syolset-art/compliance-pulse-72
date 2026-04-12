@@ -22,11 +22,20 @@ import {
   Building2,
   Network,
   Eye,
-  Bot
+  Bot,
+  Briefcase,
+  Monitor,
+  Package,
+  FileBarChart,
+  Loader2
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AIActReportDialog } from "@/components/reports/AIActReportDialog";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { generateExecutivePortfolioReport } from "@/components/reports/generateExecutivePortfolioReport";
+import { useState } from "react";
 
 interface ReportCardProps {
   title: string;
