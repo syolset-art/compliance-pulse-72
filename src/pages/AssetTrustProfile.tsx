@@ -139,7 +139,7 @@ const AssetTrustProfile = () => {
     { value: 'compliance', label: isNb ? 'ISO 27001 Samsvar' : 'ISO 27001 Compliance', show: isHardware },
     { value: 'nis2', label: isNb ? 'NIS2 Vurdering' : 'NIS2 Assessment', show: isHardware },
     // Standard tabs (self)
-    { value: 'validation', label: isNb ? 'Validering fra Mynder' : 'Validation from Mynder', show: isSelf },
+    { value: 'validation', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder', show: isSelf },
     { value: 'controls', label: isNb ? 'Kontroller' : 'Controls', show: isSelf },
     { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling', show: isSelf },
     { value: 'riskManagement', label: isNb ? 'Revisjon og risiko' : 'Audit & Risk Management', show: true },
