@@ -49,10 +49,10 @@ const REGULATION_LABELS: Record<string, { label_no: string; label_en: string }> 
 };
 
 const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> = {
-  governance: { label_no: "Governance", label_en: "Governance" },
-  operations: { label_no: "Operations", label_en: "Operations" },
-  identity_access: { label_no: "Identity & Access", label_en: "Identity & Access" },
-  supplier_ecosystem: { label_no: "Supplier & Ecosystem", label_en: "Supplier & Ecosystem" },
+  governance: { label_no: "Styring", label_en: "Governance" },
+  operations: { label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
+  identity_access: { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
+  supplier_ecosystem: { label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain" },
   privacy_data: { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
 };
 
