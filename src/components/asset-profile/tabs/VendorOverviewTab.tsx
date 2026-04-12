@@ -357,13 +357,13 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <h3 className="text-sm font-semibold text-foreground">
                     {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
                   </h3>
-                  {evaluation && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {evaluation.trustScore}%
-                    </Badge>
-                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  {evaluation && (
+                    <span className="text-lg font-bold text-foreground tabular-nums">
+                      {evaluation.trustScore}%
+                    </span>
+                  )}
                   {evaluation && (
                     <span className="text-xs text-muted-foreground">
                       {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
