@@ -245,34 +245,26 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
       )}
 
-      {/* TPRM Follow-up Status — top of module */}
-      <VendorTPRMStatus
-        assetId={asset.id}
-        assetName={asset.name}
-        vendorName={asset.vendor || undefined}
-        contactPerson={asset.contact_person || undefined}
-        contactEmail={asset.contact_email || undefined}
-        tasks={tasks}
-        onNavigateToTab={onNavigateToTab}
-        maturityStats={evaluation ? {
-          implementedCount: evaluation.implementedCount,
-          partialCount: evaluation.partialCount,
-          missingCount: evaluation.missingCount,
-          totalControls: evaluation.allControls.length,
-          trustScore: evaluation.trustScore,
-        } : null}
-      />
-
-      {/* ─── SECTION 1: Our Maturity Work ─── */}
+      {/* ─── SECTION 1: Our Maturity Work — with TPRM status as module title ─── */}
       <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Briefcase className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {isNb ? "Vårt modenhetsarbeid" : "Our Maturity Work"}
-          </h2>
-        </div>
+        <VendorTPRMStatus
+          assetId={asset.id}
+          assetName={asset.name}
+          vendorName={asset.vendor || undefined}
+          contactPerson={asset.contact_person || undefined}
+          contactEmail={asset.contact_email || undefined}
+          tasks={tasks}
+          onNavigateToTab={onNavigateToTab}
+          maturityStats={evaluation ? {
+            implementedCount: evaluation.implementedCount,
+            partialCount: evaluation.partialCount,
+            missingCount: evaluation.missingCount,
+            totalControls: evaluation.allControls.length,
+            trustScore: evaluation.trustScore,
+          } : null}
+        />
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           {/* Tasks card */}
           <div ref={tasksRef} id="vendor-tasks-section">
           <Card>
