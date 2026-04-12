@@ -351,6 +351,7 @@ export function TrustControlsPanel({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb, descNb, descEn }) => {
             const score = areaScore(area);
+            const areaSourceScores = areaScoreBySource(area);
             const controls = grouped[area];
             const isExpanded = expandedArea === area;
             const implemented = controls.filter(c => c.status === "implemented").length;
@@ -360,7 +361,6 @@ export function TrustControlsPanel({
               : score >= 50
               ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-orange-500 dark:text-orange-400" }
               : { nb: "LAV DEKNING", en: "LOW COVERAGE", color: "text-destructive" };
-            const progressColor = score >= 75 ? "bg-green-500" : score >= 50 ? "bg-orange-400" : "bg-destructive";
 
             return (
               <div key={area} className="border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
@@ -396,10 +396,8 @@ export function TrustControlsPanel({
                     </span>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${score}%` }} />
-                  </div>
+                  {/* Stacked progress bar */}
+                  <StackedProgress baselinePercent={areaSourceScores.baseline} enrichmentPercent={areaSourceScores.enrichment} />
                 </button>
 
                 {isExpanded && (
