@@ -111,7 +111,7 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
         <CardTitle className="text-sm flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            {isNb ? "Oppfølgingsstatus" : "Follow-up Status"}
+            {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -126,11 +126,6 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
                       ? "TPRM handler om å ha kontroll på leverandørene dine. Det betyr at du sjekker at de behandler data trygt, at nødvendige avtaler er på plass, og at du jevnlig følger opp at alt er i orden."
                       : "TPRM is about keeping control of your vendors. It means checking that they handle data safely, that necessary agreements are in place, and that you regularly follow up to ensure everything is in order."}
                   </p>
-                  <p className="text-muted-foreground">
-                    {isNb
-                      ? "Statusen her viser om databehandleravtale (DPA), risikovurdering og gjennomgangsdato er på plass for denne leverandøren."
-                      : "The status here shows whether a data processing agreement (DPA), risk assessment, and review date are in place for this vendor."}
-                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -139,6 +134,11 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
             {tprmConfig[tprmLevel].label}
           </Badge>
         </CardTitle>
+        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+          {isNb
+            ? "Er det trygt å bruke denne leverandøren – og hva må vi gjøre nå?"
+            : "Is it safe to use this vendor – and what do we need to do now?"}
+        </p>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Document statuses */}
