@@ -593,13 +593,14 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
         />
       )}
 
-      {/* Owner and Manager row — hidden for self/published profiles */}
+      {/* Owner, Manager, Contact row — hidden for self/published profiles */}
       {!isSelf && (
         <>
           <div className="border-t border-border my-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {/* 1. Eier = Arbeidsområde */}
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
                 <Users className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0">
@@ -613,9 +614,9 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                         <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-xs text-xs">
-                        {i18n.language === "nb"
-                          ? "Arbeidsområdet som eier denne leverandøren. Arbeidsområdeansvarlig blir automatisk satt som leverandøransvarlig."
-                          : "The work area that owns this vendor. The work area manager is automatically set as vendor manager."}
+                        {isNb
+                          ? "Arbeidsområdet som eier denne leverandøren. Arbeidsområdeansvarlig blir automatisk satt som leverandøransvarlig, men kan delegeres."
+                          : "The work area that owns this vendor. The work area manager is automatically set as vendor manager but can be delegated."}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -631,20 +632,17 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                     ))}
                   </SelectContent>
                 </Select>
-                {(asset as any).contact_person && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {i18n.language === "nb" ? "Kontaktperson" : "Contact person"}: {(asset as any).contact_person}
-                  </p>
-                )}
                 {selectedWorkArea?.responsible_person && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {i18n.language === "nb" ? "Ansvarlig" : "Manager"}: {selectedWorkArea.responsible_person}
+                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    {isNb ? "Ansvarlig" : "Manager"}: {selectedWorkArea.responsible_person}
                   </p>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+
+            {/* 2. Leverandøransvarlig (delegable) */}
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
                 <User className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0">
@@ -661,16 +659,48 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedWorkArea?.responsible_person && asset.asset_manager !== selectedWorkArea.responsible_person && (
+                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                    {isNb ? "Standard" : "Default"}: {selectedWorkArea.responsible_person}
+                  </p>
+                )}
               </div>
             </div>
-            {/* Requests / inbox */}
-            <div className="flex items-center gap-3">
+
+            {/* 3. Kontaktperson hos leverandør */}
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                <Send className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                  {isNb ? "Kontaktperson" : "Contact person"}
+                </p>
+                {(asset as any).contact_person ? (
+                  <div>
+                    <p className="text-xs font-medium text-foreground">{(asset as any).contact_person}</p>
+                    {(asset as any).contact_email && (
+                      <a href={`mailto:${(asset as any).contact_email}`} className="text-[10px] text-primary hover:underline">
+                        {(asset as any).contact_email}
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground/50 italic">
+                    {isNb ? "Ikke oppgitt" : "Not provided"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* 4. Forespørsler / inbox */}
+            <div className="flex items-start gap-3">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => setRequestDialogOpen(true)}
-                      className="relative h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 hover:bg-accent transition-colors"
+                      className="relative h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 hover:bg-accent transition-colors"
                       aria-label={isNb ? "Forespørsler" : "Requests"}
                     >
                       <Mail className="h-4 w-4 text-muted-foreground" />
