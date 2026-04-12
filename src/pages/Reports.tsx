@@ -343,36 +343,56 @@ const Reports = () => {
           </div>
 
           {/* Report Tabs */}
-          <Tabs defaultValue="organisasjon" className="space-y-4">
-            <TabsList className="flex w-full overflow-x-auto justify-start lg:inline-flex lg:w-auto">
-              <TabsTrigger value="organisasjon" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Building2 className="h-3.5 w-3.5" />
-                Organisasjon
-              </TabsTrigger>
-              <TabsTrigger value="portefoljer" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Briefcase className="h-3.5 w-3.5" />
-                Porteføljer
-              </TabsTrigger>
-              <TabsTrigger value="gdpr" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Shield className="h-3.5 w-3.5" />
-                GDPR
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{gdprReports.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="nis2" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Server className="h-3.5 w-3.5" />
-                NIS2
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{nis2Reports.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="iso27001" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <ClipboardCheck className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">ISO 27001</span><span className="sm:hidden">ISO</span>
-                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{iso27001Reports.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="aiact" className="flex items-center gap-1.5 text-xs sm:text-sm">
-                <Bot className="h-3.5 w-3.5" />
-                AI Act
-              </TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="organisasjon" className="space-y-6">
+            <div className="border-b border-border">
+              <TabsList className="bg-transparent h-auto p-0 gap-0 flex w-full overflow-x-auto justify-start">
+                <TabsTrigger
+                  value="organisasjon"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Organisasjon
+                </TabsTrigger>
+                <TabsTrigger
+                  value="portefoljer"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Porteføljer
+                </TabsTrigger>
+                <TabsTrigger
+                  value="gdpr"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  GDPR
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{gdprReports.length}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="nis2"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <Server className="h-4 w-4 mr-2" />
+                  NIS2
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{nis2Reports.length}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="iso27001"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <ClipboardCheck className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">ISO 27001</span><span className="sm:hidden">ISO</span>
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{iso27001Reports.length}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="aiact"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground"
+                >
+                  <Bot className="h-4 w-4 mr-2" />
+                  AI Act
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="organisasjon" className="space-y-4">
               <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => navigate('/reports/compliance')}>
