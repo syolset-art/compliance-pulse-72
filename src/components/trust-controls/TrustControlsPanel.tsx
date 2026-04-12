@@ -138,6 +138,7 @@ export function TrustControlsPanel({
 }: TrustControlsPanelProps) {
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [docChecklistArea, setDocChecklistArea] = useState<string | null>(null);
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isNb = i18n.language === "nb";
