@@ -93,7 +93,7 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
   };
 
   const nextReview = asset?.next_review_date;
-  const responsible = asset?.asset_owner || asset?.asset_manager;
+  const responsible = asset?.asset_manager || null;
 
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return isNb ? "Ikke satt" : "Not set";
@@ -146,13 +146,15 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
               <p className="font-medium">{formatDate(nextReview)}</p>
             </div>
           </div>
-          <div className="flex items-start gap-2 text-xs">
-            <User className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
-            <div>
-              <p className="text-muted-foreground">{isNb ? "Ansvarlig" : "Responsible"}</p>
-              <p className="font-medium">{responsible || (isNb ? "Ikke tildelt" : "Not assigned")}</p>
+          {responsible && (
+            <div className="flex items-start gap-2 text-xs">
+              <User className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
+              <div>
+                <p className="text-muted-foreground">{isNb ? "Leverandøransvarlig" : "Vendor Manager"}</p>
+                <p className="font-medium">{responsible}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>
