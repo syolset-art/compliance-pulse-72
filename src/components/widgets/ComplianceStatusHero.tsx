@@ -18,9 +18,9 @@ const STAGES = [
 
 const DOMAIN_LABELS: Record<string, string> = {
   governance: "Governance",
-  operations: "Operations",
-  identity_access: "Identity & Access",
-  supplier_ecosystem: "Supplier & Ecosystem",
+  operations: "Operations & Security",
+  identity_access: "Privacy & Data Handling",
+  supplier_ecosystem: "Third-Party & Value Chain",
 };
 
 interface Props {

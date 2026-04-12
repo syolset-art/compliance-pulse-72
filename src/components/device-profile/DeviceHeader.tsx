@@ -65,7 +65,7 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
       score: calcAreaScore(controls, "operations"),
     },
     {
-      label: isNb ? "Identitet og tilgang" : "Identity & Access",
+      label: isNb ? "Personvern og datahåndtering" : "Privacy & Data Handling",
       score: calcAreaScore(controls, "identity"),
     },
     {

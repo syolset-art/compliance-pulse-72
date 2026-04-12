@@ -86,12 +86,12 @@ export const FOUNDATION_CONTROLS: FoundationControlDef[] = [
   { id: "ops_2", label_en: "Backup routines", label_no: "Backup-rutiner", domain: "operations" },
   { id: "ops_3", label_en: "Incident management", label_no: "Hendelseshåndtering", domain: "operations" },
   { id: "ops_4", label_en: "Change management", label_no: "Endringshåndtering", domain: "operations" },
-  // Identity & Access
+  // Privacy & Data Handling
   { id: "iam_1", label_en: "Access control policy", label_no: "Tilgangskontrollpolicy", domain: "identity_access" },
   { id: "iam_2", label_en: "User provisioning", label_no: "Brukeradministrasjon", domain: "identity_access" },
   { id: "iam_3", label_en: "Authentication requirements", label_no: "Autentiseringskrav", domain: "identity_access" },
   { id: "iam_4", label_en: "Access review process", label_no: "Tilgangsgjennomgang", domain: "identity_access" },
-  // Supplier & Ecosystem
+  // Third-Party & Value Chain
   { id: "sup_1", label_en: "Vendor inventory", label_no: "Leverandøroversikt", domain: "supplier_ecosystem" },
   { id: "sup_2", label_en: "DPA management", label_no: "Databehandleravtaler", domain: "supplier_ecosystem" },
   { id: "sup_3", label_en: "Vendor risk assessment", label_no: "Leverandørrisikovurdering", domain: "supplier_ecosystem" },

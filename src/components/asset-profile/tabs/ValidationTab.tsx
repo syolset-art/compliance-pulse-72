@@ -70,9 +70,9 @@ const FRAMEWORK_ITEMS = [
 
 const AREA_DEFS = [
   { key: "governance", labelEn: "Governance", labelNb: "Styring", descEn: "Ownership, accountability and documentation", descNb: "Eierskap, ansvar og dokumentasjon" },
-  { key: "risk_compliance", labelEn: "Operations", labelNb: "Drift", descEn: "Risk assessment and operational processes", descNb: "Risikovurdering og driftsprosesser" },
-  { key: "security_posture", labelEn: "Identity & Access", labelNb: "Identitet og tilgang", descEn: "Access controls and security measures", descNb: "Tilgangskontroll og sikkerhetstiltak" },
-  { key: "supplier_governance", labelEn: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem", descEn: "Third-party oversight and supply chain controls", descNb: "Tredjeparts tilsyn og leverandørkontroll" },
+  { key: "risk_compliance", labelEn: "Operations & Security", labelNb: "Drift og sikkerhet", descEn: "Risk assessment and operational processes", descNb: "Risikovurdering og driftsprosesser" },
+  { key: "security_posture", labelEn: "Privacy & Data Handling", labelNb: "Personvern og datahåndtering", descEn: "Privacy, processing records and data subject rights", descNb: "Personvern, behandlingsoversikt og registrertes rettigheter" },
+  { key: "supplier_governance", labelEn: "Third-Party & Value Chain", labelNb: "Tredjepartstyring og verdikjede", descEn: "Third-party oversight and supply chain controls", descNb: "Tredjeparts tilsyn og leverandørkontroll" },
 ] as const;
 
 export const ValidationTab = ({ assetId }: ValidationTabProps) => {

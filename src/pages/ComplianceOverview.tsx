@@ -23,9 +23,9 @@ const ACTIVE_FRAMEWORK_IDS = [
 const PILLARS = [
   { id: 'governance', name: 'Styring', score: 94, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 4 },
   { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 5 },
-  { id: 'identity_access', name: 'Identitet og tilgang', score: 92, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 5 },
+  { id: 'identity_access', name: 'Personvern og datahåndtering', score: 92, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 5 },
   { id: 'privacy_data', name: 'Personvern og datahåndtering', score: 68, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 4 },
-  { id: 'supplier', name: 'Leverandører og økosystem', score: 61, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 3 },
+  { id: 'supplier', name: 'Tredjepartstyring og verdikjede', score: 61, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 3 },
 ];
 
 interface FrameworkScore {
@@ -58,8 +58,8 @@ const IMPROVEMENTS = [
   { title: 'Leverandørkjede-vurdering mangler', pillar: 'Leverandører', severity: 'high', framework: 'NIS2' },
   { title: 'Backup-rutiner ikke verifisert', pillar: 'Drift og sikkerhet', severity: 'high', framework: 'ISO 27001' },
   { title: 'AI-konsekvensanalyse ikke gjennomført', pillar: 'Styring', severity: 'medium', framework: 'AI Act' },
-  { title: 'Aktsomhetsvurdering ikke oppdatert', pillar: 'Leverandører', severity: 'medium', framework: 'Åpenhetsloven' },
-  { title: 'MFA ikke aktivert for alle adminer', pillar: 'Identitet og tilgang', severity: 'high', framework: 'NSM' },
+  { title: 'Aktsomhetsvurdering ikke oppdatert', pillar: 'Tredjepartstyring', severity: 'medium', framework: 'Åpenhetsloven' },
+  { title: 'MFA ikke aktivert for alle adminer', pillar: 'Drift og sikkerhet', severity: 'high', framework: 'NSM' },
   { title: 'HMS-mål mangler dokumentasjon', pillar: 'Styring', severity: 'low', framework: 'Arbeidsmiljøloven' },
 ];
 
@@ -67,9 +67,9 @@ const IMPROVEMENTS = [
 const MEASURES = [
   { title: 'Informasjonssikkerhetspolicy godkjent', pillar: 'Styring', status: 'ok' },
   { title: 'ROPA oppdatert siste 12 mnd', pillar: 'Styring', status: 'ok' },
-  { title: 'Tilgangskontroll implementert', pillar: 'Identitet og tilgang', status: 'ok' },
+  { title: 'Tilgangskontroll implementert', pillar: 'Drift og sikkerhet', status: 'ok' },
   { title: 'Hendelseshåndteringsprosess definert', pillar: 'Drift og sikkerhet', status: 'ok' },
-  { title: 'DPA med alle databehandlere', pillar: 'Leverandører', status: 'partial' },
+  { title: 'DPA med alle databehandlere', pillar: 'Tredjepartstyring', status: 'partial' },
   { title: 'Risikovurdering gjennomført', pillar: 'Drift og sikkerhet', status: 'ok' },
   { title: 'Sikkerhetskopier testet', pillar: 'Drift og sikkerhet', status: 'missing' },
   { title: 'AI-systemregister opprettet', pillar: 'Styring', status: 'ok' },

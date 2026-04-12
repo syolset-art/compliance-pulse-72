@@ -239,8 +239,8 @@ const MaturityMethodology = () => {
                   <p className="text-sm font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security maturity")}</p>
                   <p className="text-sm text-muted-foreground mt-0.5">
                     {t(
-                      "Gjennomsnittet av alle kontroll-nivåer gir din modenhetsscore. Scoren vises fordelt på fire fokusområder: Governance, Operations, Identity & Access og Supplier & Ecosystem.",
-                      "The average of all control levels gives your maturity score. The score is shown across four focus areas: Governance, Operations, Identity & Access and Supplier & Ecosystem."
+                      "Gjennomsnittet av alle kontroll-nivåer gir din modenhetsscore. Scoren vises fordelt på fire fokusområder: Styring, Drift og sikkerhet, Personvern og datahåndtering og Tredjepartstyring og verdikjede.",
+                      "The average of all control levels gives your maturity score. The score is shown across four focus areas: Governance, Operations & Security, Privacy & Data Handling and Third-Party & Value Chain."
                     )}
                   </p>
                 </div>
@@ -674,10 +674,10 @@ const MaturityMethodology = () => {
                     </p>
                     <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-2`}>
                       {[
-                        { no: "Governance", en: "Governance", desc_no: "Sikkerhetspolicy, risikostyring, ledelsesforankring, samsvarsansvarlig", desc_en: "Security policy, risk management, management commitment, compliance officer" },
-                        { no: "Operations", en: "Operations", desc_no: "Systemoversikt, backup, hendelseshåndtering, endringshåndtering", desc_en: "System inventory, backup, incident management, change management" },
-                        { no: "Identity & Access", en: "Identity & Access", desc_no: "Tilgangskontroll, brukeradmin, autentisering, tilgangsgjennomgang", desc_en: "Access control, user provisioning, authentication, access review" },
-                        { no: "Supplier & Ecosystem", en: "Supplier & Ecosystem", desc_no: "Leverandøroversikt, DPA, leverandørrisikovurdering, underleverandørkontroll", desc_en: "Vendor inventory, DPA, vendor risk assessment, subprocessor oversight" },
+                         { no: "Styring", en: "Governance", desc_no: "Sikkerhetspolicy, risikostyring, ledelsesforankring, samsvarsansvarlig", desc_en: "Security policy, risk management, management commitment, compliance officer" },
+                         { no: "Drift og sikkerhet", en: "Operations & Security", desc_no: "Systemoversikt, backup, hendelseshåndtering, endringshåndtering", desc_en: "System inventory, backup, incident management, change management" },
+                         { no: "Personvern og datahåndtering", en: "Privacy & Data Handling", desc_no: "Behandlingsoversikt, personvernerklæring, registrertes rettigheter, DPIA", desc_en: "Processing records, privacy policy, data subject rights, DPIA" },
+                         { no: "Tredjepartstyring og verdikjede", en: "Third-Party & Value Chain", desc_no: "Leverandøroversikt, DPA, leverandørrisikovurdering, underleverandørkontroll", desc_en: "Vendor inventory, DPA, vendor risk assessment, subprocessor oversight" },
                       ].map((d) => (
                         <div key={d.en} className="rounded-lg border border-border/40 bg-muted/20 p-3">
                           <p className="text-sm font-bold text-foreground">{t(d.no, d.en)}</p>
@@ -714,7 +714,7 @@ const MaturityMethodology = () => {
                     </p>
                     {[
                       { title_no: "Per rammeverk", title_en: "Per framework", desc_no: "GDPR, ISO 27001, AI Act — brukes når du tenker tilsyn eller revisor.", desc_en: "GDPR, ISO 27001, AI Act — used when you think audit or regulator." },
-                      { title_no: "Per fokusområde", title_en: "Per focus area", desc_no: "Governance, Operations, Identity & Access, Supplier & Ecosystem.", desc_en: "Governance, Operations, Identity & Access, Supplier & Ecosystem." },
+                      { title_no: "Per fokusområde", title_en: "Per focus area", desc_no: "Styring, Drift og sikkerhet, Personvern og datahåndtering, Tredjepartstyring og verdikjede.", desc_en: "Governance, Operations & Security, Privacy & Data Handling, Third-Party & Value Chain." },
                       { title_no: "Per objekt", title_en: "Per object", desc_no: "Systemer, prosesser, leverandører — nyttig for å finne konkrete gap.", desc_en: "Systems, processes, vendors — useful for finding specific gaps." },
                     ].map((item) => (
                       <div key={item.title_en} className="flex items-start gap-2">

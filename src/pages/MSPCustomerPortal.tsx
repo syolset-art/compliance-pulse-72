@@ -95,10 +95,10 @@ export default function MSPCustomerPortal() {
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
     return [
-      { label_no: "Governance", label_en: "Governance", percent: (byDomain as any)?.governance?.score || 0 },
-      { label_no: "Operations", label_en: "Operations", percent: (byDomain as any)?.operations?.score || 0 },
-      { label_no: "Identity & Access", label_en: "Identity & Access", percent: (byDomain as any)?.identity_access?.score || 0 },
-      { label_no: "Supplier & Ecosystem", label_en: "Supplier & Ecosystem", percent: (byDomain as any)?.supplier_ecosystem?.score || 0 },
+      { label_no: "Styring", label_en: "Governance", percent: (byDomain as any)?.governance?.score || 0 },
+      { label_no: "Drift og sikkerhet", label_en: "Operations & Security", percent: (byDomain as any)?.operations?.score || 0 },
+      { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", percent: (byDomain as any)?.identity_access?.score || 0 },
+      { label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain", percent: (byDomain as any)?.supplier_ecosystem?.score || 0 },
     ];
   }, [stats.byDomainArea]);
 

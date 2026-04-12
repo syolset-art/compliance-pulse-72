@@ -13,9 +13,9 @@ interface VendorControlsTabProps {
 
 const AREA_META: Record<string, { labelNb: string; labelEn: string; color: string }> = {
   governance: { labelNb: "Styring", labelEn: "Governance", color: "text-blue-600" },
-  risk_compliance: { labelNb: "Drift", labelEn: "Operations", color: "text-emerald-600" },
-  security_posture: { labelNb: "Identitet og tilgang", labelEn: "Identity & Access", color: "text-violet-600" },
-  supplier_governance: { labelNb: "Leverandør og økosystem", labelEn: "Supplier & Ecosystem", color: "text-amber-600" },
+  risk_compliance: { labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-emerald-600" },
+  security_posture: { labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-violet-600" },
+  supplier_governance: { labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
 };
 
 const StatusIcon = ({ status }: { status: string }) => {

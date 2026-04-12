@@ -25,10 +25,10 @@ import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
-  { area: "governance", icon: Shield, labelNb: "Governance & Accountability", labelEn: "Governance & Accountability" },
-  { area: "risk_compliance", icon: Lock, labelNb: "Security", labelEn: "Security" },
-  { area: "security_posture", icon: Globe, labelNb: "Privacy & Data Handling", labelEn: "Privacy & Data Handling" },
-  { area: "supplier_governance", icon: Layers, labelNb: "Third-Party & Supply Chain", labelEn: "Third-Party & Supply Chain" },
+  { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
+  { area: "risk_compliance", icon: Lock, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security" },
+  { area: "security_posture", icon: Globe, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
+  { area: "supplier_governance", icon: Layers, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain" },
 ];
 
 const BUSINESS_AREAS = [

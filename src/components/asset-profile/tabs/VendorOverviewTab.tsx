@@ -22,9 +22,9 @@ interface VendorOverviewTabProps {
 
 const DOMAIN_CARDS = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance", color: "text-blue-600" },
-  { area: "risk_compliance", icon: Server, labelNb: "Drift", labelEn: "Operations", color: "text-emerald-600" },
-  { area: "security_posture", icon: Users, labelNb: "Identitet og tilgang", labelEn: "Identity & Access", color: "text-violet-600" },
-  { area: "supplier_governance", icon: Link2, labelNb: "Leverandør og økosystem", labelEn: "Supplier & Ecosystem", color: "text-amber-600" },
+  { area: "risk_compliance", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-emerald-600" },
+  { area: "security_posture", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-violet-600" },
+  { area: "supplier_governance", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
 ];
 
 export const VendorOverviewTab = ({ assetId, assetName, vendorName, updatedAt, onNavigateToTab }: VendorOverviewTabProps) => {
