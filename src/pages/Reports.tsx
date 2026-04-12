@@ -55,44 +55,44 @@ const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, 
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={onClick}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+      <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
               {icon}
             </div>
-            <div>
-              <CardTitle className="text-base">{title}</CardTitle>
-              <CardDescription className="text-xs mt-1">{description}</CardDescription>
+            <div className="min-w-0">
+              <CardTitle className="text-sm sm:text-base truncate">{title}</CardTitle>
+              <CardDescription className="text-xs mt-0.5 line-clamp-1 sm:line-clamp-2">{description}</CardDescription>
             </div>
           </div>
           {getStatusBadge()}
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap gap-1 mb-3">
+      <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+        <div className="hidden sm:flex flex-wrap gap-1 mb-3">
           {standard.map((s) => (
             <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
           ))}
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {lastGenerated && (
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                Sist: {lastGenerated}
+                <span className="hidden sm:inline">Sist:</span> {lastGenerated}
               </span>
             )}
             {nextDue && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                Frist: {nextDue}
+                <span className="hidden sm:inline">Frist:</span> {nextDue}
               </span>
             )}
           </div>
           <Button variant="ghost" size="sm" className="h-7 px-2">
             <Download className="h-3 w-3 mr-1" />
-            Last ned
+            <span className="hidden sm:inline">Last ned</span>
           </Button>
         </div>
       </CardContent>
@@ -289,100 +289,43 @@ const Reports = () => {
             </Button>
           </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Totalt</p>
-                    <p className="text-2xl font-bold">{allReports.length}</p>
-                  </div>
-                  <FileText className="h-8 w-8 text-muted-foreground/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Klare</p>
-                    <p className="text-2xl font-bold text-green-600">{readyCount}</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Utkast</p>
-                    <p className="text-2xl font-bold text-yellow-600">{draftCount}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-yellow-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Venter</p>
-                    <p className="text-2xl font-bold text-blue-600">{pendingCount}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-blue-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Forfalt</p>
-                    <p className="text-2xl font-bold text-red-600">{overdueCount}</p>
-                  </div>
-                  <AlertCircle className="h-8 w-8 text-red-500/50" />
-                </div>
-              </CardContent>
-            </Card>
+          {/* Compact Summary */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm px-1">
+            <span className="text-muted-foreground">Totalt <span className="font-semibold text-foreground">{allReports.length}</span></span>
+            <span className="text-muted-foreground">Klare <span className="font-semibold text-green-600">{readyCount}</span></span>
+            <span className="text-muted-foreground">Utkast <span className="font-semibold text-yellow-600">{draftCount}</span></span>
+            <span className="text-muted-foreground">Venter <span className="font-semibold text-blue-600">{pendingCount}</span></span>
+            <span className="text-muted-foreground">Forfalt <span className="font-semibold text-red-600">{overdueCount}</span></span>
+            <div className="flex items-center gap-2 ml-auto">
+              <Progress value={completionRate} className="h-1.5 w-24" />
+              <span className="text-xs text-muted-foreground">{completionRate}%</span>
+            </div>
           </div>
-
-          {/* Completion Progress */}
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Rapportfullføring</span>
-                <span className="text-sm text-muted-foreground">{completionRate}% komplett</span>
-              </div>
-              <Progress value={completionRate} className="h-2" />
-            </CardContent>
-          </Card>
 
           {/* Report Tabs */}
           <Tabs defaultValue="organisasjon" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="organisasjon" className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
+            <TabsList className="flex w-full overflow-x-auto justify-start lg:inline-flex lg:w-auto">
+              <TabsTrigger value="organisasjon" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Building2 className="h-3.5 w-3.5" />
                 Organisasjon
               </TabsTrigger>
-              <TabsTrigger value="gdpr" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
+              <TabsTrigger value="gdpr" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Shield className="h-3.5 w-3.5" />
                 GDPR
-                <Badge variant="secondary" className="ml-1">{gdprReports.length}</Badge>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{gdprReports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="nis2" className="flex items-center gap-2">
-                <Server className="h-4 w-4" />
+              <TabsTrigger value="nis2" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Server className="h-3.5 w-3.5" />
                 NIS2
-                <Badge variant="secondary" className="ml-1">{nis2Reports.length}</Badge>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{nis2Reports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="iso27001" className="flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4" />
-                ISO 27001
-                <Badge variant="secondary" className="ml-1">{iso27001Reports.length}</Badge>
+              <TabsTrigger value="iso27001" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <ClipboardCheck className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">ISO 27001</span><span className="sm:hidden">ISO</span>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{iso27001Reports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="aiact" className="flex items-center gap-2">
-                <Bot className="h-4 w-4" />
+              <TabsTrigger value="aiact" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Bot className="h-3.5 w-3.5" />
                 AI Act
               </TabsTrigger>
             </TabsList>
