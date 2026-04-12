@@ -112,6 +112,42 @@ const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, 
 const Reports = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  const { data: portfolioAssets = [] } = useQuery({
+    queryKey: ["portfolio-assets-report"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("assets")
+        .select("id, name, asset_type, risk_level, compliance_score, lifecycle_status");
+      return data || [];
+    },
+  });
+
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company-profile-report"],
+    queryFn: async () => {
+      const { data } = await supabase.from("company_profile").select("name").limit(1).maybeSingle();
+      return data;
+    },
+  });
+
+  const vendors = portfolioAssets.filter(a => a.asset_type === "vendor");
+  const systems = portfolioAssets.filter(a => a.asset_type === "system");
+  const otherAssets = portfolioAssets.filter(a => a.asset_type !== "vendor" && a.asset_type !== "system");
+
+  const handleExecReport = async () => {
+    setGeneratingPdf(true);
+    try {
+      await new Promise(r => setTimeout(r, 100));
+      generateExecutivePortfolioReport(
+        { vendors, systems, allAssets: portfolioAssets },
+        companyProfile?.name || "Ukjent virksomhet"
+      );
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const gdprReports = [
     {
@@ -317,6 +353,10 @@ const Reports = () => {
               <TabsTrigger value="organisasjon" className="flex items-center gap-1.5 text-xs sm:text-sm">
                 <Building2 className="h-3.5 w-3.5" />
                 Organisasjon
+              </TabsTrigger>
+              <TabsTrigger value="portefoljer" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Briefcase className="h-3.5 w-3.5" />
+                Porteføljer
               </TabsTrigger>
               <TabsTrigger value="gdpr" className="flex items-center gap-1.5 text-xs sm:text-sm">
                 <Shield className="h-3.5 w-3.5" />
