@@ -304,28 +304,28 @@ const Reports = () => {
 
           {/* Report Tabs */}
           <Tabs defaultValue="organisasjon" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="organisasjon" className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
+            <TabsList className="flex w-full overflow-x-auto justify-start lg:inline-flex lg:w-auto">
+              <TabsTrigger value="organisasjon" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Building2 className="h-3.5 w-3.5" />
                 Organisasjon
               </TabsTrigger>
-              <TabsTrigger value="gdpr" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
+              <TabsTrigger value="gdpr" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Shield className="h-3.5 w-3.5" />
                 GDPR
-                <Badge variant="secondary" className="ml-1">{gdprReports.length}</Badge>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{gdprReports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="nis2" className="flex items-center gap-2">
-                <Server className="h-4 w-4" />
+              <TabsTrigger value="nis2" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Server className="h-3.5 w-3.5" />
                 NIS2
-                <Badge variant="secondary" className="ml-1">{nis2Reports.length}</Badge>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{nis2Reports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="iso27001" className="flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4" />
-                ISO 27001
-                <Badge variant="secondary" className="ml-1">{iso27001Reports.length}</Badge>
+              <TabsTrigger value="iso27001" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <ClipboardCheck className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">ISO 27001</span><span className="sm:hidden">ISO</span>
+                <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">{iso27001Reports.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="aiact" className="flex items-center gap-2">
-                <Bot className="h-4 w-4" />
+              <TabsTrigger value="aiact" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Bot className="h-3.5 w-3.5" />
                 AI Act
               </TabsTrigger>
             </TabsList>
