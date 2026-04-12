@@ -117,10 +117,20 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
                 <TooltipTrigger asChild>
                   <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
-                  {isNb
-                    ? "Viser om vi har gjort det vi skal for å følge opp denne leverandøren. Sjekker om nødvendige avtaler (som databehandleravtale) er på plass, om risikovurdering er gjennomført, og når neste gjennomgang er planlagt."
-                    : "Shows whether we have completed the necessary steps to follow up on this vendor. Checks if required agreements (like data processing agreements) are in place, if a risk assessment has been completed, and when the next review is scheduled."}
+                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
+                  <p className="font-semibold text-foreground">
+                    {isNb ? "TPRM – Third-Party Risk Management" : "TPRM – Third-Party Risk Management"}
+                  </p>
+                  <p>
+                    {isNb
+                      ? "TPRM handler om å ha kontroll på leverandørene dine. Det betyr at du sjekker at de behandler data trygt, at nødvendige avtaler er på plass, og at du jevnlig følger opp at alt er i orden."
+                      : "TPRM is about keeping control of your vendors. It means checking that they handle data safely, that necessary agreements are in place, and that you regularly follow up to ensure everything is in order."}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {isNb
+                      ? "Statusen her viser om databehandleravtale (DPA), risikovurdering og gjennomgangsdato er på plass for denne leverandøren."
+                      : "The status here shows whether a data processing agreement (DPA), risk assessment, and review date are in place for this vendor."}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
