@@ -157,6 +157,21 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     },
   });
 
+  // Count active vendor document requests
+  const { data: requestCount = 0 } = useQuery({
+    queryKey: ["vendor-request-count", asset.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("vendor_document_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("asset_id", asset.id)
+        .neq("status", "received");
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !isSelf,
+  });
+
   const FRAMEWORK_COLORS: Record<string, string> = {
     gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
     personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
@@ -391,24 +406,6 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                 {getStatusLabel(asset.lifecycle_status)}
               </Badge>
             )}
-            {!isSelf && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setRequestDialogOpen(true)}
-                      className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors shrink-0"
-                      aria-label={isNb ? "Send forespørsel" : "Send request"}
-                    >
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {isNb ? "Send forespørsel til leverandør" : "Send request to vendor"}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </div>
 
           {isSelf ? (
@@ -600,7 +597,7 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
       {!isSelf && (
         <>
           <div className="border-t border-border my-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -664,6 +661,45 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            {/* Requests / inbox */}
+            <div className="flex items-center gap-3">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setRequestDialogOpen(true)}
+                      className="relative h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 hover:bg-accent transition-colors"
+                      aria-label={isNb ? "Forespørsler" : "Requests"}
+                    >
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      {requestCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
+                          {requestCount}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    {isNb
+                      ? `Forespørsler${requestCount > 0 ? ` (${requestCount} aktive)` : ""}`
+                      : `Requests${requestCount > 0 ? ` (${requestCount} active)` : ""}`}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <div className="min-w-0">
+                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                  {isNb ? "Forespørsler" : "Requests"}
+                </p>
+                <button
+                  onClick={() => setRequestDialogOpen(true)}
+                  className="text-xs text-primary hover:underline cursor-pointer"
+                >
+                  {requestCount > 0
+                    ? (isNb ? `${requestCount} aktive forespørsler` : `${requestCount} active requests`)
+                    : (isNb ? "Send ny forespørsel" : "Send new request")}
+                </button>
               </div>
             </div>
           </div>
