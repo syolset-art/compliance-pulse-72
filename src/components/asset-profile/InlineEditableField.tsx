@@ -47,7 +47,7 @@ export const InlineEditableField = ({ label, value, placeholder, onSave, disable
     >
       <span className="font-medium text-foreground text-xs">{label}:</span>{" "}
       <span className="text-xs">{value || <span className="text-muted-foreground italic">{placeholder}</span>}</span>
-      {!disabled && <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />}
+      {!disabled && <Pencil className="h-2.5 w-2.5 text-muted-foreground/60" />}
     </span>
   );
 };

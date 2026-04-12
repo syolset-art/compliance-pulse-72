@@ -125,9 +125,9 @@ export const ContactPersonField = ({
           </p>
           <button
             onClick={() => setEditing(true)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+            className="p-0.5 rounded hover:bg-muted"
           >
-            <Pencil className="h-3 w-3 text-muted-foreground" />
+            <Pencil className="h-3 w-3 text-muted-foreground/60" />
           </button>
         </div>
         {contactPerson ? (
