@@ -436,11 +436,12 @@ export function TrustControlsPanel({
                 {isExpanded && (
                   <div className="mt-3 pt-3 border-t border-border space-y-1 animate-fade-in">
                     {controls.map((control) => {
-                      const isActionable = control.status !== "implemented" && !!CONTROL_NAV_MAP[control.key] && !!onNavigateToTab;
+                      const isDocControl = DOCUMENT_CONTROLS.has(control.key);
+                      const isActionable = control.status !== "implemented" && (isDocControl || (!!CONTROL_NAV_MAP[control.key] && !!onNavigateToTab));
                       return (
                         <div
                           key={control.key}
-                          onClick={() => isActionable && handleControlClick(control)}
+                          onClick={() => isActionable && handleControlClick(control, area)}
                           className={`flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1 ${
                             isActionable
                               ? "cursor-pointer hover:bg-muted/60 transition-colors group"
@@ -452,7 +453,7 @@ export function TrustControlsPanel({
                           {isActionable ? (
                             <button
                               className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
-                              onClick={(e) => { e.stopPropagation(); handleControlClick(control); }}
+                              onClick={(e) => { e.stopPropagation(); handleControlClick(control, area); }}
                             >
                               {isNb ? (ACTION_LABELS[control.key]?.nb || "Fiks") : (ACTION_LABELS[control.key]?.en || "Fix")}
                               <ChevronRight className="h-3 w-3" />
@@ -471,6 +472,15 @@ export function TrustControlsPanel({
                         </div>
                       );
                     })}
+
+                    {/* Inline document checklist for this area */}
+                    {docChecklistArea === area && (
+                      <InlineDocumentChecklist
+                        assetId={asset.id}
+                        controlArea={area}
+                        onNavigateToDocuments={onNavigateToTab ? () => onNavigateToTab("documents") : undefined}
+                      />
+                    )}
                   </div>
                 )}
               </div>
