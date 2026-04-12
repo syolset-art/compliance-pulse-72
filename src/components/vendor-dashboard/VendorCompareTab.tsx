@@ -93,9 +93,9 @@ function evaluateVendorControls(vendor: any, docsCount: number) {
 
 const AREA_CONFIG: { area: ControlArea; icon: any; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
-  { area: "risk_compliance", icon: Settings, labelNb: "Drift og sikkerhet", labelEn: "Operations" },
-  { area: "security_posture", icon: Key, labelNb: "Identitet og tilgang", labelEn: "Identity & Access" },
-  { area: "supplier_governance", icon: Users, labelNb: "Leverandør og økosystem", labelEn: "Supplier & Ecosystem" },
+  { area: "risk_compliance", icon: Settings, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security" },
+  { area: "security_posture", icon: Key, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
+  { area: "supplier_governance", icon: Users, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain" },
 ];
 
 function StatusIcon({ status }: { status: TrustControlStatus }) {

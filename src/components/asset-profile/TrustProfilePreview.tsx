@@ -199,9 +199,9 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
 
   const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-    { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations", labelNb: "Drift" },
-    { area: "security_posture" as ControlArea, icon: Lock, label: "Identity & Access", labelNb: "Identitet og tilgang" },
-    { area: "supplier_governance" as ControlArea, icon: Layers, label: "Supplier & Ecosystem", labelNb: "Leverandør og økosystem" },
+    { area: "risk_compliance" as ControlArea, icon: Target, label: "Operations & Security", labelNb: "Drift og sikkerhet" },
+    { area: "security_posture" as ControlArea, icon: Lock, label: "Privacy & Data Handling", labelNb: "Personvern og datahåndtering" },
+    { area: "supplier_governance" as ControlArea, icon: Layers, label: "Third-Party & Value Chain", labelNb: "Tredjepartstyring og verdikjede" },
   ];
 
   const isHigh = trustScore >= 75;
