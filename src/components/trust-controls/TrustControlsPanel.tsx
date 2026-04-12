@@ -179,6 +179,24 @@ export function TrustControlsPanel({
     return Math.round(((impl + partial * 0.5) / controls.length) * 100);
   };
 
+  const areaScoreBySource = (area: ControlArea) => {
+    const controls = grouped[area];
+    if (!controls || controls.length === 0) return { baseline: 0, enrichment: 0 };
+    const total = controls.length;
+    let baselineEarned = 0;
+    let enrichmentEarned = 0;
+    for (const c of controls) {
+      const factor = c.status === "implemented" ? 1 : c.status === "partial" ? 0.5 : 0;
+      if (factor === 0) continue;
+      if (c.source === "vendor_baseline") baselineEarned += factor;
+      else enrichmentEarned += factor;
+    }
+    return {
+      baseline: Math.round((baselineEarned / total) * 100),
+      enrichment: Math.round((enrichmentEarned / total) * 100),
+    };
+  };
+
   // All 4 security areas — always displayed
   const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring",
