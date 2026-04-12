@@ -165,6 +165,18 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
   vendor_inventory: { severity: "medium", titleEn: "No vendor inventory — supply chain risk", titleNb: "Ingen leverandøroversikt — leverandørkjederisiko" },
   vendor_risk_assessment: { severity: "medium", titleEn: "No vendor risk assessment — third-party risk", titleNb: "Ingen risikovurdering av leverandører — tredjepartsrisiko" },
   vendor_followup: { severity: "low", titleEn: "No regular vendor follow-up — oversight gap", titleNb: "Ingen jevnlig leverandøroppfølging — oppfølgingsgap" },
+  // Vendor privacy controls
+  vendor_privacy_policy: { severity: "medium", titleEn: "No privacy policy available — transparency risk", titleNb: "Ingen personvernerklæring tilgjengelig — åpenhetsrisiko" },
+  vendor_data_location: { severity: "medium", titleEn: "Data storage location unknown — transfer risk", titleNb: "Datalagringssted ukjent — overføringsrisiko" },
+  vendor_data_retention: { severity: "medium", titleEn: "No data retention policy — compliance risk", titleNb: "Ingen oppbevaringsrutiner — samsvarsrisiko" },
+  vendor_data_portability: { severity: "low", titleEn: "Data portability not confirmed — vendor lock-in risk", titleNb: "Dataportabilitet ikke bekreftet — innlåsingsrisiko" },
+  vendor_gdpr_compliant: { severity: "high", titleEn: "GDPR compliance not confirmed — regulatory risk", titleNb: "GDPR-samsvar ikke bekreftet — regulatorisk risiko" },
+  // System privacy controls
+  system_personal_data_mapped: { severity: "medium", titleEn: "Personal data not mapped — privacy risk", titleNb: "Personopplysninger ikke kartlagt — personvernrisiko" },
+  system_legal_basis: { severity: "high", titleEn: "No legal basis defined — GDPR compliance risk", titleNb: "Behandlingsgrunnlag ikke definert — GDPR-samsvarsrisiko" },
+  system_data_retention: { severity: "medium", titleEn: "No retention routines — data accumulation risk", titleNb: "Ingen sletterutiner — risiko for dataopphoping" },
+  system_access_logging: { severity: "medium", titleEn: "Access to personal data not logged — audit risk", titleNb: "Tilgang til personopplysninger logges ikke — revisjonsrisiko" },
+  system_data_minimization: { severity: "low", titleEn: "Data minimization not practiced — over-collection risk", titleNb: "Dataminimering ikke praktisert — risiko for overinnsamling" },
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
@@ -199,6 +211,18 @@ const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
   vendor_inventory: { titleEn: "Create vendor inventory", titleNb: "Opprett leverandøroversikt" },
   vendor_risk_assessment: { titleEn: "Perform vendor risk assessments", titleNb: "Gjennomfør risikovurdering av leverandører" },
   vendor_followup: { titleEn: "Establish regular vendor follow-up", titleNb: "Etabler jevnlig leverandøroppfølging" },
+  // Vendor privacy
+  vendor_privacy_policy: { titleEn: "Request privacy policy from vendor", titleNb: "Be om personvernerklæring fra leverandør" },
+  vendor_data_location: { titleEn: "Document data storage locations", titleNb: "Dokumenter datalagringssted" },
+  vendor_data_retention: { titleEn: "Request data retention policy", titleNb: "Be om oppbevaringsrutiner" },
+  vendor_data_portability: { titleEn: "Confirm data portability options", titleNb: "Bekreft muligheter for dataportabilitet" },
+  vendor_gdpr_compliant: { titleEn: "Request GDPR compliance confirmation", titleNb: "Be om bekreftelse på GDPR-samsvar" },
+  // System privacy
+  system_personal_data_mapped: { titleEn: "Map personal data categories in system", titleNb: "Kartlegg personopplysningskategorier i systemet" },
+  system_legal_basis: { titleEn: "Define legal basis for processing", titleNb: "Definer behandlingsgrunnlag" },
+  system_data_retention: { titleEn: "Define retention and deletion routines", titleNb: "Definer oppbevarings- og sletterutiner" },
+  system_access_logging: { titleEn: "Enable access logging for personal data", titleNb: "Aktiver tilgangslogging for personopplysninger" },
+  system_data_minimization: { titleEn: "Review and minimize collected data", titleNb: "Gjennomgå og minimer innsamlede data" },
 };
 
 /**
