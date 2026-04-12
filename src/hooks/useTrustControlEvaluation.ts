@@ -50,12 +50,24 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
       security_contact: () => asset.contact_email ? "implemented" : asset.contact_person ? "partial" : "missing",
       sub_processors_disclosed: () => meta.sub_processors_disclosed ? "implemented" : "missing",
       vendor_security_review: () => meta.vendor_security_review ? "implemented" : "missing",
+      // Privacy & Data Handling
+      vendor_privacy_policy: () => meta.vendor_privacy_policy ? "implemented" : meta.privacy_policy_url ? "implemented" : "missing",
+      vendor_data_location: () => meta.vendor_data_location ? "implemented" : meta.data_locations ? "partial" : "missing",
+      vendor_data_retention: () => meta.vendor_data_retention ? "implemented" : "missing",
+      vendor_data_portability: () => meta.vendor_data_portability ? "implemented" : "missing",
+      vendor_gdpr_compliant: () => meta.vendor_gdpr_compliant ? "implemented" : meta.gdpr_status === "partial" ? "partial" : "missing",
     },
     system: {
       mfa_enabled: () => meta.mfa_enabled ? "implemented" : "missing",
       encryption_enabled: () => meta.encryption_enabled ? "implemented" : "missing",
       backup_configured: () => meta.backup_configured ? "implemented" : "missing",
       security_logging: () => meta.security_logging ? "implemented" : "missing",
+      // Privacy & Data Handling
+      system_personal_data_mapped: () => meta.system_personal_data_mapped ? "implemented" : meta.personal_data_mapped ? "implemented" : "missing",
+      system_legal_basis: () => meta.system_legal_basis ? "implemented" : "missing",
+      system_data_retention: () => meta.system_data_retention ? "implemented" : meta.retention_defined ? "partial" : "missing",
+      system_access_logging: () => meta.system_access_logging ? "implemented" : "missing",
+      system_data_minimization: () => meta.system_data_minimization ? "implemented" : "missing",
     },
     hardware: {
       device_encryption: () => meta.disk_encrypted ? "implemented" : "missing",
