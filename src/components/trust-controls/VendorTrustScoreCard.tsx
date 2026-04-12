@@ -16,9 +16,11 @@ interface VendorTrustScoreCardProps {
 const AREA_CARDS = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance", color: "text-blue-600" },
   { area: "risk_compliance", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-emerald-600" },
-  { area: "security_posture", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-violet-600" },
+  { area: "security_posture", icon: Fingerprint, labelNb: "Identitet og tilgang", labelEn: "Identity & Access", color: "text-violet-600" },
   { area: "supplier_governance", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
 ];
+
+const PRIVACY_AREA = { area: "privacy_data", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-rose-600" };
 
 export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated, assetId }: VendorTrustScoreCardProps) {
   const { i18n } = useTranslation();
