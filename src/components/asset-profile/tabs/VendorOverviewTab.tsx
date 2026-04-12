@@ -286,8 +286,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                           )}
                         </div>
                       </div>
-                      );}
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
