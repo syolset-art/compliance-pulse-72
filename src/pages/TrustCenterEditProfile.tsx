@@ -495,7 +495,7 @@ const TrustCenterEditProfile = () => {
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-primary" />
                   <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Modenhet per kontroller" : "Maturity by Controls"}
+                    {isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}
                   </h2>
                 </div>
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
