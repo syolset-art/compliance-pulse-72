@@ -779,7 +779,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                   value={(asset as any).vendor_category || ""}
                   placeholder={isNb ? "Legg til bransje" : "Add industry"}
                   onSave={(val) => updateAsset.mutate({ vendor_category: val || null })}
-                  disabled={asset.publish_mode === 'claimed'}
+                  disabled={(asset as any).publish_mode === 'claimed'}
                 />
                 {(asset as any).org_number && (
                   <span>
