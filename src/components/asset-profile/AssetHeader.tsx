@@ -602,6 +602,48 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       {!isSelf && (
         <>
           <div className="border-t border-border my-4" />
+
+          {/* Vendor metadata row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                {isNb ? "Org.nr" : "Org. no."}
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {(asset as any).org_number || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                {isNb ? "Bransje" : "Industry"}
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {(asset as any).vendor_category || asset.category || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                {isNb ? "Kategori" : "Category"}
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {template?.display_name || asset.asset_type || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+                {isNb ? "Nettside" : "Website"}
+              </p>
+              {asset.url ? (
+                <a href={asset.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                  {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <p className="text-sm font-medium text-foreground">—</p>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* 1. Eier = Arbeidsområde */}
             <div className="flex items-start gap-3">
