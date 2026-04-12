@@ -3093,6 +3093,69 @@ export type Database = {
           },
         ]
       }
+      vendor_deliveries: {
+        Row: {
+          asset_id: string
+          category: string
+          contract_document_id: string | null
+          contract_end: string | null
+          contract_start: string | null
+          contract_value: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          category?: string
+          contract_document_id?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_value?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          category?: string
+          contract_document_id?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_value?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_deliveries_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_deliveries_contract_document_id_fkey"
+            columns: ["contract_document_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_document_requests: {
         Row: {
           asset_id: string | null
