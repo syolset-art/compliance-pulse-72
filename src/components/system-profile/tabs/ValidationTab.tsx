@@ -5,12 +5,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertCircle, Clock, Bot } from "lucide-react";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface ValidationTabProps {
   systemId: string;
+  systemAsAsset?: {
+    id: string;
+    name: string;
+    vendor?: string | null;
+    risk_level: string | null;
+    compliance_score: number | null;
+    next_review_date: string | null;
+    criticality: string | null;
+    work_area_id?: string | null;
+    asset_manager?: string | null;
+    asset_owner?: string | null;
+    description?: string | null;
+    gdpr_role?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
+    updated_at?: string | null;
+    asset_type?: string;
+  };
+  tasksCount?: number;
+  onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
 }
 
-export const ValidationTab = ({ systemId }: ValidationTabProps) => {
+export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetrics }: ValidationTabProps) => {
   const { t } = useTranslation();
 
   const { data: compliance } = useQuery({
@@ -35,6 +56,46 @@ export const ValidationTab = ({ systemId }: ValidationTabProps) => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // Data for TrustControlsPanel
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["vendor-documents-count", systemId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id")
+        .eq("asset_id", systemId);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  const { data: relationsCount = 0 } = useQuery({
+    queryKey: ["asset-relations-count", systemId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("asset_relationships")
+        .select("id")
+        .or(`source_asset_id.eq.${systemId},target_asset_id.eq.${systemId}`);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
     },
   });
 
@@ -66,114 +127,127 @@ export const ValidationTab = ({ systemId }: ValidationTabProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left column - Tasks and overall compliance */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* System Tasks */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("trustProfile.systemTasks")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tasks && tasks.length > 0 ? (
-              <div className="space-y-3">
-                {tasks.slice(0, 5).map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-2 w-2 rounded-full ${
-                        task.status === "completed" ? "bg-green-500" : 
-                        task.status === "in_progress" ? "bg-yellow-500" : "bg-muted-foreground"
-                      }`} />
-                      <span className="text-sm font-medium">{task.title}</span>
-                    </div>
-                    <Badge variant={task.priority === "high" ? "destructive" : "secondary"}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">{t("trustProfile.noTasks")}</p>
-            )}
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* Trust Controls Panel — Maturity by control areas */}
+      {systemAsAsset && (
+        <TrustControlsPanel
+          asset={systemAsAsset}
+          docsCount={docsCount}
+          relationsCount={relationsCount}
+          onTrustMetrics={onTrustMetrics}
+          frameworks={frameworks}
+        />
+      )}
 
-        {/* Compliance per standard */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("trustProfile.complianceByStandard")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {standards.map((standard) => {
-                const item = complianceMap[standard];
-                const score = item?.score || 0;
-                return (
-                  <div key={standard} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(item?.status)}
-                        <span className="font-medium">{standard}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column - Tasks and overall compliance */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* System Tasks */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t("trustProfile.systemTasks")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tasks && tasks.length > 0 ? (
+                <div className="space-y-3">
+                  {tasks.slice(0, 5).map((task) => (
+                    <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-2 w-2 rounded-full ${
+                          task.status === "completed" ? "bg-green-500" : 
+                          task.status === "in_progress" ? "bg-yellow-500" : "bg-muted-foreground"
+                        }`} />
+                        <span className="text-sm font-medium">{task.title}</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">{score}%</span>
+                      <Badge variant={task.priority === "high" ? "destructive" : "secondary"}>
+                        {task.priority}
+                      </Badge>
                     </div>
-                    <Progress value={score} className={`h-2 ${getStatusColor(score)}`} />
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t("trustProfile.noTasks")}</p>
+              )}
+            </CardContent>
+          </Card>
 
-      {/* Right column - Total compliance and AI insights */}
-      <div className="space-y-6">
-        {/* Total Compliance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">{t("trustProfile.totalCompliance")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center">
-              <div className="relative h-32 w-32">
-                <svg className="h-32 w-32 -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="stroke-muted"
-                    strokeWidth="3"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className={totalScore >= 80 ? "stroke-green-500" : totalScore >= 50 ? "stroke-yellow-500" : "stroke-destructive"}
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    fill="none"
-                    strokeDasharray={`${totalScore}, 100`}
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-3xl font-bold">{totalScore}%</span>
+          {/* Compliance per standard */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t("trustProfile.complianceByStandard")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {standards.map((standard) => {
+                  const item = complianceMap[standard];
+                  const score = item?.score || 0;
+                  return (
+                    <div key={standard} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(item?.status)}
+                          <span className="font-medium">{standard}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{score}%</span>
+                      </div>
+                      <Progress value={score} className={`h-2 ${getStatusColor(score)}`} />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column - Total compliance and AI insights */}
+        <div className="space-y-6">
+          {/* Total Compliance */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t("trustProfile.totalCompliance")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center">
+                <div className="relative h-32 w-32">
+                  <svg className="h-32 w-32 -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="stroke-muted"
+                      strokeWidth="3"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className={totalScore >= 80 ? "stroke-green-500" : totalScore >= 50 ? "stroke-yellow-500" : "stroke-destructive"}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      fill="none"
+                      strokeDasharray={`${totalScore}, 100`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-3xl font-bold">{totalScore}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* AI Insights */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Bot className="h-5 w-5 text-primary" />
-              {t("trustProfile.aiInsights")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {t("trustProfile.aiInsightsPlaceholder")}
-            </p>
-          </CardContent>
-        </Card>
+          {/* AI Insights */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Bot className="h-5 w-5 text-primary" />
+                {t("trustProfile.aiInsights")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                {t("trustProfile.aiInsightsPlaceholder")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
