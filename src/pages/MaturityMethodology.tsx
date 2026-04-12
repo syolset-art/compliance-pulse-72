@@ -239,8 +239,8 @@ const MaturityMethodology = () => {
                   <p className="text-sm font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security maturity")}</p>
                   <p className="text-sm text-muted-foreground mt-0.5">
                     {t(
-                      "Gjennomsnittet av alle kontroll-nivåer gir din modenhetsscore. Scoren vises fordelt på fire fokusområder: Governance, Operations, Identity & Access og Supplier & Ecosystem.",
-                      "The average of all control levels gives your maturity score. The score is shown across four focus areas: Governance, Operations, Identity & Access and Supplier & Ecosystem."
+                      "Gjennomsnittet av alle kontroll-nivåer gir din modenhetsscore. Scoren vises fordelt på fire fokusområder: Styring, Drift og sikkerhet, Personvern og datahåndtering og Tredjepartstyring og verdikjede.",
+                      "The average of all control levels gives your maturity score. The score is shown across four focus areas: Governance, Operations & Security, Privacy & Data Handling and Third-Party & Value Chain."
                     )}
                   </p>
                 </div>

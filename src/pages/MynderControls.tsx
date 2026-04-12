@@ -54,8 +54,8 @@ const DOMAINS = [
     key: "identity",
     icon: Fingerprint,
     color: "bg-cyan-500", iconColor: "text-cyan-600 dark:text-cyan-400", bgColor: "bg-cyan-500/5", borderColor: "border-l-cyan-500",
-    title_no: "Identity & Access", title_en: "Identity & Access",
-    desc_no: "Hvem har tilgang til hva — og hvorfor", desc_en: "Who can access what — and why",
+    title_no: "Personvern og datahåndtering", title_en: "Privacy & Data Handling",
+    desc_no: "Personvern, behandlingsoversikt og registrertes rettigheter", desc_en: "Privacy, processing records and data subject rights",
     controls_no: [
       "Tilgangsstyring er dokumentert",
       "Minste-privilegium-prinsipp følges",
@@ -73,7 +73,7 @@ const DOMAINS = [
     key: "supplier",
     icon: Users,
     color: "bg-amber-500", iconColor: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-500/5", borderColor: "border-l-amber-500",
-    title_no: "Supplier & Ecosystem", title_en: "Supplier & Ecosystem",
+    title_no: "Tredjepartstyring og verdikjede", title_en: "Third-Party & Value Chain",
     desc_no: "Leverandørstyring og tredjeparts-risiko", desc_en: "Vendor management and third-party risk",
     controls_no: [
       "Leverandøroversikt er etablert",
