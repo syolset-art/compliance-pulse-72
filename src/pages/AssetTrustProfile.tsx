@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye } from "lucide-react";
@@ -163,21 +164,27 @@ const AssetTrustProfile = () => {
     };
   }, []);
 
+  const isMobile = useIsMobile();
+
   // ── Vendor tabs ──
-  const vendorTabDefs = [
-    { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
-    { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
-    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
-    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-audit', label: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
-    { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
-    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
+  const allVendorTabs = [
+    { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
+    { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
+    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
+    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
+    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
+    { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
+    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
+    { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
   ];
 
-  const vendorOverflowTabDefs = [
-    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
-    { value: 'vendor-activity', label: isNb ? 'Aktivitetslogg' : 'Activity Log' },
-  ];
+  const mobileVisibleCount = 4;
+  const desktopVisibleCount = 7;
+  const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
+
+  const vendorTabDefs = allVendorTabs.slice(0, visibleCount);
+  const vendorOverflowTabDefs = allVendorTabs.slice(visibleCount);
 
   const activeVendorOverflowTab = vendorOverflowTabDefs.find(t => t.value === activeTab);
 
@@ -364,10 +371,11 @@ const AssetTrustProfile = () => {
                         <TabsTrigger
                           key={tab.value}
                           value={tab.value}
-                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2.5 sm:px-3 py-1.5"
+                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2 sm:px-3 py-1.5"
                           role="tab"
                         >
-                          {tab.label}
+                          <span className="sm:hidden">{tab.label}</span>
+                          <span className="hidden sm:inline">{tab.labelFull}</span>
                         </TabsTrigger>
                       ))}
                     </TabsList>
@@ -381,7 +389,7 @@ const AssetTrustProfile = () => {
                             className="h-9 gap-1.5 shrink-0 text-xs"
                             aria-label={isNb ? "Vis flere" : "Show more"}
                           >
-                            {activeVendorOverflowTab ? activeVendorOverflowTab.label : (
+                            {activeVendorOverflowTab ? activeVendorOverflowTab.labelFull : (
                               <>
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="hidden sm:inline">{isNb ? "Vis flere" : "Show more"}</span>
@@ -396,7 +404,7 @@ const AssetTrustProfile = () => {
                               onClick={() => setActiveTab(tab.value)}
                               className={activeTab === tab.value ? "bg-accent font-medium" : ""}
                             >
-                              {tab.label}
+                              {tab.labelFull}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>
