@@ -204,7 +204,16 @@ export const VendorTPRMStatus = ({ assetId, assetName = "", vendorName, contactP
               <Calendar className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
               <div>
                 <p className="text-muted-foreground">{isNb ? "Neste gjennomgang" : "Next review"}</p>
-                <p className="font-medium">{formatDate(nextReview)}</p>
+                {nextReview ? (
+                  <p className="font-medium">{formatDate(nextReview)}</p>
+                ) : (
+                  <button
+                    onClick={() => window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "vendor-audit" } }))}
+                    className="font-medium text-primary hover:underline cursor-pointer"
+                  >
+                    {isNb ? "Sett opp i Revisjon →" : "Set up in Audit →"}
+                  </button>
+                )}
               </div>
             </div>
             {responsible && (
