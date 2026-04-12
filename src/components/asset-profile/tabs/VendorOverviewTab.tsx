@@ -173,7 +173,47 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
-  const openTasks = tasks.filter((t: any) => t.status !== "completed");
+  // Generate tasks from missing/partial controls
+  const controlTasks = useMemo(() => {
+    if (!evaluation) return [];
+    const { allControls } = evaluation;
+    const AREA_LABELS_NB: Record<string, string> = {
+      governance: "Styring",
+      risk_compliance: "Drift og sikkerhet",
+      security_posture: "Personvern og datahåndtering",
+      supplier_governance: "Tredjepartstyring",
+    };
+    const AREA_LABELS_EN: Record<string, string> = {
+      governance: "Governance",
+      risk_compliance: "Operations & Security",
+      security_posture: "Privacy & Data Handling",
+      supplier_governance: "Third-Party & Value Chain",
+    };
+    return allControls
+      .filter(c => c.status === "missing" || c.status === "partial")
+      .map(c => ({
+        id: `ctrl-${c.key}`,
+        title: isNb ? c.labelNb : c.labelEn,
+        type: isNb ? (AREA_LABELS_NB[c.area] || c.area) : (AREA_LABELS_EN[c.area] || c.area),
+        status: c.status === "partial" ? "in_progress" : "open",
+        priority: c.status === "missing" ? "high" : "medium",
+        isControlTask: true,
+      }));
+  }, [evaluation, isNb]);
+
+  const dbOpenTasks = tasks.filter((t: any) => t.status !== "completed");
+  // Merge: DB tasks first, then fill with control-derived tasks (up to 10 total)
+  const openTasks = useMemo(() => {
+    const merged = [...dbOpenTasks];
+    const existingTitles = new Set(dbOpenTasks.map((t: any) => t.title?.toLowerCase()));
+    for (const ct of controlTasks) {
+      if (!existingTitles.has(ct.title.toLowerCase())) {
+        merged.push(ct);
+      }
+    }
+    return merged.slice(0, 10);
+  }, [dbOpenTasks, controlTasks]);
+
   const responsiblePerson = asset.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
 
   // Default tasks expanded when there are open tasks (only on first load)
