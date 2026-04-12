@@ -153,6 +153,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setFile(null);
     setClassification(null);
     setComplianceImpact(null);
+    setTprmImpact(null);
     setDatesAreDefaults(false);
     setDocType("");
     setCategory("Other");
