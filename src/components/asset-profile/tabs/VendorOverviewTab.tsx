@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
-  Shield, Users, Server, Link2, AlertTriangle,
+  Shield, Users, Server, Link2, AlertTriangle, Mail,
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint, HelpCircle, Eye,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
