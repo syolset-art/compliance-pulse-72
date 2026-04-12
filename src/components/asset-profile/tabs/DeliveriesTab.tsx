@@ -40,6 +40,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showSla, setShowSla] = useState(false);
+  const [slaTerms, setSlaTerms] = useState<string[]>([]);
+  const [newSlaTerm, setNewSlaTerm] = useState("");
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -131,7 +133,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
         sla_uptime: form.sla_uptime || null,
         sla_response_time: form.sla_response_time || null,
         sla_support_hours: form.sla_support_hours || null,
-        sla_notes: form.sla_notes || null,
+        sla_notes: slaTerms.length > 0 ? JSON.stringify(slaTerms) : (form.sla_notes || null),
       });
       if (error) throw error;
 
@@ -141,6 +143,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
       setShowAddDialog(false);
       setShowSla(false);
       setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "", sla_uptime: "", sla_response_time: "", sla_support_hours: "", sla_notes: "" });
+      setSlaTerms([]);
+      setNewSlaTerm("");
       setSelectedFile(null);
     } catch (err: any) {
       toast.error(err.message || "Error");
@@ -414,13 +418,57 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                   />
                 </div>
                 <div>
-                  <Label>{isNb ? "SLA-merknader" : "SLA notes"}</Label>
-                  <Textarea
-                    value={form.sla_notes}
-                    onChange={(e) => setForm((f) => ({ ...f, sla_notes: e.target.value }))}
-                    placeholder={isNb ? "Ytterligere SLA-vilkår eller merknader" : "Additional SLA terms or notes"}
-                    rows={2}
-                  />
+                  <Label>{isNb ? "SLA-vilkår" : "SLA terms"}</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {isNb ? "Legg til spesifikke vilkår for denne tjenestenivåavtalen." : "Add specific terms for this service level agreement."}
+                  </p>
+                  {slaTerms.length > 0 && (
+                    <div className="space-y-1.5 mb-2">
+                      {slaTerms.map((term, idx) => (
+                        <div key={idx} className="flex items-center gap-2 bg-muted/50 rounded-md px-3 py-1.5">
+                          <span className="text-sm flex-1">{term}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                            onClick={() => setSlaTerms((t) => t.filter((_, i) => i !== idx))}
+                            aria-label={isNb ? `Fjern vilkår: ${term}` : `Remove term: ${term}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSlaTerm}
+                      onChange={(e) => setNewSlaTerm(e.target.value)}
+                      placeholder={isNb ? "F.eks. Maks nedetid 4 timer/mnd" : "E.g. Max downtime 4 hours/month"}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newSlaTerm.trim()) {
+                          e.preventDefault();
+                          setSlaTerms((t) => [...t, newSlaTerm.trim()]);
+                          setNewSlaTerm("");
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!newSlaTerm.trim()}
+                      onClick={() => {
+                        if (newSlaTerm.trim()) {
+                          setSlaTerms((t) => [...t, newSlaTerm.trim()]);
+                          setNewSlaTerm("");
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
