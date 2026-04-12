@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, ShieldAlert, Activity } from "lucide-react";
+import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo } from "lucide-react";
 
 interface HeaderMaturityIndicatorsProps {
   riskLevel?: string | null;
@@ -17,80 +15,72 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
     switch (level?.toLowerCase()) {
       case "high":
       case "critical":
-        return { label: isNb ? "Høy" : "High", color: "text-destructive", bgColor: "bg-destructive/10 border-destructive/30 text-destructive" };
+        return { label: isNb ? "Høy risiko" : "High risk", color: "text-destructive", iconColor: "text-destructive" };
       case "medium":
-        return { label: isNb ? "Middels" : "Medium", color: "text-warning", bgColor: "bg-warning/10 border-warning/30 text-warning" };
+        return { label: isNb ? "Moderat risiko" : "Moderate risk", color: "text-warning", iconColor: "text-warning" };
       case "low":
-        return { label: isNb ? "Lav" : "Low", color: "text-success", bgColor: "bg-success/10 border-success/30 text-success" };
+        return { label: isNb ? "Lav risiko" : "Low risk", color: "text-success", iconColor: "text-success" };
       default:
-        return { label: isNb ? "Ikke vurdert" : "Not assessed", color: "text-muted-foreground", bgColor: "bg-muted border-border text-muted-foreground" };
-    }
-  };
-
-  const getCriticalityDisplay = (crit: string | null) => {
-    switch (crit?.toLowerCase()) {
-      case "critical":
-        return { label: isNb ? "Kritisk" : "Critical", color: "bg-destructive/10 border-destructive/30 text-destructive" };
-      case "high":
-        return { label: isNb ? "Høy" : "High", color: "bg-warning/10 border-warning/30 text-warning" };
-      case "medium":
-        return { label: isNb ? "Middels" : "Medium", color: "bg-primary/10 border-primary/30 text-primary" };
-      case "low":
-        return { label: isNb ? "Lav" : "Low", color: "bg-success/10 border-success/30 text-success" };
-      default:
-        return { label: isNb ? "Ikke satt" : "Not set", color: "bg-muted border-border text-muted-foreground" };
+        return { label: isNb ? "Ikke vurdert" : "Not assessed", color: "text-muted-foreground", iconColor: "text-muted-foreground" };
     }
   };
 
   const risk = getRiskDisplay(riskLevel);
-  const crit = getCriticalityDisplay(criticality);
   const matColor = maturityPercent >= 70 ? "text-success" : maturityPercent >= 40 ? "text-warning" : "text-destructive";
 
-  return (
-    <div className="hidden md:flex flex-col gap-3 shrink-0 pl-6 border-l border-border min-w-[180px]">
-      {/* Risk */}
-      <div className="flex items-center gap-2.5">
-        <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0">
-          <AlertTriangle className={`h-3.5 w-3.5 ${risk.color}`} />
-        </div>
-        <div>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-            {isNb ? "Risiko" : "Risk"}
-          </p>
-          <Badge variant="outline" className={`text-[10px] h-5 px-2 ${risk.bgColor}`}>
-            {risk.label}
-          </Badge>
-        </div>
-      </div>
+  // Demo data for internal risk assessment and tasks
+  const lastAssessmentDate = "23.03.2026";
+  const openTasks = 0;
 
-      {/* Criticality */}
-      <div className="flex items-center gap-2.5">
-        <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0">
-          <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
-        </div>
-        <div>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-            {isNb ? "Kritikalitet" : "Criticality"}
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+      {/* Risk Level */}
+      <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Risikonivå" : "Risk Level"}
           </p>
-          <Badge variant="outline" className={`text-[10px] h-5 px-2 ${crit.color}`}>
-            {crit.label}
-          </Badge>
+          <AlertTriangle className={`h-4 w-4 ${risk.iconColor}`} />
         </div>
+        <p className={`text-sm font-bold ${risk.color}`}>{risk.label}</p>
       </div>
 
       {/* Maturity */}
-      <div className="flex items-center gap-2.5">
-        <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0">
-          <Activity className={`h-3.5 w-3.5 ${matColor}`} />
-        </div>
-        <div className="flex-1 min-w-[100px]">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+      <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {isNb ? "Modenhet" : "Maturity"}
           </p>
-          <div className="flex items-center gap-2">
-            <Progress value={maturityPercent} className="h-1.5 flex-1" />
-            <span className={`text-xs font-bold tabular-nums ${matColor}`}>{maturityPercent}%</span>
-          </div>
+          <TrendingUp className={`h-4 w-4 ${matColor}`} />
+        </div>
+        <div className="flex items-end gap-1.5">
+          <span className={`text-2xl font-extrabold tabular-nums leading-none ${matColor}`}>{maturityPercent}</span>
+          <span className="text-xs text-muted-foreground font-medium mb-0.5">%</span>
+        </div>
+      </div>
+
+      {/* Internal Risk Assessment */}
+      <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Intern risikovurd." : "Risk Assessment"}
+          </p>
+          <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-bold text-foreground">{lastAssessmentDate}</p>
+      </div>
+
+      {/* Tasks */}
+      <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Oppgaver" : "Tasks"}
+          </p>
+          <ListTodo className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="flex items-end gap-1.5">
+          <span className={`text-2xl font-extrabold tabular-nums leading-none ${openTasks > 0 ? "text-warning" : "text-success"}`}>{openTasks}</span>
+          <span className="text-xs text-muted-foreground font-medium mb-0.5">{isNb ? "åpne" : "open"}</span>
         </div>
       </div>
     </div>

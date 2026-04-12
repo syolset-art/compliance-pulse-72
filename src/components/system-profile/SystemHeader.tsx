@@ -193,7 +193,10 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           )}
         </div>
 
-        {/* Risk / Criticality / Maturity indicators */}
+      </div>
+
+      {/* Horizontal metric cards */}
+      <div className="mt-4 pt-4 border-t border-border">
         <HeaderMaturityIndicators
           riskLevel={(system as any).risk_level || "medium"}
           criticality={(system as any).criticality || "medium"}
