@@ -71,7 +71,7 @@ export function generateVendorPortfolioReport(vendors: VendorRow[], companyName:
       v.category || v.gdpr_role || "–",
       v.country || "–",
       riskLabel(v.risk_level),
-      v.compliance_score != null ? `${v.compliance_score}%` : "–",
+      v.compliance_score != null && v.compliance_score > 0 ? `${v.compliance_score}%` : "Ikke vurdert",
       v.criticality || "–",
     ]),
     styles: { fontSize: 9, cellPadding: 3 },
