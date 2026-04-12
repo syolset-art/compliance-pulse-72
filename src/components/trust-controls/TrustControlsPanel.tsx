@@ -12,7 +12,9 @@ import {
   Key,
   Users,
   ChevronRight,
+  TrendingUp,
 } from "lucide-react";
+import { MaturityHistoryChart } from "./MaturityHistoryChart";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
