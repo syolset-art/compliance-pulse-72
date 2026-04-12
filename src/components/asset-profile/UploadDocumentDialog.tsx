@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -20,6 +20,8 @@ import {
   Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { calculateTPRMImpact, type TPRMLevel } from "@/lib/tprmUtils";
+import type { TPRMImpactData } from "@/components/ApprovalSuccessDialog";
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
@@ -111,7 +113,22 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [file, setFile] = useState<File | null>(null);
   const [classification, setClassification] = useState<AIClassification | null>(null);
   const [complianceImpact, setComplianceImpact] = useState<ComplianceImpact | null>(null);
+  const [tprmImpact, setTprmImpact] = useState<TPRMImpactData | null>(null);
   const [datesAreDefaults, setDatesAreDefaults] = useState(false);
+
+  // Fetch asset info for TPRM calculation
+  const { data: assetInfoForTPRM } = useQuery({
+    queryKey: ["asset-tprm-upload", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("criticality, risk_level, next_review_date")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Editable fields (populated by AI, adjustable by user)
   const [docType, setDocType] = useState("");
@@ -136,6 +153,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
     setFile(null);
     setClassification(null);
     setComplianceImpact(null);
+    setTprmImpact(null);
     setDatesAreDefaults(false);
     setDocType("");
     setCategory("Other");
@@ -379,6 +397,25 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
         coveredTypes: coveredAfter,
         totalExpected: EXPECTED_DOC_TYPES.length,
       });
+
+      // Calculate TPRM impact
+      const existingDocTypes = (await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", assetId)
+        .then(r => r.data || []))
+        .map((d: any) => d.document_type)
+        .filter(Boolean);
+      const hasAudit = !!assetInfoForTPRM?.next_review_date;
+      const tprm = calculateTPRMImpact(
+        existingDocTypes,
+        hasAudit,
+        docType,
+        assetInfoForTPRM?.criticality,
+        assetInfoForTPRM?.risk_level,
+      );
+      setTprmImpact(tprm);
+
       setStep("saved");
     } catch {
       toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
@@ -779,6 +816,35 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 className="h-2.5"
               />
             </div>
+
+            {/* TPRM Impact */}
+            {tprmImpact && tprmImpact.controlsAfter > tprmImpact.controlsBefore && (
+              <div className="p-4 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">{isNb ? "Effekt på oppfølgingsstatus" : "TPRM Impact"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{isNb ? "Kontroll" : "Control"}</span>
+                  <span className="font-medium">
+                    {tprmImpact.controlsBefore}/{tprmImpact.controlsTotal}
+                    <ArrowRight className="inline h-3 w-3 mx-1 text-muted-foreground" />
+                    <span className="text-emerald-700 font-bold">
+                      {tprmImpact.controlsAfter}/{tprmImpact.controlsTotal}
+                    </span>
+                    <span className="text-muted-foreground ml-1">{isNb ? "krav oppfylt" : "met"}</span>
+                  </span>
+                </div>
+                {tprmImpact.tprmLevelBefore !== tprmImpact.tprmLevelAfter && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{isNb ? "Status" : "Status"}</span>
+                    <span className="text-xs font-medium text-emerald-700">
+                      {isNb ? "Oppgradert" : "Upgraded"} ✓
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Coverage breakdown */}
             <div className="p-4 rounded-lg border space-y-2">

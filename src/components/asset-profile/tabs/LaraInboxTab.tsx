@@ -9,6 +9,7 @@ import { CheckCircle2, X, Mail, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
+import { calculateTPRMImpact } from "@/lib/tprmUtils";
 
 interface Props {
   assetId: string;
@@ -44,6 +45,32 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
     },
   });
 
+  // Fetch asset info and existing vendor docs for TPRM impact calculation
+  const { data: assetInfo } = useQuery({
+    queryKey: ["asset-tprm-lara", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("criticality, risk_level, next_review_date")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: vendorDocs = [] } = useQuery({
+    queryKey: ["vendor-documents-tprm-lara", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", assetId);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const approveMutation = useMutation({
     mutationFn: async (item: any) => {
       // Move to vendor_documents
@@ -63,12 +90,27 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
     onSuccess: (_data, item) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents-tprm-lara", assetId] });
+
+      // Calculate TPRM impact
+      const existingDocTypes = vendorDocs.map((d: any) => d.document_type).filter(Boolean);
+      const hasAudit = !!assetInfo?.next_review_date;
+      const docType = item.matched_document_type || "other";
+      const tprmImpact = calculateTPRMImpact(
+        existingDocTypes,
+        hasAudit,
+        docType,
+        assetInfo?.criticality,
+        assetInfo?.risk_level,
+      );
+
       setApprovedItem({
         fileName: item.file_name || item.subject || "",
-        documentType: item.matched_document_type || "other",
+        documentType: docType,
         assetId,
         assetName,
         isIncident: false,
+        tprmImpact,
       });
     },
   });
