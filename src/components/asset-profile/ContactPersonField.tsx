@@ -156,7 +156,7 @@ export const ContactPersonField = ({
             onClick={() => setEditing(true)}
             className="text-xs text-muted-foreground/50 italic hover:text-muted-foreground transition-colors"
           >
-            {isNb ? "Legg til kontaktperson" : "Add contact"}
+            {isNb ? "Legg til kontaktperson hos leverandør" : "Add vendor contact person"}
           </button>
         )}
       </div>
