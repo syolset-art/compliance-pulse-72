@@ -2,11 +2,12 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
   Shield, Users, Server, Link2, AlertTriangle,
-  Building2, Briefcase,
+  Building2, Briefcase, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
@@ -53,6 +54,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const isNb = i18n.language === "nb";
   const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [tasksExpanded, setTasksExpanded] = useState(false);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
@@ -121,6 +123,22 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
   });
 
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["asset-tasks", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .contains("relevant_for", [asset.id])
+        .order("created_at", { ascending: false });
+      if (error) return [];
+      return data || [];
+    },
+  });
+
+  const openTasks = tasks.filter((t: any) => t.status !== "completed");
+  const responsiblePerson = asset.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
+
   return (
     <div className="space-y-8">
       {/* Expired documents warning */}
@@ -146,7 +164,112 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
       )}
 
-      {/* ─── SECTION 1: Vendor Baseline ─── */}
+      {/* ─── SECTION 1: Our Maturity Work ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Briefcase className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Vårt modenhetsarbeid" : "Our Maturity Work"}
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Tasks card */}
+          <Card>
+            <button
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
+              onClick={() => setTasksExpanded(!tasksExpanded)}
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isNb ? "Oppgaver" : "Tasks"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {isNb
+                    ? "Oppgaver som må følges opp for å løfte samsvar og dokumentasjon."
+                    : "Tasks to follow up to improve compliance and documentation."}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {openTasks.length > 0 && (
+                  <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
+                    {openTasks.length} {isNb ? "ÅPNE" : "OPEN"}
+                  </Badge>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
+                </span>
+                {tasksExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </button>
+            {tasksExpanded && (
+              <CardContent className="pt-0 pb-4 px-4">
+                {openTasks.length > 0 ? (
+                  <div className="space-y-2 border-t border-border pt-3">
+                    {openTasks.slice(0, 5).map((task: any) => (
+                      <div key={task.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`h-2 w-2 rounded-full shrink-0 ${
+                            task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
+                          }`} />
+                          <span className="text-sm text-foreground">{task.title}</span>
+                        </div>
+                        {task.priority && (
+                          <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
+                            {task.priority}
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
+                    {isNb ? "Ingen åpne oppgaver" : "No open tasks"}
+                  </p>
+                )}
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Trust Controls Panel — maturity per control area */}
+          <TrustControlsPanel
+            asset={asset}
+            docsCount={docsCount}
+            relationsCount={relationsCount}
+            onTrustMetrics={onTrustMetrics}
+            frameworks={frameworks}
+            onNavigateToTab={onNavigateToTab}
+          />
+
+          {/* Domain cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {DOMAIN_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
+              const score = evaluation?.areaScore(area as any) ?? 0;
+              const scoreClr = score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-destructive";
+              return (
+                <Card
+                  key={area}
+                  className="cursor-pointer hover:border-primary/40 transition-colors"
+                  onClick={() => onNavigateToTab?.("controls")}
+                >
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
+                    <Icon className={`h-6 w-6 ${color}`} />
+                    <span className="text-xs font-medium">{isNb ? lNb : lEn}</span>
+                    <span className={`text-xl font-bold ${scoreClr}`}>{score}%</span>
+                    <Progress value={score} className="h-1.5 w-full" />
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SECTION 2: Vendor Baseline ─── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -196,50 +319,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SECTION 2: Our Maturity Work ─── */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Briefcase className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {isNb ? "Vårt modenhetsarbeid" : "Our Maturity Work"}
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          {/* Trust Controls Panel — maturity per control area */}
-          <TrustControlsPanel
-            asset={asset}
-            docsCount={docsCount}
-            relationsCount={relationsCount}
-            onTrustMetrics={onTrustMetrics}
-            frameworks={frameworks}
-            onNavigateToTab={onNavigateToTab}
-          />
-
-          {/* Domain cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {DOMAIN_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
-              const score = evaluation?.areaScore(area as any) ?? 0;
-              const scoreClr = score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-destructive";
-              return (
-                <Card
-                  key={area}
-                  className="cursor-pointer hover:border-primary/40 transition-colors"
-                  onClick={() => onNavigateToTab?.("controls")}
-                >
-                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                    <Icon className={`h-6 w-6 ${color}`} />
-                    <span className="text-xs font-medium">{isNb ? lNb : lEn}</span>
-                    <span className={`text-xl font-bold ${scoreClr}`}>{score}%</span>
-                    <Progress value={score} className="h-1.5 w-full" />
-                  </CardContent>
-                </Card>
-              );
-            })}
           </div>
         </div>
       </section>

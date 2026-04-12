@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, AlertCircle, Clock, Bot, Building2, Briefcase } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, Bot, Building2, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
+import { useState } from "react";
 
 interface ValidationTabProps {
   systemId: string;
@@ -37,6 +38,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
   const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const evaluation = useTrustControlEvaluation(systemId);
+  const [tasksExpanded, setTasksExpanded] = useState(false);
 
   const { data: compliance } = useQuery({
     queryKey: ["system-compliance", systemId],
@@ -50,7 +52,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
     },
   });
 
-  const { data: tasks } = useQuery({
+  const { data: tasks = [] } = useQuery({
     queryKey: ["system-tasks", systemId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -129,27 +131,12 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
     return "bg-destructive";
   };
 
+  const openTasks = tasks.filter((t: any) => t.status !== "completed");
+  const responsiblePerson = systemAsAsset?.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
+
   return (
     <div className="space-y-8">
-      {/* ─── SECTION 1: Vendor Baseline ─── */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Building2 className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {isNb ? "Leverandørens baseline" : "Vendor Baseline"}
-          </h2>
-        </div>
-
-        {systemAsAsset && (
-          <VendorTrustScoreCard
-            trustScore={evaluation?.trustScore ?? 0}
-            confidenceScore={evaluation?.confidenceScore ?? 0}
-            lastUpdated={new Date().toLocaleDateString()}
-          />
-        )}
-      </section>
-
-      {/* ─── SECTION 2: Our Maturity Work ─── */}
+      {/* ─── SECTION 1: Our Maturity Work ─── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -159,6 +146,67 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
         </div>
 
         <div className="space-y-6">
+          {/* Tasks card */}
+          <Card>
+            <button
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
+              onClick={() => setTasksExpanded(!tasksExpanded)}
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isNb ? "Oppgaver" : "Tasks"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {isNb
+                    ? "Oppgaver som må følges opp for å løfte samsvar og dokumentasjon."
+                    : "Tasks to follow up to improve compliance and documentation."}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {openTasks.length > 0 && (
+                  <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
+                    {openTasks.length} {isNb ? "ÅPNE" : "OPEN"}
+                  </Badge>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
+                </span>
+                {tasksExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </button>
+            {tasksExpanded && (
+              <CardContent className="pt-0 pb-4 px-4">
+                {openTasks.length > 0 ? (
+                  <div className="space-y-2 border-t border-border pt-3">
+                    {openTasks.slice(0, 5).map((task: any) => (
+                      <div key={task.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`h-2 w-2 rounded-full shrink-0 ${
+                            task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
+                          }`} />
+                          <span className="text-sm text-foreground">{task.title}</span>
+                        </div>
+                        {task.priority && (
+                          <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
+                            {task.priority}
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
+                    {isNb ? "Ingen åpne oppgaver" : "No open tasks"}
+                  </p>
+                )}
+              </CardContent>
+            )}
+          </Card>
+
           {/* Trust Controls Panel — Maturity by control areas */}
           {systemAsAsset && (
             <TrustControlsPanel
@@ -171,37 +219,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left column - Tasks and compliance */}
             <div className="lg:col-span-2 space-y-6">
-              {/* System Tasks */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">{t("trustProfile.systemTasks")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {tasks && tasks.length > 0 ? (
-                    <div className="space-y-3">
-                      {tasks.slice(0, 5).map((task) => (
-                        <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className={`h-2 w-2 rounded-full ${
-                              task.status === "completed" ? "bg-green-500" :
-                              task.status === "in_progress" ? "bg-yellow-500" : "bg-muted-foreground"
-                            }`} />
-                            <span className="text-sm font-medium">{task.title}</span>
-                          </div>
-                          <Badge variant={task.priority === "high" ? "destructive" : "secondary"}>
-                            {task.priority}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">{t("trustProfile.noTasks")}</p>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* Compliance per standard */}
               <Card>
                 <CardHeader>
@@ -230,7 +248,6 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
               </Card>
             </div>
 
-            {/* Right column */}
             <div className="space-y-6">
               {/* Total Compliance */}
               <Card>
@@ -281,6 +298,24 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ─── SECTION 2: Vendor Baseline ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Building2 className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Leverandørens baseline" : "Vendor Baseline"}
+          </h2>
+        </div>
+
+        {systemAsAsset && (
+          <VendorTrustScoreCard
+            trustScore={evaluation?.trustScore ?? 0}
+            confidenceScore={evaluation?.confidenceScore ?? 0}
+            lastUpdated={new Date().toLocaleDateString()}
+          />
+        )}
       </section>
     </div>
   );
