@@ -269,7 +269,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   };
 
   const handleManagerChange = (value: string) => {
-    updateAsset.mutate({ asset_manager: value });
+    updateAsset.mutate({ asset_manager: value === "__none__" ? null : value });
   };
 
   const handleSaveDesc = () => {
