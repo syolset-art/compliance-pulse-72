@@ -26,6 +26,7 @@ import { LayoutGrid, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 import { DashboardCriticalTasks } from "@/components/dashboard/DashboardCriticalTasks";
+import { DashboardCompact } from "@/components/dashboard/DashboardCompact";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ROLE_WIDGET_DEFAULTS } from "@/lib/roleContentConfig";
 import { ROLE_LABELS } from "@/hooks/useUserRole";
