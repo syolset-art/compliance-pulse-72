@@ -168,18 +168,18 @@ const AssetTrustProfile = () => {
 
   // ── Vendor tabs ──
   const allVendorTabs = [
-    { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
-    { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
-    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
-    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-audit', label: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
-    { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
-    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
-    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
-    { value: 'vendor-activity', label: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+    { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
+    { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
+    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
+    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
+    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
+    { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
+    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
+    { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
   ];
 
-  const mobileVisibleCount = 3;
+  const mobileVisibleCount = 4;
   const desktopVisibleCount = 7;
   const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
 
