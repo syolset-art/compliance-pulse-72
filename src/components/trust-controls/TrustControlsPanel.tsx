@@ -27,7 +27,6 @@ import {
   groupControlsByArea,
   CONTROL_NAV_MAP,
 } from "@/lib/trustControlDefinitions";
-} from "@/lib/trustControlDefinitions";
 
 // ── Types ────────────────────────────────────────────────────────────
 
