@@ -176,6 +176,32 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const openTasks = tasks.filter((t: any) => t.status !== "completed");
   const responsiblePerson = asset.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
 
+  // TPRM missing controls — shown inside tasks section
+  const { data: tprmDocs = [] } = useQuery({
+    queryKey: ["vendor-documents-tprm-overview", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", asset.id);
+      if (error) return [];
+      return data || [];
+    },
+  });
+
+  const tprmDocTypes = tprmDocs.map((d: any) => d.document_type);
+  const tprmMissing = [
+    { key: "dpa", label: isNb ? "Databehandleravtale (DPA)" : "Data Processing Agreement", met: tprmDocTypes.includes("dpa"), requestType: "dpa", requestLabel: isNb ? "Be om DPA" : "Request DPA", taskKeywords: ["dpa", "databehandleravtale"] },
+    { key: "sla", label: isNb ? "Tjenestenivåavtale (SLA)" : "Service Level Agreement", met: tprmDocTypes.includes("sla"), requestType: "sla", requestLabel: isNb ? "Be om SLA" : "Request SLA", taskKeywords: ["sla", "tjenestenivå"] },
+    { key: "risk_assessment", label: isNb ? "Risikovurdering" : "Risk Assessment", met: tprmDocTypes.includes("risk_assessment"), requestType: "risk_assessment", requestLabel: isNb ? "Be om vurdering" : "Request assessment", taskKeywords: ["risikovurdering", "risk assessment"] },
+    { key: "audit", label: isNb ? "Revisjon satt opp" : "Audit scheduled", met: !!asset.next_review_date, isAudit: true, requestLabel: isNb ? "Sett opp i Revisjon →" : "Set up in Audit →", taskKeywords: ["revisjon", "audit", "review"] },
+  ].filter(c => !c.met);
+
+  const handleTPRMRequest = (docType: string) => {
+    setRequestType(docType);
+    setRequestOpen(true);
+  };
+
   return (
     <div className="space-y-8">
       {/* Expired documents warning */}
