@@ -199,7 +199,7 @@ export function useTrustControlEvaluation(assetId: string) {
 
     const areaScore = (area: ControlArea) => {
       const controls = grouped[area];
-      if (controls.length === 0) return 0;
+      if (!controls || controls.length === 0) return 0;
       const impl = controls.filter(c => c.status === "implemented").length;
       const partial = controls.filter(c => c.status === "partial").length;
       return Math.round(((impl + partial * 0.5) / controls.length) * 100);
