@@ -345,6 +345,17 @@ export function TrustControlsPanel({
           <StackedProgress baselinePercent={baselinePercent} enrichmentPercent={enrichmentPercent} height="h-2" />
         </div>
 
+        {/* Maturity history chart */}
+        {showHistory && (
+          <div className="mb-4 p-4 border border-border rounded-xl bg-muted/20 animate-fade-in">
+            <MaturityHistoryChart
+              assetId={asset.id}
+              baselinePercent={baselinePercent}
+              enrichmentPercent={enrichmentPercent}
+            />
+          </div>
+        )}
+
         {/* Summary badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
