@@ -1,17 +1,30 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, Info } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, ChevronDown, ChevronUp, Shield, Server, Users, Link2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
 interface VendorTrustScoreCardProps {
   trustScore: number;
   confidenceScore: number;
   lastUpdated: string;
+  assetId?: string;
 }
 
-export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated }: VendorTrustScoreCardProps) {
+const AREA_CARDS = [
+  { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance", color: "text-blue-600" },
+  { area: "risk_compliance", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-emerald-600" },
+  { area: "security_posture", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-violet-600" },
+  { area: "supplier_governance", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
+];
+
+export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated, assetId }: VendorTrustScoreCardProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const [expanded, setExpanded] = useState(false);
+  const evaluation = assetId ? useTrustControlEvaluation(assetId) : null;
 
   const score = trustScore;
   const conf = confidenceScore;
@@ -90,6 +103,45 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated 
             </div>
           </div>
         </div>
+
+        {/* Expand toggle */}
+        <button
+          onClick={() => setExpanded(prev => !prev)}
+          className="w-full flex items-center justify-center gap-1.5 mt-3 pt-3 border-t border-border/50 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {expanded ? (isNb ? "Skjul detaljer" : "Hide details") : (isNb ? "Se kontrollområder" : "View control areas")}
+          {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        </button>
+
+        {/* Expanded: control area mini cards */}
+        {expanded && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 animate-in slide-in-from-top-1 duration-150">
+            {AREA_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
+              const areaScore = evaluation?.areaScore(area as any) ?? 0;
+              const scoreClr = areaScore >= 70 ? "text-success" : areaScore >= 40 ? "text-warning" : "text-destructive";
+              const barClr = areaScore >= 70 ? "bg-success" : areaScore >= 40 ? "bg-warning" : "bg-destructive";
+
+              return (
+                <div
+                  key={area}
+                  className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5"
+                >
+                  <Icon className={`h-5 w-5 ${color}`} />
+                  <span className="text-[11px] font-medium text-foreground leading-tight">
+                    {isNb ? lNb : lEn}
+                  </span>
+                  <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
+                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${barClr}`}
+                      style={{ width: `${areaScore}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
