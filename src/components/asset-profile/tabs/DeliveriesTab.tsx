@@ -230,7 +230,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={`text-[10px] ${getCategoryColor(d.category)}`}>
+                      <Badge variant="secondary" className={`text-xs ${getCategoryColor(d.category)}`}>
                         {getCategoryLabel(d.category)}
                       </Badge>
                     </TableCell>
