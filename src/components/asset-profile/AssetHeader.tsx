@@ -177,25 +177,48 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     enabled: !isSelf,
   });
 
-  const FRAMEWORK_COLORS: Record<string, string> = {
-    gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
-    personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+  // Standards/certifications vs regulatory frameworks
+  const STANDARDS_KEYWORDS = ["iso27001", "iso27701", "soc2", "soc", "iso", "nist", "cobit"];
+  const REGULATION_COLORS: Record<string, string> = {
+    dora: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
     nis2: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
-    iso27001: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+    gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+    personopplysningsloven: "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700",
     "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+    aiact: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+  };
+
+  const STANDARD_COLORS: Record<string, string> = {
+    iso: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700",
+    soc: "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700",
+    nist: "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-700",
+  };
+
+  const isStandard = (id: string) => {
+    const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return STANDARDS_KEYWORDS.some(kw => lower.includes(kw));
+  };
+
+  const getRegulationColor = (id: string) => {
+    const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const [key, cls] of Object.entries(REGULATION_COLORS)) {
+      if (lower.includes(key.replace("-", ""))) return cls;
+    }
+    return "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700";
+  };
+
+  const getStandardColor = (id: string) => {
+    const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const [key, cls] of Object.entries(STANDARD_COLORS)) {
+      if (lower.includes(key)) return cls;
+    }
+    return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700";
   };
 
   const GREY_FALLBACK = "bg-muted text-muted-foreground border-border";
 
-  const frameworkBadgeClass = (id: string) => {
-    const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
-    for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
-      if (lower.includes(key.replace("-", ""))) return cls;
-    }
-    return GREY_FALLBACK;
-  };
-
-  const isKnownFramework = (id: string) => frameworkBadgeClass(id) !== GREY_FALLBACK;
+  const frameworkBadgeClass = (id: string) => isStandard(id) ? getStandardColor(id) : getRegulationColor(id);
+  const isKnownFramework = (_id: string) => true;
 
   // Get people list based on the asset's work area
   const selectedWorkAreaName = workAreas.find((a: any) => a.id === asset.work_area_id)?.name || "";
@@ -497,20 +520,49 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             </a>
           )}
 
-          {/* Regulatory frameworks — only show known/active ones */}
-          {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
-              {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).map((fw: any) => (
-                <span
-                  key={fw.framework_id}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
-                >
-                  <FileCheck className="h-3 w-3" />
-                  {fw.framework_name}
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Standards & Certifications + Regulatory Coverage */}
+          {frameworks.length > 0 && (() => {
+            const standards = frameworks.filter((fw: any) => isStandard(fw.framework_id));
+            const regulations = frameworks.filter((fw: any) => !isStandard(fw.framework_id));
+            return (
+              <div className="space-y-3 mt-3">
+                {standards.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {standards.map((fw: any) => (
+                        <span
+                          key={fw.framework_id}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStandardColor(fw.framework_id)}`}
+                        >
+                          {fw.framework_name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {regulations.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      {isNb ? "Gjeldende regelverk" : "Regulatory Coverage"}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {regulations.map((fw: any) => (
+                        <span
+                          key={fw.framework_id}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRegulationColor(fw.framework_id)}`}
+                        >
+                          {fw.framework_name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Trust Score Seal — right side */}
