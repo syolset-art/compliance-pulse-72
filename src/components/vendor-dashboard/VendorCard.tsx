@@ -71,7 +71,7 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
     low: "bg-success/10 text-success border-success/20",
   }[vendor.risk_level || ""] || "bg-muted text-muted-foreground border-border";
 
-  const complianceColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+  const complianceColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
 
   return (
     <Card
@@ -123,7 +123,7 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
               {t(`vendorDashboard.risk.${vendor.risk_level}`, vendor.risk_level)}
             </Badge>
           )}
-          <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score}%</span>
+          <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score > 0 ? `${score}%` : "Ikke vurdert"}</span>
           {onSetOwner && onArchive && onDelete && (
             <div onClick={(e) => e.stopPropagation()}>
               <AssetRowActionMenu

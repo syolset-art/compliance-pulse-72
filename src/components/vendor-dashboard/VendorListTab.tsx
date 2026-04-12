@@ -382,7 +382,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
           ) : (
             filtered.map(asset => {
               const score = asset.compliance_score || 0;
-              const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+              const scoreColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
               const riskColor = { high: "bg-destructive", medium: "bg-warning", low: "bg-success" }[asset.risk_level || ""] || "bg-muted-foreground";
               const ownerName = getOwnerName(asset);
               return (
@@ -405,7 +405,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                       <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
                     )}
                   </div>
-                  <div className={`font-semibold ${scoreColor}`}>{score}%</div>
+                  <div className={`font-semibold ${scoreColor}`}>{score > 0 ? `${score}%` : "Ikke vurdert"}</div>
                   <div className="flex justify-center"><div className={`h-3 w-3 rounded-full ${riskColor}`} /></div>
                   <div className="flex justify-end" onClick={e => e.stopPropagation()}>
                     <AssetRowActionMenu
