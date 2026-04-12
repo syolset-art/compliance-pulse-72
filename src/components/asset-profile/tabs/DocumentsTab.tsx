@@ -86,26 +86,6 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     },
   });
 
-  const toggleVisibility = useMutation({
-    mutationFn: async ({ id, currentVisibility }: { id: string; currentVisibility: string }) => {
-      const newVisibility = currentVisibility === "shared" ? "private" : "shared";
-      const { error } = await supabase
-        .from("vendor_documents")
-        .update({ visibility: newVisibility })
-        .eq("id", id);
-      if (error) throw error;
-      return newVisibility;
-    },
-    onSuccess: (newVisibility) => {
-      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(
-        newVisibility === "shared"
-          ? (isNb ? "Dokumentet deles nå i Trust Profilen" : "Document is now shared in Trust Profile")
-          : (isNb ? "Dokumentet er ikke lenger delt" : "Document is no longer shared")
-      );
-    },
-  });
-
   const locale = isNb ? "nb-NO" : "en-US";
 
   const getTypeLabel = (type: string) => {
