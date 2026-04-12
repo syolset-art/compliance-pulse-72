@@ -35,18 +35,8 @@ interface Member {
 }
 
 const ROLE_CONFIG = [
-  { key: "system_owner", label: "Systemansvarlig", desc: "Ansvar for systemer i arbeidsområdet", icon: Monitor },
-  { key: "action_owner", label: "Tiltaksansvarlig", desc: "Ansvar for risikoscenarier i prosesser", icon: ClipboardCheck },
-  { key: "process_owner", label: "Prosessansvarlig", desc: "Ansvar for behandlingsaktiviteter", icon: Workflow },
   { key: "member", label: "Medlem", desc: "Generelt medlem av arbeidsområdet", icon: UsersIcon },
 ] as const;
-
-const ROLE_LABELS: Record<string, string> = {
-  system_owner: "Systemansvarlig",
-  action_owner: "Tiltaksansvarlig",
-  process_owner: "Prosessansvarlig",
-  member: "Medlem",
-};
 
 interface WorkAreaMembersCardProps {
   workAreaId: string;
