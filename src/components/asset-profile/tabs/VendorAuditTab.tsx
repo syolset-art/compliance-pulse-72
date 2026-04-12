@@ -14,10 +14,11 @@ import {
   ChevronDown,
   AlertTriangle,
   AlertOctagon,
-  ShieldAlert,
   ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
+import { getActionForControl } from "@/lib/trustControlDefinitions";
 
 interface VendorAuditTabProps {
   assetId: string;
@@ -207,22 +208,45 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-2">
-                  <div className="rounded-md border p-4 text-sm text-muted-foreground space-y-2">
+                  <div className="rounded-md border p-4 text-sm text-muted-foreground space-y-3">
                     {evaluation?.risks.filter(r => {
                       const ctrl = evaluation.allControls.find(c => c.key === r.triggerControlKey);
                       return ctrl && ctrl.status !== "implemented";
-                    }).map((risk) => (
-                      <div key={risk.id} className="flex items-start gap-2">
-                        {risk.severity === "high" ? (
-                          <AlertOctagon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                        ) : risk.severity === "medium" ? (
-                          <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                        ) : (
-                          <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                        )}
-                        <span>{isNb ? risk.titleNb : risk.titleEn}</span>
-                      </div>
-                    ))}
+                    }).map((risk) => {
+                      const action = getActionForControl(risk.triggerControlKey);
+                      return (
+                        <div key={risk.id} className="space-y-1">
+                          <div className="flex items-start gap-2">
+                            {risk.severity === "high" ? (
+                              <AlertOctagon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                            ) : risk.severity === "medium" ? (
+                              <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                            ) : (
+                              <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                            )}
+                            <span>{isNb ? risk.titleNb : risk.titleEn}</span>
+                          </div>
+                          {action && (
+                            <div className="ml-6 flex items-center gap-1.5">
+                              <span className="text-xs text-primary font-medium">
+                                {isNb ? "Tiltak" : "Action"}:
+                              </span>
+                              <button
+                                onClick={() => {
+                                  if (action.targetTab) {
+                                    window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: action.targetTab } }));
+                                  }
+                                }}
+                                className="text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                              >
+                                {isNb ? action.titleNb : action.titleEn}
+                                <ArrowRight className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                     {evaluation?.risks.filter(r => {
                       const ctrl = evaluation.allControls.find(c => c.key === r.triggerControlKey);
                       return ctrl && ctrl.status !== "implemented";
