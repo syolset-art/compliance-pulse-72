@@ -366,7 +366,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                         </div>
                       )}
                     </div>
-                    <Badge variant="secondary" className="text-xs shrink-0">Medlem</Badge>
+                    <Badge className="text-xs shrink-0 bg-primary/15 text-primary border-primary/20">Medlem</Badge>
                     <Button
                       size="icon"
                       variant="ghost"
