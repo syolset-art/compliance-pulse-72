@@ -153,6 +153,7 @@ export function TrustControlsPanel({
   const allControls = [...evaluatedGeneric, ...evaluatedType];
 
   const trustScore = calculateTrustScore(allControls);
+  const { baselinePercent, enrichmentPercent } = calculateScoreBySource(allControls);
   const confidenceScore = calculateConfidenceScore(allControls);
   const risks = deriveKeyRisks(allControls);
   const grouped = groupControlsByArea(allControls);
