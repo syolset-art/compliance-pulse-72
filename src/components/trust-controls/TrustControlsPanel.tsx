@@ -60,7 +60,7 @@ interface TrustControlsPanelProps {
   docsCount: number;
   relationsCount: number;
   overrideType?: string;
-  hideHeader?: boolean;
+  hideHeader?: boolean | "title-only";
   frameworks?: FrameworkItem[];
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
   onNavigateToTab?: (target: string) => void;
