@@ -34,17 +34,20 @@ export function generateVendorPortfolioReport(vendors: VendorRow[], companyName:
   const high = vendors.filter(v => v.risk_level === "high" || v.risk_level === "critical").length;
   const medium = vendors.filter(v => v.risk_level === "medium").length;
   const low = vendors.filter(v => v.risk_level === "low").length;
-  const avgScore = vendors.length > 0
-    ? Math.round(vendors.reduce((s, v) => s + (v.compliance_score ?? 0), 0) / vendors.length)
+  const scoredVendors = vendors.filter(v => (v.compliance_score ?? 0) > 0);
+  const avgScore = scoredVendors.length > 0
+    ? Math.round(scoredVendors.reduce((s, v) => s + (v.compliance_score ?? 0), 0) / scoredVendors.length)
     : 0;
+  const notAssessedCount = vendors.length - scoredVendors.length;
 
   doc.setFontSize(10);
   doc.setTextColor(60, 60, 60);
   const summaryLines = [
     `Totalt ${vendors.length} leverandører registrert.`,
-    `Gjennomsnittlig compliance-score: ${avgScore}%`,
+    `Gjennomsnittlig compliance-score: ${avgScore > 0 ? avgScore + "%" : "Ikke vurdert"}`,
     `Risikofordeling: ${high} høy/kritisk, ${medium} middels, ${low} lav, ${vendors.length - high - medium - low} ikke vurdert.`,
-  ];
+    notAssessedCount > 0 ? `${notAssessedCount} av ${vendors.length} leverandører har ikke blitt vurdert ennå.` : "",
+  ].filter(Boolean);
   summaryLines.forEach((line, i) => doc.text(line, 14, 52 + i * 6));
 
   // Table
@@ -71,7 +74,7 @@ export function generateVendorPortfolioReport(vendors: VendorRow[], companyName:
       v.category || v.gdpr_role || "–",
       v.country || "–",
       riskLabel(v.risk_level),
-      v.compliance_score != null ? `${v.compliance_score}%` : "–",
+      v.compliance_score != null && v.compliance_score > 0 ? `${v.compliance_score}%` : "Ikke vurdert",
       v.criticality || "–",
     ]),
     styles: { fontSize: 9, cellPadding: 3 },
