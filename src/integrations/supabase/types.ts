@@ -3106,6 +3106,10 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          sla_notes: string | null
+          sla_response_time: string | null
+          sla_support_hours: string | null
+          sla_uptime: string | null
           status: string
           updated_at: string
         }
@@ -3121,6 +3125,10 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          sla_notes?: string | null
+          sla_response_time?: string | null
+          sla_support_hours?: string | null
+          sla_uptime?: string | null
           status?: string
           updated_at?: string
         }
@@ -3136,6 +3144,10 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          sla_notes?: string | null
+          sla_response_time?: string | null
+          sla_support_hours?: string | null
+          sla_uptime?: string | null
           status?: string
           updated_at?: string
         }
