@@ -1,50 +1,67 @@
 
 
-## Plan: Vis TPRM-påvirkning ved dokumentgodkjenning
+## Plan: Forbedre «Veiledning fra Mynder» som TPRM-løsning
+
+### Problemanalyse
+
+Fanen har alle byggeklossene for en TPRM-løsning, men informasjonen er fragmentert og krever at brukeren klikker seg gjennom flere utvidbare seksjoner for å forstå:
+- Er denne leverandøren trygg å bruke?
+- Hva gjenstår å gjøre?
+- Hvor alvorlig er det?
+
+Hovedutfordringene:
+1. **Ingen umiddelbar konklusjon** — Brukeren må tolke Risiko + Kontroll + Status selv
+2. **Oppgaver er gjemt** — Kollapset som standard, blandet med TPRM-mangler
+3. **For mange klikk** — Modenhet, oppgaver, mangler er i separate kollapserbare seksjoner
+4. **Ingen prioritering** — Hva er viktigst å gjøre FØRST?
 
 ### Hva endres
 
-Når brukeren godkjenner et dokument (fra Lara-innboks eller manuell opplasting), skal bekreftelsesdialogen vise konkret hvordan dokumentet påvirker:
-1. **TPRM-status** — f.eks. "Kontroll: 2/4 → 3/4" og eventuelt statusendring "Under oppfølging → Godkjent"
-2. **Risiko** — om dokumentet dekker et risikogap
-3. **Modenhet** — estimert effekt på compliance/trust score
-
-### Teknisk tilnærming
-
-**`ApprovalSuccessDialog.tsx`** utvides med nye props som inneholder nåværende TPRM-state, slik at dialogen kan beregne "før vs. etter":
-
-- Legg til valgfrie props: `controlsBefore` (antall oppfylte krav før), `controlsTotal`, `tprmLevelBefore`, `tprmLevelAfter`, `riskLevel`
-- Erstatt den generiske "+X poeng"-seksjonen med en strukturert TPRM-påvirkningsvisning:
+#### 1. Ny «Executive Summary»-banner øverst i Oppfølgingsstatus
+Erstatt det nåværende 3-kolonne-griddet med en tydelig statuslinje som gir umiddelbar konklusjon:
 
 ```text
-┌─────────────────────────────────────────┐
-│ 📊 Effekt på oppfølgingsstatus         │
-│                                         │
-│  Kontroll:  2/4 → 3/4 krav oppfylt     │
-│  Status:    🟡 Under oppfølging →       │
-│             🟢 Godkjent                 │
-│                                         │
-│  Modenhet:  +5 poeng estimert           │
-│  Risiko:    Dekker gap i datahåndtering │
-└─────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│ 🟡 Under oppfølging                           [Endre ▾]  │
+│                                                            │
+│ Risiko: ● Middels    Kontroll: 2/4    Modenhet: 72%       │
+│                                                            │
+│ ⚠ 3 oppgaver gjenstår for å nå «Godkjent»               │
+│   • Mangler DPA  • Mangler risikovurdering  • Sett opp    │
+│     revisjon                                               │
+└────────────────────────────────────────────────────────────┘
 ```
 
-- Hvis dokumenttypen matcher en av de 4 TPRM-kontrollene (DPA, SLA, risikovurdering), beregnes ny kontrollgrad og eventuell statusendring
-- Hvis dokumentet ikke matcher en TPRM-kontroll, vises kun modenhetspåvirkning
+- Status-emojien og bakgrunnsfarge gir umiddelbar visuell feedback (grønn/gul/rød)
+- Statusvelgeren (dropdown) beholdes inline
+- En kort oppsummeringslinje under sier «X oppgaver gjenstår» med lenke til oppgaveseksjonen
 
-**`LaraInboxTab.tsx`** — Når `approveMutation.onSuccess` kalles, beregn TPRM-state før godkjenning og send med til `ApprovalSuccessDialog` via `ApprovedItemData`
+#### 2. Oppgaver vises ÅPNE som standard (ikke kollapset)
+- `tasksExpanded` starter som `true` når det finnes åpne oppgaver
+- TPRM-mangler og vanlige oppgaver vises integrert, men TPRM-mangler prioriteres øverst med tydelig visuell gruppering
+- Hver oppgave får en prioritet-indikator og estimert handlingslenke
 
-**`UploadDocumentDialog.tsx`** — Etter vellykket opplasting (steg 4/suksess-visning), vis samme TPRM-påvirkningsinformasjon inline i dialogen
+#### 3. Manglende TPRM-krav flyttes FRA oppgaveseksjonen og INN i Oppfølgingsstatus-kortet
+- Oppfølgingsstatus-kortet viser de 4 kontrollene som en sjekkliste (✅ DPA, ❌ SLA, etc.)
+- Hvert manglende krav har en direkte handlingsknapp
+- Oppgaveseksjonen viser kun faktiske oppgaver (ikke dupliserte TPRM-mangler)
 
-### Endringer per fil
+#### 4. Visuell forenkling av Modenhet-lenken
+- Modenhet-baren inne i Oppfølgingsstatus erstattes med en kompakt linje i summary-raden
+- Fjerner behovet for en separat klikkbar boks
 
-1. **`src/components/ApprovalSuccessDialog.tsx`** — Utvid `ApprovedItemData` med TPRM-felter. Erstatt "+X poeng" med strukturert TPRM-påvirkningskort som viser kontrollgrad-endring, eventuell statusendring, modenhet og risikogap-dekning.
+### Filer som endres
 
-2. **`src/components/asset-profile/tabs/LaraInboxTab.tsx`** — Beregn kontrollstatus (antall oppfylte krav) fra eksisterende `vendor-documents` query-data før godkjenning, og inkluder dette i `ApprovedItemData`.
+1. **`src/components/trust-controls/VendorTPRMStatus.tsx`**
+   - Redesign layouten: tydelig statusbanner med bakgrunnsfarge basert på level
+   - Legg kontroll-sjekklisten (4 krav) tilbake som visuell sjekkliste med handlingsknapper
+   - Behold dropdown for manuell statusendring
+   - Legg til oppsummeringslinje: «X oppgaver gjenstår for å nå Godkjent»
 
-3. **`src/components/asset-profile/UploadDocumentDialog.tsx`** — I suksess-steget etter opplasting, vis en kompakt TPRM-påvirkningsbanner som viser om det opplastede dokumentet fyller et kontrollgap.
+2. **`src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
+   - Sett `tasksExpanded` default til `true` når `openTasks.length > 0`
+   - Fjern TPRM-mangler fra oppgaveseksjonen (flyttes til Oppfølgingsstatus)
+   - Forenkle oppgavekortet til kun å vise faktiske tasks
 
 ### Ingen databaseendringer
-
-All beregning skjer client-side basert på eksisterende data (vendor_documents, asset criticality/risk_level).
 
