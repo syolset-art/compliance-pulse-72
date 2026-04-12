@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Shield, AlertCircle, HelpCircle, Mail, ArrowDown, CheckCircle2 } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
+import { toast } from "sonner";
 
 interface VendorTPRMStatusProps {
   assetId: string;
@@ -82,16 +84,32 @@ export const VendorTPRMStatus = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestType, setRequestType] = useState<string | undefined>();
 
+  const queryClient = useQueryClient();
+
   const { data: asset } = useQuery({
     queryKey: ["asset-tprm", assetId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
-        .select("criticality, risk_level, next_review_date")
+        .select("criticality, risk_level, next_review_date, tprm_status")
         .eq("id", assetId)
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (newStatus: TPRMLevel) => {
+      const { error } = await supabase
+        .from("assets")
+        .update({ tprm_status: newStatus })
+        .eq("id", assetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-tprm", assetId] });
+      toast.success(isNb ? "Status oppdatert" : "Status updated");
     },
   });
 
@@ -151,12 +169,17 @@ export const VendorTPRMStatus = ({
   const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
   const tprmLevel = getTPRMLevel(risk, controlsMet, controls.length);
 
+  // Use saved tprm_status from DB if available, otherwise use calculated level
+  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || tprmLevel;
+
   const tprmConfig: Record<TPRMLevel, { label: string; variant: "default" | "warning" | "destructive" | "secondary"; emoji: string }> = {
     approved: { label: isNb ? "Godkjent" : "Approved", variant: "default", emoji: "🟢" },
     under_review: { label: isNb ? "Under oppfølging" : "Under review", variant: "warning", emoji: "🟡" },
     action_required: { label: isNb ? "Krever tiltak" : "Action required", variant: "destructive", emoji: "🔴" },
     not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", variant: "secondary", emoji: "⚪" },
   };
+
+  const tprmOptions: TPRMLevel[] = ["approved", "under_review", "action_required", "not_assessed"];
 
   const riskLabels: Record<string, string> = {
     high: isNb ? "Høy" : "High",
@@ -192,8 +215,7 @@ export const VendorTPRMStatus = ({
     <>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center justify-between">
-            <span className="flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
               <Shield className="h-4 w-4" />
               {isNb ? "Oppfølgingsstatus" : "Follow-up Status"}
               <TooltipProvider>
@@ -211,15 +233,11 @@ export const VendorTPRMStatus = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </span>
-            <Badge variant={tprmConfig[tprmLevel].variant} className="text-[10px]">
-              {tprmConfig[tprmLevel].emoji} {tprmConfig[tprmLevel].label}
-            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
-          {/* Risk × Control summary */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Risk × Control × Status summary */}
+          <div className="grid grid-cols-3 gap-3">
             <div className="p-2.5 rounded-lg bg-muted/40">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
                 {isNb ? "Risiko" : "Risk"}
@@ -239,8 +257,33 @@ export const VendorTPRMStatus = ({
                 {isNb ? "Kontroll" : "Control"}
               </p>
               <p className="text-sm font-semibold text-foreground">
-                {controlsMet} {isNb ? "av" : "of"} {controls.length} {isNb ? "krav oppfylt" : "requirements met"}
+                {controlsMet} {isNb ? "av" : "of"} {controls.length}
               </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-muted/40">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+                {isNb ? "Status" : "Status"}
+              </p>
+              <Select
+                value={effectiveLevel}
+                onValueChange={(val) => updateStatusMutation.mutate(val as TPRMLevel)}
+              >
+                <SelectTrigger className="h-6 text-xs border-0 bg-transparent p-0 shadow-none focus:ring-0 w-full">
+                  <SelectValue>
+                    <span className="flex items-center gap-1">
+                      <span>{tprmConfig[effectiveLevel].emoji}</span>
+                      <span className="font-semibold">{tprmConfig[effectiveLevel].label}</span>
+                    </span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {tprmOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt} className="text-xs">
+                      {tprmConfig[opt].emoji} {tprmConfig[opt].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
