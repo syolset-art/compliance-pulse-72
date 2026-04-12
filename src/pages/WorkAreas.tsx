@@ -805,6 +805,8 @@ export default function WorkAreas() {
                   </div>
                 </div>
               </div>
+              </div>
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4">
 
               {selectedWorkArea.description && (
                 <p className="text-xs sm:text-sm text-muted-foreground mb-4">{selectedWorkArea.description}</p>
