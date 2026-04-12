@@ -794,6 +794,10 @@ export default function WorkAreas() {
                     <span>2 {t("myWorkAreas.processes").toLowerCase()}</span>
                   </div>
                   <div className="flex items-center gap-1">
+                    <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>3 medlemmer</span>
+                  </div>
+                  <div className="flex items-center gap-1">
                     <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>10 {t("myWorkAreas.systems").toLowerCase()}</span>
                   </div>
