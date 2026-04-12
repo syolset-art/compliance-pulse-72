@@ -13,7 +13,7 @@ export function StackedProgress({ baselinePercent, enrichmentPercent, className,
     <div className={cn("w-full rounded-full bg-muted overflow-hidden flex", height, className)}>
       {baselinePercent > 0 && (
         <div
-          className="h-full bg-muted-foreground/40 transition-all duration-500"
+          className="h-full bg-primary/40 transition-all duration-500"
           style={{ width: `${baselinePercent}%` }}
         />
       )}

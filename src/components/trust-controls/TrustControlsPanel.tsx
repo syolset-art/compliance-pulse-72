@@ -347,7 +347,7 @@ export function TrustControlsPanel({
         <div className="mb-4 space-y-2">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-muted-foreground/40" />
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary/40" />
               {isNb ? "Leverandørens baseline" : "Vendor baseline"}: {baselinePercent}%
             </span>
             <span className="flex items-center gap-1.5">
