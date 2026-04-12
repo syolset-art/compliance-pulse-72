@@ -49,6 +49,7 @@ import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { ContactPersonField } from "./ContactPersonField";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
+import { InlineEditableField } from "./InlineEditableField";
 
 interface TrustMetrics {
   trustScore: number;
@@ -774,12 +775,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
               {/* Right: Bransje, Org.nr, Nettsted */}
               <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground sm:justify-end">
-                {(asset as any).vendor_category && (
-                  <span>
-                    <span className="font-medium text-foreground">{isNb ? "Bransje" : "Industry"}:</span>{" "}
-                    {(asset as any).vendor_category}
-                  </span>
-                )}
+                <InlineEditableField
+                  label={isNb ? "Bransje" : "Industry"}
+                  value={(asset as any).vendor_category || ""}
+                  placeholder={isNb ? "Legg til bransje" : "Add industry"}
+                  onSave={(val) => updateAsset.mutate({ vendor_category: val || null })}
+                  disabled={(asset as any).publish_mode === 'claimed'}
+                />
                 {(asset as any).org_number && (
                   <span>
                     <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
