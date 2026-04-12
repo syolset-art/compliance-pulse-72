@@ -1,58 +1,68 @@
 
 
-## Plan: Modenhetshistorikk — tidslinje for modenhet over tid
+## Plan: Erstatt Trust Score i header med risiko/kritikalitet/modenhet — flytt Trust Score til Veiledning fra Mynder
 
-### Hva bygges
-En klikkbar tidslinje-knapp i "Modenhet per kontrollområde"-panelet som åpner et linjediagram. Diagrammet viser hvordan modenhetsscoren har utviklet seg fra leverandørens baseline (før virksomheten tok systemet i bruk) til dagens nivå, med markører for hendelser som økte eller reduserte scoren.
+### Hva endres
 
-### Visuelt konsept
+Når en leverandør eller et system er "tatt i bruk" (status active/in_use), skal headeren **ikke** vise den sirkulære Trust Score-gaugen. I stedet vises tre kompakte indikatorer: **Risikonivå**, **Kritikalitet** og **Modenhet** (basert på organisasjonens eget arbeid). Leverandørens Trust Score flyttes til "Veiledning fra Mynder"-fanen som en del av veiledningsinformasjonen.
+
+### Visuelt konsept — header
+
 ```text
-┌─────────────────────────────────────────────────────┐
-│ Modenhet per kontrollområde              72%        │
-│ Leverandørens baseline: 35%  ▪ Eget arbeid: 37%    │
-│ ██████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░  │
-│                                                     │
-│  [📈 Vis historikk]  ← ny knapp                    │
-│                                                     │
-│ ┌─ Modenhetshistorikk ────────────────────────────┐ │
-│ │ 100% ─┤                                         │ │
-│ │       │          ╭──●──────●──●                  │ │
-│ │  50% ─┤     ●──●╯     ▼ Hendelse                │ │
-│ │       │  ●─╯  ↑ DPA verifisert                  │ │
-│ │   0% ─●───────────────────────────── tid         │ │
-│ │   ▲ Baseline                                     │ │
-│ │                                                  │ │
-│ │ ── Leverandør baseline  ── Eget arbeid (total)   │ │
-│ └──────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ [ikon] System X  │ Aktiv │ Kategori                     │
+│                  │       │                               │
+│                  │  ┌──────────────────────────────────┐ │
+│                  │  │ Risiko: Middels  ● (gul)         │ │
+│                  │  │ Kritikalitet: Høy ● (oransje)    │ │
+│                  │  │ Modenhet: 72%    ████░░░          │ │
+│                  │  └──────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Visuelt konsept — Veiledning fra Mynder
+
+```text
+┌─ Leverandørens Trust Score ──────────────────────────────┐
+│  [SVG-gauge 72/100]  Trust Score                         │
+│  Høy tillit  •  Sist oppdatert: 2026-03-15              │
+│  Egenerklæring                                           │
+│                                                          │
+│  "Denne scoren reflekterer leverandørens baseline        │
+│   basert på tilgjengelig dokumentasjon og kontroller"    │
+└──────────────────────────────────────────────────────────┘
+│                                                          │
+│  Modenhet per kontrollområde ... (eksisterende panel)    │
 ```
 
 ### Teknisk implementering
 
-**Fil 1: `src/components/trust-controls/MaturityHistoryChart.tsx`** (ny)
-- Recharts `AreaChart` med to stablede områder:
-  - Grått område: leverandørens baseline-score over tid
-  - Blått område: virksomhetens berikelse (org_enrichment) over tid
-- `ReferenceDot`-markører for hendelser (tiltak utført, hendelser registrert)
-- Tooltip som viser dato, baseline-score, total score, og eventuelle hendelser
-- Demomodus med deterministisk generert data basert på asset-ID (samme mønster som `ComplianceHistoryChart`)
-- Baseline starter flat, deretter øker totalen stegvis når kontroller oppfylles
-- Negative hendelser (incidents) vises som røde markører med score-dip
+**Fil 1: `src/components/system-profile/SystemHeader.tsx`**
+- Erstatt Trust Score-gaugen (linje 200–256) med en kompakt vertikal liste med tre indikatorer:
+  - Risikonivå (fra system data, fargekodede badges: rød/gul/grønn)
+  - Kritikalitet (fra asset/system data)
+  - Modenhet (minibar med prosent, beregnet fra trustMetrics)
+- Beholder `trustMetrics`-propen for å beregne modenhet, men viser ikke Trust Score-tallet
 
-**Fil 2: `src/components/trust-controls/TrustControlsPanel.tsx`** (endres)
-- Legg til en `TrendingUp`-ikonknapp ved siden av tittelen "Modenhet per kontrollområde"
-- `useState` for å toggle synlighet av `MaturityHistoryChart`
-- Når åpnet, vises chart-komponenten mellom header og kontrollområde-kortene
-- Passerer `assetId`, `baselinePercent`, `enrichmentPercent` og `trustScore` til chart
+**Fil 2: `src/components/asset-profile/AssetHeader.tsx`**
+- Samme endring som SystemHeader: erstatt Trust Score-gauge med risiko/kritikalitet/modenhet
+- Gjelder kun for leverandør-profiler som er "tatt i bruk" (ikke self-profiler)
+- Self-profiler beholder eksisterende visning
 
-### Hendelsestyper i tidslinjen
-- **Positiv** (grønn markør): DPA verifisert, eier tildelt, risikovurdering utført, dokumenter lastet opp
-- **Negativ** (rød markør): Sikkerhetshendelse, kontroll fjernet, dokument utløpt
-- **Nøytral** (gul markør): Revisjon planlagt, delvis oppfylt
+**Fil 3: `src/components/system-profile/tabs/ValidationTab.tsx`**
+- Legg til en ny `Card` øverst med leverandørens Trust Score-gauge (flyttet fra header)
+- Inkluder forklaringstekst som kontekstualiserer scoren
+- Vis confidence-level og sist oppdatert-dato
+- Plasseres før det eksisterende TrustControlsPanel
 
-### Detaljer
-- Diagrammet bruker demo-data nå (ingen database-endringer nødvendig)
-- Gjenbruker `recharts` som allerede er i prosjektet
-- Norsk/engelsk lokalisering for alle labels
-- Responsivt — full bredde på mobil, begrenset høyde
+**Fil 4: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`** (eller tilsvarende)
+- Samme endring: legg til Trust Score-kort øverst i "Veiledning fra Mynder"-fanen for leverandører
+
+**Fil 5: `src/components/device-profile/DeviceHeader.tsx`**
+- Samme mønster: erstatt Trust Score-gauge med risiko/kritikalitet/modenhet-indikatorer
+
+### Logikk for visning
+- Header viser Trust Score **kun** for self-profiler (organisasjonens egen profil)
+- For alle leverandører/systemer som er "tatt i bruk": header viser risiko + kritikalitet + modenhet
+- Trust Score flyttes til Veiledning-fanen med kontekst om at dette er leverandørens baseline-score
 
