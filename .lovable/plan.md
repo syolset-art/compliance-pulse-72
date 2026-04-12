@@ -1,53 +1,32 @@
 
 
-# Oppdater «Legg til relasjon»-dialogen
+## Plan: Add optional SLA fields to Deliveries
 
-## Problemet
-Dagens dialog er teknisk og vanskelig å forstå. Brukeren ser dropdown-menyer med verdier som «uses», «hosts», «connects_to» uten kontekst om hva de kobler eller hvorfor.
+### Summary
+Add optional SLA fields (uptime requirement, response time, support hours) to each delivery in the Leveranser tab, with a collapsible section in the add/edit dialog.
 
-## Løsning
-Redesigne dialogen til en visuell, trinnvis flyt som gjør det intuitivt å forstå hva som kobles og hvordan.
+### Database Migration
+Add 4 nullable columns to `vendor_deliveries`:
+- `sla_uptime` (text) - e.g. "99.9%"
+- `sla_response_time` (text) - e.g. "4 timer"  
+- `sla_support_hours` (text) - e.g. "08:00–16:00"
+- `sla_notes` (text) - free-text for additional SLA details
 
-### Steg 1: Visuell flyt-modell
-Øverst i dialogen vises en visuell «kobling» med tre elementer:
-```text
-┌──────────────┐          ┌──────────────┐
-│  Denne       │ ───────► │  Velg mål    │
-│  eiendelen   │  relasjon│              │
-└──────────────┘          └──────────────┘
-```
-Kildeeiendelen (nåværende) vises som et kompakt kort med navn, type og ikon. Målet oppdateres live når brukeren velger.
+### UI Changes in `DeliveriesTab.tsx`
 
-### Steg 2: Velg type eiendel først
-I stedet for én lang liste, la brukeren velge **kategori** først med klikkbare kort:
-- **Leverandør** (Building2-ikon) — filtrerer til vendor-assets
-- **System** (Server-ikon) — filtrerer til system-assets  
-- **Annen eiendel** (Box-ikon) — viser resten (nettverk, hardware, data, etc.)
+1. **Add dialog** - Add a collapsible "Tjenestenivåavtale (SLA)" section below the contract document upload, containing:
+   - Oppetidskrav (Uptime requirement) - text input
+   - Responstid (Response time) - text input
+   - Støttetider (Support hours) - text input
+   - SLA-merknader (SLA notes) - textarea
 
-### Steg 3: Smarte relasjonstyper basert på valg
-Når brukeren har valgt kategori, vises kun relevante relasjonstyper med norske, forklarende beskrivelser:
-- Leverandør → «Leverer tjeneste til», «Behandler data for», «Regulerer»
-- System → «Bruker», «Integrerer med», «Er avhengig av»
-- Annen → «Kobles til», «Hoster», «Styres av»
+2. **Table display** - Add an SLA indicator column (hidden on mobile) showing a small badge/icon when SLA fields are filled in
 
-### Steg 4: Søk og velg mål-eiendel
-Beholder combobox-søket men filtrert på valgt kategori. Viser kun relevante eiendeler.
+3. **Form state** - Extend the form state object with the 4 new SLA fields, all optional
 
-### Steg 5: Valgfri beskrivelse
-Behold tekstfeltet for beskrivelse.
-
-## Teknisk plan
-
-1. **Oppdater `AddRelationDialog.tsx`**:
-   - Legg til state for `targetCategory` (vendor/system/other)
-   - Visuell flyt-seksjon øverst med source → target kort
-   - Tre klikkbare kategorikort som filtrerer assets-listen
-   - Dynamiske relasjonstyper basert på valgt kategori med norske beskrivelser
-   - Filtrert asset-søk basert på kategori
-
-2. **Bedre UX-elementer**:
-   - Bredere dialog (`sm:max-w-lg`)
-   - Kategorikort med ikoner og farger
-   - Relasjonstype som visuell knapp-rekke (ikke dropdown)
-   - Live-oppdatering av flyt-visualiseringen
+### Technical Details
+- Migration adds nullable text columns with no defaults
+- Form fields are wrapped in a disclosure/collapsible so they don't clutter the dialog for users who don't need SLA
+- Insert query updated to include the new fields
+- Existing deliveries unaffected (all fields nullable)
 
