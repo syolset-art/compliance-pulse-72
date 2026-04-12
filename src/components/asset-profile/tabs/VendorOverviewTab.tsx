@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
-  Shield, Users, Server, Link2, AlertTriangle,
+  Shield, Users, Server, Link2, AlertTriangle, Mail,
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint, HelpCircle, Eye,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -53,6 +53,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const isNb = i18n.language === "nb";
   const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [requestType, setRequestType] = useState<string | undefined>();
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
@@ -174,6 +175,32 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
   const openTasks = tasks.filter((t: any) => t.status !== "completed");
   const responsiblePerson = asset.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
+
+  // TPRM missing controls — shown inside tasks section
+  const { data: tprmDocs = [] } = useQuery({
+    queryKey: ["vendor-documents-tprm-overview", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", asset.id);
+      if (error) return [];
+      return data || [];
+    },
+  });
+
+  const tprmDocTypes = tprmDocs.map((d: any) => d.document_type);
+  const tprmMissing = [
+    { key: "dpa", label: isNb ? "Databehandleravtale (DPA)" : "Data Processing Agreement", met: tprmDocTypes.includes("dpa"), requestType: "dpa", requestLabel: isNb ? "Be om DPA" : "Request DPA", taskKeywords: ["dpa", "databehandleravtale"] },
+    { key: "sla", label: isNb ? "Tjenestenivåavtale (SLA)" : "Service Level Agreement", met: tprmDocTypes.includes("sla"), requestType: "sla", requestLabel: isNb ? "Be om SLA" : "Request SLA", taskKeywords: ["sla", "tjenestenivå"] },
+    { key: "risk_assessment", label: isNb ? "Risikovurdering" : "Risk Assessment", met: tprmDocTypes.includes("risk_assessment"), requestType: "risk_assessment", requestLabel: isNb ? "Be om vurdering" : "Request assessment", taskKeywords: ["risikovurdering", "risk assessment"] },
+    { key: "audit", label: isNb ? "Revisjon satt opp" : "Audit scheduled", met: !!asset.next_review_date, isAudit: true, requestLabel: isNb ? "Sett opp i Revisjon →" : "Set up in Audit →", taskKeywords: ["revisjon", "audit", "review"] },
+  ].filter(c => !c.met);
+
+  const handleTPRMRequest = (docType: string) => {
+    setRequestType(docType);
+    setRequestOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -300,6 +327,58 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
                     {isNb ? "Ingen åpne oppgaver" : "No open tasks"}
                   </p>
+                )}
+
+                {/* TPRM missing controls — actionable items */}
+                {tprmMissing.length > 0 && (
+                  <div className="space-y-1.5 border-t border-border pt-3 mt-3">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+                      {isNb ? "Manglende oppfølgingskrav" : "Missing follow-up requirements"}
+                    </p>
+                    {tprmMissing.map((ctrl) => {
+                      const matchingTask = openTasks.find((t: any) => {
+                        const titleLower = t.title?.toLowerCase() || "";
+                        const typeLower = t.type?.toLowerCase() || "";
+                        return ctrl.taskKeywords.some((kw: string) => titleLower.includes(kw) || typeLower.includes(kw));
+                      });
+
+                      return (
+                        <div
+                          key={ctrl.key}
+                          className="flex items-center justify-between text-sm p-2 rounded bg-destructive/5 border-l-2 border-destructive/40"
+                        >
+                          <span className="flex items-center gap-2">
+                            <AlertTriangle className="h-3.5 w-3.5 text-destructive/70" />
+                            <span className="text-muted-foreground">{ctrl.label}</span>
+                          </span>
+                          {matchingTask ? (
+                            <Badge variant="secondary" className="text-[10px]">
+                              {isNb ? "Oppgave opprettet" : "Task created"}
+                            </Badge>
+                          ) : ctrl.isAudit ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs gap-1.5"
+                              onClick={() => onNavigateToTab?.("vendor-audit")}
+                            >
+                              {ctrl.requestLabel}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5"
+                              onClick={() => handleTPRMRequest(ctrl.requestType!)}
+                            >
+                              <Mail className="h-3 w-3" />
+                              {ctrl.requestLabel}
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </CardContent>
             )}
@@ -455,6 +534,9 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           assetId={asset.id}
           assetName={asset.name || ""}
           vendorName={asset.vendor || undefined}
+          preselectedType={requestType}
+          contactPerson={asset.contact_person}
+          contactEmail={asset.contact_email}
           open={requestOpen}
           onOpenChange={setRequestOpen}
         />

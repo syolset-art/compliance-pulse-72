@@ -282,60 +282,9 @@ export const VendorTPRMStatus = ({
             </button>
           )}
 
-          {/* Missing controls */}
-          {missingControls.length > 0 && (
-            <div className="space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                {isNb ? "Mangler" : "Missing"}
-              </p>
-              {missingControls.map((ctrl) => {
-                const matchingTask = findMatchingTask(tasks, ctrl.taskKeywords);
-
-                return (
-                  <div
-                    key={ctrl.key}
-                    className="flex items-center justify-between text-sm p-2 rounded bg-destructive/5 border-l-2 border-destructive/40"
-                  >
-                    <span className="flex items-center gap-2">
-                      <AlertCircle className="h-3.5 w-3.5 text-destructive/70" />
-                      <span className="text-muted-foreground">{ctrl.label}</span>
-                    </span>
-                    {matchingTask ? (
-                      <button
-                        onClick={() => handleScrollToTask(matchingTask.id)}
-                        className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-                      >
-                        <ArrowDown className="h-3 w-3" />
-                        {isNb ? "Se oppgave ↓" : "See task ↓"}
-                      </button>
-                    ) : ctrl.isAudit ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs gap-1.5"
-                        onClick={handleGoToAudit}
-                      >
-                        {ctrl.requestLabel}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5"
-                        onClick={() => handleRequest(ctrl.requestType!)}
-                      >
-                        <Mail className="h-3 w-3" />
-                        {ctrl.requestLabel}
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
 
           {/* All met */}
-          {missingControls.length === 0 && (
+          {controlsMet === controls.length && (
             <div className="flex items-center gap-2 p-2 rounded bg-primary/5 text-sm">
               <CheckCircle2 className="h-4 w-4 text-primary" />
               <span className="text-foreground font-medium">
