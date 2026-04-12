@@ -118,42 +118,12 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
           </div>
         </div>
 
-        {/* Trust Score Gauge */}
-        <div className="hidden md:flex flex-col items-center gap-2 shrink-0 pl-6 border-l border-border">
-          <div className="relative flex items-center justify-center">
-            <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
-              <circle cx="48" cy="48" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
-              <circle
-                cx="48" cy="48" r={radius} fill="none"
-                stroke={strokeColor} strokeWidth="6" strokeLinecap="round"
-                strokeDasharray={`${dash} ${circ}`}
-                style={{ transition: "stroke-dasharray 0.6s ease" }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`text-3xl font-bold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
-                {trustScore}
-              </span>
-              <span className="text-[9px] font-semibold text-muted-foreground uppercase">/100</span>
-            </div>
-          </div>
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-
-          <div className="flex flex-col items-center gap-0.5 text-[10px]">
-            <div className="flex items-center gap-1">
-              <AlertTriangle className={`h-3 w-3 ${trustScore < 50 ? "text-destructive" : "text-warning"}`} />
-              <span className={trustScore < 50 ? "text-destructive font-medium" : "text-warning font-medium"}>
-                {riskLabel}
-              </span>
-            </div>
-            {totalImpact > 0 && (
-              <div className="flex items-center gap-1 text-destructive/70">
-                <TrendingDown className="h-2.5 w-2.5" />
-                <span>{isNb ? "Påvirker total:" : "Total impact:"} -{totalImpact}%</span>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Risk / Criticality / Maturity indicators */}
+        <HeaderMaturityIndicators
+          riskLevel={trustScore < 50 ? "high" : trustScore < 75 ? "medium" : "low"}
+          criticality={asset.criticality || "medium"}
+          maturityPercent={trustScore}
+        />
       </div>
 
       {/* Security areas + Compliance impact */}

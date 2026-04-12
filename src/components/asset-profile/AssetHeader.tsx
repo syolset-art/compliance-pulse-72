@@ -578,13 +578,19 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           })()}
         </div>
 
-        {/* Trust Score Seal — right side */}
-        {trustMetrics && (() => {
+        {/* Trust Score or Risk/Criticality/Maturity — right side */}
+        {trustMetrics && !isSelf && (
+          <HeaderMaturityIndicators
+            riskLevel={(asset as any).risk_level || "medium"}
+            criticality={(asset as any).criticality || "medium"}
+            maturityPercent={trustMetrics?.trustScore ?? 0}
+          />
+        )}
+        {trustMetrics && isSelf && (() => {
           const score = trustMetrics.trustScore;
           const conf = trustMetrics.confidenceScore;
           const isHigh = score >= 75;
           const isMid = score >= 50;
-          // SVG arc values for circular progress
           const radius = 38;
           const circ = 2 * Math.PI * radius;
           const dash = (score / 100) * circ;
@@ -592,57 +598,30 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           const bgRingColor = "hsl(var(--muted))";
           const confLabel = conf >= 80 ? (isNb ? "Høy tillit" : "High confidence") : conf >= 50 ? (isNb ? "Middels tillit" : "Medium confidence") : (isNb ? "Lav tillit" : "Low confidence");
           return (
-             <div className="hidden md:flex flex-col items-center gap-3 shrink-0 pl-8 border-l border-border min-w-[200px]">
-               {/* Circular gauge */}
-               <div className="relative flex items-center justify-center">
-                 <svg width="128" height="128" viewBox="0 0 96 96" className="-rotate-90">
-                  {/* Background ring */}
-                  <circle
-                    cx="48" cy="48" r={radius}
-                    fill="none"
-                    stroke={bgRingColor}
-                    strokeWidth="6"
-                  />
-                  {/* Score arc */}
-                  <circle
-                    cx="48" cy="48" r={radius}
-                    fill="none"
-                    stroke={strokeColor}
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray={`${dash} ${circ}`}
-                    style={{ transition: "stroke-dasharray 0.6s ease" }}
-                  />
+            <div className="hidden md:flex flex-col items-center gap-3 shrink-0 pl-8 border-l border-border min-w-[200px]">
+              <div className="relative flex items-center justify-center">
+                <svg width="128" height="128" viewBox="0 0 96 96" className="-rotate-90">
+                  <circle cx="48" cy="48" r={radius} fill="none" stroke={bgRingColor} strokeWidth="6" />
+                  <circle cx="48" cy="48" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
                 </svg>
-                {/* Score number inside */}
-                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                   <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
-                     {score}
-                   </span>
-                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
                 </div>
               </div>
-
-              {/* Label */}
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-
-              {/* Meta row */}
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
                   {conf >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
                   {conf >= 50 && conf < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
                   {conf < 50 && <XCircle className="h-3 w-3 text-muted-foreground" />}
-                  <span className={`text-[11px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>
-                    {confLabel}
-                  </span>
+                  <span className={`text-[11px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>{confLabel}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-2.5 w-2.5 text-muted-foreground" />
                   <span className="text-[10px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
                 </div>
               </div>
-
-              {/* Self-declared badge */}
               <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
                 <ShieldCheck className="h-2.5 w-2.5" />
                 {isNb ? "Egenerklæring" : "Self-declared"}
