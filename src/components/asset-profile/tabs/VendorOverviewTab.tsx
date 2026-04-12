@@ -197,6 +197,14 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
 
         <div className="space-y-4">
+          {/* TPRM Follow-up Status */}
+          <VendorTPRMStatus
+            assetId={asset.id}
+            assetName={asset.name}
+            vendorName={asset.vendor || undefined}
+            contactPerson={asset.contact_person || undefined}
+            contactEmail={asset.contact_email || undefined}
+          />
           {/* Tasks card */}
           <div ref={tasksRef}>
           <Card>
