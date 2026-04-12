@@ -40,6 +40,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showSla, setShowSla] = useState(false);
+  const [slaTerms, setSlaTerms] = useState<string[]>([]);
+  const [newSlaTerm, setNewSlaTerm] = useState("");
   const [form, setForm] = useState({
     name: "",
     description: "",
