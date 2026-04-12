@@ -128,6 +128,10 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
         contract_end: form.contract_end || null,
         notes: form.notes || null,
         contract_document_id: contractDocId,
+        sla_uptime: form.sla_uptime || null,
+        sla_response_time: form.sla_response_time || null,
+        sla_support_hours: form.sla_support_hours || null,
+        sla_notes: form.sla_notes || null,
       });
       if (error) throw error;
 
@@ -135,7 +139,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
       toast.success(isNb ? "Leveranse lagt til" : "Delivery added");
       setShowAddDialog(false);
-      setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "" });
+      setShowSla(false);
+      setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "", sla_uptime: "", sla_response_time: "", sla_support_hours: "", sla_notes: "" });
       setSelectedFile(null);
     } catch (err: any) {
       toast.error(err.message || "Error");
