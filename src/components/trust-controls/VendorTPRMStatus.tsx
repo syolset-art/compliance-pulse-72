@@ -196,10 +196,21 @@ export const VendorTPRMStatus = ({
           {/* Executive Summary Banner */}
           <div className="p-4 space-y-3">
           {/* Module title */}
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-1.5 mb-1">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Oppfølgingsstatus" : "TPRM Status"}
+              {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
             </h2>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
+                  <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
+                  <p>{isNb ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging)." : "Combines vendor risk with degree of control (documentation and follow-up)."}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Status header row */}
@@ -211,17 +222,6 @@ export const VendorTPRMStatus = ({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
-                      <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
-                      <p>{isNb ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging)." : "Combines vendor risk with degree of control (documentation and follow-up)."}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
                 <Select
                   value={effectiveLevel}
                   onValueChange={(val) => updateStatusMutation.mutate(val as TPRMLevel)}
