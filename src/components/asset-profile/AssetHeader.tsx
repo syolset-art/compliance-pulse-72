@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { ContactPersonField } from "./ContactPersonField";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 
@@ -769,30 +770,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               </div>
 
               {/* Kontaktperson */}
-              <div className="flex items-start gap-2.5">
-                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                    {isNb ? "Kontaktperson" : "Contact"}
-                  </p>
-                  {(asset as any).contact_person ? (
-                    <div className="text-xs space-y-0.5">
-                      <p className="font-medium text-foreground">{(asset as any).contact_person}</p>
-                      {(asset as any).contact_email && (
-                        <a href={`mailto:${(asset as any).contact_email}`} className="text-primary hover:underline text-[11px]">
-                          {(asset as any).contact_email}
-                        </a>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground/50 italic">
-                      {isNb ? "Ikke oppgitt" : "Not provided"}
-                    </span>
-                  )}
-                </div>
-              </div>
+              <ContactPersonField
+                assetId={asset.id}
+                contactPerson={(asset as any).contact_person}
+                contactEmail={(asset as any).contact_email}
+                contactPhone={(asset as any).contact_phone}
+                isNb={isNb}
+              />
             </div>
           </div>
         </>

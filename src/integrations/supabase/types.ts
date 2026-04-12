@@ -538,6 +538,7 @@ export type Database = {
           compliance_score: number | null
           contact_email: string | null
           contact_person: string | null
+          contact_phone: string | null
           country: string | null
           created_at: string | null
           criticality: string | null
@@ -574,6 +575,7 @@ export type Database = {
           compliance_score?: number | null
           contact_email?: string | null
           contact_person?: string | null
+          contact_phone?: string | null
           country?: string | null
           created_at?: string | null
           criticality?: string | null
@@ -610,6 +612,7 @@ export type Database = {
           compliance_score?: number | null
           contact_email?: string | null
           contact_person?: string | null
+          contact_phone?: string | null
           country?: string | null
           created_at?: string | null
           criticality?: string | null
