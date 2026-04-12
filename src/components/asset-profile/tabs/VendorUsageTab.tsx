@@ -87,6 +87,9 @@ export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
         {isNb ? "Vår organisasjon" : "Our organization"}
       </Badge>
 
+      {/* TPRM Status */}
+      <VendorTPRMStatus assetId={assetId} />
+
       {/* Criticality & Role */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card>
