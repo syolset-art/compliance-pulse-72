@@ -217,6 +217,31 @@ export function calculateTrustScore(controls: EvaluatedControl[]): number {
 }
 
 /**
+ * Calculate separate scores for vendor baseline vs org enrichment.
+ * Returns percentages relative to total controls (so they sum to trustScore).
+ */
+export function calculateScoreBySource(controls: EvaluatedControl[]): { baselinePercent: number; enrichmentPercent: number } {
+  if (controls.length === 0) return { baselinePercent: 0, enrichmentPercent: 0 };
+  const totalWeight = controls.reduce((s, c) => s + c.weight, 0);
+  if (totalWeight === 0) return { baselinePercent: 0, enrichmentPercent: 0 };
+  let baselineEarned = 0;
+  let enrichmentEarned = 0;
+  for (const c of controls) {
+    const factor = c.status === "implemented" ? 1 : c.status === "partial" ? 0.5 : 0;
+    if (factor === 0) continue;
+    if (c.source === "vendor_baseline") {
+      baselineEarned += c.weight * factor;
+    } else {
+      enrichmentEarned += c.weight * factor;
+    }
+  }
+  return {
+    baselinePercent: Math.round((baselineEarned / totalWeight) * 100),
+    enrichmentPercent: Math.round((enrichmentEarned / totalWeight) * 100),
+  };
+}
+
+/**
  * Calculate confidence score based on verification levels.
  */
 export function calculateConfidenceScore(controls: EvaluatedControl[]): number {
