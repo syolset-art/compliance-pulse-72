@@ -167,11 +167,7 @@ const SystemTrustProfile = () => {
 
             <SystemHeader system={system} trustMetrics={trustMetrics} />
 
-            <SystemMetrics
-              systemAsAsset={systemAsAsset}
-              tasksCount={tasks?.length || 0}
-              onTrustMetrics={handleTrustMetrics}
-            />
+            {/* SystemMetrics moved into validation tab */}
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
               <nav aria-label={isNb ? "Trust Profile-faner" : "Trust Profile tabs"}>
@@ -230,7 +226,12 @@ const SystemTrustProfile = () => {
               </nav>
 
               <TabsContent value="validation" className="mt-6">
-                <ValidationTab systemId={system.id} />
+                <ValidationTab
+                  systemId={system.id}
+                  systemAsAsset={systemAsAsset}
+                  tasksCount={tasks?.length || 0}
+                  onTrustMetrics={handleTrustMetrics}
+                />
               </TabsContent>
 
               <TabsContent value="controls" className="mt-6">
