@@ -251,23 +251,59 @@ export function TrustControlsPanel({
     }
   };
 
+  const totalPartial = allControls.filter(c => c.status === "partial").length;
+  const totalMissing = allControls.filter(c => c.status === "missing").length;
+  const remaining = totalPartial + totalMissing;
+
+  const coverageLabel = trustScore >= 75
+    ? { en: "GOOD COVERAGE", nb: "GOD DEKNING", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" }
+    : trustScore >= 50
+    ? { en: "PARTIAL COVERAGE", nb: "DELVIS DEKNING", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" }
+    : { en: "LOW COVERAGE", nb: "LAV DEKNING", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" };
+
+  const assetName = (asset as any).name || (asset as any).vendor || "";
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {/* ━━━ Sikkerhet og kontroller ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <Card className="p-4 md:col-span-2">
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Shield className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
-              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-warning/50 text-warning">Demodata</Badge>
-              <span className="text-xs text-muted-foreground ml-auto">{totalImplemented}/{allControls.length} {isNb ? "kontroller dokumentert" : "controls documented"}</span>
+      <Card className="p-5 md:col-span-2">
+        {/* Header row */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-lg font-bold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+              <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${coverageLabel.color}`}>
+                {isNb ? coverageLabel.nb : coverageLabel.en}
+              </span>
             </div>
+            {assetName && (
+              <p className="text-xs text-muted-foreground">
+                {isNb ? `For ${assetName}` : `For ${assetName}`}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground max-w-xl">
+              {isNb
+                ? "Måler hvor godt systemet er dokumentert, organisert og fulgt opp. Scoren bygger på relevante vurderinger av systemdata og dokumentert bruk i arbeidsområder, behandlingsaktiviteter, prosesser og leverandørforhold."
+                : "Measures how well the system is documented, organized and followed up. The score is based on relevant assessments of system data and documented use across work areas, processing activities, processes and vendor relationships."}
+            </p>
           </div>
+          <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
-        <Progress value={(totalImplemented / allControls.length) * 100} className="h-1.5 mb-4" />
+
+        {/* Summary badges */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+            {totalImplemented} {isNb ? "OPPFYLT" : "FULFILLED"}
+          </span>
+          {remaining > 0 && (
+            <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+              {remaining} {isNb ? "GJENSTÅR" : "REMAINING"}
+            </span>
+          )}
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+            {securityAreas.length} {isNb ? "KONTROLLOMRÅDER" : "CONTROL AREAS"}
+          </span>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
