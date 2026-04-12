@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, ChevronDown, ChevronUp, Shield, Server, Users, Link2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, ChevronDown, ChevronUp, Shield, Server, Users, Link2, Fingerprint } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
@@ -16,9 +16,11 @@ interface VendorTrustScoreCardProps {
 const AREA_CARDS = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance", color: "text-blue-600" },
   { area: "risk_compliance", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-emerald-600" },
-  { area: "security_posture", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-violet-600" },
+  { area: "security_posture", icon: Fingerprint, labelNb: "Identitet og tilgang", labelEn: "Identity & Access", color: "text-violet-600" },
   { area: "supplier_governance", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
 ];
+
+const PRIVACY_AREA = { area: "privacy_data", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-rose-600" };
 
 export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated, assetId }: VendorTrustScoreCardProps) {
   const { i18n } = useTranslation();
@@ -115,31 +117,41 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
 
         {/* Expanded: control area mini cards */}
         {expanded && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 animate-in slide-in-from-top-1 duration-150">
-            {AREA_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
-              const areaScore = evaluation?.areaScore(area as any) ?? 0;
-              const scoreClr = areaScore >= 70 ? "text-success" : areaScore >= 40 ? "text-warning" : "text-destructive";
-              const barClr = areaScore >= 70 ? "bg-success" : areaScore >= 40 ? "bg-warning" : "bg-destructive";
-
-              return (
-                <div
-                  key={area}
-                  className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5"
-                >
-                  <Icon className={`h-5 w-5 ${color}`} />
-                  <span className="text-[11px] font-medium text-foreground leading-tight">
-                    {isNb ? lNb : lEn}
-                  </span>
-                  <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
-                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${barClr}`}
-                      style={{ width: `${areaScore}%` }}
-                    />
+          <div className="mt-3 space-y-2.5 animate-in slide-in-from-top-1 duration-150">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {AREA_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
+                const areaScore = evaluation?.areaScore(area as any) ?? 0;
+                const scoreClr = areaScore >= 70 ? "text-success" : areaScore >= 40 ? "text-warning" : "text-destructive";
+                const barClr = areaScore >= 70 ? "bg-success" : areaScore >= 40 ? "bg-warning" : "bg-destructive";
+                return (
+                  <div key={area} className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5">
+                    <Icon className={`h-5 w-5 ${color}`} />
+                    <span className="text-[11px] font-medium text-foreground leading-tight">{isNb ? lNb : lEn}</span>
+                    <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${barClr}`} style={{ width: `${areaScore}%` }} />
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+            {/* 5th area — Privacy — compact horizontal */}
+            {(() => {
+              const { area, icon: Icon, labelNb: lNb, labelEn: lEn, color } = PRIVACY_AREA;
+              const ps = evaluation?.areaScore(area as any) ?? 0;
+              const sc = ps >= 70 ? "text-success" : ps >= 40 ? "text-warning" : "text-destructive";
+              const bc = ps >= 70 ? "bg-success" : ps >= 40 ? "bg-warning" : "bg-destructive";
+              return (
+                <div className="rounded-lg border border-border bg-background p-3 flex items-center gap-4">
+                  <Icon className={`h-5 w-5 ${color} shrink-0`} />
+                  <span className="text-[11px] font-medium text-foreground whitespace-nowrap">{isNb ? lNb : lEn}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-500 ${bc}`} style={{ width: `${ps}%` }} />
+                  </div>
+                  <span className={`text-sm font-bold tabular-nums ${sc}`}>{ps}%</span>
                 </div>
               );
-            })}
+            })()}
           </div>
         )}
       </CardContent>
