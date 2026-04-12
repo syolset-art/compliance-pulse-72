@@ -114,7 +114,7 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
                     {isNb ? "Overordnet risikobilde (ROS)" : "Overall Risk Assessment"}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    {isNb ? "Samlet risikovurdering av systemet" : "Combined risk assessment of the system"}
+                    {isNb ? "Samlet risikovurdering av leverandøren" : "Combined risk assessment of the vendor"}
                   </p>
                 </div>
                 <Button size="sm" className="gap-1.5 bg-primary">
