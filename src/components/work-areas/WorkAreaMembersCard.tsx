@@ -369,65 +369,65 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
               const RoleIcon = getRoleIcon(member.role);
               const isEditing = editingId === member.id;
 
-              if (isEditing) {
-                return (
-                  <div key={member.id} className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="flex-1 h-7 text-sm"
-                        autoFocus
-                        onKeyDown={(e) => e.key === "Enter" && handleUpdate(member.id)}
-                      />
-                      <Select value={editRole} onValueChange={setEditRole}>
-                        <SelectTrigger className="w-36 h-7 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ROLE_CONFIG.map(r => (
-                            <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
-                        <Check className="h-3 w-3 text-primary" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingId(null)}>
-                        <X className="h-3 w-3 text-muted-foreground" />
-                      </Button>
-                    </div>
-                    {member.email && (
-                      <div className="text-xs text-muted-foreground pl-1">
-                        E-post: {member.email}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
               return (
-                <div key={member.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors group">
-                  <div className="flex items-center justify-center h-9 w-9 rounded-full bg-muted">
-                    <RoleIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{member.person_name}</div>
-                    <div className="text-xs text-muted-foreground">{ROLE_LABELS[member.role] || member.role}</div>
-                  </div>
-                  <div className="flex items-center gap-1">
+                <div key={member.id} className="p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center h-9 w-9 rounded-full bg-muted shrink-0">
+                      <RoleIcon className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {isEditing ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="flex-1 h-7 text-sm"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleUpdate(member.id);
+                              if (e.key === "Escape") setEditingId(null);
+                            }}
+                          />
+                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
+                            <Check className="h-3 w-3 text-primary" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => setEditingId(null)}>
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm truncate">{member.person_name}</div>
+                            {member.email && (
+                              <div className="text-xs text-muted-foreground truncate">{member.email}</div>
+                            )}
+                          </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6 shrink-0"
+                            onClick={() => { setEditingId(member.id); setEditName(member.person_name); }}
+                          >
+                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <Select value={member.role} onValueChange={(val) => handleRoleChange(member.id, val)}>
+                      <SelectTrigger className="w-40 h-7 text-xs shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLE_CONFIG.map(r => (
+                          <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-6 w-6"
-                      onClick={() => { setEditingId(member.id); setEditName(member.person_name); setEditRole(member.role); }}
-                    >
-                      <Pencil className="h-3 w-3 text-muted-foreground" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6"
+                      className="h-6 w-6 shrink-0"
                       onClick={() => handleDelete(member.id)}
                     >
                       <Trash2 className="h-3 w-3 text-destructive" />
