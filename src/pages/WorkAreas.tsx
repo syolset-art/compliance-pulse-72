@@ -79,6 +79,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getSystemIcon } from "@/lib/systemIcons";
 import { WorkAreaHelpDrawer } from "@/components/work-areas/WorkAreaHelpDrawer";
+import { WorkAreaMembersHelpDrawer } from "@/components/work-areas/WorkAreaMembersHelpDrawer";
 
 interface WorkArea {
   id: string;
@@ -154,7 +155,8 @@ export default function WorkAreas() {
   const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
   const [riskFilter, setRiskFilter] = useState<"all" | "high" | "low">("all");
   const [introDismissed, setIntroDismissed] = useState(() => localStorage.getItem("workarea-intro-dismissed") === "true");
-  const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
+   const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
+  const [membersHelpOpen, setMembersHelpOpen] = useState(false);
   usePageHelpListener(setHelpDrawerOpen);
   const { toast } = useToast();
   const { mode } = useNavigationMode();
@@ -1093,6 +1095,7 @@ export default function WorkAreas() {
                           : wa
                       ));
                     }}
+                    onOpenMembersHelp={() => setMembersHelpOpen(true)}
                   />
 
                   {/* Arbeidsområde-detaljer */}
@@ -1260,6 +1263,7 @@ export default function WorkAreas() {
       </AlertDialog>
 
       <WorkAreaHelpDrawer open={helpDrawerOpen} onOpenChange={setHelpDrawerOpen} />
+      <WorkAreaMembersHelpDrawer open={membersHelpOpen} onOpenChange={setMembersHelpOpen} />
     </div>
   );
 }
