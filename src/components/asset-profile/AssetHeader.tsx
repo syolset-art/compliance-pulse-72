@@ -30,6 +30,7 @@ import {
   User,
   Users,
   Send,
+  Mail,
   Camera,
   Loader2,
   Award,
