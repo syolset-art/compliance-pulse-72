@@ -772,8 +772,19 @@ export default function WorkAreas() {
                   <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
                     <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <div className="space-y-1">
-                    <h2 className="text-lg sm:text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
+                    <div className="space-y-1">
+                     <div className="flex items-center gap-2">
+                       <h2 className="text-lg sm:text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
+                       {selectedWorkArea.is_active === false ? (
+                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
+                           Inaktiv
+                         </span>
+                       ) : (
+                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
+                           Aktiv
+                         </span>
+                       )}
+                     </div>
                     <ResponsiblePersonEditor
                       workAreaId={selectedWorkArea.id}
                       currentPerson={selectedWorkArea.responsible_person}
