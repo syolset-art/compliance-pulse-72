@@ -53,6 +53,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const isNb = i18n.language === "nb";
   const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
+  const [requestType, setRequestType] = useState<string | undefined>();
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
