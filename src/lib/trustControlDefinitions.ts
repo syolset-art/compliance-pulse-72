@@ -180,50 +180,56 @@ const RISK_MAP: Record<string, { severity: RiskSeverity; titleEn: string; titleN
 };
 
 // ── Action mapping: control key → recommended action ─────────────────
-const ACTION_MAP: Record<string, { titleEn: string; titleNb: string }> = {
-  dpa_verified: { titleEn: "Request updated Data Processing Agreement", titleNb: "Be om oppdatert databehandleravtale" },
-  encryption_enabled: { titleEn: "Enable encryption for this system", titleNb: "Aktiver kryptering for dette systemet" },
-  device_encryption: { titleEn: "Enable device encryption", titleNb: "Aktiver enhetskryptering" },
-  mfa_enabled: { titleEn: "Enable multi-factor authentication", titleNb: "Aktiver flerfaktorautentisering" },
-  vendor_security_review: { titleEn: "Complete vendor security review", titleNb: "Fullfør leverandørsikkerhetsgjennomgang" },
-  risk_assessment: { titleEn: "Complete risk assessment", titleNb: "Fullfør risikovurdering" },
-  risk_assessment_recent: { titleEn: "Conduct a formal risk assessment", titleNb: "Gjennomfør en formell risikovurdering" },
-  sub_processors_disclosed: { titleEn: "Request sub-processor disclosure from vendor", titleNb: "Be om underleverandøroversikt fra leverandør" },
-  security_logging: { titleEn: "Enable security logging", titleNb: "Aktiver sikkerhetslogging" },
-  backup_configured: { titleEn: "Configure backup solution", titleNb: "Konfigurer sikkerhetskopiering" },
-  endpoint_protection: { titleEn: "Install endpoint protection", titleNb: "Installer endepunktbeskyttelse" },
-  documentation_available: { titleEn: "Upload security documentation", titleNb: "Last opp sikkerhetsdokumentasjon" },
-  security_responsibility: { titleEn: "Define security and privacy responsibility", titleNb: "Definer ansvar for sikkerhet og personvern" },
-  documented_policies: { titleEn: "Document security policies", titleNb: "Dokumenter sikkerhetspolicyer" },
-  incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering" },
-  security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt" },
-  patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering" },
-  access_control: { titleEn: "Implement least privilege access control", titleNb: "Implementer tilgangsstyring etter minste privilegium" },
-  mfa_org: { titleEn: "Implement multi-factor authentication", titleNb: "Implementer flerfaktorautentisering" },
-  encryption_org: { titleEn: "Enable encryption for data in transit and at rest", titleNb: "Aktiver kryptering for data i transit og i hvile" },
-  logging_monitoring: { titleEn: "Implement logging and monitoring", titleNb: "Implementer logging og overvåking" },
-  security_testing: { titleEn: "Perform regular security testing", titleNb: "Gjennomfør regelmessig sikkerhetstesting" },
-  ropa: { titleEn: "Create record of processing activities", titleNb: "Opprett behandlingsoversikt" },
-  dpa_org: { titleEn: "Establish data processing agreements", titleNb: "Inngå databehandleravtaler" },
-  dpia: { titleEn: "Conduct data protection impact assessment", titleNb: "Gjennomfør DPIA" },
-  data_subject_rights: { titleEn: "Establish processes for data subject rights", titleNb: "Etabler prosesser for registrertes rettigheter" },
-  data_storage_control: { titleEn: "Establish control over data storage locations", titleNb: "Etabler kontroll over datalagringssted" },
-  vendor_inventory: { titleEn: "Create vendor inventory", titleNb: "Opprett leverandøroversikt" },
-  vendor_risk_assessment: { titleEn: "Perform vendor risk assessments", titleNb: "Gjennomfør risikovurdering av leverandører" },
-  vendor_followup: { titleEn: "Establish regular vendor follow-up", titleNb: "Etabler jevnlig leverandøroppfølging" },
-  // Vendor privacy
-  vendor_privacy_policy: { titleEn: "Request privacy policy from vendor", titleNb: "Be om personvernerklæring fra leverandør" },
-  vendor_data_location: { titleEn: "Document data storage locations", titleNb: "Dokumenter datalagringssted" },
-  vendor_data_retention: { titleEn: "Request data retention policy", titleNb: "Be om oppbevaringsrutiner" },
-  vendor_data_portability: { titleEn: "Confirm data portability options", titleNb: "Bekreft muligheter for dataportabilitet" },
-  vendor_gdpr_compliant: { titleEn: "Request GDPR compliance confirmation", titleNb: "Be om bekreftelse på GDPR-samsvar" },
-  // System privacy
-  system_personal_data_mapped: { titleEn: "Map personal data categories in system", titleNb: "Kartlegg personopplysningskategorier i systemet" },
-  system_legal_basis: { titleEn: "Define legal basis for processing", titleNb: "Definer behandlingsgrunnlag" },
-  system_data_retention: { titleEn: "Define retention and deletion routines", titleNb: "Definer oppbevarings- og sletterutiner" },
-  system_access_logging: { titleEn: "Enable access logging for personal data", titleNb: "Aktiver tilgangslogging for personopplysninger" },
-  system_data_minimization: { titleEn: "Review and minimize collected data", titleNb: "Gjennomgå og minimer innsamlede data" },
+// targetTab: which tab to navigate to for remediation
+const ACTION_MAP: Record<string, { titleEn: string; titleNb: string; targetTab?: string }> = {
+  dpa_verified: { titleEn: "Request updated Data Processing Agreement", titleNb: "Be om oppdatert databehandleravtale", targetTab: "evidence" },
+  encryption_enabled: { titleEn: "Enable encryption for this system", titleNb: "Aktiver kryptering for dette systemet", targetTab: "usage" },
+  device_encryption: { titleEn: "Enable device encryption", titleNb: "Aktiver enhetskryptering", targetTab: "usage" },
+  mfa_enabled: { titleEn: "Enable multi-factor authentication", titleNb: "Aktiver flerfaktorautentisering", targetTab: "usage" },
+  vendor_security_review: { titleEn: "Complete vendor security review", titleNb: "Fullfør leverandørsikkerhetsgjennomgang", targetTab: "vendor-audit" },
+  risk_assessment: { titleEn: "Complete risk assessment", titleNb: "Fullfør risikovurdering", targetTab: "vendor-audit" },
+  risk_assessment_recent: { titleEn: "Conduct a formal risk assessment", titleNb: "Gjennomfør en formell risikovurdering", targetTab: "vendor-audit" },
+  sub_processors_disclosed: { titleEn: "Request sub-processor disclosure from vendor", titleNb: "Be om underleverandøroversikt fra leverandør", targetTab: "evidence" },
+  security_logging: { titleEn: "Enable security logging", titleNb: "Aktiver sikkerhetslogging", targetTab: "usage" },
+  backup_configured: { titleEn: "Configure backup solution", titleNb: "Konfigurer sikkerhetskopiering", targetTab: "usage" },
+  endpoint_protection: { titleEn: "Install endpoint protection", titleNb: "Installer endepunktbeskyttelse", targetTab: "usage" },
+  documentation_available: { titleEn: "Upload security documentation", titleNb: "Last opp sikkerhetsdokumentasjon", targetTab: "evidence" },
+  security_responsibility: { titleEn: "Define security and privacy responsibility", titleNb: "Definer ansvar for sikkerhet og personvern", targetTab: "overview" },
+  documented_policies: { titleEn: "Document security policies", titleNb: "Dokumenter sikkerhetspolicyer", targetTab: "evidence" },
+  incident_handling: { titleEn: "Define incident handling procedure", titleNb: "Definer prosedyre for hendelseshåndtering", targetTab: "vendor-incidents" },
+  security_contact: { titleEn: "Define security contact", titleNb: "Definer sikkerhetskontakt", targetTab: "overview" },
+  patch_management: { titleEn: "Activate patch management", titleNb: "Aktiver patchhåndtering", targetTab: "usage" },
+  access_control: { titleEn: "Implement least privilege access control", titleNb: "Implementer tilgangsstyring etter minste privilegium", targetTab: "usage" },
+  mfa_org: { titleEn: "Implement multi-factor authentication", titleNb: "Implementer flerfaktorautentisering", targetTab: "usage" },
+  encryption_org: { titleEn: "Enable encryption for data in transit and at rest", titleNb: "Aktiver kryptering for data i transit og i hvile", targetTab: "usage" },
+  logging_monitoring: { titleEn: "Implement logging and monitoring", titleNb: "Implementer logging og overvåking", targetTab: "usage" },
+  security_testing: { titleEn: "Perform regular security testing", titleNb: "Gjennomfør regelmessig sikkerhetstesting", targetTab: "vendor-audit" },
+  ropa: { titleEn: "Create record of processing activities", titleNb: "Opprett behandlingsoversikt", targetTab: "usage" },
+  dpa_org: { titleEn: "Establish data processing agreements", titleNb: "Inngå databehandleravtaler", targetTab: "evidence" },
+  dpia: { titleEn: "Conduct data protection impact assessment", titleNb: "Gjennomfør DPIA", targetTab: "vendor-audit" },
+  data_subject_rights: { titleEn: "Establish processes for data subject rights", titleNb: "Etabler prosesser for registrertes rettigheter", targetTab: "usage" },
+  data_storage_control: { titleEn: "Establish control over data storage locations", titleNb: "Etabler kontroll over datalagringssted", targetTab: "usage" },
+  vendor_inventory: { titleEn: "Create vendor inventory", titleNb: "Opprett leverandøroversikt", targetTab: "overview" },
+  vendor_risk_assessment: { titleEn: "Perform vendor risk assessments", titleNb: "Gjennomfør risikovurdering av leverandører", targetTab: "vendor-audit" },
+  vendor_followup: { titleEn: "Establish regular vendor follow-up", titleNb: "Etabler jevnlig leverandøroppfølging", targetTab: "vendor-audit" },
+  vendor_privacy_policy: { titleEn: "Request privacy policy from vendor", titleNb: "Be om personvernerklæring fra leverandør", targetTab: "evidence" },
+  vendor_data_location: { titleEn: "Document data storage locations", titleNb: "Dokumenter datalagringssted", targetTab: "usage" },
+  vendor_data_retention: { titleEn: "Request data retention policy", titleNb: "Be om oppbevaringsrutiner", targetTab: "evidence" },
+  vendor_data_portability: { titleEn: "Confirm data portability options", titleNb: "Bekreft muligheter for dataportabilitet", targetTab: "evidence" },
+  vendor_gdpr_compliant: { titleEn: "Request GDPR compliance confirmation", titleNb: "Be om bekreftelse på GDPR-samsvar", targetTab: "evidence" },
+  system_personal_data_mapped: { titleEn: "Map personal data categories in system", titleNb: "Kartlegg personopplysningskategorier i systemet", targetTab: "usage" },
+  system_legal_basis: { titleEn: "Define legal basis for processing", titleNb: "Definer behandlingsgrunnlag", targetTab: "usage" },
+  system_data_retention: { titleEn: "Define retention and deletion routines", titleNb: "Definer oppbevarings- og sletterutiner", targetTab: "usage" },
+  system_access_logging: { titleEn: "Enable access logging for personal data", titleNb: "Aktiver tilgangslogging for personopplysninger", targetTab: "usage" },
+  system_data_minimization: { titleEn: "Review and minimize collected data", titleNb: "Gjennomgå og minimer innsamlede data", targetTab: "usage" },
 };
+
+/**
+ * Get the action info for a given control key (includes target tab).
+ */
+export function getActionForControl(controlKey: string): { titleEn: string; titleNb: string; targetTab?: string } | null {
+  return ACTION_MAP[controlKey] || null;
+}
 
 /**
  * Returns the type-specific controls for a given asset type.
