@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
