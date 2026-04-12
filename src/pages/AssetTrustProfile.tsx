@@ -8,7 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MoreHorizontal, Building2, Server } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Building2, Server, Mail } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
@@ -102,6 +102,7 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : (isVendor ? "overview" : "validation"));
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
   const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
@@ -213,10 +214,23 @@ const AssetTrustProfile = () => {
         <main className="flex-1 overflow-auto pt-11">
           <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
             {/* Back button */}
-            <Button variant="ghost" onClick={() => navigate("/assets")} className="mb-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("common.back")}
-            </Button>
+            <div className="flex items-center justify-between mb-1">
+              <Button variant="ghost" onClick={() => navigate("/assets")}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                {t("common.back")}
+              </Button>
+              {isVendor && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRequestDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  {isNb ? "Send forespørsel" : "Send request"}
+                </Button>
+              )}
+            </div>
 
             {/* Trust Center header + Publishing for self-profile */}
             {isSelf && (
@@ -241,7 +255,7 @@ const AssetTrustProfile = () => {
 
             {/* Entity Header */}
             <div ref={headerRef}>
-              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} />
+              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} requestDialogOpen={requestDialogOpen} onRequestDialogChange={setRequestDialogOpen} />
             </div>
 
             {/* Security Areas + Scope */}
