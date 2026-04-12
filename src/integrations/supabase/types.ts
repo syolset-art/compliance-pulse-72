@@ -558,9 +558,11 @@ export type Database = {
           publish_mode: string | null
           publish_to_customers: string[] | null
           region: string | null
+          risk_grade: string | null
           risk_level: string | null
           risk_score: number | null
           sync_enabled: boolean | null
+          tprm_status: string | null
           updated_at: string | null
           url: string | null
           vendor: string | null
@@ -595,9 +597,11 @@ export type Database = {
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
+          risk_grade?: string | null
           risk_level?: string | null
           risk_score?: number | null
           sync_enabled?: boolean | null
+          tprm_status?: string | null
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
@@ -632,9 +636,11 @@ export type Database = {
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
+          risk_grade?: string | null
           risk_level?: string | null
           risk_score?: number | null
           sync_enabled?: boolean | null
+          tprm_status?: string | null
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
