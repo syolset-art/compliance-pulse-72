@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,12 +40,29 @@ function getRiskLevel(criticality?: string | null, riskLevel?: string | null): "
   return null;
 }
 
-function getTPRMLevel(risk: "high" | "medium" | "low" | null, controlsMet: number, totalControls: number): TPRMLevel {
-  if (risk === null) return "not_assessed";
-  const controlRatio = controlsMet / totalControls;
-  if (risk === "high" && controlRatio < 0.75) return "action_required";
-  if (controlRatio >= 0.75) return "approved";
-  return "under_review";
+function getTPRMLevel(
+  risk: "high" | "medium" | "low" | null,
+  controlsMet: number,
+  totalControls: number,
+  maturity?: { implementedCount: number; totalControls: number; trustScore: number } | null,
+): TPRMLevel {
+  const maturityStarted = maturity && maturity.implementedCount > 0;
+  const maturityScore = maturity?.trustScore ?? 0;
+  const controlRatio = totalControls > 0 ? controlsMet / totalControls : 0;
+
+  // Nothing done at all
+  if (!maturityStarted && controlsMet === 0 && risk === null) return "not_assessed";
+
+  // High risk with low maturity or few controls → action required
+  if (risk === "high" && maturityScore < 50 && controlRatio < 0.75) return "action_required";
+
+  // Good maturity + good controls → approved
+  if (maturityScore >= 75 && controlRatio >= 0.5) return "approved";
+
+  // Any work started → under review
+  if (maturityStarted || controlsMet > 0) return "under_review";
+
+  return "not_assessed";
 }
 
 interface ControlItem {
@@ -128,8 +145,17 @@ export const VendorTPRMStatus = ({
   const controlsMet = controls.filter((c) => c.met).length;
   const missingControls = controls.filter((c) => !c.met);
   const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
-  const tprmLevel = getTPRMLevel(risk, controlsMet, controls.length);
-  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || tprmLevel;
+  const autoLevel = getTPRMLevel(risk, controlsMet, controls.length, maturityStats);
+  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || autoLevel;
+
+  // Auto-persist status when calculated level changes and differs from stored
+  useEffect(() => {
+    if (!asset) return;
+    const stored = asset.tprm_status as TPRMLevel | null;
+    if (autoLevel !== "not_assessed" && stored !== autoLevel && (!stored || stored === "not_assessed")) {
+      updateStatusMutation.mutate(autoLevel);
+    }
+  }, [autoLevel, asset?.tprm_status]);
 
   const tprmConfig: Record<TPRMLevel, { label: string; bg: string; border: string; text: string; emoji: string }> = {
     approved: { label: isNb ? "Godkjent" : "Approved", bg: "bg-success/10", border: "border-success/30", text: "text-success", emoji: "🟢" },
