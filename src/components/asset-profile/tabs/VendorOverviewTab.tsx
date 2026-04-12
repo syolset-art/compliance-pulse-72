@@ -192,16 +192,76 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
       security_posture: "Privacy & Data Handling",
       supplier_governance: "Third-Party & Value Chain",
     };
+    const ACTION_NB: Record<string, string> = {
+      dpa_verified: "Last opp databehandleravtale i dokumentfanen",
+      security_contact: "Legg til sikkerhetskontakt i leverandørprofilen",
+      sub_processors_disclosed: "Dokumenter underleverandører under relasjoner",
+      vendor_security_review: "Gjennomfør sikkerhetsgjennomgang av leverandøren",
+      risk_level_defined: "Sett risikonivå i risikostyringsfanen",
+      criticality_defined: "Definer kritikalitet i risikostyringsfanen",
+      risk_assessment: "Utfør risikovurdering",
+      documentation_available: "Last opp relevant dokumentasjon",
+      vendor_privacy_policy: "Bekreft at leverandøren har personvernerklæring",
+      vendor_data_location: "Dokumenter hvor data lagres",
+      vendor_data_retention: "Bekreft oppbevaringsrutiner hos leverandøren",
+      vendor_data_portability: "Verifiser dataportabilitet ved avtaleavslutning",
+      vendor_gdpr_compliant: "Bekreft GDPR-samsvar hos leverandøren",
+      owner_assigned: "Tildel en eier til eiendelen",
+      responsible_person: "Tildel en ansvarlig person",
+      description_defined: "Legg til en beskrivelse av eiendelen",
+      review_cycle: "Sett neste gjennomgangsdato",
+    };
+    const ACTION_EN: Record<string, string> = {
+      dpa_verified: "Upload data processing agreement in documents tab",
+      security_contact: "Add security contact in vendor profile",
+      sub_processors_disclosed: "Document sub-processors under relations",
+      vendor_security_review: "Complete vendor security review",
+      risk_level_defined: "Set risk level in risk management tab",
+      criticality_defined: "Define criticality in risk management tab",
+      risk_assessment: "Perform risk assessment",
+      documentation_available: "Upload relevant documentation",
+      vendor_privacy_policy: "Confirm vendor has a privacy policy",
+      vendor_data_location: "Document data storage location",
+      vendor_data_retention: "Confirm data retention routines",
+      vendor_data_portability: "Verify data portability on contract termination",
+      vendor_gdpr_compliant: "Confirm GDPR compliance with vendor",
+      owner_assigned: "Assign an owner to this asset",
+      responsible_person: "Assign a responsible person",
+      description_defined: "Add a description for this asset",
+      review_cycle: "Set next review date",
+    };
+    const CTA_NB: Record<string, string> = {
+      documents: "Gå til dokumenter",
+      controls: "Gå til kontroller",
+      riskManagement: "Gå til risikostyring",
+      relations: "Gå til relasjoner",
+      incidents: "Gå til hendelser",
+      "_header:contact": "Rediger profil",
+    };
+    const CTA_EN: Record<string, string> = {
+      documents: "Go to documents",
+      controls: "Go to controls",
+      riskManagement: "Go to risk management",
+      relations: "Go to relations",
+      incidents: "Go to incidents",
+      "_header:contact": "Edit profile",
+    };
     return allControls
       .filter(c => c.status === "missing" || c.status === "partial")
-      .map(c => ({
-        id: `ctrl-${c.key}`,
-        title: isNb ? c.labelNb : c.labelEn,
-        type: isNb ? (AREA_LABELS_NB[c.area] || c.area) : (AREA_LABELS_EN[c.area] || c.area),
-        status: c.status === "partial" ? "in_progress" : "open",
-        priority: c.status === "missing" ? "high" : "medium",
-        isControlTask: true,
-      }));
+      .map(c => {
+        const targetTab = CONTROL_NAV_MAP[c.key] || null;
+        return {
+          id: `ctrl-${c.key}`,
+          title: isNb ? c.labelNb : c.labelEn,
+          type: isNb ? (AREA_LABELS_NB[c.area] || c.area) : (AREA_LABELS_EN[c.area] || c.area),
+          status: c.status === "partial" ? "in_progress" : "open",
+          priority: c.status === "missing" ? "high" : "medium",
+          isControlTask: true,
+          action: isNb ? (ACTION_NB[c.key] || null) : (ACTION_EN[c.key] || null),
+          targetTab,
+          ctaLabel: targetTab ? (isNb ? (CTA_NB[targetTab] || "Utfør") : (CTA_EN[targetTab] || "Take action")) : null,
+        };
+      });
   }, [evaluation, isNb]);
 
   const dbOpenTasks = tasks.filter((t: any) => t.status !== "completed");
