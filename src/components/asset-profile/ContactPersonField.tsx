@@ -65,7 +65,7 @@ export const ContactPersonField = ({
         </div>
         <div className="min-w-0 flex-1 space-y-1.5">
           <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-            {isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}
+            {isNb ? "Kontaktperson" : "Contact person"}
           </p>
           <Input
             value={name}
@@ -121,7 +121,7 @@ export const ContactPersonField = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1">
           <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-            {isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}
+            {isNb ? "Kontaktperson" : "Contact person"}
           </p>
           <button
             onClick={() => setEditing(true)}
@@ -150,7 +150,7 @@ export const ContactPersonField = ({
             onClick={() => setEditing(true)}
             className="text-xs text-muted-foreground/50 italic hover:text-muted-foreground transition-colors"
           >
-            {isNb ? "Legg til kontaktperson hos leverandør" : "Add vendor contact person"}
+            {isNb ? "Legg til kontaktperson" : "Add contact person"}
           </button>
         )}
       </div>
