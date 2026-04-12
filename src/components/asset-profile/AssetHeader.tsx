@@ -522,8 +522,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             </a>
           )}
 
-          {/* Standards & Certifications + Regulatory Coverage */}
-          {frameworks.length > 0 && (() => {
+          {/* Standards & Certifications + Regulatory Coverage — only for self profiles */}
+          {isSelf && frameworks.length > 0 && (() => {
             const standards = frameworks.filter((fw: any) => isStandard(fw.framework_id));
             const regulations = frameworks.filter((fw: any) => !isStandard(fw.framework_id));
             return (
