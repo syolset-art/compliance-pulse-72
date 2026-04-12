@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { StackedProgress } from "@/components/ui/stacked-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
   GENERIC_CONTROLS,
   getTypeSpecificControls,
   calculateTrustScore,
+  calculateScoreBySource,
   calculateConfidenceScore,
   deriveKeyRisks,
   inferVerificationSource,
@@ -152,6 +153,7 @@ export function TrustControlsPanel({
   const allControls = [...evaluatedGeneric, ...evaluatedType];
 
   const trustScore = calculateTrustScore(allControls);
+  const { baselinePercent, enrichmentPercent } = calculateScoreBySource(allControls);
   const confidenceScore = calculateConfidenceScore(allControls);
   const risks = deriveKeyRisks(allControls);
   const grouped = groupControlsByArea(allControls);
@@ -175,6 +177,24 @@ export function TrustControlsPanel({
     const impl = controls.filter(c => c.status === "implemented").length;
     const partial = controls.filter(c => c.status === "partial").length;
     return Math.round(((impl + partial * 0.5) / controls.length) * 100);
+  };
+
+  const areaScoreBySource = (area: ControlArea) => {
+    const controls = grouped[area];
+    if (!controls || controls.length === 0) return { baseline: 0, enrichment: 0 };
+    const total = controls.length;
+    let baselineEarned = 0;
+    let enrichmentEarned = 0;
+    for (const c of controls) {
+      const factor = c.status === "implemented" ? 1 : c.status === "partial" ? 0.5 : 0;
+      if (factor === 0) continue;
+      if (c.source === "vendor_baseline") baselineEarned += factor;
+      else enrichmentEarned += factor;
+    }
+    return {
+      baseline: Math.round((baselineEarned / total) * 100),
+      enrichment: Math.round((enrichmentEarned / total) * 100),
+    };
   };
 
   // All 4 security areas — always displayed
@@ -298,6 +318,21 @@ export function TrustControlsPanel({
           <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
 
+        {/* Source legend + stacked bar */}
+        <div className="mb-4 space-y-2">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-muted-foreground/40" />
+              {isNb ? "Leverandørens baseline" : "Vendor baseline"}: {baselinePercent}%
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" />
+              {isNb ? "Eget arbeid" : "Your enrichment"}: {enrichmentPercent}%
+            </span>
+          </div>
+          <StackedProgress baselinePercent={baselinePercent} enrichmentPercent={enrichmentPercent} height="h-2" />
+        </div>
+
         {/* Summary badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
@@ -316,6 +351,7 @@ export function TrustControlsPanel({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb, descNb, descEn }) => {
             const score = areaScore(area);
+            const areaSourceScores = areaScoreBySource(area);
             const controls = grouped[area];
             const isExpanded = expandedArea === area;
             const implemented = controls.filter(c => c.status === "implemented").length;
@@ -325,7 +361,6 @@ export function TrustControlsPanel({
               : score >= 50
               ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-orange-500 dark:text-orange-400" }
               : { nb: "LAV DEKNING", en: "LOW COVERAGE", color: "text-destructive" };
-            const progressColor = score >= 75 ? "bg-green-500" : score >= 50 ? "bg-orange-400" : "bg-destructive";
 
             return (
               <div key={area} className="border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
@@ -361,10 +396,8 @@ export function TrustControlsPanel({
                     </span>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${score}%` }} />
-                  </div>
+                  {/* Stacked progress bar */}
+                  <StackedProgress baselinePercent={areaSourceScores.baseline} enrichmentPercent={areaSourceScores.enrichment} />
                 </button>
 
                 {isExpanded && (
