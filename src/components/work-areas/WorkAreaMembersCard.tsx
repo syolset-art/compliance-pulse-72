@@ -195,14 +195,32 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
         <div className="mb-5 p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nytt medlem</div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Navn..."
-              className="flex-1 h-8 text-sm"
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            />
+            <div className="relative flex-1">
+              <Input
+                value={newName}
+                onChange={(e) => { setNewName(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Søk eller skriv inn navn..."
+                className="h-8 text-sm"
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              />
+              {showSuggestions && filteredPeople.length > 0 && (
+                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                  {filteredPeople.map((name) => (
+                    <button
+                      key={name}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { setNewName(name); setShowSuggestions(false); }}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Select value={newRole} onValueChange={setNewRole}>
               <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
                 <SelectValue />
