@@ -534,6 +534,9 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           assetId={asset.id}
           assetName={asset.name || ""}
           vendorName={asset.vendor || undefined}
+          preselectedType={requestType}
+          contactPerson={asset.contact_person}
+          contactEmail={asset.contact_email}
           open={requestOpen}
           onOpenChange={setRequestOpen}
         />
