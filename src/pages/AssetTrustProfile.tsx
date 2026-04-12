@@ -140,12 +140,12 @@ const AssetTrustProfile = () => {
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries' },
     { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit' },
-    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
   ];
 
   const vendorOverflowTabDefs = [
+    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitetslogg' : 'Activity Log' },
   ];
 
