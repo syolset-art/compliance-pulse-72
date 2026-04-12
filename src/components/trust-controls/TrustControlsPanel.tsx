@@ -60,7 +60,7 @@ interface TrustControlsPanelProps {
   docsCount: number;
   relationsCount: number;
   overrideType?: string;
-  hideHeader?: boolean;
+  hideHeader?: boolean | "title-only";
   frameworks?: FrameworkItem[];
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
   onNavigateToTab?: (target: string) => void;
@@ -313,11 +313,13 @@ export function TrustControlsPanel({
       {/* ━━━ Sikkerhet og kontroller ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-5 md:col-span-2">
         {/* Header row */}
-        {!hideHeader && (
+        {hideHeader !== true && (
         <div className="flex items-start justify-between mb-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <h3 className="text-lg font-bold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+              {hideHeader !== "title-only" && (
+                <h3 className="text-lg font-bold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+              )}
               <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${coverageLabel.color}`}>
                 {isNb ? coverageLabel.nb : coverageLabel.en}
               </span>
@@ -331,16 +333,18 @@ export function TrustControlsPanel({
                 <TrendingUp className={`h-4 w-4 ${showHistory ? "text-primary" : "text-muted-foreground"}`} />
               </Button>
             </div>
-            {assetName && (
+            {hideHeader !== "title-only" && assetName && (
               <p className="text-xs text-muted-foreground">
                 {isNb ? `For ${assetName}` : `For ${assetName}`}
               </p>
             )}
-            <p className="text-xs text-muted-foreground max-w-xl">
-              {isNb
-                ? "Måler hvor godt systemet er dokumentert, organisert og fulgt opp. Scoren bygger på relevante vurderinger av systemdata og dokumentert bruk i arbeidsområder, behandlingsaktiviteter, prosesser og leverandørforhold."
-                : "Measures how well the system is documented, organized and followed up. The score is based on relevant assessments of system data and documented use across work areas, processing activities, processes and vendor relationships."}
-            </p>
+            {hideHeader !== "title-only" && (
+              <p className="text-xs text-muted-foreground max-w-xl">
+                {isNb
+                  ? "Måler hvor godt systemet er dokumentert, organisert og fulgt opp. Scoren bygger på relevante vurderinger av systemdata og dokumentert bruk i arbeidsområder, behandlingsaktiviteter, prosesser og leverandørforhold."
+                  : "Measures how well the system is documented, organized and followed up. The score is based on relevant assessments of system data and documented use across work areas, processing activities, processes and vendor relationships."}
+              </p>
+            )}
           </div>
           <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
