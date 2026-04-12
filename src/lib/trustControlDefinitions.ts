@@ -79,6 +79,12 @@ export const VENDOR_CONTROLS: TrustControlDefinition[] = [
   { key: "security_contact", labelEn: "Security contact defined", labelNb: "Sikkerhetskontakt definert", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
   { key: "sub_processors_disclosed", labelEn: "Sub-processors disclosed", labelNb: "Underleverandører oppgitt", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
   { key: "vendor_security_review", labelEn: "Vendor security review completed", labelNb: "Leverandørsikkerhetsgjennomgang fullført", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
+  // Privacy & Data Handling
+  { key: "vendor_privacy_policy", labelEn: "Privacy policy available", labelNb: "Personvernerklæring tilgjengelig", descriptionEn: "Does the vendor have a published privacy policy?", descriptionNb: "Har leverandøren en publisert personvernerklæring?", weight: 1, area: "privacy_data", source: "vendor_baseline" },
+  { key: "vendor_data_location", labelEn: "Data storage location documented", labelNb: "Datalagringssted dokumentert", descriptionEn: "Is it documented where data is stored (country/region)?", descriptionNb: "Er det dokumentert hvor data lagres (land/region)?", weight: 1, area: "privacy_data", source: "vendor_baseline" },
+  { key: "vendor_data_retention", labelEn: "Data retention policy defined", labelNb: "Oppbevaringsrutiner definert", descriptionEn: "Does the vendor have documented data retention and deletion routines?", descriptionNb: "Har leverandøren dokumenterte rutiner for oppbevaring og sletting av data?", weight: 1, area: "privacy_data", source: "vendor_baseline" },
+  { key: "vendor_data_portability", labelEn: "Data portability supported", labelNb: "Dataportabilitet støttet", descriptionEn: "Can data be exported if the agreement is terminated?", descriptionNb: "Kan data eksporteres ved avslutning av avtalen?", weight: 1, area: "privacy_data", source: "vendor_baseline" },
+  { key: "vendor_gdpr_compliant", labelEn: "GDPR compliance confirmed", labelNb: "GDPR-samsvar bekreftet", descriptionEn: "Has the vendor confirmed GDPR compliance?", descriptionNb: "Har leverandøren bekreftet samsvar med GDPR?", weight: 1, area: "privacy_data", source: "vendor_baseline" },
 ];
 
 // ── System-specific (Security Posture) ───────────────────────────────
@@ -87,6 +93,12 @@ export const SYSTEM_CONTROLS: TrustControlDefinition[] = [
   { key: "encryption_enabled", labelEn: "Encryption enabled", labelNb: "Kryptering aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
   { key: "backup_configured", labelEn: "Backup configured", labelNb: "Sikkerhetskopiering konfigurert", weight: 1, area: "security_posture", source: "vendor_baseline" },
   { key: "security_logging", labelEn: "Security logging enabled", labelNb: "Sikkerhetslogging aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
+  // Privacy & Data Handling
+  { key: "system_personal_data_mapped", labelEn: "Personal data categories mapped", labelNb: "Personopplysningskategorier kartlagt", descriptionEn: "Are the types of personal data processed by this system documented?", descriptionNb: "Er typene personopplysninger som behandles i dette systemet dokumentert?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "system_legal_basis", labelEn: "Legal basis for processing defined", labelNb: "Behandlingsgrunnlag definert", descriptionEn: "Is the legal basis for personal data processing defined (e.g. consent, contract)?", descriptionNb: "Er behandlingsgrunnlaget definert (f.eks. samtykke, avtale)?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "system_data_retention", labelEn: "Retention and deletion routines", labelNb: "Oppbevarings- og sletterutiner", descriptionEn: "Are retention periods and deletion routines defined for this system?", descriptionNb: "Er oppbevaringstid og sletterutiner definert for dette systemet?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "system_access_logging", labelEn: "Access to personal data logged", labelNb: "Tilgang til personopplysninger logges", descriptionEn: "Is access to personal data in this system logged and auditable?", descriptionNb: "Logges og kan tilgang til personopplysninger i dette systemet revideres?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "system_data_minimization", labelEn: "Data minimization practiced", labelNb: "Dataminimering praktisert", descriptionEn: "Is the system configured to collect only necessary personal data?", descriptionNb: "Er systemet konfigurert til å kun samle inn nødvendige personopplysninger?", weight: 1, area: "privacy_data", source: "org_enrichment" },
 ];
 
 // ── Hardware/asset-specific (Security Posture) ───────────────────────
