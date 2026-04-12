@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { StackedProgress } from "@/components/ui/stacked-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,13 @@ import {
   GENERIC_CONTROLS,
   getTypeSpecificControls,
   calculateTrustScore,
+  calculateScoreBySource,
   calculateConfidenceScore,
   deriveKeyRisks,
   inferVerificationSource,
   groupControlsByArea,
   CONTROL_NAV_MAP,
+} from "@/lib/trustControlDefinitions";
 } from "@/lib/trustControlDefinitions";
 
 // ── Types ────────────────────────────────────────────────────────────
