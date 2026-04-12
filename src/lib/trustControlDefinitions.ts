@@ -313,6 +313,8 @@ export function deriveKeyRisks(controls: EvaluatedControl[]): KeyRisk[] {
       severity: mapping.severity,
       titleEn: mapping.titleEn,
       titleNb: mapping.titleNb,
+      reasonEn: mapping.reasonEn,
+      reasonNb: mapping.reasonNb,
       triggerControlKey: c.key,
     });
   }
