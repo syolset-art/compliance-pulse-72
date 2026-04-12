@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Clock, ChevronDown, ChevronUp, XCircle, AlertTriangle, ArrowLeft } from "lucide-react";
-import { ControlsSummaryCard } from "@/components/trust-controls/ControlsSummaryCard";
+
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
 interface ValidationTabProps {
