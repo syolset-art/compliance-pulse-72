@@ -183,8 +183,15 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   });
 
   const hasDPA = vendorDocs.some(d => d.document_type === "dpa");
+  const hasSLA = vendorDocs.some(d => d.document_type === "sla");
   const hasRisk = vendorDocs.some(d => d.document_type === "risk_assessment");
   const riskLevel = (asset as any).risk_level;
+
+  // Build missing docs list
+  const missingDocs: string[] = [];
+  if (!hasDPA) missingDocs.push("DPA");
+  if (!hasSLA) missingDocs.push("SLA");
+  if (!hasRisk) missingDocs.push(isNb ? "risikovurdering" : "risk assessment");
 
   type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
   let tprmLevel: TPRMLevel = "not_assessed";
@@ -547,9 +554,16 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
           {/* TPRM status line for vendors */}
           {!isSelf && (
-            <p className={`text-xs font-medium mt-0.5 ${tprmIndicator[tprmLevel].className}`}>
-              {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
-            </p>
+            <div className="mt-1 mb-3">
+              <p className={`text-xs font-medium ${tprmIndicator[tprmLevel].className}`}>
+                {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
+              </p>
+              {missingDocs.length > 0 && tprmLevel !== "approved" && (
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  → {isNb ? "Mangler" : "Missing"}: {missingDocs.join(", ")}
+                </p>
+              )}
+            </div>
           )}
 
           {isSelf ? (
