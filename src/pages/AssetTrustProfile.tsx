@@ -131,8 +131,19 @@ const AssetTrustProfile = () => {
     const handleScrollToTasksEvent = () => {
       setActiveTab("overview");
     };
+    const handleScrollToMaturityEvent = () => {
+      setActiveTab("overview");
+      setTimeout(() => {
+        const el = document.getElementById("maturity-controls-section");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+    };
     window.addEventListener("scroll-to-tasks", handleScrollToTasksEvent);
-    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
+    window.addEventListener("scroll-to-maturity", handleScrollToMaturityEvent);
+    return () => {
+      window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
+      window.removeEventListener("scroll-to-maturity", handleScrollToMaturityEvent);
+    };
   }, []);
 
   // ── Vendor tabs ──
