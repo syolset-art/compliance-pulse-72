@@ -34,9 +34,10 @@ interface WorkAreaMembersCardProps {
   workAreaId: string;
   ownerName: string | null;
   onOwnerChange: (newOwner: string | null) => void;
+  onOpenMembersHelp?: () => void;
 }
 
-export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: WorkAreaMembersCardProps) => {
+export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange, onOpenMembersHelp }: WorkAreaMembersCardProps) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [allPeople, setAllPeople] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -191,6 +192,11 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
         <h3 className="text-base font-semibold flex items-center gap-2">
           <UsersIcon className="h-5 w-5 text-primary" />
           Medlemmer
+          {onOpenMembersHelp && (
+            <button onClick={onOpenMembersHelp} className="ml-1">
+              <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+            </button>
+          )}
         </h3>
         {!isAdding && (
           <Button size="sm" onClick={() => setIsAdding(true)} className="gap-1.5 text-xs h-7 bg-primary text-primary-foreground hover:bg-primary/90">
