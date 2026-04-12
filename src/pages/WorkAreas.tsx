@@ -727,6 +727,8 @@ export default function WorkAreas() {
                 <button
                   key={area.id}
                   onClick={() => setSelectedWorkArea(area)}
+                  aria-label={`Velg arbeidsområde: ${area.name}`}
+                  aria-pressed={selectedWorkArea?.id === area.id}
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
                     selectedWorkArea?.id === area.id
@@ -737,10 +739,10 @@ export default function WorkAreas() {
                   <div className={cn(
                     "w-2 h-2 rounded-full flex-shrink-0",
                     workAreaColors[index % workAreaColors.length]
-                  )} />
+                  )} aria-hidden="true" />
                   <span className="truncate max-w-[100px] sm:max-w-[120px]">{area.name}</span>
-                  <span className="text-xs opacity-70 hidden sm:inline">
-                    <Server className="h-3 w-3 inline mr-1" />
+                  <span className="text-xs opacity-70 hidden sm:inline" aria-label={`10 ${t("myWorkAreas.systemsShort")}`}>
+                    <Server className="h-3 w-3 inline mr-1" aria-hidden="true" />
                     10 {t("myWorkAreas.systemsShort")}
                   </span>
                 </button>
@@ -816,22 +818,22 @@ export default function WorkAreas() {
                 <p className="text-xs sm:text-sm text-muted-foreground mb-4">{selectedWorkArea.description}</p>
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-2" role="region" aria-label="Risikonivå">
                 <div className="flex items-center gap-2 text-xs sm:text-sm">
                   <span className="text-muted-foreground">{t("myWorkAreas.risk")}</span>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground cursor-help" />
+                        <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground cursor-help" aria-hidden="true" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs">
+                      <TooltipContent side="top" className="max-w-xs text-xs" role="tooltip">
                         Risikonivået beregnes basert på systemene, prosessene og leverandørene i arbeidsområdet, og gir en samlet oversikt over sikkerhets- og personvernsrisiko.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-muted rounded-full h-2">
+                  <div className="flex-1 bg-muted rounded-full h-2" role="progressbar" aria-valuenow={50} aria-valuemin={0} aria-valuemax={100} aria-label="Risikonivå: middels">
                     <div 
                       className="h-2 rounded-full"
                       style={{ 
@@ -854,6 +856,7 @@ export default function WorkAreas() {
                   <button
                     key={i}
                     onClick={() => setCurrentSlide(i)}
+                    aria-label={`Gå til lysbilde ${i + 1}`}
                     className={cn(
                       "h-1.5 rounded-full transition-all",
                       i === currentSlide ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
