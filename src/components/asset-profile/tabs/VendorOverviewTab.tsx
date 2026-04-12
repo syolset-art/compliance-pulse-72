@@ -7,8 +7,9 @@ import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
   Shield, Users, Server, Link2, AlertTriangle,
-  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint,
+  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint, HelpCircle, Eye,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
