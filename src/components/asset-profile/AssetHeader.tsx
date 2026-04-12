@@ -167,6 +167,42 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     },
   });
 
+  // TPRM status for vendors
+  const isVendorType = asset.asset_type === "vendor" || asset.asset_type === "system";
+  const { data: vendorDocs = [] } = useQuery({
+    queryKey: ["vendor-docs-tprm-header", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id, document_type")
+        .eq("asset_id", asset.id);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !isSelf,
+  });
+
+  const hasDPA = vendorDocs.some(d => d.document_type === "dpa");
+  const hasRisk = vendorDocs.some(d => d.document_type === "risk_assessment");
+  const riskLevel = (asset as any).risk_level;
+
+  type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
+  let tprmLevel: TPRMLevel = "not_assessed";
+  if (hasDPA && hasRisk && riskLevel && riskLevel !== "high") {
+    tprmLevel = "approved";
+  } else if (hasDPA || hasRisk) {
+    tprmLevel = "under_review";
+  } else if (riskLevel === "high") {
+    tprmLevel = "action_required";
+  }
+
+  const tprmIndicator: Record<TPRMLevel, { emoji: string; label: string; className: string }> = {
+    approved: { emoji: "🟢", label: isNb ? "Godkjent" : "Approved", className: "text-emerald-600 dark:text-emerald-400" },
+    under_review: { emoji: "🟡", label: isNb ? "Under oppfølging" : "Under review", className: "text-amber-600 dark:text-amber-400" },
+    action_required: { emoji: "🔴", label: isNb ? "Krever tiltak" : "Action required", className: "text-red-600 dark:text-red-400" },
+    not_assessed: { emoji: "⚪", label: isNb ? "Ikke vurdert" : "Not assessed", className: "text-muted-foreground" },
+  };
+
   // Count active vendor document requests
   const { data: requestCount = 0 } = useQuery({
     queryKey: ["vendor-request-count", asset.id],
