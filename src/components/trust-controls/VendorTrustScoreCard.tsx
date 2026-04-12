@@ -117,31 +117,41 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
 
         {/* Expanded: control area mini cards */}
         {expanded && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 animate-in slide-in-from-top-1 duration-150">
-            {AREA_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
-              const areaScore = evaluation?.areaScore(area as any) ?? 0;
-              const scoreClr = areaScore >= 70 ? "text-success" : areaScore >= 40 ? "text-warning" : "text-destructive";
-              const barClr = areaScore >= 70 ? "bg-success" : areaScore >= 40 ? "bg-warning" : "bg-destructive";
-
-              return (
-                <div
-                  key={area}
-                  className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5"
-                >
-                  <Icon className={`h-5 w-5 ${color}`} />
-                  <span className="text-[11px] font-medium text-foreground leading-tight">
-                    {isNb ? lNb : lEn}
-                  </span>
-                  <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
-                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${barClr}`}
-                      style={{ width: `${areaScore}%` }}
-                    />
+          <div className="mt-3 space-y-2.5 animate-in slide-in-from-top-1 duration-150">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {AREA_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
+                const areaScore = evaluation?.areaScore(area as any) ?? 0;
+                const scoreClr = areaScore >= 70 ? "text-success" : areaScore >= 40 ? "text-warning" : "text-destructive";
+                const barClr = areaScore >= 70 ? "bg-success" : areaScore >= 40 ? "bg-warning" : "bg-destructive";
+                return (
+                  <div key={area} className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5">
+                    <Icon className={`h-5 w-5 ${color}`} />
+                    <span className="text-[11px] font-medium text-foreground leading-tight">{isNb ? lNb : lEn}</span>
+                    <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${barClr}`} style={{ width: `${areaScore}%` }} />
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+            {/* 5th area — Privacy — compact horizontal */}
+            {(() => {
+              const { area, icon: Icon, labelNb: lNb, labelEn: lEn, color } = PRIVACY_AREA;
+              const ps = evaluation?.areaScore(area as any) ?? 0;
+              const sc = ps >= 70 ? "text-success" : ps >= 40 ? "text-warning" : "text-destructive";
+              const bc = ps >= 70 ? "bg-success" : ps >= 40 ? "bg-warning" : "bg-destructive";
+              return (
+                <div className="rounded-lg border border-border bg-background p-3 flex items-center gap-4">
+                  <Icon className={`h-5 w-5 ${color} shrink-0`} />
+                  <span className="text-[11px] font-medium text-foreground whitespace-nowrap">{isNb ? lNb : lEn}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-500 ${bc}`} style={{ width: `${ps}%` }} />
+                  </div>
+                  <span className={`text-sm font-bold tabular-nums ${sc}`}>{ps}%</span>
                 </div>
               );
-            })}
+            })()}
           </div>
         )}
       </CardContent>
