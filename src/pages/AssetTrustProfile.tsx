@@ -1,4 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -107,6 +110,8 @@ const AssetTrustProfile = () => {
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
 
   const handleTrustMetrics = useCallback((metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => {
     setTrustMetrics(prev => {
@@ -539,6 +544,55 @@ const AssetTrustProfile = () => {
           </div>
         </main>
       </div>
+
+      <ContextualHelpPanel
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={isVendor ? Handshake : Shield}
+        title={isVendor
+          ? (isNb ? "Leverandørprofil" : "Vendor Profile")
+          : (isNb ? "Systemprofil" : "System Profile")}
+        description={isVendor
+          ? (isNb
+            ? "Her får du full oversikt over en leverandør: dokumentasjon, risikovurdering, compliance-status og oppfølgingshistorikk. Mynder analyserer leverandørens profil og gir deg veiledning om hva som bør følges opp."
+            : "Here you get a complete overview of a vendor: documentation, risk assessment, compliance status and follow-up history. Mynder analyzes the vendor's profile and guides you on what needs attention.")
+          : (isNb
+            ? "Her ser du systemprofilen med oversikt over data, kontroller, dokumentasjon og compliance-status."
+            : "Here you see the system profile with an overview of data, controls, documentation and compliance status.")}
+        itemsHeading={isNb ? "Hva kan du gjøre her?" : "What can you do here?"}
+        items={isVendor ? [
+          { icon: Eye, title: isNb ? "Se veiledning" : "View guidance", description: isNb ? "Mynder vurderer leverandørens modenhet og gir deg konkrete anbefalinger." : "Mynder assesses the vendor's maturity and gives you concrete recommendations." },
+          { icon: FileText, title: isNb ? "Dokumentasjon" : "Documentation", description: isNb ? "Last opp og administrer DPA, SLA og annen avtalebasert dokumentasjon." : "Upload and manage DPA, SLA and other agreement-based documentation." },
+          { icon: Shield, title: isNb ? "Risikovurdering" : "Risk assessment", description: isNb ? "Se risikoprofilen og gjennomfør revisjoner basert på kontrollområdene." : "View the risk profile and conduct audits based on control areas." },
+          { icon: ClipboardList, title: isNb ? "Oppgaver og tiltak" : "Tasks and actions", description: isNb ? "Følg opp tiltak og oppgaver knyttet til leverandøren." : "Follow up on actions and tasks related to the vendor." },
+          { icon: Send, title: isNb ? "Send forespørsel" : "Send request", description: isNb ? "Be leverandøren om manglende dokumentasjon eller oppdateringer." : "Ask the vendor for missing documentation or updates." },
+        ] : [
+          { icon: Shield, title: isNb ? "Kontroller" : "Controls", description: isNb ? "Se og oppdater kontrollstatus for systemet." : "View and update control status for the system." },
+          { icon: FileText, title: isNb ? "Dokumentasjon" : "Documentation", description: isNb ? "Administrer dokumentasjon knyttet til systemet." : "Manage documentation related to the system." },
+        ]}
+        whyTitle={isNb ? "Hvorfor er dette viktig?" : "Why does this matter?"}
+        whyDescription={isVendor
+          ? (isNb
+            ? "Leverandørstyring (TPRM) er et av de viktigste kontrollområdene for personvern og informasjonssikkerhet. Ved å ha oversikt over dokumentasjon, risiko og avtaler sikrer du at leverandørene dine behandler data i tråd med kravene."
+            : "Third-Party Risk Management (TPRM) is one of the most important control areas for privacy and information security. By keeping track of documentation, risk and agreements, you ensure your vendors handle data in compliance with requirements.")
+          : (isNb
+            ? "Systemoversikten gir deg kontroll på hvilke data som behandles, hvilke kontroller som er på plass, og hva som mangler for å sikre etterlevelse."
+            : "The system overview gives you control over which data is processed, which controls are in place, and what is missing to ensure compliance.")}
+        stepsHeading={isNb ? "Kom i gang" : "Get started"}
+        steps={isVendor ? [
+          { text: isNb ? "Gjennomgå veiledningen fra Mynder" : "Review the guidance from Mynder" },
+          { text: isNb ? "Last opp eller be om manglende dokumentasjon" : "Upload or request missing documentation" },
+          { text: isNb ? "Gjennomfør risikovurdering og revisjon" : "Conduct risk assessment and audit" },
+          { text: isNb ? "Følg opp oppgaver og tiltak" : "Follow up on tasks and actions" },
+        ] : [
+          { text: isNb ? "Se gjennom systemprofilen" : "Review the system profile" },
+          { text: isNb ? "Oppdater kontrollstatus" : "Update control status" },
+          { text: isNb ? "Last opp nødvendig dokumentasjon" : "Upload necessary documentation" },
+        ]}
+        laraSuggestion={isVendor
+          ? (isNb ? "Hjelp meg med å vurdere risikoen ved denne leverandøren" : "Help me assess the risk of this vendor")
+          : (isNb ? "Hjelp meg med å gjennomgå dette systemet" : "Help me review this system")}
+      />
     </SidebarProvider>
   );
 };
