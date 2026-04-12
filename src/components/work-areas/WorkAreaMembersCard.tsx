@@ -153,13 +153,27 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
     }
   };
 
+  const handleRoleChange = async (id: string, newRoleValue: string) => {
+    try {
+      const { error } = await supabase
+        .from("work_area_members")
+        .update({ role: newRoleValue })
+        .eq("id", id);
+      if (error) throw error;
+      setMembers(members.map(m => m.id === id ? { ...m, role: newRoleValue } : m));
+      toast.success("Rolle oppdatert");
+    } catch {
+      toast.error("Kunne ikke oppdatere rolle");
+    }
+  };
+
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from("work_area_members")
-        .update({ person_name: editName.trim(), role: editRole })
+        .update({ person_name: editName.trim() })
         .eq("id", id);
       if (error) throw error;
       toast.success("Medlem oppdatert");
