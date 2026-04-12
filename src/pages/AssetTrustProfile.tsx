@@ -293,13 +293,13 @@ const AssetTrustProfile = () => {
             {/* ═══ VENDOR TABS (simplified 4-tab layout) ═══ */}
             {isVendor && (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
-                <nav aria-label={isNb ? "Leverandør-faner" : "Vendor tabs"}>
-                  <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
+                <nav aria-label={isNb ? "Leverandør-faner" : "Vendor tabs"} className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <TabsList className="inline-flex w-auto sm:flex sm:w-full bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
                     {vendorTabDefs.map((tab) => (
                       <TabsTrigger
                         key={tab.value}
                         value={tab.value}
-                        className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap"
+                        className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2.5 sm:px-3 py-1.5"
                         role="tab"
                       >
                         {tab.label}
