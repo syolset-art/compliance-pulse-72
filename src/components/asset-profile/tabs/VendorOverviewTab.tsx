@@ -203,8 +203,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
   const dbOpenTasks = tasks.filter((t: any) => t.status !== "completed");
   // Merge: DB tasks first, then fill with control-derived tasks (up to 10 total)
-  const openTasks = useMemo(() => {
-    const merged = [...dbOpenTasks];
+  const openTasks: any[] = useMemo(() => {
+    const merged: any[] = [...dbOpenTasks];
     const existingTitles = new Set(dbOpenTasks.map((t: any) => t.title?.toLowerCase()));
     for (const ct of controlTasks) {
       if (!existingTitles.has(ct.title.toLowerCase())) {
