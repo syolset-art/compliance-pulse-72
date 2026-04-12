@@ -54,6 +54,7 @@ interface WorkAreaMembersCardProps {
 
 export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCardProps) => {
   const [members, setMembers] = useState<Member[]>([]);
+  const [allPeople, setAllPeople] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState("");
@@ -62,6 +63,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editRole, setEditRole] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const fetchMembers = async () => {
     try {
@@ -79,8 +81,23 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
     }
   };
 
+  const fetchAllPeople = async () => {
+    try {
+      const { data } = await supabase
+        .from("work_area_members")
+        .select("person_name");
+      if (data) {
+        const unique = [...new Set(data.map(d => d.person_name))].sort();
+        setAllPeople(unique);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
+    fetchAllPeople();
   }, [workAreaId]);
 
   const handleAdd = async () => {
