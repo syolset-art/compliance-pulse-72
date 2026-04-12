@@ -222,6 +222,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             contactPerson={asset.contact_person || undefined}
             contactEmail={asset.contact_email || undefined}
             tasks={tasks}
+            onNavigateToTab={onNavigateToTab}
             maturityStats={evaluation ? {
               implementedCount: evaluation.implementedCount,
               partialCount: evaluation.partialCount,
@@ -235,7 +236,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           <Card>
             <button
               className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
-              onClick={() => setTasksExpanded(!tasksExpanded)}
+              onClick={() => setTasksExpanded(!effectiveTasksExpanded)}
             >
               <div>
                 <h3 className="text-sm font-semibold text-foreground">
@@ -256,14 +257,14 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                 <span className="text-xs text-muted-foreground">
                   {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
                 </span>
-                {tasksExpanded ? (
+                {effectiveTasksExpanded ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </div>
             </button>
-            {tasksExpanded && (
+            {effectiveTasksExpanded && (
               <CardContent className="pt-0 pb-4 px-4">
                 {openTasks.length > 0 ? (
                   <div className="space-y-2 border-t border-border pt-3">
@@ -304,58 +305,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
                     {isNb ? "Ingen åpne oppgaver" : "No open tasks"}
                   </p>
-                )}
-
-                {/* TPRM missing controls — actionable items */}
-                {tprmMissing.length > 0 && (
-                  <div className="space-y-1.5 border-t border-border pt-3 mt-3">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
-                      {isNb ? "Manglende oppfølgingskrav" : "Missing follow-up requirements"}
-                    </p>
-                    {tprmMissing.map((ctrl) => {
-                      const matchingTask = openTasks.find((t: any) => {
-                        const titleLower = t.title?.toLowerCase() || "";
-                        const typeLower = t.type?.toLowerCase() || "";
-                        return ctrl.taskKeywords.some((kw: string) => titleLower.includes(kw) || typeLower.includes(kw));
-                      });
-
-                      return (
-                        <div
-                          key={ctrl.key}
-                          className="flex items-center justify-between text-sm p-2 rounded bg-destructive/5 border-l-2 border-destructive/40"
-                        >
-                          <span className="flex items-center gap-2">
-                            <AlertTriangle className="h-3.5 w-3.5 text-destructive/70" />
-                            <span className="text-muted-foreground">{ctrl.label}</span>
-                          </span>
-                          {matchingTask ? (
-                            <Badge variant="secondary" className="text-[10px]">
-                              {isNb ? "Oppgave opprettet" : "Task created"}
-                            </Badge>
-                          ) : ctrl.isAudit ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-xs gap-1.5"
-                              onClick={() => onNavigateToTab?.("vendor-audit")}
-                            >
-                              {ctrl.requestLabel}
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5"
-                              onClick={() => handleTPRMRequest(ctrl.requestType!)}
-                            >
-                              <Mail className="h-3 w-3" />
-                              {ctrl.requestLabel}
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
                 )}
               </CardContent>
             )}
