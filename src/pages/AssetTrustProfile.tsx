@@ -29,7 +29,7 @@ import { OrganizationServicesPanel } from "@/components/asset-profile/Organizati
 import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOverviewTab";
-import { VendorControlsTab } from "@/components/asset-profile/tabs/VendorControlsTab";
+
 import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
@@ -133,13 +133,13 @@ const AssetTrustProfile = () => {
     return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
   }, []);
 
-  // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
+  // ── Vendor tabs ──
   const vendorTabDefs = [
     { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
-    { value: 'controls', label: isNb ? 'Score & kontroller' : 'Score & Controls' },
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
+    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
-    { value: 'history', label: isNb ? 'Historikk & relasjoner' : 'History & Relations' },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
   ];
 
   // ── Self tabs: full tab set ──
@@ -341,17 +341,17 @@ const AssetTrustProfile = () => {
                     onNavigateToTab={setActiveTab}
                   />
                 </TabsContent>
-                <TabsContent value="controls" className="mt-6">
-                  <VendorControlsTab assetId={asset.id} />
-                </TabsContent>
                 <TabsContent value="usage" className="mt-6">
                   <VendorUsageTab assetId={asset.id} />
+                </TabsContent>
+                <TabsContent value="history" className="mt-6">
+                  <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-6">
                   <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
                 </TabsContent>
-                <TabsContent value="history" className="mt-6">
-                  <VendorHistoryTab assetId={asset.id} />
+                <TabsContent value="requests" className="mt-6">
+                  <CustomerRequestsTab />
                 </TabsContent>
               </Tabs>
             )}
