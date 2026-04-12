@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
@@ -597,6 +598,22 @@ export default function WorkAreas() {
       
       <main className="flex-1 overflow-y-auto pt-11">
         <div className="container mx-auto px-3 py-4 sm:px-6 sm:py-8 max-w-7xl">
+          {/* Organization Switcher */}
+          <div className="mb-4">
+            <Select value={companyProfile?.id || ""} onValueChange={() => {}}>
+              <SelectTrigger className="w-full sm:w-64 h-9 text-sm font-semibold bg-background" aria-label="Velg organisasjon">
+                <SelectValue placeholder="Velg organisasjon">
+                  {companyProfile?.name || "Velg organisasjon"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {companyProfile && (
+                  <SelectItem value={companyProfile.id}>{companyProfile.name}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <div>
@@ -605,9 +622,6 @@ export default function WorkAreas() {
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {t("myWorkAreas.subtitle")}
-                {companyProfile && (
-                  <span className="block sm:inline sm:ml-2 text-foreground font-medium">• {companyProfile.name}</span>
-                )}
               </p>
             </div>
           </div>
