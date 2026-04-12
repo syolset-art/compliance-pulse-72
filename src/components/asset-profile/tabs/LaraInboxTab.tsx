@@ -9,6 +9,7 @@ import { CheckCircle2, X, Mail, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
+import { calculateTPRMImpact } from "@/lib/tprmUtils";
 
 interface Props {
   assetId: string;
@@ -41,6 +42,32 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
         .order("received_at", { ascending: false });
       if (error) throw error;
       return data;
+    },
+  });
+
+  // Fetch asset info and existing vendor docs for TPRM impact calculation
+  const { data: assetInfo } = useQuery({
+    queryKey: ["asset-tprm-lara", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("criticality, risk_level, next_review_date")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: vendorDocs = [] } = useQuery({
+    queryKey: ["vendor-documents-tprm-lara", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", assetId);
+      if (error) throw error;
+      return data || [];
     },
   });
 
