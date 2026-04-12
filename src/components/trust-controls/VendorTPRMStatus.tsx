@@ -111,7 +111,19 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
         <CardTitle className="text-sm flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            {isNb ? "TPRM-status" : "TPRM Status"}
+            {isNb ? "Oppfølgingsstatus" : "Follow-up Status"}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                  {isNb
+                    ? "Viser om vi har gjort det vi skal for å følge opp denne leverandøren. Sjekker om nødvendige avtaler (som databehandleravtale) er på plass, om risikovurdering er gjennomført, og når neste gjennomgang er planlagt."
+                    : "Shows whether we have completed the necessary steps to follow up on this vendor. Checks if required agreements (like data processing agreements) are in place, if a risk assessment has been completed, and when the next review is scheduled."}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </span>
           <Badge variant={tprmConfig[tprmLevel].variant} className="text-[10px]">
             {tprmConfig[tprmLevel].label}
