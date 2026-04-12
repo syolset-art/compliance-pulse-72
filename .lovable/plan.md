@@ -1,53 +1,27 @@
 
 
-## Plan: Redesign vendor header — metrikk-kort i horisontal rad, skjul bedriftsinfo bak toggle
+## Problem
 
-### Problemet
-Dagens layout har risiko/kritikalitet/modenhet som en vertikal sidebar til høyre (skjult på mobil), pluss en synlig bedriftsinfo-stripe (Org.nr, Bransje, Kategori, Nettside) som tar plass. Skjermbildet fra plattformen viser en bedre løsning: horisontale metrikk-kort under headeren.
+When a user expands the "Styring" (Governance) control area and sees the document upload checklist, there's no indication that Mynder Core already functions as their governance tool. The user might think they need to create a separate governance framework from scratch, when in reality Mynder Core covers the baseline. They may still have **additional** governance documents (e.g., board-approved policies, organizational ISMS documents) to upload.
 
-### Ny layout for leverandør/system-profiler (ikke self)
+## Plan
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│ [logo] Outlook       Eier: HR ×    Systemansvarlig: ×    │
-│        Microsoft | https://...                           │
-│        Beskrivelse...                                    │
-├──────────────────────────────────────────────────────────┤
-│ ┌─────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────┐│
-│ │⚠ RISIKONIVÅ │ │📈 MODENHET   │ │📋 INTERN     │ │📝  ││
-│ │ Moderat     │ │ 88%          │ │ RISIKOVURD.  │ │OPP ││
-│ │ risiko      │ │              │ │ 23.03.2026   │ │ 0  ││
-│ └─────────────┘ └──────────────┘ └──────────────┘ └────┘│
-├──────────────────────────────────────────────────────────┤
-│ [ℹ Vis bedriftsinfo]  ← klikkbar for Org.nr/Bransje etc│
-└──────────────────────────────────────────────────────────┘
-```
+### 1. Add contextual info banner in the Governance document checklist
 
-### Teknisk implementering
+In `InlineDocumentChecklist.tsx`, when `controlArea === "governance"`, render an informational banner above the document list explaining:
 
-**Fil 1: `src/components/trust-controls/HeaderMaturityIndicators.tsx`** — omskrives
-- Bytt fra vertikal sidebar til en horisontal rad med 4 kort (grid cols-2 sm:cols-4)
-- Kort 1: **Risikonivå** — badge med fargekode + ikon
-- Kort 2: **Modenhetsnivå** — prosent med ikon
-- Kort 3: **Intern risikovurdering** — dato (demo) med ikon
-- Kort 4: **Oppgaver** — antall (demo: 0) med ikon
-- Hvert kort: border, liten padding, ikon øverst til høyre, label øverst, verdi under
-- Fjern `hidden md:flex` — synlig på alle skjermstørrelser
-- Flytt fra høyre sidebar-posisjon til under beskrivelsen
+- **Norwegian**: "Mynder Core fungerer som ditt styringsrammeverk. Dokumentene nedenfor er valgfrie tilleggsdokumenter som kan styrke din modenhetsvurdering — for eksempel egne policyer, styrevedtak eller organisasjonsspesifikke retningslinjer."
+- **English**: "Mynder Core serves as your governance framework. The documents below are optional additions that can strengthen your maturity assessment — such as your own policies, board decisions, or organization-specific guidelines."
 
-**Fil 2: `src/components/asset-profile/AssetHeader.tsx`** — endres
-- Flytt `HeaderMaturityIndicators` fra høyre side til under header-innholdet (etter beskrivelse, før bedriftsinfo)
-- Gjør bedriftsinfo-stripen (Org.nr, Bransje, Kategori, Nettside) skjulbar med en toggle-knapp "Vis bedriftsinfo" / "Skjul bedriftsinfo"
-- Legg til `useState` for `showCompanyInfo`, default `false`
-- Fjern owner/manager/contact fra under bedriftsinfo — behold dem i toppen ved siden av navn (som i skjermbildet)
+This will be a subtle info-styled banner (blue/muted with an `Info` icon) placed between the header and the document rows.
 
-**Fil 3: `src/components/system-profile/SystemHeader.tsx`** — endres
-- Samme mønster: flytt `HeaderMaturityIndicators` fra sidebar til under header
-- Plasser som full-bredde rad med 4 kort
+### 2. Adjust the "Styringsrammeverk" document row label
 
-**Fil 4: `src/components/device-profile/DeviceHeader.tsx`** — endres
-- Samme tilpasning
+Change the third expected doc for governance from:
+- "Styringsrammeverk / governance-dokument" → "Eget styringsrammeverk (valgfritt)" / "Custom Governance Framework (optional)"
 
-### Eier/Systemansvarlig plassering
-Beholder eier og systemansvarlig-velgerne øverst til høyre i headeren (som i skjermbildet), ikke i en egen seksjon under.
+This makes it clear that uploading a separate governance document is supplementary, not required.
+
+### Files to modify
+- `src/components/trust-controls/InlineDocumentChecklist.tsx` — Add contextual banner for governance area; update label for the governance framework doc row.
 
