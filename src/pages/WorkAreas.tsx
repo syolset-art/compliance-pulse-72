@@ -768,7 +768,8 @@ export default function WorkAreas() {
 
           {/* Selected Work Area Card */}
           {selectedWorkArea && (
-            <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
+            <Card className="p-0 mb-4 sm:mb-6 overflow-hidden border-t-[3px] border-t-primary">
+              <div className="bg-muted/40 px-4 sm:px-6 pt-4 sm:pt-6 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
