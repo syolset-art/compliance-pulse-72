@@ -3230,6 +3230,7 @@ export type Database = {
           received_at: string | null
           reminder_sent_at: string | null
           requested_at: string | null
+          shared_with_emails: string[] | null
           source: string | null
           status: string | null
           uploaded_by: string | null
@@ -3252,6 +3253,7 @@ export type Database = {
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
+          shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
           uploaded_by?: string | null
@@ -3274,6 +3276,7 @@ export type Database = {
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
+          shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
           uploaded_by?: string | null
