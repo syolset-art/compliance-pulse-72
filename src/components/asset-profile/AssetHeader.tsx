@@ -543,23 +543,35 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                     </div>
                   </div>
                 )}
-                {regulations.length > 0 && (
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                      {isNb ? "Gjeldende regelverk" : "Regulatory Coverage"}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {regulations.map((fw: any) => (
-                        <span
-                          key={fw.framework_id}
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRegulationColor(fw.framework_id)}`}
-                        >
-                          {fw.framework_name}
-                        </span>
-                      ))}
+                {regulations.length > 0 && (() => {
+                  const MAX_VISIBLE = 4;
+                  const hasMore = regulations.length > MAX_VISIBLE;
+                  return (
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        {isNb ? "Gjeldende regelverk" : "Regulatory Coverage"}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {(showAllRegulations ? regulations : regulations.slice(0, MAX_VISIBLE)).map((fw: any) => (
+                          <span
+                            key={fw.framework_id}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRegulationColor(fw.framework_id)}`}
+                          >
+                            {fw.framework_name}
+                          </span>
+                        ))}
+                        {hasMore && !showAllRegulations && (
+                          <button
+                            onClick={() => setShowAllRegulations(true)}
+                            className="text-[11px] text-primary hover:underline font-medium ml-1"
+                          >
+                            +{regulations.length - MAX_VISIBLE} {isNb ? "mer" : "more"}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             );
           })()}
