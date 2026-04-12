@@ -1,37 +1,71 @@
 
 
-## Plan: Utvid Innstillinger-fanen med redigerbare felter
+## Plan: Skille leverandørens baseline fra virksomhetens eget modenhetsarbeid
 
-### Hva endres
-Erstatter den nåværende «Administrasjon»-kortet (som bare har Rediger/Slett-knapper) med et fullverdig innstillingsskjema direkte i fanen.
+### Problemet
+I dag viser "Modenhet per kontrollområde" en samlet score uten å skille mellom hva leverandøren selv har dokumentert (baseline) og hva virksomheten har beriket gjennom eget arbeid (egne krav, risikovurderinger, DPA-oppfølging osv.). Brukeren kan ikke se hva som kommer "gratis" fra leverandøren vs. hva de selv har bidratt med.
 
-### Ny struktur for Innstillinger-fanen
+### Løsning: Todelt visning med stacked progress
 
-1. **Medlemmer-kort** — beholdes som i dag (Eier + delegerte roller)
+Hver kontrollområde-rad får en **todelt fremdriftslinje** (stacked bar) med to farger:
+- **Grå/nøytral**: Leverandørens baseline (kontroller som er oppfylt basert på leverandørens egne data — dokumenter, kontaktinfo, underleverandører)
+- **Blå/primærfarge**: Virksomhetens berikelse (kontroller oppfylt gjennom organisasjonens eget arbeid — risikovurdering, kritikalitet, eierskap, gjennomgangssyklus)
 
-2. **Arbeidsområde-detaljer** (nytt kort, erstatter «Administrasjon»)
-   - **Navn** — redigerbart tekstfelt med inline-lagring
-   - **Ansvarlig person** — gjenbruk `ResponsiblePersonEditor`-komponenten (allerede finnes)
-   - **Beskrivelse** — redigerbart textarea med en «Foreslå med Lara»-knapp (Sparkles-ikon) som autogenererer et beskrivelsesforslag basert på arbeidsområdets navn via Lara AI
-   - **Status** — Switch-komponent for Aktiv/Inaktiv
+Øverst i panelet vises to tall:
+```text
+┌─────────────────────────────────────────────────┐
+│ Modenhet per kontrollområde            72%      │
+│                                                  │
+│ Leverandørens baseline: 35%  ▪ Eget arbeid: 37% │
+│ ████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ [grå██████][blå█████████][tom░░░░░░░░░░░░░░░░░] │
+│                                                  │
+│ ┌──────────────┐  ┌──────────────┐              │
+│ │ Styring      │  │ Drift og bruk│              │
+│ │ ██░░ 2/4     │  │ ███░ 3/4     │              │
+│ └──────────────┘  └──────────────┘              │
+└─────────────────────────────────────────────────┘
+```
 
-3. **Faresone** (nytt kort, rødt/destruktivt område)
-   - «Slett arbeidsområde»-knapp med bekreftelsesdialog (gjenbruker eksisterende `AlertDialog`)
+### Klassifisering av kontroller
 
-### Teknisk gjennomføring
+Kontrollene deles i to kategorier basert på hvem som naturlig eier dem:
 
-**Fil: `src/pages/WorkAreas.tsx`**
-- Fjern «Administrasjon»-kortet (linje 1120-1144)
-- Legg til nytt «Detaljer»-kort med:
-  - Inline-redigerbar `Input` for navn (lagrer til `work_areas.name` on blur/Enter)
-  - `ResponsiblePersonEditor` for ansvarlig person
-  - `Textarea` for beskrivelse med lagre-knapp + «Foreslå med Lara»-knapp
-  - `Switch` for aktiv-status (lagrer til `work_areas` — bruker eksisterende metadata-felt eller lifecycle-liknende felt)
-- Legg til «Faresone»-kort med Slett-knapp
-- Lara-forslag: kaller eksisterende Lara edge function med prompt "Generer en kort beskrivelse for arbeidsområdet: {navn}" og fyller inn textarea
+**Leverandør-baseline** (data som leverandøren bringer):
+- `documentation_available` — leverandørdokumenter
+- `dpa_verified` — DPA fra leverandør
+- `security_contact` — leverandørens kontaktperson
+- `sub_processors_disclosed` — underleverandørliste
+- `vendor_security_review` — leverandørens sikkerhetsgjennomgang
 
-### Filer som endres
-- `src/pages/WorkAreas.tsx` — eneste fil
+**Virksomhetens eget arbeid** (organisasjonens berikelse):
+- `owner_assigned` — eierskap tildelt
+- `responsible_person` — ansvarlig definert
+- `description_defined` — systembeskrivelse
+- `risk_level_defined` — risikonivå satt
+- `criticality_defined` — kritikalitet vurdert
+- `risk_assessment` — risikovurdering utført
+- `review_cycle` — gjennomgangssyklus definert
 
-Ingen databaseendringer nødvendig — navn, beskrivelse og ansvarlig person finnes allerede i `work_areas`-tabellen. Status kan lagres i eksisterende felt.
+### Teknisk implementering
+
+**Fil 1: `src/lib/trustControlDefinitions.ts`**
+- Legg til et felt `source: "vendor_baseline" | "org_enrichment"` på `TrustControlDefinition`
+- Tagger alle kontroller med riktig source
+- Ny hjelpefunksjon `calculateScoreBySource()` som returnerer separate scores
+
+**Fil 2: `src/components/trust-controls/TrustControlsPanel.tsx`**
+- Beregn to separate scores: `baselineScore` og `enrichmentScore`
+- Erstatt den enkle progress-baren med en stacked bar (to segmenter)
+- Vis forklaring med to fargede prikker: "Leverandørens baseline" og "Eget arbeid"
+- Hver kontrollområde-kort viser også stacked progress
+- Når bruker ekspanderer et område, vises kontrollene gruppert under to overskrifter
+
+**Fil 3: `src/components/ui/stacked-progress.tsx`** (ny)
+- Enkel komponent som tar to verdier og rendrer en todelt fremdriftslinje
+
+### Visuelt resultat
+- Brukeren ser umiddelbart hvor mye av scoren som kommer fra leverandøren vs. eget arbeid
+- Motiverer til å berike profilen — "du kan øke fra 35% til 72% med eget arbeid"
+- Tydelig narrativ: "Leverandøren gir deg dette grunnlaget, men din organisasjon må gjøre resten"
 
