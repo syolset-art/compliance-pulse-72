@@ -33,6 +33,7 @@ import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOvervie
 import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
+import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
