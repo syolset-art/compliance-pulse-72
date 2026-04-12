@@ -341,17 +341,17 @@ const AssetTrustProfile = () => {
                     onNavigateToTab={setActiveTab}
                   />
                 </TabsContent>
-                <TabsContent value="controls" className="mt-6">
-                  <VendorControlsTab assetId={asset.id} />
-                </TabsContent>
                 <TabsContent value="usage" className="mt-6">
                   <VendorUsageTab assetId={asset.id} />
+                </TabsContent>
+                <TabsContent value="history" className="mt-6">
+                  <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-6">
                   <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
                 </TabsContent>
-                <TabsContent value="history" className="mt-6">
-                  <VendorHistoryTab assetId={asset.id} />
+                <TabsContent value="requests" className="mt-6">
+                  <CustomerRequestsTab />
                 </TabsContent>
               </Tabs>
             )}
