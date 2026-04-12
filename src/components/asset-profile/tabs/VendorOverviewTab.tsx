@@ -58,6 +58,19 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [requestOpen, setRequestOpen] = useState(false);
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
+  const tasksRef = useRef<HTMLDivElement>(null);
+
+  const handleScrollToTasks = useCallback(() => {
+    setTasksExpanded(true);
+    setTimeout(() => {
+      tasksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll-to-tasks", handleScrollToTasks);
+    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasks);
+  }, [handleScrollToTasks]);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
