@@ -487,10 +487,10 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </a>
           )}
 
-          {/* Regulatory frameworks */}
-          {frameworks.length > 0 && (
+          {/* Regulatory frameworks — only show known/active ones */}
+          {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2.5">
-              {frameworks.map((fw: any) => (
+              {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).map((fw: any) => (
                 <span
                   key={fw.framework_id}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
