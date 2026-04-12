@@ -18,6 +18,7 @@ import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
+import { VendorRiskAssessment } from "@/components/trust-controls/VendorRiskAssessment";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 
 interface VendorOverviewTabProps {
