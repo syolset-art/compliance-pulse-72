@@ -90,12 +90,27 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
     onSuccess: (_data, item) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents-tprm-lara", assetId] });
+
+      // Calculate TPRM impact
+      const existingDocTypes = vendorDocs.map((d: any) => d.document_type).filter(Boolean);
+      const hasAudit = !!assetInfo?.next_review_date;
+      const docType = item.matched_document_type || "other";
+      const tprmImpact = calculateTPRMImpact(
+        existingDocTypes,
+        hasAudit,
+        docType,
+        assetInfo?.criticality,
+        assetInfo?.risk_level,
+      );
+
       setApprovedItem({
         fileName: item.file_name || item.subject || "",
-        documentType: item.matched_document_type || "other",
+        documentType: docType,
         assetId,
         assetName,
         isIncident: false,
+        tprmImpact,
       });
     },
   });
