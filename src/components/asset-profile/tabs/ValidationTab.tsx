@@ -124,9 +124,6 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
 
   return (
     <div className="space-y-5">
-      {/* Controls Summary — redesigned with focus on what's missing */}
-      <ControlsSummaryCard assetId={assetId} />
-
       {/* Compliance Card with view switcher */}
       <Card>
         <CardHeader className="pb-0 pt-4 px-5">
