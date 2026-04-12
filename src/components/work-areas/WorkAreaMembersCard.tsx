@@ -68,7 +68,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isEditingOwner, setIsEditingOwner] = useState(false);
   const [showOwnerSuggestions, setShowOwnerSuggestions] = useState(false);
-  const [ownerSearch, setOwnerSearch] = useState("");
+  const [ownerSearch, setOwnerSearch] = useState(ownerName || "");
 
   const fetchMembers = async () => {
     try {
