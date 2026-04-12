@@ -64,27 +64,30 @@ export const ContactPersonField = ({
           <Mail className="h-3.5 w-3.5 text-muted-foreground" />
         </div>
         <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-1">
-            {isNb ? "Kontaktperson" : "Contact"}
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+            {isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}
+          </p>
+          <p className="text-[10px] text-muted-foreground/70 mb-1.5">
+            {isNb ? "Navn på kontaktpersonen leverandøren har oppgitt" : "Contact person provided by the vendor"}
           </p>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={isNb ? "Navn" : "Name"}
+            placeholder={isNb ? "For- og etternavn" : "Full name"}
             className="h-7 text-xs"
           />
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={isNb ? "E-post" : "Email"}
+            placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
             className="h-7 text-xs"
           />
           <Input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder={isNb ? "Telefon" : "Phone"}
+            placeholder={isNb ? "+47 xxx xx xxx" : "+1 xxx xxx xxxx"}
             className="h-7 text-xs"
           />
           <div className="flex gap-1 pt-0.5">
@@ -121,7 +124,10 @@ export const ContactPersonField = ({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1">
           <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-            {isNb ? "Kontaktperson" : "Contact"}
+            {isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}
+          </p>
+          <p className="text-[10px] text-muted-foreground/70 mb-0.5">
+            {isNb ? "Navn på kontaktpersonen leverandøren har oppgitt" : "Contact person provided by the vendor"}
           </p>
           <button
             onClick={() => setEditing(true)}
@@ -150,7 +156,7 @@ export const ContactPersonField = ({
             onClick={() => setEditing(true)}
             className="text-xs text-muted-foreground/50 italic hover:text-muted-foreground transition-colors"
           >
-            {isNb ? "Legg til kontaktperson" : "Add contact"}
+            {isNb ? "Legg til kontaktperson hos leverandør" : "Add vendor contact person"}
           </button>
         )}
       </div>
