@@ -3,20 +3,17 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, FileText, Trash2, FileCheck, Lock, Calendar, CheckCircle2, AlertTriangle, Clock, Send, Building2, Truck } from "lucide-react";
+import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { DocumentDetailDialog } from "../DocumentDetailDialog";
 import { UploadDocumentDialog } from "../UploadDocumentDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
@@ -28,49 +25,34 @@ const DOCUMENT_TYPES = [
   { value: "other", label: "Annet", labelEn: "Other" },
 ];
 
-const SOURCE_LABELS: Record<string, { nb: string; en: string }> = {
-  manual_upload: { nb: "Manuell", en: "Manual" },
-  email_inbox: { nb: "E-post", en: "Email" },
-  vendor_portal: { nb: "Portal", en: "Portal" },
-};
-
 interface DocumentsTabProps {
   assetId: string;
   assetName?: string;
   vendorName?: string;
 }
 
-function getStatusBadge(status: string | null, validTo: string | null, t: any) {
+function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
   if (validTo) {
     const expiry = new Date(validTo);
     const now = new Date();
     const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) return <Badge variant="destructive" className="text-[10px]">{t("vendorDocs.expired", "Utløpt")}</Badge>;
-    if (daysLeft <= 30) return <Badge className="bg-yellow-500/15 text-yellow-700 border-yellow-500/30 text-[10px]">{t("vendorDocs.expiringSoon", "Utløper snart")}</Badge>;
+    if (daysLeft < 0) return <Badge variant="destructive" className="text-[10px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+    if (daysLeft <= 30) return <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">{isNb ? "Utløper snart" : "Expiring soon"}</Badge>;
   }
-  if (status === "pending_review") return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[10px]">{t("vendorDocs.pendingReview", "Til vurdering")}</Badge>;
-  if (status === "superseded") return <Badge variant="secondary" className="text-[10px]">{t("vendorDocs.superseded", "Erstattet")}</Badge>;
-  return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">{t("vendorDocs.current", "Gyldig")}</Badge>;
+  if (status === "pending_review") return <Badge variant="secondary" className="text-[10px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
+  if (status === "superseded") return <Badge variant="secondary" className="text-[10px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
+  return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[10px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
 }
 
 export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const { subscription } = useSubscription();
-  const [uploading, setUploading] = useState(false);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [preselectedDocType, setPreselectedDocType] = useState<string | undefined>();
-  const [docType, setDocType] = useState("other");
-  const [notes, setNotes] = useState("");
-  const [version, setVersion] = useState("v1.0");
-  const [validFrom, setValidFrom] = useState("");
-  const [validTo, setValidTo] = useState("");
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
-  const dragCounterRef = useRef(0);
 
   const planName = subscription?.plan?.name || "starter";
   const maxDocs = planName === "starter" ? 5 : Infinity;
@@ -90,36 +72,6 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
   const atLimit = planName === "starter" && documents.length >= maxDocs;
 
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const filePath = `${assetId}/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage.from("vendor-documents").upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase.from("vendor_documents").insert({
-        asset_id: assetId,
-        file_name: file.name,
-        file_path: filePath,
-        document_type: docType,
-        notes: notes || null,
-        version,
-        valid_from: validFrom || null,
-        valid_to: validTo || null,
-        source: "manual_upload",
-        status: "current",
-        received_at: new Date().toISOString(),
-      } as any);
-      if (dbError) throw dbError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(t("vendorDocs.uploadSuccess", "Dokument lastet opp"));
-      setNotes(""); setDocType("other"); setVersion("v1.0"); setValidFrom(""); setValidTo("");
-      setShowUpload(false);
-    },
-    onError: () => toast.error(t("vendorDocs.uploadError", "Kunne ikke laste opp dokument")),
-  });
-
   const deleteMutation = useMutation({
     mutationFn: async (doc: { id: string; file_path: string }) => {
       await supabase.storage.from("vendor-documents").remove([doc.file_path]);
@@ -128,93 +80,127 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(t("vendorDocs.deleteSuccess", "Dokument slettet"));
+      toast.success(isNb ? "Dokument slettet" : "Document deleted");
     },
   });
 
-  const processFile = useCallback(async (file: File) => {
-    if (atLimit) { toast.error(t("vendorDocs.limitReached", "Maks 5 dokumenter på Starter-planen.")); return; }
-    const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
-    if (!allowedTypes.includes(file.type)) { toast.error(t("vendorDocs.invalidType", "Ugyldig filtype.")); return; }
-    setUploading(true);
-    await uploadMutation.mutateAsync(file);
-    setUploading(false);
-  }, [atLimit, uploadMutation, t]);
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await processFile(file);
-    e.target.value = "";
-  };
-
-  const handleDragEnter = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounterRef.current++; if (e.dataTransfer.items?.length) setIsDragOver(true); }, []);
-  const handleDragLeave = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounterRef.current--; if (dragCounterRef.current === 0) setIsDragOver(false); }, []);
-  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); }, []);
-  const handleDrop = useCallback(async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(false); dragCounterRef.current = 0; const file = e.dataTransfer.files?.[0]; if (file) await processFile(file); }, [processFile]);
+  const locale = isNb ? "nb-NO" : "en-US";
 
   const getTypeLabel = (type: string) => {
     const dt = DOCUMENT_TYPES.find((d) => d.value === type);
-    return i18n.language === "nb" ? dt?.label || type : dt?.labelEn || type;
+    return isNb ? dt?.label || type : dt?.labelEn || type;
   };
 
-  const getSourceLabel = (source: string | null) => {
-    if (!source) return "-";
-    const s = SOURCE_LABELS[source];
-    return s ? (i18n.language === "nb" ? s.nb : s.en) : source;
+  const vendorDocs = documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
+  const internalDocs = documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+  const expiredCount = documents.filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date()).length;
+
+  const renderDocTable = (docs: any[], emptyMsg: string) => {
+    if (docs.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
+          <p className="text-sm text-muted-foreground">{emptyMsg}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-lg border overflow-x-auto">
+        <Table className="min-w-[580px]">
+          <TableHeader>
+            <TableRow className="bg-muted/30">
+              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Dokument" : "Document"}</TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
+              <TableHead className="w-16" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {docs.map((doc: any) => {
+              const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+              return (
+                <TableRow key={doc.id} className="group hover:bg-accent/30">
+                  <TableCell className="py-2.5">
+                    <div
+                      className={`flex items-center gap-2 ${isExpired ? "cursor-pointer" : ""}`}
+                      onClick={() => isExpired && setDetailDoc(doc)}
+                    >
+                      <FileCheck className="h-4 w-4 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <span className={`text-sm font-medium truncate block max-w-[200px] ${isExpired ? "text-destructive" : ""}`}>
+                          {doc.file_name}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground hidden md:block">
+                          {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
+                  </TableCell>
+                  <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">
+                    {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
+                  </TableCell>
+                  <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
+                  <TableCell className="py-2.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
   };
-
-  const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
-
-  const [sourceFilter, setSourceFilter] = useState<string>("all");
-
-  const filteredDocuments = documents.filter((d: any) => {
-    if (sourceFilter === "all") return true;
-    if (sourceFilter === "vendor") return d.source === "vendor_portal" || d.source === "email_inbox";
-    if (sourceFilter === "internal") return d.source !== "vendor_portal" && d.source !== "email_inbox";
-    return true;
-  });
 
   return (
-    <div className="space-y-6">
-      {/* Header with upload button */}
+    <div className="space-y-5">
+      {/* Header row */}
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold flex items-center gap-2">
-          <FileCheck className="h-4 w-4 text-primary" />
-          {t("vendorDocs.documentsTitle", "Dokumenter")} ({documents.length})
-        </h3>
-        <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit}>
-          <Upload className="h-3.5 w-3.5 mr-1.5" />
-          {t("vendorDocs.uploadTitle", "Last opp")}
+        <div>
+          <h3 className="text-base font-semibold text-foreground">
+            {isNb ? "Dokumentasjon" : "Documentation"}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isNb
+              ? `${documents.length} dokumenter · ${expiredCount > 0 ? `${expiredCount} utløpt` : "alle gyldige"}`
+              : `${documents.length} documents · ${expiredCount > 0 ? `${expiredCount} expired` : "all valid"}`}
+          </p>
+        </div>
+        <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="gap-1.5">
+          <Upload className="h-3.5 w-3.5" />
+          {isNb ? "Last opp" : "Upload"}
         </Button>
       </div>
 
-      {/* Source filter chips */}
-      {documents.length > 0 && (
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">{isNb ? "Vis:" : "Show:"}</span>
-          {[
-            { value: "all", labelNb: "Alle", labelEn: "All" },
-            { value: "vendor", labelNb: "Fra leverandør", labelEn: "From vendor" },
-            { value: "internal", labelNb: "Interne", labelEn: "Internal" },
-          ].map((filter) => (
-            <Button
-              key={filter.value}
-              variant={sourceFilter === filter.value ? "default" : "outline"}
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => setSourceFilter(filter.value)}
-            >
-              {isNb ? filter.labelNb : filter.labelEn}
-              {filter.value !== "all" && (
-                <Badge variant="secondary" className="ml-1 text-[10px]">
-                  {filter.value === "vendor"
-                    ? documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox").length
-                    : documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox").length}
-                </Badge>
-              )}
-            </Button>
-          ))}
+      {/* Expired alert */}
+      {expiredCount > 0 && (
+        <div className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-destructive/5 border border-destructive/15">
+          <p className="text-xs text-destructive font-medium">
+            {isNb
+              ? `${expiredCount} dokument${expiredCount > 1 ? "er" : ""} har utløpt og bør fornyes`
+              : `${expiredCount} document${expiredCount > 1 ? "s" : ""} expired and should be renewed`}
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10 shrink-0"
+            onClick={() => setRequestDialogOpen(true)}
+          >
+            <Mail className="h-3 w-3" />
+            {isNb ? "Be om fornyelse" : "Request renewal"}
+          </Button>
         </div>
       )}
 
@@ -222,190 +208,64 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? (
         <Card>
-          <CardContent className="py-8">
-            <div className="text-center text-muted-foreground">
-              <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">{t("vendorDocs.noDocuments", "Ingen dokumenter lastet opp ennå")}</p>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
+              <p className="text-sm font-medium text-foreground mb-1">
+                {isNb ? "Ingen dokumenter ennå" : "No documents yet"}
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                {isNb
+                  ? "Last opp avtaler, sertifikater og annen dokumentasjon for denne leverandøren"
+                  : "Upload agreements, certificates and other documentation for this vendor"}
+              </p>
+              <Button size="sm" variant="outline" onClick={() => setShowUploadDialog(true)} className="gap-1.5">
+                <Upload className="h-3.5 w-3.5" />
+                {isNb ? "Last opp dokument" : "Upload document"}
+              </Button>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <>
-          {/* Vendor documents */}
-          {(() => {
-            const vendorDocs = filteredDocuments.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
-            const customerDocs = filteredDocuments.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="w-full justify-start h-9 bg-muted/50 p-0.5">
+            <TabsTrigger value="all" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              {isNb ? "Alle" : "All"}
+              <Badge variant="secondary" className="text-[9px] h-4 px-1">{documents.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="internal" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              {isNb ? "Interne" : "Internal"}
+              <Badge variant="secondary" className="text-[9px] h-4 px-1">{internalDocs.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="vendor" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              {isNb ? "Fra leverandør" : "From vendor"}
+              <Badge variant="secondary" className="text-[9px] h-4 px-1">{vendorDocs.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
 
-            const renderDocTable = (docs: any[], emptyMsg: string) => (
-              docs.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">{emptyMsg}</p>
-              ) : (
-                <div className="rounded-lg border overflow-x-auto">
-                  <Table className="min-w-[600px]">
-                    <TableHeader>
-                      <TableRow className="bg-muted/30">
-                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.name", "Navn")}</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.documentType", "Type")}</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{t("vendorDocs.version", "Versjon")}</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.validTo", "Gyldig til")}</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase">{t("vendorDocs.statusLabel", "Status")}</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{t("vendorDocs.date", "Dato")}</TableHead>
-                        <TableHead className="w-10" />
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {docs.map((doc: any) => (
-                        <TableRow key={doc.id} className="hover:bg-accent/30">
-                          <TableCell className="py-2.5">
-                            {(() => {
-                              const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
-                              return (
-                                <div
-                                  className={`flex items-center gap-2 ${isExpired ? "cursor-pointer group" : ""}`}
-                                  onClick={() => isExpired && setDetailDoc(doc)}
-                                >
-                                  <FileCheck className="h-4 w-4 text-primary flex-shrink-0" />
-                                  <span className={`text-sm font-medium truncate max-w-[180px] ${isExpired ? "underline decoration-destructive/40 group-hover:decoration-destructive" : ""}`}>{doc.file_name}</span>
-                                </div>
-                              );
-                            })()}
-                          </TableCell>
-                          <TableCell className="py-2.5">
-                            <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
-                          </TableCell>
-                          <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">{doc.version || "v1.0"}</TableCell>
-                          <TableCell className="py-2.5 text-sm text-muted-foreground">
-                            {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
-                          </TableCell>
-                          <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, t)}</TableCell>
-                          <TableCell className="py-2.5 text-xs text-muted-foreground hidden md:table-cell">
-                            {new Date(doc.created_at).toLocaleDateString(locale)}
-                          </TableCell>
-                          <TableCell className="py-2.5">
-                            <div className="flex items-center gap-0.5">
-                              {doc.valid_to && new Date(doc.valid_to) < new Date() && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  title={isNb ? "Be om ny versjon" : "Request new version"}
-                                  onClick={() => {
-                                    setPreselectedDocType(doc.document_type);
-                                    setRequestDialogOpen(true);
-                                  }}
-                                >
-                                  <Send className="h-3.5 w-3.5" />
-                                </Button>
-                              )}
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )
-            );
-
-            return (
-              <>
-                {/* From vendor */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-primary" />
-                      {isNb ? "Fra leverandør" : "From vendor"}
-                      <Badge variant="outline" className="text-[10px] ml-1">{vendorDocs.length}</Badge>
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {isNb ? "Dokumenter mottatt direkte fra leverandøren via portal eller e-post" : "Documents received directly from the vendor via portal or email"}
-                    </p>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
-                  </CardContent>
-                </Card>
-
-                {/* From customer / internal */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-primary" />
-                      {isNb ? "Intern / Lastet opp av virksomheten" : "Internal / Uploaded by organization"}
-                      <Badge variant="outline" className="text-[10px] ml-1">{customerDocs.length}</Badge>
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {isNb ? "Dokumenter lastet opp og vedlikeholdt av din organisasjon" : "Documents uploaded and maintained by your organization"}
-                    </p>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    {renderDocTable(customerDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
-                  </CardContent>
-                </Card>
-              </>
-            );
-          })()}
-        </>
+          <TabsContent value="all" className="mt-3">
+            {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
+          </TabsContent>
+          <TabsContent value="internal" className="mt-3">
+            {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
+          </TabsContent>
+          <TabsContent value="vendor" className="mt-3">
+            {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
+          </TabsContent>
+        </Tabs>
       )}
 
       {atLimit && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-sm">
-          <Lock className="h-4 w-4 text-yellow-600" />
-          <span className="text-muted-foreground">{t("vendorDocs.upgradeForMore", "Oppgrader til Professional for ubegrenset antall dokumenter.")}</span>
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20 text-sm">
+          <Lock className="h-4 w-4 text-warning" />
+          <span className="text-xs text-muted-foreground">{isNb ? "Oppgrader for ubegrenset antall dokumenter." : "Upgrade for unlimited documents."}</span>
         </div>
       )}
 
-      {/* Upload section - collapsible */}
-      {showUpload && (
-        <Card>
-          <CardHeader><CardTitle className="text-base">{t("vendorDocs.uploadTitle", "Last opp dokumentasjon")}</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("vendorDocs.documentType", "Dokumenttype")}</Label>
-                <Select value={docType} onValueChange={setDocType}>
-                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                  <SelectContent>{DOCUMENT_TYPES.map((dt) => <SelectItem key={dt.value} value={dt.value}>{i18n.language === "nb" ? dt.label : dt.labelEn}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("vendorDocs.version", "Versjon")}</Label>
-                <Input value={version} onChange={(e) => setVersion(e.target.value)} placeholder="v1.0" className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("vendorDocs.validFrom", "Gyldig fra")}</Label>
-                <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">{t("vendorDocs.validTo", "Gyldig til")}</Label>
-                <Input type="date" value={validTo} onChange={(e) => setValidTo(e.target.value)} className="h-9" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">{t("vendorDocs.notes", "Notater (valgfritt)")}</Label>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("vendorDocs.notesPlaceholder", "F.eks. utført av Mnemonic, Q1 2025")} rows={1} />
-            </div>
-
-            <div
-              onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
-              className={`relative flex flex-col items-center justify-center gap-2 p-6 rounded-lg border-2 border-dashed transition-all cursor-pointer ${isDragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-accent/30"}`}
-              onClick={() => { if (!uploading) document.getElementById(`file-input-${assetId}`)?.click(); }}
-            >
-              <Input id={`file-input-${assetId}`} type="file" className="hidden" accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx" onChange={handleFileSelect} disabled={uploading} />
-              <Upload className={`h-5 w-5 ${isDragOver ? "text-primary" : "text-muted-foreground"}`} />
-              <p className="text-sm">{uploading ? t("vendorDocs.uploading", "Laster opp...") : t("vendorDocs.dragOrClick", "Dra og slipp fil her, eller klikk for å velge")}</p>
-              <p className="text-xs text-muted-foreground">{t("vendorDocs.acceptedFormats", "PDF, Word, Excel, PowerPoint")}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Document requests & reminders section */}
+      {/* Requests section */}
       <DocumentRequestsSection assetId={assetId} />
 
+      {/* Dialogs */}
       <DocumentDetailDialog
         open={!!detailDoc}
         onOpenChange={(val) => { if (!val) setDetailDoc(null); }}
