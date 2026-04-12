@@ -23,6 +23,7 @@ const DOCUMENT_TYPES = [
   { value: "soc2", label: "SOC 2", labelEn: "SOC 2" },
   { value: "iso27001", label: "ISO 27001", labelEn: "ISO 27001" },
   { value: "dpa", label: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement" },
+  { value: "contract", label: "Kontrakt", labelEn: "Contract" },
   { value: "nda", label: "NDA / Konfidensialitetsavtale", labelEn: "NDA / Confidentiality Agreement" },
   { value: "other", label: "Annet", labelEn: "Other" },
 ];
