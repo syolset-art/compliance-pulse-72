@@ -67,58 +67,58 @@ const VERIFICATION_WEIGHTS: Record<VerificationSource, number> = {
 
 // ── Generic controls (Governance area) ───────────────────────────────
 export const GENERIC_CONTROLS: TrustControlDefinition[] = [
-  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", descriptionEn: "Has a risk level been assessed for the asset?", descriptionNb: "Er det vurdert et risikonivå for eiendelen?", weight: 1, area: "risk_compliance" },
-  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", descriptionEn: "Has the criticality been determined?", descriptionNb: "Er kritikaliteten bestemt?", weight: 1, area: "risk_compliance" },
-  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", descriptionEn: "Has a risk assessment been performed?", descriptionNb: "Er det utført en risikovurdering?", weight: 1, area: "risk_compliance" },
-  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", descriptionEn: "Is relevant documentation uploaded?", descriptionNb: "Er relevant dokumentasjon lastet opp?", weight: 1, area: "governance" },
+  { key: "risk_level_defined", labelEn: "Risk level defined", labelNb: "Risikonivå definert", descriptionEn: "Has a risk level been assessed for the asset?", descriptionNb: "Er det vurdert et risikonivå for eiendelen?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "criticality_defined", labelEn: "Criticality defined", labelNb: "Kritikalitet definert", descriptionEn: "Has the criticality been determined?", descriptionNb: "Er kritikaliteten bestemt?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "risk_assessment", labelEn: "Risk assessment performed", labelNb: "Risikovurdering utført", descriptionEn: "Has a risk assessment been performed?", descriptionNb: "Er det utført en risikovurdering?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "documentation_available", labelEn: "Documentation available", labelNb: "Dokumentasjon tilgjengelig", descriptionEn: "Is relevant documentation uploaded?", descriptionNb: "Er relevant dokumentasjon lastet opp?", weight: 1, area: "governance", source: "vendor_baseline" },
 ];
 
 // ── Vendor-specific (Supplier Governance) ────────────────────────────
 export const VENDOR_CONTROLS: TrustControlDefinition[] = [
-  { key: "dpa_verified", labelEn: "Data processing agreement verified", labelNb: "Databehandleravtale verifisert", weight: 1, area: "supplier_governance" },
-  { key: "security_contact", labelEn: "Security contact defined", labelNb: "Sikkerhetskontakt definert", weight: 1, area: "supplier_governance" },
-  { key: "sub_processors_disclosed", labelEn: "Sub-processors disclosed", labelNb: "Underleverandører oppgitt", weight: 1, area: "supplier_governance" },
-  { key: "vendor_security_review", labelEn: "Vendor security review completed", labelNb: "Leverandørsikkerhetsgjennomgang fullført", weight: 1, area: "supplier_governance" },
+  { key: "dpa_verified", labelEn: "Data processing agreement verified", labelNb: "Databehandleravtale verifisert", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
+  { key: "security_contact", labelEn: "Security contact defined", labelNb: "Sikkerhetskontakt definert", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
+  { key: "sub_processors_disclosed", labelEn: "Sub-processors disclosed", labelNb: "Underleverandører oppgitt", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
+  { key: "vendor_security_review", labelEn: "Vendor security review completed", labelNb: "Leverandørsikkerhetsgjennomgang fullført", weight: 1, area: "supplier_governance", source: "vendor_baseline" },
 ];
 
 // ── System-specific (Security Posture) ───────────────────────────────
 export const SYSTEM_CONTROLS: TrustControlDefinition[] = [
-  { key: "mfa_enabled", labelEn: "Multi-factor authentication enabled", labelNb: "Flerfaktorautentisering aktivert", weight: 1, area: "security_posture" },
-  { key: "encryption_enabled", labelEn: "Encryption enabled", labelNb: "Kryptering aktivert", weight: 1, area: "security_posture" },
-  { key: "backup_configured", labelEn: "Backup configured", labelNb: "Sikkerhetskopiering konfigurert", weight: 1, area: "security_posture" },
-  { key: "security_logging", labelEn: "Security logging enabled", labelNb: "Sikkerhetslogging aktivert", weight: 1, area: "security_posture" },
+  { key: "mfa_enabled", labelEn: "Multi-factor authentication enabled", labelNb: "Flerfaktorautentisering aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
+  { key: "encryption_enabled", labelEn: "Encryption enabled", labelNb: "Kryptering aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
+  { key: "backup_configured", labelEn: "Backup configured", labelNb: "Sikkerhetskopiering konfigurert", weight: 1, area: "security_posture", source: "vendor_baseline" },
+  { key: "security_logging", labelEn: "Security logging enabled", labelNb: "Sikkerhetslogging aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
 ];
 
 // ── Hardware/asset-specific (Security Posture) ───────────────────────
 export const HARDWARE_CONTROLS: TrustControlDefinition[] = [
-  { key: "device_encryption", labelEn: "Device encryption enabled", labelNb: "Enhetskryptering aktivert", weight: 1, area: "security_posture" },
-  { key: "endpoint_protection", labelEn: "Endpoint protection installed", labelNb: "Endepunktbeskyttelse installert", weight: 1, area: "security_posture" },
-  { key: "patch_management", labelEn: "Patch management active", labelNb: "Patchhåndtering aktiv", weight: 1, area: "security_posture" },
+  { key: "device_encryption", labelEn: "Device encryption enabled", labelNb: "Enhetskryptering aktivert", weight: 1, area: "security_posture", source: "vendor_baseline" },
+  { key: "endpoint_protection", labelEn: "Endpoint protection installed", labelNb: "Endepunktbeskyttelse installert", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "patch_management", labelEn: "Patch management active", labelNb: "Patchhåndtering aktiv", weight: 1, area: "security_posture", source: "org_enrichment" },
 ];
 
 // ── Organizational unit / self — all 17 trust controls ───────────────
 export const ORG_CONTROLS: TrustControlDefinition[] = [
   // Governance & Accountability (gov-1 to gov-4)
-  { key: "security_responsibility", labelEn: "Security & privacy responsibility", labelNb: "Ansvar for sikkerhet og personvern", descriptionEn: "Is it clearly defined who is responsible?", descriptionNb: "Er det tydelig definert hvem som har ansvaret?", weight: 1, area: "governance" },
-  { key: "documented_policies", labelEn: "Documented policies", labelNb: "Dokumenterte policyer", descriptionEn: "Does the organization have documented security policies?", descriptionNb: "Har virksomheten dokumenterte sikkerhetspolicyer?", weight: 1, area: "governance" },
-  { key: "risk_assessment_recent", labelEn: "Risk assessment last 12 months", labelNb: "Risikovurdering siste 12 mnd", descriptionEn: "Has a formal risk assessment been conducted?", descriptionNb: "Er det gjennomført en formell risikovurdering?", weight: 1, area: "governance" },
-  { key: "incident_handling", labelEn: "Incident handling", labelNb: "Hendelseshåndtering", descriptionEn: "Is there a documented procedure for incident handling?", descriptionNb: "Finnes det en dokumentert prosedyre for hendelseshåndtering?", weight: 1, area: "governance" },
+  { key: "security_responsibility", labelEn: "Security & privacy responsibility", labelNb: "Ansvar for sikkerhet og personvern", descriptionEn: "Is it clearly defined who is responsible?", descriptionNb: "Er det tydelig definert hvem som har ansvaret?", weight: 1, area: "governance", source: "org_enrichment" },
+  { key: "documented_policies", labelEn: "Documented policies", labelNb: "Dokumenterte policyer", descriptionEn: "Does the organization have documented security policies?", descriptionNb: "Har virksomheten dokumenterte sikkerhetspolicyer?", weight: 1, area: "governance", source: "org_enrichment" },
+  { key: "risk_assessment_recent", labelEn: "Risk assessment last 12 months", labelNb: "Risikovurdering siste 12 mnd", descriptionEn: "Has a formal risk assessment been conducted?", descriptionNb: "Er det gjennomført en formell risikovurdering?", weight: 1, area: "governance", source: "org_enrichment" },
+  { key: "incident_handling", labelEn: "Incident handling", labelNb: "Hendelseshåndtering", descriptionEn: "Is there a documented procedure for incident handling?", descriptionNb: "Finnes det en dokumentert prosedyre for hendelseshåndtering?", weight: 1, area: "governance", source: "org_enrichment" },
   // Security (sec-1 to sec-5)
-  { key: "access_control", labelEn: "Access control (least privilege)", labelNb: "Tilgangsstyring (least privilege)", descriptionEn: "Does access control follow the principle of least privilege?", descriptionNb: "Følger tilgangsstyringen prinsippet om minste privilegium?", weight: 1, area: "risk_compliance" },
-  { key: "mfa_org", labelEn: "Multi-factor authentication", labelNb: "MFA", descriptionEn: "Is multi-factor authentication implemented?", descriptionNb: "Er flerfaktorautentisering implementert?", weight: 1, area: "risk_compliance" },
-  { key: "encryption_org", labelEn: "Encryption", labelNb: "Kryptering", descriptionEn: "Is data encrypted in transit and at rest?", descriptionNb: "Er data kryptert i transit og i hvile?", weight: 1, area: "risk_compliance" },
-  { key: "logging_monitoring", labelEn: "Logging and monitoring", labelNb: "Logging og overvåking", descriptionEn: "Is logging implemented for critical systems?", descriptionNb: "Er logging implementert for kritiske systemer?", weight: 1, area: "risk_compliance" },
-  { key: "security_testing", labelEn: "Security testing", labelNb: "Sikkerhetstesting", descriptionEn: "Is regular security testing performed (e.g. vulnerability scanning or penetration testing)?", descriptionNb: "Gjennomføres det regelmessig sikkerhetstesting (f.eks. sårbarhetsskanning eller penetrasjonstesting)?", weight: 1, area: "risk_compliance" },
+  { key: "access_control", labelEn: "Access control (least privilege)", labelNb: "Tilgangsstyring (least privilege)", descriptionEn: "Does access control follow the principle of least privilege?", descriptionNb: "Følger tilgangsstyringen prinsippet om minste privilegium?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "mfa_org", labelEn: "Multi-factor authentication", labelNb: "MFA", descriptionEn: "Is multi-factor authentication implemented?", descriptionNb: "Er flerfaktorautentisering implementert?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "encryption_org", labelEn: "Encryption", labelNb: "Kryptering", descriptionEn: "Is data encrypted in transit and at rest?", descriptionNb: "Er data kryptert i transit og i hvile?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "logging_monitoring", labelEn: "Logging and monitoring", labelNb: "Logging og overvåking", descriptionEn: "Is logging implemented for critical systems?", descriptionNb: "Er logging implementert for kritiske systemer?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
+  { key: "security_testing", labelEn: "Security testing", labelNb: "Sikkerhetstesting", descriptionEn: "Is regular security testing performed (e.g. vulnerability scanning or penetration testing)?", descriptionNb: "Gjennomføres det regelmessig sikkerhetstesting (f.eks. sårbarhetsskanning eller penetrasjonstesting)?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
   // Privacy & Data Handling (priv-1 to priv-5)
-  { key: "ropa", labelEn: "Record of processing activities (ROPA)", labelNb: "Behandlingsoversikt (ROPA)", descriptionEn: "Does the organization have an up-to-date record of processing activities?", descriptionNb: "Har virksomheten en oppdatert behandlingsoversikt?", weight: 1, area: "security_posture" },
-  { key: "dpa_org", labelEn: "Data processing agreement (DPA)", labelNb: "Databehandleravtale (DPA)", descriptionEn: "Are DPAs in place with all relevant third parties?", descriptionNb: "Er det inngått DPA med alle relevante tredjeparter?", weight: 1, area: "security_posture" },
-  { key: "dpia", labelEn: "Data protection impact assessment (DPIA)", labelNb: "DPIA", descriptionEn: "Has a DPIA been conducted where required?", descriptionNb: "Er det gjennomført DPIA der det er påkrevd?", weight: 1, area: "security_posture" },
-  { key: "data_subject_rights", labelEn: "Data subject rights", labelNb: "Registrertes rettigheter", descriptionEn: "Are there processes for access, deletion, etc.?", descriptionNb: "Er det prosesser for innsyn, sletting, etc.?", weight: 1, area: "security_posture" },
-  { key: "data_storage_control", labelEn: "Data storage location control", labelNb: "Kontroll over datalagringssted", descriptionEn: "Does the organization control where data is stored, including international transfers?", descriptionNb: "Har virksomheten kontroll over hvor data lagres, inkludert internasjonale overføringer?", weight: 1, area: "security_posture" },
+  { key: "ropa", labelEn: "Record of processing activities (ROPA)", labelNb: "Behandlingsoversikt (ROPA)", descriptionEn: "Does the organization have an up-to-date record of processing activities?", descriptionNb: "Har virksomheten en oppdatert behandlingsoversikt?", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "dpa_org", labelEn: "Data processing agreement (DPA)", labelNb: "Databehandleravtale (DPA)", descriptionEn: "Are DPAs in place with all relevant third parties?", descriptionNb: "Er det inngått DPA med alle relevante tredjeparter?", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "dpia", labelEn: "Data protection impact assessment (DPIA)", labelNb: "DPIA", descriptionEn: "Has a DPIA been conducted where required?", descriptionNb: "Er det gjennomført DPIA der det er påkrevd?", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "data_subject_rights", labelEn: "Data subject rights", labelNb: "Registrertes rettigheter", descriptionEn: "Are there processes for access, deletion, etc.?", descriptionNb: "Er det prosesser for innsyn, sletting, etc.?", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "data_storage_control", labelEn: "Data storage location control", labelNb: "Kontroll over datalagringssted", descriptionEn: "Does the organization control where data is stored, including international transfers?", descriptionNb: "Har virksomheten kontroll over hvor data lagres, inkludert internasjonale overføringer?", weight: 1, area: "security_posture", source: "org_enrichment" },
   // Third-Party & Supply Chain (sup-1 to sup-3)
-  { key: "vendor_inventory", labelEn: "Vendor inventory", labelNb: "Leverandøroversikt (inventory)", descriptionEn: "Is there an up-to-date and complete overview of all third parties and sub-processors?", descriptionNb: "Finnes det en oppdatert og komplett oversikt over alle tredjeparter og underleverandører?", weight: 1, area: "supplier_governance" },
-  { key: "vendor_risk_assessment", labelEn: "Vendor risk assessment", labelNb: "Risikovurdering av leverandører", descriptionEn: "Are risk assessments and security evaluations of vendors performed before and during the contract period?", descriptionNb: "Gjennomføres det risikovurdering og sikkerhetsevaluering av leverandører før og under avtaleperioden?", weight: 1, area: "supplier_governance" },
-  { key: "vendor_followup", labelEn: "Regular vendor follow-up", labelNb: "Jevnlig oppfølging", descriptionEn: "Is regular evaluation and follow-up of vendors performed?", descriptionNb: "Gjennomføres det regelmessig evaluering og oppfølging av leverandører?", weight: 1, area: "supplier_governance" },
+  { key: "vendor_inventory", labelEn: "Vendor inventory", labelNb: "Leverandøroversikt (inventory)", descriptionEn: "Is there an up-to-date and complete overview of all third parties and sub-processors?", descriptionNb: "Finnes det en oppdatert og komplett oversikt over alle tredjeparter og underleverandører?", weight: 1, area: "supplier_governance", source: "org_enrichment" },
+  { key: "vendor_risk_assessment", labelEn: "Vendor risk assessment", labelNb: "Risikovurdering av leverandører", descriptionEn: "Are risk assessments and security evaluations of vendors performed before and during the contract period?", descriptionNb: "Gjennomføres det risikovurdering og sikkerhetsevaluering av leverandører før og under avtaleperioden?", weight: 1, area: "supplier_governance", source: "org_enrichment" },
+  { key: "vendor_followup", labelEn: "Regular vendor follow-up", labelNb: "Jevnlig oppfølging", descriptionEn: "Is regular evaluation and follow-up of vendors performed?", descriptionNb: "Gjennomføres det regelmessig evaluering og oppfølging av leverandører?", weight: 1, area: "supplier_governance", source: "org_enrichment" },
 ];
 
 // ── Risk mapping: control key → risk when missing/partial ────────────
