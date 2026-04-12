@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Package, FileText, Upload, Trash2, Paperclip, CalendarDays } from "lucide-react";
+import { Plus, Package, FileText, Upload, Trash2, Paperclip, CalendarDays, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 interface DeliveriesTabProps {
@@ -38,6 +39,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showSla, setShowSla] = useState(false);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -46,6 +48,10 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
     contract_start: "",
     contract_end: "",
     notes: "",
+    sla_uptime: "",
+    sla_response_time: "",
+    sla_support_hours: "",
+    sla_notes: "",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -122,6 +128,10 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
         contract_end: form.contract_end || null,
         notes: form.notes || null,
         contract_document_id: contractDocId,
+        sla_uptime: form.sla_uptime || null,
+        sla_response_time: form.sla_response_time || null,
+        sla_support_hours: form.sla_support_hours || null,
+        sla_notes: form.sla_notes || null,
       });
       if (error) throw error;
 
@@ -129,7 +139,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
       toast.success(isNb ? "Leveranse lagt til" : "Delivery added");
       setShowAddDialog(false);
-      setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "" });
+      setShowSla(false);
+      setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "", sla_uptime: "", sla_response_time: "", sla_support_hours: "", sla_notes: "" });
       setSelectedFile(null);
     } catch (err: any) {
       toast.error(err.message || "Error");
@@ -203,6 +214,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                   <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Kategori" : "Category"}</TableHead>
                   <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{isNb ? "Avtaleperiode" : "Contract period"}</TableHead>
                   <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Avtale" : "Contract"}</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase hidden lg:table-cell">SLA</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -240,6 +252,16 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                           <FileText className="h-3 w-3" />
                           {d.vendor_documents.file_name}
                         </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/50">–</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {d.sla_uptime || d.sla_response_time || d.sla_support_hours ? (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <ShieldCheck className="h-3 w-3 text-green-600" />
+                          SLA
+                        </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground/50">–</span>
                       )}
@@ -352,6 +374,56 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                 )}
               </Button>
             </div>
+
+            {/* SLA Section */}
+            <Collapsible open={showSla} onOpenChange={setShowSla}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-full justify-between text-sm font-medium px-0 hover:bg-transparent">
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                    {isNb ? "Tjenestenivåavtale (SLA)" : "Service Level Agreement (SLA)"}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${showSla ? "rotate-180" : ""}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{isNb ? "Oppetidskrav" : "Uptime requirement"}</Label>
+                    <Input
+                      value={form.sla_uptime}
+                      onChange={(e) => setForm((f) => ({ ...f, sla_uptime: e.target.value }))}
+                      placeholder={isNb ? "F.eks. 99.9%" : "E.g. 99.9%"}
+                    />
+                  </div>
+                  <div>
+                    <Label>{isNb ? "Responstid" : "Response time"}</Label>
+                    <Input
+                      value={form.sla_response_time}
+                      onChange={(e) => setForm((f) => ({ ...f, sla_response_time: e.target.value }))}
+                      placeholder={isNb ? "F.eks. 4 timer" : "E.g. 4 hours"}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>{isNb ? "Støttetider" : "Support hours"}</Label>
+                  <Input
+                    value={form.sla_support_hours}
+                    onChange={(e) => setForm((f) => ({ ...f, sla_support_hours: e.target.value }))}
+                    placeholder={isNb ? "F.eks. 08:00–16:00 hverdager" : "E.g. 08:00–16:00 weekdays"}
+                  />
+                </div>
+                <div>
+                  <Label>{isNb ? "SLA-merknader" : "SLA notes"}</Label>
+                  <Textarea
+                    value={form.sla_notes}
+                    onChange={(e) => setForm((f) => ({ ...f, sla_notes: e.target.value }))}
+                    placeholder={isNb ? "Ytterligere SLA-vilkår eller merknader" : "Additional SLA terms or notes"}
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
