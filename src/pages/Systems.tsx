@@ -33,6 +33,8 @@ import {
   HelpCircle,
   List,
   LayoutGrid,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
@@ -159,7 +161,7 @@ export default function Systems() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
-  const [viewMode, setViewMode] = useState<"grouped" | "list">("grouped");
+  const [viewMode, setViewMode] = useState<"grouped" | "list">("list");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("system_premium_activated") === "true");
@@ -542,7 +544,7 @@ export default function Systems() {
     );
   };
 
-  const renderCardList = () => {
+  const renderListView = () => {
     if (isLoading) {
       return (
         <div className="p-8 text-center text-muted-foreground">
@@ -567,8 +569,125 @@ export default function Systems() {
     }
 
     return (
-      <div className="space-y-4">
-        {filteredSystems.map((system) => renderSystemCard(system))}
+      <div className="border border-border rounded-lg overflow-hidden bg-card">
+        {/* Table header */}
+        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span>System</span>
+          <span>Type</span>
+          <span className="flex items-center gap-1">
+            Modenhet
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent><p>Basert på dokumentasjon og kontrolldekning</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+          <span className="flex items-center gap-1">
+            Risiko
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent><p>Risikonivå for dette systemet</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+          <span>Eier (Arbeidsområde)</span>
+          <span></span>
+        </div>
+
+        {/* Rows */}
+        <div className="divide-y divide-border">
+          {filteredSystems.map((system) => {
+            const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
+            const maturity = getMaturityBadge(system.compliance_score || 0);
+            const risk = getRiskLabel(system.risk_level);
+            const ownerWa = getOwnerWorkArea(system);
+            const isArchived = system.status === "archived";
+
+            return (
+              <div
+                key={system.id}
+                className="grid grid-cols-1 sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 items-center px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer"
+                onClick={() => navigate(`/systems/${system.id}`)}
+              >
+                {/* System name + icon */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                    <IconComponent className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground truncate">{system.name}</span>
+                </div>
+
+                {/* Type */}
+                <span className="text-sm text-muted-foreground truncate hidden sm:block">
+                  {system.category || "—"}
+                </span>
+
+                {/* Maturity */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${maturity.className}`}>
+                    {maturity.label}
+                  </span>
+                </div>
+
+                {/* Risk */}
+                <div className="hidden sm:flex items-center gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${risk.dotClass}`} />
+                </div>
+
+                {/* Owner */}
+                <div className="hidden sm:block" onClick={(e) => e.stopPropagation()}>
+                  {ownerWa ? (
+                    <div className="flex items-center gap-1 border border-border rounded-md px-2 py-1 bg-background max-w-[160px]">
+                      <span className="text-xs text-foreground truncate">{ownerWa.name}</span>
+                      <button
+                        onClick={() => removeOwner.mutate(system.id)}
+                        className="ml-auto shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Select value="" onValueChange={(waId) => assignOwner.mutate({ id: system.id, workAreaId: waId })}>
+                      <SelectTrigger className="h-7 text-xs max-w-[160px] bg-background">
+                        <SelectValue placeholder="Ikke satt" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {workAreas.map((area: WorkArea) => (
+                          <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="hidden sm:flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                  <AssetRowActionMenu
+                    itemId={system.id}
+                    currentWorkAreaId={system.work_area_id}
+                    currentStatus={system.status}
+                    isArchived={isArchived}
+                    workAreas={workAreas}
+                    statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+                    onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+                    onArchive={(itemId) => archiveSystem.mutate(itemId)}
+                    onRestore={(itemId) => restoreSystem.mutate(itemId)}
+                    onDelete={(itemId) => deleteSystem.mutate(itemId)}
+                    onSetStatus={(itemId, status) => changeStatus.mutate({ id: itemId, status })}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -702,7 +821,7 @@ export default function Systems() {
           </div>
 
           {/* System list */}
-          {viewMode === "grouped" ? renderGroupedList() : renderCardList()}
+          {viewMode === "grouped" ? renderGroupedList() : renderListView()}
         </div>
       </main>
 
