@@ -37,8 +37,8 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
 
   const toggleCard = (key: string) => {
     if (key === "tasks") {
-      // Dispatch event to scroll to and expand tasks in the tab content
-      window.dispatchEvent(new CustomEvent("scroll-to-tasks"));
+      // Switch to overview tab first, then scroll to tasks
+      window.dispatchEvent(new CustomEvent("scroll-to-tasks", { detail: { switchTab: true } }));
       return;
     }
     setExpandedCard(prev => prev === key ? null : key);
