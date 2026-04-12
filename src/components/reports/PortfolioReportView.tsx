@@ -102,6 +102,52 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
     } finally { setGenerating(false); }
   };
 
+  const handleDownloadAssetPdf = async (items: AssetRow[], title: string, filename: string) => {
+    setGenerating(true);
+    try {
+      await new Promise(r => setTimeout(r, 50));
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+      const { addMynderFooter } = await import("@/lib/pdfBranding");
+
+      const doc = new jsPDF();
+      const now = new Date().toLocaleDateString("nb-NO", { day: "2-digit", month: "long", year: "numeric" });
+      const company = companyName || "Ukjent virksomhet";
+
+      doc.setFontSize(20);
+      doc.setTextColor(30, 30, 30);
+      doc.text(title, 14, 22);
+      doc.setFontSize(11);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`${company}  •  Generert ${now}`, 14, 30);
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Totalt ${items.length} registrert.`, 14, 42);
+
+      const riskLabel = (r?: string | null) => {
+        if (!r) return "–";
+        const map: Record<string, string> = { critical: "Kritisk", high: "Høy", medium: "Middels", low: "Lav" };
+        return map[r] || r;
+      };
+
+      autoTable(doc, {
+        startY: 50,
+        head: [["Navn", "Risiko", "Score", "Kritikalitet"]],
+        body: items.map(a => [
+          a.name,
+          riskLabel(a.risk_level),
+          a.compliance_score && a.compliance_score > 0 ? `${a.compliance_score}%` : "Ikke vurdert",
+          a.criticality || "–",
+        ]),
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] },
+      });
+
+      addMynderFooter(doc);
+      doc.save(`${filename}_${now.replace(/\s/g, "_")}.pdf`);
+    } finally { setGenerating(false); }
+  };
+
   const now = new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
 
   return (
@@ -229,8 +275,12 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
 
         <TabsContent value="systems">
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm">{isNb ? "Systemoversikt" : "System Overview"}</CardTitle>
+              <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => handleDownloadAssetPdf(systems, isNb ? "Systemoversikt" : "System Overview", "systemoversikt")} disabled={generating}>
+                <Download className="h-3 w-3" />
+                {isNb ? "Last ned" : "Download"}
+              </Button>
             </CardHeader>
             <CardContent className="p-0">
               <AssetTable items={systems} showCategory={false} showCountry={false} />
@@ -241,8 +291,12 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
         {otherAssets.length > 0 && (
           <TabsContent value="other">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm">{isNb ? "Øvrige eiendeler" : "Other Assets"}</CardTitle>
+                <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => handleDownloadAssetPdf(otherAssets, isNb ? "Øvrige eiendeler" : "Other Assets", "ovrige_eiendeler")} disabled={generating}>
+                  <Download className="h-3 w-3" />
+                  {isNb ? "Last ned" : "Download"}
+                </Button>
               </CardHeader>
               <CardContent className="p-0">
                 <AssetTable items={otherAssets} showCategory showCountry={false} />
