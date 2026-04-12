@@ -421,9 +421,12 @@ const AssetTrustProfile = () => {
                   <CustomerRequestsTab />
                 </TabsContent>
                 <TabsContent value="vendor-activity" className="mt-6">
-                  <div className="text-sm text-muted-foreground italic p-8 text-center">
-                    {isNb ? "Aktivitetslogg kommer snart" : "Activity log coming soon"}
-                  </div>
+                  <VendorActivityTab
+                    assetId={asset.id}
+                    assetName={asset.name}
+                    baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                  />
                 </TabsContent>
               </Tabs>
             )}
