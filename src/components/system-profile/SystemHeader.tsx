@@ -16,12 +16,8 @@ import {
   User,
   Users,
   Send,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Clock,
-  ShieldCheck,
 } from "lucide-react";
+import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getSystemIcon } from "@/lib/systemIcons";
@@ -197,63 +193,12 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           )}
         </div>
 
-        {/* Trust Score Seal */}
-        {trustMetrics && (() => {
-          const score = trustMetrics.trustScore;
-          const conf = trustMetrics.confidenceScore;
-          const isHigh = score >= 75;
-          const isMid = score >= 50;
-          const radius = 38;
-          const circ = 2 * Math.PI * radius;
-          const dash = (score / 100) * circ;
-          const strokeColor = isHigh ? "hsl(var(--success))" : isMid ? "hsl(var(--warning))" : "hsl(var(--destructive))";
-          const bgRingColor = "hsl(var(--muted))";
-          const confLabel = conf >= 80
-            ? (isNb ? "Høy tillit" : "High confidence")
-            : conf >= 50
-              ? (isNb ? "Middels tillit" : "Medium confidence")
-              : (isNb ? "Lav tillit" : "Low confidence");
-          return (
-            <div className="hidden md:flex flex-col items-center gap-2 shrink-0 pl-6 border-l border-border">
-              <div className="relative flex items-center justify-center">
-                <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
-                  <circle cx="48" cy="48" r={radius} fill="none" stroke={bgRingColor} strokeWidth="6" />
-                  <circle
-                    cx="48" cy="48" r={radius} fill="none"
-                    stroke={strokeColor} strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${dash} ${circ}`}
-                    style={{ transition: "stroke-dasharray 0.6s ease" }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-3xl font-bold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
-                    {score}
-                  </span>
-                  <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">/100</span>
-                </div>
-              </div>
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-1.5">
-                  {conf >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
-                  {conf >= 50 && conf < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
-                  {conf < 50 && <XCircle className="h-3 w-3 text-muted-foreground" />}
-                  <span className={`text-[11px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>
-                    {confLabel}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-2.5 w-2.5 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
-                <ShieldCheck className="h-2.5 w-2.5" />
-                {isNb ? "Egenerklæring" : "Self-declared"}
-              </Badge>
-            </div>
-          );
-        })()}
+        {/* Risk / Criticality / Maturity indicators */}
+        <HeaderMaturityIndicators
+          riskLevel={(system as any).risk_level || "medium"}
+          criticality={(system as any).criticality || "medium"}
+          maturityPercent={trustMetrics?.trustScore ?? 0}
+        />
       </div>
 
       {/* Owner and Manager row */}
