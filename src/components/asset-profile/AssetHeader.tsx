@@ -157,6 +157,21 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     },
   });
 
+  // Count active vendor document requests
+  const { data: requestCount = 0 } = useQuery({
+    queryKey: ["vendor-request-count", asset.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("vendor_document_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("asset_id", asset.id)
+        .neq("status", "received");
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !isSelf,
+  });
+
   const FRAMEWORK_COLORS: Record<string, string> = {
     gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
     personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
