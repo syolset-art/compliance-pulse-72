@@ -215,8 +215,7 @@ export const VendorTPRMStatus = ({
     <>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center justify-between">
-            <span className="flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
               <Shield className="h-4 w-4" />
               {isNb ? "Oppfølgingsstatus" : "Follow-up Status"}
               <TooltipProvider>
@@ -234,15 +233,11 @@ export const VendorTPRMStatus = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </span>
-            <Badge variant={tprmConfig[tprmLevel].variant} className="text-[10px]">
-              {tprmConfig[tprmLevel].emoji} {tprmConfig[tprmLevel].label}
-            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
-          {/* Risk × Control summary */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Risk × Control × Status summary */}
+          <div className="grid grid-cols-3 gap-3">
             <div className="p-2.5 rounded-lg bg-muted/40">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
                 {isNb ? "Risiko" : "Risk"}
@@ -262,8 +257,33 @@ export const VendorTPRMStatus = ({
                 {isNb ? "Kontroll" : "Control"}
               </p>
               <p className="text-sm font-semibold text-foreground">
-                {controlsMet} {isNb ? "av" : "of"} {controls.length} {isNb ? "krav oppfylt" : "requirements met"}
+                {controlsMet} {isNb ? "av" : "of"} {controls.length}
               </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-muted/40">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+                {isNb ? "Status" : "Status"}
+              </p>
+              <Select
+                value={effectiveLevel}
+                onValueChange={(val) => updateStatusMutation.mutate(val as TPRMLevel)}
+              >
+                <SelectTrigger className="h-6 text-xs border-0 bg-transparent p-0 shadow-none focus:ring-0 w-full">
+                  <SelectValue>
+                    <span className="flex items-center gap-1">
+                      <span>{tprmConfig[effectiveLevel].emoji}</span>
+                      <span className="font-semibold">{tprmConfig[effectiveLevel].label}</span>
+                    </span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {tprmOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt} className="text-xs">
+                      {tprmConfig[opt].emoji} {tprmConfig[opt].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
