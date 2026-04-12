@@ -709,43 +709,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
           {/* Owner, Manager, Contact — bottom section */}
           <div className="border-t border-border mt-4 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Eier */}
-              <div className="flex items-start gap-2.5">
-                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <TooltipProvider>
-                    <div className="flex items-center gap-1 mb-0.5">
-                      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                        {t("trustProfile.owner")}
-                      </p>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs text-xs">
-                          {isNb
-                            ? "Arbeidsområdet som eier denne leverandøren."
-                            : "The work area that owns this vendor."}
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TooltipProvider>
-                  <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                    <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                      <SelectValue placeholder={t("trustProfile.selectOwner")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                      {workAreas.map((area: any) => (
-                        <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
               {/* Leverandøransvarlig */}
               <div className="flex items-start gap-2.5">
