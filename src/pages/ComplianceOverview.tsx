@@ -58,8 +58,8 @@ const IMPROVEMENTS = [
   { title: 'Leverandørkjede-vurdering mangler', pillar: 'Leverandører', severity: 'high', framework: 'NIS2' },
   { title: 'Backup-rutiner ikke verifisert', pillar: 'Drift og sikkerhet', severity: 'high', framework: 'ISO 27001' },
   { title: 'AI-konsekvensanalyse ikke gjennomført', pillar: 'Styring', severity: 'medium', framework: 'AI Act' },
-  { title: 'Aktsomhetsvurdering ikke oppdatert', pillar: 'Leverandører', severity: 'medium', framework: 'Åpenhetsloven' },
-  { title: 'MFA ikke aktivert for alle adminer', pillar: 'Identitet og tilgang', severity: 'high', framework: 'NSM' },
+  { title: 'Aktsomhetsvurdering ikke oppdatert', pillar: 'Tredjepartstyring', severity: 'medium', framework: 'Åpenhetsloven' },
+  { title: 'MFA ikke aktivert for alle adminer', pillar: 'Drift og sikkerhet', severity: 'high', framework: 'NSM' },
   { title: 'HMS-mål mangler dokumentasjon', pillar: 'Styring', severity: 'low', framework: 'Arbeidsmiljøloven' },
 ];
 
@@ -67,9 +67,9 @@ const IMPROVEMENTS = [
 const MEASURES = [
   { title: 'Informasjonssikkerhetspolicy godkjent', pillar: 'Styring', status: 'ok' },
   { title: 'ROPA oppdatert siste 12 mnd', pillar: 'Styring', status: 'ok' },
-  { title: 'Tilgangskontroll implementert', pillar: 'Identitet og tilgang', status: 'ok' },
+  { title: 'Tilgangskontroll implementert', pillar: 'Drift og sikkerhet', status: 'ok' },
   { title: 'Hendelseshåndteringsprosess definert', pillar: 'Drift og sikkerhet', status: 'ok' },
-  { title: 'DPA med alle databehandlere', pillar: 'Leverandører', status: 'partial' },
+  { title: 'DPA med alle databehandlere', pillar: 'Tredjepartstyring', status: 'partial' },
   { title: 'Risikovurdering gjennomført', pillar: 'Drift og sikkerhet', status: 'ok' },
   { title: 'Sikkerhetskopier testet', pillar: 'Drift og sikkerhet', status: 'missing' },
   { title: 'AI-systemregister opprettet', pillar: 'Styring', status: 'ok' },
