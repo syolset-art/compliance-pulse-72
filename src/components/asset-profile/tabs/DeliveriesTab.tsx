@@ -210,11 +210,11 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Leveranse" : "Delivery"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Kategori" : "Category"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{isNb ? "Avtaleperiode" : "Contract period"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Avtale" : "Contract"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden lg:table-cell">SLA</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase">{isNb ? "Leveranse" : "Delivery"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase">{isNb ? "Kategori" : "Category"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden md:table-cell">{isNb ? "Avtaleperiode" : "Contract period"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden sm:table-cell">{isNb ? "Avtale" : "Contract"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden lg:table-cell">SLA</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -225,19 +225,19 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                       <div>
                         <span className="font-medium text-sm">{d.name}</span>
                         {d.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{d.description}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{d.description}</p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={`text-[10px] ${getCategoryColor(d.category)}`}>
+                      <Badge variant="secondary" className={`text-xs ${getCategoryColor(d.category)}`}>
                         {getCategoryLabel(d.category)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                       {d.contract_start || d.contract_end ? (
                         <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3 w-3" />
+                          <CalendarDays className="h-3.5 w-3.5" />
                           {d.contract_start ? new Date(d.contract_start).toLocaleDateString("nb-NO") : "–"}
                           {" → "}
                           {d.contract_end ? new Date(d.contract_end).toLocaleDateString("nb-NO") : "–"}
@@ -248,22 +248,22 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       {d.vendor_documents ? (
-                        <span className="flex items-center gap-1 text-xs text-primary">
-                          <FileText className="h-3 w-3" />
+                        <span className="flex items-center gap-1 text-sm text-primary">
+                          <FileText className="h-3.5 w-3.5" />
                           {d.vendor_documents.file_name}
                         </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground/50">–</span>
+                        <span className="text-sm text-muted-foreground/50">–</span>
                       )}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {d.sla_uptime || d.sla_response_time || d.sla_support_hours ? (
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <ShieldCheck className="h-3 w-3 text-green-600" />
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <ShieldCheck className="h-3.5 w-3.5 text-green-600" />
                           SLA
                         </Badge>
                       ) : (
-                        <span className="text-xs text-muted-foreground/50">–</span>
+                        <span className="text-sm text-muted-foreground/50">–</span>
                       )}
                     </TableCell>
                     <TableCell>
