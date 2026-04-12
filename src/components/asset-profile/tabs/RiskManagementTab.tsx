@@ -8,6 +8,7 @@ import { AlertTriangle, Calendar, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { RiskOverviewCard } from "@/components/trust-controls/RiskOverviewCard";
+import { RiskInfluenceDiagram } from "@/components/asset-profile/RiskInfluenceDiagram";
 
 interface RiskManagementTabProps {
   assetId: string;
