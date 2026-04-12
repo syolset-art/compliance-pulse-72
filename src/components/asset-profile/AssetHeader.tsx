@@ -602,7 +602,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       {!isSelf && (
         <>
           <div className="border-t border-border my-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* 1. Eier = Arbeidsområde */}
             <div className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
