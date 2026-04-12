@@ -269,6 +269,34 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               );
             })}
           </div>
+
+          {/* Collapsible Framework Maturity */}
+          {frameworks.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setFrameworksExpanded(prev => !prev)}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span className="text-sm font-semibold text-foreground">
+                    {isNb ? "Modenhet per regelverk" : "Maturity per regulation"}
+                  </span>
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
+                    {frameworks.length}
+                  </Badge>
+                </div>
+                {frameworksExpanded
+                  ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              </button>
+              {frameworksExpanded && (
+                <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
+                  <FrameworkMaturityGrid frameworks={frameworks} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
