@@ -520,19 +520,49 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             </a>
           )}
 
-          {/* Regulatory frameworks — only show known/active ones */}
-          {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
-              {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).map((fw: any) => (
-                <span
-                  key={fw.framework_id}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
-                >
-                  <FileCheck className="h-3 w-3" />
-                  {fw.framework_name}
-                </span>
-              ))}
-            </div>
+          {/* Standards & Certifications + Regulatory Coverage */}
+          {frameworks.length > 0 && (() => {
+            const standards = frameworks.filter((fw: any) => isStandard(fw.framework_id));
+            const regulations = frameworks.filter((fw: any) => !isStandard(fw.framework_id));
+            return (
+              <div className="space-y-3 mt-3">
+                {standards.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {standards.map((fw: any) => (
+                        <span
+                          key={fw.framework_id}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStandardColor(fw.framework_id)}`}
+                        >
+                          {fw.framework_name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {regulations.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      {isNb ? "Gjeldende regelverk" : "Regulatory Coverage"}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {regulations.map((fw: any) => (
+                        <span
+                          key={fw.framework_id}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRegulationColor(fw.framework_id)}`}
+                        >
+                          {fw.framework_name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           )}
         </div>
 
