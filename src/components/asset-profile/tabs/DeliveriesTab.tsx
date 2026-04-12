@@ -225,7 +225,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                       <div>
                         <span className="font-medium text-sm">{d.name}</span>
                         {d.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{d.description}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{d.description}</p>
                         )}
                       </div>
                     </TableCell>
