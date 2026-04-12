@@ -358,7 +358,12 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                     {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  {evaluation && (
+                    <span className="text-lg font-bold text-foreground tabular-nums">
+                      {evaluation.trustScore}%
+                    </span>
+                  )}
                   {evaluation && (
                     <span className="text-xs text-muted-foreground">
                       {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
