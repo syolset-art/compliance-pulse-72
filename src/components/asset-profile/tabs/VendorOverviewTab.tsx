@@ -358,16 +358,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                 </h3>
               </div>
               <div className="flex items-center gap-3">
-                {evaluation && (
-                  <span className="text-sm font-bold text-foreground tabular-nums">
-                    {evaluation.trustScore}%
-                  </span>
-                )}
-                {evaluation && (
-                  <span className="text-xs text-muted-foreground">
-                    {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
-                  </span>
-                )}
                 {controlsExpanded ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
