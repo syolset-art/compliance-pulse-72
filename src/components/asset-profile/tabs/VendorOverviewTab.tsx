@@ -345,39 +345,16 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           </Card>
           </div>
 
-          {/* Trust Controls Panel — maturity per control area (collapsed by default) */}
+          {/* Trust Controls Panel — maturity per control area */}
           <div id="maturity-controls-section">
-            <button
-              className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-all group"
-              onClick={() => setControlsExpanded(!controlsExpanded)}
-            >
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
-                </h3>
-              </div>
-              <div className="flex items-center gap-3">
-                {controlsExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-            </button>
-            {controlsExpanded && (
-              <div className="pt-3">
-                <TrustControlsPanel
-                  asset={asset}
-                  docsCount={docsCount}
-                  relationsCount={relationsCount}
-                  hideHeader="title-only"
-                  onTrustMetrics={onTrustMetrics}
-                  frameworks={frameworks}
-                  onNavigateToTab={onNavigateToTab}
-                />
-              </div>
-            )}
+            <TrustControlsPanel
+              asset={asset}
+              docsCount={docsCount}
+              relationsCount={relationsCount}
+              onTrustMetrics={onTrustMetrics}
+              frameworks={frameworks}
+              onNavigateToTab={onNavigateToTab}
+            />
           </div>
 
 
