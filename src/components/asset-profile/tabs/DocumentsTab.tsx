@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle } from "lucide-react";
+import { DocumentSharingPopover } from "../DocumentSharingPopover";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
 import { DocumentRequestsSection } from "./DocumentRequestsSection";
@@ -22,6 +23,7 @@ const DOCUMENT_TYPES = [
   { value: "soc2", label: "SOC 2", labelEn: "SOC 2" },
   { value: "iso27001", label: "ISO 27001", labelEn: "ISO 27001" },
   { value: "dpa", label: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement" },
+  { value: "contract", label: "Kontrakt", labelEn: "Contract" },
   { value: "nda", label: "NDA / Konfidensialitetsavtale", labelEn: "NDA / Confidentiality Agreement" },
   { value: "other", label: "Annet", labelEn: "Other" },
 ];
@@ -85,26 +87,6 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     },
   });
 
-  const toggleVisibility = useMutation({
-    mutationFn: async ({ id, currentVisibility }: { id: string; currentVisibility: string }) => {
-      const newVisibility = currentVisibility === "shared" ? "private" : "shared";
-      const { error } = await supabase
-        .from("vendor_documents")
-        .update({ visibility: newVisibility })
-        .eq("id", id);
-      if (error) throw error;
-      return newVisibility;
-    },
-    onSuccess: (newVisibility) => {
-      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
-      toast.success(
-        newVisibility === "shared"
-          ? (isNb ? "Dokumentet deles nå i Trust Profilen" : "Document is now shared in Trust Profile")
-          : (isNb ? "Dokumentet er ikke lenger delt" : "Document is no longer shared")
-      );
-    },
-  });
-
   const locale = isNb ? "nb-NO" : "en-US";
 
   const getTypeLabel = (type: string) => {
@@ -135,23 +117,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
               <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
               <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
-                        {isNb ? "Deling" : "Sharing"}
-                        <HelpCircle className="h-3 w-3 text-muted-foreground" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs text-xs">
-                      {isNb
-                        ? "Velg hvilke dokumenter du vil gjøre tilgjengelige i din Trust Profil. Delte dokumenter kan ses av kunder og partnere som har tilgang."
-                        : "Choose which documents to make available in your Trust Profile. Shared documents can be viewed by customers and partners with access."}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableHead>
+              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Tilgang" : "Access"}</TableHead>
               <TableHead className="w-16" />
             </TableRow>
           </TableHeader>
@@ -184,35 +150,14 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                   </TableCell>
                   <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
                   <TableCell className="py-2.5">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={doc.visibility === "shared" ? "default" : "outline"}
-                            size="sm"
-                            className={`h-7 text-[10px] gap-1 ${doc.visibility === "shared" ? "" : "text-muted-foreground"}`}
-                            onClick={() => toggleVisibility.mutate({ id: doc.id, currentVisibility: doc.visibility || "private" })}
-                          >
-                            {doc.visibility === "shared" ? (
-                              <>
-                                <Globe className="h-3 w-3" />
-                                {isNb ? "Delt" : "Shared"}
-                              </>
-                            ) : (
-                              <>
-                                <EyeOff className="h-3 w-3" />
-                                {isNb ? "Privat" : "Private"}
-                              </>
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-xs max-w-[200px]">
-                          {doc.visibility === "shared"
-                            ? (isNb ? "Klikk for å gjøre privat" : "Click to make private")
-                            : (isNb ? "Klikk for å dele i Trust Profilen" : "Click to share in Trust Profile")}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <DocumentSharingPopover
+                      docId={doc.id}
+                      assetId={assetId}
+                      documentType={doc.document_type}
+                      visibility={doc.visibility || "private"}
+                      sharedWithEmails={(doc as any).shared_with_emails || []}
+                      isNb={isNb}
+                    />
                   </TableCell>
                   <TableCell className="py-2.5">
                     <Button
