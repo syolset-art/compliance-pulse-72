@@ -54,6 +54,7 @@ interface WorkAreaMembersCardProps {
 
 export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCardProps) => {
   const [members, setMembers] = useState<Member[]>([]);
+  const [allPeople, setAllPeople] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState("");
@@ -62,6 +63,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editRole, setEditRole] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const fetchMembers = async () => {
     try {
@@ -79,9 +81,29 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
     }
   };
 
+  const fetchAllPeople = async () => {
+    try {
+      const { data } = await supabase
+        .from("work_area_members")
+        .select("person_name");
+      if (data) {
+        const unique = [...new Set(data.map(d => d.person_name))].sort();
+        setAllPeople(unique);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
+    fetchAllPeople();
   }, [workAreaId]);
+
+  const currentMemberNames = new Set(members.map(m => m.person_name));
+  const filteredPeople = allPeople
+    .filter(name => !currentMemberNames.has(name))
+    .filter(name => !newName || name.toLowerCase().includes(newName.toLowerCase()));
 
   const handleAdd = async () => {
     if (!newName.trim()) return;
@@ -178,14 +200,32 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
         <div className="mb-5 p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-3">
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nytt medlem</div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Navn..."
-              className="flex-1 h-8 text-sm"
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            />
+            <div className="relative flex-1">
+              <Input
+                value={newName}
+                onChange={(e) => { setNewName(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Søk eller skriv inn navn..."
+                className="h-8 text-sm"
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              />
+              {showSuggestions && filteredPeople.length > 0 && (
+                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                  {filteredPeople.map((name) => (
+                    <button
+                      key={name}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { setNewName(name); setShowSuggestions(false); }}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Select value={newRole} onValueChange={setNewRole}>
               <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
                 <SelectValue />
