@@ -4,7 +4,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   CheckCircle2, X, AlertTriangle, Clock, HelpCircle,
   Crown, Plus, User, Calendar, ExternalLink, Cpu, Building2,
-  FileText, ShieldAlert, ClipboardCheck, Eye,
+  FileText, ShieldAlert, ClipboardCheck, Eye, Bot, Play,
+  ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,17 @@ import {
   MessageCircle,
   Scale,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 // ── Types ──────────────────────────────────────────────────
 type TaskCategory = "system" | "leverandør" | "behandling" | "dokument";
@@ -36,7 +48,11 @@ interface AutoTask {
   dueDate: string;
   linkedEntity: string;
   linkedEntityType: TaskCategory;
-  source: string; // what AI detected
+  source: string;
+  aiDraftable: boolean;
+  aiAction?: string; // what Lara can do
+  actionLabel?: string; // CTA label
+  actionRoute?: string; // where the CTA navigates
 }
 
 // ── Demo data — 6 realistic AI-detected tasks ─────────────
@@ -53,6 +69,10 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "Hubspot",
     linkedEntityType: "leverandør",
     source: "Manglende DPA oppdaget av Lara",
+    aiDraftable: true,
+    aiAction: "Lara kan generere et DPA-utkast basert på Hubspot sine vilkår og sende det til gjennomgang.",
+    actionLabel: "Opprett DPA-utkast",
+    actionRoute: "/vendors",
   },
   {
     id: "auto-2",
@@ -66,6 +86,9 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "Kundeoppfølging via e-post",
     linkedEntityType: "behandling",
     source: "Ugodkjent behandlingsaktivitet",
+    aiDraftable: false,
+    actionLabel: "Gå til godkjenning",
+    actionRoute: "/work-areas",
   },
   {
     id: "auto-3",
@@ -79,6 +102,10 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "SharePoint Online",
     linkedEntityType: "system",
     source: "Forfalt revisjonsdato",
+    aiDraftable: true,
+    aiAction: "Lara kan forberede en revisjonssjekkliste med tilgangsoversikt og dataflyt-kartlegging basert på systemets konfigurasjon.",
+    actionLabel: "Start revisjon",
+    actionRoute: "/systems",
   },
   {
     id: "auto-4",
@@ -92,6 +119,10 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "Slack Enterprise",
     linkedEntityType: "system",
     source: "System uten risikovurdering",
+    aiDraftable: true,
+    aiAction: "Lara kan gjennomføre en foreløpig risikovurdering basert på systemets egenskaper og generere et utkast.",
+    actionLabel: "Start risikovurdering",
+    actionRoute: "/systems",
   },
   {
     id: "auto-5",
@@ -105,6 +136,10 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "Amazon Web Services",
     linkedEntityType: "leverandør",
     source: "Utløpt sikkerhetsdokumentasjon",
+    aiDraftable: true,
+    aiAction: "Lara kan sende en automatisk forespørsel til leverandøren om oppdatert SOC 2-dokumentasjon.",
+    actionLabel: "Send forespørsel",
+    actionRoute: "/vendors",
   },
   {
     id: "auto-6",
@@ -118,6 +153,10 @@ const autoTasks: AutoTask[] = [
     linkedEntity: "AI-basert kundeanalyse",
     linkedEntityType: "behandling",
     source: "DPIA påkrevd – profilering oppdaget",
+    aiDraftable: true,
+    aiAction: "Lara kan generere et DPIA-utkast basert på behandlingsaktivitetens egenskaper og risikoprofil.",
+    actionLabel: "Start DPIA",
+    actionRoute: "/work-areas",
   },
 ];
 
@@ -144,6 +183,8 @@ const categoryConfig: Record<TaskCategory, { label: string; icon: typeof Cpu }> 
 type ViewFilter = "alle" | "mine";
 type CategoryFilter = "alle" | TaskCategory;
 
+const isHighRisk = (priority: TaskPriority) => priority === "høy";
+
 // ── Component ──────────────────────────────────────────────
 export default function Tasks() {
   const { t } = useTranslation();
@@ -154,6 +195,9 @@ export default function Tasks() {
   const [viewFilter, setViewFilter] = useState<ViewFilter>("alle");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alle");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "alle">("alle");
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
+  const [approvalTask, setApprovalTask] = useState<AutoTask | null>(null);
+  const [aiProcessing, setAiProcessing] = useState<string | null>(null);
 
   // Simulated current user
   const currentUser = "Maria Larsen";
@@ -181,6 +225,36 @@ export default function Tasks() {
 
   const isOverdue = (d: string, status: TaskStatus) =>
     status !== "fullført" && new Date(d) < new Date();
+
+  const handleLetLaraDo = (task: AutoTask) => {
+    if (isHighRisk(task.priority)) {
+      setApprovalTask(task);
+    } else {
+      startAiDraft(task);
+    }
+  };
+
+  const startAiDraft = (task: AutoTask) => {
+    setAiProcessing(task.id);
+    // Simulate AI processing
+    setTimeout(() => {
+      setAiProcessing(null);
+      toast.success(`Lara har opprettet utkast for «${task.title}»`, {
+        description: "Gå til utkastet for å gjennomgå og godkjenne.",
+        action: {
+          label: "Se utkast",
+          onClick: () => navigate(task.actionRoute || "/tasks"),
+        },
+      });
+    }, 2500);
+  };
+
+  const handleApproveAndRun = () => {
+    if (approvalTask) {
+      startAiDraft(approvalTask);
+      setApprovalTask(null);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -218,7 +292,6 @@ export default function Tasks() {
 
           {/* Filters */}
           <div className="flex items-center gap-2 flex-wrap mb-6">
-            {/* View: Alle / Mine */}
             {(["alle", "mine"] as ViewFilter[]).map((v) => (
               <button
                 key={v}
@@ -235,7 +308,6 @@ export default function Tasks() {
 
             <div className="w-px h-4 bg-border mx-1" />
 
-            {/* Category: System / Leverandør / Behandling */}
             {(["alle", "system", "leverandør", "behandling"] as CategoryFilter[]).map((c) => {
               const catConf = c !== "alle" ? categoryConfig[c] : null;
               const CatIcon = catConf?.icon;
@@ -259,7 +331,6 @@ export default function Tasks() {
 
             <div className="w-px h-4 bg-border mx-1" />
 
-            {/* Priority */}
             {(["alle", "høy", "middels", "lav"] as (TaskPriority | "alle")[]).map((p) => (
               <button
                 key={p}
@@ -302,78 +373,163 @@ export default function Tasks() {
               const cat = categoryConfig[task.category];
               const CatIcon = cat.icon;
               const overdue = isOverdue(task.dueDate, task.status);
+              const isExpanded = expandedTask === task.id;
+              const isProcessing = aiProcessing === task.id;
 
               return (
                 <Card
                   key={task.id}
-                  className={`p-4 transition-all hover:shadow-sm ${
+                  className={`transition-all hover:shadow-sm ${
                     task.status === "fullført" ? "opacity-60" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Category icon */}
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <CatIcon className="h-4 w-4 text-muted-foreground" />
-                    </div>
+                  <div
+                    className="p-4 cursor-pointer"
+                    onClick={() => setExpandedTask(isExpanded ? null : task.id)}
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Category icon */}
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <CatIcon className="h-4 w-4 text-muted-foreground" />
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <Badge variant="outline" className={`text-[10px] ${prio.className}`}>
-                          {prio.label}
-                        </Badge>
-                        <Badge variant="outline" className={`text-[10px] ${stat.className}`}>
-                          {stat.label}
-                        </Badge>
-                        {overdue && (
-                          <Badge variant="destructive" className="text-[10px] gap-1">
-                            <AlertTriangle className="h-2.5 w-2.5" />
-                            Forfalt
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <Badge variant="outline" className={`text-[10px] ${prio.className}`}>
+                            {prio.label}
                           </Badge>
-                        )}
+                          <Badge variant="outline" className={`text-[10px] ${stat.className}`}>
+                            {stat.label}
+                          </Badge>
+                          {overdue && (
+                            <Badge variant="destructive" className="text-[10px] gap-1">
+                              <AlertTriangle className="h-2.5 w-2.5" />
+                              Forfalt
+                            </Badge>
+                          )}
+                          {task.aiDraftable && (
+                            <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/20">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Lara kan hjelpe
+                            </Badge>
+                          )}
+                        </div>
+
+                        <h3 className="text-sm font-semibold text-foreground mb-1">{task.title}</h3>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                          {task.description}
+                        </p>
+
+                        {/* Meta row */}
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {task.assignee}
+                          </span>
+                          <span className={`flex items-center gap-1 ${overdue ? "text-destructive" : ""}`}>
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(task.dueDate)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <CatIcon className="h-3 w-3" />
+                            {task.linkedEntity}
+                          </span>
+                          <span className="flex items-center gap-1 text-primary/70">
+                            <Eye className="h-3 w-3" />
+                            {task.source}
+                          </span>
+                        </div>
                       </div>
 
-                      <h3 className="text-sm font-semibold text-foreground mb-1">{task.title}</h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                        {task.description}
-                      </p>
-
-                      {/* Meta row */}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {task.assignee}
-                        </span>
-                        <span className={`flex items-center gap-1 ${overdue ? "text-destructive" : ""}`}>
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(task.dueDate)}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CatIcon className="h-3 w-3" />
-                          {task.linkedEntity}
-                        </span>
-                        <span className="flex items-center gap-1 text-primary/70">
-                          <Eye className="h-3 w-3" />
-                          {task.source}
-                        </span>
+                      {/* Expand indicator */}
+                      <div className="shrink-0 text-muted-foreground">
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </div>
                     </div>
-
-                    {/* Action */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="shrink-0 gap-1 text-muted-foreground hover:text-foreground"
-                      onClick={() => {
-                        if (task.linkedEntityType === "system") navigate("/systems");
-                        else if (task.linkedEntityType === "leverandør") navigate("/vendors");
-                        else navigate("/work-areas");
-                      }}
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline text-xs">Gå til</span>
-                    </Button>
                   </div>
+
+                  {/* Expanded action panel */}
+                  {isExpanded && task.status !== "fullført" && (
+                    <div className="px-4 pb-4 pt-0 border-t border-border/50">
+                      <div className="pt-4 space-y-3">
+                        {/* AI action info */}
+                        {task.aiDraftable && task.aiAction && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                            <Bot className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground mb-1">Lara kan gjøre dette for deg</p>
+                              <p className="text-xs text-muted-foreground">{task.aiAction}</p>
+                              {isHighRisk(task.priority) && (
+                                <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                  <ShieldCheck className="h-3.5 w-3.5" />
+                                  Høy prioritet — krever din godkjenning før Lara utfører
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Primary CTA */}
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(task.actionRoute || "/tasks");
+                            }}
+                            className="gap-2"
+                          >
+                            <Play className="h-3.5 w-3.5" />
+                            {task.actionLabel || "Start oppgave"}
+                          </Button>
+
+                          {/* Let Lara do it */}
+                          {task.aiDraftable && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleLetLaraDo(task);
+                              }}
+                              disabled={isProcessing}
+                              className="gap-2"
+                            >
+                              {isProcessing ? (
+                                <>
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  Lara jobber…
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="h-3.5 w-3.5" />
+                                  La Lara lage utkast
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {/* Go to entity */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (task.linkedEntityType === "system") navigate("/systems");
+                              else if (task.linkedEntityType === "leverandør") navigate("/vendors");
+                              else navigate("/work-areas");
+                            }}
+                            className="gap-1 text-muted-foreground"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            Gå til {task.linkedEntity}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </Card>
               );
             })}
@@ -386,6 +542,41 @@ export default function Tasks() {
               </div>
             )}
           </div>
+
+          {/* Approval dialog for high-risk tasks */}
+          <AlertDialog open={!!approvalTask} onOpenChange={(open) => !open && setApprovalTask(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-amber-500" />
+                  Godkjenning kreves
+                </AlertDialogTitle>
+                <AlertDialogDescription asChild>
+                  <div className="space-y-3">
+                    <p>
+                      Denne oppgaven har <strong>høy prioritet</strong> og krever din godkjenning før Lara kan opprette et utkast.
+                    </p>
+                    {approvalTask && (
+                      <div className="p-3 rounded-lg bg-muted/50 border">
+                        <p className="text-sm font-medium text-foreground">{approvalTask.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{approvalTask.aiAction}</p>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Lara vil opprette et utkast som du kan gjennomgå og redigere før det ferdigstilles. Ingenting publiseres uten din endelige godkjenning.
+                    </p>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                <AlertDialogAction onClick={handleApproveAndRun} className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Godkjenn og start
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Help panel */}
           <ContextualHelpPanel
@@ -405,8 +596,8 @@ export default function Tasks() {
             stepsHeading="Kom i gang"
             steps={[
               { text: "Se gjennom oppgavene — de med høy prioritet bør håndteres først" },
-              { text: "Klikk «Gå til» for å navigere direkte til den berørte eiendelen" },
-              { text: "Oppgrader til Premium for å opprette egne manuelle oppgaver" },
+              { text: "Klikk på en oppgave for å se handlingsalternativer" },
+              { text: "Bruk «La Lara lage utkast» for å la AI gjøre jobben for deg" },
             ]}
             actions={[
               { icon: Scale, title: "Se samsvarsrapport", description: "Få full oversikt over etterlevelse på tvers av regelverk.", onClick: () => navigate("/reports/compliance") },
