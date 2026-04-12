@@ -6,6 +6,7 @@ import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
   Shield, Users, Server, Link2, AlertTriangle,
+  Building2, Briefcase,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
@@ -67,7 +68,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     missing.slice(0, 3).forEach(c => concerns.push(isNb ? c.labelNb : c.labelEn));
   }
 
-  // Fetch data needed by TrustControlsPanel
   const { data: docsCount = 0 } = useQuery({
     queryKey: ["vendor-documents-count", asset.id],
     queryFn: async () => {
@@ -122,7 +122,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Expired documents warning */}
       {expiredCount > 0 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
@@ -146,80 +146,103 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
       )}
 
-      {/* Vendor Trust Score Card */}
-      <VendorTrustScoreCard
-        trustScore={trustScore}
-        confidenceScore={confidenceScore}
-        lastUpdated={new Date().toLocaleDateString()}
-      />
+      {/* ─── SECTION 1: Vendor Baseline ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Building2 className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Leverandørens baseline" : "Vendor Baseline"}
+          </h2>
+        </div>
 
-      {/* Trust Controls Panel — same as shown above tabs for self assets */}
-      <TrustControlsPanel
-        asset={asset}
-        docsCount={docsCount}
-        relationsCount={relationsCount}
-        onTrustMetrics={onTrustMetrics}
-        frameworks={frameworks}
-        onNavigateToTab={onNavigateToTab}
-      />
+        <div className="space-y-4">
+          <VendorTrustScoreCard
+            trustScore={trustScore}
+            confidenceScore={confidenceScore}
+            lastUpdated={new Date().toLocaleDateString()}
+          />
 
-      {/* Strengths / Concerns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-success">
-              <TrendingUp className="h-4 w-4" />
-              {isNb ? "Styrker" : "Strengths"}
-            </div>
-            {strengths.length > 0 ? strengths.map((s, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
-                <span>{s}</span>
-              </div>
-            )) : (
-              <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen data ennå" : "No data yet"}</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-destructive">
-              <TrendingDown className="h-4 w-4" />
-              {isNb ? "Bekymringer" : "Concerns"}
-            </div>
-            {concerns.length > 0 ? concerns.map((c, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                <span>{c}</span>
-              </div>
-            )) : (
-              <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen bekymringer" : "No concerns"}</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Domain cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {DOMAIN_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
-          const score = evaluation?.areaScore(area as any) ?? 0;
-          const scoreClr = score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-destructive";
-          return (
-            <Card
-              key={area}
-              className="cursor-pointer hover:border-primary/40 transition-colors"
-              onClick={() => onNavigateToTab?.("controls")}
-            >
-              <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                <Icon className={`h-6 w-6 ${color}`} />
-                <span className="text-xs font-medium">{isNb ? lNb : lEn}</span>
-                <span className={`text-xl font-bold ${scoreClr}`}>{score}%</span>
-                <Progress value={score} className="h-1.5 w-full" />
+          {/* Strengths / Concerns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card>
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-success">
+                  <TrendingUp className="h-4 w-4" />
+                  {isNb ? "Styrker" : "Strengths"}
+                </div>
+                {strengths.length > 0 ? strengths.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                    <span>{s}</span>
+                  </div>
+                )) : (
+                  <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen data ennå" : "No data yet"}</p>
+                )}
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+            <Card>
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+                  <TrendingDown className="h-4 w-4" />
+                  {isNb ? "Bekymringer" : "Concerns"}
+                </div>
+                {concerns.length > 0 ? concerns.map((c, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                    <span>{c}</span>
+                  </div>
+                )) : (
+                  <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen bekymringer" : "No concerns"}</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SECTION 2: Our Maturity Work ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Briefcase className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            {isNb ? "Vårt modenhetsarbeid" : "Our Maturity Work"}
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Trust Controls Panel — maturity per control area */}
+          <TrustControlsPanel
+            asset={asset}
+            docsCount={docsCount}
+            relationsCount={relationsCount}
+            onTrustMetrics={onTrustMetrics}
+            frameworks={frameworks}
+            onNavigateToTab={onNavigateToTab}
+          />
+
+          {/* Domain cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {DOMAIN_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
+              const score = evaluation?.areaScore(area as any) ?? 0;
+              const scoreClr = score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-destructive";
+              return (
+                <Card
+                  key={area}
+                  className="cursor-pointer hover:border-primary/40 transition-colors"
+                  onClick={() => onNavigateToTab?.("controls")}
+                >
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
+                    <Icon className={`h-6 w-6 ${color}`} />
+                    <span className="text-xs font-medium">{isNb ? lNb : lEn}</span>
+                    <span className={`text-xl font-bold ${scoreClr}`}>{score}%</span>
+                    <Progress value={score} className="h-1.5 w-full" />
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {requestOpen && (
         <RequestUpdateDialog
