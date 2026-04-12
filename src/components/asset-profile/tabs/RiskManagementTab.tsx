@@ -8,6 +8,7 @@ import { AlertTriangle, Calendar, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { RiskOverviewCard } from "@/components/trust-controls/RiskOverviewCard";
+import { RiskInfluenceDiagram } from "@/components/asset-profile/RiskInfluenceDiagram";
 
 interface RiskManagementTabProps {
   assetId: string;
@@ -59,6 +60,9 @@ export const RiskManagementTab = ({ assetId }: RiskManagementTabProps) => {
     <div className="space-y-6">
       {/* Risk Overview from Trust Controls */}
       <RiskOverviewCard assetId={assetId} />
+
+      {/* Risk Influence Diagram */}
+      <RiskInfluenceDiagram assetId={assetId} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Risk Score */}
