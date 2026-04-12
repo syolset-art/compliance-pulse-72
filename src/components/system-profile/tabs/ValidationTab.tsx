@@ -208,16 +208,6 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
             )}
           </Card>
 
-          {/* Trust Controls Panel — Maturity by control areas */}
-          {systemAsAsset && (
-            <TrustControlsPanel
-              asset={systemAsAsset}
-              docsCount={docsCount}
-              relationsCount={relationsCount}
-              onTrustMetrics={onTrustMetrics}
-              frameworks={frameworks}
-            />
-          )}
 
 
           {/* Framework Maturity Grid */}
