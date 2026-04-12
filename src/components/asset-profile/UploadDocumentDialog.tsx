@@ -397,6 +397,25 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
         coveredTypes: coveredAfter,
         totalExpected: EXPECTED_DOC_TYPES.length,
       });
+
+      // Calculate TPRM impact
+      const existingDocTypes = (await supabase
+        .from("vendor_documents")
+        .select("document_type")
+        .eq("asset_id", assetId)
+        .then(r => r.data || []))
+        .map((d: any) => d.document_type)
+        .filter(Boolean);
+      const hasAudit = !!assetInfoForTPRM?.next_review_date;
+      const tprm = calculateTPRMImpact(
+        existingDocTypes,
+        hasAudit,
+        docType,
+        assetInfoForTPRM?.criticality,
+        assetInfoForTPRM?.risk_level,
+      );
+      setTprmImpact(tprm);
+
       setStep("saved");
     } catch {
       toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
