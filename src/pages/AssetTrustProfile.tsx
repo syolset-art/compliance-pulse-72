@@ -164,8 +164,10 @@ const AssetTrustProfile = () => {
     };
   }, []);
 
+  const isMobile = useIsMobile();
+
   // ── Vendor tabs ──
-  const vendorTabDefs = [
+  const allVendorTabs = [
     { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
@@ -173,12 +175,16 @@ const AssetTrustProfile = () => {
     { value: 'vendor-audit', label: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
-  ];
-
-  const vendorOverflowTabDefs = [
     { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitetslogg' : 'Activity Log' },
   ];
+
+  const mobileVisibleCount = 3;
+  const desktopVisibleCount = 7;
+  const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
+
+  const vendorTabDefs = allVendorTabs.slice(0, visibleCount);
+  const vendorOverflowTabDefs = allVendorTabs.slice(visibleCount);
 
   const activeVendorOverflowTab = vendorOverflowTabDefs.find(t => t.value === activeTab);
 
