@@ -2,26 +2,50 @@
 
 ## Problem
 
-When a user expands the "Styring" (Governance) control area and sees the document upload checklist, there's no indication that Mynder Core already functions as their governance tool. The user might think they need to create a separate governance framework from scratch, when in reality Mynder Core covers the baseline. They may still have **additional** governance documents (e.g., board-approved policies, organizational ISMS documents) to upload.
+The Reports page currently only shows compliance reports grouped by regulation (GDPR, NIS2, ISO 27001, AI Act) and one "Organisasjon" tab with a compliance overview. There's no way to view portfolio reports — such as vendor portfolio, system portfolio, or asset portfolio — which are important for leadership to get a quick status overview.
 
 ## Plan
 
-### 1. Add contextual info banner in the Governance document checklist
+### 1. Add a "Porteføljer" tab to the Reports page
 
-In `InlineDocumentChecklist.tsx`, when `controlArea === "governance"`, render an informational banner above the document list explaining:
+Add a new tab called **"Porteføljer"** (Portfolios) in the existing `TabsList`, positioned after "Organisasjon" and before "GDPR". This tab will contain portfolio report cards.
 
-- **Norwegian**: "Mynder Core fungerer som ditt styringsrammeverk. Dokumentene nedenfor er valgfrie tilleggsdokumenter som kan styrke din modenhetsvurdering — for eksempel egne policyer, styrevedtak eller organisasjonsspesifikke retningslinjer."
-- **English**: "Mynder Core serves as your governance framework. The documents below are optional additions that can strengthen your maturity assessment — such as your own policies, board decisions, or organization-specific guidelines."
+### 2. Create portfolio report cards
 
-This will be a subtle info-styled banner (blue/muted with an `Info` icon) placed between the header and the document rows.
+Inside the new `TabsContent`, render a grid of cards for:
 
-### 2. Adjust the "Styringsrammeverk" document row label
+- **Leverandørportefølje** — Vendor portfolio summary (count, risk distribution, avg compliance score). Click navigates to `/vendors` or triggers the existing PDF export via `generateVendorPortfolioReport`.
+- **Systemportefølje** — System portfolio (count of systems, lifecycle status breakdown, risk levels). Click navigates to `/systems`.
+- **Eiendelsportefølje** — All assets overview (total count by type, risk distribution).
+- **Samlet lederrapport** — Combined executive summary across all portfolios. A single card that generates a combined PDF with key metrics from all three portfolios.
 
-Change the third expected doc for governance from:
-- "Styringsrammeverk / governance-dokument" → "Eget styringsrammeverk (valgfritt)" / "Custom Governance Framework (optional)"
+Each card will show:
+- Icon, title, description
+- Key stats pulled from the `assets` table (vendor count, system count, risk breakdown)
+- Status badge (Klar/Utkast based on data availability)
+- Action buttons: "Åpne" (navigate) and "Last ned PDF" (generate report)
 
-This makes it clear that uploading a separate governance document is supplementary, not required.
+### 3. Data fetching
 
-### Files to modify
-- `src/components/trust-controls/InlineDocumentChecklist.tsx` — Add contextual banner for governance area; update label for the governance framework doc row.
+Add a query to fetch asset counts grouped by `asset_type` and risk distribution from the `assets` table. This data populates the summary stats on each portfolio card.
+
+### 4. Executive report PDF generation
+
+Create a new function `generateExecutivePortfolioReport` that combines:
+- Vendor summary (count, risk breakdown, avg score)
+- System summary (count, lifecycle status)
+- Asset summary (total by type)
+- Key risk indicators across all portfolios
+
+Uses the same `jsPDF` + `autoTable` pattern as the existing vendor portfolio PDF.
+
+### Files to modify/create
+- `src/pages/Reports.tsx` — Add "Porteføljer" tab with portfolio cards, data queries
+- `src/components/reports/generateExecutivePortfolioReport.ts` — New file for combined PDF generation
+
+### Technical details
+- Reuse the existing `ReportCard` component for individual portfolio cards
+- Add a special larger card for the combined executive report
+- Query `assets` table with `.select("id, asset_type, risk_level, compliance_score, lifecycle_status")` and group client-side
+- The "Ikke vurdert" logic (score 0 = not assessed) will be consistent with the vendor PDF changes already made
 
