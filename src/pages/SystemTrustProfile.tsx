@@ -86,7 +86,7 @@ const SystemTrustProfile = () => {
   });
 
   const primaryTabDefs = [
-    { value: "validation", label: isNb ? "Validering fra Mynder" : "Validation from Mynder" },
+    { value: "validation", label: isNb ? "Veiledning fra Mynder" : "Guidance from Mynder" },
     { value: "controls", label: isNb ? "Kontroller" : "Controls" },
     { value: "dataHandling", label: isNb ? "Datahåndtering" : "Data Handling" },
     { value: "riskManagement", label: isNb ? "Revisjon og risiko" : "Audit & Risk Management" },
