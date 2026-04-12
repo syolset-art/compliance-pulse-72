@@ -23,6 +23,8 @@ export type TrustControlStatus = "implemented" | "partial" | "missing";
 export type ControlArea = "governance" | "risk_compliance" | "security_posture" | "supplier_governance";
 export type RiskSeverity = "high" | "medium" | "low";
 
+export type ControlSource = "vendor_baseline" | "org_enrichment";
+
 export interface TrustControlDefinition {
   key: string;
   labelEn: string;
@@ -31,6 +33,7 @@ export interface TrustControlDefinition {
   descriptionNb?: string;
   weight: number;
   area: ControlArea;
+  source: ControlSource;
 }
 
 export interface EvaluatedControl extends TrustControlDefinition {
