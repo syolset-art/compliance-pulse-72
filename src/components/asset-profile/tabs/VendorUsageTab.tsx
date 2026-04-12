@@ -88,7 +88,13 @@ export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
       </Badge>
 
       {/* TPRM Status */}
-      <VendorTPRMStatus assetId={assetId} />
+      <VendorTPRMStatus
+        assetId={assetId}
+        assetName={asset?.name || ""}
+        vendorName={asset?.vendor || asset?.name || ""}
+        contactPerson={asset?.contact_person}
+        contactEmail={asset?.contact_email}
+      />
 
       {/* Criticality & Role */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
