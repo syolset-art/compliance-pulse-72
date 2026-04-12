@@ -10,7 +10,7 @@ import {
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
@@ -58,6 +58,19 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [requestOpen, setRequestOpen] = useState(false);
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
+  const tasksRef = useRef<HTMLDivElement>(null);
+
+  const handleScrollToTasks = useCallback(() => {
+    setTasksExpanded(true);
+    setTimeout(() => {
+      tasksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll-to-tasks", handleScrollToTasks);
+    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasks);
+  }, [handleScrollToTasks]);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
@@ -178,6 +191,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
         <div className="space-y-4">
           {/* Tasks card */}
+          <div ref={tasksRef}>
           <Card>
             <button
               className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
@@ -237,6 +251,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               </CardContent>
             )}
           </Card>
+          </div>
 
           {/* Trust Controls Panel — maturity per control area */}
           <TrustControlsPanel
