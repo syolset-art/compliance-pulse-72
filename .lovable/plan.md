@@ -1,29 +1,37 @@
 
 
-## Plan: Flytt «Brukere» inn under «Innstillinger» som «Medlemmer»
+## Plan: Utvid Innstillinger-fanen med redigerbare felter
 
 ### Hva endres
-1. **Fjern «Brukere»-fanen** som egen tab
-2. **Utvid «Innstillinger»-fanen** med en «Medlemmer»-seksjon som har to tydelige grupper:
-   - **Eier** — den ansvarlige personen for arbeidsområdet (fra `responsible_person`), vist med krone/eier-badge
-   - **Delegerte roller** — liste med tre rolletyper:
-     - *Systemansvarlig* — ansvar for systemer i arbeidsområdet
-     - *Tiltaksansvarlig* — ansvar for valgte risikoscenarier i prosesser
-     - *Prosessansvarlig* — ansvar for behandlingsaktiviteter
-   - Hver rolle viser navn (eller «Ikke tildelt») med mulighet for inline-redigering
-3. **Oppdater tab-listen** — fjern `users`-triggeren, oppdater badge-telling i header-stats
+Erstatter den nåværende «Administrasjon»-kortet (som bare har Rediger/Slett-knapper) med et fullverdig innstillingsskjema direkte i fanen.
+
+### Ny struktur for Innstillinger-fanen
+
+1. **Medlemmer-kort** — beholdes som i dag (Eier + delegerte roller)
+
+2. **Arbeidsområde-detaljer** (nytt kort, erstatter «Administrasjon»)
+   - **Navn** — redigerbart tekstfelt med inline-lagring
+   - **Ansvarlig person** — gjenbruk `ResponsiblePersonEditor`-komponenten (allerede finnes)
+   - **Beskrivelse** — redigerbart textarea med en «Foreslå med Lara»-knapp (Sparkles-ikon) som autogenererer et beskrivelsesforslag basert på arbeidsområdets navn via Lara AI
+   - **Status** — Switch-komponent for Aktiv/Inaktiv
+
+3. **Faresone** (nytt kort, rødt/destruktivt område)
+   - «Slett arbeidsområde»-knapp med bekreftelsesdialog (gjenbruker eksisterende `AlertDialog`)
 
 ### Teknisk gjennomføring
 
 **Fil: `src/pages/WorkAreas.tsx`**
-- Fjern `TabsTrigger value="users"` og tilhørende `TabsContent value="users"`
-- Fjern brukertelling fra header-stats (linje 782-785)
-- Utvid `TabsContent value="settings"` med ny Medlemmer-seksjon:
-  - Card med tittel «Medlemmer»
-  - Seksjon 1: «Eier» — viser `selectedWorkArea.responsible_person` med Crown-ikon og badge
-  - Seksjon 2: «Delegerte roller» — tre rader (Systemansvarlig, Tiltaksansvarlig, Prosessansvarlig) med inline-redigerbare navnefelt
-  - Roller lagres foreløpig som demo/placeholder (ingen nye DB-tabeller nå, men klar for det)
+- Fjern «Administrasjon»-kortet (linje 1120-1144)
+- Legg til nytt «Detaljer»-kort med:
+  - Inline-redigerbar `Input` for navn (lagrer til `work_areas.name` on blur/Enter)
+  - `ResponsiblePersonEditor` for ansvarlig person
+  - `Textarea` for beskrivelse med lagre-knapp + «Foreslå med Lara»-knapp
+  - `Switch` for aktiv-status (lagrer til `work_areas` — bruker eksisterende metadata-felt eller lifecycle-liknende felt)
+- Legg til «Faresone»-kort med Slett-knapp
+- Lara-forslag: kaller eksisterende Lara edge function med prompt "Generer en kort beskrivelse for arbeidsområdet: {navn}" og fyller inn textarea
 
 ### Filer som endres
 - `src/pages/WorkAreas.tsx` — eneste fil
+
+Ingen databaseendringer nødvendig — navn, beskrivelse og ansvarlig person finnes allerede i `work_areas`-tabellen. Status kan lagres i eksisterende felt.
 
