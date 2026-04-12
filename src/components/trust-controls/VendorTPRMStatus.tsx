@@ -232,10 +232,12 @@ export const VendorTPRMStatus = ({
                     }}
                     className="flex items-center gap-1.5 hover:text-primary transition-colors"
                   >
-                    <span className="text-muted-foreground text-xs">{isNb ? "Modenhet:" : "Maturity:"}</span>
-                    <span className="font-semibold text-primary">{maturityStats.trustScore}%</span>
+                    <span className="text-muted-foreground text-xs">{isNb ? "Kontroll:" : "Control:"}</span>
+                    <span className="font-semibold text-foreground">
+                      {maturityStats.implementedCount}/{maturityStats.totalControls}
+                    </span>
                     <span className="text-[10px] text-muted-foreground">
-                      ({maturityStats.implementedCount}/{maturityStats.totalControls})
+                      ({maturityStats.trustScore}%)
                     </span>
                   </button>
                 </>
