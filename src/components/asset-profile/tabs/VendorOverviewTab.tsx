@@ -10,7 +10,7 @@ import {
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
