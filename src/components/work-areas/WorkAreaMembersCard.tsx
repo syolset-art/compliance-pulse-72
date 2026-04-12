@@ -31,6 +31,7 @@ interface Member {
   id: string;
   person_name: string;
   role: string;
+  email: string | null;
 }
 
 const ROLE_CONFIG = [
@@ -356,30 +357,37 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
 
               if (isEditing) {
                 return (
-                  <div key={member.id} className="flex items-center gap-2 p-3 rounded-lg border border-primary/30 bg-primary/5">
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 h-7 text-sm"
-                      autoFocus
-                      onKeyDown={(e) => e.key === "Enter" && handleUpdate(member.id)}
-                    />
-                    <Select value={editRole} onValueChange={setEditRole}>
-                      <SelectTrigger className="w-36 h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ROLE_CONFIG.map(r => (
-                          <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
-                      <Check className="h-3 w-3 text-primary" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingId(null)}>
-                      <X className="h-3 w-3 text-muted-foreground" />
-                    </Button>
+                  <div key={member.id} className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="flex-1 h-7 text-sm"
+                        autoFocus
+                        onKeyDown={(e) => e.key === "Enter" && handleUpdate(member.id)}
+                      />
+                      <Select value={editRole} onValueChange={setEditRole}>
+                        <SelectTrigger className="w-36 h-7 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ROLE_CONFIG.map(r => (
+                            <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleUpdate(member.id)} disabled={isSaving}>
+                        <Check className="h-3 w-3 text-primary" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingId(null)}>
+                        <X className="h-3 w-3 text-muted-foreground" />
+                      </Button>
+                    </div>
+                    {member.email && (
+                      <div className="text-xs text-muted-foreground pl-1">
+                        E-post: {member.email}
+                      </div>
+                    )}
                   </div>
                 );
               }
@@ -393,7 +401,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                     <div className="font-medium text-sm">{member.person_name}</div>
                     <div className="text-xs text-muted-foreground">{ROLE_LABELS[member.role] || member.role}</div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1">
                     <Button
                       size="icon"
                       variant="ghost"
