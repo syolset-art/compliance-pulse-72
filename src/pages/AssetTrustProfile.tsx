@@ -33,6 +33,7 @@ import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOvervie
 import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
+import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -390,9 +391,7 @@ const AssetTrustProfile = () => {
                   <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="deliveries" className="mt-6">
-                  <div className="text-sm text-muted-foreground italic p-8 text-center">
-                    {isNb ? "Leveranser kommer snart" : "Deliveries coming soon"}
-                  </div>
+                  <DeliveriesTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="vendor-audit" className="mt-6">
                   <div className="text-sm text-muted-foreground italic p-8 text-center">
