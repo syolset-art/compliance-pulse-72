@@ -17,6 +17,7 @@ import {
   Trash2,
   Loader2,
   UserPlus,
+  HelpCircle,
 } from "lucide-react";
 
 interface Member {
