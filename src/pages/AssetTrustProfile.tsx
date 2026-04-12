@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -122,6 +122,15 @@ const AssetTrustProfile = () => {
         document.querySelector('[role="tablist"]')?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }, 100);
     }
+  }, []);
+
+  // Listen for scroll-to-tasks event to switch to overview tab first
+  useEffect(() => {
+    const handleScrollToTasksEvent = () => {
+      setActiveTab("overview");
+    };
+    window.addEventListener("scroll-to-tasks", handleScrollToTasksEvent);
+    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
   }, []);
 
   // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
