@@ -210,11 +210,11 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Leveranse" : "Delivery"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Kategori" : "Category"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">{isNb ? "Avtaleperiode" : "Contract period"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Avtale" : "Contract"}</TableHead>
-                  <TableHead className="text-[11px] font-semibold uppercase hidden lg:table-cell">SLA</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase">{isNb ? "Leveranse" : "Delivery"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase">{isNb ? "Kategori" : "Category"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden md:table-cell">{isNb ? "Avtaleperiode" : "Contract period"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden sm:table-cell">{isNb ? "Avtale" : "Contract"}</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase hidden lg:table-cell">SLA</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
