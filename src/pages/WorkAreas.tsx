@@ -75,6 +75,7 @@ interface WorkArea {
   name: string;
   description: string | null;
   responsible_person: string | null;
+  is_active: boolean;
 }
 
 interface WorkAreaTemplate {
