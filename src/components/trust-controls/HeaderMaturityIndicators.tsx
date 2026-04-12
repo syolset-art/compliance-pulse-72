@@ -75,7 +75,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-[220px] text-xs">
-            {isNb ? "Klikk for å se risikovurdering og tiltak" : "Click to view risk assessment and actions"}
+            {isNb ? "Klikk for å gå til revisjon og risikovurdering" : "Click to go to audit & risk assessment"}
           </TooltipContent>
         </Tooltip>
 
