@@ -219,9 +219,9 @@ export const VendorTPRMStatus = ({
                   value={effectiveLevel}
                   onValueChange={(val) => updateStatusMutation.mutate(val as TPRMLevel)}
                 >
-                  <SelectTrigger className="h-7 text-xs border border-border bg-background/60 px-2 w-auto min-w-[120px] shadow-none">
+                  <SelectTrigger className="h-8 text-sm border border-border bg-background/60 px-3 w-auto min-w-[140px] shadow-none">
                     <SelectValue>
-                      <span className="text-xs">{isNb ? "Endre status" : "Change status"}</span>
+                      <span className="text-sm">{isNb ? "Endre status" : "Change status"}</span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
