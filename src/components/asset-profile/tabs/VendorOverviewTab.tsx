@@ -251,6 +251,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               </CardContent>
             )}
           </Card>
+          </div>
 
           {/* Trust Controls Panel — maturity per control area */}
           <TrustControlsPanel
