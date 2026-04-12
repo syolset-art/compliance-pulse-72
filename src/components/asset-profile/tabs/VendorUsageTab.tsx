@@ -1,18 +1,54 @@
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Database, Workflow, Shield, AlertTriangle } from "lucide-react";
-
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface VendorUsageTabProps {
   assetId: string;
+  onNavigateToTab?: (tab: string) => void;
 }
 
-export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
+const criticalityOptions = [
+  { value: "low", labelNb: "Lav", labelEn: "Low" },
+  { value: "medium", labelNb: "Middels", labelEn: "Medium" },
+  { value: "high", labelNb: "Høy", labelEn: "High" },
+  { value: "critical", labelNb: "Kritisk", labelEn: "Critical" },
+];
+
+const riskOptions = [
+  { value: "low", labelNb: "Lav", labelEn: "Low" },
+  { value: "medium", labelNb: "Middels", labelEn: "Medium" },
+  { value: "high", labelNb: "Høy", labelEn: "High" },
+];
+
+const gdprOptions = [
+  { value: "databehandler", labelNb: "Databehandler", labelEn: "Data processor" },
+  { value: "underdatabehandler", labelNb: "Underdatabehandler", labelEn: "Sub-processor" },
+  { value: "ingen_persondata", labelNb: "Ingen persondata", labelEn: "No personal data" },
+  { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
+];
+
+const severityColor = (value: string | null | undefined) => {
+  switch (value) {
+    case "low": return "text-success bg-success/10 border-success/20";
+    case "medium": return "text-warning bg-warning/10 border-warning/20";
+    case "high":
+    case "critical": return "text-destructive bg-destructive/10 border-destructive/20";
+    default: return "text-muted-foreground bg-muted border-border";
+  }
+};
+
+export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const queryClient = useQueryClient();
+  const [laraLoading, setLaraLoading] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-usage", assetId],
@@ -75,9 +111,45 @@ export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
     },
   });
 
-  const criticality = asset?.criticality || (isNb ? "Ikke satt" : "Not set");
-  const riskLevel = asset?.risk_level || (isNb ? "Ikke vurdert" : "Not assessed");
-  const gdprRole = asset?.gdpr_role || (isNb ? "Ikke definert" : "Not defined");
+  const updateMutation = useMutation({
+    mutationFn: async (updates: Record<string, string>) => {
+      const { error } = await supabase
+        .from("assets")
+        .update(updates)
+        .eq("id", assetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-usage", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["asset-with-workarea", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["asset-detail", assetId] });
+      toast.success(isNb ? "Lagret" : "Saved");
+    },
+    onError: () => {
+      toast.error(isNb ? "Kunne ikke lagre" : "Could not save");
+    },
+  });
+
+  const handleFieldChange = (field: string, value: string) => {
+    updateMutation.mutate({ [field]: value });
+  };
+
+  const handleLaraSuggest = async () => {
+    setLaraLoading(true);
+    // Simulate AI suggestion based on context
+    setTimeout(() => {
+      const suggested = asset?.vendor_category === "cloud" || dataCategories.some(dc => dc.category === "sensitive")
+        ? "high" : "medium";
+      handleFieldChange("risk_level", suggested);
+      toast.success(isNb ? `Lara foreslår: ${suggested === "high" ? "Høy" : "Middels"} risiko` : `Lara suggests: ${suggested === "high" ? "High" : "Medium"} risk`);
+      setLaraLoading(false);
+    }, 1200);
+  };
+
+  const getLabel = (options: typeof criticalityOptions, value: string | null | undefined) => {
+    const opt = options.find(o => o.value === (value || "not_set"));
+    return opt ? (isNb ? opt.labelNb : opt.labelEn) : (isNb ? "Ikke satt" : "Not set");
+  };
 
   return (
     <div className="space-y-5">
@@ -87,28 +159,141 @@ export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
         {isNb ? "Vår organisasjon" : "Our organization"}
       </Badge>
 
+      {/* Info banner */}
+      <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+        <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-xs text-muted-foreground">
+          {isNb
+            ? "Disse innstillingene bestemmer hvilke kontroller og risikovurderinger som kreves for denne leverandøren."
+            : "These settings determine which controls and risk assessments are required for this vendor."}
+        </p>
+      </div>
 
-      {/* Criticality & Role */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <AlertTriangle className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-            <p className="text-xs text-muted-foreground">{isNb ? "Kritikalitet" : "Criticality"}</p>
-            <p className="font-semibold text-sm capitalize">{criticality}</p>
+      {/* Editable fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Criticality */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              {isNb ? "Kritikalitet" : "Criticality"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <Select
+              value={asset?.criticality || "medium"}
+              onValueChange={(v) => handleFieldChange("criticality", v)}
+            >
+              <SelectTrigger className={`h-9 text-sm font-semibold border ${severityColor(asset?.criticality)}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {criticalityOptions.map(o => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {isNb ? o.labelNb : o.labelEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground leading-tight">
+              {isNb
+                ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
+                : "How important this vendor is to the business. High criticality requires stricter follow-up."}
+            </p>
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Tredjepartstyring" : "Affects: Third-party management"}
+            </button>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Shield className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-            <p className="text-xs text-muted-foreground">{isNb ? "Risikonivå" : "Risk level"}</p>
-            <p className="font-semibold text-sm capitalize">{riskLevel}</p>
+
+        {/* Risk Level */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5" />
+              {isNb ? "Risikonivå" : "Risk level"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <div className="flex gap-1.5">
+              <Select
+                value={asset?.risk_level || "medium"}
+                onValueChange={(v) => handleFieldChange("risk_level", v)}
+              >
+                <SelectTrigger className={`h-9 text-sm font-semibold border flex-1 ${severityColor(asset?.risk_level)}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {riskOptions.map(o => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {isNb ? o.labelNb : o.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0"
+                onClick={handleLaraSuggest}
+                disabled={laraLoading}
+                title={isNb ? "La Lara foreslå" : "Let Lara suggest"}
+              >
+                <Sparkles className={`h-3.5 w-3.5 text-primary ${laraLoading ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-tight">
+              {isNb
+                ? "Risikonivået påvirker oppfølgingskrav og kontrollfrekvens."
+                : "Risk level affects follow-up requirements and control frequency."}
+            </p>
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Drift og sikkerhet" : "Affects: Operations & security"}
+            </button>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Database className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
-            <p className="text-xs text-muted-foreground">{isNb ? "GDPR-rolle" : "GDPR role"}</p>
-            <p className="font-semibold text-sm capitalize">{gdprRole}</p>
+
+        {/* GDPR Role */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Database className="h-3.5 w-3.5" />
+              {isNb ? "GDPR-rolle" : "GDPR role"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <Select
+              value={asset?.gdpr_role || "not_set"}
+              onValueChange={(v) => handleFieldChange("gdpr_role", v)}
+            >
+              <SelectTrigger className="h-9 text-sm font-semibold border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {gdprOptions.map(o => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {isNb ? o.labelNb : o.labelEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground leading-tight">
+              {isNb
+                ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
+                : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements)."}
+            </p>
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
+            </button>
           </CardContent>
         </Card>
       </div>
