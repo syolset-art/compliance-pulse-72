@@ -353,11 +353,11 @@ export const DEMO_SCENARIOS: Record<string, DemoScenario> = {
   },
   "compliance-report": {
     id: "compliance-report",
-    title: "Compliance-rapport",
-    description: "Lær hvordan du genererer compliance-rapporter",
+    title: "Etterlevelsesrapport",
+    description: "Lær hvordan du genererer rapporter for etterlevelse",
     steps: [
       {
-        instruction: "Jeg skal vise deg hvordan du genererer compliance-rapporter. Disse gir deg en oversikt over etterlevelse av ulike standarder som ISO 27001, GDPR, NIS2 og CRA.",
+        instruction: "Jeg skal vise deg hvordan du genererer rapporter for etterlevelse. Disse gir deg en oversikt over status for ulike standarder som ISO 27001, GDPR, NIS2 og CRA.",
         action: "observe"
       },
       {
@@ -373,7 +373,7 @@ export const DEMO_SCENARIOS: Record<string, DemoScenario> = {
         action: "observe"
       },
       {
-        instruction: "Nå vet du hvordan du lager compliance-rapporter. Lykke til!",
+        instruction: "Nå vet du hvordan du lager rapporter for etterlevelse. Lykke til!",
         action: "observe"
       }
     ]

@@ -96,7 +96,7 @@ export const CERTIFICATION_PHASES: PhaseDefinition[] = [
     mynderFeatures: [
       { title_no: 'Avvikshåndtering', title_en: 'Deviation management', description_no: 'Registrer, spor og lukk avvik systematisk', description_en: 'Register, track and close deviations systematically', route: '/deviations' },
       { title_no: 'Leverandøradministrasjon', title_en: 'Vendor management', description_no: 'Oversikt og risikovurdering av tredjeparter', description_en: 'Overview and risk assessment of third parties', route: '/assets' },
-      { title_no: 'Rapporter', title_en: 'Reports', description_no: 'Generer compliance-rapporter for ledelsen', description_en: 'Generate compliance reports for management', route: '/reports' },
+      { title_no: 'Rapporter', title_en: 'Reports', description_no: 'Generer rapporter for ledelsen', description_en: 'Generate reports for management', route: '/reports' },
       { title_no: 'Kundeforespørsler', title_en: 'Customer requests', description_no: 'Håndter innkommende compliance-krav fra kunder', description_en: 'Handle incoming compliance requests from customers', route: '/customer-requests' },
     ],
   },

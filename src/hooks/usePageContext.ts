@@ -44,7 +44,7 @@ const DEMO_SCENARIOS: Record<string, DemoScenario> = {
   },
   "compliance-report": {
     id: "compliance-report",
-    title: "Generer compliance-rapport",
+    title: "Generer etterlevelsesrapport",
     description: "Lag en rapport for styret eller tilsyn",
     steps: [
       { instruction: "Gå til Rapporter-siden", selector: "[data-demo='reports-nav']" },
@@ -157,7 +157,7 @@ const PAGE_CONTEXTS: Record<string, Omit<PageContext, "currentRoute">> = {
       "generate-nis2-report",
       "export-report"
     ],
-    pageDescription: "Generering av compliance-rapporter for ulike standarder",
+    pageDescription: "Generering av rapporter for etterlevelse av ulike standarder",
     demoScenarios: [DEMO_SCENARIOS["compliance-report"], DEMO_SCENARIOS["gdpr-gap"]]
   },
   "/ai-setup": {

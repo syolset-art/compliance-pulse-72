@@ -44,7 +44,7 @@ export function generateAIActReport(data: AIActReportData): void {
   // Title Page
   doc.setFontSize(24);
   doc.setTextColor(30, 64, 175);
-  doc.text('AI Act Compliance Rapport', pageWidth / 2, 60, { align: 'center' });
+  doc.text('AI Act \u2013 Etterlevelsesrapport', pageWidth / 2, 60, { align: 'center' });
 
   doc.setFontSize(16);
   doc.setTextColor(100);
@@ -396,7 +396,7 @@ export function generateAIActReport(data: AIActReportData): void {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(
-      `Side ${i} av ${pageCount} | AI Act Compliance Rapport | ${data.companyName}`,
+      `Side ${i} av ${pageCount} | AI Act \u2013 Etterlevelsesrapport | ${data.companyName}`,
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 10,
       { align: 'center' }

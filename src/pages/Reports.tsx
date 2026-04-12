@@ -326,7 +326,7 @@ const Reports = () => {
           {/* Header */}
           <div>
               <h1 className="text-2xl font-bold text-foreground">{t('reports.title', 'Rapporter')}</h1>
-              <p className="text-muted-foreground mt-1">{t('reports.subtitle', 'Compliance-rapporter for GDPR, NIS2 og ISO 27001')}</p>
+              <p className="text-muted-foreground mt-1">{t('reports.subtitle', 'Oversikt over etterlevelse, risikovurderinger og status for regelverk')}</p>
           </div>
 
           {/* Compact Summary */}
@@ -441,11 +441,11 @@ const Reports = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Bot className="h-5 w-5 text-primary" />
-                    AI Act Compliance Rapport
+                    AI Act – Etterlevelsesrapport
                   </CardTitle>
                   <CardDescription>
                     Generer en komplett PDF-rapport som dokumenterer all AI-bruk i virksomheten, 
-                    inkludert risikovurderinger, transparenskrav og compliance-status.
+                    inkludert risikovurderinger, transparenskrav og status for etterlevelse.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

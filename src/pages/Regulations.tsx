@@ -379,7 +379,7 @@ const Regulations = () => {
         ]}
         actions={[
           { icon: Settings2, title: "Rediger aktive krav", description: "Legg til eller fjern krav og standarder fra ditt aktive scope.", onClick: () => setShowEditDialog(true) },
-          { icon: FileText, title: "Eksporter samsvarsrapport", description: "Generer en PDF-rapport over status for alle aktive krav.", onClick: () => navigate("/reports/compliance") },
+          { icon: FileText, title: "Eksporter etterlevelsesrapport", description: "Generer en PDF-rapport over status for alle aktive krav.", onClick: () => navigate("/reports/compliance") },
           { icon: RefreshCw, title: "Oppdater kravstatus", description: "Synkroniser status for alle krav med siste data.", onClick: () => { toast({ title: "Oppdaterer...", description: "Kravstatus synkroniseres." }); } },
           { icon: Layers, title: "Se alle kategorier", description: "Filtrer krav etter Personvern, Sikkerhet, AI eller annet.", onClick: () => setCategoryFilter(null) },
         ]}
