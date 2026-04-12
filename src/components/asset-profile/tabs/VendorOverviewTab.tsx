@@ -308,7 +308,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               <CardContent className="pt-0 pb-4 px-4">
                 {openTasks.length > 0 ? (
                   <div className="space-y-2 border-t border-border pt-3">
-                    {openTasks.slice(0, 5).map((task: any) => {
+                    {openTasks.map((task: any) => {
                       const isHighlighted = highlightedTaskId === task.id;
                       const isTPRM = ["dpa", "sla", "risikovurdering", "risk assessment", "revisjon", "audit"].some(
                         (kw) => task.title?.toLowerCase().includes(kw) || task.type?.toLowerCase().includes(kw)
