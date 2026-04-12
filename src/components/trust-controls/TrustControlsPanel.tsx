@@ -60,6 +60,7 @@ interface TrustControlsPanelProps {
   docsCount: number;
   relationsCount: number;
   overrideType?: string;
+  hideHeader?: boolean;
   frameworks?: FrameworkItem[];
   onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
   onNavigateToTab?: (target: string) => void;
@@ -134,7 +135,7 @@ function frameworkBadgeClass(id: string): string {
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics, onNavigateToTab,
+  asset, docsCount, relationsCount, overrideType, hideHeader, frameworks = [], onTrustMetrics, onNavigateToTab,
 }: TrustControlsPanelProps) {
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -312,6 +313,7 @@ export function TrustControlsPanel({
       {/* ━━━ Sikkerhet og kontroller ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-5 md:col-span-2">
         {/* Header row */}
+        {!hideHeader && (
         <div className="flex items-start justify-between mb-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
@@ -342,6 +344,7 @@ export function TrustControlsPanel({
           </div>
           <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
+        )}
 
         {/* Source legend + stacked bar */}
         <div className="mb-4 space-y-2">

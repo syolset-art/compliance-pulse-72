@@ -382,6 +382,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                     asset={asset}
                     docsCount={docsCount}
                     relationsCount={relationsCount}
+                    hideHeader
                     onTrustMetrics={onTrustMetrics}
                     frameworks={frameworks}
                     onNavigateToTab={onNavigateToTab}
