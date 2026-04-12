@@ -105,6 +105,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
     .filter(name => !currentMemberNames.has(name))
     .filter(name => !newName || name.toLowerCase().includes(newName.toLowerCase()));
 
+  const handleAdd = async () => {
     if (!newName.trim()) return;
     setIsSaving(true);
     try {
