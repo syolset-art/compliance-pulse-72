@@ -818,7 +818,16 @@ export default function WorkAreas() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs sm:text-sm">
                   <span className="text-muted-foreground">{t("myWorkAreas.risk")}</span>
-                  <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        Risikonivået beregnes basert på systemene, prosessene og leverandørene i arbeidsområdet, og gir en samlet oversikt over sikkerhets- og personvernsrisiko.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-muted rounded-full h-2">
