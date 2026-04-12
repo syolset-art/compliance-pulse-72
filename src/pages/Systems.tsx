@@ -161,7 +161,7 @@ export default function Systems() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
-  const [viewMode, setViewMode] = useState<"grouped" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grouped" | "list" | "cards">("list");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("system_premium_activated") === "true");
@@ -692,6 +692,109 @@ export default function Systems() {
     );
   };
 
+  const renderCardsView = () => {
+    if (isLoading) {
+      return (
+        <div className="p-8 text-center text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
+          Laster systemer...
+        </div>
+      );
+    }
+
+    if (filteredSystems.length === 0) {
+      return (
+        <div className="p-12 text-center">
+          <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
+          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Legg til system
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredSystems.map((system) => {
+          const maturityScore = system.compliance_score || 0;
+          const maturityLabel = maturityScore >= 80 ? "Sterk" : maturityScore >= 50 ? "Moderat" : "Svak";
+          const maturityColor = maturityScore >= 80 ? "text-success" : maturityScore >= 50 ? "text-warning" : "text-destructive";
+          const maturityStroke = maturityScore >= 80 ? "hsl(var(--success))" : maturityScore >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+          const initials = system.name.replace(/[^A-Za-zÆØÅæøå0-9]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+          const ownerWa = getOwnerWorkArea(system);
+          const isArchived = system.status === "archived";
+          const r = 18;
+          const circ = 2 * Math.PI * r;
+          const dash = (maturityScore / 100) * circ;
+
+          return (
+            <div
+              key={system.id}
+              className="rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow cursor-pointer relative"
+              onClick={() => navigate(`/systems/${system.id}`)}
+            >
+              {/* Action menu */}
+              <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
+                <AssetRowActionMenu
+                  itemId={system.id}
+                  currentWorkAreaId={system.work_area_id}
+                  currentStatus={system.status}
+                  isArchived={isArchived}
+                  workAreas={workAreas}
+                  statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+                  onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+                  onArchive={(itemId) => archiveSystem.mutate(itemId)}
+                  onRestore={(itemId) => restoreSystem.mutate(itemId)}
+                  onDelete={(itemId) => deleteSystem.mutate(itemId)}
+                  onSetStatus={(itemId, status) => changeStatus.mutate({ id: itemId, status })}
+                />
+              </div>
+
+              {/* Top: initials + maturity gauge */}
+              <div className="flex items-center justify-between mb-3 pr-6">
+                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-muted-foreground">{initials}</span>
+                </div>
+                {maturityScore > 0 ? (
+                  <div className="relative flex items-center justify-center">
+                    <svg width="48" height="48" viewBox="0 0 48 48" className="-rotate-90">
+                      <circle cx="24" cy="24" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                      <circle cx="24" cy="24" r={r} fill="none" stroke={maturityStroke} strokeWidth="3" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} />
+                    </svg>
+                    <span className={`absolute text-[9px] font-bold ${maturityColor}`}>{maturityLabel}</span>
+                  </div>
+                ) : (
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Ikke scoret</span>
+                )}
+              </div>
+
+              {/* Name */}
+              <h3 className="text-sm font-semibold text-foreground truncate mb-1.5">{system.name}</h3>
+
+              {/* Metadata */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                {system.category && (
+                  <>
+                    <span>{system.category}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                      {system.category?.toUpperCase()}
+                    </span>
+                  </>
+                )}
+                {ownerWa && (
+                  <span className="text-[10px] font-medium">{ownerWa.name}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -806,22 +909,26 @@ export default function Systems() {
             <ToggleGroup
               type="single"
               value={viewMode}
-              onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list"); }}
+              onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list" | "cards"); }}
               className="shrink-0"
             >
-              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
-                <LayoutGrid className="h-4 w-4" />
-                Gruppert
-              </ToggleGroupItem>
               <ToggleGroupItem value="list" aria-label="Listevisning" className="gap-1.5 text-xs">
                 <List className="h-4 w-4" />
                 Liste
+              </ToggleGroupItem>
+              <ToggleGroupItem value="cards" aria-label="Kortvisning" className="gap-1.5 text-xs">
+                <LayoutGrid className="h-4 w-4" />
+                Kort
+              </ToggleGroupItem>
+              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
+                <Server className="h-4 w-4" />
+                Gruppert
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
 
           {/* System list */}
-          {viewMode === "grouped" ? renderGroupedList() : renderListView()}
+          {viewMode === "grouped" ? renderGroupedList() : viewMode === "cards" ? renderCardsView() : renderListView()}
         </div>
       </main>
 
