@@ -290,63 +290,71 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
       </section>
 
-      {/* ─── SECTION 2: Vendor Baseline ─── */}
+      {/* ─── SECTION 2: Vendor Baseline (collapsible) ─── */}
       <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Building2 className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {isNb ? "Leverandørens baseline" : "Vendor Baseline"}
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          <VendorTrustScoreCard
-            trustScore={trustScore}
-            confidenceScore={confidenceScore}
-            lastUpdated={new Date().toLocaleDateString()}
-            assetId={asset.id}
-          />
-
-          {/* Strengths / Concerns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-success">
-                  <TrendingUp className="h-4 w-4" />
-                  {isNb ? "Styrker" : "Strengths"}
-                </div>
-                {strengths.length > 0 ? strengths.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
-                    <span>{s}</span>
-                  </div>
-                )) : (
-                  <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen data ennå" : "No data yet"}</p>
-                )}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-destructive">
-                  <TrendingDown className="h-4 w-4" />
-                  {isNb ? "Bekymringer" : "Concerns"}
-                </div>
-                {concerns.length > 0 ? concerns.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
-                    <span>{c}</span>
-                  </div>
-                )) : (
-                  <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen bekymringer" : "No concerns"}</p>
-                )}
-              </CardContent>
-            </Card>
+        <button
+          onClick={() => setBaselineExpanded(prev => !prev)}
+          className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/40 hover:bg-muted/30 transition-all group"
+        >
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            <span className="text-sm font-semibold text-foreground">
+              {isNb ? "Leverandørens baseline" : "Vendor Baseline"}
+            </span>
           </div>
+          {baselineExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </button>
 
-          <VendorPrivacyAssessment
-            vendorName={asset.vendor || asset.name}
-          />
-        </div>
+        {baselineExpanded && (
+          <div className="space-y-4 mt-3 animate-in slide-in-from-top-1 duration-150">
+            <VendorTrustScoreCard
+              trustScore={trustScore}
+              confidenceScore={confidenceScore}
+              lastUpdated={new Date().toLocaleDateString()}
+              assetId={asset.id}
+            />
+
+            {/* Strengths / Concerns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-success">
+                    <TrendingUp className="h-4 w-4" />
+                    {isNb ? "Styrker" : "Strengths"}
+                  </div>
+                  {strengths.length > 0 ? strengths.map((s, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                      <span>{s}</span>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen data ennå" : "No data yet"}</p>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+                    <TrendingDown className="h-4 w-4" />
+                    {isNb ? "Bekymringer" : "Concerns"}
+                  </div>
+                  {concerns.length > 0 ? concerns.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                      <span>{c}</span>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen bekymringer" : "No concerns"}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <VendorPrivacyAssessment
+              vendorName={asset.vendor || asset.name}
+            />
+          </div>
+        )}
       </section>
 
       {requestOpen && (
