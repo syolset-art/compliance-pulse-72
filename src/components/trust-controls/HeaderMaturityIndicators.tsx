@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo, ChevronDown, ChevronUp, Clock, User, ArrowRight } from "lucide-react";
+import { AlertTriangle, TrendingUp, ClipboardCheck, ListTodo, ChevronDown, ChevronUp, Clock, User, ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface HeaderMaturityIndicatorsProps {
   riskLevel?: string | null;
