@@ -404,7 +404,7 @@ const AssetTrustProfile = () => {
                               onClick={() => setActiveTab(tab.value)}
                               className={activeTab === tab.value ? "bg-accent font-medium" : ""}
                             >
-                              {tab.label}
+                              {tab.labelFull}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>
