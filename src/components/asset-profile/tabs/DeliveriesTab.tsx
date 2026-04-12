@@ -258,12 +258,12 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {d.sla_uptime || d.sla_response_time || d.sla_support_hours ? (
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <ShieldCheck className="h-3 w-3 text-green-600" />
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <ShieldCheck className="h-3.5 w-3.5 text-green-600" />
                           SLA
                         </Badge>
                       ) : (
-                        <span className="text-xs text-muted-foreground/50">–</span>
+                        <span className="text-sm text-muted-foreground/50">–</span>
                       )}
                     </TableCell>
                     <TableCell>
