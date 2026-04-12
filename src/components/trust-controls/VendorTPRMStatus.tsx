@@ -40,12 +40,29 @@ function getRiskLevel(criticality?: string | null, riskLevel?: string | null): "
   return null;
 }
 
-function getTPRMLevel(risk: "high" | "medium" | "low" | null, controlsMet: number, totalControls: number): TPRMLevel {
-  if (risk === null) return "not_assessed";
-  const controlRatio = controlsMet / totalControls;
-  if (risk === "high" && controlRatio < 0.75) return "action_required";
-  if (controlRatio >= 0.75) return "approved";
-  return "under_review";
+function getTPRMLevel(
+  risk: "high" | "medium" | "low" | null,
+  controlsMet: number,
+  totalControls: number,
+  maturity?: { implementedCount: number; totalControls: number; trustScore: number } | null,
+): TPRMLevel {
+  const maturityStarted = maturity && maturity.implementedCount > 0;
+  const maturityScore = maturity?.trustScore ?? 0;
+  const controlRatio = totalControls > 0 ? controlsMet / totalControls : 0;
+
+  // Nothing done at all
+  if (!maturityStarted && controlsMet === 0 && risk === null) return "not_assessed";
+
+  // High risk with low maturity or few controls → action required
+  if (risk === "high" && maturityScore < 50 && controlRatio < 0.75) return "action_required";
+
+  // Good maturity + good controls → approved
+  if (maturityScore >= 75 && controlRatio >= 0.5) return "approved";
+
+  // Any work started → under review
+  if (maturityStarted || controlsMet > 0) return "under_review";
+
+  return "not_assessed";
 }
 
 interface ControlItem {
