@@ -119,7 +119,10 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
           </div>
         </div>
 
-        {/* Risk / Criticality / Maturity indicators */}
+      </div>
+
+      {/* Horizontal metric cards */}
+      <div className="mt-4 pt-4 border-t border-border">
         <HeaderMaturityIndicators
           riskLevel={trustScore < 50 ? "high" : trustScore < 75 ? "medium" : "low"}
           criticality={asset.criticality || "medium"}
@@ -128,7 +131,7 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
       </div>
 
       {/* Security areas + Compliance impact */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 pt-4 border-t border-border">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-border">
         {/* Security Areas */}
         <div>
           <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">

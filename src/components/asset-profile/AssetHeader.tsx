@@ -120,6 +120,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   const [descValue, setDescValue] = useState(asset.description || "");
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const [showAllRegulations, setShowAllRegulations] = useState(false);
+  const [showCompanyInfo, setShowCompanyInfo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
 
@@ -579,14 +580,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           })()}
         </div>
 
-        {/* Trust Score or Risk/Criticality/Maturity — right side */}
-        {trustMetrics && !isSelf && (
-          <HeaderMaturityIndicators
-            riskLevel={(asset as any).risk_level || "medium"}
-            criticality={(asset as any).criticality || "medium"}
-            maturityPercent={trustMetrics?.trustScore ?? 0}
-          />
-        )}
+        {/* Trust Score gauge for self profiles only — right side */}
         {trustMetrics && isSelf && (() => {
           const score = trustMetrics.trustScore;
           const conf = trustMetrics.confidenceScore;
@@ -632,6 +626,17 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         })()}
       </div>
 
+      {/* Horizontal metric cards for vendor/system profiles */}
+      {trustMetrics && !isSelf && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <HeaderMaturityIndicators
+            riskLevel={(asset as any).risk_level || "medium"}
+            criticality={(asset as any).criticality || "medium"}
+            maturityPercent={trustMetrics?.trustScore ?? 0}
+          />
+        </div>
+      )}
+
       {/* Self-profile metadata row */}
       {isSelf && (
         <SelfProfileMetadataRow
@@ -646,46 +651,60 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       {/* Vendor info — hidden for self/published profiles */}
       {!isSelf && (
         <>
-          {/* Company info strip */}
-          <div className="rounded-lg border border-border bg-muted/30 grid grid-cols-2 sm:grid-cols-4 divide-x divide-border mt-4">
-            <div className="px-4 py-3">
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                {isNb ? "Org.nr" : "Org. no."}
-              </p>
-              <p className="text-sm font-semibold text-foreground tabular-nums">
-                {(asset as any).org_number || "—"}
-              </p>
-            </div>
-            <div className="px-4 py-3">
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                {isNb ? "Bransje" : "Industry"}
-              </p>
-              <p className="text-sm font-medium text-foreground">
-                {(asset as any).vendor_category || asset.category || "—"}
-              </p>
-            </div>
-            <div className="px-4 py-3">
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                {isNb ? "Kategori" : "Category"}
-              </p>
-              <p className="text-sm font-medium text-foreground">
-                {template?.display_name || asset.asset_type || "—"}
-              </p>
-            </div>
-            <div className="px-4 py-3">
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                {isNb ? "Nettside" : "Website"}
-              </p>
-              {asset.url ? (
-                <a href={asset.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
-                  {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              ) : (
-                <p className="text-sm font-medium text-foreground">—</p>
-              )}
-            </div>
+          {/* Toggle for company info */}
+          <div className="mt-3">
+            <button
+              onClick={() => setShowCompanyInfo(!showCompanyInfo)}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              <Info className="h-3.5 w-3.5" />
+              {showCompanyInfo
+                ? (isNb ? "Skjul bedriftsinfo" : "Hide company info")
+                : (isNb ? "Vis bedriftsinfo" : "Show company info")}
+            </button>
           </div>
+
+          {showCompanyInfo && (
+            <div className="rounded-lg border border-border bg-muted/30 grid grid-cols-2 sm:grid-cols-4 divide-x divide-border mt-2">
+              <div className="px-4 py-3">
+                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                  {isNb ? "Org.nr" : "Org. no."}
+                </p>
+                <p className="text-sm font-semibold text-foreground tabular-nums">
+                  {(asset as any).org_number || "—"}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                  {isNb ? "Bransje" : "Industry"}
+                </p>
+                <p className="text-sm font-medium text-foreground">
+                  {(asset as any).vendor_category || asset.category || "—"}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                  {isNb ? "Kategori" : "Category"}
+                </p>
+                <p className="text-sm font-medium text-foreground">
+                  {template?.display_name || asset.asset_type || "—"}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                  {isNb ? "Nettside" : "Website"}
+                </p>
+                {asset.url ? (
+                  <a href={asset.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                    {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <p className="text-sm font-medium text-foreground">—</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Owner, Manager, Contact — bottom section */}
           <div className="border-t border-border mt-4 pt-4">
