@@ -57,6 +57,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
   const [tasksExpanded, setTasksExpanded] = useState(false);
+  const [frameworksExpanded, setFrameworksExpanded] = useState(false);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
