@@ -1,32 +1,32 @@
 
 
-## Plan: Add optional SLA fields to Deliveries
+## Plan: Actionable TPRM controls with request dialog
 
-### Summary
-Add optional SLA fields (uptime requirement, response time, support hours) to each delivery in the Leveranser tab, with a collapsible section in the add/edit dialog.
+### What changes
 
-### Database Migration
-Add 4 nullable columns to `vendor_deliveries`:
-- `sla_uptime` (text) - e.g. "99.9%"
-- `sla_response_time` (text) - e.g. "4 timer"  
-- `sla_support_hours` (text) - e.g. "08:00–16:00"
-- `sla_notes` (text) - free-text for additional SLA details
+Replace the passive "Mangler" badges in the TPRM status card with **actionable buttons** that let the user request missing documents directly from the vendor. The design follows the uploaded reference image — missing items show a colored action button (e.g. "Be om DPA", "Be om SLA", "Be om risikovurdering") instead of a generic "Mangler" badge. Clicking the button opens the existing `RequestUpdateDialog` pre-filled with the correct document type.
 
-### UI Changes in `DeliveriesTab.tsx`
+### Changes to VendorTPRMStatus.tsx
 
-1. **Add dialog** - Add a collapsible "Tjenestenivåavtale (SLA)" section below the contract document upload, containing:
-   - Oppetidskrav (Uptime requirement) - text input
-   - Responstid (Response time) - text input
-   - Støttetider (Support hours) - text input
-   - SLA-merknader (SLA notes) - textarea
+1. **Import** `RequestUpdateDialog` and add state for dialog open/close and selected request type
+2. **Add `assetName` and `vendorName` props** to the component (needed by `RequestUpdateDialog`)
+3. **Replace the "Mangler" badge** with a styled button per document type:
+   - DPA missing → "Be om DPA" / "Request DPA" button (red/destructive outline style matching the reference)
+   - SLA missing → "Be om SLA" / "Request SLA"
+   - Risk Assessment missing → "Be om risikovurdering" / "Request assessment"
+4. **Add an email icon** (Mail) next to the action text, matching the reference image
+5. **Render `RequestUpdateDialog`** at the bottom of the component with `preselectedType` set to the clicked document type — this dialog already supports uploading custom templates (e.g. own DPA template)
+6. **Style the missing row** with a subtle red/warning left border or background tint to draw attention, matching the reference
 
-2. **Table display** - Add an SLA indicator column (hidden on mobile) showing a small badge/icon when SLA fields are filled in
+### Props change in parent
 
-3. **Form state** - Extend the form state object with the 4 new SLA fields, all optional
+Update wherever `VendorTPRMStatus` is rendered (in the Usage & Context tab) to pass `assetName` and `vendorName` props.
 
-### Technical Details
-- Migration adds nullable text columns with no defaults
-- Form fields are wrapped in a disclosure/collapsible so they don't clutter the dialog for users who don't need SLA
-- Insert query updated to include the new fields
-- Existing deliveries unaffected (all fields nullable)
+### No database changes needed
+
+The `RequestUpdateDialog` already handles sending requests and storing them. No new tables or columns required.
+
+### Files modified
+1. `src/components/trust-controls/VendorTPRMStatus.tsx` — add actionable buttons and dialog integration
+2. Parent component rendering `VendorTPRMStatus` — pass additional props
 
