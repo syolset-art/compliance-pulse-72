@@ -46,6 +46,8 @@ export interface KeyRisk {
   severity: RiskSeverity;
   titleEn: string;
   titleNb: string;
+  reasonEn?: string;
+  reasonNb?: string;
   triggerControlKey: string;
 }
 
