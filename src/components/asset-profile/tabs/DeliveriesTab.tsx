@@ -38,6 +38,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showSla, setShowSla] = useState(false);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -46,6 +47,10 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
     contract_start: "",
     contract_end: "",
     notes: "",
+    sla_uptime: "",
+    sla_response_time: "",
+    sla_support_hours: "",
+    sla_notes: "",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
