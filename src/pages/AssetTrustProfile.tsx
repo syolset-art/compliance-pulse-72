@@ -389,7 +389,7 @@ const AssetTrustProfile = () => {
                             className="h-9 gap-1.5 shrink-0 text-xs"
                             aria-label={isNb ? "Vis flere" : "Show more"}
                           >
-                            {activeVendorOverflowTab ? activeVendorOverflowTab.label : (
+                            {activeVendorOverflowTab ? activeVendorOverflowTab.labelFull : (
                               <>
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="hidden sm:inline">{isNb ? "Vis flere" : "Show more"}</span>
