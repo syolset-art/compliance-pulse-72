@@ -1,22 +1,41 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
-  ShieldCheck, ShieldAlert, TrendingUp, TrendingDown,
-  Send, CheckCircle2, AlertTriangle, XCircle,
-  Shield, Users, Server, Link2,
+  TrendingUp, TrendingDown,
+  Send, CheckCircle2, XCircle,
+  Shield, Users, Server, Link2, AlertTriangle,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
+import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface VendorOverviewTabProps {
-  assetId: string;
-  assetName?: string;
-  vendorName?: string;
-  updatedAt?: string | null;
+  asset: {
+    id: string;
+    name: string;
+    vendor?: string | null;
+    risk_level: string | null;
+    compliance_score: number | null;
+    next_review_date: string | null;
+    criticality: string | null;
+    asset_type?: string;
+    work_area_id?: string | null;
+    asset_manager?: string | null;
+    asset_owner?: string | null;
+    description?: string | null;
+    gdpr_role?: string | null;
+    contact_person?: string | null;
+    contact_email?: string | null;
+    updated_at?: string | null;
+    metadata?: any;
+  };
+  tasksCount: number;
+  onTrustMetrics?: (metrics: { trustScore: number; confidenceScore: number; lastUpdated: string }) => void;
   onNavigateToTab?: (tab: string) => void;
 }
 
@@ -27,15 +46,14 @@ const DOMAIN_CARDS = [
   { area: "supplier_governance", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-amber-600" },
 ];
 
-export const VendorOverviewTab = ({ assetId, assetName, vendorName, updatedAt, onNavigateToTab }: VendorOverviewTabProps) => {
+export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigateToTab }: VendorOverviewTabProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const evaluation = useTrustControlEvaluation(assetId);
+  const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
-  const risks = evaluation?.risks ?? [];
 
   const strengths: string[] = [];
   const concerns: string[] = [];
@@ -44,45 +62,98 @@ export const VendorOverviewTab = ({ assetId, assetName, vendorName, updatedAt, o
     const { allControls } = evaluation;
     const implemented = allControls.filter(c => c.status === "implemented");
     const missing = allControls.filter(c => c.status === "missing");
-
-    // Top 3 strengths
     implemented.slice(0, 3).forEach(c => strengths.push(isNb ? c.labelNb : c.labelEn));
-    // Top 3 concerns
     missing.slice(0, 3).forEach(c => concerns.push(isNb ? c.labelNb : c.labelEn));
   }
 
-  const scoreColor = trustScore >= 70 ? "text-success" : trustScore >= 40 ? "text-warning" : "text-destructive";
+  // Fetch data needed by TrustControlsPanel
+  const { data: docsCount = 0 } = useQuery({
+    queryKey: ["vendor-documents-count", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id")
+        .eq("asset_id", asset.id);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  const { data: relationsCount = 0 } = useQuery({
+    queryKey: ["asset-relations-count", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("asset_relationships")
+        .select("id")
+        .or(`source_asset_id.eq.${asset.id},target_asset_id.eq.${asset.id}`);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
+    },
+  });
+
+  const { data: expiredCount = 0 } = useQuery({
+    queryKey: ["expired-docs-count", asset.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendor_documents")
+        .select("id, valid_to")
+        .eq("asset_id", asset.id)
+        .not("valid_to", "is", null);
+      if (error) throw error;
+      const now = new Date();
+      return (data || []).filter((d: any) => new Date(d.valid_to) < now).length;
+    },
+  });
 
   return (
     <div className="space-y-6">
-      {/* Trust Score summary */}
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="flex flex-col items-center">
-                <span className={`text-4xl font-bold ${scoreColor}`}>{trustScore}</span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Trust Score</span>
-              </div>
-              <div className="flex-1 space-y-2">
-                <Progress value={trustScore} className="h-2" />
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span>{isNb ? "Konfidens" : "Confidence"}: {confidenceScore}%</span>
-                  {updatedAt && (
-                    <span>
-                      {isNb ? "Sist oppdatert" : "Last updated"}: {new Date(updatedAt).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Button onClick={() => setRequestOpen(true)} className="gap-2 shrink-0">
-              <Send className="h-4 w-4" />
-              {isNb ? "Be om dokumentasjon" : "Request documentation"}
-            </Button>
+      {/* Expired documents warning */}
+      {expiredCount > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+            <span className="text-sm font-medium text-destructive">
+              {isNb
+                ? `${expiredCount} dokument${expiredCount > 1 ? "er" : ""} er utløpt`
+                : `${expiredCount} document${expiredCount > 1 ? "s" : ""} expired`}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
+            onClick={() => setRequestOpen(true)}
+          >
+            <Send className="h-3 w-3" />
+            {isNb ? "Be om oppdatering" : "Request update"}
+          </Button>
+        </div>
+      )}
+
+      {/* Trust Controls Panel — same as shown above tabs for self assets */}
+      <TrustControlsPanel
+        asset={asset}
+        docsCount={docsCount}
+        relationsCount={relationsCount}
+        onTrustMetrics={onTrustMetrics}
+        frameworks={frameworks}
+        onNavigateToTab={onNavigateToTab}
+      />
 
       {/* Strengths / Concerns */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -144,9 +215,9 @@ export const VendorOverviewTab = ({ assetId, assetName, vendorName, updatedAt, o
 
       {requestOpen && (
         <RequestUpdateDialog
-          assetId={assetId}
-          assetName={assetName || ""}
-          vendorName={vendorName}
+          assetId={asset.id}
+          assetName={asset.name || ""}
+          vendorName={asset.vendor || undefined}
           open={requestOpen}
           onOpenChange={setRequestOpen}
         />
