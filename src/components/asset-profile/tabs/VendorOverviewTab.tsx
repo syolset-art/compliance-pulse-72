@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
-  Shield, Users, Server, Link2, AlertTriangle, Mail,
-  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint, HelpCircle, Eye,
+  Shield, AlertTriangle,
+  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, HelpCircle, Eye,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
