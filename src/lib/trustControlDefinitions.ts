@@ -20,7 +20,7 @@ export interface TrustProfileMeta {
 }
 
 export type TrustControlStatus = "implemented" | "partial" | "missing";
-export type ControlArea = "governance" | "risk_compliance" | "security_posture" | "supplier_governance";
+export type ControlArea = "governance" | "risk_compliance" | "security_posture" | "privacy_data" | "supplier_governance";
 export type RiskSeverity = "high" | "medium" | "low";
 
 export type ControlSource = "vendor_baseline" | "org_enrichment";
@@ -110,11 +110,11 @@ export const ORG_CONTROLS: TrustControlDefinition[] = [
   { key: "logging_monitoring", labelEn: "Logging and monitoring", labelNb: "Logging og overvåking", descriptionEn: "Is logging implemented for critical systems?", descriptionNb: "Er logging implementert for kritiske systemer?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
   { key: "security_testing", labelEn: "Security testing", labelNb: "Sikkerhetstesting", descriptionEn: "Is regular security testing performed (e.g. vulnerability scanning or penetration testing)?", descriptionNb: "Gjennomføres det regelmessig sikkerhetstesting (f.eks. sårbarhetsskanning eller penetrasjonstesting)?", weight: 1, area: "risk_compliance", source: "org_enrichment" },
   // Privacy & Data Handling (priv-1 to priv-5)
-  { key: "ropa", labelEn: "Record of processing activities (ROPA)", labelNb: "Behandlingsoversikt (ROPA)", descriptionEn: "Does the organization have an up-to-date record of processing activities?", descriptionNb: "Har virksomheten en oppdatert behandlingsoversikt?", weight: 1, area: "security_posture", source: "org_enrichment" },
-  { key: "dpa_org", labelEn: "Data processing agreement (DPA)", labelNb: "Databehandleravtale (DPA)", descriptionEn: "Are DPAs in place with all relevant third parties?", descriptionNb: "Er det inngått DPA med alle relevante tredjeparter?", weight: 1, area: "security_posture", source: "org_enrichment" },
-  { key: "dpia", labelEn: "Data protection impact assessment (DPIA)", labelNb: "DPIA", descriptionEn: "Has a DPIA been conducted where required?", descriptionNb: "Er det gjennomført DPIA der det er påkrevd?", weight: 1, area: "security_posture", source: "org_enrichment" },
-  { key: "data_subject_rights", labelEn: "Data subject rights", labelNb: "Registrertes rettigheter", descriptionEn: "Are there processes for access, deletion, etc.?", descriptionNb: "Er det prosesser for innsyn, sletting, etc.?", weight: 1, area: "security_posture", source: "org_enrichment" },
-  { key: "data_storage_control", labelEn: "Data storage location control", labelNb: "Kontroll over datalagringssted", descriptionEn: "Does the organization control where data is stored, including international transfers?", descriptionNb: "Har virksomheten kontroll over hvor data lagres, inkludert internasjonale overføringer?", weight: 1, area: "security_posture", source: "org_enrichment" },
+  { key: "ropa", labelEn: "Record of processing activities (ROPA)", labelNb: "Behandlingsoversikt (ROPA)", descriptionEn: "Does the organization have an up-to-date record of processing activities?", descriptionNb: "Har virksomheten en oppdatert behandlingsoversikt?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "dpa_org", labelEn: "Data processing agreement (DPA)", labelNb: "Databehandleravtale (DPA)", descriptionEn: "Are DPAs in place with all relevant third parties?", descriptionNb: "Er det inngått DPA med alle relevante tredjeparter?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "dpia", labelEn: "Data protection impact assessment (DPIA)", labelNb: "DPIA", descriptionEn: "Has a DPIA been conducted where required?", descriptionNb: "Er det gjennomført DPIA der det er påkrevd?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "data_subject_rights", labelEn: "Data subject rights", labelNb: "Registrertes rettigheter", descriptionEn: "Are there processes for access, deletion, etc.?", descriptionNb: "Er det prosesser for innsyn, sletting, etc.?", weight: 1, area: "privacy_data", source: "org_enrichment" },
+  { key: "data_storage_control", labelEn: "Data storage location control", labelNb: "Kontroll over datalagringssted", descriptionEn: "Does the organization control where data is stored, including international transfers?", descriptionNb: "Har virksomheten kontroll over hvor data lagres, inkludert internasjonale overføringer?", weight: 1, area: "privacy_data", source: "org_enrichment" },
   // Third-Party & Supply Chain (sup-1 to sup-3)
   { key: "vendor_inventory", labelEn: "Vendor inventory", labelNb: "Leverandøroversikt (inventory)", descriptionEn: "Is there an up-to-date and complete overview of all third parties and sub-processors?", descriptionNb: "Finnes det en oppdatert og komplett oversikt over alle tredjeparter og underleverandører?", weight: 1, area: "supplier_governance", source: "org_enrichment" },
   { key: "vendor_risk_assessment", labelEn: "Vendor risk assessment", labelNb: "Risikovurdering av leverandører", descriptionEn: "Are risk assessments and security evaluations of vendors performed before and during the contract period?", descriptionNb: "Gjennomføres det risikovurdering og sikkerhetsevaluering av leverandører før og under avtaleperioden?", weight: 1, area: "supplier_governance", source: "org_enrichment" },
@@ -382,6 +382,7 @@ export function groupControlsByArea(controls: EvaluatedControl[]): Record<Contro
     governance: [],
     risk_compliance: [],
     security_posture: [],
+    privacy_data: [],
     supplier_governance: [],
   };
   for (const c of controls) {

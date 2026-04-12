@@ -187,7 +187,8 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                 {[
                   { label: isNb ? "Styring" : "Governance", score: 72 },
                   { label: isNb ? "Drift og sikkerhet" : "Operations & Security", score: 48 },
-                  { label: isNb ? "Personvern" : "Privacy", score: 55 },
+                  { label: isNb ? "Identitet og tilgang" : "Identity & Access", score: 55 },
+                  { label: isNb ? "Personvern og datahåndtering" : "Privacy & Data Handling", score: 42 },
                   { label: isNb ? "Tredjepartstyring" : "Third-Party", score: 38 },
                 ].map((area, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-background">

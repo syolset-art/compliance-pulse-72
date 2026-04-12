@@ -202,7 +202,7 @@ export function TrustControlsPanel({
     };
   };
 
-  // All 4 security areas — always displayed
+  // All 5 security areas — always displayed
   const securityAreas = [
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring",
       descNb: "Styringsgrunnlag, eierskap til vurderinger og sentral dokumentasjon for systemet.",
@@ -210,9 +210,12 @@ export function TrustControlsPanel({
     { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations & Security", labelNb: "Drift og bruk",
       descNb: "Dokumentert bruk, prosesser, hendelser og praktisk oppfølging av systemet.",
       descEn: "Documented usage, processes, incidents and practical follow-up." },
-    { area: "security_posture" as ControlArea, icon: Key, label: "Privacy & Data Handling", labelNb: "Identitet og tilgang",
+    { area: "security_posture" as ControlArea, icon: Key, label: "Identity & Access", labelNb: "Identitet og tilgang",
       descNb: "Roller, ansvar og tilgang som styrer hvem som eier og bruker systemet.",
       descEn: "Roles, responsibilities and access controlling who owns and uses the system." },
+    { area: "privacy_data" as ControlArea, icon: Lock, label: "Privacy & Data Handling", labelNb: "Personvern og datahåndtering",
+      descNb: "Behandlingsoversikt, databehandleravtaler, DPIA og registrertes rettigheter.",
+      descEn: "Processing records, data processing agreements, DPIAs and data subject rights." },
     { area: "supplier_governance" as ControlArea, icon: Users, label: "Third-Party & Value Chain", labelNb: "Leverandører og økosystem",
       descNb: "Tredjeparter, overføringer og avhengigheter rundt systemet.",
       descEn: "Third parties, transfers and dependencies around the system." },
