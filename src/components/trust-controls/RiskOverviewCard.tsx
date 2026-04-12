@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TriangleAlert, AlertTriangle, ShieldCheck } from "lucide-react";
-import { type RiskSeverity } from "@/lib/trustControlDefinitions";
+import { TriangleAlert, AlertTriangle, ShieldCheck, ArrowRight } from "lucide-react";
+import { type RiskSeverity, getActionForControl } from "@/lib/trustControlDefinitions";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { Progress } from "@/components/ui/progress";
 
@@ -102,15 +102,31 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
               <div className="space-y-1.5">
                 {risks.slice(0, 3).map((r) => {
                   const sev = SEVERITY_CONFIG[r.severity];
+                  const action = getActionForControl(r.triggerControlKey);
                   return (
-                    <div key={r.id} className={`flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 ${sev.bg} border ${sev.border}`}>
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <TriangleAlert className={`h-3 w-3 shrink-0 ${sev.color}`} aria-hidden="true" />
-                        <span className={`text-xs truncate ${sev.color}`}>{isNb ? r.titleNb : r.titleEn}</span>
+                    <div key={r.id} className={`rounded-md px-2.5 py-1.5 ${sev.bg} border ${sev.border}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <TriangleAlert className={`h-3 w-3 shrink-0 ${sev.color}`} aria-hidden="true" />
+                          <span className={`text-xs truncate ${sev.color}`}>{isNb ? r.titleNb : r.titleEn}</span>
+                        </div>
+                        <Badge variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"} className="text-[9px] shrink-0 px-1.5 py-0">
+                          {isNb ? sev.labelNb : sev.labelEn}
+                        </Badge>
                       </div>
-                      <Badge variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"} className="text-[9px] shrink-0 px-1.5 py-0">
-                        {isNb ? sev.labelNb : sev.labelEn}
-                      </Badge>
+                      {action && (
+                        <button
+                          onClick={() => {
+                            if (action.targetTab) {
+                              window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: action.targetTab } }));
+                            }
+                          }}
+                          className="ml-4.5 mt-0.5 text-[10px] text-primary hover:underline flex items-center gap-0.5 cursor-pointer"
+                        >
+                          {isNb ? action.titleNb : action.titleEn}
+                          <ArrowRight className="h-2.5 w-2.5" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
