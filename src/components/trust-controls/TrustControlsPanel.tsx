@@ -347,40 +347,6 @@ export function TrustControlsPanel({
         </div>
       </Card>
 
-      {/* ━━━ Risk ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <Card className="p-4 space-y-4">
-
-        {/* Risk */}
-        <div>
-          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            {isNb ? "Risiko" : "Risk"}
-          </h3>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-destructive/10">
-              <TriangleAlert className="h-3 w-3 text-destructive" />
-              <span className="text-xs font-bold text-destructive">{highRisks}</span>
-              <span className="text-[10px] text-destructive/70">{isNb ? "Høy" : "High"}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-warning/10">
-              <AlertTriangle className="h-3 w-3 text-warning" />
-              <span className="text-xs font-bold text-warning">{mediumRisks}</span>
-              <span className="text-[10px] text-warning/70">{isNb ? "Middels" : "Med"}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/60">
-              <AlertTriangle className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs font-bold text-muted-foreground">{lowRisks}</span>
-              <span className="text-[10px] text-muted-foreground/70">{isNb ? "Lav" : "Low"}</span>
-            </div>
-          </div>
-
-          {risks.length > 0 && (
-            <div className="flex items-center gap-1.5 mt-2">
-              <TriangleAlert className={`h-2.5 w-2.5 shrink-0 ${risks[0].severity === "high" ? "text-destructive" : "text-warning"}`} />
-              <span className="text-[10px] text-muted-foreground truncate">{isNb ? risks[0].titleNb : risks[0].titleEn}</span>
-            </div>
-          )}
-        </div>
-      </Card>
     </div>
   );
 }
