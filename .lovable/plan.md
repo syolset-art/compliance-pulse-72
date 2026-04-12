@@ -1,68 +1,53 @@
 
 
-## Plan: Erstatt Trust Score i header med risiko/kritikalitet/modenhet — flytt Trust Score til Veiledning fra Mynder
+## Plan: Redesign vendor header — metrikk-kort i horisontal rad, skjul bedriftsinfo bak toggle
 
-### Hva endres
+### Problemet
+Dagens layout har risiko/kritikalitet/modenhet som en vertikal sidebar til høyre (skjult på mobil), pluss en synlig bedriftsinfo-stripe (Org.nr, Bransje, Kategori, Nettside) som tar plass. Skjermbildet fra plattformen viser en bedre løsning: horisontale metrikk-kort under headeren.
 
-Når en leverandør eller et system er "tatt i bruk" (status active/in_use), skal headeren **ikke** vise den sirkulære Trust Score-gaugen. I stedet vises tre kompakte indikatorer: **Risikonivå**, **Kritikalitet** og **Modenhet** (basert på organisasjonens eget arbeid). Leverandørens Trust Score flyttes til "Veiledning fra Mynder"-fanen som en del av veiledningsinformasjonen.
-
-### Visuelt konsept — header
+### Ny layout for leverandør/system-profiler (ikke self)
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│ [ikon] System X  │ Aktiv │ Kategori                     │
-│                  │       │                               │
-│                  │  ┌──────────────────────────────────┐ │
-│                  │  │ Risiko: Middels  ● (gul)         │ │
-│                  │  │ Kritikalitet: Høy ● (oransje)    │ │
-│                  │  │ Modenhet: 72%    ████░░░          │ │
-│                  │  └──────────────────────────────────┘ │
+│ [logo] Outlook       Eier: HR ×    Systemansvarlig: ×    │
+│        Microsoft | https://...                           │
+│        Beskrivelse...                                    │
+├──────────────────────────────────────────────────────────┤
+│ ┌─────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────┐│
+│ │⚠ RISIKONIVÅ │ │📈 MODENHET   │ │📋 INTERN     │ │📝  ││
+│ │ Moderat     │ │ 88%          │ │ RISIKOVURD.  │ │OPP ││
+│ │ risiko      │ │              │ │ 23.03.2026   │ │ 0  ││
+│ └─────────────┘ └──────────────┘ └──────────────┘ └────┘│
+├──────────────────────────────────────────────────────────┤
+│ [ℹ Vis bedriftsinfo]  ← klikkbar for Org.nr/Bransje etc│
 └──────────────────────────────────────────────────────────┘
-```
-
-### Visuelt konsept — Veiledning fra Mynder
-
-```text
-┌─ Leverandørens Trust Score ──────────────────────────────┐
-│  [SVG-gauge 72/100]  Trust Score                         │
-│  Høy tillit  •  Sist oppdatert: 2026-03-15              │
-│  Egenerklæring                                           │
-│                                                          │
-│  "Denne scoren reflekterer leverandørens baseline        │
-│   basert på tilgjengelig dokumentasjon og kontroller"    │
-└──────────────────────────────────────────────────────────┘
-│                                                          │
-│  Modenhet per kontrollområde ... (eksisterende panel)    │
 ```
 
 ### Teknisk implementering
 
-**Fil 1: `src/components/system-profile/SystemHeader.tsx`**
-- Erstatt Trust Score-gaugen (linje 200–256) med en kompakt vertikal liste med tre indikatorer:
-  - Risikonivå (fra system data, fargekodede badges: rød/gul/grønn)
-  - Kritikalitet (fra asset/system data)
-  - Modenhet (minibar med prosent, beregnet fra trustMetrics)
-- Beholder `trustMetrics`-propen for å beregne modenhet, men viser ikke Trust Score-tallet
+**Fil 1: `src/components/trust-controls/HeaderMaturityIndicators.tsx`** — omskrives
+- Bytt fra vertikal sidebar til en horisontal rad med 4 kort (grid cols-2 sm:cols-4)
+- Kort 1: **Risikonivå** — badge med fargekode + ikon
+- Kort 2: **Modenhetsnivå** — prosent med ikon
+- Kort 3: **Intern risikovurdering** — dato (demo) med ikon
+- Kort 4: **Oppgaver** — antall (demo: 0) med ikon
+- Hvert kort: border, liten padding, ikon øverst til høyre, label øverst, verdi under
+- Fjern `hidden md:flex` — synlig på alle skjermstørrelser
+- Flytt fra høyre sidebar-posisjon til under beskrivelsen
 
-**Fil 2: `src/components/asset-profile/AssetHeader.tsx`**
-- Samme endring som SystemHeader: erstatt Trust Score-gauge med risiko/kritikalitet/modenhet
-- Gjelder kun for leverandør-profiler som er "tatt i bruk" (ikke self-profiler)
-- Self-profiler beholder eksisterende visning
+**Fil 2: `src/components/asset-profile/AssetHeader.tsx`** — endres
+- Flytt `HeaderMaturityIndicators` fra høyre side til under header-innholdet (etter beskrivelse, før bedriftsinfo)
+- Gjør bedriftsinfo-stripen (Org.nr, Bransje, Kategori, Nettside) skjulbar med en toggle-knapp "Vis bedriftsinfo" / "Skjul bedriftsinfo"
+- Legg til `useState` for `showCompanyInfo`, default `false`
+- Fjern owner/manager/contact fra under bedriftsinfo — behold dem i toppen ved siden av navn (som i skjermbildet)
 
-**Fil 3: `src/components/system-profile/tabs/ValidationTab.tsx`**
-- Legg til en ny `Card` øverst med leverandørens Trust Score-gauge (flyttet fra header)
-- Inkluder forklaringstekst som kontekstualiserer scoren
-- Vis confidence-level og sist oppdatert-dato
-- Plasseres før det eksisterende TrustControlsPanel
+**Fil 3: `src/components/system-profile/SystemHeader.tsx`** — endres
+- Samme mønster: flytt `HeaderMaturityIndicators` fra sidebar til under header
+- Plasser som full-bredde rad med 4 kort
 
-**Fil 4: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`** (eller tilsvarende)
-- Samme endring: legg til Trust Score-kort øverst i "Veiledning fra Mynder"-fanen for leverandører
+**Fil 4: `src/components/device-profile/DeviceHeader.tsx`** — endres
+- Samme tilpasning
 
-**Fil 5: `src/components/device-profile/DeviceHeader.tsx`**
-- Samme mønster: erstatt Trust Score-gauge med risiko/kritikalitet/modenhet-indikatorer
-
-### Logikk for visning
-- Header viser Trust Score **kun** for self-profiler (organisasjonens egen profil)
-- For alle leverandører/systemer som er "tatt i bruk": header viser risiko + kritikalitet + modenhet
-- Trust Score flyttes til Veiledning-fanen med kontekst om at dette er leverandørens baseline-score
+### Eier/Systemansvarlig plassering
+Beholder eier og systemansvarlig-velgerne øverst til høyre i headeren (som i skjermbildet), ikke i en egen seksjon under.
 
