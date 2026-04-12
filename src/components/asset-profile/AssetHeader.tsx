@@ -30,6 +30,7 @@ import {
   User,
   Users,
   Send,
+  Mail,
   Camera,
   Loader2,
   Award,
@@ -390,6 +391,24 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                 {getStatusLabel(asset.lifecycle_status)}
               </Badge>
             )}
+            {!isSelf && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setRequestDialogOpen(true)}
+                      className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+                      aria-label={isNb ? "Send forespørsel" : "Send request"}
+                    >
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    {isNb ? "Send forespørsel til leverandør" : "Send request to vendor"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
 
           {isSelf ? (
@@ -453,20 +472,9 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </div>
           ) : (
             <>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-                {asset.vendor && (
-                  <p className="text-sm text-muted-foreground">{asset.vendor}</p>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs gap-1.5 w-fit"
-                  onClick={() => setRequestDialogOpen(true)}
-                >
-                  <Send className="h-3 w-3" />
-                  {isNb ? "Be om oppdatering" : "Request update"}
-                </Button>
-              </div>
+              {asset.vendor && (
+                <p className="text-sm text-muted-foreground mt-1">{asset.vendor}</p>
+              )}
               {asset.description && (
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                   {asset.description}
