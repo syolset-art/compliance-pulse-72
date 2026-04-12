@@ -341,6 +341,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
               trustScore={evaluation?.trustScore ?? 0}
               confidenceScore={evaluation?.confidenceScore ?? 0}
               lastUpdated={new Date().toLocaleDateString()}
+              assetId={systemAsAsset.id}
             />
             <VendorPrivacyAssessment
               vendorName={systemAsAsset.vendor || systemAsAsset.name}
