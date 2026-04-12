@@ -118,7 +118,7 @@ function ControlAreasChart({ isNb }: { isNb: boolean }) {
     return {
       name: a.short,
       fullName: a.label,
-      score: d ? Math.round((d.completed / Math.max(d.total, 1)) * 100) : Math.floor(Math.random() * 40 + 30),
+      score: d ? Math.round(d.score) : Math.floor(Math.random() * 40 + 30),
     };
   });
 
