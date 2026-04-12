@@ -3268,6 +3268,41 @@ export type Database = {
           },
         ]
       }
+      work_area_members: {
+        Row: {
+          created_at: string
+          id: string
+          person_name: string
+          role: string
+          updated_at: string
+          work_area_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          person_name: string
+          role?: string
+          updated_at?: string
+          work_area_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          person_name?: string
+          role?: string
+          updated_at?: string
+          work_area_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_area_members_work_area_id_fkey"
+            columns: ["work_area_id"]
+            isOneToOne: false
+            referencedRelation: "work_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_area_templates: {
         Row: {
           created_at: string | null
