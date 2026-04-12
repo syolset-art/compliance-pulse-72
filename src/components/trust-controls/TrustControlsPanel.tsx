@@ -313,6 +313,7 @@ export function TrustControlsPanel({
       {/* ━━━ Sikkerhet og kontroller ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <Card className="p-5 md:col-span-2">
         {/* Header row */}
+        {!hideHeader && (
         <div className="flex items-start justify-between mb-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
@@ -343,6 +344,7 @@ export function TrustControlsPanel({
           </div>
           <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
+        )}
 
         {/* Source legend + stacked bar */}
         <div className="mb-4 space-y-2">
