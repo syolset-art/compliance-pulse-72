@@ -6,9 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, FileCheck, Calendar, User, AlertCircle, HelpCircle, Mail } from "lucide-react";
-import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { Shield, AlertCircle, HelpCircle, Mail, ArrowDown, CheckCircle2 } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 
 interface VendorTPRMStatusProps {
@@ -17,19 +15,60 @@ interface VendorTPRMStatusProps {
   vendorName?: string;
   contactPerson?: string | null;
   contactEmail?: string | null;
+  tasks?: Array<{ id: string; title: string; type: string; status: string; priority: string }>;
 }
 
 type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
 
-interface DocumentStatus {
-  type: string;
+interface ControlRequirement {
+  key: string;
   label: string;
-  exists: boolean;
-  count: number;
+  met: boolean;
+  taskKeywords: string[];
+  requestType?: string;
   requestLabel: string;
+  isAudit?: boolean;
 }
 
-export const VendorTPRMStatus = ({ assetId, assetName = "", vendorName, contactPerson, contactEmail }: VendorTPRMStatusProps) => {
+function getRiskLevel(criticality?: string | null, riskLevel?: string | null): "high" | "medium" | "low" | null {
+  if (!criticality && !riskLevel) return null;
+  const crit = criticality?.toLowerCase();
+  const risk = riskLevel?.toLowerCase();
+  if (crit === "critical" || crit === "high" || risk === "high") return "high";
+  if (crit === "medium" || risk === "medium") return "medium";
+  if (crit === "low" || risk === "low") return "low";
+  return null;
+}
+
+function getTPRMLevel(risk: "high" | "medium" | "low" | null, controlsMet: number, totalControls: number): TPRMLevel {
+  if (risk === null) return "not_assessed";
+  const controlRatio = controlsMet / totalControls;
+  if (risk === "high" && controlRatio < 0.75) return "action_required";
+  if (controlRatio >= 0.75) return "approved";
+  return "under_review";
+}
+
+function findMatchingTask(
+  tasks: VendorTPRMStatusProps["tasks"],
+  keywords: string[]
+): VendorTPRMStatusProps["tasks"] extends (infer T)[] ? T | undefined : undefined {
+  if (!tasks || tasks.length === 0) return undefined;
+  return tasks.find((t) => {
+    if (t.status === "completed") return false;
+    const titleLower = t.title.toLowerCase();
+    const typeLower = t.type?.toLowerCase() || "";
+    return keywords.some((kw) => titleLower.includes(kw) || typeLower.includes(kw));
+  });
+}
+
+export const VendorTPRMStatus = ({
+  assetId,
+  assetName = "",
+  vendorName,
+  contactPerson,
+  contactEmail,
+  tasks = [],
+}: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestOpen, setRequestOpen] = useState(false);
@@ -40,7 +79,7 @@ export const VendorTPRMStatus = ({ assetId, assetName = "", vendorName, contactP
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
-        .select("*")
+        .select("criticality, risk_level, next_review_date")
         .eq("id", assetId)
         .maybeSingle();
       if (error) throw error;
@@ -53,179 +92,211 @@ export const VendorTPRMStatus = ({ assetId, assetName = "", vendorName, contactP
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, status")
+        .select("id, document_type")
         .eq("asset_id", assetId);
       if (error) throw error;
       return data || [];
     },
   });
 
-  const docStatuses: DocumentStatus[] = [
+  const hasDPA = documents.some((d) => d.document_type === "dpa");
+  const hasSLA = documents.some((d) => d.document_type === "sla");
+  const hasRiskAssessment = documents.some((d) => d.document_type === "risk_assessment");
+  const hasAudit = !!asset?.next_review_date;
+
+  const controls: ControlRequirement[] = [
     {
-      type: "dpa",
+      key: "dpa",
       label: isNb ? "Databehandleravtale (DPA)" : "Data Processing Agreement",
-      exists: documents.some((d) => d.document_type === "dpa"),
-      count: documents.filter((d) => d.document_type === "dpa").length,
+      met: hasDPA,
+      taskKeywords: ["dpa", "databehandleravtale", "data processing"],
+      requestType: "dpa",
       requestLabel: isNb ? "Be om DPA" : "Request DPA",
     },
     {
-      type: "sla",
+      key: "sla",
       label: isNb ? "Tjenestenivåavtale (SLA)" : "Service Level Agreement",
-      exists: documents.some((d) => d.document_type === "sla"),
-      count: documents.filter((d) => d.document_type === "sla").length,
+      met: hasSLA,
+      taskKeywords: ["sla", "tjenestenivå", "service level"],
+      requestType: "sla",
       requestLabel: isNb ? "Be om SLA" : "Request SLA",
     },
     {
-      type: "risk_assessment",
+      key: "risk_assessment",
       label: isNb ? "Risikovurdering" : "Risk Assessment",
-      exists: documents.some((d) => d.document_type === "risk_assessment"),
-      count: documents.filter((d) => d.document_type === "risk_assessment").length,
-      requestLabel: isNb ? "Be om risikovurdering" : "Request assessment",
+      met: hasRiskAssessment,
+      taskKeywords: ["risikovurdering", "risk assessment", "risk_assessment"],
+      requestType: "risk_assessment",
+      requestLabel: isNb ? "Be om vurdering" : "Request assessment",
+    },
+    {
+      key: "audit",
+      label: isNb ? "Revisjon satt opp" : "Audit scheduled",
+      met: hasAudit,
+      taskKeywords: ["revisjon", "audit", "review"],
+      requestLabel: isNb ? "Sett opp i Revisjon →" : "Set up in Audit →",
+      isAudit: true,
     },
   ];
 
-  const hasDPA = docStatuses[0].exists;
-  const hasRisk = docStatuses[2].exists;
-  const riskLevel = asset?.risk_level;
+  const controlsMet = controls.filter((c) => c.met).length;
+  const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
+  const tprmLevel = getTPRMLevel(risk, controlsMet, controls.length);
 
-  let tprmLevel: TPRMLevel = "not_assessed";
-  if (hasDPA && hasRisk && riskLevel && riskLevel !== "high") {
-    tprmLevel = "approved";
-  } else if (hasDPA || hasRisk) {
-    tprmLevel = "under_review";
-  } else if (riskLevel === "high") {
-    tprmLevel = "action_required";
-  }
-
-  const tprmConfig: Record<TPRMLevel, { label: string; variant: "default" | "warning" | "destructive" | "secondary" }> = {
-    approved: { label: isNb ? "Godkjent" : "Approved", variant: "default" },
-    under_review: { label: isNb ? "Under vurdering" : "Under review", variant: "warning" },
-    action_required: { label: isNb ? "Krever handling" : "Action required", variant: "destructive" },
-    not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", variant: "secondary" },
+  const tprmConfig: Record<TPRMLevel, { label: string; variant: "default" | "warning" | "destructive" | "secondary"; emoji: string }> = {
+    approved: { label: isNb ? "Godkjent" : "Approved", variant: "default", emoji: "🟢" },
+    under_review: { label: isNb ? "Under oppfølging" : "Under review", variant: "warning", emoji: "🟡" },
+    action_required: { label: isNb ? "Krever tiltak" : "Action required", variant: "destructive", emoji: "🔴" },
+    not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", variant: "secondary", emoji: "⚪" },
   };
 
-  const nextReview = asset?.next_review_date;
-  const responsible = asset?.asset_manager || null;
-
-  const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return isNb ? "Ikke satt" : "Not set";
-    try {
-      return format(new Date(dateStr), "d. MMM yyyy", { locale: isNb ? nb : undefined });
-    } catch {
-      return dateStr;
-    }
+  const riskLabels: Record<string, string> = {
+    high: isNb ? "Høy" : "High",
+    medium: isNb ? "Middels" : "Medium",
+    low: isNb ? "Lav" : "Low",
   };
+
+  const riskColors: Record<string, string> = {
+    high: "text-destructive",
+    medium: "text-warning",
+    low: "text-primary",
+  };
+
+  const missingControls = controls.filter((c) => !c.met);
 
   const handleRequest = (docType: string) => {
     setRequestType(docType);
     setRequestOpen(true);
   };
 
+  const handleScrollToTask = (taskId: string) => {
+    window.dispatchEvent(new CustomEvent("scroll-to-tasks"));
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("highlight-task", { detail: { taskId } }));
+    }, 300);
+  };
+
+  const handleGoToAudit = () => {
+    window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "vendor-audit" } }));
+  };
+
   return (
     <>
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center justify-between">
             <span className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
+              {isNb ? "Oppfølgingsstatus" : "Follow-up Status"}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
-                    <p className="font-semibold text-foreground">
-                      {isNb ? "TPRM – Third-Party Risk Management" : "TPRM – Third-Party Risk Management"}
-                    </p>
+                    <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
                     <p>
                       {isNb
-                        ? "TPRM handler om å ha kontroll på leverandørene dine. Det betyr at du sjekker at de behandler data trygt, at nødvendige avtaler er på plass, og at du jevnlig følger opp at alt er i orden."
-                        : "TPRM is about keeping control of your vendors. It means checking that they handle data safely, that necessary agreements are in place, and that you regularly follow up to ensure everything is in order."}
+                        ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging). Risiko = hvor farlig er dette? Kontroll = har vi gjort jobben vår?"
+                        : "Combines the risk of using this vendor with the degree of control (documentation and follow-up). Risk = how dangerous is this? Control = have we done our job?"}
                     </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </span>
             <Badge variant={tprmConfig[tprmLevel].variant} className="text-[10px]">
-              {tprmConfig[tprmLevel].label}
+              {tprmConfig[tprmLevel].emoji} {tprmConfig[tprmLevel].label}
             </Badge>
           </CardTitle>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-            {isNb
-              ? "Er det trygt å bruke denne leverandøren – og hva må vi gjøre nå?"
-              : "Is it safe to use this vendor – and what do we need to do now?"}
-          </p>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Document statuses with actionable buttons */}
-          <div className="space-y-1.5">
-            {docStatuses.map((doc) => (
-              <div
-                key={doc.type}
-                className={`flex items-center justify-between text-sm p-2 rounded ${
-                  doc.exists
-                    ? "bg-muted/30"
-                    : "bg-destructive/5 border-l-2 border-destructive/40"
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  {doc.exists ? (
-                    <FileCheck className="h-3.5 w-3.5 text-primary" />
-                  ) : (
-                    <AlertCircle className="h-3.5 w-3.5 text-destructive/70" />
-                  )}
-                  <span className={doc.exists ? "text-foreground" : "text-muted-foreground"}>
-                    {doc.label}
-                  </span>
-                </span>
-                {doc.exists ? (
-                  <Badge variant="default" className="text-[10px]">
-                    {isNb ? "På plass" : "In place"}
-                  </Badge>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5"
-                    onClick={() => handleRequest(doc.type)}
-                  >
-                    <Mail className="h-3 w-3" />
-                    {doc.requestLabel}
-                  </Button>
-                )}
-              </div>
-            ))}
+        <CardContent className="space-y-3 pt-0">
+          {/* Risk × Control summary */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-2.5 rounded-lg bg-muted/40">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+                {isNb ? "Risiko" : "Risk"}
+              </p>
+              {risk ? (
+                <p className={`text-sm font-semibold ${riskColors[risk]}`}>
+                  ● {riskLabels[risk]}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  {isNb ? "Ikke vurdert" : "Not assessed"}
+                </p>
+              )}
+            </div>
+            <div className="p-2.5 rounded-lg bg-muted/40">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+                {isNb ? "Kontroll" : "Control"}
+              </p>
+              <p className="text-sm font-semibold text-foreground">
+                {controlsMet} {isNb ? "av" : "of"} {controls.length} {isNb ? "krav oppfylt" : "requirements met"}
+              </p>
+            </div>
           </div>
 
-          {/* Key dates & responsible */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <div className="flex items-start gap-2 text-xs">
-              <Calendar className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
-              <div>
-                <p className="text-muted-foreground">{isNb ? "Neste gjennomgang" : "Next review"}</p>
-                {nextReview ? (
-                  <p className="font-medium">{formatDate(nextReview)}</p>
-                ) : (
-                  <button
-                    onClick={() => window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "vendor-audit" } }))}
-                    className="font-medium text-primary hover:underline cursor-pointer"
+          {/* Missing controls */}
+          {missingControls.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                {isNb ? "Mangler" : "Missing"}
+              </p>
+              {missingControls.map((ctrl) => {
+                const matchingTask = findMatchingTask(tasks, ctrl.taskKeywords);
+
+                return (
+                  <div
+                    key={ctrl.key}
+                    className="flex items-center justify-between text-sm p-2 rounded bg-destructive/5 border-l-2 border-destructive/40"
                   >
-                    {isNb ? "Sett opp i Revisjon →" : "Set up in Audit →"}
-                  </button>
-                )}
-              </div>
+                    <span className="flex items-center gap-2">
+                      <AlertCircle className="h-3.5 w-3.5 text-destructive/70" />
+                      <span className="text-muted-foreground">{ctrl.label}</span>
+                    </span>
+                    {matchingTask ? (
+                      <button
+                        onClick={() => handleScrollToTask(matchingTask.id)}
+                        className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                      >
+                        <ArrowDown className="h-3 w-3" />
+                        {isNb ? "Se oppgave ↓" : "See task ↓"}
+                      </button>
+                    ) : ctrl.isAudit ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs gap-1.5"
+                        onClick={handleGoToAudit}
+                      >
+                        {ctrl.requestLabel}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50 gap-1.5"
+                        onClick={() => handleRequest(ctrl.requestType!)}
+                      >
+                        <Mail className="h-3 w-3" />
+                        {ctrl.requestLabel}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            {responsible && (
-              <div className="flex items-start gap-2 text-xs">
-                <User className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="text-muted-foreground">{isNb ? "Leverandøransvarlig" : "Vendor Manager"}</p>
-                  <p className="font-medium">{responsible}</p>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
+
+          {/* All met */}
+          {missingControls.length === 0 && (
+            <div className="flex items-center gap-2 p-2 rounded bg-primary/5 text-sm">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <span className="text-foreground font-medium">
+                {isNb ? "Alle krav er oppfylt" : "All requirements met"}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
