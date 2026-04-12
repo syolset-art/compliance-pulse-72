@@ -207,7 +207,7 @@ export function TrustControlsPanel({
     { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring",
       descNb: "Styringsgrunnlag, eierskap til vurderinger og sentral dokumentasjon for systemet.",
       descEn: "Governance framework, ownership of assessments and central documentation." },
-    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations & Security", labelNb: "Drift og bruk",
+    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations & Security", labelNb: "Drift og sikkerhet",
       descNb: "Dokumentert bruk, prosesser, hendelser og praktisk oppfølging av systemet.",
       descEn: "Documented usage, processes, incidents and practical follow-up." },
     { area: "security_posture" as ControlArea, icon: Key, label: "Identity & Access", labelNb: "Identitet og tilgang",
