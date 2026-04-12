@@ -1,0 +1,1 @@
+ALTER TABLE public.work_areas ADD COLUMN is_active boolean NOT NULL DEFAULT true;
