@@ -366,33 +366,43 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <div className="space-y-2 border-t border-border pt-3">
                     {openTasks.map((task: any) => {
                       const isHighlighted = highlightedTaskId === task.id;
-                      const isTPRM = ["dpa", "sla", "risikovurdering", "risk assessment", "revisjon", "audit"].some(
-                        (kw) => task.title?.toLowerCase().includes(kw) || task.type?.toLowerCase().includes(kw)
-                      );
                       return (
                       <div
                         key={task.id}
                         id={`task-${task.id}`}
-                        className={`flex items-center justify-between p-2.5 rounded-lg transition-all duration-500 ${
+                        className={`flex items-start sm:items-center justify-between gap-3 p-3 rounded-lg transition-all duration-500 ${
                           isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-muted/50"
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <div className={`h-2 w-2 rounded-full shrink-0 ${
-                            task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
-                          }`} />
-                          <span className="text-sm text-foreground">{task.title}</span>
-                          {isTPRM && (
-                            <Shield className="h-3 w-3 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <div className={`h-2 w-2 rounded-full shrink-0 mt-0.5 ${
+                              task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
+                            }`} />
+                            <span className="text-sm font-medium text-foreground">{task.title}</span>
+                            {task.priority && (
+                              <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px] shrink-0">
+                                {task.priority === "high" ? (isNb ? "Høy" : "High") : (isNb ? "Medium" : "Medium")}
+                              </Badge>
+                            )}
+                          </div>
+                          {task.action && (
+                            <p className="text-xs text-muted-foreground mt-1 ml-4">
+                              {task.action}
+                            </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          {task.priority && (
-                            <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
-                              {task.priority}
-                            </Badge>
-                          )}
-                        </div>
+                        {task.ctaLabel && task.targetTab && onNavigateToTab && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1 shrink-0 whitespace-nowrap"
+                            onClick={() => onNavigateToTab(task.targetTab)}
+                          >
+                            {task.ctaLabel}
+                            <ArrowRight className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                       );
                     })}
