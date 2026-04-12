@@ -1126,31 +1126,16 @@ export default function WorkAreas() {
                     </div>
                   </Card>
 
-                  {/* Eksisterende innstillinger */}
-                  <Card className="p-6">
-                    <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-                      <Settings className="h-5 w-5 text-muted-foreground" />
-                      Administrasjon
-                    </h3>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleEdit(selectedWorkArea)}
-                        className="gap-2"
-                      >
-                        <Pencil className="h-4 w-4" />
-                        {t("common.edit")}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => setDeletingWorkArea(selectedWorkArea)}
-                        className="gap-2"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {t("common.delete")}
-                      </Button>
-                    </div>
-                  </Card>
+                  {/* Arbeidsområde-detaljer */}
+                  <WorkAreaDetailsCard
+                    workArea={selectedWorkArea}
+                    onUpdate={(updates) => {
+                      const updated = { ...selectedWorkArea, ...updates };
+                      setSelectedWorkArea(updated);
+                      setWorkAreas(prev => prev.map(a => a.id === updated.id ? updated : a));
+                    }}
+                    onDelete={() => setDeletingWorkArea(selectedWorkArea)}
+                  />
                 </div>
               </TabsContent>
             </Tabs>
