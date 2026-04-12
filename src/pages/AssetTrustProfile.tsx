@@ -329,7 +329,7 @@ const AssetTrustProfile = () => {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
                 <nav aria-label={isNb ? "Leverandør-faner" : "Vendor tabs"} className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
                   <div className="flex items-center gap-1">
-                    <TabsList className="inline-flex w-auto bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
+                    <TabsList className="flex flex-1 bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
                       {vendorTabDefs.map((tab) => (
                         <TabsTrigger
                           key={tab.value}
