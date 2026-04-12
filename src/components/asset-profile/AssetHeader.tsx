@@ -698,45 +698,6 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               </div>
             </div>
 
-            {/* 4. Forespørsler / inbox */}
-            <div className="flex items-start gap-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setRequestDialogOpen(true)}
-                      className="relative h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 hover:bg-accent transition-colors"
-                      aria-label={isNb ? "Forespørsler" : "Requests"}
-                    >
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      {requestCount > 0 && (
-                        <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center">
-                          {requestCount}
-                        </span>
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {isNb
-                      ? `Forespørsler${requestCount > 0 ? ` (${requestCount} aktive)` : ""}`
-                      : `Requests${requestCount > 0 ? ` (${requestCount} active)` : ""}`}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-                  {isNb ? "Forespørsler" : "Requests"}
-                </p>
-                <button
-                  onClick={() => setRequestDialogOpen(true)}
-                  className="text-xs text-primary hover:underline cursor-pointer"
-                >
-                  {requestCount > 0
-                    ? (isNb ? `${requestCount} aktive forespørsler` : `${requestCount} active requests`)
-                    : (isNb ? "Send ny forespørsel" : "Send new request")}
-                </button>
-              </div>
-            </div>
           </div>
         </>
       )}
