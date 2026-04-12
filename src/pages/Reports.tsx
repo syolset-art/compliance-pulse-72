@@ -409,7 +409,108 @@ const Reports = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="gdpr" className="space-y-4">
+            <TabsContent value="portefoljer" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => navigate('/vendors')}>
+                  <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-sm sm:text-base">Leverandørportefølje</CardTitle>
+                          <CardDescription className="text-xs mt-0.5">Oversikt over alle leverandører, risiko og score</CardDescription>
+                        </div>
+                      </div>
+                      <Badge className={vendors.length > 0 ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-muted text-muted-foreground border-muted"}>
+                        {vendors.length > 0 ? <><CheckCircle className="h-3 w-3 mr-1" /> Klar</> : "Ingen data"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                    <div className="text-xs text-muted-foreground">
+                      {vendors.length} leverandører registrert
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => navigate('/systems')}>
+                  <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                          <Monitor className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-sm sm:text-base">Systemportefølje</CardTitle>
+                          <CardDescription className="text-xs mt-0.5">Alle systemer med livssyklus og risiko</CardDescription>
+                        </div>
+                      </div>
+                      <Badge className={systems.length > 0 ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-muted text-muted-foreground border-muted"}>
+                        {systems.length > 0 ? <><CheckCircle className="h-3 w-3 mr-1" /> Klar</> : "Ingen data"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                    <div className="text-xs text-muted-foreground">
+                      {systems.length} systemer registrert
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => navigate('/assets')}>
+                  <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                          <Package className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-sm sm:text-base">Eiendelsportefølje</CardTitle>
+                          <CardDescription className="text-xs mt-0.5">Alle eiendeler fordelt på type og risiko</CardDescription>
+                        </div>
+                      </div>
+                      <Badge className={otherAssets.length > 0 ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-muted text-muted-foreground border-muted"}>
+                        {otherAssets.length > 0 ? <><CheckCircle className="h-3 w-3 mr-1" /> Klar</> : "Ingen data"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                    <div className="text-xs text-muted-foreground">
+                      {otherAssets.length} øvrige eiendeler registrert
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Executive summary card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileBarChart className="h-5 w-5 text-primary" />
+                    Samlet lederrapport
+                  </CardTitle>
+                  <CardDescription>
+                    En komplett PDF som gir ledelsen et raskt overblikk over leverandører, systemer og eiendeler — med risikofordeling og compliance-score.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                      <span>{portfolioAssets.length} eiendeler totalt</span>
+                      <span>{vendors.length} leverandører</span>
+                      <span>{systems.length} systemer</span>
+                    </div>
+                    <Button onClick={(e) => { e.stopPropagation(); handleExecReport(); }} disabled={generatingPdf} className="sm:ml-auto">
+                      {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                      Last ned lederrapport
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {gdprReports.map((report, index) => (
                   <ReportCard key={index} {...report} onClick={report.onClick} />
