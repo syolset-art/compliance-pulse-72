@@ -280,7 +280,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             >
               <div>
                 <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Oppgaver" : "Tasks"}
+                  {isNb ? "Oppgaver" : "Tasks"} ({openTasks.length})
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {isNb
