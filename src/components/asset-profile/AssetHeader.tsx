@@ -717,63 +717,29 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         />
       )}
 
-      {/* Vendor info — hidden for self/published profiles */}
+      {/* Vendor info — inline row for non-self profiles */}
       {!isSelf && (
         <>
-          {/* Toggle for company info */}
-          <div className="mt-3">
-            <button
-              onClick={() => setShowCompanyInfo(!showCompanyInfo)}
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
-            >
-              <Info className="h-3.5 w-3.5" />
-              {showCompanyInfo
-                ? (isNb ? "Skjul bedriftsinfo" : "Hide company info")
-                : (isNb ? "Vis bedriftsinfo" : "Show company info")}
-            </button>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-3 text-xs text-muted-foreground">
+            {(asset as any).org_number && (
+              <span>
+                <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
+                <span className="tabular-nums">{(asset as any).org_number}</span>
+              </span>
+            )}
+            {((asset as any).vendor_category || asset.category) && (
+              <span>
+                <span className="font-medium text-foreground">{isNb ? "Bransje" : "Industry"}:</span>{" "}
+                {(asset as any).vendor_category || asset.category}
+              </span>
+            )}
+            {asset.url && (
+              <a href={asset.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
           </div>
-
-          {showCompanyInfo && (
-            <div className="rounded-lg border border-border bg-muted/30 grid grid-cols-2 sm:grid-cols-4 divide-x divide-border mt-2">
-              <div className="px-4 py-3">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                  {isNb ? "Org.nr" : "Org. no."}
-                </p>
-                <p className="text-sm font-semibold text-foreground tabular-nums">
-                  {(asset as any).org_number || "—"}
-                </p>
-              </div>
-              <div className="px-4 py-3">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                  {isNb ? "Bransje" : "Industry"}
-                </p>
-                <p className="text-sm font-medium text-foreground">
-                  {(asset as any).vendor_category || asset.category || "—"}
-                </p>
-              </div>
-              <div className="px-4 py-3">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                  {isNb ? "Kategori" : "Category"}
-                </p>
-                <p className="text-sm font-medium text-foreground">
-                  {template?.display_name || asset.asset_type || "—"}
-                </p>
-              </div>
-              <div className="px-4 py-3">
-                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
-                  {isNb ? "Nettside" : "Website"}
-                </p>
-                {asset.url ? (
-                  <a href={asset.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
-                    {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : (
-                  <p className="text-sm font-medium text-foreground">—</p>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Contact — bottom section */}
           <div className="border-t border-border mt-4 pt-4">
