@@ -100,7 +100,11 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
     fetchAllPeople();
   }, [workAreaId]);
 
-  const handleAdd = async () => {
+  const currentMemberNames = new Set(members.map(m => m.person_name));
+  const filteredPeople = allPeople
+    .filter(name => !currentMemberNames.has(name))
+    .filter(name => !newName || name.toLowerCase().includes(newName.toLowerCase()));
+
     if (!newName.trim()) return;
     setIsSaving(true);
     try {
