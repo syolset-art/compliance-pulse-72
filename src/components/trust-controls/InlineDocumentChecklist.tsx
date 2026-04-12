@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertCircle, Upload, FileText, ExternalLink } from "lucide-react";
+import { CheckCircle2, AlertCircle, Upload, FileText, ExternalLink, Info } from "lucide-react";
 import { toast } from "sonner";
 
 // Expected document types per control area
