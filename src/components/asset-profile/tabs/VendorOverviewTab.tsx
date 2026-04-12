@@ -260,14 +260,16 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           </div>
 
           {/* Trust Controls Panel — maturity per control area */}
-          <TrustControlsPanel
-            asset={asset}
-            docsCount={docsCount}
-            relationsCount={relationsCount}
-            onTrustMetrics={onTrustMetrics}
-            frameworks={frameworks}
-            onNavigateToTab={onNavigateToTab}
-          />
+          <div id="maturity-controls-section">
+            <TrustControlsPanel
+              asset={asset}
+              docsCount={docsCount}
+              relationsCount={relationsCount}
+              onTrustMetrics={onTrustMetrics}
+              frameworks={frameworks}
+              onNavigateToTab={onNavigateToTab}
+            />
+          </div>
 
 
 
