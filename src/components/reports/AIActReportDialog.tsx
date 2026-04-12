@@ -73,7 +73,7 @@ export function AIActReportDialog({ trigger }: AIActReportDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            AI Act Compliance Rapport
+            AI Act – Etterlevelsesrapport
           </DialogTitle>
           <DialogDescription>
             Generer en komplett PDF-rapport over all AI-bruk i virksomheten
