@@ -390,6 +390,22 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                 {getStatusLabel(asset.lifecycle_status)}
               </Badge>
             )}
+            {!isSelf && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setRequestDialogOpen(true)}
+                    className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+                    aria-label={isNb ? "Send forespørsel" : "Send request"}
+                  >
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {isNb ? "Send forespørsel til leverandør" : "Send request to vendor"}
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
 
           {isSelf ? (
