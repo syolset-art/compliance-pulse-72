@@ -391,10 +391,10 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       <div className="flex items-start gap-4">
         {/* Owner & Manager — top right for vendor/system profiles */}
         {!isSelf && (
-          <div className="hidden md:flex items-start gap-6 shrink-0 ml-auto order-last">
+          <div className="hidden md:flex items-center gap-8 shrink-0 ml-auto order-last">
             {/* Eier (Arbeidsområde) */}
-            <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1 mb-1">
+            <div>
+              <div className="flex items-center gap-1 mb-1.5">
                 <span className="text-[11px] text-muted-foreground font-medium">
                   {isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}
                 </span>
@@ -412,8 +412,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 </TooltipProvider>
               </div>
               <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                <SelectTrigger className="h-8 min-w-[160px] text-xs border border-border bg-background rounded-md px-3">
-                  <SelectValue placeholder={t("trustProfile.selectOwner")} />
+                <SelectTrigger className="h-9 min-w-[170px] text-sm border border-input bg-background rounded-md px-3 hover:bg-accent/50 transition-colors">
+                  <SelectValue placeholder={isNb ? "Velg arbeidsområde" : "Select work area"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
@@ -424,8 +424,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               </Select>
             </div>
             {/* Leverandøransvarlig */}
-            <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1 mb-1">
+            <div>
+              <div className="flex items-center gap-1 mb-1.5">
                 <span className="text-[11px] text-muted-foreground font-medium">
                   {isNb ? "Leverandøransvarlig" : "Vendor Manager"}
                 </span>
@@ -443,8 +443,8 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 </TooltipProvider>
               </div>
               <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
-                <SelectTrigger className="h-8 min-w-[160px] text-xs border border-border bg-background rounded-md px-3">
-                  <SelectValue placeholder={t("trustProfile.assignManager")} />
+                <SelectTrigger className="h-9 min-w-[170px] text-sm border border-input bg-background rounded-md px-3 hover:bg-accent/50 transition-colors">
+                  <SelectValue placeholder={isNb ? "Velg ansvarlig" : "Select manager"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">{isNb ? "— Ikke valgt —" : "— Not assigned —"}</SelectItem>
