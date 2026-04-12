@@ -1083,53 +1083,10 @@ export default function WorkAreas() {
               <TabsContent value="settings" className="mt-4">
                 <div className="space-y-6">
                   {/* Medlemmer-seksjon */}
-                  <Card className="p-6">
-                    <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-                      <UsersIcon className="h-5 w-5 text-primary" />
-                      Medlemmer
-                    </h3>
-
-                    {/* Eier */}
-                    <div className="mb-6">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Eier</div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                        <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
-                          <Crown className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {selectedWorkArea.responsible_person || "Ikke tildelt"}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Arbeidsområde-eier</div>
-                        </div>
-                        <Badge variant="default" className="text-xs shrink-0">Eier</Badge>
-                      </div>
-                    </div>
-
-                    {/* Delegerte roller */}
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Delegerte roller</div>
-                      <div className="space-y-2">
-                        {[
-                          { key: "system_owner", label: "Systemansvarlig", desc: "Ansvar for systemer i arbeidsområdet", icon: Monitor },
-                          { key: "action_owner", label: "Tiltaksansvarlig", desc: "Ansvar for risikoscenarier i prosesser", icon: ClipboardCheck },
-                          { key: "process_owner", label: "Prosessansvarlig", desc: "Ansvar for behandlingsaktiviteter", icon: Workflow },
-                        ].map((role) => (
-                          <div key={role.key} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors group">
-                            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-muted">
-                              <role.icon className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm">{role.label}</div>
-                              <div className="text-xs text-muted-foreground">{role.desc}</div>
-                            </div>
-                            <span className="text-xs text-muted-foreground italic">Ikke tildelt</span>
-                            <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
+                  <WorkAreaMembersCard
+                    workAreaId={selectedWorkArea.id}
+                    ownerName={selectedWorkArea.responsible_person}
+                  />
 
                   {/* Arbeidsområde-detaljer */}
                   <WorkAreaDetailsCard
