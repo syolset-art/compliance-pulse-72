@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertCircle, Clock, Bot } from "lucide-react";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
+import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
+import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
 interface ValidationTabProps {
   systemId: string;
@@ -128,6 +130,15 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
 
   return (
     <div className="space-y-6">
+      {/* Vendor Trust Score Card */}
+      {systemAsAsset && (
+        <VendorTrustScoreCard
+          trustScore={onTrustMetrics ? (evaluation?.trustScore ?? 0) : 0}
+          confidenceScore={evaluation?.confidenceScore ?? 0}
+          lastUpdated={new Date().toLocaleDateString()}
+        />
+      )}
+
       {/* Trust Controls Panel — Maturity by control areas */}
       {systemAsAsset && (
         <TrustControlsPanel

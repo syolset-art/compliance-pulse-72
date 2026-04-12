@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
+import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 
 interface VendorOverviewTabProps {
   asset: {
@@ -144,6 +145,13 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           </Button>
         </div>
       )}
+
+      {/* Vendor Trust Score Card */}
+      <VendorTrustScoreCard
+        trustScore={trustScore}
+        confidenceScore={confidenceScore}
+        lastUpdated={new Date().toLocaleDateString()}
+      />
 
       {/* Trust Controls Panel — same as shown above tabs for self assets */}
       <TrustControlsPanel
