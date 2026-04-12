@@ -44,6 +44,10 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
       window.dispatchEvent(new CustomEvent("scroll-to-maturity", { detail: { switchTab: true } }));
       return;
     }
+    if (key === "risk") {
+      window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "vendor-audit" } }));
+      return;
+    }
     setExpandedCard(prev => prev === key ? null : key);
   };
 
