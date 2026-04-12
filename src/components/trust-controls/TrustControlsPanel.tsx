@@ -264,13 +264,21 @@ export function TrustControlsPanel({
     incident_reporting: { en: "Define process", nb: "Definer prosess", tabEn: "Incidents", tabNb: "Avvik og hendelser" },
   };
 
-  const handleControlClick = (control: EvaluatedControl) => {
+  const DOCUMENT_CONTROLS = new Set(["documentation_available", "dpa_verified"]);
+
+  const handleControlClick = (control: EvaluatedControl, area?: string) => {
     if (control.status === "implemented") return;
+
+    // For document-related controls, toggle inline checklist instead of navigating
+    if (DOCUMENT_CONTROLS.has(control.key) && area) {
+      setDocChecklistArea(prev => prev === area ? null : area);
+      return;
+    }
+
     const target = CONTROL_NAV_MAP[control.key];
     const actionLabel = ACTION_LABELS[control.key];
     if (target && onNavigateToTab) {
       onNavigateToTab(target);
-      // Show toast with guidance
       if (actionLabel) {
         const tabName = isNb ? actionLabel.tabNb : actionLabel.tabEn;
         const isHeader = target.startsWith("_header:");
