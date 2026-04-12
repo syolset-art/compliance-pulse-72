@@ -7,8 +7,9 @@ import {
   TrendingUp, TrendingDown,
   Send, CheckCircle2, XCircle,
   Shield, Users, Server, Link2, AlertTriangle,
-  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint,
+  Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, Fingerprint, HelpCircle, Eye,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -53,6 +54,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
+  const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
 
   const handleScrollToTasks = useCallback(() => {
@@ -108,22 +110,25 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   // Only vendor-relevant frameworks for "Modenhet per regelverk"
   const VENDOR_RELEVANT_FRAMEWORKS = ["gdpr", "iso27001", "nis2", "dora", "iso27701"];
 
-  const { data: frameworks = [] } = useQuery({
-    queryKey: ["selected-frameworks-active-vendor"],
+  const { data: allFrameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active-all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("selected_frameworks")
         .select("framework_id, framework_name")
         .eq("is_selected", true);
       if (error) return [];
-      return (data || [])
-        .filter((fw: any) => VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf)))
-        .map((fw: any) => ({
-          framework_id: fw.framework_id,
-          framework_name: fw.framework_name,
-        }));
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
     },
   });
+
+  const vendorFrameworks = allFrameworks.filter((fw) =>
+    VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf))
+  );
+  const frameworks = showAllFrameworks ? allFrameworks : vendorFrameworks;
 
   const { data: expiredCount = 0 } = useQuery({
     queryKey: ["expired-docs-count", asset.id],
@@ -267,7 +272,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
 
           {/* Collapsible Framework Maturity */}
-          {frameworks.length > 0 && (
+          {(vendorFrameworks.length > 0 || allFrameworks.length > 0) && (
             <div className="mt-4">
               <button
                 onClick={() => setFrameworksExpanded(prev => !prev)}
@@ -281,13 +286,41 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
                     {frameworks.length}
                   </Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="inline-flex"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-primary transition-colors cursor-help" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
+                      {isNb
+                        ? "Viser kun regelverk som er relevante for leverandørhåndtering (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Klikk «Vis alle» for å se samtlige aktive regelverk."
+                        : "Only frameworks relevant to vendor management are shown (GDPR, ISO 27001, NIS2, DORA, ISO 27701). Click 'Show all' to see all active frameworks."}
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 {frameworksExpanded
                   ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </button>
               {frameworksExpanded && (
-                <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
+                <div className="mt-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  {allFrameworks.length > vendorFrameworks.length && (
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={() => setShowAllFrameworks(prev => !prev)}
+                        className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <Eye className="h-3 w-3" />
+                        {showAllFrameworks
+                          ? (isNb ? `Vis kun relevante (${vendorFrameworks.length})` : `Show relevant only (${vendorFrameworks.length})`)
+                          : (isNb ? `Vis alle regelverk (${allFrameworks.length})` : `Show all frameworks (${allFrameworks.length})`)}
+                      </button>
+                    </div>
+                  )}
                   <FrameworkMaturityGrid frameworks={frameworks} />
                 </div>
               )}
