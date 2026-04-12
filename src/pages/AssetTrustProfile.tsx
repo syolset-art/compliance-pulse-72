@@ -29,8 +29,10 @@ import { OrganizationServicesPanel } from "@/components/asset-profile/Organizati
 import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOverviewTab";
-import { VendorRiskAuditTab } from "@/components/asset-profile/tabs/VendorRiskAuditTab";
-import { VendorDocumentsTab } from "@/components/asset-profile/tabs/VendorDocumentsTab";
+import { VendorControlsTab } from "@/components/asset-profile/tabs/VendorControlsTab";
+import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
+import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
+import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -124,9 +126,10 @@ const AssetTrustProfile = () => {
   // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
   const vendorTabDefs = [
     { value: 'overview', label: isNb ? 'Oversikt' : 'Overview' },
-    { value: 'dataHandling', label: isNb ? 'Datahåndtering' : 'Data Handling' },
-    { value: 'riskAudit', label: isNb ? 'Risiko og revisjon' : 'Risk & Audit' },
-    { value: 'documents', label: isNb ? 'Dokumenter' : 'Documents' },
+    { value: 'controls', label: isNb ? 'Score & kontroller' : 'Score & Controls' },
+    { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
+    { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
+    { value: 'history', label: isNb ? 'Historikk & relasjoner' : 'History & Relations' },
   ];
 
   // ── Self tabs: full tab set ──
@@ -306,16 +309,19 @@ const AssetTrustProfile = () => {
                 </nav>
 
                 <TabsContent value="overview" className="mt-6">
-                  <VendorOverviewTab assetId={asset.id} />
+                  <VendorOverviewTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} updatedAt={asset.updated_at} onNavigateToTab={setActiveTab} />
                 </TabsContent>
-                <TabsContent value="dataHandling" className="mt-6">
-                  <DataHandlingTab assetId={asset.id} />
+                <TabsContent value="controls" className="mt-6">
+                  <VendorControlsTab assetId={asset.id} />
                 </TabsContent>
-                <TabsContent value="riskAudit" className="mt-6">
-                  <VendorRiskAuditTab assetId={asset.id} />
+                <TabsContent value="usage" className="mt-6">
+                  <VendorUsageTab assetId={asset.id} />
                 </TabsContent>
-                <TabsContent value="documents" className="mt-6">
-                  <VendorDocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                <TabsContent value="evidence" className="mt-6">
+                  <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                </TabsContent>
+                <TabsContent value="history" className="mt-6">
+                  <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
               </Tabs>
             )}
