@@ -133,13 +133,13 @@ const AssetTrustProfile = () => {
     return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
   }, []);
 
-  // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
+  // ── Vendor tabs ──
   const vendorTabDefs = [
     { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
-    { value: 'controls', label: isNb ? 'Score & kontroller' : 'Score & Controls' },
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
+    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
-    { value: 'history', label: isNb ? 'Historikk & relasjoner' : 'History & Relations' },
+    { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
   ];
 
   // ── Self tabs: full tab set ──
