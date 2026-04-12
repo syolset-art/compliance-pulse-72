@@ -135,7 +135,7 @@ function frameworkBadgeClass(id: string): string {
 // ── Main Component ───────────────────────────────────────────────────
 
 export function TrustControlsPanel({
-  asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics, onNavigateToTab,
+  asset, docsCount, relationsCount, overrideType, hideHeader, frameworks = [], onTrustMetrics, onNavigateToTab,
 }: TrustControlsPanelProps) {
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [showHistory, setShowHistory] = useState(false);
