@@ -12,7 +12,7 @@ const AREA_EXPECTED_DOCS: Record<string, { type: string; labelNb: string; labelE
   governance: [
     { type: "iso27001", labelNb: "Informasjonssikkerhetspolicy (ISMS)", labelEn: "Information Security Policy (ISMS)" },
     { type: "other", labelNb: "Roller og ansvarsdokument", labelEn: "Roles & Responsibilities Document" },
-    { type: "other", labelNb: "Styringsrammeverk / governance-dokument", labelEn: "Governance Framework Document" },
+    { type: "other", labelNb: "Eget styringsrammeverk (valgfritt)", labelEn: "Custom Governance Framework (optional)" },
   ],
   risk_compliance: [
     { type: "penetration_test", labelNb: "Penetrasjonstest / sikkerhetstest", labelEn: "Penetration Test / Security Test" },
