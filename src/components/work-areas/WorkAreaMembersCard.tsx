@@ -3,21 +3,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Users as UsersIcon,
   Crown,
   Monitor,
-  ClipboardCheck,
-  Workflow,
+  
   Pencil,
   Plus,
   Check,
@@ -35,18 +27,8 @@ interface Member {
 }
 
 const ROLE_CONFIG = [
-  { key: "system_owner", label: "Systemansvarlig", desc: "Ansvar for systemer i arbeidsområdet", icon: Monitor },
-  { key: "action_owner", label: "Tiltaksansvarlig", desc: "Ansvar for risikoscenarier i prosesser", icon: ClipboardCheck },
-  { key: "process_owner", label: "Prosessansvarlig", desc: "Ansvar for behandlingsaktiviteter", icon: Workflow },
   { key: "member", label: "Medlem", desc: "Generelt medlem av arbeidsområdet", icon: UsersIcon },
 ] as const;
-
-const ROLE_LABELS: Record<string, string> = {
-  system_owner: "Systemansvarlig",
-  action_owner: "Tiltaksansvarlig",
-  process_owner: "Prosessansvarlig",
-  member: "Medlem",
-};
 
 interface WorkAreaMembersCardProps {
   workAreaId: string;
@@ -295,16 +277,6 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                 </div>
               )}
             </div>
-            <Select value={newRole} onValueChange={setNewRole}>
-              <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLE_CONFIG.map(r => (
-                  <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => { setIsAdding(false); setNewName(""); }} className="h-7 text-xs">
@@ -394,16 +366,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                         </div>
                       )}
                     </div>
-                    <Select value={member.role} onValueChange={(val) => handleRoleChange(member.id, val)}>
-                      <SelectTrigger className="w-40 h-7 text-xs shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ROLE_CONFIG.map(r => (
-                          <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Badge variant="secondary" className="text-xs shrink-0">Medlem</Badge>
                     <Button
                       size="icon"
                       variant="ghost"
