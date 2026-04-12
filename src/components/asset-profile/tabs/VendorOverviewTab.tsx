@@ -218,6 +218,13 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             contactPerson={asset.contact_person || undefined}
             contactEmail={asset.contact_email || undefined}
             tasks={tasks}
+            maturityStats={evaluation ? {
+              implementedCount: evaluation.implementedCount,
+              partialCount: evaluation.partialCount,
+              missingCount: evaluation.missingCount,
+              totalControls: evaluation.allControls.length,
+              trustScore: evaluation.trustScore,
+            } : null}
           />
           {/* Tasks card */}
           <div ref={tasksRef}>
