@@ -16,6 +16,13 @@ interface VendorTPRMStatusProps {
   contactPerson?: string | null;
   contactEmail?: string | null;
   tasks?: Array<{ id: string; title: string; type: string; status: string; priority: string }>;
+  maturityStats?: {
+    implementedCount: number;
+    partialCount: number;
+    missingCount: number;
+    totalControls: number;
+    trustScore: number;
+  } | null;
 }
 
 type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
