@@ -49,6 +49,7 @@ import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { ContactPersonField } from "./ContactPersonField";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
+import { InlineEditableField } from "./InlineEditableField";
 
 interface TrustMetrics {
   trustScore: number;
