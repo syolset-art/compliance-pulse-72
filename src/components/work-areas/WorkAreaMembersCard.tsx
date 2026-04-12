@@ -171,7 +171,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName }: WorkAreaMembersCa
           Medlemmer
         </h3>
         {!isAdding && (
-          <Button variant="outline" size="sm" onClick={() => setIsAdding(true)} className="gap-1.5 text-xs h-7">
+          <Button size="sm" onClick={() => setIsAdding(true)} className="gap-1.5 text-xs h-7 bg-primary text-primary-foreground hover:bg-primary/90">
             <UserPlus className="h-3.5 w-3.5" />
             Legg til
           </Button>
