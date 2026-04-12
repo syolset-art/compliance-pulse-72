@@ -269,7 +269,7 @@ const AssetTrustProfile = () => {
               </Button>
               {isVendor && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() => setRequestDialogOpen(true)}
                   className="gap-2"
