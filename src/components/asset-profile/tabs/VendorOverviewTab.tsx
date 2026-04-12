@@ -55,6 +55,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [requestOpen, setRequestOpen] = useState(false);
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
+  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
   const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -66,10 +67,22 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     }, 100);
   }, []);
 
+  const handleHighlightTask = useCallback((e: Event) => {
+    const taskId = (e as CustomEvent).detail?.taskId;
+    if (taskId) {
+      setHighlightedTaskId(taskId);
+      setTimeout(() => setHighlightedTaskId(null), 2000);
+    }
+  }, []);
+
   useEffect(() => {
     window.addEventListener("scroll-to-tasks", handleScrollToTasks);
-    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasks);
-  }, [handleScrollToTasks]);
+    window.addEventListener("highlight-task", handleHighlightTask);
+    return () => {
+      window.removeEventListener("scroll-to-tasks", handleScrollToTasks);
+      window.removeEventListener("highlight-task", handleHighlightTask);
+    };
+  }, [handleScrollToTasks, handleHighlightTask]);
 
   const trustScore = evaluation?.trustScore ?? 0;
   const confidenceScore = evaluation?.confidenceScore ?? 0;
@@ -204,6 +217,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             vendorName={asset.vendor || undefined}
             contactPerson={asset.contact_person || undefined}
             contactEmail={asset.contact_email || undefined}
+            tasks={tasks}
           />
           {/* Tasks card */}
           <div ref={tasksRef}>
@@ -242,20 +256,37 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               <CardContent className="pt-0 pb-4 px-4">
                 {openTasks.length > 0 ? (
                   <div className="space-y-2 border-t border-border pt-3">
-                    {openTasks.slice(0, 5).map((task: any) => (
-                      <div key={task.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-lg">
+                    {openTasks.slice(0, 5).map((task: any) => {
+                      const isHighlighted = highlightedTaskId === task.id;
+                      const isTPRM = ["dpa", "sla", "risikovurdering", "risk assessment", "revisjon", "audit"].some(
+                        (kw) => task.title?.toLowerCase().includes(kw) || task.type?.toLowerCase().includes(kw)
+                      );
+                      return (
+                      <div
+                        key={task.id}
+                        id={`task-${task.id}`}
+                        className={`flex items-center justify-between p-2.5 rounded-lg transition-all duration-500 ${
+                          isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-muted/50"
+                        }`}
+                      >
                         <div className="flex items-center gap-2.5">
                           <div className={`h-2 w-2 rounded-full shrink-0 ${
                             task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
                           }`} />
                           <span className="text-sm text-foreground">{task.title}</span>
+                          {isTPRM && (
+                            <Shield className="h-3 w-3 text-muted-foreground" />
+                          )}
                         </div>
-                        {task.priority && (
-                          <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
-                            {task.priority}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {task.priority && (
+                            <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px]">
+                              {task.priority}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
+                      );}
                     ))}
                   </div>
                 ) : (
