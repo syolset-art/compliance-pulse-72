@@ -1,64 +1,50 @@
 
 
-## Plan: Koble TPRM-mangler til oppgavemodulen
+## Plan: Vis TPRM-påvirkning ved dokumentgodkjenning
 
-### Konsept
+### Hva endres
 
-Når den forenklede TPRM-statusen viser mangler (manglende DPA, SLA, risikovurdering, revisjon), skal disse kobles direkte til oppgaver i `tasks`-tabellen. Mangler-listen i TPRM-kortet blir klikkbar og scroller ned til den aktuelle oppgaven. Oppgavemodulen viser hvilke oppgaver som stammer fra TPRM-mangler.
+Når brukeren godkjenner et dokument (fra Lara-innboks eller manuell opplasting), skal bekreftelsesdialogen vise konkret hvordan dokumentet påvirker:
+1. **TPRM-status** — f.eks. "Kontroll: 2/4 → 3/4" og eventuelt statusendring "Under oppfølging → Godkjent"
+2. **Risiko** — om dokumentet dekker et risikogap
+3. **Modenhet** — estimert effekt på compliance/trust score
 
-### Hvordan det fungerer
+### Teknisk tilnærming
 
-**1. TPRM-mangler genererer oppgave-referanser**
+**`ApprovalSuccessDialog.tsx`** utvides med nye props som inneholder nåværende TPRM-state, slik at dialogen kan beregne "før vs. etter":
 
-Hver mangel i TPRM-kortet sjekker om det finnes en matchende åpen oppgave for denne eiendelen (via `tasks.relevant_for` som inneholder asset-ID). Matching skjer på `task.type` eller `task.title` som inneholder nøkkelord ("DPA", "SLA", "risikovurdering", "revisjon").
-
-- Hvis oppgave finnes → vis som klikkbar lenke med status-indikator
-- Hvis oppgave ikke finnes → vis "Be om..." aksjonsknapp som før
-
-**2. Klikk på mangel → scroll til oppgave**
-
-Når brukeren klikker en mangel som har en tilknyttet oppgave, utvides oppgavemodulen automatisk og scroller til riktig oppgave (highlight kort).
-
-**3. Oppgavemodulen viser TPRM-kobling**
-
-Oppgaver som matcher TPRM-mangler får et lite TPRM-ikon/badge slik at brukeren ser sammenhengen.
-
-### UI-flyt i TPRM-kortet
+- Legg til valgfrie props: `controlsBefore` (antall oppfylte krav før), `controlsTotal`, `tprmLevelBefore`, `tprmLevelAfter`, `riskLevel`
+- Erstatt den generiske "+X poeng"-seksjonen med en strukturert TPRM-påvirkningsvisning:
 
 ```text
-┌──────────────────────────────────────────┐
-│ 🛡 Oppfølgingsstatus        🟡 Under    │
-│                              oppfølging  │
-├──────────────────────────────────────────┤
-│  Risiko: Middels    Kontroll: 2/4        │
-│                                          │
-│  Mangler:                                │
-│  ○ SLA          🔗 Se oppgave ↓          │
-│  ○ Risikovurd.        [Be om vurdering]  │
-└──────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│ 📊 Effekt på oppfølgingsstatus         │
+│                                         │
+│  Kontroll:  2/4 → 3/4 krav oppfylt     │
+│  Status:    🟡 Under oppfølging →       │
+│             🟢 Godkjent                 │
+│                                         │
+│  Modenhet:  +5 poeng estimert           │
+│  Risiko:    Dekker gap i datahåndtering │
+└─────────────────────────────────────────┘
 ```
 
-Mangler med eksisterende oppgave → "Se oppgave ↓" (scroller ned)
-Mangler uten oppgave → aksjonsknapp (Be om DPA, etc.)
+- Hvis dokumenttypen matcher en av de 4 TPRM-kontrollene (DPA, SLA, risikovurdering), beregnes ny kontrollgrad og eventuell statusendring
+- Hvis dokumentet ikke matcher en TPRM-kontroll, vises kun modenhetspåvirkning
 
-### Endringer
+**`LaraInboxTab.tsx`** — Når `approveMutation.onSuccess` kalles, beregn TPRM-state før godkjenning og send med til `ApprovalSuccessDialog` via `ApprovedItemData`
 
-**`src/components/trust-controls/VendorTPRMStatus.tsx`** (hovedendring i den forenklede versjonen):
-- Hent `tasks` for denne eiendelen (samme query som VendorOverviewTab bruker, via prop eller egen query)
-- Match hver mangel mot åpne oppgaver basert på nøkkelord i tittel/type
-- Vis "Se oppgave ↓" lenke som dispatcher `scroll-to-tasks` event + en task-highlight event
-- Beholde "Be om..." knapper for mangler uten oppgave
+**`UploadDocumentDialog.tsx`** — Etter vellykket opplasting (steg 4/suksess-visning), vis samme TPRM-påvirkningsinformasjon inline i dialogen
 
-**`src/components/asset-profile/tabs/VendorOverviewTab.tsx`**:
-- Sende `tasks` som prop til VendorTPRMStatus for å unngå duplisert query
-- Legge til highlight-logikk: lytte på en `highlight-task` event som markerer en spesifikk oppgave med en kort animasjon
-- Oppgaver med TPRM-kobling får et lite shield-ikon
+### Endringer per fil
+
+1. **`src/components/ApprovalSuccessDialog.tsx`** — Utvid `ApprovedItemData` med TPRM-felter. Erstatt "+X poeng" med strukturert TPRM-påvirkningskort som viser kontrollgrad-endring, eventuell statusendring, modenhet og risikogap-dekning.
+
+2. **`src/components/asset-profile/tabs/LaraInboxTab.tsx`** — Beregn kontrollstatus (antall oppfylte krav) fra eksisterende `vendor-documents` query-data før godkjenning, og inkluder dette i `ApprovedItemData`.
+
+3. **`src/components/asset-profile/UploadDocumentDialog.tsx`** — I suksess-steget etter opplasting, vis en kompakt TPRM-påvirkningsbanner som viser om det opplastede dokumentet fyller et kontrollgap.
 
 ### Ingen databaseendringer
 
-Koblingen bruker eksisterende `tasks.relevant_for` (array med asset-IDer) og matcher på tittel/type. Ingen nye kolonner trengs.
-
-### Filer som endres
-1. `src/components/trust-controls/VendorTPRMStatus.tsx` — Legge til oppgave-matching og scroll-lenker
-2. `src/components/asset-profile/tabs/VendorOverviewTab.tsx` — Sende tasks-prop, highlight-logikk
+All beregning skjer client-side basert på eksisterende data (vendor_documents, asset criticality/risk_level).
 
