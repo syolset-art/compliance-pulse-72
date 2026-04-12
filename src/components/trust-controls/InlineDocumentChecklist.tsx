@@ -117,6 +117,16 @@ export function InlineDocumentChecklist({
 
   return (
     <div className="mt-3 pt-3 border-t border-border animate-fade-in">
+      {controlArea === "governance" && (
+        <div className="mb-3 p-3 rounded-md bg-primary/5 border border-primary/10 flex gap-2.5 text-xs text-muted-foreground">
+          <Info className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+          <p>
+            {isNb
+              ? "Mynder Core fungerer som ditt styringsrammeverk. Dokumentene nedenfor er valgfrie tilleggsdokumenter som kan styrke din modenhetsvurdering — for eksempel egne policyer, styrevedtak eller organisasjonsspesifikke retningslinjer."
+              : "Mynder Core serves as your governance framework. The documents below are optional additions that can strengthen your maturity assessment — such as your own policies, board decisions, or organization-specific guidelines."}
+          </p>
+        </div>
+      )}
       <input
         ref={fileInputRef}
         type="file"
