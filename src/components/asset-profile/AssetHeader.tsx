@@ -554,9 +554,16 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
           {/* TPRM status line for vendors */}
           {!isSelf && (
-            <p className={`text-xs font-medium mt-0.5 ${tprmIndicator[tprmLevel].className}`}>
-              {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
-            </p>
+            <div className="mt-1 mb-3">
+              <p className={`text-xs font-medium ${tprmIndicator[tprmLevel].className}`}>
+                {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
+              </p>
+              {missingDocs.length > 0 && tprmLevel !== "approved" && (
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  → {isNb ? "Mangler" : "Missing"}: {missingDocs.join(", ")}
+                </p>
+              )}
+            </div>
           )}
 
           {isSelf ? (
