@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Database, Workflow, Shield, AlertTriangle } from "lucide-react";
+import { VendorTPRMStatus } from "@/components/trust-controls/VendorTPRMStatus";
 
 interface VendorUsageTabProps {
   assetId: string;
