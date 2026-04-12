@@ -447,7 +447,7 @@ export function TrustControlsPanel({
                     onClick={(e) => { e.stopPropagation(); onNavigateToTab(auditTab); }}
                     className="mt-2 flex items-center gap-1 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors pl-[38px]"
                   >
-                    {isNb ? "Gå til Revisjon" : "Go to Audit"}
+                    {isNb ? "Gå til revisjon og risikostyring" : "Go to Audit & Risk Management"}
                     <ChevronRight className="h-3 w-3" />
                   </button>
                 )}
