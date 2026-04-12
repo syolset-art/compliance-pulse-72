@@ -195,8 +195,15 @@ export const VendorTPRMStatus = ({
         <CardContent className="p-0">
           {/* Executive Summary Banner */}
           <div className="p-4 space-y-3">
-            {/* Status header row */}
-            <div className="flex items-center justify-between">
+          {/* Module title */}
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Oppfølgingsstatus" : "TPRM Status"}
+            </h2>
+          </div>
+
+          {/* Status header row */}
+          <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <Shield className={`h-5 w-5 ${cfg.text}`} />
                 <span className={`text-base font-bold ${cfg.text}`}>
