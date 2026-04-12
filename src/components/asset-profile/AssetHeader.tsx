@@ -717,35 +717,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         />
       )}
 
-      {/* Vendor info — inline row for non-self profiles */}
+      {/* Vendor info & contact — bottom section */}
       {!isSelf && (
         <>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-3 text-xs text-muted-foreground">
-            {(asset as any).org_number && (
-              <span>
-                <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
-                <span className="tabular-nums">{(asset as any).org_number}</span>
-              </span>
-            )}
-            {((asset as any).vendor_category || asset.category) && (
-              <span>
-                <span className="font-medium text-foreground">{isNb ? "Bransje" : "Industry"}:</span>{" "}
-                {(asset as any).vendor_category || asset.category}
-              </span>
-            )}
-            {asset.url && (
-              <a href={asset.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
-          </div>
-
-          {/* Contact — bottom section */}
           <div className="border-t border-border mt-4 pt-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-              {/* Mobile-only: Owner & Manager (hidden on desktop where they appear top-right) */}
+              {/* Mobile-only: Owner & Manager */}
               <div className="flex flex-col gap-3 md:hidden">
                 <div className="flex items-center gap-2">
                   <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -783,14 +761,31 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 </div>
               </div>
 
-              {/* Kontaktperson */}
-              <ContactPersonField
-                assetId={asset.id}
-                contactPerson={(asset as any).contact_person}
-                contactEmail={(asset as any).contact_email}
-                contactPhone={(asset as any).contact_phone}
-                isNb={isNb}
-              />
+              {/* Kontaktperson + bedriftsinfo — høyre kolonne */}
+              <div className="sm:col-start-2 space-y-3">
+                <ContactPersonField
+                  assetId={asset.id}
+                  contactPerson={(asset as any).contact_person}
+                  contactEmail={(asset as any).contact_email}
+                  contactPhone={(asset as any).contact_phone}
+                  isNb={isNb}
+                />
+                {/* Org.nr & nettside */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
+                  {(asset as any).org_number && (
+                    <span>
+                      <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
+                      <span className="tabular-nums">{(asset as any).org_number}</span>
+                    </span>
+                  )}
+                  {asset.url && (
+                    <a href={asset.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                      {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </>
