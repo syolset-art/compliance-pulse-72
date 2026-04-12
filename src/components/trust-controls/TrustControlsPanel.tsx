@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { MaturityHistoryChart } from "./MaturityHistoryChart";
+import { InlineDocumentChecklist } from "./InlineDocumentChecklist";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
