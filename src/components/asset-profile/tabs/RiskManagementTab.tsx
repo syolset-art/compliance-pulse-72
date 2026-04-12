@@ -61,6 +61,9 @@ export const RiskManagementTab = ({ assetId }: RiskManagementTabProps) => {
       {/* Risk Overview from Trust Controls */}
       <RiskOverviewCard assetId={assetId} />
 
+      {/* Risk Influence Diagram */}
+      <RiskInfluenceDiagram assetId={assetId} />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Risk Score */}
         <Card>
