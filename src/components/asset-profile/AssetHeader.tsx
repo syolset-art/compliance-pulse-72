@@ -545,6 +545,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             )}
           </div>
 
+          {/* TPRM status line for vendors */}
+          {!isSelf && (
+            <p className={`text-xs font-medium mt-0.5 ${tprmIndicator[tprmLevel].className}`}>
+              {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
+            </p>
+          )}
+
           {isSelf ? (
             <div>
               <p className="text-sm text-muted-foreground mt-0.5 mb-2">
