@@ -12,7 +12,9 @@ import {
   Key,
   Users,
   ChevronRight,
+  TrendingUp,
 } from "lucide-react";
+import { MaturityHistoryChart } from "./MaturityHistoryChart";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
@@ -134,6 +136,7 @@ export function TrustControlsPanel({
   asset, docsCount, relationsCount, overrideType, frameworks = [], onTrustMetrics, onNavigateToTab,
 }: TrustControlsPanelProps) {
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isNb = i18n.language === "nb";
@@ -303,6 +306,15 @@ export function TrustControlsPanel({
               <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${coverageLabel.color}`}>
                 {isNb ? coverageLabel.nb : coverageLabel.en}
               </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHistory(prev => !prev)}
+                className="h-7 w-7 p-0 ml-1"
+                title={isNb ? "Vis modenhetshistorikk" : "Show maturity history"}
+              >
+                <TrendingUp className={`h-4 w-4 ${showHistory ? "text-primary" : "text-muted-foreground"}`} />
+              </Button>
             </div>
             {assetName && (
               <p className="text-xs text-muted-foreground">
@@ -332,6 +344,17 @@ export function TrustControlsPanel({
           </div>
           <StackedProgress baselinePercent={baselinePercent} enrichmentPercent={enrichmentPercent} height="h-2" />
         </div>
+
+        {/* Maturity history chart */}
+        {showHistory && (
+          <div className="mb-4 p-4 border border-border rounded-xl bg-muted/20 animate-fade-in">
+            <MaturityHistoryChart
+              assetId={asset.id}
+              baselinePercent={baselinePercent}
+              enrichmentPercent={enrichmentPercent}
+            />
+          </div>
+        )}
 
         {/* Summary badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
