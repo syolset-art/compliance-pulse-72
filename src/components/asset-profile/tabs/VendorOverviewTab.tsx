@@ -54,6 +54,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [tasksExpanded, setTasksExpanded] = useState(false);
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
+  const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
 
   const handleScrollToTasks = useCallback(() => {
