@@ -817,6 +817,35 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               />
             </div>
 
+            {/* TPRM Impact */}
+            {tprmImpact && tprmImpact.controlsAfter > tprmImpact.controlsBefore && (
+              <div className="p-4 rounded-lg border border-primary/20 bg-primary/5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">{isNb ? "Effekt på oppfølgingsstatus" : "TPRM Impact"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{isNb ? "Kontroll" : "Control"}</span>
+                  <span className="font-medium">
+                    {tprmImpact.controlsBefore}/{tprmImpact.controlsTotal}
+                    <ArrowRight className="inline h-3 w-3 mx-1 text-muted-foreground" />
+                    <span className="text-emerald-700 font-bold">
+                      {tprmImpact.controlsAfter}/{tprmImpact.controlsTotal}
+                    </span>
+                    <span className="text-muted-foreground ml-1">{isNb ? "krav oppfylt" : "met"}</span>
+                  </span>
+                </div>
+                {tprmImpact.tprmLevelBefore !== tprmImpact.tprmLevelAfter && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{isNb ? "Status" : "Status"}</span>
+                    <span className="text-xs font-medium text-emerald-700">
+                      {isNb ? "Oppgradert" : "Upgraded"} ✓
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Coverage breakdown */}
             <div className="p-4 rounded-lg border space-y-2">
               <p className="text-xs font-medium">{isNb ? "Dokumentdekning" : "Document Coverage"} ({complianceImpact.coveredTypes.length}/{complianceImpact.totalExpected})</p>
