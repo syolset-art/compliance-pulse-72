@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance" },
   { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
-  { key: "identity_access", icon: KeyRound, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
+  { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
   { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
   { key: "supplier_ecosystem", icon: Users, label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain" },
 ] as const;
