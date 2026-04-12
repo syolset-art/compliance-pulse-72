@@ -321,6 +321,10 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               </CardContent>
             </Card>
           </div>
+
+          <VendorPrivacyAssessment
+            vendorName={asset.vendor || asset.name}
+          />
         </div>
       </section>
 
