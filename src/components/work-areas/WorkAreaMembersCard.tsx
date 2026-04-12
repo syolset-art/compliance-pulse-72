@@ -194,8 +194,8 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange, onOp
           <UsersIcon className="h-5 w-5 text-primary" />
           Medlemmer
           {onOpenMembersHelp && (
-            <button onClick={onOpenMembersHelp} className="ml-1">
-              <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+            <button onClick={onOpenMembersHelp} className="ml-1" aria-label="Hjelp om roller og medlemmer">
+              <HelpCircle className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" aria-hidden="true" />
             </button>
           )}
         </h3>
@@ -367,8 +367,9 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange, onOp
                             variant="ghost"
                             className="h-6 w-6 shrink-0"
                             onClick={() => { setEditingId(member.id); setEditName(member.person_name); }}
+                            aria-label={`Rediger ${member.person_name}`}
                           >
-                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                            <Pencil className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                           </Button>
                         </div>
                       )}
@@ -379,8 +380,9 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange, onOp
                       variant="ghost"
                       className="h-6 w-6 shrink-0"
                       onClick={() => handleDelete(member.id)}
+                      aria-label={`Fjern ${member.person_name}`}
                     >
-                      <Trash2 className="h-3 w-3 text-destructive" />
+                      <Trash2 className="h-3 w-3 text-destructive" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>
