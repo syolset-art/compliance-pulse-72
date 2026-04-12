@@ -87,12 +87,10 @@ const SystemTrustProfile = () => {
 
   const primaryTabDefs = [
     { value: "validation", label: isNb ? "Veiledning fra Mynder" : "Guidance from Mynder" },
-    { value: "controls", label: isNb ? "Kontroller" : "Controls" },
+    { value: "usage", label: isNb ? "Bruk av systemet" : "System Usage" },
     { value: "dataHandling", label: isNb ? "Datahåndtering" : "Data Handling" },
-    { value: "riskManagement", label: isNb ? "Revisjon og risiko" : "Audit & Risk Management" },
-    { value: "incidents", label: isNb ? "Avvik og hendelser" : "Deviations & Incidents" },
-    { value: "documents", label: isNb ? "Dokumenter" : "Documents" },
-    { value: "usage", label: isNb ? "Bruk" : "Usage" },
+    { value: "riskManagement", label: isNb ? "Revisjon og risikostyring" : "Audit & Risk Management" },
+    { value: "incidents", label: isNb ? "Hendelseshåndtering" : "Incident Management" },
   ];
 
   const overflowTabDefs = [
