@@ -299,7 +299,7 @@ export const VendorTPRMStatus = ({
             </div>
 
             {/* Remaining tasks summary */}
-            {missingControls.length > 0 && (
+            {maturityStats && maturityStats.totalControls - maturityStats.implementedCount > 0 && (
               <button
                 onClick={() => {
                   const el = document.getElementById("vendor-tasks-section");
@@ -310,10 +310,7 @@ export const VendorTPRMStatus = ({
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-medium text-foreground">
-                    {missingControls.length} {isNb ? "oppgaver gjenstår for å nå" : "tasks remaining to reach"} «{tprmConfig.approved.label}»
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {missingControls.map(c => c.label.split(" (")[0]).join(" · ")}
+                    {maturityStats.totalControls - maturityStats.implementedCount} {isNb ? "kontroller gjenstår for å nå" : "controls remaining to reach"} «{tprmConfig.approved.label}»
                   </p>
                   <span className="text-[10px] text-primary mt-1 inline-block">
                     {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
