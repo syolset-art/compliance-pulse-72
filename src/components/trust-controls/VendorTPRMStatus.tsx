@@ -221,6 +221,20 @@ export const VendorTPRMStatus = ({
                 ) : (
                   <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
               )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
+                      <p className="font-semibold mb-1">{isNb ? "Risikonivå" : "Risk level"}</p>
+                      <p>{isNb
+                        ? "Risikonivået settes basert på leverandørens kritikalitet, datatyper og land. Det påvirker hvilke kontroller og oppfølgingskrav som gjelder."
+                        : "Risk level is based on the vendor's criticality, data types, and country. It determines which controls and follow-up requirements apply."
+                      }</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </span>
               {maturityStats && (
                 <>
@@ -240,6 +254,20 @@ export const VendorTPRMStatus = ({
                       ({maturityStats.trustScore}%)
                     </span>
                   </button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
+                        <p className="font-semibold mb-1">{isNb ? "Kontroll og modenhet" : "Control & maturity"}</p>
+                        <p>{isNb
+                          ? "Viser hvor mange kontroller som er oppfylt på tvers av kontrollområdene (styring, drift, personvern, tredjepartstyring). Klikk for å se detaljene."
+                          : "Shows how many controls are met across control areas (governance, operations, privacy, third-party). Click to view details."
+                        }</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </>
               )}
             </div>
