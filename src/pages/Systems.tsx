@@ -33,6 +33,8 @@ import {
   HelpCircle,
   List,
   LayoutGrid,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
 import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import {
