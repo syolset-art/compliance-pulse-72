@@ -16,6 +16,13 @@ interface VendorTPRMStatusProps {
   contactPerson?: string | null;
   contactEmail?: string | null;
   tasks?: Array<{ id: string; title: string; type: string; status: string; priority: string }>;
+  maturityStats?: {
+    implementedCount: number;
+    partialCount: number;
+    missingCount: number;
+    totalControls: number;
+    trustScore: number;
+  } | null;
 }
 
 type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
@@ -68,6 +75,7 @@ export const VendorTPRMStatus = ({
   contactPerson,
   contactEmail,
   tasks = [],
+  maturityStats,
 }: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -235,6 +243,44 @@ export const VendorTPRMStatus = ({
               </p>
             </div>
           </div>
+
+          {/* Maturity overview — links to control areas section below */}
+          {maturityStats && (
+            <button
+              onClick={() => {
+                const el = document.getElementById("maturity-controls-section");
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="w-full p-2.5 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors text-left group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-0.5">
+                    {isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {maturityStats.implementedCount} {isNb ? "av" : "of"} {maturityStats.totalControls} {isNb ? "kontroller oppfylt" : "controls met"}
+                    {maturityStats.partialCount > 0 && (
+                      <span className="text-xs font-normal text-muted-foreground ml-1">
+                        ({maturityStats.partialCount} {isNb ? "delvis" : "partial"})
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-primary">{maturityStats.trustScore}%</span>
+                  <ArrowDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+              </div>
+              {/* Mini progress bar */}
+              <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${maturityStats.trustScore}%` }}
+                />
+              </div>
+            </button>
+          )}
 
           {/* Missing controls */}
           {missingControls.length > 0 && (
