@@ -1,32 +1,71 @@
 
 
-## Plan: Rydd opp og mobiloptimer Rapportsiden
+## Plan: Redesign dashbordet — no-scroll desktop, fokus på verdi
 
-### Problem
-1. **5 store oppsummeringskort** tar opp for mye plass — spesielt på mobil der de stables vertikalt
-2. **Fremdriftslinjen** i egen Card tar ekstra plass uten å tilføre mye verdi
-3. **Tab-listen** med 5 faner i `grid-cols-5` brytes dårlig på mobil
-4. **Rapportkortene** har mye padding og kan strammes inn
+### Analyse av nåværende problemer
+Dashbordet har i dag 11+ widget-fliser i et rutenett som krever betydelig scrolling selv på PC. Mange widgets viser statisk demo-data (FAIR-risiko, sårbarhetskart, datageografi) som gir lite handlingsrettet innsikt. Det mangler fokus på "hva bør jeg gjøre nå" og "hva har AI-agenten gjort for meg".
 
-### Løsning
+### Ny struktur — alt over folden på desktop
 
-**1. Erstatt 5 store kort med en kompakt inline-oppsummering**
-Fjern de 5 separate Card-komponentene og fremdriftslinjen. Erstatt med en enkelt rad med kompakte tall:
+Hele dashbordet skal passe i én skjermhøyde (~900px) på desktop. Mobilvisningen scroller naturlig.
 
+```text
+┌─────────────────────────────────────────────────────┐
+│  Hei, [Selskap]              [rolle-label]  [Tilpass]│
+├─────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
+│  │Compliance│  │Risikonivå│  │Kontroller│  (3 mini) │
+│  │  74%     │  │  Middels │  │  42/58   │          │
+│  └──────────┘  └──────────┘  └──────────┘          │
+├─────────────────────────────────────────────────────┤
+│  Krever din oppmerksomhet (3-5 items, klikkbare)    │
+│  • 2 leverandører mangler oppdatert DPA  → [Gå til]│
+│  • Revisjon av ISO 27001 om 12 dager     → [Gå til]│
+│  • 1 forespørsel mottatt fra kunde       → [Gå til]│
+├────────────────────┬────────────────────────────────┤
+│  Lara (AI-agent)   │  Frister & kalender            │
+│  Siste 7 dager:    │  • ISO-revisjon: 24. apr       │
+│  ✓ Sendt DPA-krav  │  • DPA-fornyelse: 1. mai       │
+│    til 3 levrand.  │  • NIS2-rapport: 15. mai       │
+│  ✓ Analysert 28    │                                │
+│    systemer        │                                │
+│  Spart ~4 timer    │                                │
+└────────────────────┴────────────────────────────────┘
 ```
-Totalt 18 · Klare 11 · Utkast 3 · Venter 3 · Forfalt 1   [72% komplett ████░░]
-```
 
-En liten horisontal stripe med fargedots og tall, ingen store bokser. På mobil wrapper den naturlig.
+### Endringer
 
-**2. Gjør tab-listen scrollbar på mobil**
-- Fjern `grid w-full grid-cols-5` og bruk `flex overflow-x-auto` med `whitespace-nowrap` på mobil
-- Skjul badge-tallene på små skjermer for å spare plass
+**1. `src/pages/Index.tsx` — Forenkle dashboard-innholdet**
+- Fjern det store widget-rutenettet (`DashboardGrid` med 11 fliser) fra standard visning
+- Behold `editMode` / `DashboardGrid` som en "Utvidet visning"-toggle for de som vil ha det
+- Ny default-visning med 4 kompakte soner:
+  - **Sone 1**: Tre kompakte KPI-kort (compliance %, risikonivå, kontroller vurdert) — én rad
+  - **Sone 2**: "Krever oppmerksomhet" — maks 5 handlingsrettede linjer (erstatter DashboardCriticalTasks + DashboardHeroCards)
+  - **Sone 3**: To kolonner: AI-agentlogg (venstre) + Kommende frister (høyre)
 
-**3. Stram inn ReportCard på mobil**
-- Reduser padding i CardHeader/CardContent
-- Skjul standard-badges på mobil (`hidden sm:flex`)
+**2. Ny komponent `src/components/dashboard/DashboardCompact.tsx`**
+- Kompakt KPI-rad: 3 mini-kort med tall fra `useComplianceRequirements`
+- "Krever oppmerksomhet"-seksjon: Samler kritiske oppgaver, innkomne forespørsler, utgåtte dokumenter, kommende revisjoner — sortert etter frist
+- AI-agent oppsummering: Viser hva Lara har gjort (sendte forespørsler, analyserte systemer, genererte dokumenter) med estimert tidsbesparelse
+- Fristkalender: Kompakt liste over de 5 neste viktige fristene
 
-### Filer som endres
-- `src/pages/Reports.tsx` — erstatt oppsummeringskort, fiks tabs, stram inn layout
+**3. Fjern/arkiver overflødige widgets fra default-visningen**
+- `BusinessRiskExposureWidget`, `VulnerabilityMapWidget`, `DataGeographyWidget`, `CriticalProcessesWidget`, `NIS2ReadinessWidget`, `EnvironmentOverviewWidget` — beholdes men vises kun i "Utvidet visning"
+- `DashboardHeroCards` og `DashboardCriticalTasks` erstattes av de nye kompakte komponentene
+
+**4. Responsiv layout**
+- Desktop: CSS grid med `max-h-[calc(100vh-80px)]` og `overflow-hidden` — ingen scroll
+- Mobil: Naturlig stack med scroll, kompakte kort beholder seg
+
+### Datakilde for AI-agentlogg
+Henter fra eksisterende tabeller:
+- `customer_compliance_requests` (sendte/mottatte forespørsler)
+- `vendor_document_requests` (DPA-forespørsler sendt av Lara)
+- `compliance_requirements` (vurderte kontroller)
+- Demo-tall for tidsbesparelse beregnes fra antall automatiserte handlinger
+
+### Filer som endres/opprettes
+- `src/components/dashboard/DashboardCompact.tsx` — ny
+- `src/pages/Index.tsx` — refaktorert
+- Ingen database-endringer nødvendig
 
