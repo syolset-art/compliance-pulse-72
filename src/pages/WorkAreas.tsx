@@ -870,8 +870,8 @@ export default function WorkAreas() {
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 sm:px-4 py-2 sm:py-3 gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
                   >
                     <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">Verdier</span>
-                    <span className="sm:hidden">Verd</span>
+                     <span className="hidden sm:inline">Eiendeler</span>
+                     <span className="sm:hidden">Eiend</span>
                     <Badge variant="secondary" className="ml-1 text-xs">{allAssets.length}</Badge>
                   </TabsTrigger>
                   <TabsTrigger 
