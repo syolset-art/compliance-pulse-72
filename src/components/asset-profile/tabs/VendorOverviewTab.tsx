@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
+import { VendorTPRMStatus } from "@/components/trust-controls/VendorTPRMStatus";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 import { VendorRiskAssessment } from "@/components/trust-controls/VendorRiskAssessment";
@@ -196,6 +197,14 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         </div>
 
         <div className="space-y-4">
+          {/* TPRM Follow-up Status */}
+          <VendorTPRMStatus
+            assetId={asset.id}
+            assetName={asset.name}
+            vendorName={asset.vendor || undefined}
+            contactPerson={asset.contact_person || undefined}
+            contactEmail={asset.contact_email || undefined}
+          />
           {/* Tasks card */}
           <div ref={tasksRef}>
           <Card>
