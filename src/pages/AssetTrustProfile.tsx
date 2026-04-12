@@ -126,7 +126,7 @@ const AssetTrustProfile = () => {
 
   // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
   const vendorTabDefs = [
-    { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance' },
+    { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'controls', label: isNb ? 'Score & kontroller' : 'Score & Controls' },
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
