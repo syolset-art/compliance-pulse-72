@@ -102,6 +102,7 @@ const Index = () => {
     }
   }, [primaryRole]);
   const [editMode, setEditMode] = useState(false);
+  const [expandedView, setExpandedView] = useState(false);
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
