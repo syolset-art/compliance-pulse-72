@@ -318,6 +318,21 @@ export function TrustControlsPanel({
           <span className={`text-4xl font-bold tabular-nums ${getScoreColor(trustScore)}`}>{trustScore}%</span>
         </div>
 
+        {/* Source legend + stacked bar */}
+        <div className="mb-4 space-y-2">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-muted-foreground/40" />
+              {isNb ? "Leverandørens baseline" : "Vendor baseline"}: {baselinePercent}%
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" />
+              {isNb ? "Eget arbeid" : "Your enrichment"}: {enrichmentPercent}%
+            </span>
+          </div>
+          <StackedProgress baselinePercent={baselinePercent} enrichmentPercent={enrichmentPercent} height="h-2" />
+        </div>
+
         {/* Summary badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
