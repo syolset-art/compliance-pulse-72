@@ -143,6 +143,8 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
       setShowAddDialog(false);
       setShowSla(false);
       setForm({ name: "", description: "", category: "software", contract_value: "", contract_start: "", contract_end: "", notes: "", sla_uptime: "", sla_response_time: "", sla_support_hours: "", sla_notes: "" });
+      setSlaTerms([]);
+      setNewSlaTerm("");
       setSelectedFile(null);
     } catch (err: any) {
       toast.error(err.message || "Error");
