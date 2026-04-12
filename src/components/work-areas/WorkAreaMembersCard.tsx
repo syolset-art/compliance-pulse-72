@@ -277,16 +277,6 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                 </div>
               )}
             </div>
-            <Select value={newRole} onValueChange={setNewRole}>
-              <SelectTrigger className="w-full sm:w-44 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLE_CONFIG.map(r => (
-                  <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => { setIsAdding(false); setNewName(""); }} className="h-7 text-xs">
@@ -376,16 +366,7 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
                         </div>
                       )}
                     </div>
-                    <Select value={member.role} onValueChange={(val) => handleRoleChange(member.id, val)}>
-                      <SelectTrigger className="w-40 h-7 text-xs shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ROLE_CONFIG.map(r => (
-                          <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Badge variant="secondary" className="text-xs shrink-0">Medlem</Badge>
                     <Button
                       size="icon"
                       variant="ghost"
