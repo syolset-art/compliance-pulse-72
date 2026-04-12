@@ -8,6 +8,7 @@ import { CheckCircle, AlertCircle, Clock, Bot, Building2, Briefcase, ChevronDown
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
 
@@ -307,11 +308,16 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
         </div>
 
         {systemAsAsset && (
-          <VendorTrustScoreCard
-            trustScore={evaluation?.trustScore ?? 0}
-            confidenceScore={evaluation?.confidenceScore ?? 0}
-            lastUpdated={new Date().toLocaleDateString()}
-          />
+          <div className="space-y-6">
+            <VendorTrustScoreCard
+              trustScore={evaluation?.trustScore ?? 0}
+              confidenceScore={evaluation?.confidenceScore ?? 0}
+              lastUpdated={new Date().toLocaleDateString()}
+            />
+            <VendorPrivacyAssessment
+              vendorName={systemAsAsset.vendor || systemAsAsset.name}
+            />
+          </div>
         )}
       </section>
     </div>
