@@ -169,12 +169,17 @@ export const VendorTPRMStatus = ({
   const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
   const tprmLevel = getTPRMLevel(risk, controlsMet, controls.length);
 
+  // Use saved tprm_status from DB if available, otherwise use calculated level
+  const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || tprmLevel;
+
   const tprmConfig: Record<TPRMLevel, { label: string; variant: "default" | "warning" | "destructive" | "secondary"; emoji: string }> = {
     approved: { label: isNb ? "Godkjent" : "Approved", variant: "default", emoji: "🟢" },
     under_review: { label: isNb ? "Under oppfølging" : "Under review", variant: "warning", emoji: "🟡" },
     action_required: { label: isNb ? "Krever tiltak" : "Action required", variant: "destructive", emoji: "🔴" },
     not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", variant: "secondary", emoji: "⚪" },
   };
+
+  const tprmOptions: TPRMLevel[] = ["approved", "under_review", "action_required", "not_assessed"];
 
   const riskLabels: Record<string, string> = {
     high: isNb ? "Høy" : "High",
