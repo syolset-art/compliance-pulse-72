@@ -390,9 +390,7 @@ const AssetTrustProfile = () => {
                   <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="deliveries" className="mt-6">
-                  <div className="text-sm text-muted-foreground italic p-8 text-center">
-                    {isNb ? "Leveranser kommer snart" : "Deliveries coming soon"}
-                  </div>
+                  <DeliveriesTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="vendor-audit" className="mt-6">
                   <div className="text-sm text-muted-foreground italic p-8 text-center">
