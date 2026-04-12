@@ -124,6 +124,15 @@ const AssetTrustProfile = () => {
     }
   }, []);
 
+  // Listen for scroll-to-tasks event to switch to overview tab first
+  useEffect(() => {
+    const handleScrollToTasksEvent = () => {
+      setActiveTab("overview");
+    };
+    window.addEventListener("scroll-to-tasks", handleScrollToTasksEvent);
+    return () => window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
+  }, []);
+
   // ── Vendor tabs: 4 simplified ISO-aligned tabs ──
   const vendorTabDefs = [
     { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
