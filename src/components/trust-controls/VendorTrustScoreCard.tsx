@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, ChevronDown, ChevronUp, Shield, Server, Users, Link2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck, ChevronDown, ChevronUp, Shield, Server, Users, Link2, Fingerprint } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
