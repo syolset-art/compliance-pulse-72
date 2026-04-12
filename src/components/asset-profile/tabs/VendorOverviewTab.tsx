@@ -110,22 +110,25 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   // Only vendor-relevant frameworks for "Modenhet per regelverk"
   const VENDOR_RELEVANT_FRAMEWORKS = ["gdpr", "iso27001", "nis2", "dora", "iso27701"];
 
-  const { data: frameworks = [] } = useQuery({
-    queryKey: ["selected-frameworks-active-vendor"],
+  const { data: allFrameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active-all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("selected_frameworks")
         .select("framework_id, framework_name")
         .eq("is_selected", true);
       if (error) return [];
-      return (data || [])
-        .filter((fw: any) => VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf)))
-        .map((fw: any) => ({
-          framework_id: fw.framework_id,
-          framework_name: fw.framework_name,
-        }));
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
     },
   });
+
+  const vendorFrameworks = allFrameworks.filter((fw) =>
+    VENDOR_RELEVANT_FRAMEWORKS.some(vf => fw.framework_id?.toLowerCase().includes(vf))
+  );
+  const frameworks = showAllFrameworks ? allFrameworks : vendorFrameworks;
 
   const { data: expiredCount = 0 } = useQuery({
     queryKey: ["expired-docs-count", asset.id],
