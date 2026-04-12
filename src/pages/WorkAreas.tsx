@@ -785,20 +785,7 @@ export default function WorkAreas() {
                          </span>
                        )}
                      </div>
-                    <ResponsiblePersonEditor
-                      workAreaId={selectedWorkArea.id}
-                      currentPerson={selectedWorkArea.responsible_person}
-                      onUpdate={(newPerson) => {
-                        // Update local state
-                        setSelectedWorkArea({ ...selectedWorkArea, responsible_person: newPerson });
-                        setWorkAreas(workAreas.map(wa => 
-                          wa.id === selectedWorkArea.id 
-                            ? { ...wa, responsible_person: newPerson } 
-                            : wa
-                        ));
-                      }}
-                    />
-                  </div>
+                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
