@@ -44,6 +44,10 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
       window.dispatchEvent(new CustomEvent("scroll-to-maturity", { detail: { switchTab: true } }));
       return;
     }
+    if (key === "risk") {
+      window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: "vendor-audit" } }));
+      return;
+    }
     setExpandedCard(prev => prev === key ? null : key);
   };
 
@@ -57,7 +61,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
         {/* Risk Level */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <button onClick={() => toggleCard("risk")} className={`${cardBase} ${cardHover} ${expandedCard === "risk" ? "border-primary/40 shadow-md" : "border-border"}`}>
+            <button onClick={() => toggleCard("risk")} className={`${cardBase} ${cardHover} border-border`}>
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Risikonivå" : "Risk Level"}
@@ -71,7 +75,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-[220px] text-xs">
-            {isNb ? "Klikk for å se risikovurdering og tiltak" : "Click to view risk assessment and actions"}
+            {isNb ? "Klikk for å gå til revisjon og risikovurdering" : "Click to go to audit & risk assessment"}
           </TooltipContent>
         </Tooltip>
 
