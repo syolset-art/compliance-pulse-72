@@ -18,7 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
-import { getActionForControl } from "@/lib/trustControlDefinitions";
+
 
 interface VendorAuditTabProps {
   assetId: string;
