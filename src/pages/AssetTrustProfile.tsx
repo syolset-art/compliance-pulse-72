@@ -139,11 +139,22 @@ const AssetTrustProfile = () => {
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
     };
+    const handleSwitchToTab = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.tab) {
+        setActiveTab(detail.tab);
+        setTimeout(() => {
+          document.querySelector('[role="tablist"]')?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 100);
+      }
+    };
     window.addEventListener("scroll-to-tasks", handleScrollToTasksEvent);
     window.addEventListener("scroll-to-maturity", handleScrollToMaturityEvent);
+    window.addEventListener("switch-to-tab", handleSwitchToTab);
     return () => {
       window.removeEventListener("scroll-to-tasks", handleScrollToTasksEvent);
       window.removeEventListener("scroll-to-maturity", handleScrollToMaturityEvent);
+      window.removeEventListener("switch-to-tab", handleSwitchToTab);
     };
   }, []);
 
