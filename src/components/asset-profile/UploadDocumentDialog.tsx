@@ -113,7 +113,22 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   const [file, setFile] = useState<File | null>(null);
   const [classification, setClassification] = useState<AIClassification | null>(null);
   const [complianceImpact, setComplianceImpact] = useState<ComplianceImpact | null>(null);
+  const [tprmImpact, setTprmImpact] = useState<TPRMImpactData | null>(null);
   const [datesAreDefaults, setDatesAreDefaults] = useState(false);
+
+  // Fetch asset info for TPRM calculation
+  const { data: assetInfoForTPRM } = useQuery({
+    queryKey: ["asset-tprm-upload", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assets")
+        .select("criticality, risk_level, next_review_date")
+        .eq("id", assetId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Editable fields (populated by AI, adjustable by user)
   const [docType, setDocType] = useState("");
