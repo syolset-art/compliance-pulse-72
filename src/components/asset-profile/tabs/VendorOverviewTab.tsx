@@ -58,6 +58,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
+  const [controlsExpanded, setControlsExpanded] = useState(false);
   const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
 
@@ -351,16 +352,50 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           </Card>
           </div>
 
-          {/* Trust Controls Panel — maturity per control area */}
+          {/* Trust Controls Panel — maturity per control area (collapsed by default) */}
           <div id="maturity-controls-section">
-            <TrustControlsPanel
-              asset={asset}
-              docsCount={docsCount}
-              relationsCount={relationsCount}
-              onTrustMetrics={onTrustMetrics}
-              frameworks={frameworks}
-              onNavigateToTab={onNavigateToTab}
-            />
+            <Card>
+              <button
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-lg"
+                onClick={() => setControlsExpanded(!controlsExpanded)}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
+                  </h3>
+                  {evaluation && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {evaluation.trustScore}%
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {evaluation && (
+                    <span className="text-xs text-muted-foreground">
+                      {evaluation.implementedCount}/{evaluation.allControls.length} {isNb ? "oppfylt" : "fulfilled"}
+                    </span>
+                  )}
+                  {controlsExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </button>
+              {controlsExpanded && (
+                <CardContent className="pt-0 pb-4 px-4">
+                  <TrustControlsPanel
+                    asset={asset}
+                    docsCount={docsCount}
+                    relationsCount={relationsCount}
+                    onTrustMetrics={onTrustMetrics}
+                    frameworks={frameworks}
+                    onNavigateToTab={onNavigateToTab}
+                  />
+                </CardContent>
+              )}
+            </Card>
           </div>
 
 
