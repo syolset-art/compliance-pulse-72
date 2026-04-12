@@ -138,9 +138,18 @@ const AssetTrustProfile = () => {
     { value: 'overview', label: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'usage', label: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations' },
+    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries' },
+    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit' },
+    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'evidence', label: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests' },
   ];
+
+  const vendorOverflowTabDefs = [
+    { value: 'vendor-activity', label: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+  ];
+
+  const activeVendorOverflowTab = vendorOverflowTabDefs.find(t => t.value === activeTab);
 
   // ── Self tabs: full tab set ──
   const primaryTabDefs = [
