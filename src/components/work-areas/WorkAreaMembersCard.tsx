@@ -223,65 +223,45 @@ export const WorkAreaMembersCard = ({ workAreaId, ownerName, onOwnerChange }: Wo
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
           Eier <span className="text-destructive">*</span>
         </div>
-        {isEditingOwner ? (
-          <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
-            <div className="relative">
-              <Input
-                value={ownerSearch}
-                onChange={(e) => { setOwnerSearch(e.target.value); setShowOwnerSuggestions(true); }}
-                onFocus={() => setShowOwnerSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowOwnerSuggestions(false), 200)}
-                placeholder="Søk eller skriv inn navn..."
-                className="h-8 text-sm"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && ownerSearch.trim()) handleOwnerSave(ownerSearch);
-                  if (e.key === "Escape") { setIsEditingOwner(false); setOwnerSearch(""); }
-                }}
-              />
-              {showOwnerSuggestions && ownerSuggestions.length > 0 && (
-                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
-                  {ownerSuggestions.map((name) => (
-                    <button
-                      key={name}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleOwnerSave(name)}
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => { setIsEditingOwner(false); setOwnerSearch(""); }} className="h-7 text-xs">
-                Avbryt
-              </Button>
-              <Button size="sm" onClick={() => handleOwnerSave(ownerSearch)} disabled={!ownerSearch.trim()} className="h-7 text-xs gap-1">
-                <Check className="h-3 w-3" />
-                Lagre
-              </Button>
-            </div>
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+          <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 shrink-0">
+            <Crown className="h-4 w-4 text-primary" />
           </div>
-        ) : (
-          <div
-            className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted/70 transition-colors group"
-            onClick={() => { setIsEditingOwner(true); setOwnerSearch(ownerName || ""); }}
-          >
-            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
-              <Crown className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">
-                {ownerName || <span className="text-muted-foreground italic">Velg eier...</span>}
+          <div className="flex-1 min-w-0 relative">
+            <Input
+              value={ownerSearch}
+              onChange={(e) => { setOwnerSearch(e.target.value); setShowOwnerSuggestions(true); }}
+              onFocus={() => { setShowOwnerSuggestions(true); if (!ownerSearch) setOwnerSearch(ownerName || ""); }}
+              onBlur={() => {
+                setTimeout(() => {
+                  setShowOwnerSuggestions(false);
+                  // If user cleared input, revert
+                  if (!ownerSearch.trim() && ownerName) setOwnerSearch(ownerName);
+                }, 200);
+              }}
+              placeholder="Velg eier..."
+              className="h-8 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && ownerSearch.trim()) handleOwnerSave(ownerSearch);
+              }}
+            />
+            {showOwnerSuggestions && ownerSuggestions.length > 0 && (
+              <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                {ownerSuggestions.map((name) => (
+                  <button
+                    key={name}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { handleOwnerSave(name); setOwnerSearch(name); }}
+                  >
+                    {name}
+                  </button>
+                ))}
               </div>
-              <div className="text-xs text-muted-foreground">Arbeidsområde-eier</div>
-            </div>
-            <Pencil className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Badge variant="default" className="text-xs shrink-0">Eier</Badge>
+            )}
           </div>
-        )}
+          <Badge variant="default" className="text-xs shrink-0">Eier</Badge>
+        </div>
       </div>
 
       {/* Legg til ny */}
