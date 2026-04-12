@@ -720,7 +720,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                   <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
                     {t("trustProfile.systemManager")}
                   </p>
-                  <Select value={asset.asset_manager || ""} onValueChange={handleManagerChange}>
+                  <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
                     <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                       <SelectValue placeholder={t("trustProfile.assignManager")} />
                     </SelectTrigger>
