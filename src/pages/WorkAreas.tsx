@@ -1085,6 +1085,14 @@ export default function WorkAreas() {
                   <WorkAreaMembersCard
                     workAreaId={selectedWorkArea.id}
                     ownerName={selectedWorkArea.responsible_person}
+                    onOwnerChange={(newOwner) => {
+                      setSelectedWorkArea({ ...selectedWorkArea, responsible_person: newOwner });
+                      setWorkAreas(workAreas.map(wa => 
+                        wa.id === selectedWorkArea.id 
+                          ? { ...wa, responsible_person: newOwner } 
+                          : wa
+                      ));
+                    }}
                   />
 
                   {/* Arbeidsområde-detaljer */}
