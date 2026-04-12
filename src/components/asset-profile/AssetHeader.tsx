@@ -164,13 +164,17 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
     "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
   };
 
+  const GREY_FALLBACK = "bg-muted text-muted-foreground border-border";
+
   const frameworkBadgeClass = (id: string) => {
     const lower = id.toLowerCase().replace(/[^a-z0-9]/g, "");
     for (const [key, cls] of Object.entries(FRAMEWORK_COLORS)) {
       if (lower.includes(key.replace("-", ""))) return cls;
     }
-    return "bg-muted text-muted-foreground border-border";
+    return GREY_FALLBACK;
   };
+
+  const isKnownFramework = (id: string) => frameworkBadgeClass(id) !== GREY_FALLBACK;
 
   // Get people list based on the asset's work area
   const selectedWorkAreaName = workAreas.find((a: any) => a.id === asset.work_area_id)?.name || "";
@@ -483,10 +487,10 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </a>
           )}
 
-          {/* Regulatory frameworks */}
-          {frameworks.length > 0 && (
+          {/* Regulatory frameworks — only show known/active ones */}
+          {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2.5">
-              {frameworks.map((fw: any) => (
+              {frameworks.filter((fw: any) => isKnownFramework(fw.framework_id)).map((fw: any) => (
                 <span
                   key={fw.framework_id}
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${frameworkBadgeClass(fw.framework_id)}`}
