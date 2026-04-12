@@ -1,71 +1,71 @@
 
 
-## Plan: Redesign dashbordet — no-scroll desktop, fokus på verdi
+## Plan: Ny fanestruktur for leverandørens Trust Profile (5 faner)
 
-### Analyse av nåværende problemer
-Dashbordet har i dag 11+ widget-fliser i et rutenett som krever betydelig scrolling selv på PC. Mange widgets viser statisk demo-data (FAIR-risiko, sårbarhetskart, datageografi) som gir lite handlingsrettet innsikt. Det mangler fokus på "hva bør jeg gjøre nå" og "hva har AI-agenten gjort for meg".
+### Nåværende tilstand
+Leverandørprofilen har i dag 4 faner:
+1. **Oversikt** — Validering + Kontroller + Relasjoner (blandet formål)
+2. **Datahåndtering** — DPA, personvern, dataflyt
+3. **Risiko og revisjon** — Risiko + Hendelser
+4. **Dokumenter** — Dokumenter + Lara Innboks
 
-### Ny struktur — alt over folden på desktop
+Problemet er at «Oversikt» mangler et tydelig sammendrag, bruken/konteksten fra egen organisasjon er blandet inn i «Datahåndtering», og historikk/relasjoner/forespørsler er spredt.
 
-Hele dashbordet skal passe i én skjermhøyde (~900px) på desktop. Mobilvisningen scroller naturlig.
+### Ny fanestruktur
 
-```text
-┌─────────────────────────────────────────────────────┐
-│  Hei, [Selskap]              [rolle-label]  [Tilpass]│
-├─────────────────────────────────────────────────────┤
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
-│  │Compliance│  │Risikonivå│  │Kontroller│  (3 mini) │
-│  │  74%     │  │  Middels │  │  42/58   │          │
-│  └──────────┘  └──────────┘  └──────────┘          │
-├─────────────────────────────────────────────────────┤
-│  Krever din oppmerksomhet (3-5 items, klikkbare)    │
-│  • 2 leverandører mangler oppdatert DPA  → [Gå til]│
-│  • Revisjon av ISO 27001 om 12 dager     → [Gå til]│
-│  • 1 forespørsel mottatt fra kunde       → [Gå til]│
-├────────────────────┬────────────────────────────────┤
-│  Lara (AI-agent)   │  Frister & kalender            │
-│  Siste 7 dager:    │  • ISO-revisjon: 24. apr       │
-│  ✓ Sendt DPA-krav  │  • DPA-fornyelse: 1. mai       │
-│    til 3 levrand.  │  • NIS2-rapport: 15. mai       │
-│  ✓ Analysert 28    │                                │
-│    systemer        │                                │
-│  Spart ~4 timer    │                                │
-└────────────────────┴────────────────────────────────┘
-```
+| # | Fane | Innhold | Perspektiv |
+|---|------|---------|------------|
+| 1 | **Oversikt** | Leverandørnavn, status (claimed/unclaimed), sist oppdatert. Trust Score + confidence + styrker/bekymringer. 4 domenekort (klikkbare). Primær CTA: «Send forespørsel» | Sammendrag |
+| 2 | **Score & kontroller** | Domenekort utvides til score per kategori + kontrollpunkter med status + lenker til evidens | Leverandørens profil |
+| 3 | **Bruk & kontekst** | Hvordan leverandøren brukes hos oss: prosesser, datatyper, integrasjoner, kritikalitet. Merket «Vår organisasjon» | Vår kontekst |
+| 4 | **Dokumentasjon** | Alt evidens samlet: dokumenter + sertifiseringer + URL-er. Gruppert etter formål (DPA, privacy policy, security docs, sub-processor list). Merket «Leverandørens profil/evidens» | Leverandøren |
+| 5 | **Historikk & relasjoner** | Revisjon/review cadence, risiko/tiltak, hendelser, relasjoner/leverandørkjede, forespørsler. Tydelig merket «Vår oppfølging (TPRM)» vs «Leverandørhendelser» | Blandet, merket |
 
-### Endringer
+### Tekniske endringer
 
-**1. `src/pages/Index.tsx` — Forenkle dashboard-innholdet**
-- Fjern det store widget-rutenettet (`DashboardGrid` med 11 fliser) fra standard visning
-- Behold `editMode` / `DashboardGrid` som en "Utvidet visning"-toggle for de som vil ha det
-- Ny default-visning med 4 kompakte soner:
-  - **Sone 1**: Tre kompakte KPI-kort (compliance %, risikonivå, kontroller vurdert) — én rad
-  - **Sone 2**: "Krever oppmerksomhet" — maks 5 handlingsrettede linjer (erstatter DashboardCriticalTasks + DashboardHeroCards)
-  - **Sone 3**: To kolonner: AI-agentlogg (venstre) + Kommende frister (høyre)
+**1. `src/pages/AssetTrustProfile.tsx`**
+- Oppdater `vendorTabDefs` til 5 faner: `overview`, `controls`, `usage`, `evidence`, `history`
+- Oppdater `TabsContent`-blokkene til å peke på nye/oppdaterte komponenter
 
-**2. Ny komponent `src/components/dashboard/DashboardCompact.tsx`**
-- Kompakt KPI-rad: 3 mini-kort med tall fra `useComplianceRequirements`
-- "Krever oppmerksomhet"-seksjon: Samler kritiske oppgaver, innkomne forespørsler, utgåtte dokumenter, kommende revisjoner — sortert etter frist
-- AI-agent oppsummering: Viser hva Lara har gjort (sendte forespørsler, analyserte systemer, genererte dokumenter) med estimert tidsbesparelse
-- Fristkalender: Kompakt liste over de 5 neste viktige fristene
+**2. `src/components/asset-profile/tabs/VendorOverviewTab.tsx` — Redesign**
+- Fjern Validering/Kontroller/Relasjoner-innhold
+- Ny layout: Leverandørnavn + status-badge + sist oppdatert
+- Trust Score-kort med confidence og kort «styrker/bekymringer»-liste
+- 4 klikkbare domenekort (Governance, Operations, Identity, Supplier) som navigerer til tab 2
+- Primær CTA-knapp «Send forespørsel / Be om dokumentasjon» (trigger RequestUpdateDialog)
 
-**3. Fjern/arkiver overflødige widgets fra default-visningen**
-- `BusinessRiskExposureWidget`, `VulnerabilityMapWidget`, `DataGeographyWidget`, `CriticalProcessesWidget`, `NIS2ReadinessWidget`, `EnvironmentOverviewWidget` — beholdes men vises kun i "Utvidet visning"
-- `DashboardHeroCards` og `DashboardCriticalTasks` erstattes av de nye kompakte komponentene
+**3. `src/components/asset-profile/tabs/VendorControlsTab.tsx` — Ny fil**
+- Erstatter gammel ControlsTab-visning for leverandører
+- Viser alle 4 domener med score-bar + utfoldbare kontrollpunkter
+- Hvert kontrollpunkt: status-ikon + tekst + lenke til relevant dokument/evidens
+- Bruker eksisterende `ControlsTab` og `ValidationTab` data
 
-**4. Responsiv layout**
-- Desktop: CSS grid med `max-h-[calc(100vh-80px)]` og `overflow-hidden` — ingen scroll
-- Mobil: Naturlig stack med scroll, kompakte kort beholder seg
+**4. `src/components/asset-profile/tabs/VendorUsageTab.tsx` — Ny fil**
+- Merket med badge «Vår organisasjon»
+- Henter fra DataHandlingTab-logikk: datakategorier, databehandlere, integrasjoner
+- Viser kritikalitet, bruksområder, prosesser
+- Fjerner DPA/privacy-felt som flyttes til Dokumentasjon
 
-### Datakilde for AI-agentlogg
-Henter fra eksisterende tabeller:
-- `customer_compliance_requests` (sendte/mottatte forespørsler)
-- `vendor_document_requests` (DPA-forespørsler sendt av Lara)
-- `compliance_requirements` (vurderte kontroller)
-- Demo-tall for tidsbesparelse beregnes fra antall automatiserte handlinger
+**5. `src/components/asset-profile/tabs/VendorEvidenceTab.tsx` — Ny fil**
+- Merket med badge «Leverandørens profil/evidens»
+- Samler DocumentsTab + LaraInboxTab + sertifiseringer
+- Grupperer dokumenter etter formål (DPA, Privacy Policy, Security Docs, Sub-processor List, Sertifiseringer, Annet)
+
+**6. `src/components/asset-profile/tabs/VendorHistoryTab.tsx` — Ny fil**
+- To seksjoner tydelig merket:
+  - «Vår oppfølging (TPRM)»: Revisjon/review cadence, risiko/tiltak, forespørsler (CustomerRequestsTab-data)
+  - «Leverandørhendelser»: Hendelser/avvik (IncidentManagementTab)
+- Relasjoner/leverandørkjede (RelationsTab)
 
 ### Filer som endres/opprettes
-- `src/components/dashboard/DashboardCompact.tsx` — ny
-- `src/pages/Index.tsx` — refaktorert
-- Ingen database-endringer nødvendig
+- `src/pages/AssetTrustProfile.tsx` — oppdatert tab-definisjon og TabsContent
+- `src/components/asset-profile/tabs/VendorOverviewTab.tsx` — redesignet
+- `src/components/asset-profile/tabs/VendorControlsTab.tsx` — ny
+- `src/components/asset-profile/tabs/VendorUsageTab.tsx` — ny
+- `src/components/asset-profile/tabs/VendorEvidenceTab.tsx` — ny
+- `src/components/asset-profile/tabs/VendorHistoryTab.tsx` — ny
+- `src/components/asset-profile/tabs/VendorRiskAuditTab.tsx` — fjernes (innhold flyttes)
+- `src/components/asset-profile/tabs/VendorDocumentsTab.tsx` — fjernes (innhold flyttes)
+
+Ingen databaseendringer nødvendig — alle data hentes fra eksisterende tabeller.
 
