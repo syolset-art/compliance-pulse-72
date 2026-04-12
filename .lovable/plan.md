@@ -1,67 +1,37 @@
 
 
-## Plan: Forbedre «Veiledning fra Mynder» som TPRM-løsning
+## Plan: Gjør «Bruk og kontekst»-fanen redigerbar og forklarende
 
-### Problemanalyse
+### Problem
+Kritikalitet, Risikonivå og GDPR-rolle vises som statiske kort uten mulighet for redigering. Brukeren forstår ikke hva som er redigerbart, hvordan disse feltene påvirker modenhetsscoren, eller at Lara kan anbefale verdier.
 
-Fanen har alle byggeklossene for en TPRM-løsning, men informasjonen er fragmentert og krever at brukeren klikker seg gjennom flere utvidbare seksjoner for å forstå:
-- Er denne leverandøren trygg å bruke?
-- Hva gjenstår å gjøre?
-- Hvor alvorlig er det?
+### Endringer i `src/components/asset-profile/tabs/VendorUsageTab.tsx`
 
-Hovedutfordringene:
-1. **Ingen umiddelbar konklusjon** — Brukeren må tolke Risiko + Kontroll + Status selv
-2. **Oppgaver er gjemt** — Kollapset som standard, blandet med TPRM-mangler
-3. **For mange klikk** — Modenhet, oppgaver, mangler er i separate kollapserbare seksjoner
-4. **Ingen prioritering** — Hva er viktigst å gjøre FØRST?
+#### 1. Redigerbare felter med Select-dropdown
+Erstatt de tre statiske kortene med interaktive Select-komponenter:
+- **Kritikalitet**: Dropdown med valgene Lav / Middels / Høy / Kritisk. Fargekodet badge viser nåværende verdi. Under vises en kort forklaring: *«Kritikalitet viser hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging.»*
+- **Risikonivå**: Dropdown med Lav / Middels / Høy. Inkluderer en liten «La Lara foreslå»-knapp som kaller AI-agenten for å anbefale risikonivå basert på leverandørens kontekst (kategori, land, datatyper). Forklaring: *«Risikonivået påvirker oppfølgingskrav og kontrollfrekvens.»*
+- **GDPR-rolle**: Dropdown med Databehandler / Underdatabehandler / Ingen persondata / Ikke satt. Forklaring: *«GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav).»*
 
-### Hva endres
+#### 2. Kobling til modenhet
+Under hvert redigerbart felt vises en kompakt linje som forklarer påvirkningen:
+- Kritikalitet: «Påvirker kontrollområde: Tredjepartstyring» 
+- Risikonivå: «Påvirker kontrollområde: Drift og sikkerhet»
+- GDPR-rolle: «Påvirker kontrollområde: Personvern og datahåndtering»
 
-#### 1. Ny «Executive Summary»-banner øverst i Oppfølgingsstatus
-Erstatt det nåværende 3-kolonne-griddet med en tydelig statuslinje som gir umiddelbar konklusjon:
+Disse er klikkbare og scroller til relevant modenhetsseksjon i Veiledning-fanen.
 
-```text
-┌────────────────────────────────────────────────────────────┐
-│ 🟡 Under oppfølging                           [Endre ▾]  │
-│                                                            │
-│ Risiko: ● Middels    Kontroll: 2/4    Modenhet: 72%       │
-│                                                            │
-│ ⚠ 3 oppgaver gjenstår for å nå «Godkjent»               │
-│   • Mangler DPA  • Mangler risikovurdering  • Sett opp    │
-│     revisjon                                               │
-└────────────────────────────────────────────────────────────┘
-```
+#### 3. Lagring
+Bruker `useMutation` med `supabase.from("assets").update(...)` for å lagre endringer direkte til `criticality`, `risk_level` og `gdpr_role`-feltene. Invaliderer relevante queries etter lagring.
 
-- Status-emojien og bakgrunnsfarge gir umiddelbar visuell feedback (grønn/gul/rød)
-- Statusvelgeren (dropdown) beholdes inline
-- En kort oppsummeringslinje under sier «X oppgaver gjenstår» med lenke til oppgaveseksjonen
-
-#### 2. Oppgaver vises ÅPNE som standard (ikke kollapset)
-- `tasksExpanded` starter som `true` når det finnes åpne oppgaver
-- TPRM-mangler og vanlige oppgaver vises integrert, men TPRM-mangler prioriteres øverst med tydelig visuell gruppering
-- Hver oppgave får en prioritet-indikator og estimert handlingslenke
-
-#### 3. Manglende TPRM-krav flyttes FRA oppgaveseksjonen og INN i Oppfølgingsstatus-kortet
-- Oppfølgingsstatus-kortet viser de 4 kontrollene som en sjekkliste (✅ DPA, ❌ SLA, etc.)
-- Hvert manglende krav har en direkte handlingsknapp
-- Oppgaveseksjonen viser kun faktiske oppgaver (ikke dupliserte TPRM-mangler)
-
-#### 4. Visuell forenkling av Modenhet-lenken
-- Modenhet-baren inne i Oppfølgingsstatus erstattes med en kompakt linje i summary-raden
-- Fjerner behovet for en separat klikkbar boks
+#### 4. Visuell tydelighet
+- Hvert redigerbart felt får et blyant-ikon og hover-effekt som signaliserer at det kan endres
+- Feltverdier vises med semantiske farger (grønn for lav risiko, rød for høy)
+- En liten info-banner øverst: *«Disse innstillingene bestemmer hvilke kontroller og risikovurderinger som kreves for denne leverandøren»*
 
 ### Filer som endres
-
-1. **`src/components/trust-controls/VendorTPRMStatus.tsx`**
-   - Redesign layouten: tydelig statusbanner med bakgrunnsfarge basert på level
-   - Legg kontroll-sjekklisten (4 krav) tilbake som visuell sjekkliste med handlingsknapper
-   - Behold dropdown for manuell statusendring
-   - Legg til oppsummeringslinje: «X oppgaver gjenstår for å nå Godkjent»
-
-2. **`src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
-   - Sett `tasksExpanded` default til `true` når `openTasks.length > 0`
-   - Fjern TPRM-mangler fra oppgaveseksjonen (flyttes til Oppfølgingsstatus)
-   - Forenkle oppgavekortet til kun å vise faktiske tasks
+1. **`src/components/asset-profile/tabs/VendorUsageTab.tsx`** — Hovedendring: redigerbare Select-felter, forklaringstekster, AI-forslag-knapp, lagring via mutation
+2. **`src/components/trust-controls/TrustControlsPanel.tsx`** — Oppdater action-lenker for `risk_level_defined` og `criticality_defined` til å peke mot «Bruk og kontekst»-fanen i stedet for «Revisjon og risiko»
 
 ### Ingen databaseendringer
 
