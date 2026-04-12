@@ -626,6 +626,11 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
                     ))}
                   </SelectContent>
                 </Select>
+                {(asset as any).contact_person && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {i18n.language === "nb" ? "Kontaktperson" : "Contact person"}: {(asset as any).contact_person}
+                  </p>
+                )}
                 {selectedWorkArea?.responsible_person && (
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {i18n.language === "nb" ? "Ansvarlig" : "Manager"}: {selectedWorkArea.responsible_person}
