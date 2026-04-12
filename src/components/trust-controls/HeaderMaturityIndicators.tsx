@@ -344,5 +344,6 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 }
