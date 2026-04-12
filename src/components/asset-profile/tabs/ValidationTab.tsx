@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Clock, ChevronDown, ChevronUp, XCircle, AlertTriangle, ArrowLeft } from "lucide-react";
-import { ControlsSummaryCard } from "@/components/trust-controls/ControlsSummaryCard";
+
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 
 interface ValidationTabProps {
@@ -124,9 +124,6 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
 
   return (
     <div className="space-y-5">
-      {/* Controls Summary — redesigned with focus on what's missing */}
-      <ControlsSummaryCard assetId={assetId} />
-
       {/* Compliance Card with view switcher */}
       <Card>
         <CardHeader className="pb-0 pt-4 px-5">
