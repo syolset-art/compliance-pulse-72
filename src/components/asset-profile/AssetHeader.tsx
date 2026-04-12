@@ -602,7 +602,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       {!isSelf && (
         <>
           <div className="border-t border-border my-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* 1. Eier = Arbeidsområde */}
             <div className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
@@ -671,33 +671,31 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 )}
               </div>
             </div>
+          </div>
 
-            {/* 3. Kontaktperson hos leverandør */}
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                <Send className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-                  {isNb ? "Kontaktperson" : "Contact person"}
-                </p>
-                {(asset as any).contact_person ? (
-                  <div>
-                    <p className="text-xs font-medium text-foreground">{(asset as any).contact_person}</p>
-                    {(asset as any).contact_email && (
-                      <a href={`mailto:${(asset as any).contact_email}`} className="text-[10px] text-primary hover:underline">
-                        {(asset as any).contact_email}
-                      </a>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground/50 italic">
-                    {isNb ? "Ikke oppgitt" : "Not provided"}
-                  </p>
+          {/* Kontaktperson — own row */}
+          <div className="flex items-center gap-2 mt-3">
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider shrink-0">
+              {isNb ? "Kontaktperson" : "Contact"}
+            </p>
+            {(asset as any).contact_person ? (
+              <div className="flex items-center gap-2 text-xs">
+                <User className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="font-medium text-foreground">{(asset as any).contact_person}</span>
+                {(asset as any).contact_email && (
+                  <>
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <a href={`mailto:${(asset as any).contact_email}`} className="text-primary hover:underline">
+                      {(asset as any).contact_email}
+                    </a>
+                  </>
                 )}
               </div>
-            </div>
-
+            ) : (
+              <span className="text-xs text-muted-foreground/50 italic">
+                {isNb ? "Ikke oppgitt" : "Not provided"}
+              </span>
+            )}
           </div>
         </>
       )}
