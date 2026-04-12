@@ -7,6 +7,7 @@ import {
   AlertTriangle, TrendingDown, Clock, Link2,
 } from "lucide-react";
 import { type DeviceControl } from "./DeviceTrustProfile";
+import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 
 const DEVICE_ICONS: Record<string, typeof HardDrive> = {
   workstation: Monitor,

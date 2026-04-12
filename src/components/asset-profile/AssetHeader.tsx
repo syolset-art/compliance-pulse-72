@@ -47,6 +47,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
+import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 
 interface TrustMetrics {
   trustScore: number;
