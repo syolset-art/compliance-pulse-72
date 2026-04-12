@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertCircle, Clock, Bot, Building2, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
+import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState } from "react";
