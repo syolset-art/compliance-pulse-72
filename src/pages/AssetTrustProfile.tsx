@@ -29,8 +29,10 @@ import { OrganizationServicesPanel } from "@/components/asset-profile/Organizati
 import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOverviewTab";
-import { VendorRiskAuditTab } from "@/components/asset-profile/tabs/VendorRiskAuditTab";
-import { VendorDocumentsTab } from "@/components/asset-profile/tabs/VendorDocumentsTab";
+import { VendorControlsTab } from "@/components/asset-profile/tabs/VendorControlsTab";
+import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
+import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
+import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
