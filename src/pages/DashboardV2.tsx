@@ -97,7 +97,7 @@ export default function DashboardV2() {
     }));
   }, [stats.byRegulationDomain]);
 
-  // Focus areas (Governance / Operations / Identity & Access / Supplier & Ecosystem)
+  // Focus areas (Governance / Operations & Security / Privacy & Data Handling / Third-Party & Value Chain)
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
     return ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"].map((key) => ({
