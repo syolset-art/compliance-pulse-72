@@ -179,10 +179,18 @@ export function TrustControlsPanel({
 
   // All 4 security areas — always displayed
   const securityAreas = [
-    { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring" },
-    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations & Security", labelNb: "Drift og sikkerhet" },
-    { area: "security_posture" as ControlArea, icon: Key, label: "Privacy & Data Handling", labelNb: "Personvern og datahåndtering" },
-    { area: "supplier_governance" as ControlArea, icon: Users, label: "Third-Party & Value Chain", labelNb: "Tredjepartstyring og verdikjede" },
+    { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring",
+      descNb: "Styringsgrunnlag, eierskap til vurderinger og sentral dokumentasjon for systemet.",
+      descEn: "Governance framework, ownership of assessments and central documentation." },
+    { area: "risk_compliance" as ControlArea, icon: Settings, label: "Operations & Security", labelNb: "Drift og bruk",
+      descNb: "Dokumentert bruk, prosesser, hendelser og praktisk oppfølging av systemet.",
+      descEn: "Documented usage, processes, incidents and practical follow-up." },
+    { area: "security_posture" as ControlArea, icon: Key, label: "Privacy & Data Handling", labelNb: "Identitet og tilgang",
+      descNb: "Roller, ansvar og tilgang som styrer hvem som eier og bruker systemet.",
+      descEn: "Roles, responsibilities and access controlling who owns and uses the system." },
+    { area: "supplier_governance" as ControlArea, icon: Users, label: "Third-Party & Value Chain", labelNb: "Leverandører og økosystem",
+      descNb: "Tredjeparter, overføringer og avhengigheter rundt systemet.",
+      descEn: "Third parties, transfers and dependencies around the system." },
   ];
 
   const getScoreColor = (score: number) => {
