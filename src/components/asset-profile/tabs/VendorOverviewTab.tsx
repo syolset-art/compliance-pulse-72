@@ -271,7 +271,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             onNavigateToTab={onNavigateToTab}
           />
 
-          {/* Domain cards */}
+          {/* Domain cards — 4 main areas */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {DOMAIN_CARDS.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn, color }) => {
               const score = evaluation?.areaScore(area as any) ?? 0;
@@ -292,6 +292,29 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
               );
             })}
           </div>
+
+          {/* 5th area — Privacy & Data Handling — compact horizontal card */}
+          {(() => {
+            const { area, icon: Icon, labelNb: lNb, labelEn: lEn, color } = PRIVACY_CARD;
+            const score = evaluation?.areaScore(area as any) ?? 0;
+            const scoreClr = score >= 70 ? "text-success" : score >= 40 ? "text-warning" : "text-destructive";
+            const barClr = score >= 70 ? "bg-success" : score >= 40 ? "bg-warning" : "bg-destructive";
+            return (
+              <Card
+                className="cursor-pointer hover:border-primary/40 transition-colors"
+                onClick={() => onNavigateToTab?.("controls")}
+              >
+                <CardContent className="p-3 flex items-center gap-4">
+                  <Icon className={`h-5 w-5 ${color} shrink-0`} />
+                  <span className="text-xs font-medium text-foreground whitespace-nowrap">{isNb ? lNb : lEn}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-500 ${barClr}`} style={{ width: `${score}%` }} />
+                  </div>
+                  <span className={`text-sm font-bold tabular-nums ${scoreClr}`}>{score}%</span>
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {/* Collapsible Framework Maturity */}
           {frameworks.length > 0 && (
