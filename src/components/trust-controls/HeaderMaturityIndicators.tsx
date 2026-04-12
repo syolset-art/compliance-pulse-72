@@ -61,7 +61,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
         {/* Risk Level */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <button onClick={() => toggleCard("risk")} className={`${cardBase} ${cardHover} ${expandedCard === "risk" ? "border-primary/40 shadow-md" : "border-border"}`}>
+            <button onClick={() => toggleCard("risk")} className={`${cardBase} ${cardHover} border-border`}>
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Risikonivå" : "Risk Level"}
