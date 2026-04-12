@@ -18,6 +18,7 @@ import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
+import { VendorRiskAssessment } from "@/components/trust-controls/VendorRiskAssessment";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 
 interface VendorOverviewTabProps {
@@ -390,6 +391,10 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             </div>
 
             <VendorPrivacyAssessment
+              vendorName={asset.vendor || asset.name}
+            />
+
+            <VendorRiskAssessment
               vendorName={asset.vendor || asset.name}
             />
           </div>
