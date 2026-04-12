@@ -114,13 +114,13 @@ export const ContactPersonField = ({
   }
 
   return (
-    <div className="flex items-start gap-2.5 group">
-      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+    <div className="flex items-center gap-2.5 group">
+      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0">
         <Mail className="h-3.5 w-3.5 text-muted-foreground" />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-3 min-w-0 flex-1 flex-wrap">
         <div className="flex items-center gap-1">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
             {isNb ? "Kontaktperson" : "Contact person"}
           </p>
           <button
@@ -131,10 +131,10 @@ export const ContactPersonField = ({
           </button>
         </div>
         {contactPerson ? (
-          <div className="text-xs space-y-0.5">
-            <p className="font-medium text-foreground">{contactPerson}</p>
+          <div className="flex items-center gap-3 text-xs flex-wrap">
+            <span className="font-medium text-foreground">{contactPerson}</span>
             {contactEmail && (
-              <a href={`mailto:${contactEmail}`} className="text-primary hover:underline text-[11px] block">
+              <a href={`mailto:${contactEmail}`} className="text-primary hover:underline text-[11px]">
                 {contactEmail}
               </a>
             )}
