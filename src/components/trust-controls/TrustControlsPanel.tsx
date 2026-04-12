@@ -385,7 +385,7 @@ export function TrustControlsPanel({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb, descNb, descEn }) => {
+          {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb, descNb, descEn }, index) => {
             const score = areaScore(area);
             const areaSourceScores = areaScoreBySource(area);
             const controls = grouped[area];
@@ -398,8 +398,10 @@ export function TrustControlsPanel({
               ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-orange-500 dark:text-orange-400" }
               : { nb: "LAV DEKNING", en: "LOW COVERAGE", color: "text-destructive" };
 
+            const isLastOdd = index === securityAreas.length - 1 && securityAreas.length % 2 === 1;
+
             return (
-              <div key={area} className="border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
+              <div key={area} className={`border border-border rounded-xl p-4 hover:border-primary/30 transition-colors ${isLastOdd ? "sm:col-span-2" : ""}`}>
                 <button
                   onClick={() => setExpandedArea(isExpanded ? null : area)}
                   className="w-full text-left"
