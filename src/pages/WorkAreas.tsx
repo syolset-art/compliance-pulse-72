@@ -17,6 +17,7 @@ import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
+import { WorkAreaDetailsCard } from "@/components/work-areas/WorkAreaDetailsCard";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
