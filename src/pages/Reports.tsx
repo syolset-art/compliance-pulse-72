@@ -289,75 +289,18 @@ const Reports = () => {
             </Button>
           </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Totalt</p>
-                    <p className="text-2xl font-bold">{allReports.length}</p>
-                  </div>
-                  <FileText className="h-8 w-8 text-muted-foreground/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Klare</p>
-                    <p className="text-2xl font-bold text-green-600">{readyCount}</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Utkast</p>
-                    <p className="text-2xl font-bold text-yellow-600">{draftCount}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-yellow-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Venter</p>
-                    <p className="text-2xl font-bold text-blue-600">{pendingCount}</p>
-                  </div>
-                  <Clock className="h-8 w-8 text-blue-500/50" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Forfalt</p>
-                    <p className="text-2xl font-bold text-red-600">{overdueCount}</p>
-                  </div>
-                  <AlertCircle className="h-8 w-8 text-red-500/50" />
-                </div>
-              </CardContent>
-            </Card>
+          {/* Compact Summary */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm px-1">
+            <span className="text-muted-foreground">Totalt <span className="font-semibold text-foreground">{allReports.length}</span></span>
+            <span className="text-muted-foreground">Klare <span className="font-semibold text-green-600">{readyCount}</span></span>
+            <span className="text-muted-foreground">Utkast <span className="font-semibold text-yellow-600">{draftCount}</span></span>
+            <span className="text-muted-foreground">Venter <span className="font-semibold text-blue-600">{pendingCount}</span></span>
+            <span className="text-muted-foreground">Forfalt <span className="font-semibold text-red-600">{overdueCount}</span></span>
+            <div className="flex items-center gap-2 ml-auto">
+              <Progress value={completionRate} className="h-1.5 w-24" />
+              <span className="text-xs text-muted-foreground">{completionRate}%</span>
+            </div>
           </div>
-
-          {/* Completion Progress */}
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Rapportfullføring</span>
-                <span className="text-sm text-muted-foreground">{completionRate}% komplett</span>
-              </div>
-              <Progress value={completionRate} className="h-2" />
-            </CardContent>
-          </Card>
 
           {/* Report Tabs */}
           <Tabs defaultValue="organisasjon" className="space-y-4">
