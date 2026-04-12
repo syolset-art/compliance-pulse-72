@@ -324,22 +324,55 @@ const AssetTrustProfile = () => {
               />
             )}
 
-            {/* ═══ VENDOR TABS (simplified 4-tab layout) ═══ */}
+            {/* ═══ VENDOR TABS ═══ */}
             {isVendor && (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
                 <nav aria-label={isNb ? "Leverandør-faner" : "Vendor tabs"} className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                  <TabsList className="inline-flex w-auto sm:flex sm:w-full bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
-                    {vendorTabDefs.map((tab) => (
-                      <TabsTrigger
-                        key={tab.value}
-                        value={tab.value}
-                        className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2.5 sm:px-3 py-1.5"
-                        role="tab"
-                      >
-                        {tab.label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+                  <div className="flex items-center gap-1">
+                    <TabsList className="inline-flex w-auto bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
+                      {vendorTabDefs.map((tab) => (
+                        <TabsTrigger
+                          key={tab.value}
+                          value={tab.value}
+                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2.5 sm:px-3 py-1.5"
+                          role="tab"
+                        >
+                          {tab.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {vendorOverflowTabDefs.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant={activeVendorOverflowTab ? "default" : "outline"}
+                            size="sm"
+                            className="h-9 gap-1.5 shrink-0 text-xs"
+                            aria-label={isNb ? "Vis flere" : "Show more"}
+                          >
+                            {activeVendorOverflowTab ? activeVendorOverflowTab.label : (
+                              <>
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="hidden sm:inline">{isNb ? "Vis flere" : "Show more"}</span>
+                              </>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-[180px]">
+                          {vendorOverflowTabDefs.map((tab) => (
+                            <DropdownMenuItem
+                              key={tab.value}
+                              onClick={() => setActiveTab(tab.value)}
+                              className={activeTab === tab.value ? "bg-accent font-medium" : ""}
+                            >
+                              {tab.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
                 </nav>
 
                 <TabsContent value="overview" className="mt-6">
@@ -356,11 +389,31 @@ const AssetTrustProfile = () => {
                 <TabsContent value="history" className="mt-6">
                   <VendorHistoryTab assetId={asset.id} />
                 </TabsContent>
+                <TabsContent value="deliveries" className="mt-6">
+                  <div className="text-sm text-muted-foreground italic p-8 text-center">
+                    {isNb ? "Leveranser kommer snart" : "Deliveries coming soon"}
+                  </div>
+                </TabsContent>
+                <TabsContent value="vendor-audit" className="mt-6">
+                  <div className="text-sm text-muted-foreground italic p-8 text-center">
+                    {isNb ? "Revisjon kommer snart" : "Audit coming soon"}
+                  </div>
+                </TabsContent>
+                <TabsContent value="vendor-incidents" className="mt-6">
+                  <div className="text-sm text-muted-foreground italic p-8 text-center">
+                    {isNb ? "Hendelser kommer snart" : "Incidents coming soon"}
+                  </div>
+                </TabsContent>
                 <TabsContent value="evidence" className="mt-6">
                   <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <CustomerRequestsTab />
+                </TabsContent>
+                <TabsContent value="vendor-activity" className="mt-6">
+                  <div className="text-sm text-muted-foreground italic p-8 text-center">
+                    {isNb ? "Aktivitetslogg kommer snart" : "Activity log coming soon"}
+                  </div>
                 </TabsContent>
               </Tabs>
             )}
