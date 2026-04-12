@@ -8,7 +8,9 @@ import {
   Send, CheckCircle2, XCircle,
   Shield, AlertTriangle,
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, HelpCircle, Eye,
+  ArrowRight,
 } from "lucide-react";
+import { CONTROL_NAV_MAP } from "@/lib/trustControlDefinitions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
