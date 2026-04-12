@@ -563,7 +563,6 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               </div>
             );
           })()}
-          )}
         </div>
 
         {/* Trust Score Seal — right side */}
