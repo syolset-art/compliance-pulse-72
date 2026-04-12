@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { ContactPersonField } from "./ContactPersonField";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 
