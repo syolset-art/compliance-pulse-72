@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -20,6 +20,8 @@ import {
   Calendar, Shield, Clock, XCircle, TrendingUp, ExternalLink, ThumbsUp, ThumbsDown,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { calculateTPRMImpact, type TPRMLevel } from "@/lib/tprmUtils";
+import type { TPRMImpactData } from "@/components/ApprovalSuccessDialog";
 
 const DOC_TYPES = [
   { value: "policy", label: "Policy", labelNb: "Policy" },
