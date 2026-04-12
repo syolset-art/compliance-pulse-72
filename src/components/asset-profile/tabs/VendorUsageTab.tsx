@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Database, Workflow, Shield, AlertTriangle } from "lucide-react";
+import { VendorTPRMStatus } from "@/components/trust-controls/VendorTPRMStatus";
 
 interface VendorUsageTabProps {
   assetId: string;
@@ -85,6 +86,9 @@ export const VendorUsageTab = ({ assetId }: VendorUsageTabProps) => {
         <Building2 className="h-3.5 w-3.5" />
         {isNb ? "Vår organisasjon" : "Our organization"}
       </Badge>
+
+      {/* TPRM Status */}
+      <VendorTPRMStatus assetId={assetId} />
 
       {/* Criticality & Role */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
