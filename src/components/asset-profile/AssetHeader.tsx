@@ -650,39 +650,37 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         />
       )}
 
-      {/* Owner, Manager, Contact row — hidden for self/published profiles */}
+      {/* Vendor info — hidden for self/published profiles */}
       {!isSelf && (
         <>
-          <div className="border-t border-border my-4" />
-
-          {/* Vendor metadata row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+          {/* Company info strip */}
+          <div className="rounded-lg border border-border bg-muted/30 grid grid-cols-2 sm:grid-cols-4 divide-x divide-border mt-4">
+            <div className="px-4 py-3">
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
                 {isNb ? "Org.nr" : "Org. no."}
               </p>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-semibold text-foreground tabular-nums">
                 {(asset as any).org_number || "—"}
               </p>
             </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <div className="px-4 py-3">
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
                 {isNb ? "Bransje" : "Industry"}
               </p>
               <p className="text-sm font-medium text-foreground">
                 {(asset as any).vendor_category || asset.category || "—"}
               </p>
             </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <div className="px-4 py-3">
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
                 {isNb ? "Kategori" : "Category"}
               </p>
               <p className="text-sm font-medium text-foreground">
                 {template?.display_name || asset.asset_type || "—"}
               </p>
             </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <div className="px-4 py-3">
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
                 {isNb ? "Nettside" : "Website"}
               </p>
               {asset.url ? (
@@ -696,100 +694,94 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* 1. Eier = Arbeidsområde */}
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                <Users className="h-4 w-4 text-muted-foreground" />
+          {/* Owner, Manager, Contact — bottom section */}
+          <div className="border-t border-border mt-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Eier */}
+              <div className="flex items-start gap-2.5">
+                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                  <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <TooltipProvider>
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                        {t("trustProfile.owner")}
+                      </p>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          {isNb
+                            ? "Arbeidsområdet som eier denne leverandøren."
+                            : "The work area that owns this vendor."}
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TooltipProvider>
+                  <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
+                    <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                      <SelectValue placeholder={t("trustProfile.selectOwner")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
+                      {workAreas.map((area: any) => (
+                        <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="min-w-0">
-                <TooltipProvider>
-                  <div className="flex items-center gap-1 mb-0.5">
-                    <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-                      {t("trustProfile.owner")}
-                    </p>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs">
-                        {isNb
-                          ? "Arbeidsområdet som eier denne leverandøren. Arbeidsområdeansvarlig blir automatisk satt som leverandøransvarlig, men kan delegeres."
-                          : "The work area that owns this vendor. The work area manager is automatically set as vendor manager but can be delegated."}
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </TooltipProvider>
-                <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                  <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                    <SelectValue placeholder={t("trustProfile.selectOwner")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                    {workAreas.map((area: any) => (
-                      <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedWorkArea?.responsible_person && (
-                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                    {isNb ? "Ansvarlig" : "Manager"}: {selectedWorkArea.responsible_person}
+
+              {/* Leverandøransvarlig */}
+              <div className="flex items-start gap-2.5">
+                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                  <User className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                    {t("trustProfile.systemManager")}
                   </p>
-                )}
+                  <Select value={asset.asset_manager || ""} onValueChange={handleManagerChange}>
+                    <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                      <SelectValue placeholder={t("trustProfile.assignManager")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {peopleList.map((person) => (
+                        <SelectItem key={person} value={person}>{person}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Kontaktperson */}
+              <div className="flex items-start gap-2.5">
+                <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                    {isNb ? "Kontaktperson" : "Contact"}
+                  </p>
+                  {(asset as any).contact_person ? (
+                    <div className="text-xs space-y-0.5">
+                      <p className="font-medium text-foreground">{(asset as any).contact_person}</p>
+                      {(asset as any).contact_email && (
+                        <a href={`mailto:${(asset as any).contact_email}`} className="text-primary hover:underline text-[11px]">
+                          {(asset as any).contact_email}
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/50 italic">
+                      {isNb ? "Ikke oppgitt" : "Not provided"}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-
-            {/* 2. Leverandøransvarlig (delegable) */}
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                <User className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
-                  {t("trustProfile.systemManager")}
-                </p>
-                <Select value={asset.asset_manager || ""} onValueChange={handleManagerChange}>
-                  <SelectTrigger className="h-7 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                    <SelectValue placeholder={t("trustProfile.assignManager")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {peopleList.map((person) => (
-                      <SelectItem key={person} value={person}>{person}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedWorkArea?.responsible_person && asset.asset_manager !== selectedWorkArea.responsible_person && (
-                  <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                    {isNb ? "Standard" : "Default"}: {selectedWorkArea.responsible_person}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Kontaktperson — own row */}
-          <div className="flex items-center gap-2 mt-3">
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider shrink-0">
-              {isNb ? "Kontaktperson" : "Contact"}
-            </p>
-            {(asset as any).contact_person ? (
-              <div className="flex items-center gap-2 text-xs">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-medium text-foreground">{(asset as any).contact_person}</span>
-                {(asset as any).contact_email && (
-                  <>
-                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                    <a href={`mailto:${(asset as any).contact_email}`} className="text-primary hover:underline">
-                      {(asset as any).contact_email}
-                    </a>
-                  </>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground/50 italic">
-                {isNb ? "Ikke oppgitt" : "Not provided"}
-              </span>
-            )}
           </div>
         </>
       )}
