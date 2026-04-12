@@ -42,7 +42,7 @@ export const VendorTPRMStatus = ({ assetId }: VendorTPRMStatusProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, status, expiry_date")
+        .select("id, document_type, status")
         .eq("asset_id", assetId);
       if (error) throw error;
       return data || [];
