@@ -24,7 +24,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [expanded, setExpanded] = useState(false);
-  const evaluation = assetId ? useTrustControlEvaluation(assetId) : null;
+  const evaluation = useTrustControlEvaluation(assetId ?? "");
 
   const score = trustScore;
   const conf = confidenceScore;
