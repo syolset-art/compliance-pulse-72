@@ -17,11 +17,6 @@ export const VendorEvidenceTab = ({ assetId, assetName, vendorName }: VendorEvid
 
   return (
     <div className="space-y-5">
-      {/* Context badge */}
-      <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-400">
-        <FileCheck className="h-3.5 w-3.5" />
-        {isNb ? "Leverandørens profil / evidens" : "Vendor profile / evidence"}
-      </Badge>
 
       {/* Reuse existing DocumentsTab which groups by type */}
       <section>
