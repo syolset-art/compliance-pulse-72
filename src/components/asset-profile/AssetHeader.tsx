@@ -725,6 +725,9 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                       <SelectValue placeholder={t("trustProfile.assignManager")} />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__none__">
+                        {isNb ? "— Ikke valgt —" : "— Not assigned —"}
+                      </SelectItem>
                       {peopleList.map((person) => (
                         <SelectItem key={person} value={person}>{person}</SelectItem>
                       ))}
