@@ -848,6 +848,7 @@ export default function WorkAreas() {
                   />
                 ))}
               </div>
+              </div>
             </Card>
           )}
 
