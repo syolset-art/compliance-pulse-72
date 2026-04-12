@@ -788,6 +788,9 @@ export default function WorkAreas() {
                          </span>
                        )}
                      </div>
+                     {selectedWorkArea.responsible_person && (
+                       <p className="text-xs text-muted-foreground">Arbeidsområdeansvarlig: {selectedWorkArea.responsible_person}</p>
+                     )}
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
