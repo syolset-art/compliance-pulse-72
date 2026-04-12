@@ -75,6 +75,7 @@ export const VendorTPRMStatus = ({
   contactPerson,
   contactEmail,
   tasks = [],
+  maturityStats,
 }: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
