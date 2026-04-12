@@ -258,13 +258,15 @@ const AssetTrustProfile = () => {
               <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} requestDialogOpen={requestDialogOpen} onRequestDialogChange={setRequestDialogOpen} />
             </div>
 
-            {/* Security Areas + Scope */}
-            <AssetMetrics
-              asset={asset}
-              tasksCount={tasks?.length || 0}
-              onTrustMetrics={handleTrustMetrics}
-              onNavigateToTab={handleNavigateToTab}
-            />
+            {/* Security Areas + Scope — only for non-vendor assets */}
+            {!isVendor && (
+              <AssetMetrics
+                asset={asset}
+                tasksCount={tasks?.length || 0}
+                onTrustMetrics={handleTrustMetrics}
+                onNavigateToTab={handleNavigateToTab}
+              />
+            )}
 
 
             {/* Organization-level nav for self-type */}
@@ -323,7 +325,12 @@ const AssetTrustProfile = () => {
                 </nav>
 
                 <TabsContent value="overview" className="mt-6">
-                  <VendorOverviewTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} updatedAt={asset.updated_at} onNavigateToTab={setActiveTab} />
+                  <VendorOverviewTab
+                    asset={asset}
+                    tasksCount={tasks?.length || 0}
+                    onTrustMetrics={handleTrustMetrics}
+                    onNavigateToTab={setActiveTab}
+                  />
                 </TabsContent>
                 <TabsContent value="controls" className="mt-6">
                   <VendorControlsTab assetId={asset.id} />
