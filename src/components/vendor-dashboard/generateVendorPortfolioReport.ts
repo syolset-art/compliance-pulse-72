@@ -34,9 +34,11 @@ export function generateVendorPortfolioReport(vendors: VendorRow[], companyName:
   const high = vendors.filter(v => v.risk_level === "high" || v.risk_level === "critical").length;
   const medium = vendors.filter(v => v.risk_level === "medium").length;
   const low = vendors.filter(v => v.risk_level === "low").length;
-  const avgScore = vendors.length > 0
-    ? Math.round(vendors.reduce((s, v) => s + (v.compliance_score ?? 0), 0) / vendors.length)
+  const scoredVendors = vendors.filter(v => (v.compliance_score ?? 0) > 0);
+  const avgScore = scoredVendors.length > 0
+    ? Math.round(scoredVendors.reduce((s, v) => s + (v.compliance_score ?? 0), 0) / scoredVendors.length)
     : 0;
+  const notAssessedCount = vendors.length - scoredVendors.length;
 
   doc.setFontSize(10);
   doc.setTextColor(60, 60, 60);
