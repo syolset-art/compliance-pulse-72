@@ -55,44 +55,44 @@ const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, 
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={onClick}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+      <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
               {icon}
             </div>
-            <div>
-              <CardTitle className="text-base">{title}</CardTitle>
-              <CardDescription className="text-xs mt-1">{description}</CardDescription>
+            <div className="min-w-0">
+              <CardTitle className="text-sm sm:text-base truncate">{title}</CardTitle>
+              <CardDescription className="text-xs mt-0.5 line-clamp-1 sm:line-clamp-2">{description}</CardDescription>
             </div>
           </div>
           {getStatusBadge()}
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap gap-1 mb-3">
+      <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+        <div className="hidden sm:flex flex-wrap gap-1 mb-3">
           {standard.map((s) => (
             <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
           ))}
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {lastGenerated && (
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                Sist: {lastGenerated}
+                <span className="hidden sm:inline">Sist:</span> {lastGenerated}
               </span>
             )}
             {nextDue && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                Frist: {nextDue}
+                <span className="hidden sm:inline">Frist:</span> {nextDue}
               </span>
             )}
           </div>
           <Button variant="ghost" size="sm" className="h-7 px-2">
             <Download className="h-3 w-3 mr-1" />
-            Last ned
+            <span className="hidden sm:inline">Last ned</span>
           </Button>
         </div>
       </CardContent>
