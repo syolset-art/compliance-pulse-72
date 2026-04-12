@@ -118,6 +118,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   const [editingDesc, setEditingDesc] = useState(false);
   const [descValue, setDescValue] = useState(asset.description || "");
   const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+  const [showAllRegulations, setShowAllRegulations] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const isSelf = asset.asset_type === 'self';
 
