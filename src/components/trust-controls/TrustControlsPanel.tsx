@@ -314,34 +314,56 @@ export function TrustControlsPanel({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb }) => {
+          {securityAreas.map(({ area, icon: AreaIcon, label, labelNb: areaNb, descNb, descEn }) => {
             const score = areaScore(area);
             const controls = grouped[area];
             const isExpanded = expandedArea === area;
-            const maturity = getMaturityLabel(score);
+            const implemented = controls.filter(c => c.status === "implemented").length;
+            const remaining = controls.length - implemented;
+            const areaCoverage = score >= 75
+              ? { nb: "GOD DEKNING", en: "GOOD COVERAGE", color: "text-green-600 dark:text-green-400" }
+              : score >= 50
+              ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-orange-500 dark:text-orange-400" }
+              : { nb: "LAV DEKNING", en: "LOW COVERAGE", color: "text-destructive" };
+            const progressColor = score >= 75 ? "bg-green-500" : score >= 50 ? "bg-orange-400" : "bg-destructive";
 
             return (
-              <div key={area} className="border border-border rounded-xl p-3.5 hover:border-primary/30 transition-colors">
+              <div key={area} className="border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
                 <button
                   onClick={() => setExpandedArea(isExpanded ? null : area)}
                   className="w-full text-left"
                 >
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  {/* Top row: icon + name + count + score + chevron */}
+                  <div className="flex items-start gap-2.5 mb-1">
+                    <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                       <AreaIcon className="h-3.5 w-3.5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium text-foreground truncate">{isNb ? areaNb : label}</span>
-                    <span className={`text-lg font-bold ml-auto tabular-nums ${getScoreColor(score)}`}>{score}%</span>
-                  </div>
-                  <Progress value={score} className="h-1.5 mb-2" />
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs font-medium ${getScoreColor(score)}`}>
-                      {isNb ? maturity.nb : maturity.en}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <span>{controls.length} {isNb ? "målepunkter" : "checkpoints"}</span>
-                      <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-semibold text-foreground">{isNb ? areaNb : label}</span>
+                      <p className="text-[11px] text-muted-foreground">{implemented}/{controls.length} {isNb ? "oppfylt" : "fulfilled"}</p>
                     </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`text-xl font-bold tabular-nums ${getScoreColor(score)}`}>{score}%</span>
+                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-[11px] text-muted-foreground mb-2 pl-[38px]">{isNb ? descNb : descEn}</p>
+
+                  {/* Coverage label + remaining */}
+                  <div className="flex items-center justify-between pl-[38px] mb-2">
+                    {remaining > 0 && (
+                      <span className="text-[10px] text-muted-foreground">{remaining} {isNb ? "gjenstår" : "remaining"}</span>
+                    )}
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${areaCoverage.color} ml-auto`}>
+                      {isNb ? areaCoverage.nb : areaCoverage.en}
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-500 ${progressColor}`} style={{ width: `${score}%` }} />
                   </div>
                 </button>
 
