@@ -1,0 +1,1 @@
+ALTER TABLE public.work_area_members ADD COLUMN email text;
