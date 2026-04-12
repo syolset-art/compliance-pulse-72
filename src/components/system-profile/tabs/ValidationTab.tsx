@@ -35,7 +35,7 @@ interface ValidationTabProps {
 
 export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetrics }: ValidationTabProps) => {
   const { t } = useTranslation();
-
+  const evaluation = useTrustControlEvaluation(systemId);
   const { data: compliance } = useQuery({
     queryKey: ["system-compliance", systemId],
     queryFn: async () => {
@@ -133,7 +133,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
       {/* Vendor Trust Score Card */}
       {systemAsAsset && (
         <VendorTrustScoreCard
-          trustScore={onTrustMetrics ? (evaluation?.trustScore ?? 0) : 0}
+          trustScore={evaluation?.trustScore ?? 0}
           confidenceScore={evaluation?.confidenceScore ?? 0}
           lastUpdated={new Date().toLocaleDateString()}
         />
