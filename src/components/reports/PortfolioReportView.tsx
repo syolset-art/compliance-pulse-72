@@ -229,8 +229,12 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
 
         <TabsContent value="systems">
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm">{isNb ? "Systemoversikt" : "System Overview"}</CardTitle>
+              <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => handleDownloadAssetPdf(systems, isNb ? "Systemoversikt" : "System Overview", "systemoversikt")} disabled={generating}>
+                <Download className="h-3 w-3" />
+                {isNb ? "Last ned" : "Download"}
+              </Button>
             </CardHeader>
             <CardContent className="p-0">
               <AssetTable items={systems} showCategory={false} showCountry={false} />
@@ -241,8 +245,12 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
         {otherAssets.length > 0 && (
           <TabsContent value="other">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm">{isNb ? "Øvrige eiendeler" : "Other Assets"}</CardTitle>
+                <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => handleDownloadAssetPdf(otherAssets, isNb ? "Øvrige eiendeler" : "Other Assets", "ovrige_eiendeler")} disabled={generating}>
+                  <Download className="h-3 w-3" />
+                  {isNb ? "Last ned" : "Download"}
+                </Button>
               </CardHeader>
               <CardContent className="p-0">
                 <AssetTable items={otherAssets} showCategory showCountry={false} />
