@@ -721,48 +721,48 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       {!isSelf && (
         <>
           <div className="border-t border-border mt-4 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-              {/* Mobile-only: Owner & Manager */}
-              <div className="flex flex-col gap-3 md:hidden">
-                <div className="flex items-center gap-2">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.owner")}</p>
-                    <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                      <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                        <SelectValue placeholder={t("trustProfile.selectOwner")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                        {workAreas.map((area: any) => (
-                          <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.systemManager")}</p>
-                    <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
-                      <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
-                        <SelectValue placeholder={t("trustProfile.assignManager")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">{isNb ? "— Ikke valgt —" : "— Not assigned —"}</SelectItem>
-                        {peopleList.map((person) => (
-                          <SelectItem key={person} value={person}>{person}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+            {/* Mobile-only: Owner & Manager */}
+            <div className="flex flex-col gap-3 md:hidden mb-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.owner")}</p>
+                  <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
+                    <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                      <SelectValue placeholder={t("trustProfile.selectOwner")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
+                      {workAreas.map((area: any) => (
+                        <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.systemManager")}</p>
+                  <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
+                    <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
+                      <SelectValue placeholder={t("trustProfile.assignManager")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">{isNb ? "— Ikke valgt —" : "— Not assigned —"}</SelectItem>
+                      {peopleList.map((person) => (
+                        <SelectItem key={person} value={person}>{person}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
 
-              {/* Kontaktperson + bedriftsinfo — høyre kolonne */}
-              <div className="sm:col-start-2 space-y-3">
+            {/* Single row: Kontaktperson (left) — Bransje & Org.nr & Nettsted (right) */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              {/* Left: Kontaktperson */}
+              <div className="shrink-0">
                 <ContactPersonField
                   assetId={asset.id}
                   contactPerson={(asset as any).contact_person}
@@ -770,21 +770,28 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                   contactPhone={(asset as any).contact_phone}
                   isNb={isNb}
                 />
-                {/* Org.nr & nettside */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
-                  {(asset as any).org_number && (
-                    <span>
-                      <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
-                      <span className="tabular-nums">{(asset as any).org_number}</span>
-                    </span>
-                  )}
-                  {asset.url && (
-                    <a href={asset.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                      {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
-                </div>
+              </div>
+
+              {/* Right: Bransje, Org.nr, Nettsted */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground sm:justify-end">
+                {(asset as any).vendor_category && (
+                  <span>
+                    <span className="font-medium text-foreground">{isNb ? "Bransje" : "Industry"}:</span>{" "}
+                    {(asset as any).vendor_category}
+                  </span>
+                )}
+                {(asset as any).org_number && (
+                  <span>
+                    <span className="font-medium text-foreground">{isNb ? "Org.nr" : "Org. no."}:</span>{" "}
+                    <span className="tabular-nums">{(asset as any).org_number}</span>
+                  </span>
+                )}
+                {asset.url && (
+                  <a href={asset.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                    {(() => { try { return new URL(asset.url).hostname; } catch { return asset.url; } })()}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
               </div>
             </div>
           </div>
