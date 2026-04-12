@@ -35,6 +35,7 @@ import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenc
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
+import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -420,9 +421,12 @@ const AssetTrustProfile = () => {
                   <CustomerRequestsTab />
                 </TabsContent>
                 <TabsContent value="vendor-activity" className="mt-6">
-                  <div className="text-sm text-muted-foreground italic p-8 text-center">
-                    {isNb ? "Aktivitetslogg kommer snart" : "Activity log coming soon"}
-                  </div>
+                  <VendorActivityTab
+                    assetId={asset.id}
+                    assetName={asset.name}
+                    baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                  />
                 </TabsContent>
               </Tabs>
             )}
