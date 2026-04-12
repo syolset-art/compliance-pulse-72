@@ -84,16 +84,32 @@ export const VendorTPRMStatus = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestType, setRequestType] = useState<string | undefined>();
 
+  const queryClient = useQueryClient();
+
   const { data: asset } = useQuery({
     queryKey: ["asset-tprm", assetId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
-        .select("criticality, risk_level, next_review_date")
+        .select("criticality, risk_level, next_review_date, tprm_status")
         .eq("id", assetId)
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (newStatus: TPRMLevel) => {
+      const { error } = await supabase
+        .from("assets")
+        .update({ tprm_status: newStatus })
+        .eq("id", assetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-tprm", assetId] });
+      toast.success(isNb ? "Status oppdatert" : "Status updated");
     },
   });
 
