@@ -470,20 +470,9 @@ export function AssetHeader({ asset, template, trustMetrics }: AssetHeaderProps)
             </div>
           ) : (
             <>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-                {asset.vendor && (
-                  <p className="text-sm text-muted-foreground">{asset.vendor}</p>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs gap-1.5 w-fit"
-                  onClick={() => setRequestDialogOpen(true)}
-                >
-                  <Send className="h-3 w-3" />
-                  {isNb ? "Be om oppdatering" : "Request update"}
-                </Button>
-              </div>
+              {asset.vendor && (
+                <p className="text-sm text-muted-foreground mt-1">{asset.vendor}</p>
+              )}
               {asset.description && (
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                   {asset.description}
