@@ -329,6 +329,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             trustScore={trustScore}
             confidenceScore={confidenceScore}
             lastUpdated={new Date().toLocaleDateString()}
+            assetId={asset.id}
           />
 
           {/* Strengths / Concerns */}
