@@ -371,10 +371,11 @@ const AssetTrustProfile = () => {
                         <TabsTrigger
                           key={tab.value}
                           value={tab.value}
-                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2.5 sm:px-3 py-1.5"
+                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2 sm:px-3 py-1.5"
                           role="tab"
                         >
-                          {tab.label}
+                          <span className="sm:hidden">{tab.label}</span>
+                          <span className="hidden sm:inline">{tab.labelFull}</span>
                         </TabsTrigger>
                       ))}
                     </TabsList>
