@@ -333,6 +333,12 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
+            {priorityFilter && priorityFilter !== "all" && (
+              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+                {priorityFilter === "critical" ? "Kritisk" : priorityFilter === "high" ? "Høy" : priorityFilter === "medium" ? "Medium" : "Lav"} prioritet
+                <button onClick={() => setPriorityFilter("")}><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
             {categoryFilter && categoryFilter !== "all" && (
               <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
                 {categoryFilter}
