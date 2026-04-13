@@ -267,7 +267,107 @@ const AdminAccessManagement = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
+
+            {/* Vendor Management Access Section */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <Truck className="h-4 w-4" />
+                      {isNb ? "Leverandørstyring" : "Vendor Management"}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isNb
+                        ? "Roller og tilganger knyttet til forvaltning av leverandører, DPA-oppfølging og tredjepartsrisiko."
+                        : "Roles and access related to vendor management, DPA follow-up, and third-party risk."}
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Write access roles */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Pencil className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                      {isNb ? "Kan utføre" : "Can execute"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      — {isNb ? "redigere, opprette oppgaver, laste opp dokumenter" : "edit, create tasks, upload documents"}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {[
+                      { role: "vendor_manager", icon: Truck, nb: "Leverandøransvarlig", en: "Vendor Manager", descNb: "Tredjepartsstyring, DPA-oppfølging og leverandørvurderinger", descEn: "Third-party management, DPA follow-up and vendor assessments" },
+                      { role: "compliance_officer", icon: ClipboardCheck, nb: "Compliance-ansvarlig", en: "Compliance Officer", descNb: "Ansvarlig for etterlevelse og rammeverk", descEn: "Responsible for compliance and frameworks" },
+                      { role: "it_manager", icon: MonitorCog, nb: "IT-ansvarlig", en: "IT Manager", descNb: "Ansvarlig for IT-drift og systemer", descEn: "Responsible for IT operations and systems" },
+                      { role: "ciso", icon: Lock, nb: "CISO / Sikkerhetsansvarlig", en: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security" },
+                    ].map(r => {
+                      const Icon = r.icon;
+                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      return (
+                        <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="p-1 rounded bg-primary/10">
+                              <Icon className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium">{isNb ? r.nb : r.en}</p>
+                              <p className="text-[11px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="text-[10px] shrink-0">
+                            {assigned.length} {isNb ? "tildelt" : "assigned"}
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Read access roles */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                      {isNb ? "Kan se" : "Can view"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      — {isNb ? "se leverandørprofil, dokumenter og status" : "view vendor profile, documents, and status"}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {[
+                      { role: "dpo", icon: Shield, nb: "DPO / Personvernkontakt", en: "DPO / Privacy Contact", descNb: "Ansvarlig for personvern og GDPR", descEn: "Responsible for privacy and GDPR" },
+                      { role: "internal_auditor", icon: FileSearch, nb: "Internrevisor", en: "Internal Auditor", descNb: "Utfører interne revisjoner og kontroller", descEn: "Performs internal audits and controls" },
+                      { role: "risk_owner", icon: AlertTriangle, nb: "Risikoeier", en: "Risk Owner", descNb: "Eier og følger opp risikoer i risikoregisteret", descEn: "Owns and follows up risks in the risk register" },
+                      { role: "ai_governance", icon: Bot, nb: "AI Governance-ansvarlig", en: "AI Governance Officer", descNb: "Styring av AI-systemer iht. AI Act", descEn: "AI system governance per AI Act" },
+                      { role: "member", icon: User, nb: "Medlem", en: "Member", descNb: "Standard lesetilgang til leverandørprofiler", descEn: "Default read access to vendor profiles" },
+                    ].map(r => {
+                      const Icon = r.icon;
+                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      return (
+                        <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="p-1 rounded bg-muted">
+                              <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium">{isNb ? r.nb : r.en}</p>
+                              <p className="text-[11px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] shrink-0">
+                            {assigned.length} {isNb ? "tildelt" : "assigned"}
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
         </main>
       </div>
 
