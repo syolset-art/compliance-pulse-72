@@ -1,41 +1,32 @@
 
 
-## Plan: Berike aktivitetsloggen med sporbarhet og oppgaver per leverandør
+## Plan: Legg til «Tilgang og roller»-fane i leverandørprofilen
 
-### Problem
-Aktivitetsloggen viser bare generiske hendelser uten tydelig sporbarhet (hvem, hva, når, resultat). For store offentlige aktører som Helse Vest IKT er det kritisk å se nøyaktig hvem som har utført hva, og kunne opprette oppgaver direkte knyttet til leverandøren fra aktivitetsfanen.
+### Hva bygges
+En ny fane i leverandørens Trust Profile som viser **hvem som har tilgang** til leverandøren, med tydelig skille mellom **lesetilgang** (kan se) og **utføringstilgang** (kan gjøre endringer/oppgaver).
 
 ### Endringer
 
-#### 1. Berike aktivitetsdata med fase, utfall og rolle (`VendorActivityTab.tsx`)
-- Utvide `Activity`-interfacet med:
-  - `phase`: Onboarding | Løpende oppfølging | Revisjon | Hendelseshåndtering | Avslutning
-  - `outcome` / `outcomeStatus`: Hva ble resultatet (Godkjent, Avvik, Venter, Fullført)
-  - `actorRole`: Rollen til personen (Leverandøransvarlig, Compliance-ansvarlig, IT-leder, etc.)
-- Oppdatere alle templates med fase, utfall og rolle
-- Vise fase som fargekodet badge i tidslinjen
-- Vise utfall med ikon (✓ / ⚠ / ⏳) under beskrivelsen
-- Vise aktørens rolle ved siden av navnet (f.eks. "Kari Nordmann, Compliance-ansvarlig")
+#### 1. Ny komponent: `VendorAccessTab.tsx`
+Opprette `src/components/asset-profile/tabs/VendorAccessTab.tsx` med:
 
-#### 2. Statussammendrag øverst
-Legge til et kompakt sammendragskort over tidslinjen:
-- **Nåværende fase** (basert på siste aktivitet)
-- **Siste aktivitet** med dato og ansvarlig
-- **Neste planlagte handling** (f.eks. "Årlig gjennomgang — Q2 2026")
+- **To seksjoner** med tydelig visuelt skille:
+  - **Kan se** (lesetilgang): Liste over roller/personer som har innsyn i leverandørprofilen
+  - **Kan utføre** (skrivetilgang): Liste over roller/personer som kan redigere, opprette oppgaver, laste opp dokumenter, endre status
+- Hver person/rolle vises med navn, rolle-badge (fra `ROLE_LABELS`), og fargekode (fra `ROLE_COLORS`)
+- Demo-data med realistiske roller (Compliance-ansvarlig, Leverandøransvarlig, IT-ansvarlig, Daglig leder, etc.)
+- Informasjonsboks som forklarer forskjellen mellom tilgangsnivåene
+- Knapp for «Legg til tilgang» (placeholder CTA)
 
-#### 3. «Ny oppgave»-knapp i aktivitetsfanen
-- Legge til en «Ny oppgave»-knapp i headeren på aktivitetsloggen
-- Gjenbruke `CreateUserTaskDialog` med `asset_id` forhåndsutfylt
-- Integrere `useUserTasks`-hooken for å hente og vise eksisterende oppgaver knyttet til denne leverandøren
-- Vise åpne oppgaver som en kompakt liste mellom sammendraget og tidslinjen
-
-#### 4. Filtrering av aktivitetslogg
-- Legge til en enkel filterrad med knapper for å filtrere på fase (Alle / Onboarding / Løpende / Revisjon / Hendelser)
-- Gjør det enkelt å finne relevante aktiviteter i en lang historikk
+#### 2. Registrere fanen i `AssetTrustProfile.tsx`
+- Legge til `{ value: 'vendor-access', label: 'Tilgang', labelFull: 'Tilgang og roller' }` i `allVendorTabs`
+- Legge til `TabsContent` med den nye komponenten
+- Plasseres i «Vis flere»-menyen (etter aktivitetslogg)
 
 ### Filer som endres
-1. **`src/components/asset-profile/tabs/VendorActivityTab.tsx`** — Alle endringer: berike data, statussammendrag, oppgaveliste, filter, fase/utfall-visning
+1. **`src/components/asset-profile/tabs/VendorAccessTab.tsx`** — Ny fil
+2. **`src/pages/AssetTrustProfile.tsx`** — Registrere fanen og importere komponenten
 
 ### Ingen databaseendringer
-Aktivitetsdata er demo-data. Oppgaver bruker eksisterende `user_tasks`-tabell som allerede har `asset_id`-kobling.
+Bruker demo-data med roller fra eksisterende `useUserRole`-hook.
 
