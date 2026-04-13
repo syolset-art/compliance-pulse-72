@@ -368,6 +368,7 @@ const AdminAccessManagement = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
         </main>
       </div>
 
