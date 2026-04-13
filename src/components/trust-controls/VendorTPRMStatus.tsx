@@ -92,6 +92,10 @@ export const VendorTPRMStatus = ({
   const [requestType, setRequestType] = useState<string | undefined>();
   const queryClient = useQueryClient();
 
+  const recentActivities = useMemo(() => generateDemoActivities(assetId).slice(0, 3), [assetId]);
+
+  const OUTCOME_ICON_MAP = { success: CheckCircle2, warning: AlertCircle, info: Timer } as const;
+
   const { data: asset } = useQuery({
     queryKey: ["asset-tprm", assetId],
     queryFn: async () => {
@@ -326,6 +330,58 @@ export const VendorTPRMStatus = ({
                 </div>
               </button>
             )}
+
+            {/* Recent Activities - linked to activity tab */}
+            <div className="border-t border-border pt-3 mt-1 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isNb ? "Siste aktiviteter" : "Recent activities"}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-primary gap-1 px-2"
+                  onClick={() => onNavigateToTab?.("vendor-activity")}
+                >
+                  {isNb ? "Se alle" : "View all"}
+                  <ArrowRight className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="space-y-1.5">
+                {recentActivities.map((act) => {
+                  const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
+                  const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+                  const phaseConf = PHASE_CONFIG[act.phase];
+                  return (
+                    <button
+                      key={act.id}
+                      onClick={() => onNavigateToTab?.("vendor-activity")}
+                      className="w-full text-left flex items-start gap-2 p-2 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors"
+                    >
+                      <div className={`mt-0.5 ${outcomeColor}`}>
+                        <OutIcon className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-medium text-foreground truncate">
+                            {isNb ? act.titleNb : act.titleEn}
+                          </span>
+                          <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
+                            {isNb ? phaseConf.nb : phaseConf.en}
+                          </Badge>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
         </CardContent>
