@@ -5,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 import { generateDemoActivities, formatRelativeDate, PHASE_CONFIG, OUTCOME_COLORS } from "@/utils/vendorActivityData";
@@ -89,6 +90,7 @@ export const VendorTPRMStatus = ({
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestOpen, setRequestOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [requestType, setRequestType] = useState<string | undefined>();
   const queryClient = useQueryClient();
 
@@ -198,42 +200,40 @@ export const VendorTPRMStatus = ({
     <>
       <Card className={`${cfg.bg} border ${cfg.border} overflow-hidden`}>
         <CardContent className="p-0">
-          {/* Executive Summary Banner */}
-          <div className="p-4 space-y-3">
-          {/* Module title */}
-          <div className="flex items-center gap-1.5 mb-1">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
-            </h2>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
-                  <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
-                  <p>{isNb ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging)." : "Combines vendor risk with degree of control (documentation and follow-up)."}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          {/* Status header row */}
-          <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Shield className={`h-5 w-5 ${cfg.text}`} />
-                <span className={`text-base font-bold ${cfg.text}`}>
+          <Collapsible open={expanded} onOpenChange={setExpanded}>
+            {/* Always-visible compact header */}
+            <div className="p-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Shield className={`h-4 w-4 shrink-0 ${cfg.text}`} />
+                <span className={`text-sm font-bold ${cfg.text}`}>
                   {cfg.emoji} {cfg.label}
                 </span>
+                {risk && (
+                  <>
+                    <span className="text-border">·</span>
+                    <span className={`text-xs font-medium flex items-center gap-1 ${riskColors[risk]}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${riskDots[risk]}`} />
+                      {riskLabels[risk]}
+                    </span>
+                  </>
+                )}
+                {maturityStats && (
+                  <>
+                    <span className="text-border">·</span>
+                    <span className="text-xs text-muted-foreground">
+                      {maturityStats.implementedCount}/{maturityStats.totalControls} <span className="text-[10px]">({maturityStats.trustScore}%)</span>
+                    </span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Select
                   value={effectiveLevel}
                   onValueChange={(val) => updateStatusMutation.mutate(val as TPRMLevel)}
                 >
-                  <SelectTrigger className="h-8 text-sm border border-border bg-background/60 px-3 w-auto min-w-[140px] shadow-none">
+                  <SelectTrigger className="h-7 text-xs border border-border bg-background/60 px-2 w-auto min-w-[120px] shadow-none">
                     <SelectValue>
-                      <span className="text-sm">{isNb ? "Endre status" : "Change status"}</span>
+                      <span className="text-xs">{isNb ? "Endre" : "Change"}</span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -244,146 +244,173 @@ export const VendorTPRMStatus = ({
                     ))}
                   </SelectContent>
                 </Select>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+                  </Button>
+                </CollapsibleTrigger>
               </div>
             </div>
 
-            {/* Metrics row: Risk · Control · Maturity */}
-            <div className="flex items-center gap-4 flex-wrap text-sm">
-              <span className="flex items-center gap-1.5">
-                <span className="text-muted-foreground text-xs">{isNb ? "Risiko:" : "Risk:"}</span>
-                {risk ? (
-                  <span className={`font-semibold flex items-center gap-1 ${riskColors[risk]}`}>
-                    <span className={`h-2 w-2 rounded-full ${riskDots[risk]}`} />
-                    {riskLabels[risk]}
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
-              )}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
-                      <p className="font-semibold mb-1">{isNb ? "Risikonivå" : "Risk level"}</p>
-                      <p>{isNb
-                        ? "Risikonivået settes basert på leverandørens kritikalitet, datatyper og land. Det påvirker hvilke kontroller og oppfølgingskrav som gjelder."
-                        : "Risk level is based on the vendor's criticality, data types, and country. It determines which controls and follow-up requirements apply."
-                      }</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </span>
-              {maturityStats && (
-                <>
-                  <span className="text-border">|</span>
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById("maturity-controls-section");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                    className="flex items-center gap-1.5 hover:text-primary transition-colors"
-                  >
-                    <span className="text-muted-foreground text-xs">{isNb ? "Kontroll:" : "Control:"}</span>
-                    <span className="font-semibold text-foreground">
-                      {maturityStats.implementedCount}/{maturityStats.totalControls}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      ({maturityStats.trustScore}%)
-                    </span>
-                  </button>
+            {/* Expandable detail section */}
+            <CollapsibleContent>
+              <div className="px-3 pb-3 space-y-3 border-t border-border/50 pt-3">
+                {/* Module title + tooltip */}
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
+                  </h2>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
-                        <p className="font-semibold mb-1">{isNb ? "Kontroll og modenhet" : "Control & maturity"}</p>
-                        <p>{isNb
-                          ? "Viser hvor mange kontroller som er oppfylt på tvers av kontrollområdene (styring, drift, personvern, tredjepartstyring). Klikk for å se detaljene."
-                          : "Shows how many controls are met across control areas (governance, operations, privacy, third-party). Click to view details."
-                        }</p>
+                      <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
+                        <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
+                        <p>{isNb ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging)." : "Combines vendor risk with degree of control (documentation and follow-up)."}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                </>
-              )}
-            </div>
-
-            {/* Remaining tasks summary */}
-            {maturityStats && maturityStats.totalControls - maturityStats.implementedCount > 0 && (
-              <button
-                onClick={() => {
-                  const el = document.getElementById("vendor-tasks-section");
-                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors w-full text-left"
-              >
-                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-medium text-foreground">
-                    {maturityStats.totalControls - maturityStats.implementedCount} {isNb ? "kontroller gjenstår for å nå" : "controls remaining to reach"} «{tprmConfig.approved.label}»
-                  </p>
-                  <span className="text-[10px] text-primary mt-1 inline-block">
-                    {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
-                  </span>
                 </div>
-              </button>
-            )}
 
-            {/* Recent Activities - linked to activity tab */}
-            <div className="border-t border-border pt-3 mt-1 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {isNb ? "Siste aktiviteter" : "Recent activities"}
+                {/* Metrics row */}
+                <div className="flex items-center gap-4 flex-wrap text-sm">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground text-xs">{isNb ? "Risiko:" : "Risk:"}</span>
+                    {risk ? (
+                      <span className={`font-semibold flex items-center gap-1 ${riskColors[risk]}`}>
+                        <span className={`h-2 w-2 rounded-full ${riskDots[risk]}`} />
+                        {riskLabels[risk]}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
+                    )}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
+                          <p className="font-semibold mb-1">{isNb ? "Risikonivå" : "Risk level"}</p>
+                          <p>{isNb
+                            ? "Risikonivået settes basert på leverandørens kritikalitet, datatyper og land."
+                            : "Risk level is based on the vendor's criticality, data types, and country."
+                          }</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </span>
+                  {maturityStats && (
+                    <>
+                      <span className="text-border">|</span>
+                      <button
+                        onClick={() => {
+                          const el = document.getElementById("maturity-controls-section");
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                      >
+                        <span className="text-muted-foreground text-xs">{isNb ? "Kontroll:" : "Control:"}</span>
+                        <span className="font-semibold text-foreground">
+                          {maturityStats.implementedCount}/{maturityStats.totalControls}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          ({maturityStats.trustScore}%)
+                        </span>
+                      </button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
+                            <p className="font-semibold mb-1">{isNb ? "Kontroll og modenhet" : "Control & maturity"}</p>
+                            <p>{isNb
+                              ? "Viser hvor mange kontroller som er oppfylt. Klikk for å se detaljene."
+                              : "Shows how many controls are met. Click to view details."
+                            }</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </>
+                  )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs text-primary gap-1 px-2"
-                  onClick={() => onNavigateToTab?.("vendor-activity")}
-                >
-                  {isNb ? "Se alle" : "View all"}
-                  <ArrowRight className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="space-y-1.5">
-                {recentActivities.map((act) => {
-                  const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
-                  const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
-                  const phaseConf = PHASE_CONFIG[act.phase];
-                  return (
-                    <button
-                      key={act.id}
+
+                {/* Remaining tasks summary */}
+                {maturityStats && maturityStats.totalControls - maturityStats.implementedCount > 0 && (
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById("vendor-tasks-section");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors w-full text-left"
+                  >
+                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">
+                        {maturityStats.totalControls - maturityStats.implementedCount} {isNb ? "kontroller gjenstår for å nå" : "controls remaining to reach"} «{tprmConfig.approved.label}»
+                      </p>
+                      <span className="text-[10px] text-primary mt-1 inline-block">
+                        {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
+                      </span>
+                    </div>
+                  </button>
+                )}
+
+                {/* Recent Activities */}
+                <div className="border-t border-border pt-3 mt-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {isNb ? "Siste aktiviteter" : "Recent activities"}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-primary gap-1 px-2"
                       onClick={() => onNavigateToTab?.("vendor-activity")}
-                      className="w-full text-left flex items-start gap-2 p-2 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors"
                     >
-                      <div className={`mt-0.5 ${outcomeColor}`}>
-                        <OutIcon className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-medium text-foreground truncate">
-                            {isNb ? act.titleNb : act.titleEn}
-                          </span>
-                          <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
-                            {isNb ? phaseConf.nb : phaseConf.en}
-                          </Badge>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
+                      {isNb ? "Se alle" : "View all"}
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {recentActivities.map((act) => {
+                      const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
+                      const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+                      const phaseConf = PHASE_CONFIG[act.phase];
+                      return (
+                        <button
+                          key={act.id}
+                          onClick={() => onNavigateToTab?.("vendor-activity")}
+                          className="w-full text-left flex items-start gap-2 p-2 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors"
+                        >
+                          <div className={`mt-0.5 ${outcomeColor}`}>
+                            <OutIcon className="h-3.5 w-3.5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-medium text-foreground truncate">
+                                {isNb ? act.titleNb : act.titleEn}
+                              </span>
+                              <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
+                                {isNb ? phaseConf.nb : phaseConf.en}
+                              </Badge>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
+            </CollapsibleContent>
+          </Collapsible>
         </CardContent>
       </Card>
 
