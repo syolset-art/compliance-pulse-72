@@ -70,10 +70,10 @@ const dashboardNav = [
 
 // Organisasjon section (workplace-oriented)
 const organisationNav = [
+  { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
-  { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
