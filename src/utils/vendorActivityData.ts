@@ -1,4 +1,4 @@
-export type ActivityType = "document" | "risk" | "incident" | "assignment" | "review" | "delivery" | "maturity" | "setting" | "upload" | "view";
+export type ActivityType = "document" | "risk" | "incident" | "assignment" | "review" | "delivery" | "maturity" | "setting" | "upload" | "view" | "email" | "phone" | "meeting" | "manual";
 export type Phase = "onboarding" | "ongoing" | "audit" | "incident" | "closure";
 export type OutcomeStatus = "success" | "warning" | "info";
 
