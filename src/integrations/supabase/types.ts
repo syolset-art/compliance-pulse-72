@@ -555,6 +555,7 @@ export type Database = {
           name: string
           next_review_date: string | null
           org_number: string | null
+          priority: string | null
           publish_mode: string | null
           publish_to_customers: string[] | null
           region: string | null
@@ -594,6 +595,7 @@ export type Database = {
           name: string
           next_review_date?: string | null
           org_number?: string | null
+          priority?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -633,6 +635,7 @@ export type Database = {
           name?: string
           next_review_date?: string | null
           org_number?: string | null
+          priority?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
