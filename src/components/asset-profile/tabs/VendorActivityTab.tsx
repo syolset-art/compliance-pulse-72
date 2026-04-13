@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
+import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { useUserTasks } from "@/hooks/useUserTasks";
 import {
   generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, OUTCOME_COLORS,
@@ -13,7 +14,7 @@ import {
 import {
   FileText, AlertTriangle, UserCheck, ClipboardCheck,
   Package, TrendingUp, Settings, Upload, Eye, Clock, CheckCircle2,
-  AlertCircle, Timer, ListTodo, Filter,
+  AlertCircle, Timer, ListTodo, Filter, Mail, Phone, Users, PenLine,
 } from "lucide-react";
 
 interface VendorActivityTabProps {
@@ -27,6 +28,7 @@ const ACTIVITY_ICONS = {
   document: FileText, risk: AlertTriangle, incident: AlertTriangle,
   assignment: UserCheck, review: ClipboardCheck, delivery: Package,
   maturity: TrendingUp, setting: Settings, upload: Upload, view: Eye,
+  email: Mail, phone: Phone, meeting: Users, manual: PenLine,
 } as const;
 
 const OUTCOME_ICON = {
@@ -37,8 +39,13 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
+  const [manualActivities, setManualActivities] = useState<VendorActivity[]>([]);
 
-  const activities = useMemo(() => generateDemoActivities(assetId), [assetId]);
+  const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
+  const activities = useMemo(
+    () => [...demoActivities, ...manualActivities].sort((a, b) => b.date.getTime() - a.date.getTime()),
+    [demoActivities, manualActivities]
+  );
   const { tasks, createTask } = useUserTasks();
   const vendorTasks = useMemo(() => tasks.filter(t => t.asset_id === assetId && t.status !== "done"), [tasks, assetId]);
 
@@ -160,10 +167,13 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
               <Clock className="h-5 w-5 text-primary" />
               {isNb ? "Aktivitetslogg" : "Activity Log"}
             </CardTitle>
-            <CreateUserTaskDialog
-              onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
-              isLoading={createTask.isPending}
-            />
+            <div className="flex items-center gap-2">
+              <RegisterActivityDialog onSubmit={(act) => setManualActivities(prev => [act, ...prev])} />
+              <CreateUserTaskDialog
+                onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
+                isLoading={createTask.isPending}
+              />
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
             {isNb
