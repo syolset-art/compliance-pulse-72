@@ -54,7 +54,7 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      toast({ title: "Feil", description: "Oppgavetittel er påkrevd.", variant: "destructive" });
+      toast({ title: "Feil", description: "Aktivitetstittel er påkrevd.", variant: "destructive" });
       return;
     }
     onSubmit({
@@ -70,7 +70,7 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
     setDueDate("");
     setAssetId("");
     setOpen(false);
-    toast({ title: "Oppgave opprettet", description: "Den nye oppgaven er lagt til." });
+    toast({ title: "Aktivitet opprettet", description: "Den nye aktiviteten er lagt til." });
   };
 
   return (
@@ -78,16 +78,16 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
       <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Plus className="h-4 w-4" />
-          Ny oppgave
+          Ny aktivitet
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Opprett ny oppgave</DialogTitle>
+          <DialogTitle>Opprett ny aktivitet</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="task-title">Oppgave *</Label>
+            <Label htmlFor="task-title">Aktivitet *</Label>
             <Input
               id="task-title"
               placeholder="Hva skal gjøres?"
@@ -145,7 +145,7 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
           </div>
 
           <Button onClick={handleSubmit} disabled={isLoading} className="w-full">
-            Opprett oppgave
+            Opprett aktivitet
           </Button>
         </div>
       </DialogContent>
