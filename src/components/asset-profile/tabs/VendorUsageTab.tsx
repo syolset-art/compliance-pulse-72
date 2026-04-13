@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight } from "lucide-react";
+import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -33,6 +33,24 @@ const gdprOptions = [
   { value: "ingen_persondata", labelNb: "Ingen persondata", labelEn: "No personal data" },
   { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
 ];
+
+const priorityOptions = [
+  { value: "critical", labelNb: "Kritisk", labelEn: "Critical" },
+  { value: "high", labelNb: "Høy", labelEn: "High" },
+  { value: "medium", labelNb: "Middels", labelEn: "Medium" },
+  { value: "low", labelNb: "Lav", labelEn: "Low" },
+  { value: "not_set", labelNb: "Ikke satt", labelEn: "Not set" },
+];
+
+const priorityColor = (value: string | null | undefined) => {
+  switch (value) {
+    case "critical": return "text-destructive bg-destructive/10 border-destructive/20";
+    case "high": return "text-warning bg-warning/10 border-warning/20";
+    case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800";
+    case "low": return "text-success bg-success/10 border-success/20";
+    default: return "text-muted-foreground bg-muted border-border";
+  }
+};
 
 const severityColor = (value: string | null | undefined) => {
   switch (value) {
@@ -170,7 +188,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
       </div>
 
       {/* Editable fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Criticality */}
         <Card className="relative group">
           <CardContent className="p-4 space-y-2">
@@ -293,6 +311,44 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
+            </button>
+          </CardContent>
+        </Card>
+
+        {/* Priority */}
+        <Card className="relative group">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Flag className="h-3.5 w-3.5" />
+              {isNb ? "Prioritet" : "Priority"}
+              <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+            </div>
+            <Select
+              value={asset?.priority || "not_set"}
+              onValueChange={(v) => handleFieldChange("priority", v === "not_set" ? null as any : v)}
+            >
+              <SelectTrigger className={`h-9 text-sm font-semibold border ${priorityColor(asset?.priority)}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priorityOptions.map(o => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {isNb ? o.labelNb : o.labelEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground leading-tight">
+              {isNb
+                ? "Din prioritering av leverandøren for filtrering og oppfølging. Kan kobles til risikoscenarier."
+                : "Your prioritization of this vendor for filtering and follow-up. Can be linked to risk scenarios."}
+            </p>
+            <button
+              onClick={() => onNavigateToTab?.("overview")}
+              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+            >
+              <ArrowRight className="h-2.5 w-2.5" />
+              {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
             </button>
           </CardContent>
         </Card>

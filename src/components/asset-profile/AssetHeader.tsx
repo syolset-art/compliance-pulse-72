@@ -588,32 +588,12 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
-            {/* Priority & Status selectors (moved from ribbon for interactivity) */}
-            {!isSelf && (
-              <Select
-                value={currentPriorityVal || "__none__"}
-                onValueChange={(val) => updateAsset.mutate({ priority: val === "__none__" ? null : val })}
-              >
-                <SelectTrigger className="h-5 border-0 bg-transparent p-0 gap-0.5 w-auto shadow-none focus:ring-0 [&>svg]:h-3 [&>svg]:w-3">
-                  {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] ? (
-                    <Badge className={`text-[10px] shrink-0 cursor-pointer bg-muted text-muted-foreground border-border`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot} mr-1`} />
-                      {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-[10px] shrink-0 cursor-pointer text-muted-foreground border-dashed">
-                      {isNb ? "Prioritet" : "Priority"}
-                    </Badge>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">{isNb ? "— Ingen —" : "— None —"}</SelectItem>
-                  <SelectItem value="critical">Kritisk</SelectItem>
-                  <SelectItem value="high">Høy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Lav</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Read-only priority badge */}
+            {!isSelf && currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
+              <Badge className="text-[10px] shrink-0 bg-muted text-muted-foreground border-border">
+                <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot} mr-1`} />
+                {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
+              </Badge>
             )}
           </div>
 
