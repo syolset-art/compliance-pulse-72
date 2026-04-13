@@ -49,6 +49,7 @@ interface Asset {
   gdpr_role?: string | null;
   work_area_id?: string | null;
   lifecycle_status?: string | null;
+  priority?: string | null;
 }
 
 interface WorkArea {
@@ -147,6 +148,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
   const [riskFilter, setRiskFilter] = useState("");
   const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -165,7 +167,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
       const matchesRisk = !riskFilter || riskFilter === "all" || a.risk_level === riskFilter;
       const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
       const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
-      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr;
+      const matchesPriority = !priorityFilter || priorityFilter === "all" || a.priority === priorityFilter;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority;
     });
 
     if (sortColumn) {
@@ -177,7 +180,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
       });
     }
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, sortColumn, sortDirection]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -201,7 +204,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
     return null;
   };
 
-  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter]
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter]
     .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
 
   const clearAllFilters = () => {
@@ -209,6 +212,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
     setRiskFilter("");
     setVendorCategoryFilter("");
     setGdprRoleFilter("");
+    setPriorityFilter("");
     setShowAll(false);
   };
 
@@ -276,6 +280,18 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                   <SelectItem value="databehandler">Databehandler</SelectItem>
                   <SelectItem value="underdatabehandler">Underdatabehandler</SelectItem>
                   <SelectItem value="ingen">Ingen persondata</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Prioritet" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle prioriteter</SelectItem>
+                  <SelectItem value="critical">Kritisk</SelectItem>
+                  <SelectItem value="high">Høy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Lav</SelectItem>
                 </SelectContent>
               </Select>
               {categories.length > 0 && (

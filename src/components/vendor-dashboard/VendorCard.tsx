@@ -48,6 +48,7 @@ interface VendorCardProps {
     vendor_category?: string | null;
     gdpr_role?: string | null;
     work_area_id?: string | null;
+    priority?: string | null;
   };
   connectedSystemsCount?: number;
   hasDPA?: boolean;
@@ -106,6 +107,20 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {vendor.priority && (() => {
+            const pCfg: Record<string, { label: string; cls: string }> = {
+              critical: { label: "Kritisk", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+              high: { label: "Høy", cls: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700" },
+              medium: { label: "Medium", cls: "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700" },
+              low: { label: "Lav", cls: "bg-success/10 text-success border-success/20" },
+            };
+            const cfg = pCfg[vendor.priority];
+            return cfg ? (
+              <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", cfg.cls)}>
+                {cfg.label}
+              </Badge>
+            ) : null;
+          })()}
           {!hasDPA && (
             <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 gap-1 px-1.5 py-0">
               <Shield className="h-2.5 w-2.5" />
