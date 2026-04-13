@@ -40,6 +40,7 @@ import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryT
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
+import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -177,6 +178,7 @@ const AssetTrustProfile = () => {
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
     { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+    { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
   ];
 
   const mobileVisibleCount = 4;
@@ -451,6 +453,9 @@ const AssetTrustProfile = () => {
                     baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
                     enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
                   />
+                </TabsContent>
+                <TabsContent value="vendor-access" className="mt-6">
+                  <VendorAccessTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
               </Tabs>
             )}
