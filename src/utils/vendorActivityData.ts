@@ -16,6 +16,10 @@ export interface VendorActivity {
   outcomeNb: string;
   outcomeEn: string;
   outcomeStatus: OutcomeStatus;
+  contactPerson?: string;
+  participants?: string;
+  attachmentNote?: string;
+  isManual?: boolean;
 }
 
 export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string }> = {
