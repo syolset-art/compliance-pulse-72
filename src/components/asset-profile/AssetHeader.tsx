@@ -588,46 +588,30 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
+            {/* Priority & Status selectors (moved from ribbon for interactivity) */}
             {!isSelf && (
-              <Badge variant="outline" className="text-[10px] shrink-0">
-                {template?.display_name || asset.asset_type}
-              </Badge>
-            )}
-            {!isSelf && (
-              <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
-                {getStatusLabel(asset.lifecycle_status)}
-              </Badge>
-            )}
-            {!isSelf && (() => {
-              const PRIORITY_CONFIG: Record<string, { label: string; className: string }> = {
-                critical: { label: "Kritisk", className: "bg-destructive/15 text-destructive border-destructive/30" },
-                high: { label: "Høy", className: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700" },
-                medium: { label: "Medium", className: "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700" },
-                low: { label: "Lav", className: "bg-success/15 text-success border-success/30" },
-              };
-              const currentPriority = (asset as any).priority as string | null;
-              return (
-                <Select
-                  value={currentPriority || "__none__"}
-                  onValueChange={(val) => updateAsset.mutate({ priority: val === "__none__" ? null : val })}
-                >
-                  <SelectTrigger className="h-5 border-0 bg-transparent p-0 gap-0.5 w-auto shadow-none focus:ring-0 [&>svg]:h-3 [&>svg]:w-3">
-                    {currentPriority && PRIORITY_CONFIG[currentPriority] ? (
-                      <Badge className={`text-[10px] shrink-0 cursor-pointer ${PRIORITY_CONFIG[currentPriority].className}`}>
-                        {PRIORITY_CONFIG[currentPriority].label}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-[10px] shrink-0 cursor-pointer text-muted-foreground border-dashed">
-                        {isNb ? "Prioritet" : "Priority"}
-                      </Badge>
-                    )}
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{isNb ? "— Ingen —" : "— None —"}</SelectItem>
-                    <SelectItem value="critical">Kritisk</SelectItem>
-                    <SelectItem value="high">Høy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Lav</SelectItem>
+              <Select
+                value={currentPriorityVal || "__none__"}
+                onValueChange={(val) => updateAsset.mutate({ priority: val === "__none__" ? null : val })}
+              >
+                <SelectTrigger className="h-5 border-0 bg-transparent p-0 gap-0.5 w-auto shadow-none focus:ring-0 [&>svg]:h-3 [&>svg]:w-3">
+                  {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] ? (
+                    <Badge className={`text-[10px] shrink-0 cursor-pointer bg-muted text-muted-foreground border-border`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot} mr-1`} />
+                      {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] shrink-0 cursor-pointer text-muted-foreground border-dashed">
+                      {isNb ? "Prioritet" : "Priority"}
+                    </Badge>
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{isNb ? "— Ingen —" : "— None —"}</SelectItem>
+                  <SelectItem value="critical">Kritisk</SelectItem>
+                  <SelectItem value="high">Høy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Lav</SelectItem>
                   </SelectContent>
                 </Select>
               );
