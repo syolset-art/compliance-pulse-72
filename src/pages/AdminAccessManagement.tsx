@@ -14,6 +14,7 @@ import {
 import {
   Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil,
   AlertTriangle, Bot, Leaf, ClipboardCheck, MonitorCog, GraduationCap, Truck, FileSearch,
+  Lock, User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
