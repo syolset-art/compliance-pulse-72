@@ -480,7 +480,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
       />
 
       {/* Top row: icon/logo + name + badges + trust metrics */}
-      <div className="flex items-start gap-4">
+      <div className={`flex items-start gap-4 ${!isSelf ? 'mt-8' : ''}`}>
         {/* Owner & Manager — top right for vendor/system profiles */}
         {!isSelf && (
           <div className="hidden md:flex items-center gap-8 shrink-0 ml-auto order-last">
