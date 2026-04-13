@@ -612,10 +612,9 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                   <SelectItem value="high">Høy</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Lav</SelectItem>
-                  </SelectContent>
-                </Select>
-              );
-            })()}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* TPRM status line for vendors */}
