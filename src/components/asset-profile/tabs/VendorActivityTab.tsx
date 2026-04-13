@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { ActivityDetailPanel } from "@/components/asset-profile/ActivityDetailPanel";
 import { useUserTasks } from "@/hooks/useUserTasks";
 import {
   generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, OUTCOME_COLORS,
@@ -14,7 +15,7 @@ import {
 import {
   FileText, AlertTriangle, UserCheck, ClipboardCheck,
   Package, TrendingUp, Settings, Upload, Eye, Clock, CheckCircle2,
-  AlertCircle, Timer, ListTodo, Filter, Mail, Phone, Users, PenLine,
+  AlertCircle, Timer, ListTodo, Filter, Mail, Phone, Users, PenLine, ChevronDown,
 } from "lucide-react";
 
 interface VendorActivityTabProps {
@@ -40,6 +41,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const isNb = i18n.language === "nb";
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
   const [manualActivities, setManualActivities] = useState<VendorActivity[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
   const activities = useMemo(
@@ -76,6 +78,10 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
     { key: "audit", nb: "Revisjon", en: "Audit" },
     { key: "incident", nb: "Hendelser", en: "Incidents" },
   ];
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(prev => prev === id ? null : id);
+  };
 
   return (
     <div className="space-y-6">
@@ -211,47 +217,57 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                     const OutcomeIcon = OUTCOME_ICON[act.outcomeStatus];
                     const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
                     const phaseConf = PHASE_CONFIG[act.phase];
+                    const isExpanded = expandedId === act.id;
 
                     return (
-                      <div key={act.id} className="flex gap-3 group">
-                        <div className="flex flex-col items-center">
-                          <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${colorClass}`}>
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          {!isLast && <div className="w-px flex-1 bg-border min-h-[16px]" />}
-                        </div>
-                        <div className="flex-1 pb-4">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-sm font-medium text-foreground">
-                                  {isNb ? act.titleNb : act.titleEn}
-                                </p>
-                                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
-                                  {isNb ? phaseConf.nb : phaseConf.en}
-                                </Badge>
-                              </div>
-                              <div className={`flex items-center gap-1 mt-0.5 ${outcomeColor}`}>
-                                <OutcomeIcon className="h-3 w-3" />
-                                <span className="text-xs font-medium">{isNb ? act.outcomeNb : act.outcomeEn}</span>
-                              </div>
-                              {(isNb ? act.descriptionNb : act.descriptionEn) && (
-                                <p className="text-sm text-muted-foreground mt-0.5">
-                                  {isNb ? act.descriptionNb : act.descriptionEn}
-                                </p>
-                              )}
-                              {act.actor && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  <span className="font-medium text-foreground/80">{act.actor}</span>
-                                  {act.actorRole && <span className="text-muted-foreground">, {act.actorRole}</span>}
-                                </p>
-                              )}
+                      <div key={act.id}>
+                        <div
+                          className="flex gap-3 group cursor-pointer rounded-md hover:bg-muted/40 transition-colors -mx-2 px-2 py-0.5"
+                          onClick={() => toggleExpand(act.id)}
+                        >
+                          <div className="flex flex-col items-center">
+                            <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${colorClass}`}>
+                              <Icon className="h-4 w-4" />
                             </div>
-                            <Badge variant="outline" className="text-xs shrink-0 whitespace-nowrap">
-                              {formatRelativeDate(act.date, isNb)}
-                            </Badge>
+                            {!isLast && <div className="w-px flex-1 bg-border min-h-[16px]" />}
+                          </div>
+                          <div className="flex-1 pb-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="text-sm font-medium text-foreground">
+                                    {isNb ? act.titleNb : act.titleEn}
+                                  </p>
+                                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
+                                    {isNb ? phaseConf.nb : phaseConf.en}
+                                  </Badge>
+                                  {act.isManual && (
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-dashed text-muted-foreground">
+                                      {isNb ? "Manuell" : "Manual"}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className={`flex items-center gap-1 mt-0.5 ${outcomeColor}`}>
+                                  <OutcomeIcon className="h-3 w-3" />
+                                  <span className="text-xs font-medium">{isNb ? act.outcomeNb : act.outcomeEn}</span>
+                                </div>
+                                {act.actor && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    <span className="font-medium text-foreground/80">{act.actor}</span>
+                                    {act.actorRole && <span className="text-muted-foreground">, {act.actorRole}</span>}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                                  {formatRelativeDate(act.date, isNb)}
+                                </Badge>
+                                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        {isExpanded && <ActivityDetailPanel activity={act} />}
                       </div>
                     );
                   })}
