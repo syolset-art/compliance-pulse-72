@@ -420,8 +420,56 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     }
   };
 
+  // Asset type ribbon config
+  const ASSET_TYPE_RIBBON: Record<string, { label_nb: string; label_en: string; bg: string; text: string }> = {
+    vendor: { label_nb: "Leverandør", label_en: "Vendor", bg: "bg-blue-600 dark:bg-blue-700", text: "text-white" },
+    system: { label_nb: "System", label_en: "System", bg: "bg-emerald-600 dark:bg-emerald-700", text: "text-white" },
+    location: { label_nb: "Lokasjon", label_en: "Location", bg: "bg-amber-600 dark:bg-amber-700", text: "text-white" },
+    network: { label_nb: "Nettverk", label_en: "Network", bg: "bg-purple-600 dark:bg-purple-700", text: "text-white" },
+    device: { label_nb: "Enhet", label_en: "Device", bg: "bg-rose-600 dark:bg-rose-700", text: "text-white" },
+    self: { label_nb: "Organisasjon", label_en: "Organization", bg: "bg-primary", text: "text-primary-foreground" },
+  };
+
+  const ribbonConfig = ASSET_TYPE_RIBBON[asset.asset_type] || { label_nb: template?.display_name || asset.asset_type, label_en: template?.display_name || asset.asset_type, bg: "bg-muted-foreground", text: "text-white" };
+  const ribbonLabel = isNb ? ribbonConfig.label_nb : ribbonConfig.label_en;
+
+  const PRIORITY_CONFIG_RIBBON: Record<string, { label: string; dot: string }> = {
+    critical: { label: "Kritisk", dot: "bg-destructive" },
+    high: { label: "Høy", dot: "bg-orange-500" },
+    medium: { label: "Medium", dot: "bg-yellow-500" },
+    low: { label: "Lav", dot: "bg-emerald-500" },
+  };
+  const currentPriorityVal = (asset as any).priority as string | null;
+  const isActive = asset.lifecycle_status === "active" || !asset.lifecycle_status;
+
   return (
-    <Card className="p-5 md:p-6">
+    <Card className="p-5 md:p-6 relative overflow-hidden">
+      {/* Corner ribbon */}
+      {!isSelf && (
+        <div className="absolute top-0 right-0 z-10">
+          <div className={`${ribbonConfig.bg} ${ribbonConfig.text} pl-4 pr-3 py-1.5 rounded-bl-lg shadow-md`}>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider">{ribbonLabel}</span>
+              {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
+                <>
+                  <span className="w-px h-3 bg-white/40" />
+                  <div className="flex items-center gap-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot}`} />
+                    <span className="text-[10px] font-medium opacity-90">{PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}</span>
+                  </div>
+                </>
+              )}
+              {!isActive && (
+                <>
+                  <span className="w-px h-3 bg-white/40" />
+                  <span className="text-[10px] font-medium opacity-75">{isNb ? "Inaktiv" : "Inactive"}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hidden file input for logo */}
       <input
         ref={logoInputRef}
@@ -540,50 +588,33 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
+            {/* Priority & Status selectors (moved from ribbon for interactivity) */}
             {!isSelf && (
-              <Badge variant="outline" className="text-[10px] shrink-0">
-                {template?.display_name || asset.asset_type}
-              </Badge>
+              <Select
+                value={currentPriorityVal || "__none__"}
+                onValueChange={(val) => updateAsset.mutate({ priority: val === "__none__" ? null : val })}
+              >
+                <SelectTrigger className="h-5 border-0 bg-transparent p-0 gap-0.5 w-auto shadow-none focus:ring-0 [&>svg]:h-3 [&>svg]:w-3">
+                  {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] ? (
+                    <Badge className={`text-[10px] shrink-0 cursor-pointer bg-muted text-muted-foreground border-border`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot} mr-1`} />
+                      {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] shrink-0 cursor-pointer text-muted-foreground border-dashed">
+                      {isNb ? "Prioritet" : "Priority"}
+                    </Badge>
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{isNb ? "— Ingen —" : "— None —"}</SelectItem>
+                  <SelectItem value="critical">Kritisk</SelectItem>
+                  <SelectItem value="high">Høy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Lav</SelectItem>
+                </SelectContent>
+              </Select>
             )}
-            {!isSelf && (
-              <Badge className={`text-[10px] ${getStatusColor(asset.lifecycle_status)} shrink-0`}>
-                {getStatusLabel(asset.lifecycle_status)}
-              </Badge>
-            )}
-            {!isSelf && (() => {
-              const PRIORITY_CONFIG: Record<string, { label: string; className: string }> = {
-                critical: { label: "Kritisk", className: "bg-destructive/15 text-destructive border-destructive/30" },
-                high: { label: "Høy", className: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700" },
-                medium: { label: "Medium", className: "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700" },
-                low: { label: "Lav", className: "bg-success/15 text-success border-success/30" },
-              };
-              const currentPriority = (asset as any).priority as string | null;
-              return (
-                <Select
-                  value={currentPriority || "__none__"}
-                  onValueChange={(val) => updateAsset.mutate({ priority: val === "__none__" ? null : val })}
-                >
-                  <SelectTrigger className="h-5 border-0 bg-transparent p-0 gap-0.5 w-auto shadow-none focus:ring-0 [&>svg]:h-3 [&>svg]:w-3">
-                    {currentPriority && PRIORITY_CONFIG[currentPriority] ? (
-                      <Badge className={`text-[10px] shrink-0 cursor-pointer ${PRIORITY_CONFIG[currentPriority].className}`}>
-                        {PRIORITY_CONFIG[currentPriority].label}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-[10px] shrink-0 cursor-pointer text-muted-foreground border-dashed">
-                        {isNb ? "Prioritet" : "Priority"}
-                      </Badge>
-                    )}
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{isNb ? "— Ingen —" : "— None —"}</SelectItem>
-                    <SelectItem value="critical">Kritisk</SelectItem>
-                    <SelectItem value="high">Høy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Lav</SelectItem>
-                  </SelectContent>
-                </Select>
-              );
-            })()}
           </div>
 
           {/* TPRM status line for vendors */}
