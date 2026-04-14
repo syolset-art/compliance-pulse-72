@@ -197,23 +197,23 @@ export default function Subscriptions() {
             </div>
           </section>
 
-          {/* ── STEG 3: STYRINGSVERKTØY ── */}
+          {/* ── STEG 3: MYNDER CORE ── */}
           <section className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
-              <h2 className="text-lg font-semibold text-foreground">Styringsverktøy</h2>
+              <h2 className="text-lg font-semibold text-foreground">Mynder Core</h2>
             </div>
 
-            {/* Contextual intro based on onboarding */}
+            {/* Contextual intro */}
             <div className="ml-10 rounded-lg border bg-primary/[0.03] border-primary/10 p-4 space-y-2">
               <p className="text-sm text-foreground font-medium">
                 {(selectedCoreAtOnboarding || selectedRegistriesAtOnboarding)
-                  ? "Du har tilgang til styringsverktøy — oppgrader for å øke kapasiteten"
-                  : "Utforsk styringsverktøy som automatiserer compliance-arbeidet"}
+                  ? "Du har tilgang til Mynder Core — oppgrader for å øke kapasiteten"
+                  : "Mynder Core er kjerneplattformen som inkluderer systemer, arbeidsområder, oppgaver og compliance-oversikt"}
               </p>
               <p className="text-xs text-muted-foreground">
                 {needsUpgrade("systems")
-                  ? `Gratis-planen inkluderer inntil ${maxSystems} systemer og ${maxVendors} leverandører. Oppgrader for flere.`
+                  ? `Gratis-planen inkluderer inntil ${maxSystems} systemer. Oppgrader for flere.`
                   : "Full tilgang med ditt nåværende abonnement."}
               </p>
             </div>
@@ -237,107 +237,105 @@ export default function Subscriptions() {
               )}
             </div>
 
-            {/* Module cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-10">
-              {(Object.keys(MODULES) as ModuleId[]).map((moduleId) => {
-                const mod = MODULES[moduleId];
-                const Icon = MODULE_ICONS[moduleId];
-                const isActive = moduleId === "systems" ? systemsActive : vendorsActive;
-                const activeTier = moduleId === "systems" ? systemsTier : vendorsTier;
+            {/* Mynder Core (systems) tier cards */}
+            {(() => {
+              const mod = MODULES.systems;
+              const Icon = MODULE_ICONS.systems;
+              const isActive = systemsActive;
+              const activeTier = systemsTier;
 
-                return (
-                  <div key={moduleId} className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold text-foreground">{mod.displayName}</h3>
-                      {isActive && (
-                        <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
-                          {activeTier === "premium" ? "Premium" : "Basis"} aktiv
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{mod.description}</p>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      {(["basis", "premium"] as ModuleTier[]).map((tier) => {
-                        const config = mod.tiers[tier];
-                        const price = getModulePrice(moduleId, tier, billingInterval);
-                        const isCurrent = isActive && activeTier === tier;
-                        const isRecommended = tier === "premium";
-
-                        return (
-                          <Card
-                            key={tier}
-                            className={`relative ${
-                              isCurrent
-                                ? "border-primary ring-2 ring-primary/20"
-                                : isRecommended
-                                ? "border-primary/40"
-                                : ""
-                            }`}
-                          >
-                            {isRecommended && !isCurrent && (
-                              <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[9px] px-2">
-                                Anbefalt
-                              </Badge>
-                            )}
-                            <CardContent className="p-4 space-y-3">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-sm font-bold text-foreground">
-                                  {tier === "basis" ? "Basis" : "Premium"}
-                                </span>
-                                {isCurrent && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
-                              </div>
-
-                              <div>
-                                <div className="flex items-baseline gap-0.5">
-                                  <span className="text-xl font-bold text-foreground">{formatKr(price)}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {billingInterval === "yearly" ? "/år" : "/mnd"}
-                                  </span>
-                                </div>
-                                {billingInterval === "yearly" && (
-                                  <p className="text-[10px] text-success mt-0.5">
-                                    Spar {formatKr(getModuleAnnualSavingsKr(moduleId, tier))}/år
-                                  </p>
-                                )}
-                              </div>
-
-                              <Separator />
-
-                              <div className="space-y-1.5">
-                                {config.features.map((feature) => (
-                                  <div key={feature} className="flex items-start gap-1.5">
-                                    <Check className="h-3 w-3 text-primary shrink-0 mt-0.5" />
-                                    <span className="text-[11px] text-foreground leading-tight">{feature}</span>
-                                  </div>
-                                ))}
-                              </div>
-
-                              {isCurrent ? (
-                                <Button variant="outline" size="sm" className="w-full text-xs" disabled>
-                                  Aktiv
-                                </Button>
-                              ) : (
-                                <Button
-                                  size="sm"
-                                  className="w-full text-xs gap-1.5"
-                                  variant={isRecommended ? "default" : "outline"}
-                                  onClick={() => handleSelectModule(moduleId, tier)}
-                                >
-                                  <Sparkles className="h-3 w-3" />
-                                  Velg {tier === "basis" ? "Basis" : "Premium"}
-                                </Button>
-                              )}
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
+              return (
+                <div className="space-y-3 ml-10">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">{mod.displayName}</h3>
+                    {isActive && (
+                      <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+                        {activeTier === "premium" ? "Premium" : "Basis"} aktiv
+                      </Badge>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                  <p className="text-xs text-muted-foreground">{mod.description}</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["basis", "premium"] as ModuleTier[]).map((tier) => {
+                      const config = mod.tiers[tier];
+                      const price = getModulePrice("systems", tier, billingInterval);
+                      const isCurrent = isActive && activeTier === tier;
+                      const isRecommended = tier === "premium";
+
+                      return (
+                        <Card
+                          key={tier}
+                          className={`relative ${
+                            isCurrent
+                              ? "border-primary ring-2 ring-primary/20"
+                              : isRecommended
+                              ? "border-primary/40"
+                              : ""
+                          }`}
+                        >
+                          {isRecommended && !isCurrent && (
+                            <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[9px] px-2">
+                              Anbefalt
+                            </Badge>
+                          )}
+                          <CardContent className="p-4 space-y-3">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-bold text-foreground">
+                                {tier === "basis" ? "Basis" : "Premium"}
+                              </span>
+                              {isCurrent && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                            </div>
+
+                            <div>
+                              <div className="flex items-baseline gap-0.5">
+                                <span className="text-xl font-bold text-foreground">{formatKr(price)}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {billingInterval === "yearly" ? "/år" : "/mnd"}
+                                </span>
+                              </div>
+                              {billingInterval === "yearly" && (
+                                <p className="text-[10px] text-success mt-0.5">
+                                  Spar {formatKr(getModuleAnnualSavingsKr("systems", tier))}/år
+                                </p>
+                              )}
+                            </div>
+
+                            <Separator />
+
+                            <div className="space-y-1.5">
+                              {config.features.map((feature) => (
+                                <div key={feature} className="flex items-start gap-1.5">
+                                  <Check className="h-3 w-3 text-primary shrink-0 mt-0.5" />
+                                  <span className="text-[11px] text-foreground leading-tight">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {isCurrent ? (
+                              <Button variant="outline" size="sm" className="w-full text-xs" disabled>
+                                Aktiv
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="w-full text-xs gap-1.5"
+                                variant={isRecommended ? "default" : "outline"}
+                                onClick={() => handleSelectModule("systems", tier)}
+                              >
+                                <Sparkles className="h-3 w-3" />
+                                Velg {tier === "basis" ? "Basis" : "Premium"}
+                              </Button>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Enterprise */}
             <Card className="border-dashed ml-10">
@@ -353,6 +351,119 @@ export default function Subscriptions() {
             </Card>
           </section>
 
+          {/* ── STEG 4: TILLEGGSMODULER ── */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold">4</span>
+              <h2 className="text-lg font-semibold text-foreground">Tilleggsmoduler</h2>
+              <Badge variant="secondary" className="text-[10px]">Valgfritt</Badge>
+            </div>
+
+            <p className="text-xs text-muted-foreground ml-10">
+              Utvid plattformen med tilleggsmoduler som kan aktiveres uavhengig av Mynder Core.
+            </p>
+
+            {/* Vendor module */}
+            {(() => {
+              const mod = MODULES.vendors;
+              const Icon = MODULE_ICONS.vendors;
+              const isActive = vendorsActive;
+              const activeTier = vendorsTier;
+
+              return (
+                <div className="space-y-3 ml-10">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">{mod.displayName}</h3>
+                    {isActive && (
+                      <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+                        {activeTier === "premium" ? "Premium" : "Basis"} aktiv
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{mod.description}</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["basis", "premium"] as ModuleTier[]).map((tier) => {
+                      const config = mod.tiers[tier];
+                      const price = getModulePrice("vendors", tier, billingInterval);
+                      const isCurrent = isActive && activeTier === tier;
+                      const isRecommended = tier === "premium";
+
+                      return (
+                        <Card
+                          key={tier}
+                          className={`relative ${
+                            isCurrent
+                              ? "border-primary ring-2 ring-primary/20"
+                              : isRecommended
+                              ? "border-primary/40"
+                              : ""
+                          }`}
+                        >
+                          {isRecommended && !isCurrent && (
+                            <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[9px] px-2">
+                              Anbefalt
+                            </Badge>
+                          )}
+                          <CardContent className="p-4 space-y-3">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-bold text-foreground">
+                                {tier === "basis" ? "Basis" : "Premium"}
+                              </span>
+                              {isCurrent && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                            </div>
+
+                            <div>
+                              <div className="flex items-baseline gap-0.5">
+                                <span className="text-xl font-bold text-foreground">{formatKr(price)}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {billingInterval === "yearly" ? "/år" : "/mnd"}
+                                </span>
+                              </div>
+                              {billingInterval === "yearly" && (
+                                <p className="text-[10px] text-success mt-0.5">
+                                  Spar {formatKr(getModuleAnnualSavingsKr("vendors", tier))}/år
+                                </p>
+                              )}
+                            </div>
+
+                            <Separator />
+
+                            <div className="space-y-1.5">
+                              {config.features.map((feature) => (
+                                <div key={feature} className="flex items-start gap-1.5">
+                                  <Check className="h-3 w-3 text-primary shrink-0 mt-0.5" />
+                                  <span className="text-[11px] text-foreground leading-tight">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {isCurrent ? (
+                              <Button variant="outline" size="sm" className="w-full text-xs" disabled>
+                                Aktiv
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="w-full text-xs gap-1.5"
+                                variant={isRecommended ? "default" : "outline"}
+                                onClick={() => handleSelectModule("vendors", tier)}
+                              >
+                                <Sparkles className="h-3 w-3" />
+                                Velg {tier === "basis" ? "Basis" : "Premium"}
+                              </Button>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+          </section>
+
           {/* ── OPPSUMMERING ── */}
           {hasAnyCost && (
             <section className="space-y-3">
@@ -363,7 +474,7 @@ export default function Subscriptions() {
                   {systemsActive && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">
-                        Systemmodul ({systemsTier === "premium" ? "Premium" : "Basis"})
+                        Mynder Core ({systemsTier === "premium" ? "Premium" : "Basis"})
                       </span>
                       <span className="text-foreground font-medium">
                         {formatKr(MODULES.systems.tiers[systemsTier][billingInterval === "yearly" ? "yearly" : "monthly"])}
@@ -374,7 +485,7 @@ export default function Subscriptions() {
                   {vendorsActive && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">
-                        Leverandørmodul ({vendorsTier === "premium" ? "Premium" : "Basis"})
+                        Leverandør-tillegg ({vendorsTier === "premium" ? "Premium" : "Basis"})
                       </span>
                       <span className="text-foreground font-medium">
                         {formatKr(MODULES.vendors.tiers[vendorsTier][billingInterval === "yearly" ? "yearly" : "monthly"])}
