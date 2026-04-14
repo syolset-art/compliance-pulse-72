@@ -197,31 +197,25 @@ export default function Subscriptions() {
             </div>
           </section>
 
-          {/* ── STEG 3: MODULER ── */}
+          {/* ── STEG 3: STYRINGSVERKTØY ── */}
           <section className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
-              <h2 className="text-lg font-semibold text-foreground">Automatiser med moduler</h2>
+              <h2 className="text-lg font-semibold text-foreground">Styringsverktøy</h2>
             </div>
 
-            {/* Value proposition */}
+            {/* Contextual intro based on onboarding */}
             <div className="ml-10 rounded-lg border bg-primary/[0.03] border-primary/10 p-4 space-y-2">
               <p className="text-sm text-foreground font-medium">
-                Moduler kobler inn AI som automatisk oppdaterer ditt Trust Center
+                {(selectedCoreAtOnboarding || selectedRegistriesAtOnboarding)
+                  ? "Du har tilgang til styringsverktøy — oppgrader for å øke kapasiteten"
+                  : "Utforsk styringsverktøy som automatiserer compliance-arbeidet"}
               </p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1.5">
-                {[
-                  { icon: Bot, text: "AI-drevet compliance-oppdatering" },
-                  { icon: FolderKanban, text: "Automatiske arbeidsområder" },
-                  { icon: ClipboardList, text: "Oppgaver og påminnelser" },
-                  { icon: Globe, text: "Trust Center oppdateres live" },
-                ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
-                    {text}
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs text-muted-foreground">
+                {needsUpgrade("systems")
+                  ? `Gratis-planen inkluderer inntil ${maxSystems} systemer og ${maxVendors} leverandører. Oppgrader for flere.`
+                  : "Full tilgang med ditt nåværende abonnement."}
+              </p>
             </div>
 
             {/* Billing toggle */}
