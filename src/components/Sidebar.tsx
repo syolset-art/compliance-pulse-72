@@ -7,7 +7,6 @@ import {
   Users, 
   AlertTriangle, 
   ClipboardList,
-  
   Shield,
   ChevronDown,
   Menu,
@@ -23,7 +22,9 @@ import {
   Layers,
   Cloud,
   Bell,
-  Pencil
+  Pencil,
+  Briefcase,
+  Database
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -137,25 +138,28 @@ const TrustCenterMenu = () => {
   const isActive = trustCenterItems.some(item => item.href && location.pathname === item.href);
 
   return (
-    <div className="pt-2">
+    <div className="mt-1">
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
           isActive
-            ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+            ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
         )}
       >
-        <div className="flex items-center gap-3">
-          <Globe className="h-5 w-5" />
-          Trust Center
+        <div className="flex items-center gap-2.5">
+          <Globe className="h-4 w-4" />
+          <span>Trust Center</span>
         </div>
-        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")} />
       </button>
 
-      {open && (
-        <div className="ml-4 mt-1 space-y-1">
+      <div className={cn(
+        "overflow-hidden transition-all duration-200",
+        open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+      )}>
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
           {trustCenterItems.map((item) => {
             if (!item.href) return null;
             const itemActive = location.pathname === item.href;
@@ -164,19 +168,20 @@ const TrustCenterMenu = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
                   itemActive
                     ? "bg-sidebar-accent text-sidebar-primary"
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4" />
+                {itemActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-3.5 w-3.5" />
                 {item.name}
               </Link>
             );
           })}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -269,7 +274,7 @@ const SidebarContent = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+      <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
         {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
@@ -278,13 +283,14 @@ const SidebarContent = () => {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               )}
             >
-              <item.icon className="h-5 w-5" />
+              {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+              <item.icon className="h-4 w-4" />
               {t(item.name)}
             </Link>
           );
@@ -292,24 +298,33 @@ const SidebarContent = () => {
 
         <TrustCenterMenu />
 
-        {/* Styringsverktøy section - collapsible */}
-        <div className="pt-3">
+        {/* Separator */}
+        <div className="my-2 border-b border-sidebar-border/40" />
+
+        {/* Styringsverktøy section */}
+        <div>
           <button
             onClick={() => setManagementOpen(!managementOpen)}
             className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+              "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
               isManagementActive
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                ? "text-sidebar-primary border-l-2 border-primary/30"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
             )}
           >
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {t("nav.managementTools", "Styringsverktøy")}
-            </span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", managementOpen && "rotate-180")} />
+            <div className="flex items-center gap-2.5">
+              <Briefcase className="h-4 w-4" />
+              <span className="text-xs font-semibold">
+                {t("nav.managementTools", "Styringsverktøy")}
+              </span>
+            </div>
+            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", managementOpen && "rotate-180")} />
           </button>
-          {managementOpen && (
-            <div className="ml-4 mt-1 space-y-1">
+          <div className={cn(
+            "overflow-hidden transition-all duration-200",
+            managementOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          )}>
+            <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
               {managementNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -317,39 +332,49 @@ const SidebarContent = () => {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
                       isActive
                         ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                    <item.icon className="h-3.5 w-3.5" />
                     {t(item.name)}
                   </Link>
                 );
               })}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Registre section - collapsible */}
-        <div className="pt-3">
+        {/* Separator */}
+        <div className="my-2 border-b border-sidebar-border/40" />
+
+        {/* Registre section */}
+        <div>
           <button
             onClick={() => setRegistriesOpen(!registriesOpen)}
             className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
+              "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
               isRegistriesActive
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                ? "text-sidebar-primary border-l-2 border-primary/30"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
             )}
           >
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {t("nav.registries", "Registre")}
-            </span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", registriesOpen && "rotate-180")} />
+            <div className="flex items-center gap-2.5">
+              <Database className="h-4 w-4" />
+              <span className="text-xs font-semibold">
+                {t("nav.registries", "Registre")}
+              </span>
+            </div>
+            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", registriesOpen && "rotate-180")} />
           </button>
-          {registriesOpen && (
-            <div className="ml-4 mt-1 space-y-1">
+          <div className={cn(
+            "overflow-hidden transition-all duration-200",
+            registriesOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          )}>
+            <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
               {registriesNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -357,19 +382,20 @@ const SidebarContent = () => {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
                       isActive
                         ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                    <item.icon className="h-3.5 w-3.5" />
                     {t(item.name)}
                   </Link>
                 );
               })}
             </div>
-          )}
+          </div>
         </div>
 
 
