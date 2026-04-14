@@ -111,7 +111,7 @@ export const VendorTPRMStatus = ({
   const OUTCOME_ICON_MAP = { success: CheckCircle2, warning: AlertCircle, info: Timer } as const;
 
   // Auto-expand when there are open tasks (first load only)
-  const effectiveExpanded = expanded === null ? openTasks.length > 0 : expanded;
+  const effectiveExpanded = expanded === null ? (openTasks.length > 0 || pendingActivities.length > 0) : expanded;
 
   const { data: asset } = useQuery({
     queryKey: ["asset-tprm", assetId],
