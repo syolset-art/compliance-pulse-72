@@ -40,10 +40,6 @@ const CustomerRequests = () => {
                   <Send className="h-4 w-4" />
                   {isNb ? "Utgående" : "Outbound"}
                 </TabsTrigger>
-                <TabsTrigger value="templates" className="gap-1.5">
-                  <BookOpen className="h-4 w-4" />
-                  {isNb ? "Dokumentmaler" : "Templates"}
-                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="inbound" className="mt-6">
@@ -55,9 +51,6 @@ const CustomerRequests = () => {
               </TabsContent>
 
 
-              <TabsContent value="templates" className="mt-6">
-                <TemplateLibrary />
-              </TabsContent>
             </Tabs>
           </div>
         </main>
