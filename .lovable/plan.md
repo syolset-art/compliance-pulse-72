@@ -1,48 +1,27 @@
 
 
-## Plan: Ny flerstegsdialog for «Legg til kunde» med BrReg-oppslag og animasjon
+## Plan: Redesign MSP-kundekort med Trust Level
 
-### Oversikt
+### Endringer
 
-Erstatter den nåværende `AddMSPCustomerDialog` med en ny flerstegsdialog i 4 steg som matcher bildene du delte:
+**Fil: `src/components/msp/MSPCustomerCard.tsx`**
 
-```text
-Steg 1: Velg metode (Enkelt / CSV / Tilkoblede systemer)
-Steg 2: Søk etter virksomhet (navn → BrReg/demo-registre)
-Steg 3: Resultatliste → Velg → «Lara Soft sjekker...»-animasjon
-Steg 4: Kontaktinformasjon + Fullfør → Sommerfugl-animasjon
-```
+1. **Erstatt «Samsvar»-label og prosenttall** med et Trust Level-system:
+   - Score ≥ 75 → **«High Trust»** (grønn)
+   - Score 50–74 → **«Medium Trust»** (oransje/gul)
+   - Score < 50 → **«Low Trust»** (rød)
 
-### Detaljer
+2. **Redesign score-seksjonen** til å ligne Trust Profile-headeren:
+   - Sirkulær SVG-gauge (mini-versjon av den i AssetHeader) i stedet for det firkantede bokselementet
+   - Score-tall i midten, «Trust Score» under, og fargekodet Trust Level-badge under gaugen
 
-**Steg 1 — Velg metode**
-- Tre valgkort: «Legg til enkelt kunde», «Importer flere kunder (CSV)», «Importer fra tilkoblede systemer» (Acronis, ConnectWise badges)
-- Kun «enkelt kunde» er klikkbar; de andre viser «Kommer snart»
+3. **Rydd opp kortlayout**:
+   - Fjern separate «Claimet/Ikke claimet»-badge (behold kun ikonet med tooltip)
+   - Fjern «Samsvar»-teksten
+   - Flytt frameworks-badges til en mer kompakt visning
+   - Behold claimed-ikon (UserCheck/UserX) ved navn
 
-**Steg 2 — Søk etter virksomhet**
-- Tekstfelt for selskapsnavn
-- «Søk»-knapp som kaller BrReg API (`/enheter?navn=...&size=5`)
-- For SE/DK brukes eksisterende demo-data fra `useVendorLookup`
-- «← Tilbake»-lenke
+### Visuelt resultat
 
-**Steg 3 — Resultater og verifisering**
-- Viser treff med org.nr, sted og selskapsform
-- Klikk på et treff → mellomskjerm: Mynder-sommerfugl (lara-butterfly.png) + «Lara Soft sjekker...» + animert spinner i 2 sekunder
-- Sjekker om virksomheten allerede finnes i `msp_customers` (duplikatkontroll)
-- Autofyller org.nr, bransje og ansatte fra BrReg-data
-
-**Steg 4 — Kontaktinformasjon**
-- Forhåndsutfylt kundenavn og org.nr (readonly)
-- Felter: Kontaktperson, E-post, Rolle i selskapet, Abonnement
-- «Fullfør»-knapp → lagrer til DB → viser fullskjerms sommerfugl-animasjon (fade-in, puls, skalering) med tekst «Kunden er lagt til!»
-- Etter 2.5 sek lukkes dialogen og kunden vises øverst i listen
-
-### Filer som endres
-
-| Fil | Endring |
-|-----|---------|
-| `src/components/msp/AddMSPCustomerDialog.tsx` | Full omskriving med 4-stegs flyt |
-| `src/pages/MSPDashboard.tsx` | Ingen endring (eksisterende props fungerer) |
-
-Ingen databaseendringer — bruker eksisterende `msp_customers`-tabell og felter.
+Hvert kort får en mini Trust Score-gauge til høyre (samme stil som Trust Profile-headeren) med fargekodet «High Trust» / «Medium Trust» / «Low Trust»-badge under.
 
