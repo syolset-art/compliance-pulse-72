@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
@@ -15,7 +15,7 @@ import {
 import { formatAmount, generateInvoicePdf } from "./generateInvoicePdf";
 
 export function MSPInvoicesTab() {
-  const { user } = useAuth();
+  export function MSPInvoicesTab() {
 
   const { data: invoices = [] } = useQuery({
     queryKey: ["msp-invoices"],
