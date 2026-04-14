@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
 import { SecurityFoundationsWidget } from "@/components/widgets/SecurityFoundationsWidget";
-import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidget";
+
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
