@@ -1,27 +1,40 @@
 
 
-# Plan: Legg til demo-data på Meldinger-siden
+# Plan: Oppdater meldingsstatuser til kommunikasjonsrelevante verdier
 
-## Hva endres
+## Problemet
+Statusene bruker oppgaveterminologi (`in_progress`, `pending`, `completed`) i stedet for meldingsterminologi. En melding er ikke «under arbeid» — den er sendt, mottatt, lest, besvart osv.
 
-### 1. Utvide innkommende demo-data (`InboundRequestsContent.tsx`)
-- Legg til 2-3 ekstra innkommende meldinger med mer varierte typer og statuser for en rikere demo-opplevelse
-- Inkluder en melding som nylig er mottatt (ny/ubehandlet) for å vise urgency
+## Nye statuser
 
-### 2. Legg til utgående demo-data (`OutboundRequestsTab.tsx`)
-- Legg til hardkodede demo-forespørsler som vises når localStorage er tomt (samme mønster som InboundRequestsContent bruker)
-- 4-5 utgående forespørsler med ulike statuser: `awaiting`, `in_progress`, `received`, `overdue`
-- Realistiske leverandørnavn og forespørselstyper (DPA, leverandørvurdering, ISO 27001, SOC 2)
+### Innkommende meldinger (Inbound)
+| Gammel status | Ny status | Norsk | Engelsk |
+|---|---|---|---|
+| `pending` | `new` | Ny | New |
+| `in_progress` | `read` | Lest | Read |
+| `completed` | `responded` | Besvart | Responded |
+| `archived` | `archived` | Arkivert | Archived |
+
+### Utgående meldinger (Outbound)
+| Gammel status | Ny status | Norsk | Engelsk |
+|---|---|---|---|
+| `awaiting` | `sent` | Sendt | Sent |
+| `in_progress` | `awaiting` | Venter på svar | Awaiting reply |
+| `received` | `received` | Mottatt | Received |
+| `overdue` | `overdue` | Forfalt | Overdue |
 
 ## Filer som endres
 
 | Fil | Endring |
-|-----|---------|
-| `src/components/customer-requests/InboundRequestsContent.tsx` | Legg til 2 ekstra demo-meldinger |
-| `src/components/customer-requests/OutboundRequestsTab.tsx` | Legg til `DEMO_OUTBOUND_REQUESTS` array og vis dem som fallback når localStorage er tomt |
+|---|---|
+| `CustomerRequestCard.tsx` | Oppdater `getStatusConfig()` med nye statuser og labels |
+| `InboundRequestsContent.tsx` | Oppdater demo-data statuser + tab-filtrering |
+| `OutboundRequestsTab.tsx` | Oppdater demo-data statuser |
+| `OutboundRequestCard.tsx` | Oppdater status-badge logikk |
+| `CustomerRequestsTab.tsx` | Oppdater `getStatusBadge()` med nye statuser |
 
 ## Teknisk
-- Utgående: Endrer `loadOutboundRequests()` til å returnere demo-data som fallback når localStorage er tomt
-- Innkommende: Utvider eksisterende `INITIAL_DEMO_REQUESTS` array
-- Ingen database-endringer
+- Kun rename av statusverdier i demo-data og visningslogikk
+- Ingen database-endringer (demo-data er hardkodet)
+- Tab-filtrering i InboundRequestsContent oppdateres: «Åpne» = `new` + `read`, «Fullført» → «Besvart» = `responded`
 
