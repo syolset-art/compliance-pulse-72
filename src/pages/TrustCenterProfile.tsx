@@ -32,7 +32,7 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
   { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
-const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
+const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetId?: string; readOnly?: boolean }) => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -252,6 +252,268 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
   const recognizedFrameworks = frameworks.filter((fw: any) => frameworkBadgeClass(fw.framework_name) !== null);
   const standardFrameworks = recognizedFrameworks.filter((fw: any) => isStandard(fw.framework_name));
   const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
+
+
+  if (readOnly) {
+    // Force preview tab for readOnly
+    return (
+      <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-5">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            {asset?.name || "Trust Profile"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Shareable compliance profile for due diligence
+          </p>
+        </div>
+
+        {/* Render only preview content — the Card from line ~598 */}
+        <Card className="overflow-hidden">
+          {/* Powered by header */}
+          <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 text-primary" />
+              <span className="font-medium">Powered by Mynder Trust Center</span>
+            </div>
+            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Verified
+            </Badge>
+          </div>
+
+          <div className="p-6 md:p-8 space-y-8">
+            {/* Company Header */}
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex-1 space-y-3">
+                <div className="flex items-start gap-4">
+                  <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <Shield className="h-7 w-7 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-xl font-bold text-foreground">{companyProfile?.name || asset.name}</h2>
+                    <p className="text-sm text-muted-foreground">Shareable compliance profile for due diligence</p>
+                  </div>
+                </div>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="text-[10px] cursor-help">
+                      {isNb ? "Egenerklæring" : "Self-declared"}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs max-w-[220px]">
+                      {isNb ? "Selverklæring og compliance-dokumentasjon" : "Self-declared compliance documentation"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Eye className="h-4 w-4" />
+                  <span>{isNb ? "Profilvisninger: " : "Profile views: "}<span className="font-semibold text-foreground">—</span></span>
+                </div>
+
+                {recognizedFrameworks.length > 0 && (
+                  <div className="space-y-3">
+                    {standardFrameworks.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {standardFrameworks.map((fw: any) => (
+                            <Badge key={fw.framework_id} variant="outline" className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
+                              {fw.framework_name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {regulationFrameworks.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {regulationFrameworks.map((fw: any) => (
+                            <Badge key={fw.framework_id} variant="outline" className={`text-[10px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
+                              {fw.framework_name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Trust Score Gauge */}
+              <div className="flex flex-col items-center gap-1.5 shrink-0">
+                <div className="relative flex items-center justify-center">
+                  <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90">
+                    <circle cx="64" cy="64" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                    <circle cx="64" cy="64" r={radius} fill="none" stroke={strokeColor} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
+                    <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  {trustScore >= 80 ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases") : trustScore >= 50 ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases") : (isNb ? "Begrenset egnethet" : "Limited suitability")}
+                </p>
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Metadata stripe */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
+              {[
+                { label: "ORG.NR", value: companyProfile?.org_number || "–" },
+                { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
+                { label: isNb ? "KATEGORI" : "CATEGORY", value: asset.vendor_category || asset.category || "–" },
+                { label: isNb ? "NETTSIDE" : "WEBSITE", value: companyProfile?.domain || "–" },
+              ].map(item => (
+                <div key={item.label} className="bg-card px-4 py-3">
+                  <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                  <p className="text-sm font-medium text-foreground mt-0.5 truncate">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Control areas */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-base font-semibold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
+                  const score = evaluation?.areaScore(area) ?? 0;
+                  const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                  return (
+                    <div key={area} className="rounded-lg border border-border overflow-hidden">
+                      <div className="w-full text-left p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              <Icon className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
+                          </div>
+                          <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${score}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Summary */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-semibold text-foreground">{isNb ? "Sammendrag" : "Summary"}</h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
+                  { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Modenhet per kontrollområde" : "Maturity by control areas", color: "text-warning" },
+                  { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
+                  { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
+                ].map((item, i) => (
+                  <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
+                    <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="border-t border-border" />
+
+            {/* Documentation */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
+              </h3>
+              <div className="space-y-2.5">
+                {[
+                  { key: "policies", icon: FileText, label: "Policies", count: docsCount, color: "text-primary", items: policies },
+                  { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500", items: certs },
+                ].map(item => (
+                  <div key={item.key}>
+                    <button
+                      onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}
+                      className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl border border-border hover:bg-muted/40 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className={`h-4 w-4 ${item.color}`} />
+                        <span className="text-sm font-medium text-foreground">{item.label}</span>
+                        {item.count > 0 && <Badge variant="secondary" className="text-[10px] rounded-full px-2 font-semibold">{item.count}</Badge>}
+                      </div>
+                      {expandedDoc === item.key ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                    </button>
+                    {expandedDoc === item.key && (
+                      <div className="mt-1.5 ml-5 space-y-1">
+                        {item.items.length === 0 ? (
+                          <p className="text-xs text-muted-foreground px-4 py-3">{isNb ? "Ingen registrert ennå" : "None registered yet"}</p>
+                        ) : (
+                          item.items.map((doc: any) => (
+                            <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span className="text-xs font-medium text-foreground truncate">{doc.file_name}</span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {doc.status && <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[9px]">{doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}</Badge>}
+                                {doc.expiry_date && <span className="text-[10px] text-muted-foreground">{isNb ? "Utløper" : "Expires"} {new Date(doc.expiry_date).toLocaleDateString()}</span>}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="border-t border-border" />
+
+            {/* Contact */}
+            <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border">
+              <div className="space-y-0.5">
+                <p className="text-sm font-semibold text-foreground">{isNb ? "Trenger du mer informasjon?" : "Need more information?"}</p>
+                <p className="text-xs text-muted-foreground">{isNb ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling." : "Contact us for questions about security, compliance or data handling."}</p>
+              </div>
+              <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
+                <MessageSquare className="h-4 w-4" />
+                {isNb ? "Kontakt oss" : "Contact us"}
+              </Button>
+            </div>
+
+            {/* Mynder footer */}
+            <div className="border-t border-border pt-4 mt-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img src={mynderLogo} alt="Mynder" className="h-4 opacity-50" />
+              </div>
+              <div className="text-[10px] text-muted-foreground/60">
+                Org.nr 933 036 729 &middot; mynder.io
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>

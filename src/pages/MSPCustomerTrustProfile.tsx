@@ -5,8 +5,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
-import AssetTrustProfile from "./AssetTrustProfile";
+import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
+import TrustCenterProfile from "./TrustCenterProfile";
 
 export default function MSPCustomerTrustProfile() {
   const { customerId } = useParams();
@@ -42,47 +42,16 @@ export default function MSPCustomerTrustProfile() {
     enabled: !!customer?.customer_name,
   });
 
-  // If we found a matching asset, redirect to its trust profile
-  if (matchedAsset) {
-    return (
-      <div className="flex min-h-screen w-full bg-background">
-        <Sidebar />
-        <main className="flex-1 overflow-auto pt-11">
-          {/* Partner banner */}
-          <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
-            <div className="container max-w-7xl mx-auto flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => navigate(`/msp-dashboard/${customerId}`)} className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Tilbake
-              </Button>
-              <Badge variant="outline" className="gap-1.5 border-primary/40 text-primary">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Partnervisning — {customer?.customer_name}
-              </Badge>
-            </div>
-          </div>
-          {/* Render the trust profile page content inline by navigating */}
-          <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8">
-            <p className="text-muted-foreground mb-4">Laster Trust Profile...</p>
-            <Button onClick={() => navigate(`/assets/${matchedAsset.id}`)}>
-              Gå til Trust Profile
-            </Button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto pt-11">
         {/* Partner banner */}
         <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
-          <div className="container max-w-7xl mx-auto flex items-center gap-3">
+          <div className="container max-w-4xl mx-auto flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => navigate(`/msp-dashboard/${customerId}`)} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Tilbake til kundeoversikt
+              Tilbake
             </Button>
             <Badge variant="outline" className="gap-1.5 border-primary/40 text-primary">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -91,10 +60,14 @@ export default function MSPCustomerTrustProfile() {
           </div>
         </div>
 
-        <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8">
-          {isLoading ? (
-            <p className="text-muted-foreground">Leter etter Trust Profile...</p>
-          ) : (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : matchedAsset ? (
+          <TrustCenterProfile assetId={matchedAsset.id} readOnly />
+        ) : (
+          <div className="container max-w-4xl mx-auto py-8 px-4 md:px-8">
             <Card className="p-8 text-center">
               <ShieldCheck className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
               <h2 className="text-xl font-semibold text-foreground mb-2">Ingen Trust Profile funnet</h2>
@@ -111,8 +84,8 @@ export default function MSPCustomerTrustProfile() {
                 </Button>
               </div>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );
