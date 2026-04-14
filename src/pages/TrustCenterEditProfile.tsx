@@ -162,7 +162,53 @@ const TrustCenterEditProfile = () => {
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
 
-  const frameworkBadgeClass = (name: string) => {
+  // AI-suggested GDPR role based on service categories
+  const suggestedRole = useMemo(() => {
+    if (selectedServiceCats.length === 0) return null;
+    const hasSaas = selectedServiceCats.includes("saas");
+    const hasInfra = selectedServiceCats.includes("infra");
+    const hasConsulting = selectedServiceCats.includes("consulting");
+    const hasDigital = selectedServiceCats.includes("digital");
+
+    if ((hasSaas || hasInfra) && !hasConsulting) {
+      return {
+        role: "sub_processor" as const,
+        labelNb: "Databehandler",
+        labelEn: "Data Processor",
+        reasonNb: "Virksomheter som leverer SaaS eller infrastruktur behandler som regel data på vegne av kundene sine.",
+        reasonEn: "Companies providing SaaS or infrastructure typically process data on behalf of their customers.",
+      };
+    }
+    if (hasConsulting && !hasSaas && !hasInfra) {
+      return {
+        role: "processor" as const,
+        labelNb: "Behandlingsansvarlig",
+        labelEn: "Data Controller",
+        reasonNb: "Konsulentvirksomheter bestemmer ofte selv formål og middel for behandling av persondata.",
+        reasonEn: "Consulting firms typically determine the purpose and means of processing personal data.",
+      };
+    }
+    if ((hasSaas || hasInfra || hasDigital) && hasConsulting) {
+      return {
+        role: "both" as const,
+        labelNb: "Begge roller",
+        labelEn: "Both roles",
+        reasonNb: "Med både tjenesteprodukter og rådgivning vil dere typisk ha begge roller avhengig av kundeavtale.",
+        reasonEn: "With both service products and consulting, you'll typically have both roles depending on the agreement.",
+      };
+    }
+    if (hasDigital) {
+      return {
+        role: "both" as const,
+        labelNb: "Begge roller",
+        labelEn: "Both roles",
+        reasonNb: "Digitale tjenester innebærer ofte en kombinasjon av egne og kunders data.",
+        reasonEn: "Digital services often involve a combination of your own and customers' data.",
+      };
+    }
+    return null;
+  }, [selectedServiceCats]);
+
     const n = name.toLowerCase();
     if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
     if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
