@@ -1,39 +1,37 @@
 
 
-## Plan: Demo-knapp med dummy-data for Dokumentasjon & Evidens
+## Plan: Kontrollstatus-widget med reelle data og intervallvelger
 
 ### Oversikt
-Legger til en subtil «Fyll demo-data»-knapp ved siden av «Legg til»-knappen. Knappen seeder vendor_documents-tabellen med realistiske norske retningslinjer, sertifiseringer og dokumenter knyttet til self-asseten.
+Oppgraderer ControlsWidget til å vise faktiske kontrolldata fra compliance requirements, gruppert per kontrollområde (SLA-kategori). Legger til en intervallvelger slik at brukeren kan se endringer over siste dag, uke, måned osv.
 
-### Dummy-data som seedeS
+### Hva endres
 
-**Retningslinjer (6 stk):**
-- Personvernpolicy (verified, published)
-- Informasjonssikkerhetspolicy (verified, published)
-- Akseptabel bruk-policy (verified, visible)
-- Hendelseshåndteringsplan (draft, hidden)
-- Databeskyttelsespolicy (verified, published)
-- Generell IT-policy (pending, visible)
+**`src/components/widgets/ControlsWidget.tsx`** — full omskriving:
 
-**Sertifiseringer (3 stk):**
-- ISO 27001:2022 (verified, expiry +300 dager)
-- SOC 2 Type II (verified, expiry +180 dager)
-- Cyber Essentials Plus (expiring, expiry +20 dager)
+1. **Reelle data fra compliance-hook**: Bruker `useComplianceRequirements()` for å hente krav og `stats.byDomainArea` for å få score per kontrollområde (governance, operations, identity_access, supplier_ecosystem, privacy_data).
 
-**Dokumenter (4 stk):**
-- Databehandleravtale (agreement, verified)
-- Risikovurderingsrapport Q1 (report, verified)
-- Penetrasjonstestrapport (evidence, pending)
-- Beredskapsplan (other, draft)
+2. **Kontrollområder med telling**: Hvert område viser:
+   - Navn (norsk/engelsk)
+   - Antall vurderte vs. totalt (`assessed/total`)
+   - Prosent-score
+   - Endring siden valgt intervall (delta-verdi med pil)
+   - Fargekode progress bar
 
-### Filer som endres
+3. **Intervallvelger**: En `Select`-dropdown i headeren med alternativene:
+   - Siste dag
+   - Siste uke
+   - Siste måned
+   - Siste kvartal
+   - Siste år
 
-| Fil | Endring |
-|-----|---------|
-| `src/pages/TrustCenterEvidence.tsx` | Legg til seed-funksjon og subtil «Demo»-knapp (ghost variant, liten størrelse, Database-ikon) ved siden av «Legg til» |
+   Erstatter den statiske «vs. forrige måned»-teksten. Siden historiske data ikke lagres i databasen ennå, vil delta-verdiene vises som simulerte/dummy-verdier per intervall, med en kommentar i koden for fremtidig kobling til faktisk historikk.
 
-### UI-detaljer
-- Knappen bruker `variant="ghost" size="sm"` med et `Database`-ikon og teksten «Demo» / «Demo data»
-- Ved klikk: sjekker om det allerede finnes data, seeder, og invaliderer queryen
-- Viser toast ved suksess
+4. **Summering nederst**: Viser totalt antall vurderte kontroller av totalt antall.
+
+### Tekniske detaljer
+- Bruker `useComplianceRequirements()` hook som allerede beregner `byDomainArea` via scoring engine
+- `ScoreResult` inneholder `score`, `assessed`, `total`, `avgMaturity` per domene
+- Intervallvelgeren bruker shadcn `Select`-komponent
+- Domene-labels gjenbruker eksisterende `FOCUS_AREA_LABELS` mønster fra DashboardV2
 
