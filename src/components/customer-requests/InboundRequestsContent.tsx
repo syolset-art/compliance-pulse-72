@@ -144,7 +144,7 @@ export function InboundRequestsContent() {
               </div>
             ) : (
               (tabData[tab] || []).map((req: any) => (
-                <CustomerRequestCard key={req.id} request={req} onShare={handleShare} />
+                <CustomerRequestCard key={req.id} request={req} />
               ))
             )}
           </TabsContent>
