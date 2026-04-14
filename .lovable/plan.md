@@ -1,35 +1,19 @@
 
 
-## Plan: Moderniser sidebar-menydesign
+## Plan: Reorganiser sidebar-navigasjon
 
-### Problem
-Seksjonskategoriene (Styringsverktøy, Registre) vises som puslete uppercase-tekst uten visuell identitet. Menyen mangler hierarki og moderne preg.
+### Analyse av brukerens poeng
 
-### Design-retning
-Inspirert av moderne SaaS-sidebarer (Linear, Notion, Vercel): tydelig visuelt hierarki med ikoner på seksjonsnivå, subtile fargeaksenter, og bedre spacing.
+Kunder starter typisk med **Trust Profile**, deretter utvider de til Mynder Core. Navigasjonen bør speile denne reisen. Noen menypunkter er feilplassert:
 
-### Endringer i `src/components/Sidebar.tsx`
+| Nåværende plassering | Menypunkt | Riktig plassering | Begrunnelse |
+|---|---|---|---|
+| Styringsverktøy | Regelverk | **Global** (toppnivå) | Regelverk gjelder hele virksomheten, ikke bare Core |
+| Styringsverktøy | Forespørsler | **Global** (toppnivå, omdøpt) | Meldinger mellom alle parter |
+| Styringsverktøy | Arbeidsområder, Oppgaver, Avvik, Rapporter | **Mynder Core** | Korrekt — dette er kontekstuelt arbeid |
 
-**1. Seksjonsoverskrifter med ikon og stil**
-- Gi hver seksjon et eget ikon (f.eks. `Briefcase` for Styringsverktøy, `Database` for Registre)
-- Erstatt den nakne `text-[11px] uppercase`-teksten med en linje som har ikon + normal-cased tittel
-- Legg til en subtil venstrelinje (`border-l-2 border-primary/30`) på aktive seksjoner
+### Ny sidebar-struktur
 
-**2. Aktiv-state med fargeprikk**
-- Aktive menylenker får en liten farget prikk (4px sirkel i `primary`) til venstre i stedet for bare bakgrunnsfarge
-- Beholder hover-effekten, men gjør den mer subtil med `bg-sidebar-accent/30`
-
-**3. Bedre visuell separasjon**
-- Legg til tynne `border-b border-sidebar-border/50`-separatorer mellom seksjonene i stedet for bare `pt-3`
-- Dashboard-lenken får en litt større padding og en subtil gradient-bakgrunn når aktiv
-
-**4. Seksjonskollaps med animasjon**
-- Wrap child-items i en `div` med `transition-all duration-200` og `max-height`-animasjon for mykere åpning/lukking
-
-**5. Trust Center visuell oppgradering**
-- Legg til en subtil gradient-kant (`bg-gradient-to-r from-primary/10 to-transparent`) bak Trust Center-knappen for å skille den som premium-seksjon
-
-### Visuell struktur
 ```text
 ┌─────────────────────────────────┐
 │  [Logo]            [🌐] [🌙]   │
@@ -37,24 +21,38 @@ Inspirert av moderne SaaS-sidebarer (Linear, Notion, Vercel): tydelig visuelt hi
 │  ● Dashboard                    │
 │                                 │
 │  🌍 Trust Center           ▾   │
+│     Trust Profile               │
+│     Rediger profil              │
+│     Products & Services         │
+│     Dokumentasjon & Evidens     │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
-│                                 │
-│  📋 Styringsverktøy         ▾   │
-│     ● Krav                      │
-│       Arbeidsområder            │
-│       Oppgaver                  │
+│  ⚖️ Regelverk & krav            │  ← Global toppnivå
+│  ✉️ Meldinger                   │  ← Omdøpt, global toppnivå
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
-│                                 │
+│  📋 Mynder Core             ▾   │  ← Omdøpt fra "Styringsverktøy"
+│     Arbeidsområder              │
+│     Oppgaver                    │
+│     Avvik                       │
+│     Rapporter                   │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
 │  🗄️ Registre                ▾   │
-│       Leverandører              │
-│       Systemer                  │
-│       Enheter                   │
+│     Leverandører                │
+│     Systemer                    │
+│     Enheter                     │
 └─────────────────────────────────┘
 ```
 
+### Endringer i `src/components/Sidebar.tsx`
+
+1. **Flytt «Regelverk» og «Forespørsler» ut av `managementNav`** — gjør dem til egne toppnivå-lenker mellom Trust Center og Mynder Core
+2. **Omdøp «Forespørsler» til «Meldinger»** — oppdater i18n-nøkkel (`nav.messages`) og ikon til `MessageSquare` (fra lucide-react)
+3. **Omdøp seksjonen «Styringsverktøy» til «Mynder Core»** — oppdater i18n-nøkkel (`nav.mynderCore`)
+4. **Oppdater `managementNav`-arrayet** — behold kun Arbeidsområder, Oppgaver, Avvik, Rapporter
+5. **Legg til ny global nav-array** med Regelverk og Meldinger, rendret som enkeltstående lenker med samme styling som Dashboard
+
 ### Tekniske detaljer
-- Kun endringer i `Sidebar.tsx` og eventuelt `index.css` for en kort animasjonsklasse
-- Nye ikoner: `Briefcase` (eller `Wrench`) for Styringsverktøy, `Database` for Registre fra lucide-react
-- Fjerner `text-[11px] uppercase tracking-wider` til fordel for `text-xs font-semibold` med ikon
-- Legger til `transition-all duration-200 overflow-hidden` for collapse-animasjon
+- Kun endringer i `Sidebar.tsx`
+- Oppdater i18n-filer (nb.json, en.json) med nye nøkler: `nav.messages`, `nav.mynderCore`
+- Nytt ikon-import: `MessageSquare` fra lucide-react
+- Ingen endring i ruter eller sidekomponenter
 
