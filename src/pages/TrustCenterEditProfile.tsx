@@ -16,8 +16,9 @@ import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package,
+  Info, Settings, Package, Sparkles,
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
@@ -92,6 +93,57 @@ const TrustCenterEditProfile = () => {
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
 
+  const assetMeta = (asset?.metadata || {}) as Record<string, any>;
+  const selectedAreasEarly: string[] = assetMeta.business_areas || [];
+  const selectedServiceCatsEarly: string[] = assetMeta.service_categories || [];
+
+  // AI-suggested GDPR role based on service categories
+  const suggestedRole = useMemo(() => {
+    if (selectedServiceCatsEarly.length === 0) return null;
+    const hasSaas = selectedServiceCatsEarly.includes("saas");
+    const hasInfra = selectedServiceCatsEarly.includes("infra");
+    const hasConsulting = selectedServiceCatsEarly.includes("consulting");
+    const hasDigital = selectedServiceCatsEarly.includes("digital");
+
+    if ((hasSaas || hasInfra) && !hasConsulting) {
+      return {
+        role: "sub_processor" as const,
+        labelNb: "Databehandler",
+        labelEn: "Data Processor",
+        reasonNb: "Virksomheter som leverer SaaS eller infrastruktur behandler som regel data på vegne av kundene sine.",
+        reasonEn: "Companies providing SaaS or infrastructure typically process data on behalf of their customers.",
+      };
+    }
+    if (hasConsulting && !hasSaas && !hasInfra) {
+      return {
+        role: "processor" as const,
+        labelNb: "Behandlingsansvarlig",
+        labelEn: "Data Controller",
+        reasonNb: "Konsulentvirksomheter bestemmer ofte selv formål og middel for behandling av persondata.",
+        reasonEn: "Consulting firms typically determine the purpose and means of processing personal data.",
+      };
+    }
+    if ((hasSaas || hasInfra || hasDigital) && hasConsulting) {
+      return {
+        role: "both" as const,
+        labelNb: "Begge roller",
+        labelEn: "Both roles",
+        reasonNb: "Med både tjenesteprodukter og rådgivning vil dere typisk ha begge roller avhengig av kundeavtale.",
+        reasonEn: "With both service products and consulting, you'll typically have both roles depending on the agreement.",
+      };
+    }
+    if (hasDigital) {
+      return {
+        role: "both" as const,
+        labelNb: "Begge roller",
+        labelEn: "Both roles",
+        reasonNb: "Digitale tjenester innebærer ofte en kombinasjon av egne og kunders data.",
+        reasonEn: "Digital services often involve a combination of your own and customers' data.",
+      };
+    }
+    return null;
+  }, [selectedServiceCatsEarly]);
+
   const slug = useMemo(() => {
     const base = (companyProfile?.name || asset?.name || "")
       .toLowerCase().replace(/[^a-z0-9æøå\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 40);
@@ -102,9 +154,9 @@ const TrustCenterEditProfile = () => {
   const publicUrl = `https://trust.mynder.com/${slug}`;
   const trustScore = evaluation?.trustScore ?? 0;
 
-  const assetMeta = (asset?.metadata || {}) as Record<string, any>;
+  const assetMeta2 = (asset?.metadata || {}) as Record<string, any>;
   const sectionCompleteness = useMemo(() => {
-    const areas: string[] = assetMeta.business_areas || [];
+    const areas: string[] = assetMeta2.business_areas || [];
     const companyChecks = [
       !!companyProfile?.name,
       !!companyProfile?.org_number,
@@ -116,7 +168,7 @@ const TrustCenterEditProfile = () => {
       linked: { done: linkedProducts.length > 0 ? 1 : 0, total: 1 },
       regulations: { done: frameworks.length > 0 ? 1 : 0, total: 1 },
     };
-  }, [companyProfile, assetMeta, linkedProducts, frameworks]);
+  }, [companyProfile, assetMeta2, linkedProducts, frameworks]);
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -160,6 +212,9 @@ const TrustCenterEditProfile = () => {
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
+
+
+
 
   const frameworkBadgeClass = (name: string) => {
     const n = name.toLowerCase();
@@ -402,6 +457,23 @@ const TrustCenterEditProfile = () => {
                     ? "Din rolle bestemmer hvilke personvernkrav som gjelder i Trust Profilen din."
                     : "Your role determines which privacy requirements apply in your Trust Profile."}
                 </p>
+
+                {/* AI suggestion */}
+                {suggestedRole && (
+                  <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                    <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">
+                        {isNb ? "Anbefalt rolle: " : "Recommended role: "}
+                        <span className="text-primary">{isNb ? suggestedRole.labelNb : suggestedRole.labelEn}</span>
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {isNb ? suggestedRole.reasonNb : suggestedRole.reasonEn}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <RadioGroup defaultValue={gdprRole} className="space-y-2">
                   {[
                     { value: "processor", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Vi bestemmer formål og middel for behandling av personopplysninger.", descEn: "We determine the purpose and means of processing personal data." },
