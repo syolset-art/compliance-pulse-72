@@ -1,38 +1,39 @@
 
 
-## Plan: Tillat demo-data uten innlogging
+## Plan: Demo-knapp med dummy-data for Dokumentasjon & Evidens
 
-### Problem
-Tre barrierer hindrer uinnloggede brukere fra å laste ned demo-data:
-1. `seedDemoMSP()` kaster feil «Ikke innlogget» på linje 18
-2. Database-spørringer bruker `enabled: !!user?.id` — kjører aldri uten bruker
-3. RLS-policyer krever `auth.uid()` — alle operasjoner feiler for anonyme
+### Oversikt
+Legger til en subtil «Fyll demo-data»-knapp ved siden av «Legg til»-knappen. Knappen seeder vendor_documents-tabellen med realistiske norske retningslinjer, sertifiseringer og dokumenter knyttet til self-asseten.
 
-### Løsning
+### Dummy-data som seedeS
 
-**1. Ny RLS-policy for anonym lesing (database-migrering)**
-- Legg til `SELECT`-policy med `USING (true)` på `msp_customers`, `msp_licenses`, `msp_license_purchases`, `msp_invoices`, `msp_customer_assessments`
-- INSERT/UPDATE/DELETE forblir beskyttet bak `auth.uid()`
+**Retningslinjer (6 stk):**
+- Personvernpolicy (verified, published)
+- Informasjonssikkerhetspolicy (verified, published)
+- Akseptabel bruk-policy (verified, visible)
+- Hendelseshåndteringsplan (draft, hidden)
+- Databeskyttelsespolicy (verified, published)
+- Generell IT-policy (pending, visible)
 
-**2. Oppdater `src/lib/demoSeedMSP.ts`**
-- Fjern `if (!user) throw new Error("Ikke innlogget")`
-- Bruk en fast demo-bruker-ID (f.eks. `"00000000-0000-0000-0000-000000000000"`) som fallback når `user` er `null`
-- Legg til anonym INSERT-policy med `WITH CHECK (msp_user_id = '00000000-...')` for demo-formål
+**Sertifiseringer (3 stk):**
+- ISO 27001:2022 (verified, expiry +300 dager)
+- SOC 2 Type II (verified, expiry +180 dager)
+- Cyber Essentials Plus (expiring, expiry +20 dager)
 
-**3. Oppdater `MSPDashboard.tsx`, `MSPLicenses.tsx`, `MSPInvoicesTab.tsx`**
-- Fjern `enabled: !!user?.id` fra alle queries (eller sett `enabled: true`)
-- Fjern `user?.id` fra queryKeys der det brukes som filter
-
-**4. Oppdater `deleteDemoMSP()` i `demoSeedMSP.ts`**
-- Bruk samme fallback demo-bruker-ID for sletting
+**Dokumenter (4 stk):**
+- Databehandleravtale (agreement, verified)
+- Risikovurderingsrapport Q1 (report, verified)
+- Penetrasjonstestrapport (evidence, pending)
+- Beredskapsplan (other, draft)
 
 ### Filer som endres
 
 | Fil | Endring |
 |-----|---------|
-| Ny migrering | Anonym SELECT + begrenset INSERT-policy |
-| `src/lib/demoSeedMSP.ts` | Fjern auth-krav, bruk fallback-ID |
-| `src/pages/MSPDashboard.tsx` | Fjern `enabled: !!user?.id` |
-| `src/pages/MSPLicenses.tsx` | Ingen endring (bruker ikke user-gating) |
-| `src/components/msp/MSPInvoicesTab.tsx` | Fjern `enabled: !!user?.id` |
+| `src/pages/TrustCenterEvidence.tsx` | Legg til seed-funksjon og subtil «Demo»-knapp (ghost variant, liten størrelse, Database-ikon) ved siden av «Legg til» |
+
+### UI-detaljer
+- Knappen bruker `variant="ghost" size="sm"` med et `Database`-ikon og teksten «Demo» / «Demo data»
+- Ved klikk: sjekker om det allerede finnes data, seeder, og invaliderer queryen
+- Viser toast ved suksess
 
