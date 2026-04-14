@@ -275,8 +275,8 @@ const SidebarContent = () => {
     fetchCompany();
   }, []);
 
-  const isAdminActive = administrationMenu.some(item => location.pathname === item.href);
-  const [adminOpen, setAdminOpen] = useState(() => isAdminActive || location.pathname.startsWith("/admin/"));
+  const isSettingsActive = settingsMenu.some(item => location.pathname === item.href) || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions";
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(() => isSettingsActive);
   
   return (
     <>
@@ -294,7 +294,7 @@ const SidebarContent = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
-        {/* Dashboard links */}
+        {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
           const isHighlighted = highlights.includes(item.href);
@@ -313,19 +313,16 @@ const SidebarContent = () => {
             >
               <item.icon className="h-5 w-5" />
               {t(item.name)}
-              {item.highlight && (
-                <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
-              )}
             </Link>
           );
         })}
 
-        {/* Organisasjon section */}
+        {/* Styringsverktøy section */}
         <div className="pt-3">
           <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-            {t("nav.organisation", "Organisasjon")}
+            {t("nav.managementTools", "Styringsverktøy")}
           </p>
-          {organisationNav.map((item) => {
+          {managementNav.map((item) => {
             const isActive = location.pathname === item.href;
             const isHighlighted = highlights.includes(item.href);
             return (
@@ -348,12 +345,12 @@ const SidebarContent = () => {
           })}
         </div>
 
-        {/* Moduler section */}
+        {/* Registre section */}
         <div className="pt-3">
           <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-            {t("nav.modules", "Moduler")}
+            {t("nav.registries", "Registre")}
           </p>
-          {modulesNav.map((item) => {
+          {registriesNav.map((item) => {
             const isActive = location.pathname === item.href;
             const isHighlighted = highlights.includes(item.href);
             return (
@@ -376,27 +373,29 @@ const SidebarContent = () => {
           })}
         </div>
 
-        {/* Administrasjon section - moved up */}
+        <TrustCenterMenu />
+
+        {/* Innstillinger section */}
         <div className="pt-3">
           <button
-            onClick={() => setAdminOpen(!adminOpen)}
+            onClick={() => setSettingsMenuOpen(!settingsMenuOpen)}
             className={cn(
               "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              isAdminActive || location.pathname.startsWith("/admin/")
+              isSettingsActive
                 ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
-              {t("nav.administration", "Administrasjon")}
+              {t("nav.settings", "Innstillinger")}
             </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
+            <ChevronDown className={cn("h-4 w-4 transition-transform", settingsMenuOpen && "rotate-180")} />
           </button>
 
-          {adminOpen && (
+          {settingsMenuOpen && (
             <div className="ml-4 mt-1 space-y-1">
-              {administrationMenu.map((item) => {
+              {settingsMenu.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
@@ -414,91 +413,35 @@ const SidebarContent = () => {
                   </Link>
                 );
               })}
-            </div>
-          )}
-        </div>
-
-        <TrustCenterMenu />
-
-        {/* Kommer section - upcoming features */}
-        <div className="pt-3">
-          <button
-            onClick={() => setComingOpen(!comingOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <Play className="h-5 w-5" />
-              {t("nav.coming", "Kommer")}
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Beta</Badge>
-            </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", comingOpen && "rotate-180")} />
-          </button>
-
-          {comingOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {[
-                { name: t("quality.title", "Kvalitetssystem"), href: "/quality", icon: Shield },
-                { name: t("nav.complianceSecurity", "Compliance & Security"), href: "/compliance", icon: Shield },
-                { name: t("nav.reportsAdmin", "Rapporter & Admin"), href: "/reports", icon: FileBarChart },
-                { name: t("nav.resources", "Ressurssenter"), href: "/resources", icon: HelpCircle },
-                { name: t("nav.aiSetup", "AI-agent"), href: "/ai-setup", icon: Bot },
-                { name: t("nav.aiRegistry", "AI-register"), href: "/ai-registry", icon: Bot },
-                { name: "Utviklere", href: "/developer/trust-profile-architecture", icon: Code2 },
-                { name: "Mynder Me", href: "/mynder-me", icon: Users },
-                { name: "Leverandørdemo", href: "/vendor-response-demo", icon: Play },
-              ].map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
+              {/* Demo Reset inside settings */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                    disabled={resetting}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                );
-              })}
+                    <RotateCcw className={cn("h-4 w-4", resetting && "animate-spin")} />
+                    {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
+                      Du starter onboarding fra begynnelsen.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Ja, tilbakestill
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
-        </div>
-
-        {/* Demo Reset Button */}
-        <div className="mt-4 px-1">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-silk"
-                disabled={resetting}
-              >
-                <RotateCcw className={cn("h-5 w-5", resetting && "animate-spin")} />
-                {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
-                  Du starter onboarding fra begynnelsen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Ja, tilbakestill
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </nav>
 
