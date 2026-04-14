@@ -1,0 +1,2 @@
+CREATE POLICY "Anon users can insert vendor documents" ON public.vendor_documents FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "Anon users can view vendor documents" ON public.vendor_documents FOR SELECT TO anon USING (true);
