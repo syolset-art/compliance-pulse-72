@@ -138,6 +138,8 @@ export function useSubscription() {
   const billingInterval: BillingInterval =
     (subscription?.billing_interval as BillingInterval) || "monthly";
   const tierConfig = PLAN_TIERS[currentTier];
+  const hasCoreAccess = currentTier !== "free";
+  const hasModule = (moduleId: "systems" | "vendors"): boolean => currentTier !== "free";
 
   const isDomainIncluded = (domainId: string): boolean => {
     const planIncludes =
@@ -198,6 +200,9 @@ export function useSubscription() {
     maxVendors: tierConfig.maxVendors,
     canAddSystem: (count: number) => count < tierConfig.maxSystems,
     canAddVendor: (count: number) => count < tierConfig.maxVendors,
+    // Access helpers
+    hasCoreAccess,
+    hasModule,
     // Domain / framework helpers
     isDomainIncluded,
     getAddonPrice,
