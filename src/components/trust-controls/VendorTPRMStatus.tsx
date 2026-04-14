@@ -274,7 +274,7 @@ export const VendorTPRMStatus = ({
                     {isNb ? "Gjenstår" : "Remaining"}
                     {openTasks.length > 0 && (
                       <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
-                        {openTasks.length}
+                        {openTasks.length + pendingActivities.length}
                       </Badge>
                     )}
                   </button>
@@ -288,7 +288,7 @@ export const VendorTPRMStatus = ({
                   >
                     {isNb ? "Utført" : "Completed"}
                     <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
-                      {recentActivities.length}
+                      {completedActivities.length}
                     </Badge>
                   </button>
                 </div>
@@ -349,7 +349,38 @@ export const VendorTPRMStatus = ({
                           );
                         })}
                       </div>
-                    ) : (
+                    ) : null}
+                    {/* Pending activities (waiting/deviation) */}
+                    {pendingActivities.length > 0 && (
+                      <div className="space-y-1.5">
+                        {pendingActivities.map((act) => {
+                          const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
+                          const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+                          return (
+                            <div
+                              key={act.id}
+                              className="flex items-start gap-2 p-2.5 rounded-lg bg-warning/5 border border-warning/20"
+                            >
+                              <div className={`mt-0.5 ${outcomeColor}`}>
+                                <OutIcon className="h-3.5 w-3.5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs font-medium text-foreground">
+                                  {isNb ? act.titleNb : act.titleEn}
+                                </span>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  {act.actor} — {formatRelativeDate(act.date, isNb)}
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-warning/10 text-warning border-warning/30 shrink-0">
+                                {isNb ? "Venter svar" : "Awaiting response"}
+                              </Badge>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {openTasks.length === 0 && pendingActivities.length === 0 && (
                       <p className="text-xs text-muted-foreground italic">
                         {isNb ? "Ingen åpne aktiviteter — godt jobbet! 🎉" : "No open activities — great work! 🎉"}
                       </p>
@@ -372,7 +403,7 @@ export const VendorTPRMStatus = ({
                       </Button>
                     </div>
                     <div className="space-y-1.5">
-                      {recentActivities.map((act) => {
+                      {completedActivities.map((act) => {
                         const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
                         const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
                         const phaseConf = PHASE_CONFIG[act.phase];
