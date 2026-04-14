@@ -70,7 +70,7 @@ export default function DashboardV2() {
         status: t.status,
         description: t.description,
         description_no: t.description,
-        domain: "governance",
+        domain: "security" as const,
         agent_capability: "manual" as const,
         sort_order: 0,
         is_active: true,
