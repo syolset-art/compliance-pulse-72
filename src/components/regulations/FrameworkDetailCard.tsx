@@ -70,15 +70,24 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-sm font-medium text-foreground">
-                {counts.met} av {counts.total} krav oppfylt
-              </span>
-              <span className="text-sm font-bold text-foreground">{pct}%</span>
+          {/* Summary */}
+          <div className="mt-4 bg-muted/40 rounded-xl p-4 border border-border/50">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sammendrag</span>
+            <div className="grid grid-cols-2 gap-4 mt-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">Samlet samsvar</span>
+                <span className={`text-3xl font-bold ${pct >= 67 ? "text-emerald-600 dark:text-emerald-400" : pct >= 34 ? "text-amber-600 dark:text-amber-400" : "text-destructive"}`}>
+                  {pct}%
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">Krav oppfylt</span>
+                <span className="text-3xl font-bold text-foreground">
+                  {counts.met} <span className="text-lg text-muted-foreground font-normal">/ {counts.total}</span>
+                </span>
+              </div>
             </div>
-            <Progress value={pct} className="h-2.5" />
+            <Progress value={pct} className="h-2 mt-3" />
           </div>
 
           {/* Status row */}
