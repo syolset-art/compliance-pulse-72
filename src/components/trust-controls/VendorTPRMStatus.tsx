@@ -205,32 +205,26 @@ export const VendorTPRMStatus = ({
             {/* Always-visible compact header */}
             <div className="p-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <Shield className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground">{isNb ? "Oppgaver" : "Tasks"}</span>
                 <Badge variant="outline" className={`text-[11px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
                   {cfg.emoji} {cfg.label}
                 </Badge>
-                {risk && (
+                {asset?.criticality && (
                   <>
                     <span className="text-border">·</span>
-                    <span className={`text-xs font-medium flex items-center gap-1 ${riskColors[risk]}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${riskDots[risk]}`} />
-                      {riskLabels[risk]}
-                    </span>
-                  </>
-                )}
-                {maturityStats && (
-                  <>
-                    <span className="text-border">·</span>
-                    <span className="text-xs text-muted-foreground">
-                      {maturityStats.implementedCount}/{maturityStats.totalControls} <span className="text-[10px]">({maturityStats.trustScore}%)</span>
-                    </span>
-                  </>
-                )}
-                {openTasks.length > 0 && (
-                  <>
-                    <span className="text-border">·</span>
-                    <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
-                      {openTasks.length} {isNb ? "oppgaver" : "tasks"}
+                    <Badge variant="outline" className={`text-[11px] px-2 py-0.5 ${
+                      asset.criticality.toLowerCase() === "critical" || asset.criticality.toLowerCase() === "high"
+                        ? "bg-destructive/10 text-destructive border-destructive/30"
+                        : asset.criticality.toLowerCase() === "medium"
+                        ? "bg-warning/10 text-warning border-warning/30"
+                        : "bg-success/10 text-success border-success/30"
+                    }`}>
+                      {asset.criticality.toLowerCase() === "critical" || asset.criticality.toLowerCase() === "high"
+                        ? (isNb ? "Høy" : "High")
+                        : asset.criticality.toLowerCase() === "medium"
+                        ? (isNb ? "Middels" : "Medium")
+                        : (isNb ? "Lav" : "Low")}
                     </Badge>
                   </>
                 )}
