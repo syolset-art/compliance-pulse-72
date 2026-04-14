@@ -545,6 +545,9 @@ const AssetTrustProfile = () => {
                     onNavigateToTab={setActiveTab}
                   />
                 </TabsContent>
+                <TabsContent value="vendor-tasks" className="mt-6">
+                  <VendorTasksTab asset={asset} />
+                </TabsContent>
                 <TabsContent value="usage" className="mt-6">
                   <VendorUsageTab assetId={asset.id} />
                 </TabsContent>
