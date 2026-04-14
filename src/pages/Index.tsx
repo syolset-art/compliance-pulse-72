@@ -66,7 +66,7 @@ const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "critical-processes": <CriticalProcessesWidget />,
   "ai-dependencies": <CriticalDependenciesWidget />,
   "ai-activity": <AIActivityWidget />,
-  "ai-docs": <AIGeneratedDocsWidget />,
+  
   "vendor-requests": <VendorRequestsWidget />,
   "environment": <EnvironmentOverviewWidget />,
   "data-geography": <DataGeographyWidget />,
