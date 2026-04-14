@@ -189,6 +189,7 @@ const AssetTrustProfile = () => {
 
   const allVendorTabs = useMemo(() => [
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
+    { value: 'vendor-tasks', label: isNb ? 'Oppgaver' : 'Tasks', labelFull: isNb ? 'Oppgaver' : 'Tasks' },
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
