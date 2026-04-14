@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown, ClipboardList } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown, ClipboardList, Activity } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 import { generateDemoActivities, formatRelativeDate, PHASE_CONFIG, OUTCOME_COLORS } from "@/utils/vendorActivityData";
@@ -101,6 +101,7 @@ export const VendorTPRMStatus = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const [requestType, setRequestType] = useState<string | undefined>();
+  const [innerTab, setInnerTab] = useState<"remaining" | "completed">("remaining");
   const queryClient = useQueryClient();
 
   const recentActivities = useMemo(() => generateDemoActivities(assetId).slice(0, 3), [assetId]);
@@ -205,8 +206,8 @@ export const VendorTPRMStatus = ({
             {/* Always-visible compact header */}
             <div className="p-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground">{isNb ? "Oppgaver" : "Tasks"}</span>
+                <Activity className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground">{isNb ? "Aktiviteter" : "Activities"}</span>
                 <Badge variant="outline" className={`text-[11px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
                   {cfg.emoji} {cfg.label}
                 </Badge>
@@ -257,184 +258,150 @@ export const VendorTPRMStatus = ({
 
             {/* Expandable detail section */}
             <CollapsibleContent>
-              <div className="px-3 pb-3 space-y-3 border-t border-border/50 pt-3">
-                {/* Module title + tooltip */}
-                <div className="flex items-center gap-1.5">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {isNb ? "Oppfølgingsstatus (TPRM)" : "Follow-up Status (TPRM)"}
-                  </h2>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed p-3 space-y-1.5">
-                        <p className="font-semibold text-foreground">TPRM – Third-Party Risk Management</p>
-                        <p>{isNb ? "Kombinerer risiko ved bruk av leverandøren med grad av kontroll (dokumentasjon og oppfølging)." : "Combines vendor risk with degree of control (documentation and follow-up)."}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-
-                {/* Metrics row */}
-                <div className="flex items-center gap-4 flex-wrap text-sm">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-muted-foreground text-xs">{isNb ? "Risiko:" : "Risk:"}</span>
-                    {risk ? (
-                      <span className={`font-semibold flex items-center gap-1 ${riskColors[risk]}`}>
-                        <span className={`h-2 w-2 rounded-full ${riskDots[risk]}`} />
-                        {riskLabels[risk]}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
-                    )}
-                  </span>
-                  {maturityStats && (
-                    <>
-                      <span className="text-border">|</span>
-                      <button
-                        onClick={() => {
-                          const el = document.getElementById("maturity-controls-section");
-                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
-                        className="flex items-center gap-1.5 hover:text-primary transition-colors"
-                      >
-                        <span className="text-muted-foreground text-xs">{isNb ? "Kontroll:" : "Control:"}</span>
-                        <span className="font-semibold text-foreground">
-                          {maturityStats.implementedCount}/{maturityStats.totalControls}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          ({maturityStats.trustScore}%)
-                        </span>
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* ── UTFØRT (Completed) — Recent Activities ── */}
-                <div className="border-t border-border pt-3 mt-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {isNb ? "Utført" : "Completed"}
-                      </span>
-                      <Badge variant="outline" className="text-[9px] px-1 py-0 h-4">
-                        {recentActivities.length}
+              <div className="px-3 pb-3 border-t border-border/50 pt-3">
+                {/* Inner tab filter */}
+                <div className="flex items-center gap-1 mb-3">
+                  <button
+                    onClick={() => setInnerTab("remaining")}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      innerTab === "remaining"
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    {isNb ? "Gjenstår" : "Remaining"}
+                    {openTasks.length > 0 && (
+                      <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
+                        {openTasks.length}
                       </Badge>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs text-primary gap-1 px-2"
-                      onClick={() => onNavigateToTab?.("vendor-activity")}
-                    >
-                      {isNb ? "Se alle" : "View all"}
-                      <ArrowRight className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="space-y-1.5">
-                    {recentActivities.map((act) => {
-                      const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
-                      const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
-                      const phaseConf = PHASE_CONFIG[act.phase];
-                      return (
-                        <button
-                          key={act.id}
-                          onClick={() => onNavigateToTab?.("vendor-activity")}
-                          className="w-full text-left flex items-start gap-2 p-2 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors"
-                        >
-                          <div className={`mt-0.5 ${outcomeColor}`}>
-                            <OutIcon className="h-3.5 w-3.5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs font-medium text-foreground truncate">
-                                {isNb ? act.titleNb : act.titleEn}
-                              </span>
-                              <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
-                                {isNb ? phaseConf.nb : phaseConf.en}
-                              </Badge>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setInnerTab("completed")}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      innerTab === "completed"
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    {isNb ? "Utført" : "Completed"}
+                    <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
+                      {recentActivities.length}
+                    </Badge>
+                  </button>
                 </div>
 
                 {/* ── GJENSTÅR (Remaining Tasks) ── */}
-                <div className="border-t border-border pt-3 mt-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <ClipboardList className="h-3.5 w-3.5 text-warning" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {isNb ? "Gjenstår" : "Remaining"} ({openTasks.length})
-                      </span>
-                    </div>
+                {innerTab === "remaining" && (
+                  <div className="space-y-2">
                     {responsiblePerson && (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted-foreground block">
                         {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
                       </span>
                     )}
-                  </div>
-                  {openTasks.length > 0 ? (
-                    <div className="space-y-1.5">
-                      {openTasks.map((task) => {
-                        const isHighlighted = highlightedTaskId === task.id;
-                        return (
-                          <div
-                            key={task.id}
-                            id={`task-${task.id}`}
-                            className={`flex items-start sm:items-center justify-between gap-3 p-2.5 rounded-lg transition-all duration-500 ${
-                              isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-background/60 border border-border"
-                            }`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <div className={`h-2 w-2 rounded-full shrink-0 ${
-                                  task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
-                                }`} />
-                                <span className="text-xs font-medium text-foreground">{task.title}</span>
-                                {task.isControlTask && (
-                                  <Shield className="h-3 w-3 text-primary/60 shrink-0" />
-                                )}
-                                {task.priority === "high" && (
-                                  <Badge variant="destructive" className="text-[9px] shrink-0 h-4">
-                                    {isNb ? "Høy" : "High"}
-                                  </Badge>
+                    {openTasks.length > 0 ? (
+                      <div className="space-y-1.5">
+                        {openTasks.map((task) => {
+                          const isHighlighted = highlightedTaskId === task.id;
+                          return (
+                            <div
+                              key={task.id}
+                              id={`task-${task.id}`}
+                              className={`flex items-start sm:items-center justify-between gap-3 p-2.5 rounded-lg transition-all duration-500 ${
+                                isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-background/60 border border-border"
+                              }`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <div className={`h-2 w-2 rounded-full shrink-0 ${
+                                    task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
+                                  }`} />
+                                  <span className="text-xs font-medium text-foreground">{task.title}</span>
+                                  {task.isControlTask && (
+                                    <Shield className="h-3 w-3 text-primary/60 shrink-0" />
+                                  )}
+                                  {task.priority === "high" && (
+                                    <Badge variant="destructive" className="text-[9px] shrink-0 h-4">
+                                      {isNb ? "Høy" : "High"}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {task.action && (
+                                  <p className="text-[10px] text-muted-foreground mt-0.5 ml-4">
+                                    {task.action}
+                                  </p>
                                 )}
                               </div>
-                              {task.action && (
-                                <p className="text-[10px] text-muted-foreground mt-0.5 ml-4">
-                                  {task.action}
-                                </p>
+                              {task.ctaLabel && task.targetTab && onNavigateToTab && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 text-[10px] gap-1 shrink-0 whitespace-nowrap"
+                                  onClick={() => onNavigateToTab(task.targetTab!)}
+                                >
+                                  {task.ctaLabel}
+                                  <ArrowRight className="h-3 w-3" />
+                                </Button>
                               )}
                             </div>
-                            {task.ctaLabel && task.targetTab && onNavigateToTab && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-6 text-[10px] gap-1 shrink-0 whitespace-nowrap"
-                                onClick={() => onNavigateToTab(task.targetTab!)}
-                              >
-                                {task.ctaLabel}
-                                <ArrowRight className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">
+                        {isNb ? "Ingen åpne aktiviteter — godt jobbet! 🎉" : "No open activities — great work! 🎉"}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* ── UTFØRT (Completed) — Recent Activities ── */}
+                {innerTab === "completed" && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs text-primary gap-1 px-2"
+                        onClick={() => onNavigateToTab?.("vendor-activity")}
+                      >
+                        {isNb ? "Se alle" : "View all"}
+                        <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="space-y-1.5">
+                      {recentActivities.map((act) => {
+                        const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
+                        const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+                        const phaseConf = PHASE_CONFIG[act.phase];
+                        return (
+                          <button
+                            key={act.id}
+                            onClick={() => onNavigateToTab?.("vendor-activity")}
+                            className="w-full text-left flex items-start gap-2 p-2 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors"
+                          >
+                            <div className={`mt-0.5 ${outcomeColor}`}>
+                              <OutIcon className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-medium text-foreground truncate">
+                                  {isNb ? act.titleNb : act.titleEn}
+                                </span>
+                                <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
+                                  {isNb ? phaseConf.nb : phaseConf.en}
+                                </Badge>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                                {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
+                              </p>
+                            </div>
+                          </button>
                         );
                       })}
                     </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground italic">
-                      {isNb ? "Ingen åpne oppgaver — godt jobbet! 🎉" : "No open tasks — great work! 🎉"}
-                    </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>
