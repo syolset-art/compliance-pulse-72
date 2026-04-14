@@ -40,10 +40,10 @@ export function VendorActivateDialog({ open, onOpenChange, onActivated }: Vendor
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Aktiver Leverandørmodulen
+            Aktiver Leverandør-tillegget
           </DialogTitle>
           <DialogDescription>
-            Få full tilgang til leverandørstyring med DPA-sporing, risikoanalyse og compliance-scoring.
+            Legg til leverandørstyring som en separat tilleggsmodul — uavhengig av Mynder Core. Inkluderer DPA-sporing, risikoanalyse og compliance-scoring.
           </DialogDescription>
         </DialogHeader>
 

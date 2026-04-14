@@ -25,8 +25,8 @@ export interface ModuleTierConfig {
 export const MODULES: Record<ModuleId, ModuleDefinition> = {
   systems: {
     id: "systems",
-    displayName: "Systemmodul",
-    description: "Systemer, arbeidsområder, oppgaver, risikovurdering og compliance-oversikt",
+    displayName: "Mynder Core",
+    description: "Kjerneplattformen med systemer, arbeidsområder, oppgaver, risikovurdering og compliance-oversikt",
     tiers: {
       basis: {
         maxItems: 20,
@@ -57,8 +57,8 @@ export const MODULES: Record<ModuleId, ModuleDefinition> = {
   },
   vendors: {
     id: "vendors",
-    displayName: "Leverandørmodul",
-    description: "Leverandørstyring, DPA-sporing, risikoanalyse og varsler",
+    displayName: "Leverandør (tillegg)",
+    description: "Valgfri tilleggsmodul for leverandørstyring, DPA-sporing, risikoanalyse og varsler",
     tiers: {
       basis: {
         maxItems: 20,
