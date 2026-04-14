@@ -4,10 +4,9 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Inbox, Send, BookOpen } from "lucide-react";
+import { Inbox, Send } from "lucide-react";
 import { InboundRequestsContent } from "@/components/customer-requests/InboundRequestsContent";
 import { OutboundRequestsTab } from "@/components/customer-requests/OutboundRequestsTab";
-import { TemplateLibrary } from "@/components/customer-requests/TemplateLibrary";
 
 const CustomerRequests = () => {
   const { t, i18n } = useTranslation();
