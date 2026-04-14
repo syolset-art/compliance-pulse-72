@@ -193,6 +193,12 @@ const SidebarContent = () => {
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
 
+  const isManagementActive = managementNav.some(item => location.pathname === item.href);
+  const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
+
+  const isRegistriesActive = registriesNav.some(item => location.pathname === item.href);
+  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
+
 
   const handleResetDemo = async () => {
     setResetting(true);
