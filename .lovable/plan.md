@@ -1,22 +1,50 @@
 
 
-## Plan: Opprydding av prioritetsvisning
+## Plan: Slå sammen Oppfølgingsstatus og Oppgaver
 
 ### Hva endres
 
-1. **AssetHeader.tsx** — Fjern den read-only priority-badgen som vises ved siden av virksomhetsnavnet (linje 591-597). Prioriteten vises allerede i ribbon-taggen øverst til høyre, og det er nok.
+TPRM-statusbanneret og Oppgaver-kortet slås sammen til én samlet komponent som gir bedre oversikt. Brukeren ser status, gjenstående oppgaver og siste utførte aktiviteter i ett og samme panel — uten å måtte utvide flere separate kort.
 
-2. **VendorCard.tsx** — Endre prioritet-badgen på leverandørkortene i dashbordet slik at den inkluderer «Leverandør»-tekst sammen med prioritet i én blå tag. F.eks. «Leverandør · Kritisk» i blått, i stedet for en separat fargekodert prioritet-badge.
+### Ny layout for den sammenslåtte komponenten
+
+```text
+┌─────────────────────────────────────────────────┐
+│ 🟡 Under oppfølging · Høy · 5/13 (38%)  [Endre]│
+├─────────────────────────────────────────────────┤
+│ Risiko: Høy  |  Kontroll: 5/13 (38%)           │
+│ ⚠ 8 kontroller gjenstår for å nå «Godkjent»    │
+├─────────────────────────────────────────────────┤
+│ ✅ UTFØRT (siste 3 aktiviteter)                 │
+│  ✓ DPA lastet opp — Jan, Compliance — 2d siden  │
+│  ✓ Sikkerhetsgjennomgang — Per — 5d siden        │
+│  ✓ SLA godkjent — Jan — 1 uke siden              │
+│                                    [Se alle →]   │
+├─────────────────────────────────────────────────┤
+│ 📋 GJENSTÅR (6 oppgaver)                        │
+│  ○ Last opp risikovurdering        [Gå til dok] │
+│  ○ Sett risikonivå                 [Gå til risk]│
+│  ○ Dokumenter underleverandører    [Gå til rel.] │
+│  ...                                             │
+└─────────────────────────────────────────────────┘
+```
 
 ### Tekniske detaljer
 
-**`src/components/asset-profile/AssetHeader.tsx`:**
-- Slett linjene 591-597 (read-only priority Badge ved navnet)
+**Fil: `src/components/trust-controls/VendorTPRMStatus.tsx`**
+- Flytte oppgaveinnholdet (fra VendorOverviewTab) inn i TPRM-komponenten
+- Ny prop: `openTasks` (array) og `highlightedTaskId`
+- Legge til ny seksjon «Utført» som viser de 3 siste aktivitetene (allerede har `recentActivities`)
+- Endre «Siste aktiviteter» til å vises som «Utført»-seksjon med suksess-ikoner
+- Legge til «Gjenstår»-seksjon med oppgaveliste og CTA-knapper
+- Ekspandert innhold deles i to tydelige seksjoner: Utført og Gjenstår
+- Hele panelet er som standard utvidet når det finnes åpne oppgaver
 
-**`src/components/vendor-dashboard/VendorCard.tsx`:**
-- Erstatt den separate prioritet-badgen (linje 110-123) med en kombinert blå badge som viser «Leverandør» + evt. prioritet (f.eks. «Leverandør · Høy»)
-- Bruk blå farge (tilsvarende vendor-ribbonen: `bg-blue-600/10 text-blue-700 border-blue-600/20`) for å matche leverandør-identiteten
-- Hvis ingen prioritet er satt, vis bare «Leverandør»
+**Fil: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
+- Fjerne det separate Tasks-kortet (linje 331-418)
+- Sende `openTasks`, `highlightedTaskId`, `onNavigateToTab` som props til `VendorTPRMStatus`
+- Beholde `tasksRef` og `id="vendor-tasks-section"` på TPRM-komponenten i stedet
+- Fjerne duplisert state for `tasksExpanded`
 
 **Ingen databaseendringer.**
 
