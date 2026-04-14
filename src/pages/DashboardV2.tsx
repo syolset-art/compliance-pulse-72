@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { ComplianceShield } from "@/components/dashboard-v2/ComplianceShield";
 import { KPIRow } from "@/components/dashboard-v2/KPIRow";
-import { MaturityOverview } from "@/components/dashboard-v2/MaturityOverview";
+import { AggregatedMaturityWidget } from "@/components/dashboard-v2/AggregatedMaturityWidget";
 import { RecentActivityFeed } from "@/components/dashboard-v2/RecentActivityFeed";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
