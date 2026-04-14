@@ -40,7 +40,7 @@ const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize 
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
   { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
   { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
-  { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs", size: "half" },
+  
   { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests", size: "half" },
   { id: "environment", label: "Ditt miljø", labelEn: "Your environment", size: "full" },
   { id: "data-geography", label: "Datageografi", labelEn: "Data geography", size: "full" },
