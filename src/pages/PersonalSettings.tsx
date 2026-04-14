@@ -215,7 +215,7 @@ export default function PersonalSettings() {
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold text-foreground">
                 {isNb ? "Innstillinger" : "Settings"}
               </h1>
@@ -223,6 +223,10 @@ export default function PersonalSettings() {
                 {isNb ? "Personlige innstillinger, varsler og tjenester" : "Personal settings, notifications and services"}
               </p>
             </div>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setHelpOpen(true)}>
+              <HelpCircle className="h-3.5 w-3.5" />
+              {isNb ? "Hvordan fungerer dette?" : "How does this work?"}
+            </Button>
           </div>
 
           {/* Section navigation */}
