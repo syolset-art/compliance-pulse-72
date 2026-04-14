@@ -8,6 +8,7 @@ import {
   planNameToTier,
   type PlanTier,
   type BillingInterval,
+  type ModuleId,
 } from "@/lib/planConstants";
 
 interface SubscriptionPlan {
