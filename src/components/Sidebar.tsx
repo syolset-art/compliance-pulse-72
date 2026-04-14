@@ -465,6 +465,26 @@ const SidebarContent = () => {
             {/* Company submenu */}
             {companyOpen && (
               <div className="mt-2 ml-2 space-y-1 animate-fade-in">
+                {/* Company settings */}
+                {settingsMenu.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => navigate(item.href)}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <item.icon className="h-3.5 w-3.5" />
+                      {t(item.name)}
+                    </button>
+                  );
+                })}
+                <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
                   onClick={() => setPartnerOpen(!partnerOpen)}
