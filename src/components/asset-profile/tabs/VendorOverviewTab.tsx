@@ -65,7 +65,6 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const tasksRef = useRef<HTMLDivElement>(null);
 
   const handleScrollToTasks = useCallback(() => {
-    setTasksExpanded(true);
     setTimeout(() => {
       tasksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
