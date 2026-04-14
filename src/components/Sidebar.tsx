@@ -335,14 +335,16 @@ const SidebarContent = () => {
         <div className="my-2 border-b border-sidebar-border/40" />
 
         {/* Mynder Core section */}
-        <div>
+        <div className={cn(isLocked && "opacity-50")}>
           <button
-            onClick={() => setManagementOpen(!managementOpen)}
+            onClick={() => isLocked ? navigate("/subscriptions") : setManagementOpen(!managementOpen)}
             className={cn(
               "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-              isManagementActive
-                ? "text-sidebar-primary border-l-2 border-primary/30"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              isLocked
+                ? "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 cursor-pointer"
+                : isManagementActive
+                  ? "text-sidebar-primary border-l-2 border-primary/30"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -351,48 +353,59 @@ const SidebarContent = () => {
                 {t("nav.mynderCore", "Mynder Core")}
               </span>
             </div>
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", managementOpen && "rotate-180")} />
+            {isLocked ? (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-1 font-normal">
+                <Lock className="h-3 w-3" />
+                {isNb ? "Oppgrader" : "Upgrade"}
+              </Badge>
+            ) : (
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", managementOpen && "rotate-180")} />
+            )}
           </button>
-          <div className={cn(
-            "overflow-hidden transition-all duration-200",
-            managementOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-          )}>
-            <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
-              {managementNav.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                    )}
-                  >
-                    {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                    <item.icon className="h-3.5 w-3.5" />
-                    {t(item.name)}
-                  </Link>
-                );
-              })}
+          {!isLocked && (
+            <div className={cn(
+              "overflow-hidden transition-all duration-200",
+              managementOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            )}>
+              <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+                {managementNav.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                      <item.icon className="h-3.5 w-3.5" />
+                      {t(item.name)}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Separator */}
         <div className="my-2 border-b border-sidebar-border/40" />
 
         {/* Registre section */}
-        <div>
+        <div className={cn(isLocked && "opacity-50")}>
           <button
-            onClick={() => setRegistriesOpen(!registriesOpen)}
+            onClick={() => isLocked ? navigate("/subscriptions") : setRegistriesOpen(!registriesOpen)}
             className={cn(
               "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-              isRegistriesActive
-                ? "text-sidebar-primary border-l-2 border-primary/30"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              isLocked
+                ? "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 cursor-pointer"
+                : isRegistriesActive
+                  ? "text-sidebar-primary border-l-2 border-primary/30"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -401,33 +414,43 @@ const SidebarContent = () => {
                 {t("nav.registries", "Registre")}
               </span>
             </div>
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", registriesOpen && "rotate-180")} />
+            {isLocked ? (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-1 font-normal">
+                <Lock className="h-3 w-3" />
+                {isNb ? "Oppgrader" : "Upgrade"}
+              </Badge>
+            ) : (
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", registriesOpen && "rotate-180")} />
+            )}
           </button>
-          <div className={cn(
-            "overflow-hidden transition-all duration-200",
-            registriesOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-          )}>
-            <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
-              {registriesNav.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                    )}
-                  >
-                    {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                    <item.icon className="h-3.5 w-3.5" />
-                    {t(item.name)}
-                  </Link>
-                );
-              })}
+          {!isLocked && (
+            <div className={cn(
+              "overflow-hidden transition-all duration-200",
+              registriesOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            )}>
+              <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+                {registriesNav.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                      )}
+                    >
+                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                      <item.icon className="h-3.5 w-3.5" />
+                      {t(item.name)}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
+          )}
           </div>
         </div>
 
