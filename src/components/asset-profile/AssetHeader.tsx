@@ -588,6 +588,12 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
+            {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 shrink-0">
+                <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot}`} />
+                {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
+              </Badge>
+            )}
           </div>
 
           {/* TPRM status line for vendors */}
