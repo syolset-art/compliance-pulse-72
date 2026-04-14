@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Hash, Factory, Users, Layers, Monitor, UserCheck, ChevronRight, Scale } from "lucide-react";
+import { Building2, Hash, Factory, Users, Layers, Monitor, UserCheck, ChevronRight, Scale, Shield, CheckCircle2, Eye, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,7 @@ interface OrgData {
   employees: string | null;
   brreg_industry: string | null;
   brreg_employees: number | null;
+  domain?: string | null;
 }
 
 interface MetricCardProps {
