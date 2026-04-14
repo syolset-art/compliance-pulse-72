@@ -174,11 +174,11 @@ export const VendorTPRMStatus = ({
     }
   }, [autoLevel, asset?.tprm_status]);
 
-  const tprmConfig: Record<TPRMLevel, { label: string; bg: string; border: string; text: string; emoji: string }> = {
-    approved: { label: isNb ? "Godkjent" : "Approved", bg: "bg-success/10", border: "border-success/30", text: "text-success", emoji: "🟢" },
-    under_review: { label: isNb ? "Under oppfølging" : "Under review", bg: "bg-warning/10", border: "border-warning/30", text: "text-warning", emoji: "🟡" },
-    action_required: { label: isNb ? "Krever tiltak" : "Action required", bg: "bg-destructive/10", border: "border-destructive/30", text: "text-destructive", emoji: "🔴" },
-    not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", bg: "bg-muted/40", border: "border-border", text: "text-muted-foreground", emoji: "⚪" },
+  const tprmConfig: Record<TPRMLevel, { label: string; bg: string; border: string; text: string; emoji: string; badgeBg: string }> = {
+    approved: { label: isNb ? "Godkjent" : "Approved", bg: "bg-card", border: "border-border", text: "text-success", emoji: "🟢", badgeBg: "bg-success/10 text-success border-success/30" },
+    under_review: { label: isNb ? "Under oppfølging" : "Under review", bg: "bg-card", border: "border-border", text: "text-warning", emoji: "🟡", badgeBg: "bg-warning/10 text-warning border-warning/30" },
+    action_required: { label: isNb ? "Krever tiltak" : "Action required", bg: "bg-card", border: "border-border", text: "text-destructive", emoji: "🔴", badgeBg: "bg-destructive/10 text-destructive border-destructive/30" },
+    not_assessed: { label: isNb ? "Ikke vurdert" : "Not assessed", bg: "bg-card", border: "border-border", text: "text-muted-foreground", emoji: "⚪", badgeBg: "bg-muted/40 text-muted-foreground border-border" },
   };
 
   const tprmOptions: TPRMLevel[] = ["approved", "under_review", "action_required", "not_assessed"];
@@ -205,10 +205,10 @@ export const VendorTPRMStatus = ({
             {/* Always-visible compact header */}
             <div className="p-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <Shield className={`h-4 w-4 shrink-0 ${cfg.text}`} />
-                <span className={`text-sm font-bold ${cfg.text}`}>
+                <Shield className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <Badge variant="outline" className={`text-[11px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
                   {cfg.emoji} {cfg.label}
-                </span>
+                </Badge>
                 {risk && (
                   <>
                     <span className="text-border">·</span>
