@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
+import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
 import {
   LineChart, Line, XAxis, YAxis,
   Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid,
@@ -38,29 +39,42 @@ function coverageLabel(score: number, isNb: boolean) {
   return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" };
 }
 
-function generateHistoryData(currentScores: Record<string, number>, isNb: boolean) {
-  const months = isNb
-    ? ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"]
-    : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const now = new Date();
-  const currentMonth = now.getMonth();
+function generateFrameworkHistory(currentScore: number) {
+  const months = ["Okt", "Nov", "Des", "Jan", "Feb", "Mar", "Apr"];
   const data = [];
-  for (let i = 5; i >= 0; i--) {
-    const monthIdx = (currentMonth - i + 12) % 12;
-    const factor = 1 - i * 0.12;
-    const entry: Record<string, any> = { month: months[monthIdx] };
-    let total = 0;
-    let count = 0;
-    for (const pillar of PILLARS) {
-      const score = Math.max(0, Math.round((currentScores[pillar.key] || 0) * factor + (Math.random() * 5 - 2)));
-      entry[pillar.key] = Math.min(100, score);
-      total += entry[pillar.key];
-      count++;
-    }
-    entry.overall = Math.round(total / (count || 1));
-    data.push(entry);
+  for (let i = 6; i >= 0; i--) {
+    const factor = 1 - i * 0.1;
+    const jitter = Math.sin(i * 3.7) * 4;
+    data.push({
+      month: months[6 - i],
+      score: Math.min(100, Math.max(0, Math.round(currentScore * factor + jitter))),
+    });
   }
   return data;
+}
+
+function CircularGauge({ percent, size = 40 }: { percent: number; size?: number }) {
+  const r = (size - 6) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (percent / 100) * circ;
+  const color = percent >= 67 ? "hsl(142, 71%, 45%)" : percent >= 34 ? "hsl(38, 92%, 50%)" : "hsl(var(--destructive))";
+  return (
+    <svg width={size} height={size} className="shrink-0">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={3} />
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke={color} strokeWidth={3}
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
+        className="fill-foreground text-[9px] font-bold"
+      >
+        {percent}%
+      </text>
+    </svg>
+  );
 }
 
 const STATUS_ICON = {
@@ -69,7 +83,7 @@ const STATUS_ICON = {
   not_started: Circle,
 };
 
-const PILLAR_COLORS = ["hsl(var(--primary))", "hsl(var(--warning))", "hsl(var(--destructive))", "#8b5cf6", "#06b6d4"];
+
 
 export function AggregatedMaturityWidget() {
   const { i18n } = useTranslation();
@@ -90,14 +104,19 @@ export function AggregatedMaturityWidget() {
     }, {} as Record<string, typeof requirements>);
   }, [requirements]);
 
-  const currentScores = useMemo(() => {
-    return PILLARS.reduce((acc, p) => {
-      acc[p.key] = Math.round(byDomain[p.key]?.score || 0);
-      return acc;
-    }, {} as Record<string, number>);
-  }, [byDomain]);
+  // Framework data from scoring engine
+  const byFramework = stats.byFramework || {};
+  const activeFrameworks = useMemo(() => {
+    return Object.entries(byFramework)
+      .filter(([, v]) => v.total > 0)
+      .map(([id, data]) => {
+        const fw = getFrameworkById(id);
+        return { id, name: fw?.name || id, data };
+      })
+      .sort((a, b) => b.data.score - a.data.score);
+  }, [byFramework]);
 
-  const historyData = useMemo(() => generateHistoryData(currentScores, isNb), [currentScores, isNb]);
+  const aggregatedHistory = useMemo(() => generateFrameworkHistory(Math.round(overall.score)), [overall.score]);
 
   // Aggregated counts
   const totalAssessed = PILLARS.reduce((sum, p) => sum + (byDomain[p.key]?.assessed || 0), 0);
@@ -129,7 +148,7 @@ export function AggregatedMaturityWidget() {
               onClick={() => setShowHistory(!showHistory)}
             >
               {showHistory ? <BarChart3 className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
-              {showHistory ? (isNb ? "Status" : "Status") : (isNb ? "Historikk" : "History")}
+              {showHistory ? (isNb ? "Status" : "Status") : (isNb ? "Regelverk" : "Frameworks")}
             </Button>
             <span className={cn(
               "text-xl font-bold tabular-nums",
@@ -169,45 +188,67 @@ export function AggregatedMaturityWidget() {
       {/* Content */}
       <div className="px-5 pb-5 pt-0">
         {showHistory ? (
-          <div className="space-y-3">
-            <div className="h-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={historyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={30} />
-                  <RechartsTooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                      fontSize: "11px",
-                    }}
-                    formatter={(value: number, name: string) => {
-                      const pillar = PILLARS.find((p) => p.key === name);
-                      return [
-                        `${value}%`,
-                        pillar ? (isNb ? pillar.label_no : pillar.label_en) : name === "overall" ? (isNb ? "Totalt" : "Overall") : name,
-                      ];
-                    }}
-                  />
-                  <Line type="monotone" dataKey="overall" stroke="hsl(var(--foreground))" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                  {PILLARS.map((p, i) => (
-                    <Line key={p.key} type="monotone" dataKey={p.key} stroke={PILLAR_COLORS[i]} strokeWidth={1.5} dot={false} />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+          <div className="space-y-4">
+            {/* Framework header */}
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-semibold text-foreground">
+                {isNb ? "Samsvarsstatus per regelverk" : "Compliance status per framework"}
+              </h4>
+              <Badge variant="outline" className="text-[10px] h-5">
+                {activeFrameworks.length} {isNb ? "regelverk" : "frameworks"}
+              </Badge>
             </div>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="w-3 h-0.5 bg-foreground inline-block" style={{ borderTop: "2px dashed" }} /> {isNb ? "Totalt" : "Overall"}
-              </span>
-              {PILLARS.map((p, i) => (
-                <span key={p.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <span className="w-3 h-0.5 inline-block" style={{ backgroundColor: PILLAR_COLORS[i] }} />
-                  {isNb ? p.label_no : p.label_en}
-                </span>
-              ))}
+
+            {/* Framework cards grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {activeFrameworks.map((fw) => {
+                const percent = Math.round(fw.data.score);
+                const cov = coverageLabel(percent, isNb);
+                return (
+                  <div
+                    key={fw.id}
+                    className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col items-center gap-1.5 hover:bg-muted/40 transition-colors"
+                  >
+                    <CircularGauge percent={percent} />
+                    <span className="text-[11px] font-medium text-foreground text-center leading-tight line-clamp-2">
+                      {fw.name}
+                    </span>
+                    <Badge className={cn("text-[8px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>
+                      {cov.label}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <CheckCircle2 className="h-2.5 w-2.5 text-emerald-500" />
+                      {fw.data.assessed}/{fw.data.total}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Aggregated trend line */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground">
+                {isNb ? "Historisk utvikling" : "Historical trend"}
+              </h4>
+              <div className="h-[140px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={aggregatedHistory}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={28} />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "11px",
+                      }}
+                      formatter={(value: number) => [`${value}%`, isNb ? "Samsvar" : "Compliance"]}
+                    />
+                    <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3, fill: "hsl(var(--primary))" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         ) : (
