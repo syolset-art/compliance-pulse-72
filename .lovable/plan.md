@@ -1,34 +1,67 @@
 
 
-## Plan: Mynder Core med Leverandør som tilleggsmodul
+## Plan: Koble regelverk-seksjonen på abonnementssiden til onboarding-data og regelverk-velger
 
-### Nåværende struktur
-Begge moduler (Systemer og Leverandører) vises side om side som likestilte valgbare moduler under «Styringsverktøy». Ingen indikasjon på at Systemer er inkludert som standard.
+### Problemet i dag
+Steg 2 på abonnementssiden viser en statisk liste med betalte regelverk-tillegg (NIS2, DORA, etc.) uten kontekst om hva som er obligatorisk, anbefalt eller valgfritt for akkurat denne virksomheten. Ingen kobling til `selected_frameworks`-tabellen der vi allerede vet hvilke regelverk som gjelder.
 
-### Ny struktur
+### Ny design for Steg 2: «Regelverk»
 
-**Mynder Core = Systemmodulen (standard inkludert)**
-- Seksjon 3 heter «Mynder Core»
-- Systemmodulen vises som kjernen i Mynder Core — alltid inkludert ved oppgradering
-- Bruker velger kun tier (Basis/Premium) for Mynder Core
+Seksjonen deles i tre grupper basert på onboarding-data:
 
-**Leverandørmodulen = separat tillegg**
-- Vises som en egen seksjon (Steg 4) eller som et tydelig tillegg under Mynder Core
-- Markert som «Tilleggsmodul» med egen pris
-- Kan aktiveres uavhengig av Mynder Core-tier
+```text
+┌─────────────────────────────────────────────────┐
+│ 2  Dine regelverk                               │
+│                                                 │
+│ ── Obligatoriske (inkludert) ──────────────────  │
+│ ✅ GDPR          ✅ Personopplysningsloven       │
+│ ✅ Internkontroll ✅ Arbeidsmiljøloven           │
+│ ✅ HMS            ✅ Bokføringsloven             │
+│    (grønne, ikke deaktiverbare)                 │
+│                                                 │
+│ ── Anbefalt for din virksomhet ────────────────  │
+│ 🔵 ISO 27001   Inkludert  ✅ Aktiv              │
+│ 🔵 NIS2        500 kr/mnd  [Aktiver]            │
+│ 🔵 DORA        500 kr/mnd  ✅ Aktiv             │
+│    (basert på bransje/størrelse/gap-analyse)     │
+│                                                 │
+│ ── Valgfrie tillegg ──────────────────────────── │
+│ ○ EU AI Act    500 kr/mnd  [Legg til]           │
+│ ○ CRA          500 kr/mnd  [Legg til]           │
+│ ○ Åpenhetsloven 500 kr/mnd [Legg til]           │
+│                                                 │
+│ [⚙️ Administrer alle regelverk]                  │
+│    → Åpner EditActiveFrameworksDialog            │
+└─────────────────────────────────────────────────┘
+```
 
-### Filer som endres
+### Tekniske endringer
 
-**1. `src/lib/planConstants.ts`**
-- `systems.displayName` → `"Mynder Core"`
-- `systems.description` → oppdatert til å reflektere at dette er kjerneplatformen
-- `vendors.displayName` → `"Leverandør (tillegg)"`
+**1. `src/pages/Subscriptions.tsx`**
+- Hent `selected_frameworks` fra databasen (samme query som Regulations-siden)
+- Hent `company_profile` for bransje/størrelse-data (allerede tilgjengelig via `useSubscription`)
+- Del regelverk-listen i tre grupper:
+  - **Obligatoriske**: `framework.isMandatory === true` — alltid inkludert, vist som grønne chips
+  - **Anbefalte**: Rammeverk som er `is_recommended` eller allerede valgt i onboarding/gap-analyse — vis med switch og pris
+  - **Valgfrie**: Resterende betalte tillegg — vis som cards med «Legg til»-knapp
+- Vis aktiv-status fra `selected_frameworks`-tabellen (synkronisert med regelverk-siden)
+- Legg til «Administrer alle regelverk»-knapp som åpner `EditActiveFrameworksDialog`
+- Integrer `FrameworkActivationDialog` for bekreftelse ved aktivering
+- Vis antall aktive vs totalt i seksjonens header-badge
 
-**2. `src/pages/Subscriptions.tsx`**
-- Seksjon 3: Rename til «Mynder Core» — vis kun system-modulen med Basis/Premium-valg
-- Seksjon 4 (ny): «Tilleggsmoduler» — vis Leverandørmodulen separat med tydelig «Valgfritt tillegg»-badge
-- Oppdater intro-tekst til å forklare at Mynder Core inkluderer systemer, arbeidsområder og compliance
+**2. Kobling til `domain_addons`**
+- Når bruker aktiverer et betalt regelverk fra abonnementssiden, skriv til både `selected_frameworks` (for compliance-tracking) og `domain_addons` (for fakturering)
+- Vis pris kun for ikke-gratis rammeverk (bruk `FRAMEWORK_ADDONS` og `FREE_FRAMEWORKS`)
 
-**3. `src/components/vendor-dashboard/VendorActivateDialog.tsx`**
-- Oppdater tittel/beskrivelse til å reflektere at dette er en tilleggsmodul, ikke del av Mynder Core
+**3. Interaktivitet**
+- Switch-toggles for anbefalte regelverk med inline-pris
+- Accordion/expandable info med trigger-spørsmål fra `frameworkDefinitions` (f.eks. «Er virksomheten innen kritisk infrastruktur?»)
+- Badge som viser «Anbefalt basert på din bransje» for relevante rammeverk
+- Oppsummeringsseksjonen oppdateres automatisk med regelverk-kostnader
+
+### Ingen databaseendringer
+Alt bruker eksisterende tabeller: `selected_frameworks`, `domain_addons`, `company_profile`.
+
+### Resultat
+Abonnementssiden blir kontekstuell og personalisert — brukeren ser hva som er obligatorisk, hva som anbefales basert på gap-analysen, og kan aktivere tillegg direkte med priser synlige inline. Alt synkronisert med regelverk-siden.
 
