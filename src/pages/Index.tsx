@@ -220,6 +220,7 @@ const Index = () => {
         </main>
         <DashboardDialogs {...{ isAddAssetOpen, setIsAddAssetOpen, isAddWorkAreaOpen, setIsAddWorkAreaOpen,
           isAddRoleOpen, setIsAddRoleOpen, isQualityWizardOpen, setIsQualityWizardOpen, assetTypeTemplates }} />
+        <DashboardHelpPanel open={helpOpen} onOpenChange={setHelpOpen} isNb={isNb} />
       </div>
     );
   }
