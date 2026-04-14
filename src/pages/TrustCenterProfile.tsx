@@ -305,6 +305,13 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                 Preview
               </button>
               <button
+                onClick={() => navigate("/trust-center/edit")}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Settings className="h-4 w-4" />
+                {isNb ? "Rediger" : "Edit"}
+              </button>
+              <button
                 onClick={() => setActiveTab("publish")}
                 className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "publish"
