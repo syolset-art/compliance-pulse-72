@@ -1,41 +1,27 @@
 
 
-# Plan: Oppdater kompakt dashboard — fjern oppmerksomhet/Lara, legg til partnerwidgets
+# Plan: Legg til demo-data på Meldinger-siden
 
 ## Hva endres
 
-I `DashboardCompact.tsx`:
+### 1. Utvide innkommende demo-data (`InboundRequestsContent.tsx`)
+- Legg til 2-3 ekstra innkommende meldinger med mer varierte typer og statuser for en rikere demo-opplevelse
+- Inkluder en melding som nylig er mottatt (ny/ubehandlet) for å vise urgency
 
-1. **Fjern** `AttentionSection` (Sone 3 — "Krever din oppmerksomhet")
-2. **Fjern** `AIAgentLog` (Sone 4a — "Lara AI-agent")
-3. **Erstatt med to nye seksjoner:**
+### 2. Legg til utgående demo-data (`OutboundRequestsTab.tsx`)
+- Legg til hardkodede demo-forespørsler som vises når localStorage er tomt (samme mønster som InboundRequestsContent bruker)
+- 4-5 utgående forespørsler med ulike statuser: `awaiting`, `in_progress`, `received`, `overdue`
+- Realistiske leverandørnavn og forespørselstyper (DPA, leverandørvurdering, ISO 27001, SOC 2)
 
-### Ny widget 1: Kundeoversikt (Partner)
-- Kompakt kort som viser: antall kunder, gjennomsnittlig compliance-score, antall under onboarding, antall med lav score (<50%)
-- Henter data fra `msp_customers`-tabellen
-- Klikk navigerer til `/msp-dashboard`
-- Visuelt: Ikon + tall + label i et 2x2 mini-grid innenfor ett kort
+## Filer som endres
 
-### Ny widget 2: Siste kundeaktivitet (Partner)
-- Viser de siste 3-4 kundene som ble registrert eller oppdatert
-- Henter fra `msp_customers` sortert etter `created_at`
-- Viser kundenavn, status-badge (onboarding/aktiv) og compliance-score
-- Klikk navigerer til `/msp-dashboard`
-
-## Layout etter endring
-
-```text
-KPI-rad (Samsvar, Risiko, Kontroller)
-Kontrollområder (bar chart)
-[Kundeoversikt]  [Siste kunder]    ← erstatter attention + Lara
-[Frister]                           ← beholdes
-```
+| Fil | Endring |
+|-----|---------|
+| `src/components/customer-requests/InboundRequestsContent.tsx` | Legg til 2 ekstra demo-meldinger |
+| `src/components/customer-requests/OutboundRequestsTab.tsx` | Legg til `DEMO_OUTBOUND_REQUESTS` array og vis dem som fallback når localStorage er tomt |
 
 ## Teknisk
-
-- **Fil som endres:** `src/components/dashboard/DashboardCompact.tsx`
-- Fjerner `AttentionSection` og `AIAgentLog` funksjonene
-- Legger til `PartnerCustomerOverview` og `RecentCustomersPanel` som nye interne funksjoner
-- Begge henter fra `supabase.from("msp_customers")` med `useQuery`
-- Frister-panelet beholdes og flyttes til full bredde under de to nye widgetene
+- Utgående: Endrer `loadOutboundRequests()` til å returnere demo-data som fallback når localStorage er tomt
+- Innkommende: Utvider eksisterende `INITIAL_DEMO_REQUESTS` array
+- Ingen database-endringer
 
