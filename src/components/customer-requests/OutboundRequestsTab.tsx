@@ -10,12 +10,59 @@ import { Send, Clock, CheckCircle2, AlertTriangle, Search, Plus, Inbox } from "l
 
 const STORAGE_KEY = "mynder_outbound_requests";
 
+const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
+  {
+    id: "demo-out-1",
+    vendor_name: "Microsoft Norge AS",
+    request_type: "dpa",
+    status: "received",
+    due_date: new Date(Date.now() - 5 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 20 * 86400000).toISOString().split("T")[0],
+  },
+  {
+    id: "demo-out-2",
+    vendor_name: "Amazon Web Services",
+    request_type: "iso_documentation",
+    status: "awaiting",
+    due_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 3 * 86400000).toISOString().split("T")[0],
+  },
+  {
+    id: "demo-out-3",
+    vendor_name: "Salesforce Inc.",
+    request_type: "vendor_assessment",
+    status: "in_progress",
+    due_date: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 8 * 86400000).toISOString().split("T")[0],
+  },
+  {
+    id: "demo-out-4",
+    vendor_name: "Knowit Objectnet AS",
+    request_type: "soc2",
+    status: "overdue",
+    due_date: new Date(Date.now() - 3 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 25 * 86400000).toISOString().split("T")[0],
+  },
+  {
+    id: "demo-out-5",
+    vendor_name: "Telenor ASA",
+    request_type: "gdpr_report",
+    status: "received",
+    due_date: new Date(Date.now() - 10 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0],
+  },
+];
+
 function loadOutboundRequests(): OutboundRequest[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed.length > 0 ? parsed : DEMO_OUTBOUND_REQUESTS;
+    }
+    return DEMO_OUTBOUND_REQUESTS;
   } catch {
-    return [];
+    return DEMO_OUTBOUND_REQUESTS;
   }
 }
 
