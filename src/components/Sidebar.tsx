@@ -462,42 +462,6 @@ const SidebarContent = () => {
             {/* Company submenu */}
             {companyOpen && (
               <div className="mt-2 ml-2 space-y-1 animate-fade-in">
-                <button
-                  onClick={() => navigate('/company-settings')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <Building2 className="h-4 w-4" />
-                  {t("nav.companySettings")}
-                </button>
-                <button
-                  onClick={() => navigate('/msp-invoices')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <FileText className="h-4 w-4" />
-                  {isNb ? "Faktura" : "Invoices"}
-                </button>
-                <button
-                  onClick={() => navigate('/subscriptions')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  {t("nav.subscriptions")}
-                </button>
-                <button
-                  onClick={() => navigate('/terms-and-consent')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <FileCheck className="h-4 w-4" />
-                  {t("nav.termsAndConsent")}
-                </button>
-                <button
-                  onClick={() => navigate('/regulations')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <Scale className="h-4 w-4" />
-                  {t("nav.regulations")}
-                </button>
-                <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
                   onClick={() => setPartnerOpen(!partnerOpen)}
@@ -540,11 +504,7 @@ const SidebarContent = () => {
                     })}
                   </div>
                 )}
-                <button
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <span className="text-xs">{t("nav.switchOrganization")}</span>
-                </button>
+                <div className="border-t border-sidebar-border my-2" />
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
