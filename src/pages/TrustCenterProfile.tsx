@@ -455,10 +455,11 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                           </div>
                           <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">Current</Badge>
                         </div>
-                        <div className="flex justify-center py-4">
-                          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background text-sm font-medium text-foreground shadow-sm">
-                            <Shield className="h-4 w-4 text-primary" />
+                        <div className="flex justify-center py-5">
+                          <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-[hsl(280,50%,75%)] text-white text-sm font-semibold shadow-lg shadow-primary/25 ring-1 ring-primary/20">
+                            <Shield className="h-4.5 w-4.5 drop-shadow-sm" />
                             Mynder Verified
+                            <CheckCircle2 className="h-3.5 w-3.5 opacity-80" />
                           </span>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
@@ -487,17 +488,21 @@ const TrustCenterProfile = ({ assetId: propAssetId }: { assetId?: string }) => {
                             Pro
                           </Badge>
                         </div>
-                        <div className="flex justify-center py-3">
-                          <div className="rounded-lg border border-border bg-background p-4 space-y-2 min-w-[200px]">
+                        <div className="flex justify-center py-4">
+                          <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 to-[hsl(280,50%,75%)]/5 p-4 space-y-2.5 min-w-[220px] shadow-md shadow-primary/10">
                             <div className="flex items-center gap-2">
-                              <Shield className="h-4 w-4 text-primary" />
-                              <span className="text-sm font-semibold text-foreground">Trust Profile</span>
+                              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-[hsl(280,50%,75%)] flex items-center justify-center shadow-sm">
+                                <Shield className="h-3.5 w-3.5 text-white" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-bold text-foreground">Trust Profile</span>
+                                <p className="text-[10px] text-primary font-medium">Verified by Mynder</p>
+                              </div>
                             </div>
-                            <p className="text-xs text-muted-foreground">Verified by Mynder</p>
                             {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
+                              <div className="flex flex-wrap gap-1 pt-1 border-t border-primary/10">
                                 {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <Badge key={i} variant="secondary" className="text-[9px]">{fw.framework_name}</Badge>
+                                  <Badge key={i} variant="secondary" className="text-[9px] bg-primary/10 text-primary border-0">{fw.framework_name}</Badge>
                                 ))}
                               </div>
                             )}
