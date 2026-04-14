@@ -8,6 +8,7 @@ import { RecentActivityFeed } from "@/components/dashboard-v2/RecentActivityFeed
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
 import { SecurityBreachWidget } from "@/components/widgets/SecurityBreachWidget";
+import { VendorInsightsWidget } from "@/components/dashboard-v2/VendorInsightsWidget";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { useUserTasks } from "@/hooks/useUserTasks";
 
