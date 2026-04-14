@@ -80,10 +80,33 @@ export default function AdminOrganisation() {
       // Fetch company profile
       const { data: profile } = await supabase
         .from("company_profile")
-        .select("name, org_number, industry, employees, brreg_industry, brreg_employees")
+        .select("name, org_number, industry, employees, brreg_industry, brreg_employees, domain")
         .limit(1)
         .maybeSingle();
       if (profile) setOrg(profile);
+
+      // Fetch self asset for trust score
+      const { data: selfAsset } = await supabase
+        .from("assets")
+        .select("compliance_score, updated_at")
+        .eq("asset_type", "self")
+        .limit(1)
+        .maybeSingle();
+      if (selfAsset) {
+        setTrustScore(selfAsset.compliance_score || 0);
+        if (selfAsset.updated_at) {
+          setLastUpdated(new Date(selfAsset.updated_at).toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "long", year: "numeric" }));
+        }
+      }
+
+      // Fetch active framework names
+      const { data: addons } = await supabase
+        .from("domain_addons")
+        .select("domain_id")
+        .eq("status", "active");
+      if (addons) {
+        setFrameworkNames(addons.map((a: any) => a.domain_id));
+      }
 
       // Fetch work areas count
       const { data: workAreas } = await supabase
