@@ -121,7 +121,7 @@ export function InboundRequestsContent() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="pending" className="gap-1.5">
-            {t("customerRequests.tabs.pending", "Avventer")}
+            {t("customerRequests.tabs.pending", "Åpne")}
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{pending.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="completed" className="gap-1.5">

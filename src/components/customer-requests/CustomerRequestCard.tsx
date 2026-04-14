@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { FileText, Shield, FileCheck, Clock } from "lucide-react";
+import { FileText, Shield, FileCheck, Clock, AlertTriangle, CheckCircle2, Hourglass } from "lucide-react";
 
 const REQUEST_TYPE_ICONS: Record<string, typeof FileText> = {
   vendor_assessment: FileText,
@@ -47,8 +46,90 @@ interface CustomerRequestCardProps {
   request: CustomerRequest;
 }
 
+function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) {
+  if (status === "completed") {
+    return {
+      label: isNb ? "Fullført" : "Completed",
+      icon: CheckCircle2,
+      className: "text-success",
+      badgeClass: "bg-success/10 text-success border-success/20",
+    };
+  }
+
+  if (!dueDate) {
+    return {
+      label: isNb ? "Ingen frist" : "No deadline",
+      icon: Clock,
+      className: "text-muted-foreground",
+      badgeClass: "bg-muted text-muted-foreground border-border",
+    };
+  }
+
+  const now = new Date();
+  const due = new Date(dueDate);
+  const diffMs = due.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const overdueDays = Math.abs(diffDays);
+    return {
+      label: isNb ? `${overdueDays} ${overdueDays === 1 ? "dag" : "dager"} over frist` : `${overdueDays} ${overdueDays === 1 ? "day" : "days"} overdue`,
+      icon: AlertTriangle,
+      className: "text-destructive",
+      badgeClass: "bg-destructive/10 text-destructive border-destructive/20",
+    };
+  }
+
+  if (diffDays <= 3) {
+    return {
+      label: isNb ? `${diffDays} ${diffDays === 1 ? "dag" : "dager"} igjen` : `${diffDays} ${diffDays === 1 ? "day" : "days"} left`,
+      icon: Hourglass,
+      className: "text-orange-600 dark:text-orange-400",
+      badgeClass: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    };
+  }
+
+  if (diffDays <= 7) {
+    return {
+      label: isNb ? `${diffDays} dager igjen` : `${diffDays} days left`,
+      icon: Clock,
+      className: "text-amber-600 dark:text-amber-400",
+      badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    };
+  }
+
+  return {
+    label: isNb ? `${diffDays} dager igjen` : `${diffDays} days left`,
+    icon: Clock,
+    className: "text-muted-foreground",
+    badgeClass: "bg-muted text-muted-foreground border-border",
+  };
+}
+
+function getStatusConfig(status: string, isNb: boolean) {
+  const configs: Record<string, { label: string; className: string }> = {
+    pending: {
+      label: isNb ? "Ikke startet" : "Not started",
+      className: "bg-muted text-muted-foreground border-border",
+    },
+    in_progress: {
+      label: isNb ? "Under arbeid" : "In progress",
+      className: "bg-primary/10 text-primary border-primary/20",
+    },
+    completed: {
+      label: isNb ? "Fullført" : "Completed",
+      className: "bg-success/10 text-success border-success/20",
+    },
+    archived: {
+      label: isNb ? "Arkivert" : "Archived",
+      className: "bg-muted text-muted-foreground border-border",
+    },
+  };
+  return configs[status] || configs.pending;
+}
+
 export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const locale = isNb ? "nb-NO" : "en-US";
 
@@ -57,15 +138,9 @@ export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
     ? REQUEST_TYPE_LABELS_NB[request.request_type] || request.title
     : REQUEST_TYPE_LABELS_EN[request.request_type] || request.title;
 
-  const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline"; icon: typeof Clock }> = {
-    pending: { label: t("customerRequests.status.pending", "Avventer"), variant: "secondary", icon: Clock },
-    in_progress: { label: t("customerRequests.status.inProgress", "Under arbeid"), variant: "outline", icon: Clock },
-    completed: { label: t("customerRequests.status.completed", "Fullført"), variant: "default", icon: FileCheck },
-    archived: { label: t("customerRequests.status.archived", "Arkivert"), variant: "secondary", icon: FileText },
-  };
-
-  const statusInfo = statusConfig[request.status] || statusConfig.pending;
-  const isOverdue = request.due_date && new Date(request.due_date) < new Date() && request.status !== "completed";
+  const statusInfo = getStatusConfig(request.status, isNb);
+  const deadlineInfo = getDeadlineInfo(request.due_date, request.status, isNb);
+  const DeadlineIcon = deadlineInfo.icon;
 
   return (
     <Card className="p-4 hover:shadow-md transition-shadow">
@@ -73,30 +148,26 @@ export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
         <div className="p-2.5 rounded-lg bg-primary/10 flex-shrink-0">
           <Icon className="h-5 w-5 text-primary" />
         </div>
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex-1 min-w-0 space-y-2.5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {request.customer_name}
-                {request.due_date && (
-                  <span className={isOverdue ? "text-destructive ml-2 font-medium" : "ml-2"}>
-                    · {isOverdue ? "⚠ " : ""}{t("customerRequests.due", "Frist")}: {new Date(request.due_date).toLocaleDateString(locale)}
-                  </span>
-                )}
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{request.customer_name}</p>
             </div>
-            <Badge variant={statusInfo.variant} className="text-xs flex-shrink-0">
+            <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${statusInfo.className}`}>
               {statusInfo.label}
             </Badge>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{t("customerRequests.progress", "Fremdrift")}</span>
-              <span className="font-medium">{request.progress_percent}%</span>
-            </div>
-            <Progress value={request.progress_percent} className="h-2" />
+          {/* Deadline indicator */}
+          <div className={`flex items-center gap-1.5 text-xs ${deadlineInfo.className}`}>
+            <DeadlineIcon className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">{deadlineInfo.label}</span>
+            {request.due_date && request.status !== "completed" && (
+              <span className="text-muted-foreground font-normal ml-1">
+                · {isNb ? "Frist" : "Due"}: {new Date(request.due_date).toLocaleDateString(locale, { day: "numeric", month: "short" })}
+              </span>
+            )}
           </div>
         </div>
       </div>
