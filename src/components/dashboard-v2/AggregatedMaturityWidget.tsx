@@ -108,8 +108,8 @@ const VIEW_MODES: { key: ViewMode; icon: typeof BarChart3; label_no: string; lab
 export function AggregatedMaturityWidget() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
+  const navigate = useNavigate();
   const { stats, requirements } = useComplianceRequirements({});
-  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("status");
 
   const overall = stats.overallScore || { assessed: 0, total: 0, score: 0 };
