@@ -1,31 +1,57 @@
 
 
-## Plan: Flytt prioritet til «Bruk og kontekst» og fjern fra header
+## Plan: Brukerstyrt fanevisning med «Vis flere» og redigerbar fanestruktur
 
 ### Hva endres
-Prioritet-velgeren fjernes fra AssetHeader og legges inn som et fjerde kort i grid-en i VendorUsageTab (ved siden av Kritikalitet, Risikonivå og GDPR-rolle). Ribbon i headeren viser fortsatt prioritet som read-only indikator, men uten mulighet til å endre den der.
+Faner som **Revisjon og risikovurdering**, **Relasjoner**, **Forespørsler** og **Hendelser** flyttes til «Vis flere»-menyen som standard, slik at bare de viktigste fanene (Veiledning, Bruk & kontekst, Leveranser, Dokumentasjon) vises direkte. En **pluss-knapp (+)** ved siden av fanene åpner en dialog der brukeren kan velge hvilke faner som skal være synlige i fanelinjen.
 
 ### Endringer
 
-#### 1. `src/components/asset-profile/tabs/VendorUsageTab.tsx`
-- Endre grid fra `sm:grid-cols-3` til `sm:grid-cols-4` (evt. `sm:grid-cols-2 lg:grid-cols-4`)
-- Legge til et nytt Prioritet-kort etter GDPR-rolle-kortet med:
-  - Ikon: `Flag` (eller tilsvarende)
-  - Select med verdiene: Kritisk, Høy, Medium, Lav, Ikke satt
-  - Fargekoding tilsvarende eksisterende prioritetskonfig
-  - Forklaringstekst om at prioritet brukes til filtrering og oppfølging
-  - Lenke til fremtidig kobling mot risikoscenarier
-- Legge til `priorityOptions`-array i filen
-- Bruke eksisterende `handleFieldChange("priority", v)` for lagring
+#### 1. `src/pages/AssetTrustProfile.tsx`
 
-#### 2. `src/components/asset-profile/AssetHeader.tsx`
-- Fjerne den interaktive `Select`-komponenten for prioritet (linje ~591-620)
-- Beholde read-only prioritets-visningen i ribbon (dot + label)
+**Ny state:** `visibleTabIds` — en array med fane-ID-er brukeren har valgt å vise. Standard: `['overview', 'usage', 'deliveries', 'evidence']` (4 faner).
 
-### Filer som endres
-1. `src/components/asset-profile/tabs/VendorUsageTab.tsx` — Nytt prioritetskort i grid
-2. `src/components/asset-profile/AssetHeader.tsx` — Fjerne prioritets-Select
+**Ny logikk:**
+- `vendorTabDefs` baseres på `visibleTabIds` i stedet for en statisk `slice(0, N)`
+- `vendorOverflowTabDefs` = alle faner som **ikke** er i `visibleTabIds`
+- Mobil beholder maks 4 synlige, desktop tillater opptil 6-7
 
-### Ingen databaseendringer
-`priority`-kolonnen finnes allerede i `assets`-tabellen.
+**Ny pluss-knapp (+):**
+- Vises etter TabsList, ved siden av «Vis flere»-knappen
+- Åpner en `DropdownMenu` (eller en liten dialog/popover) med alle tilgjengelige faner som checkboxer
+- Brukeren krysser av/fjerner faner fra fanelinjen
+- Endringer lagres i `localStorage` (key: `mynder_vendor_tab_prefs`) for persistens
+
+**Standard synlige faner (desktop):**
+1. Veiledning fra Mynder
+2. Bruk & kontekst
+3. Leveranser
+4. Dokumentasjon
+
+**Faner som flyttes til «Vis flere» som standard:**
+- Relasjoner
+- Revisjon og risikovurdering
+- Forespørsler
+- Hendelser
+- Aktivitetslogg
+- Tilgang og roller
+
+#### 2. UI-detaljer
+- Pluss-knappen: `Settings2` eller `Plus`-ikon, `variant="ghost"`, `size="icon"`, plassert etter «Vis flere»-knappen
+- Popover med tittel «Tilpass faner» / «Customize tabs»
+- Hver fane vises som en rad med checkbox + fanens fulle navn
+- «Veiledning fra Mynder» er alltid synlig (låst, ikke mulig å skjule)
+- Maks 7 synlige faner for å unngå at fanelinjen blir for bred
+
+### Tekniske detaljer
+
+**Fil som endres:** `src/pages/AssetTrustProfile.tsx`
+
+- Ny state: `const [visibleTabIds, setVisibleTabIds] = useState<string[]>(() => { ... hent fra localStorage ... })`
+- Ny komponent inline: Tab-tilpasnings-popover med `Checkbox` for hver fane
+- `vendorTabDefs` = `allVendorTabs.filter(t => visibleTabIds.includes(t.value))`
+- `vendorOverflowTabDefs` = `allVendorTabs.filter(t => !visibleTabIds.includes(t.value))`
+- Persistens via `localStorage.setItem('mynder_vendor_tab_prefs', JSON.stringify(ids))`
+
+**Ingen databaseendringer.**
 
