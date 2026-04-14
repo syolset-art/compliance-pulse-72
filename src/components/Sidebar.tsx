@@ -7,7 +7,7 @@ import {
   Users, 
   AlertTriangle, 
   ClipboardList,
-  Settings,
+  
   Shield,
   ChevronDown,
   Menu,
@@ -253,8 +253,6 @@ const SidebarContent = () => {
     fetchCompany();
   }, []);
 
-  const isSettingsActive = settingsMenu.some(item => location.pathname === item.href) || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions";
-  const [settingsMenuOpen, setSettingsMenuOpen] = useState(() => isSettingsActive);
   
   return (
     <>
@@ -375,74 +373,6 @@ const SidebarContent = () => {
         </div>
 
 
-        {/* Innstillinger section */}
-        <div className="pt-3">
-          <button
-            onClick={() => setSettingsMenuOpen(!settingsMenuOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              isSettingsActive
-                ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <Settings className="h-5 w-5" />
-              {t("nav.settings", "Innstillinger")}
-            </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", settingsMenuOpen && "rotate-180")} />
-          </button>
-
-          {settingsMenuOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {settingsMenu.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {t(item.name)}
-                  </Link>
-                );
-              })}
-              {/* Demo Reset inside settings */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-                    disabled={resetting}
-                  >
-                    <RotateCcw className={cn("h-4 w-4", resetting && "animate-spin")} />
-                    {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
-                      Du starter onboarding fra begynnelsen.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      Ja, tilbakestill
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
-        </div>
       </nav>
 
       {/* Company section at bottom */}
@@ -484,6 +414,33 @@ const SidebarContent = () => {
                     </button>
                   );
                 })}
+                {/* Demo Reset */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                      disabled={resetting}
+                    >
+                      <RotateCcw className={cn("h-3.5 w-3.5", resetting && "animate-spin")} />
+                      {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
+                        Du starter onboarding fra begynnelsen.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Ja, tilbakestill
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
