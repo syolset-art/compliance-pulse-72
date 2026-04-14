@@ -54,7 +54,7 @@ const TrustCenterProductsPublic = () => {
   const isLoading = loadingSelf || loadingServices;
 
   const content = (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-10 pt-8 md:pt-10">
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-10 pt-16 md:pt-20">
       {/* Back to Trust Profile */}
       <button
         onClick={() => navigate("/trust-center/profile")}
