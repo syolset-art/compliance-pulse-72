@@ -71,9 +71,9 @@ const seedDemoEvidence = async (assetId: string) => {
     { asset_id: assetId, document_type: "incident_response", file_name: "hendelsesplan-v2.pdf", file_path: "demo/hendelsesplan-v2.pdf", display_name: "Hendelseshåndteringsplan", status: "draft", visibility: "hidden", category: "policy", created_at: new Date(now.getTime() - 14 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "data_protection_policy", file_name: "databeskyttelse-policy.pdf", file_path: "demo/databeskyttelse-policy.pdf", display_name: "Databeskyttelsespolicy", status: "verified", visibility: "published", category: "policy", created_at: new Date(now.getTime() - 200 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "policy", file_name: "generell-it-policy.pdf", file_path: "demo/generell-it-policy.pdf", display_name: "Generell IT-policy", status: "pending", visibility: "published", category: "policy", created_at: new Date(now.getTime() - 7 * 86400000).toISOString() },
-    { asset_id: assetId, document_type: "certification", file_name: "iso27001-sertifikat.pdf", file_path: "demo/iso27001-sertifikat.pdf", display_name: "ISO 27001:2022", status: "verified", visibility: "published", category: "certification", expiry_date: new Date(now.getTime() + 300 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 180 * 86400000).toISOString() },
-    { asset_id: assetId, document_type: "certification", file_name: "soc2-type2-report.pdf", file_path: "demo/soc2-type2-report.pdf", display_name: "SOC 2 Type II", status: "verified", visibility: "published", category: "certification", expiry_date: new Date(now.getTime() + 180 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 150 * 86400000).toISOString() },
-    { asset_id: assetId, document_type: "certification", file_name: "cyber-essentials-plus.pdf", file_path: "demo/cyber-essentials-plus.pdf", display_name: "Cyber Essentials Plus", status: "expiring", visibility: "published", category: "certification", expiry_date: new Date(now.getTime() + 20 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 340 * 86400000).toISOString() },
+    { asset_id: assetId, document_type: "certification", file_name: "iso27001-sertifikat.pdf", file_path: "demo/iso27001-sertifikat.pdf", display_name: "ISO 27001:2022", status: "verified", visibility: "published", category: "certification", valid_to: new Date(now.getTime() + 300 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 180 * 86400000).toISOString() },
+    { asset_id: assetId, document_type: "certification", file_name: "soc2-type2-report.pdf", file_path: "demo/soc2-type2-report.pdf", display_name: "SOC 2 Type II", status: "verified", visibility: "published", category: "certification", valid_to: new Date(now.getTime() + 180 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 150 * 86400000).toISOString() },
+    { asset_id: assetId, document_type: "certification", file_name: "cyber-essentials-plus.pdf", file_path: "demo/cyber-essentials-plus.pdf", display_name: "Cyber Essentials Plus", status: "expiring", visibility: "published", category: "certification", valid_to: new Date(now.getTime() + 20 * 86400000).toISOString().split("T")[0], created_at: new Date(now.getTime() - 340 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "agreement", file_name: "databehandleravtale-2024.pdf", file_path: "demo/databehandleravtale-2024.pdf", display_name: "Databehandleravtale", status: "verified", visibility: "published", category: "document", created_at: new Date(now.getTime() - 45 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "report", file_name: "risikovurdering-q1.pdf", file_path: "demo/risikovurdering-q1.pdf", display_name: "Risikovurderingsrapport Q1 2025", status: "verified", visibility: "hidden", category: "document", created_at: new Date(now.getTime() - 30 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "evidence", file_name: "pentest-rapport-2025.pdf", file_path: "demo/pentest-rapport-2025.pdf", display_name: "Penetrasjonstestrapport", status: "pending", visibility: "hidden", category: "document", created_at: new Date(now.getTime() - 10 * 86400000).toISOString() },
@@ -108,7 +108,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date, display_name, category, visibility")
+        .select("id, document_type, file_name, status, created_at, valid_to, display_name, category, visibility")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -249,10 +249,10 @@ const TrustCenterEvidence = () => {
                             </p>
                           </div>
                         </div>
-                        {cert.expiry_date && (
+                        {cert.valid_to && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
                             <Calendar className="h-3 w-3" />
-                            {isNb ? "Utløper" : "Expires"}: {new Date(cert.expiry_date).toLocaleDateString()}
+                            {isNb ? "Utløper" : "Expires"}: {new Date(cert.valid_to).toLocaleDateString()}
                           </div>
                         )}
                       </CardContent>
