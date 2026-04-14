@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ROLE_SIDEBAR_HIGHLIGHTS } from "@/lib/roleContentConfig";
-import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -13,25 +12,17 @@ import {
   Settings,
   Shield,
   ChevronDown,
-  Bot,
   Menu,
-  Leaf,
   Building2,
   Scale,
   CreditCard,
-  FileCheck,
   FileBarChart,
   HelpCircle,
   LogOut,
   RotateCcw,
   FileQuestion,
-  Play,
-  Code2,
   Globe,
-  Share2,
   Layers,
-  CalendarDays,
-  CheckCircle2,
   Cloud,
   Bell
 } from "lucide-react";
