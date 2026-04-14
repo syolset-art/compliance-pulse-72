@@ -8,6 +8,7 @@ import { RecentActivityFeed } from "@/components/dashboard-v2/RecentActivityFeed
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
 import { SecurityBreachWidget } from "@/components/widgets/SecurityBreachWidget";
+import { VendorInsightsWidget } from "@/components/dashboard-v2/VendorInsightsWidget";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { useUserTasks } from "@/hooks/useUserTasks";
 
@@ -114,8 +115,9 @@ export default function DashboardV2() {
             <KPIRow />
           </div>
 
-          {/* Zone 2: Aggregated Maturity + Activity */}
+          {/* Zone 2: Aggregated Maturity + Vendors + Activity */}
           <AggregatedMaturityWidget />
+          <VendorInsightsWidget />
           <div className="grid grid-cols-1 gap-4">
             <RecentActivityFeed />
           </div>
