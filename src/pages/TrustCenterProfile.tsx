@@ -253,13 +253,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const standardFrameworks = recognizedFrameworks.filter((fw: any) => isStandard(fw.framework_name));
   const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
 
-  // Preview card content (lines 598-974 in original) — extracted for readOnly use
-  const previewCard = (
-    <>
-      {/* This renders the same preview tab content */}
-      {activeTab === "preview" || readOnly ? null : null}
-    </>
-  );
 
   if (readOnly) {
     // Force preview tab for readOnly
