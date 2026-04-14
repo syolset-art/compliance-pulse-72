@@ -114,9 +114,9 @@ export default function DashboardV2() {
             <KPIRow />
           </div>
 
-          {/* Zone 2+3: Maturity + Activity */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MaturityOverview focusAreas={focusAreas} />
+          {/* Zone 2: Aggregated Maturity + Activity */}
+          <AggregatedMaturityWidget />
+          <div className="grid grid-cols-1 gap-4">
             <RecentActivityFeed />
           </div>
 
