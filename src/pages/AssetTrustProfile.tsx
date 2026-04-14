@@ -170,7 +170,12 @@ const AssetTrustProfile = () => {
   const isMobile = useIsMobile();
 
   // ── Vendor tabs ──
-  const allVendorTabs = [
+  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'deliveries', 'evidence'];
+  const LOCKED_TAB = 'overview'; // always visible
+  const MAX_VISIBLE_TABS = 7;
+  const STORAGE_KEY = 'mynder_vendor_tab_prefs';
+
+  const allVendorTabs = useMemo(() => [
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
@@ -181,14 +186,47 @@ const AssetTrustProfile = () => {
     { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
-  ];
+  ], [isNb]);
+
+  const [visibleTabIds, setVisibleTabIds] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        // Ensure locked tab is always included
+        if (!parsed.includes(LOCKED_TAB)) parsed.unshift(LOCKED_TAB);
+        return parsed;
+      }
+    } catch {}
+    return DEFAULT_VISIBLE_TABS;
+  });
+
+  const updateVisibleTabs = useCallback((newIds: string[]) => {
+    setVisibleTabIds(newIds);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newIds));
+  }, []);
+
+  const toggleTab = useCallback((tabId: string) => {
+    if (tabId === LOCKED_TAB) return;
+    setVisibleTabIds(prev => {
+      const next = prev.includes(tabId)
+        ? prev.filter(id => id !== tabId)
+        : prev.length >= MAX_VISIBLE_TABS
+          ? prev // at max
+          : [...prev, tabId];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const mobileVisibleCount = 4;
-  const desktopVisibleCount = 7;
-  const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
 
-  const vendorTabDefs = allVendorTabs.slice(0, visibleCount);
-  const vendorOverflowTabDefs = allVendorTabs.slice(visibleCount);
+  // On mobile, limit visible tabs; on desktop show all user-selected
+  const effectiveVisibleIds = isMobile ? visibleTabIds.slice(0, mobileVisibleCount) : visibleTabIds;
+
+  // Maintain original order from allVendorTabs
+  const vendorTabDefs = allVendorTabs.filter(t => effectiveVisibleIds.includes(t.value));
+  const vendorOverflowTabDefs = allVendorTabs.filter(t => !effectiveVisibleIds.includes(t.value));
 
   const activeVendorOverflowTab = vendorOverflowTabDefs.find(t => t.value === activeTab);
 
