@@ -1,33 +1,23 @@
 
 
-## Plan: Tydeliggjør flyten i Trust Profile-redigering
+## Plan: Forenkle «Produkter og tjenester» til en enkel lenke
 
 ### Problem
-Siden `/trust-center/edit` spør om «Leverandørprofil» (tjenestekategorier), «Virksomhetsbruksområder» og «Din rolle i datahåndtering» uten å forklare *hvorfor*. Brukeren forstår ikke sammenhengen mellom disse valgene og Trust Profilen sin.
+Seksjonen «Produkter og tjenester» tar for mye plass og skaper friksjon i Trust Profile-editoren. Brukeren trenger kun å vite at muligheten finnes — ikke bli presset til å opprette noe.
 
-### Tilnærming
-Klargjøre narrativet: **Organisasjonen først, produkter etterpå**. Hver seksjon får kontekstuell forklaring som kobler valget til hva det betyr for Trust Profilen.
+### Endring
 
-### Endringer i `src/pages/TrustCenterEditProfile.tsx`
+**Erstatt hele Card-seksjonen (linje 547–603) med en kompakt lenke-rad:**
 
-**1. Slå sammen «Virksomhetsbruksområder» og «Leverandørprofil» til én seksjon**
-- Nytt navn: **«Hva leverer din virksomhet?»** / «What does your company deliver?»
-- Ny intro-tekst: *«Dette hjelper kunder og partnere forstå hva dere gjør. Informasjonen vises i din offentlige Trust Profile og brukes til å tilpasse kontrollspørsmål.»*
-- Tjenestekategoriene (SaaS, Konsulent osv.) vises først som primærvalg
-- Virksomhetsbruksområder vises under som «Hvilke fagområder dekker dere?» med forklaring: *«Brukes til å vise relevante kontroller og regelverk»*
+- Fjern `Card` med tom-tilstand, produktliste og «Opprett»-knapp
+- Erstatt med én enkel linje: ikon + tekst + lenke-knapp
+- Tekst: *«Har du flere produkter eller tjenester? Du kan opprette egne Trust Profiler for disse.»*
+- Knapp: *«Se produkter og tjenester →»* som navigerer til `/trust-center/products`
+- Behold `Valgfritt`-badge
+- Fjern `linkedProducts`-query og completeness-telling for `linked` (sett den til `done: 0, total: 0` eller fjern fra `sectionProgress`)
 
-**2. Flytt «Din rolle i datahåndtering» opp i virksomhetsseksjonen**
-- Plasser den rett etter tjenestekategorier, med ny intro: *«Din rolle bestemmer hvilke personvernkrav som gjelder i Trust Profilen din»*
-- Fjern den fra «Koblede profiler»-seksjonen
-
-**3. Omnavngi «Koblede profiler» til «Produkter og tjenester»**
-- Ny undertekst: *«Du kan legge til individuelle produktprofiler senere. Din organisasjonsprofil fungerer selvstendig.»*
-- Vis en liten info-badge: «Valgfritt» ved siden av seksjonstittelen
-- Fjern completeness-badge (0/1) som skaper press
-
-**4. Legg til kontekstuell info-boks øverst på siden**
-- Under page header, kort forklaring: *«Trust Profilen er din virksomhets digitale tillitserklæring. Start med å beskrive organisasjonen — du kan legge til produktprofiler når som helst.»*
+**Fjern «Produkter» fra quick-nav tabs** (linje 280) — det er ikke en reell seksjon lenger, bare en lenke.
 
 ### Filer som endres
-- `src/pages/TrustCenterEditProfile.tsx` — omstrukturering og nye forklaringstekster
+- `src/pages/TrustCenterEditProfile.tsx`
 
