@@ -330,7 +330,7 @@ const AssetTrustProfile = () => {
                     {isNb ? "Registrer aktivitet" : "Log activity"}
                   </Button>
                   <Button
-                    variant="default"
+                    variant="outline"
                     size="sm"
                     onClick={() => setRequestDialogOpen(true)}
                     className="gap-2"
