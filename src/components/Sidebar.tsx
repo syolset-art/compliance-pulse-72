@@ -17,7 +17,7 @@ import {
   HelpCircle,
   LogOut,
   RotateCcw,
-  FileQuestion,
+  MessageSquare,
   Globe,
   Layers,
   Cloud,
@@ -56,14 +56,18 @@ const dashboardNav = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
 ];
 
-// Styringsverktøy (Management tools)
-const managementNav = [
+// Global nav (between Trust Center and Mynder Core)
+const globalNav = [
   { name: "nav.regulations", href: "/regulations", icon: Scale },
+  { name: "nav.messages", href: "/customer-requests", icon: MessageSquare },
+];
+
+// Mynder Core (contextual management tools)
+const managementNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
-  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
 // Registre (Registries)
