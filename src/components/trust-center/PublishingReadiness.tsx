@@ -71,13 +71,6 @@ export function PublishingReadiness({
         anchor: "#regulations",
         passed: hasFramework,
       },
-      {
-        id: "products",
-        labelNb: "Produkter eller tjenester koblet",
-        labelEn: "Products or services linked",
-        anchor: "#linked",
-        passed: hasProducts,
-      },
     ];
   }, [trustScore, companyProfile, frameworks, linkedProducts]);
 
