@@ -1,58 +1,38 @@
 
 
-## Plan: Leverandørstatus-widget for Dashboard
+## Plan: Fix «Modenhet per kontrollområde» — Status-visning
 
-### Oversikt
-Ny widget som gir en kompakt oversikt over leverandørporteføljen direkte fra dashbordet, med mulighet til å bytte mellom tre visninger: **Kritiske** (prioritet), **Høyest risiko**, og **Databehandlerroller** (GDPR-rolle).
+### Problem
+1. Et grått felt (summary footer) dekker over innhold
+2. Siste kontrollområde (Tredjepartstyring og verdikjede) kuttes av
+3. Drill-down (expand) i widgeten er uønsket — brukeren skal sendes til `/reports/compliance` for detaljer
 
-### Ny komponent: `src/components/dashboard-v2/VendorInsightsWidget.tsx`
+### Endringer i `AggregatedMaturityWidget.tsx`
 
-```text
-┌──────────────────────────────────────────────────────┐
-│ Leverandørinnsikt              [Kritisk▾] [Risiko▾] [Roller▾]  │
-│ 12 leverandører registrert                            │
-├──────────────────────────────────────────────────────┤
-│ Visning: Kritisk prioritet (default)                  │
-│ ┌─────────────────────────────────────────┐           │
-│ │ 🔴 Acme Corp     Kritisk  Score: 34%   │           │
-│ │ 🟠 DataSys AS    Høy      Score: 52%   │           │
-│ │ 🟡 CloudNet      Middels  Score: 71%   │           │
-│ │ 🟢 SafeStore     Lav      Score: 88%   │           │
-│ └─────────────────────────────────────────┘           │
-│                                                       │
-│ Visning: Høyest risiko                                │
-│  Sortert etter risk_level/risk_score desc             │
-│                                                       │
-│ Visning: Databehandlerroller                          │
-│  Gruppert: Databehandler (5) · Felles ansv. (2) · …  │
-│  Hvert kort viser rolle-badge + antall leverandører   │
-└──────────────────────────────────────────────────────┘
-```
+**1. Fjern drill-down-funksjonalitet fra Status-visningen**
+- Fjern `expandedPillar` state og all expand/collapse-logikk
+- Fjern `ControlList`-rendering inne i kortene
+- Fjern `ChevronDown`/`ChevronRight`-ikoner fra kortene
+- Kortene blir rene visningskort uten expand
 
-### Funksjonalitet
+**2. Klikk navigerer til `/reports/compliance`**
+- Legg til `useNavigate` fra react-router-dom
+- Hvert pillar-kort klikker → `navigate("/reports/compliance")`
+- Legg til visuell indikator (ChevronRight) for å vise at det er klikkbart
 
-1. **Segmentert kontroll** med tre visninger:
-   - **Prioritet**: Viser leverandører sortert etter `priority`-felt (critical → high → medium → low), med fargekoding og compliance-score
-   - **Risiko**: Sortert etter `risk_level` og `risk_score` desc, viser risiko-badge og score
-   - **GDPR-roller**: Grupperer leverandører etter `gdpr_role` (databehandler, felles behandlingsansvarlig, etc.) med antall per rolle
+**3. Fjern summary footer**
+- Fjern det grå «Totalt: X av Y kontroller vurdert»-feltet som ligger over innhold
 
-2. **Hvert leverandørkort** viser: navn, relevant badge (prioritet/risiko/rolle), compliance_score som mini progress bar
+**4. Sørg for at alle 5 pillarer vises**
+- Siste pillar (oddetall) bruker `col-span-2` for full bredde — beholdes
+- Ingen fixed height eller overflow-begrensning på grid-containeren
 
-3. **Klikk** på leverandør navigerer til `/vendors/:id`
-
-4. **Summering øverst**: Totalt antall leverandører, antall med kritisk/høy prioritet, antall uten GDPR-rolle
-
-### Datakilde
-- Henter fra `assets` med `asset_type = "vendor"` via `useQuery`
-- Bruker eksisterende felter: `priority`, `risk_level`, `risk_score`, `compliance_score`, `gdpr_role`, `name`
-
-### Plassering i DashboardV2
-- Legges til etter `AggregatedMaturityWidget` og før `RecentActivityFeed`
-- Full bredde
+**5. Behold `ControlList`-komponenten**
+- Den brukes fortsatt i Historikk/Regelverk-visningene (om nødvendig), men fjernes fra Status-kortene
 
 ### Tekniske detaljer
-- Enkel `useQuery` mot `assets`-tabellen filtrert på vendor
-- Tre visninger via lokal state `viewMode: "priority" | "risk" | "roles"`
-- Maks 6 leverandører vist, med «Se alle →» lenke til `/vendors`
-- Responsiv: listekort stacker på mobil
+- Kun endringer i `AggregatedMaturityWidget.tsx`
+- Fjerner `useState<string | null>(null)` for `expandedPillar`
+- Fjerner `requirementsByPillar` useMemo (ikke lenger nødvendig i status-visning)
+- Legger til `import { useNavigate } from "react-router-dom"`
 
