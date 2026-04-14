@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
 import { 
@@ -25,7 +26,7 @@ import {
   Pencil,
   Briefcase,
   Database,
-  Lock
+  Sparkles
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -200,8 +201,14 @@ const SidebarContent = () => {
   const isNb = i18n.language === "nb";
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
-  const { hasCoreAccess } = useSubscription();
-  const isLocked = !hasCoreAccess;
+  const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
+
+  // Determine display mode:
+  // "normal" = selected at onboarding OR paid → show Mynder Core / Registre normally
+  // "explore" = not selected and not paid → show "Flere tjenester" combined
+  const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess;
+  const showRegistriesNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
+  const showExploreSection = !showCoreNormal || !showRegistriesNormal;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
@@ -215,6 +222,13 @@ const SidebarContent = () => {
   const isRegistriesActive = registriesNav.some(item => location.pathname === item.href);
   const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
 
+  // "Flere tjenester" combines items from both sections when in explore mode
+  const exploreItems = [
+    ...(!showCoreNormal ? managementNav : []),
+    ...(!showRegistriesNormal ? registriesNav : []),
+  ];
+  const isExploreActive = exploreItems.some(item => location.pathname === item.href);
+  const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
 
   const handleResetDemo = async () => {
     setResetting(true);
@@ -266,6 +280,64 @@ const SidebarContent = () => {
     };
     fetchCompany();
   }, []);
+
+  // Render a collapsible section with sub-items
+  const renderCollapsibleSection = (
+    label: string,
+    icon: React.ElementType,
+    items: typeof managementNav,
+    isOpen: boolean,
+    setIsOpen: (open: boolean) => void,
+    isSectionActive: boolean,
+    extraBadge?: React.ReactNode,
+  ) => (
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          isSectionActive
+            ? "text-sidebar-primary border-l-2 border-primary/30"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          {React.createElement(icon, { className: "h-4 w-4" })}
+          <span className="text-xs font-semibold">{label}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {extraBadge}
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
+        </div>
+      </button>
+      <div className={cn(
+        "overflow-hidden transition-all duration-200",
+        isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+      )}>
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+          {items.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                <item.icon className="h-3.5 w-3.5" />
+                {t(item.name)}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 
   
   return (
@@ -334,124 +406,48 @@ const SidebarContent = () => {
         {/* Separator */}
         <div className="my-2 border-b border-sidebar-border/40" />
 
-        {/* Mynder Core section */}
-        <div className={cn(isLocked && "opacity-50")}>
-          <button
-            onClick={() => isLocked ? navigate("/subscriptions") : setManagementOpen(!managementOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-              isLocked
-                ? "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 cursor-pointer"
-                : isManagementActive
-                  ? "text-sidebar-primary border-l-2 border-primary/30"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-2.5">
-              <Briefcase className="h-4 w-4" />
-              <span className="text-xs font-semibold">
-                {t("nav.mynderCore", "Mynder Core")}
-              </span>
-            </div>
-            {isLocked ? (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-1 font-normal">
-                <Lock className="h-3 w-3" />
-                {isNb ? "Oppgrader" : "Upgrade"}
-              </Badge>
-            ) : (
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", managementOpen && "rotate-180")} />
-            )}
-          </button>
-          {!isLocked && (
-            <div className={cn(
-              "overflow-hidden transition-all duration-200",
-              managementOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-            )}>
-              <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
-                {managementNav.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-primary"
-                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                      <item.icon className="h-3.5 w-3.5" />
-                      {t(item.name)}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Mynder Core — only if selected at onboarding or paid */}
+        {showCoreNormal && renderCollapsibleSection(
+          t("nav.mynderCore", "Mynder Core"),
+          Briefcase,
+          managementNav,
+          managementOpen,
+          setManagementOpen,
+          isManagementActive,
+        )}
 
-        {/* Separator */}
-        <div className="my-2 border-b border-sidebar-border/40" />
+        {/* Registre — only if selected at onboarding or paid */}
+        {showRegistriesNormal && (
+          <>
+            {showCoreNormal && <div className="my-2 border-b border-sidebar-border/40" />}
+            {renderCollapsibleSection(
+              t("nav.registries", "Registre"),
+              Database,
+              registriesNav,
+              registriesOpen,
+              setRegistriesOpen,
+              isRegistriesActive,
+            )}
+          </>
+        )}
 
-        {/* Registre section */}
-        <div className={cn(isLocked && "opacity-50")}>
-          <button
-            onClick={() => isLocked ? navigate("/subscriptions") : setRegistriesOpen(!registriesOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-              isLocked
-                ? "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 cursor-pointer"
-                : isRegistriesActive
-                  ? "text-sidebar-primary border-l-2 border-primary/30"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+        {/* "Flere tjenester" — for sections NOT selected at onboarding */}
+        {showExploreSection && (
+          <>
+            {(showCoreNormal || showRegistriesNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
+            {renderCollapsibleSection(
+              t("nav.moreServices", "Flere tjenester"),
+              Sparkles,
+              exploreItems,
+              exploreOpen,
+              setExploreOpen,
+              isExploreActive,
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
+                {t("nav.exploreBadge", "Utforsk")}
+              </Badge>,
             )}
-          >
-            <div className="flex items-center gap-2.5">
-              <Database className="h-4 w-4" />
-              <span className="text-xs font-semibold">
-                {t("nav.registries", "Registre")}
-              </span>
-            </div>
-            {isLocked ? (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-1 font-normal">
-                <Lock className="h-3 w-3" />
-                {isNb ? "Oppgrader" : "Upgrade"}
-              </Badge>
-            ) : (
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", registriesOpen && "rotate-180")} />
-            )}
-          </button>
-          {!isLocked && (
-            <div className={cn(
-              "overflow-hidden transition-all duration-200",
-              registriesOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-            )}>
-              <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
-                {registriesNav.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-primary"
-                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                      <item.icon className="h-3.5 w-3.5" />
-                      {t(item.name)}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+          </>
+        )}
 
 
       </nav>

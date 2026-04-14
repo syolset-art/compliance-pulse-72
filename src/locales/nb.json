@@ -48,7 +48,10 @@
 "adminDocuments": "Dokumenter",
     "adminNotifications": "Varslinger",
     "accessManagement": "Tilgangsstyring",
-    "coming": "Kommer"
+    "coming": "Kommer",
+    "moreServices": "Flere tjenester",
+    "exploreBadge": "Utforsk",
+    "registries": "Registre"
   },
   "customerRequests": {
     "title": "Meldinger",
