@@ -29,7 +29,7 @@ const MODULE_ICONS: Record<ModuleId, typeof Cpu> = {
 export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { billingInterval: currentInterval, addons } = useSubscription();
+  const { billingInterval: currentInterval, addons, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade, currentTier, maxSystems, maxVendors } = useSubscription();
 
   const [billingInterval, setBillingInterval] = useState<BillingInterval>(currentInterval);
   const [paymentMethod, setPaymentMethod] = useState("card");
