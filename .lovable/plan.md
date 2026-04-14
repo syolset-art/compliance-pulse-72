@@ -1,39 +1,96 @@
 
 
-## Plan: Rename header to "Oppgaver" with status + criticality only
+## Analyse av nåværende meny
 
-### What changes
-
-The top module header in `VendorTPRMStatus.tsx` currently shows only the status badge, risk, maturity stats, and task count. It needs to:
-
-1. Show **"Oppgaver"** as the module title (like a section heading)
-2. Show **status** badge (Under oppfølging / Godkjent / etc.)
-3. Show **criticality** badge
-4. Remove maturity stats and task count from the header line
-
-This makes it a standardized header reusable across vendors and systems.
-
-### New header layout
+Menyen har i dag **6 seksjoner** med til sammen **~30 synlige lenker**. Flere problemer:
 
 ```text
-┌──────────────────────────────────────────────────────┐
-│ 📋 Oppgaver   🟡 Under oppfølging  · Høy    [▼]    │
-└──────────────────────────────────────────────────────┘
+Nåværende struktur (6 grupper, ~30 lenker):
+├─ Dashboard
+├─ Dashboard 2.0 (Ny)
+├─ ORGANISASJON
+│   ├─ Krav og standarder    ← duplikat (også i Trust Center)
+│   ├─ Arbeidsområder
+│   ├─ Avvik
+│   ├─ Oppgaver
+│   └─ Rapporter             ← duplikat (også i Kommer)
+├─ MODULER
+│   ├─ Leverandører
+│   ├─ Systemer
+│   ├─ Enheter
+│   └─ Forespørsler          ← overlap med Trust Center
+├─ ADMINISTRASJON (▼)
+│   ├─ Organisasjon
+│   ├─ Tilgangsstyring
+│   ├─ Dokumenter
+│   └─ Varslinger
+├─ TRUST CENTER (▼)
+│   ├─ Trust Profile
+│   ├─ Rediger profil
+│   ├─ Products & Services
+│   ├─ Krav og standarder    ← duplikat
+│   ├─ Dokumentasjon & Evidens
+│   └─ Contact & Requests
+├─ KOMMER (▼, Beta)          ← 9 beta-lenker, mye støy
+│   └─ (9 items)
+├─ Start demo på nytt
+└─ BEDRIFT (▼)
+    ├─ Innstillinger, Faktura, Abonnement...
+    └─ Partner (▼) med 5 underlenker
 ```
 
-### Technical details
+### Problemer identifisert
 
-**File: `src/components/trust-controls/VendorTPRMStatus.tsx`**
+1. **Duplikater**: "Krav og standarder" finnes to steder, "Rapporter" likeså, "Forespørsler" overlapper med "Contact & Requests"
+2. **For mange seksjoner**: 6 grupper + bedriftsmenyen = 7 nivåer
+3. **"Kommer"-seksjonen**: 9 beta-lenker gir støy uten verdi for brukeren
+4. **To dashboards**: Dashboard og Dashboard 2.0 bør velges, ikke begge
+5. **Trust Center er fragmentert**: "Rediger profil" trenger ikke egen menylenke
 
-In the always-visible header (lines 206-240):
-- Add "Oppgaver" / "Tasks" as a bold text label after the Shield icon
-- Keep the status badge (`cfg.emoji` + `cfg.label`)
-- Keep the criticality indicator (from `asset.criticality`)
-- **Remove** the maturity stats display (`implementedCount/totalControls`)
-- **Remove** the open tasks count badge
-- Keep the status dropdown and expand button on the right
+### Foreslått ny struktur (3 grupper, ~15 synlige lenker)
 
-Add a new prop or use existing `asset.criticality` to show criticality as a simple badge (e.g. "Høy", "Middels", "Lav") with appropriate color.
+```text
+Ny struktur:
+├─ Dashboard
+├─ STYRINGSVERKTØY
+│   ├─ Krav og standarder
+│   ├─ Arbeidsområder
+│   ├─ Oppgaver
+│   ├─ Avvik
+│   └─ Rapporter
+├─ REGISTRE
+│   ├─ Leverandører
+│   ├─ Systemer
+│   ├─ Enheter
+│   └─ Forespørsler
+├─ TRUST CENTER (▼)
+│   ├─ Trust Profile
+│   ├─ Products & Services
+│   └─ Dokumentasjon & Evidens
+├─ ⚙ Innstillinger (▼)      ← slår sammen Admin + bedrift
+│   ├─ Organisasjon
+│   ├─ Tilgangsstyring
+│   ├─ Varslinger
+│   └─ Abonnement & Faktura
+└─ BEDRIFT (nederst, som nå)
+    └─ Partner (▼, kun for partnere)
+```
 
-No other files need changes. No database changes.
+### Konkrete endringer
+
+**Fil: `src/components/Sidebar.tsx`**
+
+1. **Fjern Dashboard 2.0** fra `dashboardNav` (behold kun én dashboard)
+2. **Slå sammen "Organisasjon" og "Moduler"** til to tydelige grupper:
+   - **Styringsverktøy**: Krav og standarder, Arbeidsområder, Oppgaver, Avvik, Rapporter
+   - **Registre**: Leverandører, Systemer, Enheter, Forespørsler
+3. **Rydd Trust Center**: Fjern duplikaten "Krav og standarder" og "Rediger profil" (tilgjengelig inne i Trust Profile)
+4. **Slå sammen Administrasjon med bedriftsinnstillinger** til én "Innstillinger"-meny: Organisasjon, Tilgangsstyring, Varslinger, Abonnement & Faktura
+5. **Fjern "Kommer"-seksjonen** helt (beta-funksjonalitet bør ikke ta plass i daglig navigasjon — kan nås via URL eller feature-flags)
+6. **Fjern duplikate lenker** i bedriftsmenyen nederst (Faktura, Krav og standarder finnes allerede i hovedmenyen)
+7. **Behold "Start demo på nytt"** men flytt den inn i Innstillinger-menyen
+
+Resultatet er en reduksjon fra ~30 til ~15 synlige lenker, med 3 tydelige grupper i stedet for 6.
+
+Ingen databaseendringer.
 
