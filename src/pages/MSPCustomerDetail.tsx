@@ -129,11 +129,11 @@ export default function MSPCustomerDetail() {
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => navigate(`/msp-dashboard/${customerId}/portal`)}
+                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
                   className="gap-2"
                 >
-                  <Eye className="h-4 w-4" />
-                  Gå inn i kundens portal
+                  <ShieldCheck className="h-4 w-4" />
+                  Se Trust Profile
                 </Button>
               </div>
             </div>

@@ -79,8 +79,8 @@ export default function MSPCustomerTrustProfile() {
                 <Button variant="outline" onClick={() => navigate(`/msp-dashboard/${customerId}`)}>
                   Tilbake
                 </Button>
-                <Button onClick={() => navigate(`/msp-dashboard/${customerId}/portal`)}>
-                  Gå inn i kundens portal
+                <Button onClick={() => navigate("/trust-engine")}>
+                  Åpne Trust Engine
                 </Button>
               </div>
             </Card>

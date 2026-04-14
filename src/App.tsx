@@ -77,6 +77,8 @@ import ComplianceOverview from "./pages/ComplianceOverview";
 import TrustCenterProfile from "./pages/TrustCenterProfile";
 import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
+import TrustEngine from "./pages/TrustEngine";
+import PublicTrustProfile from "./pages/PublicTrustProfile";
 
 const queryClient = new QueryClient();
 
@@ -157,6 +159,8 @@ const App = () => (
                   <Route path="/trust-center/evidence" element={<TrustCenterEvidence />} />
                   <Route path="/trust-center/regulations" element={<Regulations />} />
                   <Route path="/compliance-calendar" element={<ComplianceCalendar />} />
+                  <Route path="/trust-engine" element={<TrustEngine />} />
+                  <Route path="/trust-engine/profile/:assetId" element={<PublicTrustProfile />} />
                   <Route path="/demo-library" element={<DemoLibrary />} />
                   <Route path="/admin/organisation" element={<AdminOrganisation />} />
                   <Route path="/admin/documents" element={<AdminDocuments />} />
