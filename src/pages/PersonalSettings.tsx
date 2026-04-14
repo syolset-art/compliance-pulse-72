@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +18,7 @@ import {
   ArrowLeft, Bell, Shield, User, CreditCard,
   Clock, Mail, AlertTriangle, FileText, CheckCircle2,
   Bot, Plug, ExternalLink, Sparkles, Zap, Settings2,
-  ChevronRight, Copy, Eye, EyeOff,
+  ChevronRight, Copy, Eye, EyeOff, HelpCircle,
 } from "lucide-react";
 
 const NOTIFICATION_TYPES = [
