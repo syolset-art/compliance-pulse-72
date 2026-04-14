@@ -819,6 +819,20 @@ export default function Subscriptions() {
               )}
             </DialogContent>
           </Dialog>
+
+          {/* Framework dialogs */}
+          <EditActiveFrameworksDialog
+            open={editFrameworksOpen}
+            onOpenChange={setEditFrameworksOpen}
+            activeFrameworkIds={activeFrameworkIds}
+            onToggle={handleToggleFramework}
+            updatingId={updatingFrameworkId}
+          />
+          <FrameworkActivationDialog
+            open={!!activationFramework}
+            onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
+            framework={activationFramework}
+          />
         </div>
       </main>
     </div>
