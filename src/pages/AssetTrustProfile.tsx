@@ -171,6 +171,16 @@ const AssetTrustProfile = () => {
 
   const isMobile = useIsMobile();
 
+  // ── Needs action indicator for overview tab ──
+  const overviewNeedsAction = useMemo(() => {
+    if (!asset) return false;
+    const riskLevel = asset.risk_level;
+    const tprmStatus = asset.tprm_status;
+    if (tprmStatus === 'action_required' || riskLevel === 'high') return true;
+    if (!tprmStatus || tprmStatus === 'not_assessed') return true;
+    return false;
+  }, [asset]);
+
   // ── Vendor tabs ──
   const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'deliveries', 'evidence'];
   const LOCKED_TAB = 'overview'; // always visible
