@@ -450,8 +450,6 @@ const SidebarContent = () => {
                 })}
               </div>
             </div>
-          )}
-          </div>
         </div>
 
 
