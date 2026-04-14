@@ -115,8 +115,9 @@ export default function DashboardV2() {
             <KPIRow />
           </div>
 
-          {/* Zone 2: Aggregated Maturity + Activity */}
+          {/* Zone 2: Aggregated Maturity + Vendors + Activity */}
           <AggregatedMaturityWidget />
+          <VendorInsightsWidget />
           <div className="grid grid-cols-1 gap-4">
             <RecentActivityFeed />
           </div>
