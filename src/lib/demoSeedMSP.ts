@@ -98,19 +98,19 @@ export async function seedDemoMSP() {
 
 export async function deleteDemoMSP() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  const effectiveUserId = user?.id || DEMO_USER_ID;
 
   // Delete in correct order: invoices, licenses, purchases, customers
-  await supabase.from("msp_invoices" as any).delete().eq("msp_user_id", user.id);
-  await supabase.from("msp_licenses" as any).delete().eq("msp_user_id", user.id);
-  await supabase.from("msp_license_purchases" as any).delete().eq("msp_user_id", user.id);
+  await supabase.from("msp_invoices" as any).delete().eq("msp_user_id", effectiveUserId);
+  await supabase.from("msp_licenses" as any).delete().eq("msp_user_id", effectiveUserId);
+  await supabase.from("msp_license_purchases" as any).delete().eq("msp_user_id", effectiveUserId);
 
   // Delete assessments for user's customers first
-  const { data: custs } = await supabase.from("msp_customers" as any).select("id").eq("msp_user_id", user.id);
+  const { data: custs } = await supabase.from("msp_customers" as any).select("id").eq("msp_user_id", effectiveUserId);
   if (custs && custs.length > 0) {
     const ids = (custs as any[]).map(c => c.id);
     await supabase.from("msp_customer_assessments" as any).delete().in("msp_customer_id", ids);
   }
 
-  await supabase.from("msp_customers" as any).delete().eq("msp_user_id", user.id);
+  await supabase.from("msp_customers" as any).delete().eq("msp_user_id", effectiveUserId);
 }
