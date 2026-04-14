@@ -12,7 +12,7 @@ import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
 import {
-  LineChart, Line, XAxis, YAxis, ReferenceDot,
+  LineChart, Line, XAxis, YAxis,
   Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 
