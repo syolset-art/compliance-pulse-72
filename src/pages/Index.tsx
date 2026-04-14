@@ -107,6 +107,8 @@ const Index = () => {
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [isQualityWizardOpen, setIsQualityWizardOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
     asset_type: string; display_name: string; display_name_plural: string; icon: string; color: string;
