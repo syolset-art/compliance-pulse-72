@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Shield, Settings, KeyRound, Users, FileText,
-  ChevronDown, ChevronRight, TrendingUp, BarChart3, Layers,
+  ChevronRight, TrendingUp, BarChart3, Layers,
   CheckCircle2, Circle, AlertCircle,
 } from "lucide-react";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
@@ -107,21 +108,13 @@ const VIEW_MODES: { key: ViewMode; icon: typeof BarChart3; label_no: string; lab
 export function AggregatedMaturityWidget() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
+  const navigate = useNavigate();
   const { stats, requirements } = useComplianceRequirements({});
-  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("status");
 
   const overall = stats.overallScore || { assessed: 0, total: 0, score: 0 };
   const byDomain = stats.byDomainArea || {};
 
-  const requirementsByPillar = useMemo(() => {
-    return PILLARS.reduce((acc, pillar) => {
-      acc[pillar.key] = requirements.filter(
-        (r) => SLA_TO_PILLAR[r.sla_category || ""] === pillar.key
-      );
-      return acc;
-    }, {} as Record<string, typeof requirements>);
-  }, [requirements]);
 
   const byFramework = stats.byFramework || {};
   const activeFrameworks = useMemo(() => {
@@ -333,26 +326,22 @@ export function AggregatedMaturityWidget() {
                 const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
                 const percent = Math.round(domainData.score || 0);
                 const Icon = pillar.icon;
-                const isExpanded = expandedPillar === pillar.key;
-                const controls = requirementsByPillar[pillar.key] || [];
                 return (
-                  <div key={pillar.key}>
-                    <button
-                      onClick={() => setExpandedPillar(isExpanded ? null : pillar.key)}
-                      className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="p-1 rounded-md bg-primary/10 shrink-0">
-                        <Icon className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                      <span className="text-xs font-medium text-foreground flex-1 text-left truncate">
-                        {isNb ? pillar.label_no : pillar.label_en}
-                      </span>
-                      <Progress value={percent} className="h-1.5 w-16 shrink-0 [&>div]:bg-primary" />
-                      <span className="text-xs font-semibold text-foreground w-8 text-right shrink-0">{percent}%</span>
-                      {isExpanded ? <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" /> : <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />}
-                    </button>
-                    {isExpanded && <ControlList controls={controls} isNb={isNb} />}
-                  </div>
+                  <button
+                    key={pillar.key}
+                    onClick={() => navigate("/reports/compliance")}
+                    className="flex items-center gap-2 w-full p-1.5 rounded-md hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="p-1 rounded-md bg-primary/10 shrink-0">
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <span className="text-xs font-medium text-foreground flex-1 text-left truncate">
+                      {isNb ? pillar.label_no : pillar.label_en}
+                    </span>
+                    <Progress value={percent} className="h-1.5 w-16 shrink-0 [&>div]:bg-primary" />
+                    <span className="text-xs font-semibold text-foreground w-8 text-right shrink-0">{percent}%</span>
+                    <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                  </button>
                 );
               })}
             </div>
@@ -364,26 +353,21 @@ export function AggregatedMaturityWidget() {
                 const percent = Math.round(domainData.score || 0);
                 const coverage = coverageLabel(percent, isNb);
                 const Icon = pillar.icon;
-                const isExpanded = expandedPillar === pillar.key;
-                const controls = requirementsByPillar[pillar.key] || [];
                 const remaining = (domainData.total || 0) - (domainData.assessed || 0);
                 return (
-                  <div
+                  <button
                     key={pillar.key}
+                    onClick={() => navigate("/reports/compliance")}
                     className={cn(
-                      "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all",
-                      index === PILLARS.length - 1 && PILLARS.length % 2 !== 0 && "col-span-2",
-                      isExpanded && "col-span-2"
+                      "rounded-lg border border-border bg-muted/20 overflow-hidden transition-all text-left hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
+                      index === PILLARS.length - 1 && PILLARS.length % 2 !== 0 && "col-span-2"
                     )}
                   >
-                    <button
-                      onClick={() => setExpandedPillar(isExpanded ? null : pillar.key)}
-                      className="flex items-center gap-2.5 w-full p-3 hover:bg-muted/40 transition-colors"
-                    >
+                    <div className="flex items-center gap-2.5 w-full p-3">
                       <div className="p-1.5 rounded-md bg-primary/10 shrink-0">
                         <Icon className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="flex-1 min-w-0 text-left">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-foreground truncate">
                             {isNb ? pillar.label_no : pillar.label_en}
@@ -405,30 +389,19 @@ export function AggregatedMaturityWidget() {
                         <Badge className={cn("text-[9px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", coverage.className)}>
                           {coverage.label}
                         </Badge>
-                        {isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
-                    </button>
+                    </div>
                     <div className="px-3 pb-2">
                       <Progress value={percent} className="h-2 [&>div]:bg-primary" />
                     </div>
-                    {isExpanded && (
-                      <div className="px-3 pb-3">
-                        <ControlList controls={controls} isNb={isNb} />
-                      </div>
-                    )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
           </>
         )}
 
-        {/* Summary footer */}
-        <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border">
-          <p className="text-sm text-muted-foreground text-center">
-            {isNb ? "Totalt" : "Total"}: <span className="font-semibold text-foreground">{totalAssessed} {isNb ? "av" : "of"} {totalControls}</span> {isNb ? "kontroller vurdert" : "controls assessed"}
-          </p>
-        </div>
       </div>
     </div>
   );
