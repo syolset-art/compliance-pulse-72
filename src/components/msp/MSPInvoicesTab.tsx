@@ -18,7 +18,7 @@ export function MSPInvoicesTab() {
   const { user } = useAuth();
 
   const { data: invoices = [] } = useQuery({
-    queryKey: ["msp-invoices", user?.id],
+    queryKey: ["msp-invoices"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("msp_invoices" as any)
@@ -27,7 +27,6 @@ export function MSPInvoicesTab() {
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!user?.id,
   });
 
   const statusConfig: Record<string, { label: string; variant: "action" | "warning" | "destructive" }> = {

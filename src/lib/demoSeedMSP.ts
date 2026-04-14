@@ -13,9 +13,11 @@ const DEMO_CUSTOMERS = [
   { customer_name: "Tromsø Utdanning", industry: "Utdanning", employees: "201-500", compliance_score: 71, status: "onboarding", subscription_plan: "Basis", org_number: "989012345", contact_person: "Ole Karlsen", contact_email: "ole@tromsoutdanning.no" },
 ];
 
+const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
+
 export async function seedDemoMSP() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Ikke innlogget");
+  const effectiveUserId = user?.id || DEMO_USER_ID;
 
   // Check if demo data already exists
   const { data: existing } = await supabase
