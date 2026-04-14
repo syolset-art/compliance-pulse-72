@@ -494,28 +494,7 @@ const TrustCenterEditProfile = () => {
                 </RadioGroup>
               </Card>
 
-              {/* Kontaktperson */}
-              <Card className="p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {isNb ? "Kontaktperson" : "Contact Person"}
-                  </h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isNb ? "Hvem er hovedkontakt for sikkerhet og etterlevelse?" : "Who is the main contact for security and compliance?"}
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-foreground">{isNb ? "Navn" : "Name"}</label>
-                    <Input defaultValue={companyProfile?.compliance_officer || ""} className="text-sm" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-foreground">E-post</label>
-                    <Input defaultValue={companyProfile?.compliance_officer_email || ""} className="text-sm" />
-                  </div>
-                </div>
-              </Card>
+
             </section>
 
 
