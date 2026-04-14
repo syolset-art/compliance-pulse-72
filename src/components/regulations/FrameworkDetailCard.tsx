@@ -45,7 +45,8 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
   return (
     <>
       <Card>
-        <CardContent className="p-5">
+        <CardContent className="p-5 space-y-4">
+          {/* Header: Icon + Title + Buttons */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               {CategoryIcon && (
@@ -70,28 +71,21 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
             </div>
           </div>
 
-          {/* Summary */}
-          <div className="mt-4 bg-muted/40 rounded-xl p-4 border border-border/50">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sammendrag</span>
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">Samlet samsvar</span>
-                <span className={`text-3xl font-bold ${pct >= 67 ? "text-emerald-600 dark:text-emerald-400" : pct >= 34 ? "text-amber-600 dark:text-amber-400" : "text-destructive"}`}>
-                  {pct}%
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">Krav oppfylt</span>
-                <span className="text-3xl font-bold text-foreground">
-                  {counts.met} <span className="text-lg text-muted-foreground font-normal">/ {counts.total}</span>
-                </span>
-              </div>
+          {/* Progress: "X av Y krav oppfylt" + percentage */}
+          <div>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <span className="text-sm font-semibold text-foreground">
+                {counts.met} av {counts.total} krav oppfylt
+              </span>
+              <span className={`text-sm font-semibold ${pct >= 75 ? "text-emerald-600 dark:text-emerald-400" : pct >= 50 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
+                {pct}%
+              </span>
             </div>
-            <Progress value={pct} className="h-2 mt-3" />
+            <Progress value={pct} className="h-2" />
           </div>
 
-          {/* Status row */}
-          <div className="flex flex-wrap gap-3 mt-4">
+          {/* Status indicators */}
+          <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-1.5 text-xs">
               <Circle className="h-3.5 w-3.5 text-destructive/60" />
               <span className="text-muted-foreground">Ikke oppfylt</span>
@@ -107,7 +101,7 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               <span className="text-muted-foreground">Oppfylt</span>
               <span className="font-semibold text-foreground">{counts.met}</span>
             </div>
-            <div className="border-l border-border pl-3 flex items-center gap-1.5 text-xs">
+            <div className="border-l border-border pl-4 flex items-center gap-1.5 text-xs">
               <Bot className="h-3.5 w-3.5 text-emerald-500" />
               <span className="text-muted-foreground">Automatisk</span>
               <span className="font-semibold text-foreground">{counts.auto}</span>
