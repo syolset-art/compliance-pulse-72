@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { LayoutDashboard, ShieldCheck, BarChart3, Bell, Settings2 } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
