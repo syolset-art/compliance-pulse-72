@@ -22,7 +22,6 @@ import { QualityModuleActivationWizard } from "@/components/quality/QualityModul
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { useTranslation } from "react-i18next";
 import { DashboardHeroCards } from "@/components/dashboard/DashboardHeroCards";
 import { DashboardCriticalTasks } from "@/components/dashboard/DashboardCriticalTasks";
 import { DashboardCompact } from "@/components/dashboard/DashboardCompact";
