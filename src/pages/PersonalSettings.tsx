@@ -72,6 +72,8 @@ export default function PersonalSettings() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [connectedAgents, setConnectedAgents] = useState<string[]>([]);
   const [connectingAgent, setConnectingAgent] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(() => setHelpOpen(true));
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
