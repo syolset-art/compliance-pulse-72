@@ -1,37 +1,69 @@
 
 
-## Plan: Kontrollstatus-widget med reelle data og intervallvelger
+## Plan: Aggregert «Modenhet per kontrollområde» — Dashboard-widget
 
 ### Oversikt
-Oppgraderer ControlsWidget til å vise faktiske kontrolldata fra compliance requirements, gruppert per kontrollområde (SLA-kategori). Legger til en intervallvelger slik at brukeren kan se endringer over siste dag, uke, måned osv.
+Erstatter den nåværende `ControlsWidget` og `MaturityOverview` på DashboardV2 med en ny, rikere widget som speiler layouten fra leverandør/system-profilvisningen (ref. bildene), men i en aggregert dashbord-versjon. Widgeten kombinerer de beste elementene fra `SecurityFoundationsWidget` (drill-down, historikk-graf) og `ControlsWidget` (intervallvelger, kompakt telling).
 
-### Hva endres
+### Hva bygges
 
-**`src/components/widgets/ControlsWidget.tsx`** — full omskriving:
+**Ny komponent: `src/components/dashboard-v2/AggregatedMaturityWidget.tsx`**
 
-1. **Reelle data fra compliance-hook**: Bruker `useComplianceRequirements()` for å hente krav og `stats.byDomainArea` for å få score per kontrollområde (governance, operations, identity_access, supplier_ecosystem, privacy_data).
+Struktur (inspirert av skjermbildene):
 
-2. **Kontrollområder med telling**: Hvert område viser:
-   - Navn (norsk/engelsk)
-   - Antall vurderte vs. totalt (`assessed/total`)
-   - Prosent-score
-   - Endring siden valgt intervall (delta-verdi med pil)
-   - Fargekode progress bar
+```text
+┌─────────────────────────────────────────────────┐
+│ Modenhet per kontrollområde  [LAV/HØY]  [↗] 38%│
+│ Aggregert på tvers av leverandører og systemer   │
+│ ● Leverandørers baseline: X%  ● Eget arbeid: Y% │
+│ ═══════════════════════════════════              │
+│ [4 OPPFYLT] [9 GJENSTÅR] [5 KONTROLLOMRÅDER]    │
+├─────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐             │
+│  │ Styring  100%│  │ Drift    83% │             │
+│  │ 1/1 oppfylt  │  │ 2/3 oppfylt  │             │
+│  │ GOD DEKNING  │  │ GOD DEKNING  │             │
+│  │ ████████████ │  │ █████████░░░ │             │
+│  └──────────────┘  └──────────────┘             │
+│  ┌──────────────┐  ┌──────────────┐             │
+│  │ Identitet  0%│  │ Personvern 0%│             │
+│  │ 0/0 oppfylt  │  │ 0/5 oppfylt  │             │
+│  │ LAV DEKNING  │  │ 5 gjenstår   │             │
+│  └──────────────┘  └──────────────┘             │
+│  ┌──────────────────────────────────┐           │
+│  │ Leverandører og økosystem    38% │           │
+│  └──────────────────────────────────┘           │
+├─────────────────────────────────────────────────┤
+│ [Historikk-bryter → Linjegraf med trend]        │
+└─────────────────────────────────────────────────┘
+```
 
-3. **Intervallvelger**: En `Select`-dropdown i headeren med alternativene:
-   - Siste dag
-   - Siste uke
-   - Siste måned
-   - Siste kvartal
-   - Siste år
+Funksjonalitet:
+1. **Header**: Tittel, deknings-badge (LAV/GOD/HØY DEKNING), historikk-knapp (TrendingUp), total prosent
+2. **Stacked progress bar**: Viser leverandørers baseline vs. eget arbeid (gjenbruker `StackedProgress`)
+3. **Sammendragspiller**: «X oppfylt», «Y gjenstår», «Z kontrollområder»
+4. **Domene-kort i 2-kolonne grid**: Hvert kort viser ikon, navn, prosent, assessed/total, dekning-label, fremdriftslinje. Klikk utvider med kontrolliste (gjenbruk fra `SecurityFoundationsWidget`)
+5. **Historikk-visning**: Toggle til linjegraf som viser modenhetstrend over 6 måneder (gjenbruk `generateHistoryData`-logikk)
 
-   Erstatter den statiske «vs. forrige måned»-teksten. Siden historiske data ikke lagres i databasen ennå, vil delta-verdiene vises som simulerte/dummy-verdier per intervall, med en kommentar i koden for fremtidig kobling til faktisk historikk.
+### Endringer i DashboardV2
 
-4. **Summering nederst**: Viser totalt antall vurderte kontroller av totalt antall.
+- Fjern `MaturityOverview` fra Zone 2
+- Erstatt med `AggregatedMaturityWidget` som full-bredde widget i Zone 2 (over `RecentActivityFeed`)
+- `RecentActivityFeed` flyttes ned til egen rad eller plasseres ved siden av
+
+### Endringer i Index.tsx (widgetbar dashboard)
+
+- Oppdater `SecurityFoundationsWidget`-referansen til å bruke den nye aggregerte widgeten, eller la den eksisterende `SecurityFoundationsWidget` forbli for widget-dashboardet
+
+### Fjernes
+
+- `ControlsWidget` fjernes fra bruk (kan beholdes i kodebasen for referanse)
+- `MaturityOverview`-komponenten erstattes av den nye widgeten
 
 ### Tekniske detaljer
-- Bruker `useComplianceRequirements()` hook som allerede beregner `byDomainArea` via scoring engine
-- `ScoreResult` inneholder `score`, `assessed`, `total`, `avgMaturity` per domene
-- Intervallvelgeren bruker shadcn `Select`-komponent
-- Domene-labels gjenbruker eksisterende `FOCUS_AREA_LABELS` mønster fra DashboardV2
+- Data fra `useComplianceRequirements()` → `stats.byDomainArea` og `stats.overallScore`
+- Dekningslabel-logikk: score >= 67 → «GOD DEKNING», >= 34 → «MIDDELS», < 34 → «LAV DEKNING»
+- Historikkdata genereres med eksisterende mock-logikk (samme som `SecurityFoundationsWidget`)
+- Fargekoding: lilla/primary for progress bars (matcher skjermbildene)
+- Responsiv: 2-kolonne grid på desktop, stacked på mobil
 
