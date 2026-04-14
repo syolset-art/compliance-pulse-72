@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
-import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye, Settings2 } from "lucide-react";
+import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye, Settings2, PenLine } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -42,6 +42,7 @@ import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryT
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
+import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 
 const AssetTrustProfile = () => {
@@ -113,6 +114,7 @@ const AssetTrustProfile = () => {
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
@@ -317,15 +319,26 @@ const AssetTrustProfile = () => {
                 {t("common.back")}
               </Button>
               {isVendor && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => setRequestDialogOpen(true)}
-                  className="gap-2"
-                >
-                  <Mail className="h-4 w-4" />
-                  {isNb ? "Send forespørsel" : "Send request"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActivityDialogOpen(true)}
+                    className="gap-2"
+                  >
+                    <PenLine className="h-4 w-4" />
+                    {isNb ? "Registrer aktivitet" : "Log activity"}
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setRequestDialogOpen(true)}
+                    className="gap-2"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {isNb ? "Send forespørsel" : "Send request"}
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -671,6 +684,7 @@ const AssetTrustProfile = () => {
           { icon: Shield, title: isNb ? "Risikovurdering" : "Risk assessment", description: isNb ? "Se risikoprofilen og gjennomfør revisjoner basert på kontrollområdene." : "View the risk profile and conduct audits based on control areas." },
           { icon: ClipboardList, title: isNb ? "Oppgaver og tiltak" : "Tasks and actions", description: isNb ? "Følg opp tiltak og oppgaver knyttet til leverandøren." : "Follow up on actions and tasks related to the vendor." },
           { icon: Send, title: isNb ? "Send forespørsel" : "Send request", description: isNb ? "Be leverandøren om manglende dokumentasjon eller oppdateringer." : "Ask the vendor for missing documentation or updates." },
+          { icon: PenLine, title: isNb ? "Registrer aktivitet" : "Log activity", description: isNb ? "Logg e-post, møte eller annen kontakt med leverandøren." : "Log email, meeting or other contact with the vendor." },
         ] : [
           { icon: Shield, title: isNb ? "Kontroller" : "Controls", description: isNb ? "Se og oppdater kontrollstatus for systemet." : "View and update control status for the system." },
           { icon: FileText, title: isNb ? "Dokumentasjon" : "Documentation", description: isNb ? "Administrer dokumentasjon knyttet til systemet." : "Manage documentation related to the system." },
