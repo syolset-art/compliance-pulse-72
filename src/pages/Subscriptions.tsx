@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Sparkles, Check, CreditCard, FileText, ArrowRight,
   CheckCircle2, Building2, Loader2, Shield, Cpu, Truck,
-  Globe, Bot, ClipboardList, FolderKanban,
+  Globe, Bot, ClipboardList, FolderKanban, Settings2,
+  ChevronDown, ChevronUp, Star, Info,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { frameworks as allFrameworkDefs, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
