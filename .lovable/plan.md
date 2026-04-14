@@ -1,35 +1,38 @@
 
 
-## Plan: Penere sammendrag i FrameworkDetailCard
+## Plan: Legg til virksomhets-undermeny under firmanavnet
 
 ### Problem
-Sammendrag-seksjonen (samlet samsvar + krav oppfylt) vises som flat tekst uten visuell separasjon. Tallene drukner i resten av kortet.
+Når brukeren klikker på firmanavnet nederst i sidebaren, vises kun «Partner»-undermenyen og «Logg ut». Det mangler virksomhetsrelaterte menyvalg som organisasjon, tilgang, varsler og abonnement.
 
-### Endringer i `src/components/regulations/FrameworkDetailCard.tsx`
+### Løsning
+Legge til virksomhetslenker i company-undermenyen, mellom firmanavnet og Partner-seksjonen.
 
-**Nytt sammendragsfelt mellom progress og status-raden:**
-- En visuelt distinkt boks med avrundede hjørner og subtil bakgrunn (`bg-muted/40 rounded-xl p-4`)
-- Overskrift: «Sammendrag»
-- To tall-kort side om side i et grid:
-  - **Samlet samsvar** — stor prosenttall med fargekoding (grønn ≥67%, amber ≥34%, rød <34%)
-  - **Krav oppfylt** — `met / total` i stor font
-- Fjerner den eksisterende inline progress-teksten og erstatter med dette feltet
-- Beholder progress-baren under sammendragsfeltet
+### Endringer i `src/components/Sidebar.tsx`
 
-**Visuell struktur:**
+**Legg til disse menyene inne i `companyOpen`-blokken, før Partner-undermenyen:**
+
 ```text
-┌─ Sammendrag ──────────────────────────┐
-│  ┌──────────┐  ┌──────────────────┐   │
-│  │ Samlet    │  │ Krav oppfylt    │   │
-│  │ samsvar   │  │                 │   │
-│  │   42%     │  │    6 / 15       │   │
-│  └──────────┘  └──────────────────┘   │
-│  ████████░░░░░░░░░░░░  42%           │
-└───────────────────────────────────────┘
+┌─ Virksomhetsnavn ─────────────────────┐
+│  📋 Organisasjon        /admin/organisation  │
+│  👥 Tilgangsstyring     /admin/access        │
+│  🔔 Varsler             /admin/notifications │
+│  💳 Abonnement          /subscriptions       │
+│  ──────────────────────────────────────│
+│  🏢 Partner  ▾                         │
+│     Kunder / Lisenser / Faktura / ...  │
+│  ──────────────────────────────────────│
+│  🚪 Logg ut                            │
+└────────────────────────────────────────┘
 ```
 
+- Gjenbruker `settingsMenu`-arrayet som allerede finnes (linje 76-81)
+- Rendrer dem som klikkbare navigasjonsknapper med aktiv-state
+- Legger en `border-t` separator mellom virksomhetsmeny og Partner
+- Vurderer å fjerne den separate «Innstillinger»-seksjonen høyere opp for å unngå duplisering (alternativt beholde begge)
+
 ### Tekniske detaljer
-- Kun endringer i `FrameworkDetailCard.tsx`
-- Bruker eksisterende `counts` data — ingen ny logikk
-- Tailwind-klasser for styling, ingen nye avhengigheter
+- Kun endringer i `Sidebar.tsx`
+- Gjenbruker eksisterende `settingsMenu`-array og navigasjonslogikk
+- Samme styling-mønster som Partner-undermenyens items
 
