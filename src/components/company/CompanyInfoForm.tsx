@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Shield, Save, Pencil, X, Users } from "lucide-react";
+import { Upload, Shield, Save, Pencil, X, Users, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface CompanyInfoFormProps {
@@ -275,6 +275,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             Publiseres med AI
           </Badge>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          Denne beskrivelsen er automatisk generert basert på offentlige registre og virksomhetens nettside. Du kan fritt redigere teksten.
+        </p>
         {isEditing ? (
           <Textarea
             value={form.description}
@@ -284,12 +287,26 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             className="text-sm"
           />
         ) : (
-          <Textarea
-            value={form.description || ""}
-            readOnly
-            rows={3}
-            className="text-sm bg-muted/30"
-          />
+          <div className="relative">
+            {form.description ? (
+              <Textarea
+                value={form.description}
+                readOnly
+                rows={3}
+                className="text-sm bg-muted/30"
+              />
+            ) : (
+              <div className="rounded-md border border-dashed border-primary/30 bg-primary/5 p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  <span className="text-[10px] font-medium text-primary">AI-forslag</span>
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  Klikk «Rediger» for å se og tilpasse det automatiske forslaget fra offentlige kilder.
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </Card>
