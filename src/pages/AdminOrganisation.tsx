@@ -57,6 +57,9 @@ export default function AdminOrganisation() {
 
   const [org, setOrg] = useState<OrgData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [trustScore, setTrustScore] = useState(0);
+  const [frameworkNames, setFrameworkNames] = useState<string[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>("–");
   const [stats, setStats] = useState({
     users: 0,
     workAreas: 0,
