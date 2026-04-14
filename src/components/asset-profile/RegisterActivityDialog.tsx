@@ -16,6 +16,8 @@ import type { VendorActivity, ActivityType, Phase, OutcomeStatus } from "@/utils
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeof Mail }[] = [
@@ -40,10 +42,12 @@ const OUTCOMES: { value: string; nb: string; en: string; status: OutcomeStatus }
   { value: "other", nb: "Annet", en: "Other", status: "info" },
 ];
 
-export function RegisterActivityDialog({ onSubmit }: Props) {
+export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (v: boolean) => { onOpenChange ? onOpenChange(v) : setInternalOpen(v); };
 
   const [type, setType] = useState<ActivityType>("email");
   const [title, setTitle] = useState("");
