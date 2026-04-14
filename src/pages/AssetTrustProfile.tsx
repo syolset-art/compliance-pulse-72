@@ -44,6 +44,7 @@ import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
+import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -189,6 +190,7 @@ const AssetTrustProfile = () => {
 
   const allVendorTabs = useMemo(() => [
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
+    { value: 'vendor-tasks', label: isNb ? 'Oppgaver' : 'Tasks', labelFull: isNb ? 'Oppgaver' : 'Tasks' },
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
@@ -543,6 +545,9 @@ const AssetTrustProfile = () => {
                     onTrustMetrics={handleTrustMetrics}
                     onNavigateToTab={setActiveTab}
                   />
+                </TabsContent>
+                <TabsContent value="vendor-tasks" className="mt-6">
+                  <VendorTasksTab asset={asset} />
                 </TabsContent>
                 <TabsContent value="usage" className="mt-6">
                   <VendorUsageTab assetId={asset.id} />
