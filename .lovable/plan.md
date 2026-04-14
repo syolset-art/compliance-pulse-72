@@ -1,38 +1,23 @@
 
 
-## Plan: Legg til virksomhets-undermeny under firmanavnet
+## Plan: Fjern duplisert «Innstillinger»-seksjon
 
-### Problem
-Når brukeren klikker på firmanavnet nederst i sidebaren, vises kun «Partner»-undermenyen og «Logg ut». Det mangler virksomhetsrelaterte menyvalg som organisasjon, tilgang, varsler og abonnement.
+### Gap-analyse
+| Menyvalg | Innstillinger (midt) | Virksomhetsmeny (bunn) |
+|---|---|---|
+| Organisasjon | ✅ | ✅ |
+| Tilgangsstyring | ✅ | ✅ |
+| Varsler | ✅ | ✅ |
+| Abonnement | ✅ | ✅ |
+| Start demo på nytt | ✅ | ❌ |
 
-### Løsning
-Legge til virksomhetslenker i company-undermenyen, mellom firmanavnet og Partner-seksjonen.
+Alt unntatt «Start demo på nytt» finnes allerede begge steder.
 
 ### Endringer i `src/components/Sidebar.tsx`
 
-**Legg til disse menyene inne i `companyOpen`-blokken, før Partner-undermenyen:**
+1. **Fjern hele «Innstillinger»-seksjonen** (linje 378-445) — inkludert `settingsMenuOpen` state, `isSettingsActive`, og `Settings`-ikonet
+2. **Flytt «Start demo på nytt»** (AlertDialog) inn i virksomhets-undermenyen, mellom settingsMenu-items og Partner-seksjonen
+3. **Fjern ubrukte imports**: `Settings`-ikonet fra lucide-react
 
-```text
-┌─ Virksomhetsnavn ─────────────────────┐
-│  📋 Organisasjon        /admin/organisation  │
-│  👥 Tilgangsstyring     /admin/access        │
-│  🔔 Varsler             /admin/notifications │
-│  💳 Abonnement          /subscriptions       │
-│  ──────────────────────────────────────│
-│  🏢 Partner  ▾                         │
-│     Kunder / Lisenser / Faktura / ...  │
-│  ──────────────────────────────────────│
-│  🚪 Logg ut                            │
-└────────────────────────────────────────┘
-```
-
-- Gjenbruker `settingsMenu`-arrayet som allerede finnes (linje 76-81)
-- Rendrer dem som klikkbare navigasjonsknapper med aktiv-state
-- Legger en `border-t` separator mellom virksomhetsmeny og Partner
-- Vurderer å fjerne den separate «Innstillinger»-seksjonen høyere opp for å unngå duplisering (alternativt beholde begge)
-
-### Tekniske detaljer
-- Kun endringer i `Sidebar.tsx`
-- Gjenbruker eksisterende `settingsMenu`-array og navigasjonslogikk
-- Samme styling-mønster som Partner-undermenyens items
+Resultatet blir en renere meny der all virksomhetsadministrasjon samles under firmanavnet nederst.
 
