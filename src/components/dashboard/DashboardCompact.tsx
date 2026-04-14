@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { DeletionAgentPromoCard } from "./DeletionAgentPromoCard";
+import { DeletionAgentCard } from "./DeletionAgentCard";
 import {
   ShieldCheck,
   AlertTriangle,
@@ -291,11 +294,18 @@ function DeadlinesPanel({ isNb }: { isNb: boolean }) {
 export function DashboardCompact() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { isServiceActive, activateService } = useActivatedServices();
+  const isDeletionActive = isServiceActive("deletion-agent");
 
   return (
     <div className="flex flex-col gap-4">
       <KPIRow isNb={isNb} />
       <ControlAreasChart isNb={isNb} />
+      {isDeletionActive ? (
+        <DeletionAgentCard />
+      ) : (
+        <DeletionAgentPromoCard onActivate={() => activateService("deletion-agent", "user")} />
+      )}
     </div>
   );
 }
