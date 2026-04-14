@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { LayoutDashboard, ShieldCheck, BarChart3, Bell, Settings2 } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
@@ -104,6 +107,8 @@ const Index = () => {
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [isQualityWizardOpen, setIsQualityWizardOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
     asset_type: string; display_name: string; display_name_plural: string; icon: string; color: string;
@@ -215,6 +220,7 @@ const Index = () => {
         </main>
         <DashboardDialogs {...{ isAddAssetOpen, setIsAddAssetOpen, isAddWorkAreaOpen, setIsAddWorkAreaOpen,
           isAddRoleOpen, setIsAddRoleOpen, isQualityWizardOpen, setIsQualityWizardOpen, assetTypeTemplates }} />
+        <DashboardHelpPanel open={helpOpen} onOpenChange={setHelpOpen} isNb={isNb} />
       </div>
     );
   }
@@ -233,6 +239,7 @@ const Index = () => {
       </main>
       <DashboardDialogs {...{ isAddAssetOpen, setIsAddAssetOpen, isAddWorkAreaOpen, setIsAddWorkAreaOpen,
         isAddRoleOpen, setIsAddRoleOpen, isQualityWizardOpen, setIsQualityWizardOpen, assetTypeTemplates }} />
+      <DashboardHelpPanel open={helpOpen} onOpenChange={setHelpOpen} isNb={isNb} />
     </div>
   );
 };
@@ -254,6 +261,44 @@ function DashboardDialogs({
       <AddRoleDialog open={isAddRoleOpen} onOpenChange={setIsAddRoleOpen} onRoleAdded={() => {}} />
       <QualityModuleActivationWizard open={isQualityWizardOpen} onOpenChange={setIsQualityWizardOpen} />
     </>
+  );
+}
+
+function DashboardHelpPanel({ open, onOpenChange, isNb }: { open: boolean; onOpenChange: (v: boolean) => void; isNb: boolean }) {
+  return (
+    <ContextualHelpPanel
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={LayoutDashboard}
+      title={isNb ? "Dashbordet" : "Dashboard"}
+      description={isNb
+        ? "Dashbordet gir deg en samlet oversikt over organisasjonens risiko, etterlevelse og sikkerhetsmodenhet. Widgetene oppdateres automatisk basert på data fra systemer, leverandører og arbeidsområder."
+        : "The dashboard gives you a unified overview of your organization's risk, compliance and security maturity. Widgets update automatically based on data from systems, vendors and work areas."}
+      items={[
+        { icon: ShieldCheck, title: isNb ? "Modenhet per kontrollområde" : "Maturity by control area", description: isNb ? "Se hvordan organisasjonen scorer på tvers av sikkerhet, personvern, AI-styring og kvalitet." : "See how your organization scores across security, privacy, AI governance and quality." },
+        { icon: BarChart3, title: isNb ? "Forretningsrisiko (FAIR)" : "Business Risk (FAIR)", description: isNb ? "Visualiserer økonomisk risikoeksponering og anbefaler prioriterte tiltak." : "Visualizes financial risk exposure and recommends prioritized actions." },
+        { icon: Bell, title: isNb ? "Kritiske oppgaver" : "Critical tasks", description: isNb ? "Oppgaver som krever din oppmerksomhet, sortert etter prioritet og frist." : "Tasks requiring your attention, sorted by priority and deadline." },
+      ]}
+      whyTitle={isNb ? "Hvorfor er dette viktig?" : "Why does this matter?"}
+      whyDescription={isNb
+        ? "Et godt dashbord gir ledere og compliance-ansvarlige innsikt uten å måtte grave i detaljer. Du ser umiddelbart hva som trenger oppmerksomhet og kan ta informerte beslutninger raskere."
+        : "A good dashboard gives leaders and compliance officers insight without having to dig into details. You immediately see what needs attention and can make informed decisions faster."}
+      steps={[
+        { text: isNb ? "Gå gjennom kritiske oppgaver og tiltaksliste." : "Review critical tasks and action items." },
+        { text: isNb ? "Sjekk modenhetsscore og identifiser svake områder." : "Check maturity scores and identify weak areas." },
+        { text: isNb ? "Vurder risikoeksponering og iverksett tiltak." : "Assess risk exposure and initiate actions." },
+      ]}
+      stepsHeading={isNb ? "Kom i gang" : "Get started"}
+      actions={[
+        { icon: BarChart3, title: isNb ? "Se forretningsrisiko" : "View business risk", description: isNb ? "Gå til prioriterte tiltak basert på risikoeksponering." : "Go to prioritized actions based on risk exposure.", onClick: () => { onOpenChange(false); window.location.href = "/risk"; } },
+        { icon: Settings2, title: isNb ? "Tilpass dashbordet" : "Customize dashboard", description: isNb ? "Velg hvilke widgets som vises på dashbordet." : "Choose which widgets are shown on the dashboard.", onClick: () => onOpenChange(false) },
+      ]}
+      laraSuggestions={[
+        { label: isNb ? "Gi meg en oppsummering av risikobildet" : "Give me a risk summary", message: isNb ? "Gi meg en oppsummering av organisasjonens risikobilde basert på dashbordet" : "Give me a summary of the organization's risk picture based on the dashboard" },
+        { label: isNb ? "Hva bør jeg prioritere nå?" : "What should I prioritize now?", message: isNb ? "Hva bør jeg prioritere akkurat nå basert på dashbordet mitt?" : "What should I prioritize right now based on my dashboard?" },
+        { label: isNb ? "Forklar modenhetsscore" : "Explain maturity scores", message: isNb ? "Forklar hva modenhetsscore betyr og hvordan jeg kan forbedre den" : "Explain what maturity scores mean and how I can improve them" },
+      ]}
+    />
   );
 }
 
