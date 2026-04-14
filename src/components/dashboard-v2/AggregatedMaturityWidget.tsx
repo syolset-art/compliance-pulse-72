@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
+import { frameworks, getFrameworkById } from "@/lib/frameworkDefinitions";
 import {
-  LineChart, Line, XAxis, YAxis,
+  LineChart, Line, XAxis, YAxis, ReferenceDot,
   Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 
