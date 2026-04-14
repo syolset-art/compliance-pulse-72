@@ -1,38 +1,35 @@
 
 
-## Plan: Fix «Modenhet per kontrollområde» — Status-visning
+## Plan: Penere sammendrag i FrameworkDetailCard
 
 ### Problem
-1. Et grått felt (summary footer) dekker over innhold
-2. Siste kontrollområde (Tredjepartstyring og verdikjede) kuttes av
-3. Drill-down (expand) i widgeten er uønsket — brukeren skal sendes til `/reports/compliance` for detaljer
+Sammendrag-seksjonen (samlet samsvar + krav oppfylt) vises som flat tekst uten visuell separasjon. Tallene drukner i resten av kortet.
 
-### Endringer i `AggregatedMaturityWidget.tsx`
+### Endringer i `src/components/regulations/FrameworkDetailCard.tsx`
 
-**1. Fjern drill-down-funksjonalitet fra Status-visningen**
-- Fjern `expandedPillar` state og all expand/collapse-logikk
-- Fjern `ControlList`-rendering inne i kortene
-- Fjern `ChevronDown`/`ChevronRight`-ikoner fra kortene
-- Kortene blir rene visningskort uten expand
+**Nytt sammendragsfelt mellom progress og status-raden:**
+- En visuelt distinkt boks med avrundede hjørner og subtil bakgrunn (`bg-muted/40 rounded-xl p-4`)
+- Overskrift: «Sammendrag»
+- To tall-kort side om side i et grid:
+  - **Samlet samsvar** — stor prosenttall med fargekoding (grønn ≥67%, amber ≥34%, rød <34%)
+  - **Krav oppfylt** — `met / total` i stor font
+- Fjerner den eksisterende inline progress-teksten og erstatter med dette feltet
+- Beholder progress-baren under sammendragsfeltet
 
-**2. Klikk navigerer til `/reports/compliance`**
-- Legg til `useNavigate` fra react-router-dom
-- Hvert pillar-kort klikker → `navigate("/reports/compliance")`
-- Legg til visuell indikator (ChevronRight) for å vise at det er klikkbart
-
-**3. Fjern summary footer**
-- Fjern det grå «Totalt: X av Y kontroller vurdert»-feltet som ligger over innhold
-
-**4. Sørg for at alle 5 pillarer vises**
-- Siste pillar (oddetall) bruker `col-span-2` for full bredde — beholdes
-- Ingen fixed height eller overflow-begrensning på grid-containeren
-
-**5. Behold `ControlList`-komponenten**
-- Den brukes fortsatt i Historikk/Regelverk-visningene (om nødvendig), men fjernes fra Status-kortene
+**Visuell struktur:**
+```text
+┌─ Sammendrag ──────────────────────────┐
+│  ┌──────────┐  ┌──────────────────┐   │
+│  │ Samlet    │  │ Krav oppfylt    │   │
+│  │ samsvar   │  │                 │   │
+│  │   42%     │  │    6 / 15       │   │
+│  └──────────┘  └──────────────────┘   │
+│  ████████░░░░░░░░░░░░  42%           │
+└───────────────────────────────────────┘
+```
 
 ### Tekniske detaljer
-- Kun endringer i `AggregatedMaturityWidget.tsx`
-- Fjerner `useState<string | null>(null)` for `expandedPillar`
-- Fjerner `requirementsByPillar` useMemo (ikke lenger nødvendig i status-visning)
-- Legger til `import { useNavigate } from "react-router-dom"`
+- Kun endringer i `FrameworkDetailCard.tsx`
+- Bruker eksisterende `counts` data — ingen ny logikk
+- Tailwind-klasser for styling, ingen nye avhengigheter
 
