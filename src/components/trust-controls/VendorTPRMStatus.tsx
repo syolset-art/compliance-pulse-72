@@ -206,8 +206,8 @@ export const VendorTPRMStatus = ({
             {/* Always-visible compact header */}
             <div className="p-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground">{isNb ? "Oppgaver" : "Tasks"}</span>
+                <Activity className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground">{isNb ? "Aktiviteter" : "Activities"}</span>
                 <Badge variant="outline" className={`text-[11px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
                   {cfg.emoji} {cfg.label}
                 </Badge>
