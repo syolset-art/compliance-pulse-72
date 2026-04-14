@@ -155,7 +155,7 @@ const TrustCenterEvidence = () => {
                           <div>
                             <p className="text-sm font-medium">{doc.display_name || doc.file_name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {doc.document_type} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString()}
+                              {doc.document_type} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                             </p>
                           </div>
                         </div>
