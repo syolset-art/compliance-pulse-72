@@ -273,6 +273,8 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         merged.push(ct);
       }
     }
+    const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+    merged.sort((a, b) => (priorityOrder[a.priority] ?? 4) - (priorityOrder[b.priority] ?? 4));
     return merged.slice(0, 10);
   }, [dbOpenTasks, controlTasks]);
 
