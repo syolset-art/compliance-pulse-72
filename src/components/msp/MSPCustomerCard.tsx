@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { AlertTriangle } from "lucide-react";
 import { nb } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Shield, ShieldCheck, UserCheck, UserX } from "lucide-react";
@@ -124,14 +125,35 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
             </Badge>
           </div>
 
-          {/* Frameworks */}
+          {/* Frameworks + NIS2 signal */}
           {customer.active_frameworks?.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {customer.active_frameworks.map((fw) => (
-                <Badge key={fw} variant="secondary" className="text-[10px]">
-                  {fw}
-                </Badge>
-              ))}
+              {customer.active_frameworks.map((fw) => {
+                const isNis2 = fw.toUpperCase().includes("NIS2");
+                if (isNis2) {
+                  const nis2Urgent = customer.compliance_score < 75;
+                  return (
+                    <Badge
+                      key={fw}
+                      variant="outline"
+                      className={cn(
+                        "text-[10px] gap-1 font-semibold",
+                        nis2Urgent
+                          ? "border-warning/50 text-warning bg-warning/10 animate-pulse"
+                          : "border-success/40 text-success bg-success/10"
+                      )}
+                    >
+                      <AlertTriangle className="h-2.5 w-2.5" />
+                      {fw} {nis2Urgent ? "– Krever tiltak" : "– OK"}
+                    </Badge>
+                  );
+                }
+                return (
+                  <Badge key={fw} variant="secondary" className="text-[10px]">
+                    {fw}
+                  </Badge>
+                );
+              })}
             </div>
           )}
         </div>
