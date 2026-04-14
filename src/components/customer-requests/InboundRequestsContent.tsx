@@ -124,7 +124,6 @@ export function InboundRequestsContent() {
             {t("customerRequests.tabs.pending", "Åpne")}
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{pending.length}</Badge>
           </TabsTrigger>
-          </TabsTrigger>
           <TabsTrigger value="completed" className="gap-1.5">
             {t("customerRequests.tabs.completed", "Fullført")}
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{completed.length}</Badge>
