@@ -100,35 +100,6 @@ export function InboundRequestsContent() {
 
   const tabData: Record<string, any[]> = { pending, completed, all: filtered, archived };
 
-  const handleShare = async (id: string, mode: string, customers: string[]) => {
-    if (id.startsWith("demo-")) {
-      setDemoRequests((prev) =>
-        prev.map((req) =>
-          req.id === id
-            ? {
-                ...req,
-                status: "completed",
-                progress_percent: 100,
-                shared_mode: mode,
-                shared_with_customers: customers,
-              }
-            : req
-        )
-      );
-      return;
-    }
-    await supabase
-      .from("customer_compliance_requests" as any)
-      .update({
-        status: "completed",
-        progress_percent: 100,
-        completed_at: new Date().toISOString(),
-        shared_mode: mode,
-        shared_with_customers: customers,
-      } as any)
-      .eq("id", id);
-    queryClient.invalidateQueries({ queryKey: ["customer-compliance-requests"] });
-  };
 
   return (
     <div className="space-y-6">
@@ -173,7 +144,7 @@ export function InboundRequestsContent() {
               </div>
             ) : (
               (tabData[tab] || []).map((req: any) => (
-                <CustomerRequestCard key={req.id} request={req} onShare={handleShare} />
+                <CustomerRequestCard key={req.id} request={req} />
               ))
             )}
           </TabsContent>
