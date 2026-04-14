@@ -9,7 +9,7 @@ export interface OutboundRequest {
   vendor_name: string;
   vendor_category?: string;
   request_type: string;
-  status: "sent" | "awaiting" | "in_progress" | "received" | "overdue";
+  status: "sent" | "awaiting" | "received" | "overdue";
   due_date: string;
   sent_date: string;
   response_date?: string;
@@ -43,13 +43,13 @@ function getStatusConfig(status: string, isNb: boolean) {
   switch (status) {
     case "received":
       return { label: isNb ? "Mottatt" : "Received", className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30", icon: CheckCircle2 };
-    case "in_progress":
-      return { label: isNb ? "Under arbeid" : "In Progress", className: "bg-blue-500/15 text-blue-700 border-blue-500/30", icon: Send };
+    case "awaiting":
+      return { label: isNb ? "Venter på svar" : "Awaiting reply", className: "bg-amber-500/15 text-amber-700 border-amber-500/30", icon: Clock };
     case "overdue":
       return { label: isNb ? "Forfalt" : "Overdue", className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertTriangle };
-    case "awaiting":
+    case "sent":
     default:
-      return { label: isNb ? "Avventer svar" : "Awaiting Response", className: "bg-amber-500/15 text-amber-700 border-amber-500/30", icon: Clock };
+      return { label: isNb ? "Sendt" : "Sent", className: "bg-blue-500/15 text-blue-700 border-blue-500/30", icon: Send };
   }
 }
 

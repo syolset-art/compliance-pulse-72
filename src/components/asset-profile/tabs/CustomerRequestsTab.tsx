@@ -42,12 +42,12 @@ const DEMO_REQUESTS = [
 
 function getStatusBadge(status: string, isNb: boolean) {
   switch (status) {
-    case "completed":
-      return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">{isNb ? "Mottatt" : "Received"}</Badge>;
-    case "in_progress":
-      return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[10px]">{isNb ? "Under arbeid" : "In Progress"}</Badge>;
+    case "responded":
+      return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">{isNb ? "Besvart" : "Responded"}</Badge>;
+    case "read":
+      return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[10px]">{isNb ? "Lest" : "Read"}</Badge>;
     default:
-      return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px]">{isNb ? "Avventer" : "Pending"}</Badge>;
+      return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px]">{isNb ? "Ny" : "New"}</Badge>;
   }
 }
 

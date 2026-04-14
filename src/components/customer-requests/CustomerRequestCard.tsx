@@ -108,16 +108,16 @@ function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) 
 
 function getStatusConfig(status: string, isNb: boolean) {
   const configs: Record<string, { label: string; className: string }> = {
-    pending: {
-      label: isNb ? "Ikke startet" : "Not started",
-      className: "bg-muted text-muted-foreground border-border",
+    new: {
+      label: isNb ? "Ny" : "New",
+      className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     },
-    in_progress: {
-      label: isNb ? "Under arbeid" : "In progress",
+    read: {
+      label: isNb ? "Lest" : "Read",
       className: "bg-primary/10 text-primary border-primary/20",
     },
-    completed: {
-      label: isNb ? "Fullført" : "Completed",
+    responded: {
+      label: isNb ? "Besvart" : "Responded",
       className: "bg-success/10 text-success border-success/20",
     },
     archived: {
@@ -125,7 +125,7 @@ function getStatusConfig(status: string, isNb: boolean) {
       className: "bg-muted text-muted-foreground border-border",
     },
   };
-  return configs[status] || configs.pending;
+  return configs[status] || configs.new;
 }
 
 export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
