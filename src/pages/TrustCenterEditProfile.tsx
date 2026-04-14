@@ -209,6 +209,7 @@ const TrustCenterEditProfile = () => {
     return null;
   }, [selectedServiceCats]);
 
+  const frameworkBadgeClass = (name: string) => {
     const n = name.toLowerCase();
     if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
     if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
