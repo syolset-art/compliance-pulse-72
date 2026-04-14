@@ -128,6 +128,7 @@ const TrustCenterMenu = () => {
 
   const trustCenterItems = [
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
+    { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Edit },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
     { name: isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence", href: "/trust-center/evidence", icon: FileText },
   ];
