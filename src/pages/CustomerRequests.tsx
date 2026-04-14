@@ -23,12 +23,12 @@ const CustomerRequests = () => {
           <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-6">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {isNb ? "Forespørsler" : "Requests"}
+                {isNb ? "Meldinger" : "Messages"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
-                  ? "Håndter innkommende og utgående compliance-forespørsler"
-                  : "Manage inbound and outbound compliance requests"}
+                  ? "Håndter innkommende og utgående meldinger"
+                  : "Manage inbound and outbound messages"}
               </p>
             </div>
 

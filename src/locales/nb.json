@@ -36,8 +36,8 @@
     "loggingOut": "Logger ut...",
     "notRegistered": "Ikke registrert",
     "clickLaraToStart": "Klikk på Lara for å starte",
-    "customerRequests": "Kundeforespørsler",
-    "requests": "Forespørsler",
+    "customerRequests": "Meldinger",
+    "requests": "Meldinger",
     "messages": "Meldinger",
     "mynderCore": "Mynder Core",
     "organisation": "Organisasjon",
@@ -51,16 +51,16 @@
     "coming": "Kommer"
   },
   "customerRequests": {
-    "title": "Kundeforespørsler",
-    "subtitle": "Svar på compliance-forespørsler fra dine kunder",
-    "search": "Søk i forespørsler...",
+    "title": "Meldinger",
+    "subtitle": "Håndter innkommende og utgående meldinger",
+    "search": "Søk i meldinger...",
     "due": "Frist",
     "progress": "Fremdrift",
     "share": "Del ferdig",
     "sharedSuccess": "Compliance-pakke delt med kunden!",
-    "empty": "Ingen forespørsler her",
+    "empty": "Ingen meldinger her",
     "metrics": {
-      "total": "Totale forespørsler",
+      "total": "Totale meldinger",
       "pending": "Ventende",
       "inProgress": "Under arbeid",
       "overdue": "Forfalt"

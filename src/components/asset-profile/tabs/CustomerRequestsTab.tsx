@@ -123,7 +123,7 @@ export function CustomerRequestsTab() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <FileQuestion className="h-4 w-4 text-primary" />
-            {isNb ? "Mottatte forespørsler" : "Received Requests"}
+            {isNb ? "Mottatte meldinger" : "Received Messages"}
             <Badge variant="secondary" className="text-[10px]">{requests.length}</Badge>
           </CardTitle>
         </CardHeader>
@@ -131,7 +131,7 @@ export function CustomerRequestsTab() {
           {requests.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileQuestion className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">{isNb ? "Ingen forespørsler ennå" : "No requests yet"}</p>
+              <p className="text-sm">{isNb ? "Ingen meldinger ennå" : "No messages yet"}</p>
             </div>
           ) : (
             requests.map((req: any) => {

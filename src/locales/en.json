@@ -35,8 +35,8 @@
     "loggingOut": "Logging out...",
     "notRegistered": "Not registered",
     "clickLaraToStart": "Click Lara to get started",
-    "customerRequests": "Customer Requests",
-    "requests": "Requests",
+    "customerRequests": "Messages",
+    "requests": "Messages",
     "messages": "Messages",
     "mynderCore": "Mynder Core",
     "organisation": "Organisation",
@@ -50,16 +50,16 @@
     "coming": "Coming"
   },
   "customerRequests": {
-    "title": "Customer Requests",
-    "subtitle": "Respond to compliance requests from your customers",
-    "search": "Search requests...",
+    "title": "Messages",
+    "subtitle": "Manage inbound and outbound messages",
+    "search": "Search messages...",
     "due": "Due",
     "progress": "Progress",
     "share": "Share",
     "sharedSuccess": "Compliance package shared with customer!",
-    "empty": "No requests here",
+    "empty": "No messages here",
     "metrics": {
-      "total": "Total requests",
+      "total": "Total messages",
       "pending": "Pending",
       "inProgress": "In progress",
       "overdue": "Overdue"
