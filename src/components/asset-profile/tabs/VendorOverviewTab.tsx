@@ -56,7 +56,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const evaluation = useTrustControlEvaluation(asset.id);
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestType, setRequestType] = useState<string | undefined>();
-  const [tasksExpanded, setTasksExpanded] = useState<boolean | null>(null);
+  // tasksExpanded now managed inside VendorTPRMStatus
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [baselineExpanded, setBaselineExpanded] = useState(false);
@@ -279,8 +279,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
   const responsiblePerson = asset.asset_manager || (isNb ? "Ikke tildelt" : "Not assigned");
 
-  // Default tasks expanded when there are open tasks (only on first load)
-  const effectiveTasksExpanded = tasksExpanded === null ? openTasks.length > 0 : tasksExpanded;
+  // Tasks expansion is now handled inside VendorTPRMStatus
 
   return (
     <div className="space-y-8">
