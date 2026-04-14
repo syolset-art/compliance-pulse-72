@@ -138,8 +138,23 @@ export function useSubscription() {
   const billingInterval: BillingInterval =
     (subscription?.billing_interval as BillingInterval) || "monthly";
   const tierConfig = PLAN_TIERS[currentTier];
-  const hasCoreAccess = currentTier !== "free";
+
+  // Onboarding use_cases mapping
+  const useCases = companyProfile?.use_cases ?? [];
+  const selectedCoreAtOnboarding = useCases.some((uc: string) =>
+    ["security", "risk", "privacy"].includes(uc)
+  );
+  const selectedRegistriesAtOnboarding = useCases.some((uc: string) =>
+    ["vendors", "security"].includes(uc)
+  );
+
+  // Access: paid OR selected at onboarding (free tier still gets limited access)
+  const hasCoreAccess = currentTier !== "free" || selectedCoreAtOnboarding;
+  const hasRegistriesAccess = currentTier !== "free" || selectedRegistriesAtOnboarding;
   const hasModule = (moduleId: "systems" | "vendors"): boolean => currentTier !== "free";
+
+  // Whether user needs upgrade (on free tier, regardless of onboarding choice)
+  const needsUpgrade = (moduleId: ModuleId): boolean => currentTier === "free";
 
   const isDomainIncluded = (domainId: string): boolean => {
     const planIncludes =
@@ -202,7 +217,12 @@ export function useSubscription() {
     canAddVendor: (count: number) => count < tierConfig.maxVendors,
     // Access helpers
     hasCoreAccess,
+    hasRegistriesAccess,
     hasModule,
+    // Onboarding helpers
+    selectedCoreAtOnboarding,
+    selectedRegistriesAtOnboarding,
+    needsUpgrade,
     // Domain / framework helpers
     isDomainIncluded,
     getAddonPrice,

@@ -47,7 +47,10 @@
 "adminDocuments": "Documents",
    "adminNotifications": "Notifications",
     "accessManagement": "Access Management",
-    "coming": "Coming"
+    "coming": "Coming",
+    "moreServices": "More services",
+    "exploreBadge": "Explore",
+    "registries": "Registries"
   },
   "customerRequests": {
     "title": "Messages",
