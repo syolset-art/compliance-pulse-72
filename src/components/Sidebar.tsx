@@ -1,7 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
-import { useUserRole } from "@/hooks/useUserRole";
-import { ROLE_SIDEBAR_HIGHLIGHTS } from "@/lib/roleContentConfig";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -188,8 +186,6 @@ const SidebarContent = () => {
   const isNb = i18n.language === "nb";
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
-  const { primaryRole } = useUserRole();
-  const highlights = ROLE_SIDEBAR_HIGHLIGHTS[primaryRole] || [];
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
@@ -271,7 +267,6 @@ const SidebarContent = () => {
         {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
-          const isHighlighted = highlights.includes(item.href);
           return (
             <Link
               key={item.name}
@@ -280,9 +275,7 @@ const SidebarContent = () => {
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                  : isHighlighted
-                    ? "text-sidebar-foreground/90 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                    : "text-sidebar-foreground/40 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/70"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -298,7 +291,6 @@ const SidebarContent = () => {
           </p>
           {managementNav.map((item) => {
             const isActive = location.pathname === item.href;
-            const isHighlighted = highlights.includes(item.href);
             return (
               <Link
                 key={item.name}
@@ -307,9 +299,7 @@ const SidebarContent = () => {
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                    : isHighlighted
-                      ? "text-sidebar-foreground/90 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      : "text-sidebar-foreground/40 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/70"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                 )}
               >
                 <item.icon className="h-5 w-5" />
@@ -326,7 +316,6 @@ const SidebarContent = () => {
           </p>
           {registriesNav.map((item) => {
             const isActive = location.pathname === item.href;
-            const isHighlighted = highlights.includes(item.href);
             return (
               <Link
                 key={item.name}
@@ -335,9 +324,7 @@ const SidebarContent = () => {
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-silk relative",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
-                    : isHighlighted
-                      ? "text-sidebar-foreground/90 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      : "text-sidebar-foreground/40 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/70"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                 )}
               >
                 <item.icon className="h-5 w-5" />
