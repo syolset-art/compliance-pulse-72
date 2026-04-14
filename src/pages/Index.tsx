@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
 import { AIActivityWidget } from "@/components/widgets/AIActivityWidget";
 import { SecurityFoundationsWidget } from "@/components/widgets/SecurityFoundationsWidget";
-import { AIGeneratedDocsWidget } from "@/components/widgets/AIGeneratedDocsWidget";
+
 import { VendorRequestsWidget } from "@/components/widgets/VendorRequestsWidget";
 import { EnvironmentOverviewWidget } from "@/components/widgets/EnvironmentOverviewWidget";
 import { NIS2ReadinessWidget } from "@/components/widgets/NIS2ReadinessWidget";
@@ -40,7 +40,7 @@ const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize 
   { id: "critical-processes", label: "Kritiske prosesser", labelEn: "Critical processes", size: "half" },
   { id: "ai-dependencies", label: "AI Act-avhengigheter", labelEn: "AI Act dependencies", size: "half" },
   { id: "ai-activity", label: "AI-aktivitet", labelEn: "AI activity", size: "full" },
-  { id: "ai-docs", label: "AI-genererte dokumenter", labelEn: "AI-generated docs", size: "half" },
+  
   { id: "vendor-requests", label: "Leverandørforespørsler", labelEn: "Vendor requests", size: "half" },
   { id: "environment", label: "Ditt miljø", labelEn: "Your environment", size: "full" },
   { id: "data-geography", label: "Datageografi", labelEn: "Data geography", size: "full" },
@@ -66,7 +66,7 @@ const WIDGET_COMPONENTS: Record<string, React.ReactNode> = {
   "critical-processes": <CriticalProcessesWidget />,
   "ai-dependencies": <CriticalDependenciesWidget />,
   "ai-activity": <AIActivityWidget />,
-  "ai-docs": <AIGeneratedDocsWidget />,
+  
   "vendor-requests": <VendorRequestsWidget />,
   "environment": <EnvironmentOverviewWidget />,
   "data-geography": <DataGeographyWidget />,
