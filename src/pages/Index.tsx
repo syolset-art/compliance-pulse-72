@@ -184,70 +184,23 @@ const Index = () => {
             {ROLE_LABELS[primaryRole]}
           </p>
         </div>
-        <div className="flex items-center gap-1.5">
-          {expandedView && (
-            <Button
-              variant={editMode ? "default" : "ghost"}
-              size="sm"
-              className="gap-1.5 h-8 text-xs"
-              onClick={() => setEditMode(!editMode)}
-            >
-              {editMode ? (
-                <><Check className="h-3.5 w-3.5" />{isNb ? "Ferdig" : "Done"}</>
-              ) : (
-                <><LayoutGrid className="h-3.5 w-3.5" />{isNb ? "Tilpass" : "Customize"}</>
-              )}
-            </Button>
-          )}
-          {expandedView && (
-            <DashboardWidgetToggle widgets={widgetToggles} onToggle={toggleWidget} onReset={resetWidgets} />
-          )}
-        </div>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        {isNb
-          ? expandedView && editMode
-            ? "Dra flisene for å endre rekkefølge, eller fjern de du ikke trenger."
-            : "Her er det som trenger din oppmerksomhet."
-          : expandedView && editMode
-            ? "Drag tiles to reorder, or remove the ones you don't need."
-            : "Here's what needs your attention."}
+        {isNb ? "Her er det som trenger din oppmerksomhet." : "Here's what needs your attention."}
       </p>
 
-      {/* Compact dashboard (default) */}
-      {!expandedView && <DashboardCompact />}
+      <DashboardCompact />
 
-      {/* Expanded widget grid */}
-      {expandedView && (
-        <>
-          {!editMode && (
-            <>
-              <DashboardCriticalTasks />
-              <DashboardHeroCards />
-            </>
-          )}
-          <DashboardGrid
-            tiles={tiles}
-            order={normalizedOrder}
-            hiddenIds={hiddenWidgets}
-            onReorder={handleReorder}
-            onHide={hideWidget}
-            editMode={editMode}
-          />
-        </>
-      )}
-
-      {/* Toggle expanded view */}
-      <button
-        onClick={() => { setExpandedView(!expandedView); setEditMode(false); }}
-        className="mt-4 w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted/50"
-      >
-        {expandedView ? (
-          <><ChevronUp className="h-3.5 w-3.5" />{isNb ? "Vis kompakt" : "Show compact"}</>
-        ) : (
-          <><ChevronDown className="h-3.5 w-3.5" />{isNb ? "Vis alle widgets" : "Show all widgets"}</>
-        )}
-      </button>
+      <DashboardCriticalTasks />
+      <DashboardHeroCards />
+      <DashboardGrid
+        tiles={tiles}
+        order={normalizedOrder}
+        hiddenIds={hiddenWidgets}
+        onReorder={handleReorder}
+        onHide={hideWidget}
+        editMode={false}
+      />
     </>
   );
 
