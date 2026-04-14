@@ -1,33 +1,58 @@
 
 
-## Plan: Historisk visning for kontrollområder
+## Plan: Leverandørstatus-widget for Dashboard
 
-### Problem
-I dag bytter «Historikk»-knappen direkte til regelverksvisningen. Det finnes ingen måte å se historisk utvikling per kontrollområde (Styring, Drift, Personvern osv.).
+### Oversikt
+Ny widget som gir en kompakt oversikt over leverandørporteføljen direkte fra dashbordet, med mulighet til å bytte mellom tre visninger: **Kritiske** (prioritet), **Høyest risiko**, og **Databehandlerroller** (GDPR-rolle).
 
-### Løsning
-Erstatter den enkle toggle-knappen med en tre-valgs segmentert kontroll:
+### Ny komponent: `src/components/dashboard-v2/VendorInsightsWidget.tsx`
 
 ```text
-[ Status ]  [ Kontrollområder historikk ]  [ Regelverk ]
+┌──────────────────────────────────────────────────────┐
+│ Leverandørinnsikt              [Kritisk▾] [Risiko▾] [Roller▾]  │
+│ 12 leverandører registrert                            │
+├──────────────────────────────────────────────────────┤
+│ Visning: Kritisk prioritet (default)                  │
+│ ┌─────────────────────────────────────────┐           │
+│ │ 🔴 Acme Corp     Kritisk  Score: 34%   │           │
+│ │ 🟠 DataSys AS    Høy      Score: 52%   │           │
+│ │ 🟡 CloudNet      Middels  Score: 71%   │           │
+│ │ 🟢 SafeStore     Lav      Score: 88%   │           │
+│ └─────────────────────────────────────────┘           │
+│                                                       │
+│ Visning: Høyest risiko                                │
+│  Sortert etter risk_level/risk_score desc             │
+│                                                       │
+│ Visning: Databehandlerroller                          │
+│  Gruppert: Databehandler (5) · Felles ansv. (2) · …  │
+│  Hvert kort viser rolle-badge + antall leverandører   │
+└──────────────────────────────────────────────────────┘
 ```
 
-### Hva bygges
+### Funksjonalitet
 
-**Ny visning: «Kontrollområder historikk»**
-- Viser et linjediagram (LineChart) med én linje per kontrollområde/pillar (5 linjer, ulik farge)
-- Under grafen: en kompakt legend med ikon + navn + nåværende score for hvert område
-- Genererer mock-historikkdata per pillar (samme `generateFrameworkHistory`-logikk, men per domene-score)
+1. **Segmentert kontroll** med tre visninger:
+   - **Prioritet**: Viser leverandører sortert etter `priority`-felt (critical → high → medium → low), med fargekoding og compliance-score
+   - **Risiko**: Sortert etter `risk_level` og `risk_score` desc, viser risiko-badge og score
+   - **GDPR-roller**: Grupperer leverandører etter `gdpr_role` (databehandler, felles behandlingsansvarlig, etc.) med antall per rolle
 
-**Header-endring:**
-- Erstatter den enkle Button-toggle med tre små knapper eller en segmentert kontroll:
-  - **Status** — nåværende kontrollområde-kort (default)
-  - **Historikk** — ny visning med trendlinjer per kontrollområde
-  - **Regelverk** — eksisterende regelverkskort + aggregert trendlinje
+2. **Hvert leverandørkort** viser: navn, relevant badge (prioritet/risiko/rolle), compliance_score som mini progress bar
+
+3. **Klikk** på leverandør navigerer til `/vendors/:id`
+
+4. **Summering øverst**: Totalt antall leverandører, antall med kritisk/høy prioritet, antall uten GDPR-rolle
+
+### Datakilde
+- Henter fra `assets` med `asset_type = "vendor"` via `useQuery`
+- Bruker eksisterende felter: `priority`, `risk_level`, `risk_score`, `compliance_score`, `gdpr_role`, `name`
+
+### Plassering i DashboardV2
+- Legges til etter `AggregatedMaturityWidget` og før `RecentActivityFeed`
+- Full bredde
 
 ### Tekniske detaljer
-- Ny state: `viewMode: "status" | "history" | "frameworks"` (erstatter `showHistory: boolean`)
-- Historikkdata genereres med `useMemo` basert på `byDomain[pillar.key].score` for hver pillar
-- Fargekoding per pillar-linje (blå, grønn, lilla, amber, rosa)
-- Kun endringer i `AggregatedMaturityWidget.tsx`
+- Enkel `useQuery` mot `assets`-tabellen filtrert på vendor
+- Tre visninger via lokal state `viewMode: "priority" | "risk" | "roles"`
+- Maks 6 leverandører vist, med «Se alle →» lenke til `/vendors`
+- Responsiv: listekort stacker på mobil
 
