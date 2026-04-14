@@ -133,10 +133,34 @@ const TrustCenterEvidence = () => {
               : "Overview of policies, certifications and documents supporting your organization's compliance."}
           </p>
         </div>
-        <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4" />
-          {isNb ? "Legg til" : "Add"}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground"
+            disabled={seeding}
+            onClick={async () => {
+              if (!asset?.id) return;
+              setSeeding(true);
+              try {
+                await seedDemoEvidence(asset.id);
+                await queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+                toast.success(isNb ? "Demo-data lagt til" : "Demo data added");
+              } catch (e) {
+                toast.error(isNb ? "Kunne ikke legge til demo-data" : "Failed to add demo data");
+              } finally {
+                setSeeding(false);
+              }
+            }}
+          >
+            {seeding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Database className="h-3.5 w-3.5" />}
+            Demo
+          </Button>
+          <Button size="sm" className="gap-1.5" onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            {isNb ? "Legg til" : "Add"}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="policies" className="space-y-6">
