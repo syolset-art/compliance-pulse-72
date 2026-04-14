@@ -67,7 +67,7 @@ export default function DashboardV2() {
         name_no: t.title,
         category: "organizational" as const,
         priority: "medium" as const,
-        status: t.status,
+        status: (t.status === "done" ? "completed" : "not_started") as const,
         description: t.description,
         description_no: t.description,
         domain: "security" as const,
