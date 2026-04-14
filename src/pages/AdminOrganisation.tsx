@@ -184,62 +184,142 @@ export default function AdminOrganisation() {
         </p>
       </div>
 
-      {/* Organisation card */}
-      <Card>
-        <CardContent className="p-6 relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-          <div className="flex items-center gap-3 mb-5">
-            <Building2 className="h-6 w-6 text-primary" />
-            <div>
-              <h2 className="text-xl font-bold text-foreground">{isNb ? "Organisasjon" : "Organization"}</h2>
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Informasjon om virksomheten fra Brønnøysundregistrene" : "Company information from Brønnøysund registers"}
-              </p>
-            </div>
+      {/* Organisation header — Trust Profile style */}
+      <Card className="overflow-hidden">
+        {/* Powered by header bar */}
+        <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Shield className="h-3.5 w-3.5 text-primary" />
+            <span className="font-medium">Powered by Mynder Trust Center</span>
           </div>
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] gap-1">
+            <CheckCircle2 className="h-3 w-3" />
+            Verified
+          </Badge>
+        </div>
 
+        <div className="p-6 md:p-8 space-y-6">
           {loading ? (
             <div className="animate-pulse space-y-3">
-              <div className="h-6 bg-muted rounded w-48" />
-              <div className="h-6 bg-muted rounded w-32" />
+              <div className="h-8 bg-muted rounded w-48" />
+              <div className="h-4 bg-muted rounded w-64" />
             </div>
           ) : org ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5" /> {isNb ? "FIRMANAVN" : "COMPANY NAME"}
-                </p>
-                <p className="text-lg font-bold text-foreground mt-1">{org.name}</p>
+            <>
+              {/* Company header + Trust Score */}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-start gap-4">
+                    <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Shield className="h-7 w-7 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-xl font-bold text-foreground">{org.name}</h2>
+                      <p className="text-sm text-muted-foreground">Shareable compliance profile for due diligence</p>
+                    </div>
+                  </div>
+
+                  <Badge variant="outline" className="text-[10px]">
+                    {isNb ? "Egenerklæring" : "Self-declared"}
+                  </Badge>
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Eye className="h-4 w-4" />
+                    <span>{isNb ? "Profilvisninger:" : "Profile views:"} <span className="font-semibold text-foreground">—</span></span>
+                  </div>
+
+                  {/* Framework badges */}
+                  {frameworkNames.length > 0 && (
+                    <div className="space-y-3">
+                      {(() => {
+                        const standards = frameworkNames.filter(n => ["ISO 27001", "SOC 2", "ISO 27701", "ISO 22301"].includes(n));
+                        const regulations = frameworkNames.filter(n => !["ISO 27001", "SOC 2", "ISO 27701", "ISO 22301"].includes(n));
+                        return (
+                          <>
+                            {standards.length > 0 && (
+                              <div>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                  {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {standards.map(fw => (
+                                    <Badge key={fw} variant="outline" className="text-[10px] font-medium">{fw}</Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {regulations.length > 0 && (
+                              <div>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                  {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {regulations.map(fw => (
+                                    <Badge key={fw} variant="outline" className="text-[10px] font-medium border-orange-300 text-orange-700 dark:text-orange-400">{fw}</Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Trust Score donut */}
+                <div className="flex flex-col items-center gap-1.5 shrink-0">
+                  <div className="relative flex items-center justify-center">
+                    {(() => {
+                      const radius = 52;
+                      const circ = 2 * Math.PI * radius;
+                      const dash = (trustScore / 100) * circ;
+                      const strokeColor = trustScore >= 75 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+                      const trustColor = trustScore >= 75 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
+                      const trustLabel = trustScore >= 75 ? "HIGH TRUST" : trustScore >= 50 ? "MEDIUM TRUST" : "LOW TRUST";
+                      return (
+                        <>
+                          <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90">
+                            <circle cx="64" cy="64" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
+                            <circle cx="64" cy="64" r={radius} fill="none" stroke={strokeColor} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
+                            <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    {trustScore >= 80 ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases") : trustScore >= 50 ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases") : (isNb ? "Begrenset egnethet" : "Limited suitability")}
+                  </p>
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Hash className="h-3.5 w-3.5" /> {isNb ? "ORGANISASJONSNUMMER" : "ORG NUMBER"}
-                </p>
-                <p className="text-lg font-bold text-foreground mt-1 font-mono">
-                  {org.org_number ? org.org_number.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3") : "—"}
-                </p>
+
+              {/* Metadata stripe */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
+                {[
+                  { label: "ORG.NR", value: org.org_number ? org.org_number.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3") : "–" },
+                  { label: isNb ? "BRANSJE" : "INDUSTRY", value: org.brreg_industry || getIndustryLabel(org.industry) },
+                  { label: isNb ? "KATEGORI" : "CATEGORY", value: "–" },
+                  { label: isNb ? "NETTSIDE" : "WEBSITE", value: org.domain || "–" },
+                ].map(item => (
+                  <div key={item.label} className="bg-card px-4 py-3">
+                    <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                    <p className="text-sm font-medium text-foreground mt-0.5 truncate">{item.value}</p>
+                  </div>
+                ))}
               </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Factory className="h-3.5 w-3.5" /> {isNb ? "BRANSJE" : "INDUSTRY"}
-                </p>
-                <Badge variant="outline" className="mt-1.5 text-sm font-medium">
-                  {org.brreg_industry || getIndustryLabel(org.industry)}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5" /> {isNb ? "ANTALL ANSATTE" : "EMPLOYEES"}
-                </p>
-                <p className="text-lg font-bold text-foreground mt-1">
-                  {org.brreg_employees ? `${org.brreg_employees} ${isNb ? "ansatte" : "employees"}` : org.employees || "—"}
-                </p>
-              </div>
-            </div>
+            </>
           ) : (
             <p className="text-muted-foreground">{isNb ? "Ingen bedriftsprofil funnet." : "No company profile found."}</p>
           )}
-        </CardContent>
+        </div>
       </Card>
 
       {/* Metrics row */}
