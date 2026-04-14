@@ -296,15 +296,6 @@ export function DashboardCompact() {
     <div className="flex flex-col gap-4">
       <KPIRow isNb={isNb} />
       <ControlAreasChart isNb={isNb} />
-
-      {/* Partner widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <PartnerCustomerOverview isNb={isNb} />
-        <RecentCustomersPanel isNb={isNb} />
-      </div>
-
-      {/* Deadlines - full width */}
-      <DeadlinesPanel isNb={isNb} />
     </div>
   );
 }
