@@ -62,35 +62,34 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Top-level dashboard links
+// Top-level dashboard link (single)
 const dashboardNav = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
 ];
 
-// Organisasjon section (workplace-oriented)
-const organisationNav = [
+// Styringsverktøy (Management tools)
+const managementNav = [
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
-  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
-// Moduler section (data modules)
-const modulesNav = [
+// Registre (Registries)
+const registriesNav = [
   { name: "nav.vendors", href: "/vendors", icon: Building2 },
   { name: "nav.systems", href: "/systems", icon: Cloud },
   { name: "nav.assetsDevices", href: "/assets", icon: Package },
   { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
-// Administrasjon submenu
-const administrationMenu = [
+// Innstillinger submenu (merged Admin + Company settings)
+const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
-  { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
+  { name: "nav.subscriptionAndBilling", href: "/subscriptions", icon: CreditCard },
 ];
 
 const TrustCenterMenu = () => {
