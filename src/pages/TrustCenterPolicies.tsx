@@ -16,7 +16,7 @@ const TrustCenterPolicies = () => {
   const isMobile = useIsMobile();
 
   const content = (
-    <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-8 md:pt-10">
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-16 md:pt-20">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">Policies</h1>
