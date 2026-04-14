@@ -230,62 +230,173 @@ export default function Subscriptions() {
             </Card>
           </section>
 
-          {/* ── STEG 2: REGELVERK ── */}
-          <section className="space-y-3">
+          {/* ── STEG 2: DINE REGELVERK ── */}
+          <section className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold">2</span>
-              <h2 className="text-lg font-semibold text-foreground">Utvid med regelverk</h2>
+              <h2 className="text-lg font-semibold text-foreground">Dine regelverk</h2>
+              <Badge variant="secondary" className="text-[10px]">
+                {activeCount} av {totalCount} aktive
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground pl-10">
-              Legg til spesialiserte regelverk for å utvide compliance-dekningen — helt uavhengig av moduler. GDPR og ISO 27001 er allerede inkludert.
+              Basert på din virksomhetsprofil har vi gruppert regelverkene etter hva som er obligatorisk, anbefalt og valgfritt.
             </p>
 
-            {/* Free frameworks */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pl-10">
-              {["GDPR", "ISO 27001"].map((name) => (
-                <div key={name} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-success/20 bg-success/[0.03]">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
-                  <span className="text-sm font-medium text-foreground">{name}</span>
-                  <Badge className="ml-auto bg-success/10 text-success border-0 text-[9px]">Inkludert</Badge>
-                </div>
-              ))}
+            {/* ── Obligatoriske (inkludert) ── */}
+            <div className="pl-10 space-y-2">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Obligatoriske — alltid inkludert</h3>
+              <div className="flex flex-wrap gap-2">
+                {mandatory.map((fw) => {
+                  const cat = getCategoryById(fw.category);
+                  return (
+                    <div
+                      key={fw.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-success/20 bg-success/[0.04]"
+                    >
+                      <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
+                      <span className="text-xs font-medium text-foreground">{fw.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Paid frameworks */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pl-10">
-              {frameworkAddonList.map((addon) => {
-                const isActive = activeFrameworkAddons.some((a) => a.domain_id === addon.id);
-                return (
-                  <Card key={addon.id} className={isActive ? "border-primary/30" : ""}>
-                    <CardContent className="p-4 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-primary shrink-0" />
-                          <span className="font-semibold text-sm text-foreground">{addon.name}</span>
-                        </div>
-                        {isActive ? (
-                          <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Aktiv</Badge>
-                        ) : (
-                          <span className="text-sm font-bold text-foreground">{formatKr(addon.yearlyPriceKr)}/år</span>
-                        )}
-                      </div>
-                      <div className="space-y-1">
-                        {addon.includes.map((item) => (
-                          <div key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Check className="h-3 w-3 text-primary shrink-0" />
-                            {item}
+            {/* ── Anbefalt for din virksomhet ── */}
+            <Collapsible
+              open={expandedGroup === "recommended"}
+              onOpenChange={(open) => setExpandedGroup(open ? "recommended" : null)}
+              className="pl-10"
+            >
+              <CollapsibleTrigger className="flex items-center gap-2 w-full group">
+                <Star className="h-3.5 w-3.5 text-primary shrink-0" />
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Anbefalt for din virksomhet
+                </h3>
+                <Badge variant="outline" className="text-[9px] ml-1">{recommended.filter(fw => activeFrameworkIds.has(fw.id)).length}/{recommended.length}</Badge>
+                <span className="ml-auto">
+                  {expandedGroup === "recommended" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                </span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 space-y-2">
+                {recommended.map((fw) => {
+                  const isActive = activeFrameworkIds.has(fw.id);
+                  const hasPaidAddon = isPaidAddon(fw.id);
+                  const price = hasPaidAddon ? getAddonPrice(fw.id) : 0;
+                  const isFree = FREE_FRAMEWORKS.includes(fw.id as any);
+                  const cat = getCategoryById(fw.category);
+                  const CatIcon = cat?.icon;
+
+                  return (
+                    <div
+                      key={fw.id}
+                      className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
+                        isActive ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {CatIcon && (
+                          <div className={`p-1.5 rounded-md ${cat?.bgColor}`}>
+                            <CatIcon className={`h-3.5 w-3.5 ${cat?.color}`} />
                           </div>
-                        ))}
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-sm text-foreground">{fw.name}</span>
+                            {isFree && (
+                              <Badge className="bg-success/10 text-success border-0 text-[9px]">Inkludert</Badge>
+                            )}
+                            {hasPaidAddon && !isFree && (
+                              <span className="text-[10px] text-muted-foreground font-medium">{formatKr(price)}/år</span>
+                            )}
+                          </div>
+                          {fw.triggerQuestion && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{fw.triggerQuestion}</p>
+                          )}
+                        </div>
                       </div>
-                      {!isActive && (
-                        <Button variant="outline" size="sm" className="w-full text-xs mt-1">
-                          Legg til
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      <Switch
+                        checked={isActive}
+                        onCheckedChange={() => handleToggleFramework(fw.id, isActive)}
+                        disabled={updatingFrameworkId === fw.id}
+                      />
+                    </div>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* ── Valgfrie tillegg ── */}
+            <Collapsible
+              open={expandedGroup === "optional"}
+              onOpenChange={(open) => setExpandedGroup(open ? "optional" : null)}
+              className="pl-10"
+            >
+              <CollapsibleTrigger className="flex items-center gap-2 w-full group">
+                <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Valgfrie tillegg
+                </h3>
+                <Badge variant="outline" className="text-[9px] ml-1">{optional.filter(fw => activeFrameworkIds.has(fw.id)).length}/{optional.length}</Badge>
+                <span className="ml-auto">
+                  {expandedGroup === "optional" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                </span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 space-y-2">
+                {optional.map((fw) => {
+                  const isActive = activeFrameworkIds.has(fw.id);
+                  const hasPaidAddon = isPaidAddon(fw.id);
+                  const price = hasPaidAddon ? getAddonPrice(fw.id) : 0;
+                  const cat = getCategoryById(fw.category);
+                  const CatIcon = cat?.icon;
+
+                  return (
+                    <div
+                      key={fw.id}
+                      className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
+                        isActive ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {CatIcon && (
+                          <div className={`p-1.5 rounded-md ${cat?.bgColor}`}>
+                            <CatIcon className={`h-3.5 w-3.5 ${cat?.color}`} />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-sm text-foreground">{fw.name}</span>
+                            {hasPaidAddon && price > 0 && (
+                              <span className="text-[10px] text-muted-foreground font-medium">{formatKr(price)}/år</span>
+                            )}
+                          </div>
+                          {fw.triggerQuestion && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{fw.triggerQuestion}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Switch
+                        checked={isActive}
+                        onCheckedChange={() => handleToggleFramework(fw.id, isActive)}
+                        disabled={updatingFrameworkId === fw.id}
+                      />
+                    </div>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Administrer alle regelverk */}
+            <div className="pl-10">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 text-xs"
+                onClick={() => setEditFrameworksOpen(true)}
+              >
+                <Settings2 className="h-3.5 w-3.5" />
+                Administrer alle regelverk
+              </Button>
             </div>
           </section>
 
