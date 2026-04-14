@@ -36,7 +36,7 @@ const MODULE_ICONS: Record<ModuleId, typeof Cpu> = {
 export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { billingInterval: currentInterval, addons, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade, currentTier, maxSystems, maxVendors } = useSubscription();
+  const { billingInterval: currentInterval, addons, activateAddon, isActivatingAddon, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade, currentTier, maxSystems, maxVendors } = useSubscription();
 
   const [billingInterval, setBillingInterval] = useState<BillingInterval>(currentInterval);
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -45,6 +45,84 @@ export default function Subscriptions() {
 
   const [selectedModule, setSelectedModule] = useState<ModuleId | null>(null);
   const [selectedModuleTier, setSelectedModuleTier] = useState<ModuleTier>("basis");
+
+  // Framework management state
+  const [editFrameworksOpen, setEditFrameworksOpen] = useState(false);
+  const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
+  const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>("recommended");
+
+  // Fetch selected_frameworks from DB
+  const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
+    queryKey: ["selected-frameworks-sub"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("*")
+        .order("framework_name");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const activeFrameworkIds = useMemo(() => {
+    const ids = new Set<string>();
+    selectedFrameworks?.forEach((sf: any) => {
+      if (sf.is_selected) ids.add(sf.framework_id);
+    });
+    return ids;
+  }, [selectedFrameworks]);
+
+  // Group frameworks
+  const { mandatory, recommended, optional } = useMemo(() => {
+    const m: Framework[] = [];
+    const r: Framework[] = [];
+    const o: Framework[] = [];
+    allFrameworkDefs.forEach((fw) => {
+      if (fw.isMandatory) m.push(fw);
+      else if (fw.isRecommended) r.push(fw);
+      else o.push(fw);
+    });
+    return { mandatory: m, recommended: r, optional: o };
+  }, []);
+
+  const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    setUpdatingFrameworkId(frameworkId);
+    try {
+      const existing = selectedFrameworks?.find((sf: any) => sf.framework_id === frameworkId);
+      const fw = allFrameworkDefs.find((f) => f.id === frameworkId);
+      if (!fw) return;
+
+      if (existing) {
+        await supabase
+          .from("selected_frameworks")
+          .update({ is_selected: !currentlyActive })
+          .eq("id", existing.id);
+      } else {
+        await supabase.from("selected_frameworks").insert({
+          framework_id: fw.id,
+          framework_name: fw.name,
+          category: fw.category,
+          is_mandatory: fw.isMandatory || false,
+          is_recommended: fw.isRecommended || false,
+          is_selected: true,
+        });
+      }
+
+      // If activating a paid addon, also write to domain_addons
+      if (!currentlyActive && FRAMEWORK_ADDONS[frameworkId]) {
+        activateAddon(frameworkId);
+      }
+
+      await refetchFrameworks();
+
+      if (!currentlyActive) {
+        setActivationFramework(fw);
+      }
+    } finally {
+      setUpdatingFrameworkId(null);
+    }
+  };
 
   const systemsActive = localStorage.getItem("system_premium_activated") === "true";
   const systemsTier = (localStorage.getItem("system_premium_tier") || "basis") as ModuleTier;
@@ -90,6 +168,13 @@ export default function Subscriptions() {
 
   const totalFrameworkCost = activeFrameworkAddons.length * 50000;
   const hasAnyCost = systemsActive || vendorsActive || activeFrameworkAddons.length > 0;
+
+  const activeCount = activeFrameworkIds.size;
+  const totalCount = allFrameworkDefs.length;
+
+  // Helper to check if a framework is a paid addon
+  const isPaidAddon = (fwId: string) => !!FRAMEWORK_ADDONS[fwId];
+  const getAddonPrice = (fwId: string) => FRAMEWORK_ADDONS[fwId]?.yearlyPriceKr || 0;
 
   return (
     <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
