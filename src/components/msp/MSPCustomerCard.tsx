@@ -27,10 +27,11 @@ interface MSPCustomerCardProps {
   customer: MSPCustomer;
 }
 
-function getTrustLevel(score: number) {
-  if (score >= 75) return { label: "High Trust", color: "text-success", bg: "bg-success", badgeCls: "border-success/30 text-success bg-success/10" };
-  if (score >= 50) return { label: "Medium Trust", color: "text-warning", bg: "bg-warning", badgeCls: "border-warning/30 text-warning bg-warning/10" };
-  return { label: "Low Trust", color: "text-destructive", bg: "bg-destructive", badgeCls: "border-destructive/30 text-destructive bg-destructive/10" };
+function getTrustLevel(score: number | null | undefined) {
+  if (!score || score === 0) return { label: "Ikke vurdert", color: "text-muted-foreground", bg: "bg-muted", badgeCls: "border-muted-foreground/30 text-muted-foreground bg-muted/50", isNull: true };
+  if (score >= 75) return { label: "High Trust", color: "text-success", bg: "bg-success", badgeCls: "border-success/30 text-success bg-success/10", isNull: false };
+  if (score >= 50) return { label: "Medium Trust", color: "text-warning", bg: "bg-warning", badgeCls: "border-warning/30 text-warning bg-warning/10", isNull: false };
+  return { label: "Low Trust", color: "text-destructive", bg: "bg-destructive", badgeCls: "border-destructive/30 text-destructive bg-destructive/10", isNull: false };
 }
 
 function getStatusBadge(status: string) {
@@ -63,14 +64,17 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
     .toUpperCase();
 
   // Mini SVG gauge
+  const score = customer.compliance_score || 0;
   const radius = 28;
   const circ = 2 * Math.PI * radius;
-  const dash = (customer.compliance_score / 100) * circ;
-  const strokeColor = customer.compliance_score >= 75
-    ? "hsl(var(--success))"
-    : customer.compliance_score >= 50
-      ? "hsl(var(--warning))"
-      : "hsl(var(--destructive))";
+  const dash = trust.isNull ? 0 : (score / 100) * circ;
+  const strokeColor = trust.isNull
+    ? "hsl(var(--muted-foreground) / 0.3)"
+    : score >= 75
+      ? "hsl(var(--success))"
+      : score >= 50
+        ? "hsl(var(--warning))"
+        : "hsl(var(--destructive))";
 
   return (
     <Card
@@ -159,29 +163,44 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
         </div>
 
         {/* Trust Score Gauge */}
-        <div className="flex flex-col items-center gap-1 shrink-0">
-          <div className="relative flex items-center justify-center">
-            <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
-              <circle cx="32" cy="32" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-              <circle
-                cx="32" cy="32" r={radius} fill="none"
-                stroke={strokeColor} strokeWidth="4" strokeLinecap="round"
-                strokeDasharray={`${dash} ${circ}`}
-                style={{ transition: "stroke-dasharray 0.6s ease" }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={cn("text-lg font-bold tabular-nums leading-none", trust.color)}>
-                {customer.compliance_score}
-              </span>
-              <span className="text-[7px] font-semibold text-muted-foreground">/100</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex flex-col items-center gap-1 shrink-0">
+              <div className="relative flex items-center justify-center">
+                <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+                  <circle cx="32" cy="32" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+                  <circle
+                    cx="32" cy="32" r={radius} fill="none"
+                    stroke={strokeColor} strokeWidth="4" strokeLinecap="round"
+                    strokeDasharray={`${dash} ${circ}`}
+                    style={{ transition: "stroke-dasharray 0.6s ease" }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  {trust.isNull ? (
+                    <span className="text-sm font-bold text-muted-foreground">–</span>
+                  ) : (
+                    <>
+                      <span className={cn("text-lg font-bold tabular-nums leading-none", trust.color)}>
+                        {score}
+                      </span>
+                      <span className="text-[7px] font-semibold text-muted-foreground">/100</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0", trust.badgeCls)}>
+                {trust.label}
+              </Badge>
             </div>
-          </div>
-          <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-          <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0", trust.badgeCls)}>
-            {trust.label}
-          </Badge>
-        </div>
+          </TooltipTrigger>
+          {trust.isNull && (
+            <TooltipContent className="max-w-[200px] text-center">
+              <p className="text-xs">Ingen data er hentet for denne kunden ennå. Kjør en manuell vurdering for å beregne Trust Score.</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
 
       {/* Quick actions */}
