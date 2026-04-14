@@ -101,6 +101,7 @@ export const VendorTPRMStatus = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const [requestType, setRequestType] = useState<string | undefined>();
+  const [innerTab, setInnerTab] = useState<"remaining" | "completed">("remaining");
   const queryClient = useQueryClient();
 
   const recentActivities = useMemo(() => generateDemoActivities(assetId).slice(0, 3), [assetId]);
