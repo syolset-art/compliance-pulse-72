@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/TopBar";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ROLE_SIDEBAR_HIGHLIGHTS } from "@/lib/roleContentConfig";
-import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -13,25 +12,17 @@ import {
   Settings,
   Shield,
   ChevronDown,
-  Bot,
   Menu,
-  Leaf,
   Building2,
   Scale,
   CreditCard,
-  FileCheck,
   FileBarChart,
   HelpCircle,
   LogOut,
   RotateCcw,
   FileQuestion,
-  Play,
-  Code2,
   Globe,
-  Share2,
   Layers,
-  CalendarDays,
-  CheckCircle2,
   Cloud,
   Bell
 } from "lucide-react";
@@ -42,9 +33,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { RoleSwitcher } from "@/components/dashboard/RoleSwitcher";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,35 +51,34 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Top-level dashboard links
+// Top-level dashboard link (single)
 const dashboardNav = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Dashboard 2.0", href: "/dashboard-v2", icon: Shield, highlight: true },
 ];
 
-// Organisasjon section (workplace-oriented)
-const organisationNav = [
+// Styringsverktøy (Management tools)
+const managementNav = [
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
-  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
+  { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
 ];
 
-// Moduler section (data modules)
-const modulesNav = [
+// Registre (Registries)
+const registriesNav = [
   { name: "nav.vendors", href: "/vendors", icon: Building2 },
   { name: "nav.systems", href: "/systems", icon: Cloud },
   { name: "nav.assetsDevices", href: "/assets", icon: Package },
   { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
-// Administrasjon submenu
-const administrationMenu = [
+// Innstillinger submenu (merged Admin + Company settings)
+const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
-  { name: "nav.adminDocuments", href: "/admin/documents", icon: FileText },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
+  { name: "nav.subscriptions", href: "/subscriptions", icon: CreditCard },
 ];
 
 const TrustCenterMenu = () => {
@@ -142,11 +130,8 @@ const TrustCenterMenu = () => {
 
   const trustCenterItems = [
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
-    { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Settings },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
-    { name: "Krav og standarder", href: "/regulations", icon: Scale },
     { name: isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence", href: "/trust-center/evidence", icon: FileText },
-    { name: "Contact & Requests", href: "/customer-requests", icon: FileQuestion },
   ];
 
   const isActive = trustCenterItems.some(item => item.href && location.pathname === item.href);
@@ -206,27 +191,12 @@ const SidebarContent = () => {
   const { primaryRole } = useUserRole();
   const highlights = ROLE_SIDEBAR_HIGHLIGHTS[primaryRole] || [];
   
-  const [devOpen, setDevOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [comingOpen, setComingOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [hasQualityModule, setHasQualityModule] = useState(false);
 
-  useEffect(() => {
-    const fetchQualityModules = async () => {
-      const { data } = await supabase
-        .from('quality_modules' as any)
-        .select('id')
-        .eq('is_active', true)
-        .limit(1);
-      setHasQualityModule(!!(data && data.length > 0));
-    };
-    fetchQualityModules();
-  }, []);
 
   const handleResetDemo = async () => {
     setResetting(true);
@@ -279,8 +249,8 @@ const SidebarContent = () => {
     fetchCompany();
   }, []);
 
-  const isAdminActive = administrationMenu.some(item => location.pathname === item.href);
-  const [adminOpen, setAdminOpen] = useState(() => isAdminActive || location.pathname.startsWith("/admin/"));
+  const isSettingsActive = settingsMenu.some(item => location.pathname === item.href) || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions";
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(() => isSettingsActive);
   
   return (
     <>
@@ -298,7 +268,7 @@ const SidebarContent = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
-        {/* Dashboard links */}
+        {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
           const isHighlighted = highlights.includes(item.href);
@@ -317,19 +287,16 @@ const SidebarContent = () => {
             >
               <item.icon className="h-5 w-5" />
               {t(item.name)}
-              {item.highlight && (
-                <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">Ny</Badge>
-              )}
             </Link>
           );
         })}
 
-        {/* Organisasjon section */}
+        {/* Styringsverktøy section */}
         <div className="pt-3">
           <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-            {t("nav.organisation", "Organisasjon")}
+            {t("nav.managementTools", "Styringsverktøy")}
           </p>
-          {organisationNav.map((item) => {
+          {managementNav.map((item) => {
             const isActive = location.pathname === item.href;
             const isHighlighted = highlights.includes(item.href);
             return (
@@ -352,12 +319,12 @@ const SidebarContent = () => {
           })}
         </div>
 
-        {/* Moduler section */}
+        {/* Registre section */}
         <div className="pt-3">
           <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-            {t("nav.modules", "Moduler")}
+            {t("nav.registries", "Registre")}
           </p>
-          {modulesNav.map((item) => {
+          {registriesNav.map((item) => {
             const isActive = location.pathname === item.href;
             const isHighlighted = highlights.includes(item.href);
             return (
@@ -380,27 +347,29 @@ const SidebarContent = () => {
           })}
         </div>
 
-        {/* Administrasjon section - moved up */}
+        <TrustCenterMenu />
+
+        {/* Innstillinger section */}
         <div className="pt-3">
           <button
-            onClick={() => setAdminOpen(!adminOpen)}
+            onClick={() => setSettingsMenuOpen(!settingsMenuOpen)}
             className={cn(
               "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              isAdminActive || location.pathname.startsWith("/admin/")
+              isSettingsActive
                 ? "bg-sidebar-accent text-sidebar-primary shadow-sm"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             )}
           >
             <div className="flex items-center gap-3">
               <Settings className="h-5 w-5" />
-              {t("nav.administration", "Administrasjon")}
+              {t("nav.settings", "Innstillinger")}
             </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
+            <ChevronDown className={cn("h-4 w-4 transition-transform", settingsMenuOpen && "rotate-180")} />
           </button>
 
-          {adminOpen && (
+          {settingsMenuOpen && (
             <div className="ml-4 mt-1 space-y-1">
-              {administrationMenu.map((item) => {
+              {settingsMenu.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
@@ -418,91 +387,35 @@ const SidebarContent = () => {
                   </Link>
                 );
               })}
-            </div>
-          )}
-        </div>
-
-        <TrustCenterMenu />
-
-        {/* Kommer section - upcoming features */}
-        <div className="pt-3">
-          <button
-            onClick={() => setComingOpen(!comingOpen)}
-            className={cn(
-              "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-silk",
-              "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <Play className="h-5 w-5" />
-              {t("nav.coming", "Kommer")}
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Beta</Badge>
-            </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", comingOpen && "rotate-180")} />
-          </button>
-
-          {comingOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {[
-                { name: t("quality.title", "Kvalitetssystem"), href: "/quality", icon: Shield },
-                { name: t("nav.complianceSecurity", "Compliance & Security"), href: "/compliance", icon: Shield },
-                { name: t("nav.reportsAdmin", "Rapporter & Admin"), href: "/reports", icon: FileBarChart },
-                { name: t("nav.resources", "Ressurssenter"), href: "/resources", icon: HelpCircle },
-                { name: t("nav.aiSetup", "AI-agent"), href: "/ai-setup", icon: Bot },
-                { name: t("nav.aiRegistry", "AI-register"), href: "/ai-registry", icon: Bot },
-                { name: "Utviklere", href: "/developer/trust-profile-architecture", icon: Code2 },
-                { name: "Mynder Me", href: "/mynder-me", icon: Users },
-                { name: "Leverandørdemo", href: "/vendor-response-demo", icon: Play },
-              ].map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-primary"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    )}
+              {/* Demo Reset inside settings */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                    disabled={resetting}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                );
-              })}
+                    <RotateCcw className={cn("h-4 w-4", resetting && "animate-spin")} />
+                    {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
+                      Du starter onboarding fra begynnelsen.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Ja, tilbakestill
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
-        </div>
-
-        {/* Demo Reset Button */}
-        <div className="mt-4 px-1">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-silk"
-                disabled={resetting}
-              >
-                <RotateCcw className={cn("h-5 w-5", resetting && "animate-spin")} />
-                {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
-                  Du starter onboarding fra begynnelsen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Ja, tilbakestill
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </nav>
 
@@ -526,42 +439,6 @@ const SidebarContent = () => {
             {/* Company submenu */}
             {companyOpen && (
               <div className="mt-2 ml-2 space-y-1 animate-fade-in">
-                <button
-                  onClick={() => navigate('/company-settings')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <Building2 className="h-4 w-4" />
-                  {t("nav.companySettings")}
-                </button>
-                <button
-                  onClick={() => navigate('/msp-invoices')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <FileText className="h-4 w-4" />
-                  {isNb ? "Faktura" : "Invoices"}
-                </button>
-                <button
-                  onClick={() => navigate('/subscriptions')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  {t("nav.subscriptions")}
-                </button>
-                <button
-                  onClick={() => navigate('/terms-and-consent')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <FileCheck className="h-4 w-4" />
-                  {t("nav.termsAndConsent")}
-                </button>
-                <button
-                  onClick={() => navigate('/regulations')}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <Scale className="h-4 w-4" />
-                  {t("nav.regulations")}
-                </button>
-                <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
                   onClick={() => setPartnerOpen(!partnerOpen)}
@@ -604,11 +481,7 @@ const SidebarContent = () => {
                     })}
                   </div>
                 )}
-                <button
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <span className="text-xs">{t("nav.switchOrganization")}</span>
-                </button>
+                <div className="border-t border-sidebar-border my-2" />
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
