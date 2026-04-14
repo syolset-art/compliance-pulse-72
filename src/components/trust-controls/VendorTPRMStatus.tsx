@@ -104,7 +104,9 @@ export const VendorTPRMStatus = ({
   const [innerTab, setInnerTab] = useState<"remaining" | "completed">("remaining");
   const queryClient = useQueryClient();
 
-  const recentActivities = useMemo(() => generateDemoActivities(assetId).slice(0, 3), [assetId]);
+  const allDemoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
+  const pendingActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus === "warning"), [allDemoActivities]);
+  const completedActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus !== "warning").slice(0, 3), [allDemoActivities]);
 
   const OUTCOME_ICON_MAP = { success: CheckCircle2, warning: AlertCircle, info: Timer } as const;
 
