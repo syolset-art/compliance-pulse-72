@@ -212,6 +212,8 @@ const TrustCenterEditProfile = () => {
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
   const gdprRole: string = meta.gdpr_data_role || "processor";
+  const customServiceType: string = meta.custom_service_type || "";
+  const serviceDescription: string = meta.service_description || "";
 
 
 
@@ -408,7 +410,51 @@ const TrustCenterEditProfile = () => {
                       );
                     })}
                   </div>
-                </div>
+                  </div>
+
+                  {/* Custom service type */}
+                  <div className="pt-2 space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isNb ? "Annen type? Skriv inn her" : "Other type? Enter here"}
+                    </label>
+                    <Input
+                      placeholder={isNb ? "F.eks. Managed Security Services" : "E.g. Managed Security Services"}
+                      defaultValue={customServiceType}
+                      className="text-sm"
+                      maxLength={100}
+                      onBlur={async (e) => {
+                        const val = e.target.value.trim();
+                        if (val !== customServiceType) {
+                          const newMeta = { ...meta, custom_service_type: val };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          if (val) toast.success(isNb ? "Egendefinert tjenestetype lagret" : "Custom service type saved");
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Service description */}
+                  <div className="pt-2 space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isNb ? "Tilleggsinfo om tjenestene" : "Additional service info"}
+                    </label>
+                    <Textarea
+                      placeholder={isNb ? "Beskriv kort hva dere leverer og til hvem..." : "Briefly describe what you deliver and to whom..."}
+                      defaultValue={serviceDescription}
+                      className="text-sm min-h-[60px]"
+                      maxLength={500}
+                      onBlur={async (e) => {
+                        const val = e.target.value.trim();
+                        if (val !== serviceDescription) {
+                          const newMeta = { ...meta, service_description: val };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          if (val) toast.success(isNb ? "Tilleggsinfo lagret" : "Additional info saved");
+                        }
+                      }}
+                    />
+                  </div>
 
                 {/* Business areas */}
                 <div className="space-y-2 pt-2 border-t border-border">
