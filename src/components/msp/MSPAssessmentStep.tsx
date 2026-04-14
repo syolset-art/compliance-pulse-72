@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   MSP_ASSESSMENT_QUESTIONS,
+  ASSESSMENT_CATEGORIES,
   type AssessmentAnswer,
   type AssessmentResponse,
 } from "@/lib/mspAssessmentQuestions";
@@ -20,6 +20,13 @@ const ANSWER_OPTIONS: { value: AssessmentAnswer; label: string; icon: React.Elem
   { value: "unsure", label: "Usikker", icon: HelpCircle, color: "border-yellow-500 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" },
 ];
 
+const categoryOrder: Array<keyof typeof ASSESSMENT_CATEGORIES> = [
+  "governance",
+  "operations",
+  "privacy",
+  "thirdparty",
+];
+
 export function MSPAssessmentStep({ responses, onChange }: MSPAssessmentStepProps) {
   const answered = responses.filter((r) => r.answer).length;
 
@@ -30,59 +37,68 @@ export function MSPAssessmentStep({ responses, onChange }: MSPAssessmentStepProp
     onChange([...existing, { question_key: key, answer }]);
   };
 
+  const questionsByCategory = categoryOrder.map((cat) => ({
+    category: cat,
+    ...ASSESSMENT_CATEGORIES[cat],
+    questions: MSP_ASSESSMENT_QUESTIONS.filter((q) => q.category === cat),
+  }));
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Compliance-kartlegging – still disse spørsmålene til kunden
+          Still disse spørsmålene til kunden for å kartlegge compliance-status
         </p>
-        <Badge variant="outline">
-          {answered}/{MSP_ASSESSMENT_QUESTIONS.length} besvart
+        <Badge variant="outline" className="text-sm">
+          {answered}/{MSP_ASSESSMENT_QUESTIONS.length}
         </Badge>
       </div>
 
-      <div className="space-y-3">
-        {MSP_ASSESSMENT_QUESTIONS.map((q) => {
-          const current = getResponse(q.key);
-          return (
-            <div
-              key={q.key}
-              className="rounded-lg border border-border p-3 space-y-2"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
+      {questionsByCategory.map(({ category, label, questions }) => (
+        <div key={category} className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-1">
+            {label}
+          </p>
+          {questions.map((q) => {
+            const current = getResponse(q.key);
+            return (
+              <div
+                key={q.key}
+                className="rounded-lg border border-border p-3 space-y-2"
+              >
+                <div>
                   <p className="text-sm font-medium text-foreground">{q.question_no}</p>
                   {q.iso_reference && (
                     <p className="text-[10px] text-muted-foreground mt-0.5">{q.iso_reference}</p>
                   )}
                 </div>
+                <div className="flex gap-2">
+                  {ANSWER_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = current?.answer === opt.value;
+                    return (
+                      <Button
+                        key={opt.value}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "flex-1 gap-1.5 transition-all text-sm",
+                          isSelected && opt.color
+                        )}
+                        onClick={() => setAnswer(q.key, opt.value)}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {opt.label}
+                      </Button>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {ANSWER_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  const isSelected = current?.answer === opt.value;
-                  return (
-                    <Button
-                      key={opt.value}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "flex-1 gap-1.5 transition-all",
-                        isSelected && opt.color
-                      )}
-                      onClick={() => setAnswer(q.key, opt.value)}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      {opt.label}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
