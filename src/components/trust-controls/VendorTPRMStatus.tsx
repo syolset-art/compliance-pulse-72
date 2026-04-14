@@ -8,10 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown, ClipboardList } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 import { generateDemoActivities, formatRelativeDate, PHASE_CONFIG, OUTCOME_COLORS } from "@/utils/vendorActivityData";
+
+interface OpenTask {
+  id: string;
+  title: string;
+  type?: string;
+  status: string;
+  priority?: string;
+  action?: string | null;
+  targetTab?: string | null;
+  ctaLabel?: string | null;
+  isControlTask?: boolean;
+}
 
 interface VendorTPRMStatusProps {
   assetId: string;
@@ -28,6 +40,9 @@ interface VendorTPRMStatusProps {
     trustScore: number;
   } | null;
   onNavigateToTab?: (tab: string) => void;
+  openTasks?: OpenTask[];
+  highlightedTaskId?: string | null;
+  responsiblePerson?: string;
 }
 
 type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
@@ -51,19 +66,10 @@ function getTPRMLevel(
   const maturityStarted = maturity && maturity.implementedCount > 0;
   const maturityScore = maturity?.trustScore ?? 0;
   const controlRatio = totalControls > 0 ? controlsMet / totalControls : 0;
-
-  // Nothing done at all
   if (!maturityStarted && controlsMet === 0 && risk === null) return "not_assessed";
-
-  // High risk with low maturity or few controls → action required
   if (risk === "high" && maturityScore < 50 && controlRatio < 0.75) return "action_required";
-
-  // Good maturity + good controls → approved
   if (maturityScore >= 75 && controlRatio >= 0.5) return "approved";
-
-  // Any work started → under review
   if (maturityStarted || controlsMet > 0) return "under_review";
-
   return "not_assessed";
 }
 
@@ -86,17 +92,23 @@ export const VendorTPRMStatus = ({
   tasks = [],
   maturityStats,
   onNavigateToTab,
+  openTasks = [],
+  highlightedTaskId,
+  responsiblePerson,
 }: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [requestOpen, setRequestOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState<boolean | null>(null);
   const [requestType, setRequestType] = useState<string | undefined>();
   const queryClient = useQueryClient();
 
   const recentActivities = useMemo(() => generateDemoActivities(assetId).slice(0, 3), [assetId]);
 
   const OUTCOME_ICON_MAP = { success: CheckCircle2, warning: AlertCircle, info: Timer } as const;
+
+  // Auto-expand when there are open tasks (first load only)
+  const effectiveExpanded = expanded === null ? openTasks.length > 0 : expanded;
 
   const { data: asset } = useQuery({
     queryKey: ["asset-tprm", assetId],
@@ -150,12 +162,10 @@ export const VendorTPRMStatus = ({
   ];
 
   const controlsMet = controls.filter((c) => c.met).length;
-  const missingControls = controls.filter((c) => !c.met);
   const risk = getRiskLevel(asset?.criticality, asset?.risk_level);
   const autoLevel = getTPRMLevel(risk, controlsMet, controls.length, maturityStats);
   const effectiveLevel: TPRMLevel = (asset?.tprm_status as TPRMLevel) || autoLevel;
 
-  // Auto-persist status when calculated level changes and differs from stored
   useEffect(() => {
     if (!asset) return;
     const stored = asset.tprm_status as TPRMLevel | null;
@@ -187,20 +197,11 @@ export const VendorTPRMStatus = ({
     onNavigateToTab?.("vendor-audit");
   };
 
-  const findMatchingTask = (keywords: string[]) => {
-    return tasks.find((t) => {
-      if (t.status === "completed") return false;
-      const titleLower = t.title.toLowerCase();
-      const typeLower = t.type?.toLowerCase() || "";
-      return keywords.some((kw) => titleLower.includes(kw) || typeLower.includes(kw));
-    });
-  };
-
   return (
     <>
       <Card className={`${cfg.bg} border ${cfg.border} overflow-hidden`}>
         <CardContent className="p-0">
-          <Collapsible open={expanded} onOpenChange={setExpanded}>
+          <Collapsible open={effectiveExpanded} onOpenChange={setExpanded}>
             {/* Always-visible compact header */}
             <div className="p-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
@@ -225,6 +226,14 @@ export const VendorTPRMStatus = ({
                     </span>
                   </>
                 )}
+                {openTasks.length > 0 && (
+                  <>
+                    <span className="text-border">·</span>
+                    <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
+                      {openTasks.length} {isNb ? "oppgaver" : "tasks"}
+                    </Badge>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <Select
@@ -246,7 +255,7 @@ export const VendorTPRMStatus = ({
                 </Select>
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${effectiveExpanded ? "rotate-180" : ""}`} />
                   </Button>
                 </CollapsibleTrigger>
               </div>
@@ -285,20 +294,6 @@ export const VendorTPRMStatus = ({
                     ) : (
                       <span className="text-muted-foreground italic text-xs">{isNb ? "Ikke satt" : "Not set"}</span>
                     )}
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
-                          <p className="font-semibold mb-1">{isNb ? "Risikonivå" : "Risk level"}</p>
-                          <p>{isNb
-                            ? "Risikonivået settes basert på leverandørens kritikalitet, datatyper og land."
-                            : "Risk level is based on the vendor's criticality, data types, and country."
-                          }</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
                   </span>
                   {maturityStats && (
                     <>
@@ -318,53 +313,21 @@ export const VendorTPRMStatus = ({
                           ({maturityStats.trustScore}%)
                         </span>
                       </button>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-relaxed p-2.5">
-                            <p className="font-semibold mb-1">{isNb ? "Kontroll og modenhet" : "Control & maturity"}</p>
-                            <p>{isNb
-                              ? "Viser hvor mange kontroller som er oppfylt. Klikk for å se detaljene."
-                              : "Shows how many controls are met. Click to view details."
-                            }</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
                     </>
                   )}
                 </div>
 
-                {/* Remaining tasks summary */}
-                {maturityStats && maturityStats.totalControls - maturityStats.implementedCount > 0 && (
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById("vendor-tasks-section");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                    className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 border border-border hover:border-primary/30 transition-colors w-full text-left"
-                  >
-                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-foreground">
-                        {maturityStats.totalControls - maturityStats.implementedCount} {isNb ? "kontroller gjenstår for å nå" : "controls remaining to reach"} «{tprmConfig.approved.label}»
-                      </p>
-                      <span className="text-[10px] text-primary mt-1 inline-block">
-                        {isNb ? "Se i oppgaver ↓" : "View in tasks ↓"}
-                      </span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Recent Activities */}
+                {/* ── UTFØRT (Completed) — Recent Activities ── */}
                 <div className="border-t border-border pt-3 mt-1 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {isNb ? "Siste aktiviteter" : "Recent activities"}
+                        {isNb ? "Utført" : "Completed"}
                       </span>
+                      <Badge variant="outline" className="text-[9px] px-1 py-0 h-4">
+                        {recentActivities.length}
+                      </Badge>
                     </div>
                     <Button
                       variant="ghost"
@@ -407,6 +370,76 @@ export const VendorTPRMStatus = ({
                       );
                     })}
                   </div>
+                </div>
+
+                {/* ── GJENSTÅR (Remaining Tasks) ── */}
+                <div className="border-t border-border pt-3 mt-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <ClipboardList className="h-3.5 w-3.5 text-warning" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {isNb ? "Gjenstår" : "Remaining"} ({openTasks.length})
+                      </span>
+                    </div>
+                    {responsiblePerson && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
+                      </span>
+                    )}
+                  </div>
+                  {openTasks.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {openTasks.map((task) => {
+                        const isHighlighted = highlightedTaskId === task.id;
+                        return (
+                          <div
+                            key={task.id}
+                            id={`task-${task.id}`}
+                            className={`flex items-start sm:items-center justify-between gap-3 p-2.5 rounded-lg transition-all duration-500 ${
+                              isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-background/60 border border-border"
+                            }`}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <div className={`h-2 w-2 rounded-full shrink-0 ${
+                                  task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
+                                }`} />
+                                <span className="text-xs font-medium text-foreground">{task.title}</span>
+                                {task.isControlTask && (
+                                  <Shield className="h-3 w-3 text-primary/60 shrink-0" />
+                                )}
+                                {task.priority === "high" && (
+                                  <Badge variant="destructive" className="text-[9px] shrink-0 h-4">
+                                    {isNb ? "Høy" : "High"}
+                                  </Badge>
+                                )}
+                              </div>
+                              {task.action && (
+                                <p className="text-[10px] text-muted-foreground mt-0.5 ml-4">
+                                  {task.action}
+                                </p>
+                              )}
+                            </div>
+                            {task.ctaLabel && task.targetTab && onNavigateToTab && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 text-[10px] gap-1 shrink-0 whitespace-nowrap"
+                                onClick={() => onNavigateToTab(task.targetTab!)}
+                              >
+                                {task.ctaLabel}
+                                <ArrowRight className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">
+                      {isNb ? "Ingen åpne oppgaver — godt jobbet! 🎉" : "No open tasks — great work! 🎉"}
+                    </p>
+                  )}
                 </div>
               </div>
             </CollapsibleContent>

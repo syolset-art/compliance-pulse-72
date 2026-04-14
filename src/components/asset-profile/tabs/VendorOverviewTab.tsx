@@ -309,6 +309,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
 
       {/* ─── SECTION 1: Our Maturity Work — with TPRM status as module title ─── */}
       <section>
+        <div ref={tasksRef} id="vendor-tasks-section">
         <VendorTPRMStatus
           assetId={asset.id}
           assetName={asset.name}
@@ -317,6 +318,9 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           contactEmail={asset.contact_email || undefined}
           tasks={tasks}
           onNavigateToTab={onNavigateToTab}
+          openTasks={openTasks}
+          highlightedTaskId={highlightedTaskId}
+          responsiblePerson={responsiblePerson}
           maturityStats={evaluation ? {
             implementedCount: evaluation.implementedCount,
             partialCount: evaluation.partialCount,
@@ -325,98 +329,9 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             trustScore: evaluation.trustScore,
           } : null}
         />
+        </div>
 
         <div className="space-y-4 mt-4">
-          {/* Tasks card */}
-          <div ref={tasksRef} id="vendor-tasks-section">
-          <Card>
-            <button
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors rounded-t-lg"
-              onClick={() => setTasksExpanded(!effectiveTasksExpanded)}
-            >
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Oppgaver" : "Tasks"} ({openTasks.length})
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {isNb
-                    ? "Oppgaver som må følges opp for å løfte samsvar og dokumentasjon."
-                    : "Tasks to follow up to improve compliance and documentation."}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {openTasks.length > 0 && (
-                  <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
-                    {openTasks.length} {isNb ? "ÅPNE" : "OPEN"}
-                  </Badge>
-                )}
-                <span className="text-xs text-muted-foreground">
-                  {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
-                </span>
-                {effectiveTasksExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-            </button>
-            {effectiveTasksExpanded && (
-              <CardContent className="pt-0 pb-4 px-4">
-                {openTasks.length > 0 ? (
-                  <div className="space-y-2 border-t border-border pt-3">
-                    {openTasks.map((task: any) => {
-                      const isHighlighted = highlightedTaskId === task.id;
-                      return (
-                      <div
-                        key={task.id}
-                        id={`task-${task.id}`}
-                        className={`flex items-start sm:items-center justify-between gap-3 p-3 rounded-lg transition-all duration-500 ${
-                          isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-muted/50"
-                        }`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <div className={`h-2 w-2 rounded-full shrink-0 mt-0.5 ${
-                              task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
-                            }`} />
-                            <span className="text-sm font-medium text-foreground">{task.title}</span>
-                            {task.priority && (
-                              <Badge variant={task.priority === "high" ? "destructive" : "secondary"} className="text-[10px] shrink-0">
-                                {task.priority === "high" ? (isNb ? "Høy" : "High") : (isNb ? "Medium" : "Medium")}
-                              </Badge>
-                            )}
-                          </div>
-                          {task.action && (
-                            <p className="text-xs text-muted-foreground mt-1 ml-4">
-                              {task.action}
-                            </p>
-                          )}
-                        </div>
-                        {task.ctaLabel && task.targetTab && onNavigateToTab && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs gap-1 shrink-0 whitespace-nowrap"
-                            onClick={() => onNavigateToTab(task.targetTab)}
-                          >
-                            {task.ctaLabel}
-                            <ArrowRight className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
-                    {isNb ? "Ingen åpne oppgaver" : "No open tasks"}
-                  </p>
-                )}
-              </CardContent>
-            )}
-          </Card>
-          </div>
-
           {/* Trust Controls Panel — maturity per control area */}
           <div id="maturity-controls-section">
             <TrustControlsPanel
