@@ -32,7 +32,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
-  const top3 = actions.slice(0, 3);
+  const top = actions.slice(0, 5);
 
   if (top3.length === 0) {
     return (
