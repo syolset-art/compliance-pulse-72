@@ -80,6 +80,8 @@ export default function DashboardV2() {
         completed_at: null,
         completed_by: null,
         maturity_level: null,
+        progress_percent: 0,
+        is_ai_handling: false,
         id: t.id,
         _source: "user" as const,
       }));
