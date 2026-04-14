@@ -246,18 +246,18 @@ const Regulations = () => {
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                Krav og standarder
+                Regelverk og standarder
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
                   {allActiveFrameworks.length}
                 </span>
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
-                Velg et krav eller en standard for å se status
+                Velg et regelverk eller en standard for å se status
               </p>
             </div>
             <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => setShowEditDialog(true)}>
               <Settings2 className="h-4 w-4" />
-              Endre krav
+              Endre regelverk
             </Button>
           </div>
 
