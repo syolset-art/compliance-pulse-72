@@ -83,7 +83,7 @@ const STATUS_ICON = {
   not_started: Circle,
 };
 
-const PILLAR_COLORS = ["hsl(var(--primary))", "hsl(var(--warning))", "hsl(var(--destructive))", "#8b5cf6", "#06b6d4"];
+
 
 export function AggregatedMaturityWidget() {
   const { i18n } = useTranslation();
