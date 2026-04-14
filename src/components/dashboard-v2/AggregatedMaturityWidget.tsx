@@ -39,29 +39,42 @@ function coverageLabel(score: number, isNb: boolean) {
   return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" };
 }
 
-function generateHistoryData(currentScores: Record<string, number>, isNb: boolean) {
-  const months = isNb
-    ? ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"]
-    : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const now = new Date();
-  const currentMonth = now.getMonth();
+function generateFrameworkHistory(currentScore: number) {
+  const months = ["Okt", "Nov", "Des", "Jan", "Feb", "Mar", "Apr"];
   const data = [];
-  for (let i = 5; i >= 0; i--) {
-    const monthIdx = (currentMonth - i + 12) % 12;
-    const factor = 1 - i * 0.12;
-    const entry: Record<string, any> = { month: months[monthIdx] };
-    let total = 0;
-    let count = 0;
-    for (const pillar of PILLARS) {
-      const score = Math.max(0, Math.round((currentScores[pillar.key] || 0) * factor + (Math.random() * 5 - 2)));
-      entry[pillar.key] = Math.min(100, score);
-      total += entry[pillar.key];
-      count++;
-    }
-    entry.overall = Math.round(total / (count || 1));
-    data.push(entry);
+  for (let i = 6; i >= 0; i--) {
+    const factor = 1 - i * 0.1;
+    const jitter = Math.sin(i * 3.7) * 4;
+    data.push({
+      month: months[6 - i],
+      score: Math.min(100, Math.max(0, Math.round(currentScore * factor + jitter))),
+    });
   }
   return data;
+}
+
+function CircularGauge({ percent, size = 40 }: { percent: number; size?: number }) {
+  const r = (size - 6) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (percent / 100) * circ;
+  const color = percent >= 67 ? "hsl(142, 71%, 45%)" : percent >= 34 ? "hsl(38, 92%, 50%)" : "hsl(var(--destructive))";
+  return (
+    <svg width={size} height={size} className="shrink-0">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={3} />
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke={color} strokeWidth={3}
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
+        className="fill-foreground text-[9px] font-bold"
+      >
+        {percent}%
+      </text>
+    </svg>
+  );
 }
 
 const STATUS_ICON = {
