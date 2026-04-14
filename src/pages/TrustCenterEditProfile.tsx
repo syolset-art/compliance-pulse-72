@@ -78,18 +78,6 @@ const TrustCenterEditProfile = () => {
     },
   });
 
-  const { data: linkedProducts = [] } = useQuery({
-    queryKey: ["linked-products-edit", asset?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("asset_relationships")
-        .select("target_asset_id, description, assets!asset_relationships_target_asset_id_fkey(id, name, asset_type)")
-        .eq("source_asset_id", asset!.id)
-        .eq("relationship_type", "service_of");
-      return data || [];
-    },
-    enabled: !!asset?.id,
-  });
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
 
@@ -165,10 +153,9 @@ const TrustCenterEditProfile = () => {
     ];
     return {
       company: { done: companyChecks.filter(Boolean).length, total: companyChecks.length },
-      linked: { done: linkedProducts.length > 0 ? 1 : 0, total: 1 },
       regulations: { done: frameworks.length > 0 ? 1 : 0, total: 1 },
     };
-  }, [companyProfile, assetMeta2, linkedProducts, frameworks]);
+  }, [companyProfile, assetMeta2, frameworks]);
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -268,7 +255,7 @@ const TrustCenterEditProfile = () => {
               trustScore={trustScore}
               companyProfile={companyProfile}
               frameworks={frameworks}
-              linkedProducts={linkedProducts}
+              linkedProducts={[]}
               evaluation={evaluation}
             />
 
@@ -277,7 +264,7 @@ const TrustCenterEditProfile = () => {
               {[
                 { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                { icon: Package, label: isNb ? "Produkter" : "Products", anchor: "#linked" },
+                
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
               ].map(tab => (
@@ -548,59 +535,28 @@ const TrustCenterEditProfile = () => {
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Produkter og tjenester */}
             {/* ═══════════════════════════════════════════ */}
-            <section id="linked" className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">
-                  {isNb ? "Produkter og tjenester" : "Products & Services"}
-                </h2>
-                <Badge variant="secondary" className="text-[10px] ml-auto">
-                  {isNb ? "Valgfritt" : "Optional"}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Du kan legge til individuelle produktprofiler senere. Din organisasjonsprofil fungerer selvstendig."
-                  : "You can add individual product profiles later. Your organization profile works on its own."}
-              </p>
-
-              <Card className="p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-muted-foreground" />
-                    {isNb ? "Produktprofiler" : "Product Profiles"}
-                  </h3>
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate("/trust-center/products")}>
-                    <Plus className="h-3 w-3" />
-                    {isNb ? "Ny produktprofil" : "New product profile"}
-                  </Button>
+            {/* Compact link to Products & Services */}
+            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-foreground">
+                    {isNb
+                      ? "Har du flere produkter eller tjenester?"
+                      : "Do you have additional products or services?"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {isNb
+                      ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt."
+                      : "You can create separate Trust Profiles for these — completely optional."}
+                  </p>
                 </div>
-
-                {linkedProducts.length === 0 ? (
-                  <div className="text-center py-8 space-y-3">
-                    <Package className="h-8 w-8 mx-auto text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">{isNb ? "Ingen produktprofiler ennå" : "No product profiles yet"}</p>
-                    <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate("/trust-center/products")}>
-                      <Plus className="h-3 w-3" />
-                      {isNb ? "Opprett din første produktprofil" : "Create your first product profile"}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {linkedProducts.map((lp: any) => (
-                      <button
-                        key={lp.target_asset_id}
-                        onClick={() => navigate(`/assets/${lp.target_asset_id}`)}
-                        className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
-                      >
-                        <span className="text-sm font-medium text-foreground">{lp.assets?.name || "–"}</span>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            </section>
+              </div>
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate("/trust-center/products")}>
+                {isNb ? "Se produkter og tjenester" : "Products & services"}
+                <ChevronDown className="h-3 w-3 -rotate-90" />
+              </Button>
+            </div>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Sikkerhet og kontroller */}

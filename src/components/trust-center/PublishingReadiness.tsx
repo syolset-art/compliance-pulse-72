@@ -40,7 +40,7 @@ export function PublishingReadiness({
     const hasContact = !!(companyProfile?.compliance_officer || companyProfile?.dpo_name);
     const hasControls = trustScore >= 70;
     const hasFramework = frameworks.length > 0;
-    const hasProducts = linkedProducts.length > 0;
+    
 
     return [
       {
@@ -71,15 +71,8 @@ export function PublishingReadiness({
         anchor: "#regulations",
         passed: hasFramework,
       },
-      {
-        id: "products",
-        labelNb: "Produkter eller tjenester koblet",
-        labelEn: "Products or services linked",
-        anchor: "#linked",
-        passed: hasProducts,
-      },
     ];
-  }, [trustScore, companyProfile, frameworks, linkedProducts]);
+  }, [trustScore, companyProfile, frameworks]);
 
   const passedCount = checks.filter((c) => c.passed).length;
   const readinessPercent = Math.round((passedCount / checks.length) * 100);
