@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { AlertTriangle } from "lucide-react";
 import { nb } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { Shield, ShieldCheck, UserCheck, UserX } from "lucide-react";
