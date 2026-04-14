@@ -1,69 +1,68 @@
 
 
-## Plan: Aggregert «Modenhet per kontrollområde» — Dashboard-widget
+## Plan: Historisk utvikling per regelverk — Dashboard-widget
 
 ### Oversikt
-Erstatter den nåværende `ControlsWidget` og `MaturityOverview` på DashboardV2 med en ny, rikere widget som speiler layouten fra leverandør/system-profilvisningen (ref. bildene), men i en aggregert dashbord-versjon. Widgeten kombinerer de beste elementene fra `SecurityFoundationsWidget` (drill-down, historikk-graf) og `ControlsWidget` (intervallvelger, kompakt telling).
+Erstatter den nåværende historikk-visningen (som viser trender per kontrollområde) med en ny visning som viser **samsvarsscore per regelverk** med historisk utvikling. Inspirert av «Samsvarsvarsanalyse & Gap-analyse»-layouten fra skjermbildet, men tilpasset som en kompakt dashbord-widget.
 
 ### Hva bygges
 
-**Ny komponent: `src/components/dashboard-v2/AggregatedMaturityWidget.tsx`**
+**Oppdatert `AggregatedMaturityWidget.tsx`** — historikk-toggle erstattes med en ny visning:
 
-Struktur (inspirert av skjermbildene):
+**1. Regelverks-kort i grid (erstatter pillar-historikk-grafen)**
+
+Når brukeren klikker «Historikk», vises i stedet:
 
 ```text
-┌─────────────────────────────────────────────────┐
-│ Modenhet per kontrollområde  [LAV/HØY]  [↗] 38%│
-│ Aggregert på tvers av leverandører og systemer   │
-│ ● Leverandørers baseline: X%  ● Eget arbeid: Y% │
-│ ═══════════════════════════════════              │
-│ [4 OPPFYLT] [9 GJENSTÅR] [5 KONTROLLOMRÅDER]    │
-├─────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐             │
-│  │ Styring  100%│  │ Drift    83% │             │
-│  │ 1/1 oppfylt  │  │ 2/3 oppfylt  │             │
-│  │ GOD DEKNING  │  │ GOD DEKNING  │             │
-│  │ ████████████ │  │ █████████░░░ │             │
-│  └──────────────┘  └──────────────┘             │
-│  ┌──────────────┐  ┌──────────────┐             │
-│  │ Identitet  0%│  │ Personvern 0%│             │
-│  │ 0/0 oppfylt  │  │ 0/5 oppfylt  │             │
-│  │ LAV DEKNING  │  │ 5 gjenstår   │             │
-│  └──────────────┘  └──────────────┘             │
-│  ┌──────────────────────────────────┐           │
-│  │ Leverandører og økosystem    38% │           │
-│  └──────────────────────────────────┘           │
-├─────────────────────────────────────────────────┤
-│ [Historikk-bryter → Linjegraf med trend]        │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│ Samsvarsvarsanalyse & Gap-analyse   14.4.2026           │
+│ [8 REGELVERK]                            [Se mer →]     │
+├─────────────────────────────────────────────────────────┤
+│ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────┐│
+│ │ ◎ 42%      │ │ ◎ 75%      │ │ ◎ 61%      │ │ ◎ 53%  ││
+│ │ AI Act     │ │ Åpenhet    │ │ GDPR       │ │ ISO    ││
+│ │ MIDDELS    │ │ MIDDELS    │ │ MIDDELS    │ │ 42001  ││
+│ │ ✓ 6/15    │ │ ✓ 6/8     │ │ ✓ 9/16    │ │ ✓ 5/12 ││
+│ └────────────┘ └────────────┘ └────────────┘ └────────┘│
+│ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────┐│
+│ │ ◎ 42%      │ │ ◎ 40%      │ │ ◎ 48%      │ │ ◎ 65%  ││
+│ │ ISO27001   │ │ NIS2       │ │ NSMs gru.. │ │ Person ││
+│ └────────────┘ └────────────┘ └────────────┘ └────────┘│
+├─────────────────────────────────────────────────────────┤
+│ Historisk utvikling                                      │
+│ ┌───────────────────────────────────────────────────────┐│
+│ │ [Linjegraf med aggregert trend + event-prikker]       ││
+│ └───────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────┘
 ```
 
-Funksjonalitet:
-1. **Header**: Tittel, deknings-badge (LAV/GOD/HØY DEKNING), historikk-knapp (TrendingUp), total prosent
-2. **Stacked progress bar**: Viser leverandørers baseline vs. eget arbeid (gjenbruker `StackedProgress`)
-3. **Sammendragspiller**: «X oppfylt», «Y gjenstår», «Z kontrollområder»
-4. **Domene-kort i 2-kolonne grid**: Hvert kort viser ikon, navn, prosent, assessed/total, dekning-label, fremdriftslinje. Klikk utvider med kontrolliste (gjenbruk fra `SecurityFoundationsWidget`)
-5. **Historikk-visning**: Toggle til linjegraf som viser modenhetstrend over 6 måneder (gjenbruk `generateHistoryData`-logikk)
+**2. Hvert regelverkskort inneholder:**
+- Sirkulær prosent-gauge (donut) med fargekoding (gul for middels, grønn for god, rød for lav)
+- Regelverksnavn (fra `frameworkDefinitions.ts`)
+- Deknings-badge (LAV/MIDDELS/GOD)
+- Assessed/total-telling med checkmark
 
-### Endringer i DashboardV2
+**3. Historisk utvikling under kortene:**
+- En enkel linjegraf som viser aggregert samsvarsscore over tid
+- Event-prikker (grønn=tiltak, rød=hendelse, oransje=revisjon) — som i bilde 2
+- Generert med mock-data basert på nåværende score (samme mønster som eksisterende `generateHistoryData`)
 
-- Fjern `MaturityOverview` fra Zone 2
-- Erstatt med `AggregatedMaturityWidget` som full-bredde widget i Zone 2 (over `RecentActivityFeed`)
-- `RecentActivityFeed` flyttes ned til egen rad eller plasseres ved siden av
+### Endringer
 
-### Endringer i Index.tsx (widgetbar dashboard)
+**`src/components/dashboard-v2/AggregatedMaturityWidget.tsx`:**
+- Beholder kontrollområde-visningen som standard (den nåværende grid-visningen)
+- Erstatter historikk-toggle-innholdet med ny 2-delt visning: regelverkskort-grid + trendlinje
+- Henter data fra `stats.byFramework` (allerede tilgjengelig fra `useComplianceRequirements`)
+- Henter regelverksnavn fra `frameworks` i `frameworkDefinitions.ts`
+- Filtrerer kun aktive rammeverk (de som har krav registrert)
 
-- Oppdater `SecurityFoundationsWidget`-referansen til å bruke den nye aggregerte widgeten, eller la den eksisterende `SecurityFoundationsWidget` forbli for widget-dashboardet
-
-### Fjernes
-
-- `ControlsWidget` fjernes fra bruk (kan beholdes i kodebasen for referanse)
-- `MaturityOverview`-komponenten erstattes av den nye widgeten
+**Ny sub-komponent: sirkulær gauge**
+- Liten SVG donut-ring (40x40px) med prosent i midten
+- Fargekoding: <34% rød, 34-66% gul/oransje, ≥67% grønn
 
 ### Tekniske detaljer
-- Data fra `useComplianceRequirements()` → `stats.byDomainArea` og `stats.overallScore`
-- Dekningslabel-logikk: score >= 67 → «GOD DEKNING», >= 34 → «MIDDELS», < 34 → «LAV DEKNING»
-- Historikkdata genereres med eksisterende mock-logikk (samme som `SecurityFoundationsWidget`)
-- Fargekoding: lilla/primary for progress bars (matcher skjermbildene)
-- Responsiv: 2-kolonne grid på desktop, stacked på mobil
+- `stats.byFramework` returnerer `Record<string, ScoreResult>` med `score`, `assessed`, `total`
+- `frameworks` fra `frameworkDefinitions.ts` gir `id`, `name`, `description`, `category`
+- Ingen nye hooks eller database-endringer nødvendig
+- Responsivt: 4-kolonne grid på desktop, 2 på mobil, stacked på xs
 
