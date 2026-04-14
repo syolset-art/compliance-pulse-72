@@ -643,6 +643,98 @@ export default function PersonalSettings() {
           )}
         </div>
       </main>
+
+      <ContextualHelpPanel
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Settings2}
+        title={isNb ? "Personlige innstillinger" : "Personal Settings"}
+        description={isNb
+          ? "Her administrerer du din profil, varslingsinnstillinger og AI-agenter. Alt du trenger for å tilpasse plattformen til dine behov."
+          : "Manage your profile, notification settings and AI agents. Everything you need to customize the platform."}
+        itemsHeading={isNb ? "Nøkkelfunksjoner" : "Key features"}
+        items={[
+          {
+            icon: User,
+            title: isNb ? "Konto" : "Account",
+            description: isNb
+              ? "Se e-post, roller og sist innlogget tidspunkt"
+              : "View email, roles and last sign-in time",
+          },
+          {
+            icon: Bell,
+            title: isNb ? "Varsler" : "Notifications",
+            description: isNb
+              ? "Styr hvilke varsler du mottar — dokumentutløp, etterlevelse, oppgaver og avvik"
+              : "Control which notifications you receive",
+          },
+          {
+            icon: Bot,
+            title: isNb ? "AI-agenter" : "AI Agents",
+            description: isNb
+              ? "Koble til agenter som automatiserer oppgaver: Etterlevelsesagent (kravoppfølging), Risikoagent (trusselovervåking) og Dokumentagent (klassifisering og utløpsvarsler)"
+              : "Connect agents that automate tasks: Compliance Agent, Risk Agent and Document Agent",
+          },
+          {
+            icon: CreditCard,
+            title: isNb ? "Medlemskap" : "Membership",
+            description: isNb
+              ? "Se abonnement, plan og aktive lisenser"
+              : "View subscription, plan and active licenses",
+          },
+          {
+            icon: Shield,
+            title: isNb ? "Personvern" : "Privacy",
+            description: isNb
+              ? "GDPR-rettigheter, databehandlingsinformasjon og mulighet for datanedlasting eller sletting"
+              : "GDPR rights, data handling info and options for data download or deletion",
+          },
+        ]}
+        whyTitle={isNb ? "Hvorfor er dette viktig?" : "Why is this important?"}
+        whyDescription={isNb
+          ? "Selvbetjening og kontroll over egne innstillinger gir deg full oversikt over hvordan plattformen fungerer for deg. AI-agentene kan spare deg for timer med manuelt arbeid ved å automatisere kravoppfølging, risikovurdering og dokumenthåndtering."
+          : "Self-service and control over your settings gives you full oversight of how the platform works for you. AI agents can save hours of manual work."}
+        actions={[
+          {
+            icon: Bot,
+            title: isNb ? "Gå til Agenter" : "Go to Agents",
+            description: isNb ? "Koble til og administrer AI-agenter" : "Connect and manage AI agents",
+            onClick: () => { setHelpOpen(false); setActiveSection("agents"); },
+          },
+          {
+            icon: Bell,
+            title: isNb ? "Endre varsler" : "Change notifications",
+            description: isNb ? "Tilpass varslingsinnstillinger" : "Customize notification settings",
+            onClick: () => { setHelpOpen(false); setActiveSection("notifications"); },
+          },
+          {
+            icon: CreditCard,
+            title: isNb ? "Se medlemskap" : "View membership",
+            description: isNb ? "Se plan og abonnement" : "View plan and subscription",
+            onClick: () => { setHelpOpen(false); setActiveSection("membership"); },
+          },
+        ]}
+        laraSuggestions={[
+          {
+            label: isNb ? "Forklar agenttjenestene" : "Explain agent services",
+            message: isNb
+              ? "Forklar de tilgjengelige AI-agenttjenestene i Mynder — hva gjør Etterlevelsesagenten, Risikoagenten og Dokumentagenten?"
+              : "Explain the available AI agent services in Mynder",
+          },
+          {
+            label: isNb ? "Hjelp meg sette opp varsler" : "Help me set up notifications",
+            message: isNb
+              ? "Hjelp meg å konfigurere varslene mine optimalt — hvilke bør jeg ha på for best mulig compliance-oppfølging?"
+              : "Help me configure my notifications optimally",
+          },
+          {
+            label: isNb ? "Hva er min rolle?" : "What is my role?",
+            message: isNb
+              ? "Forklar hva min rolle i plattformen betyr og hvilke tilganger den gir meg"
+              : "Explain what my role in the platform means and what access it gives me",
+          },
+        ]}
+      />
     </div>
   );
 }
