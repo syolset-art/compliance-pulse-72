@@ -1,82 +1,23 @@
 
 
-## Plan: Redesign Dashboard til moderne GRC-oversikt
+## Plan: Fjern rollebasert dimming fra sidemenyen
 
-### Nåværende problemer
+### Hva endres
 
-Dashbordet er tungt på compliance-data (shield, XP, streaks) men mangler:
-- **Leverandøroversikt** — ingen innsikt i leverandører/systemer
-- **Siste aktiviteter** — ingen aktivitetshistorikk på tvers
-- **Modenhetsutvikling over tid** — bare snapshot, ingen trend
-- **Oppgaveoversikt** — bare 3 "neste handlinger", ikke helhetlig
-- **Gamification-støy** — XP, streak, levels gir lite verdi for daglig bruk
+Sidemenyen dimmer i dag menypunkter basert på brukerens rolle (40% opacity for "ikke-relevante" lenker via `ROLE_SIDEBAR_HIGHLIGHTS`). Dette fjernes slik at alle menypunkter vises likt for alle brukere.
 
-### Ny struktur (5 soner, no-scroll desktop)
+### Tekniske endringer
 
-```text
-┌─────────────────────────────────────────────────────┐
-│ ZONE 1: Compliance Score + 4 KPI-kort               │
-│ [Donut 38%] [Leverandører 24] [Systemer 18]         │
-│             [Åpne oppgaver 7] [Avvik 2]             │
-├──────────────────────┬──────────────────────────────┤
-│ ZONE 2: Modenhet     │ ZONE 3: Siste aktiviteter    │
-│ per fokusområde      │ (tidslinje på tvers av alt)   │
-│ + sparkline-trend    │ [Oppgave fullført...]         │
-│                      │ [Leverandør oppdatert...]     │
-│                      │ [Avvik registrert...]         │
-├──────────────────────┴──────────────────────────────┤
-│ ZONE 4: Krever din oppmerksomhet (topp 5 oppgaver)  │
-├─────────────────────────────────────────────────────┤
-│ ZONE 5: Risikobilde + Årshjul (kompakt, som nå)    │
-└─────────────────────────────────────────────────────┘
-```
+**Fil: `src/components/Sidebar.tsx`**
+- Fjern import av `useUserRole` og `ROLE_SIDEBAR_HIGHLIGHTS`
+- Fjern `primaryRole` og `highlights` variablene
+- Forenkle alle `className`-logikk: fjern `isHighlighted`-sjekken og bruk kun `isActive` vs standard styling (full opacity for alle)
 
-### Tekniske detaljer
+**Fil: `src/components/dashboard-v2/NextActionCards.tsx`**
+- Fiks build-feilen: variabelen `top3` finnes ikke men filen ser korrekt ut — dette kan skyldes at filen ikke ble lagret riktig. Skriver filen på nytt for å sikre ren tilstand.
 
-**Fil: `src/pages/DashboardV2.tsx`**
-- Fjern XP, streak, level-beregninger (gamification)
-- Legg til nye queries: leverandørtelling (`assets` med `asset_type = vendor`), systemtelling (`asset_type = system`), avvikstelling (`employee_deviation_reports` med `status != closed`), siste aktiviteter (aggregert fra `user_tasks`, `lara_inbox`, `employee_deviation_reports`)
-- Oppdater header fra "Dashboard 2.0" / "Beta" til bare "Dashboard"
-- Ny layout med 5 soner
+**Fil: `src/components/dashboard/RoleSwitcher.tsx`**
+- Slett filen (den brukes ikke noe sted)
 
-**Ny fil: `src/components/dashboard-v2/KPIRow.tsx`**
-- 4 kompakte KPI-kort: Leverandører, Systemer, Åpne oppgaver, Avvik
-- Hvert kort med ikon, tall og kort undertekst
-- Klikk navigerer til relevant side
-
-**Ny fil: `src/components/dashboard-v2/RecentActivityFeed.tsx`**
-- Henter siste 10 hendelser fra: `user_tasks` (nyopprettet/fullført), `lara_inbox` (nye hendelser), `employee_deviation_reports` (nye avvik)
-- Sorterer kronologisk, viser tidslinje med ikon, tittel, relativ tid
-- Kompakt liste, maks 8-10 elementer
-
-**Ny fil: `src/components/dashboard-v2/MaturityOverview.tsx`**
-- Viser de 4 fokusområdene med progress bars (som nå)
-- Legger til mini sparkline-trend (siste 3 måneder) basert på `maturity_milestones`-tabellen
-- Erstatter den eksisterende per-regelverk + per-fokusområde splitten med én enhetlig visning
-
-**Refaktorering: `src/components/dashboard-v2/ComplianceShield.tsx`**
-- Forenkle til bare donut-score + statusmelding + modenhetsnivå (fjern XP, streak, flame, quick-action buttons)
-- Gjør den mer kompakt — én rad med donut til venstre og KPI-kort til høyre
-
-**Refaktorering: `src/components/dashboard-v2/NextActionCards.tsx`**
-- Utvid fra 3 til 5 elementer
-- Inkluder brukeroppgaver fra `user_tasks` (ikke bare compliance-krav)
-- Sortér etter prioritet (critical → high → medium → low)
-- Vis status, ansvarlig og frist
-
-**Beholdes som de er:** `SecurityBreachWidget` (flyttes ned), `RiskAndCalendarSection` (komprimeres)
-
-### Hva fjernes
-- XP-system og streak fra dashbordet
-- Quick-action buttons (Kontroller, ISO Readiness, Regelverk) — dette er navigasjon, dekket av sidemenyen
-- Per-regelverk breakdown (duplikat av per-fokusområde)
-- "Beta"-badge
-
-### Dataspørringer (nye)
-Alle fra eksisterende tabeller, ingen DB-endringer:
-- `assets` → count per type (vendor, system)
-- `user_tasks` → åpne oppgaver + siste fullførte
-- `employee_deviation_reports` → åpne avvik
-- `lara_inbox` → siste hendelser
-- `maturity_milestones` → trenddata
+Ingen databaseendringer.
 
