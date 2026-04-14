@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { nb } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
-import { Shield, ShieldCheck } from "lucide-react";
+import { Shield, ShieldCheck, UserCheck, UserX } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MSPCustomer {
   id: string;
@@ -18,6 +19,7 @@ interface MSPCustomer {
   status: string;
   subscription_plan: string;
   last_activity_at: string | null;
+  onboarding_completed?: boolean;
 }
 
 interface MSPCustomerCardProps {
@@ -49,8 +51,14 @@ function getStatusBadge(status: string) {
   }
 }
 
+/** Demo heuristic: customers with high compliance + active status are considered "claimed" */
+function isTrustProfileClaimed(customer: MSPCustomer): boolean {
+  return customer.status === "active" && customer.compliance_score >= 75 && customer.onboarding_completed === true;
+}
+
 export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
   const navigate = useNavigate();
+  const claimed = isTrustProfileClaimed(customer);
 
   const initials = customer.customer_name
     .split(" ")
@@ -80,7 +88,23 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-semibold text-foreground truncate">{customer.customer_name}</h3>
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="font-semibold text-foreground truncate">{customer.customer_name}</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex-shrink-0">
+                    {claimed ? (
+                      <UserCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <UserX className="h-4 w-4 text-muted-foreground/60" />
+                    )}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {claimed ? "Trust Profile claimet av leverandøren" : "Trust Profile ikke claimet"}
+                </TooltipContent>
+              </Tooltip>
+            </div>
             {getStatusBadge(customer.status)}
           </div>
 
@@ -91,6 +115,17 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
             {customer.employees && (
               <Badge variant="outline" className="text-xs">{customer.employees} ansatte</Badge>
             )}
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-xs",
+                claimed
+                  ? "border-green-500/40 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+                  : "border-orange-500/40 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20"
+              )}
+            >
+              {claimed ? "Claimet" : "Ikke claimet"}
+            </Badge>
           </div>
 
           {/* Subscription */}
