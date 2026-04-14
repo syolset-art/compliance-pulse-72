@@ -1,27 +1,38 @@
 
 
-## Plan: Redesign MSP-kundekort med Trust Level
+## Plan: Tillat demo-data uten innlogging
 
-### Endringer
+### Problem
+Tre barrierer hindrer uinnloggede brukere fra å laste ned demo-data:
+1. `seedDemoMSP()` kaster feil «Ikke innlogget» på linje 18
+2. Database-spørringer bruker `enabled: !!user?.id` — kjører aldri uten bruker
+3. RLS-policyer krever `auth.uid()` — alle operasjoner feiler for anonyme
 
-**Fil: `src/components/msp/MSPCustomerCard.tsx`**
+### Løsning
 
-1. **Erstatt «Samsvar»-label og prosenttall** med et Trust Level-system:
-   - Score ≥ 75 → **«High Trust»** (grønn)
-   - Score 50–74 → **«Medium Trust»** (oransje/gul)
-   - Score < 50 → **«Low Trust»** (rød)
+**1. Ny RLS-policy for anonym lesing (database-migrering)**
+- Legg til `SELECT`-policy med `USING (true)` på `msp_customers`, `msp_licenses`, `msp_license_purchases`, `msp_invoices`, `msp_customer_assessments`
+- INSERT/UPDATE/DELETE forblir beskyttet bak `auth.uid()`
 
-2. **Redesign score-seksjonen** til å ligne Trust Profile-headeren:
-   - Sirkulær SVG-gauge (mini-versjon av den i AssetHeader) i stedet for det firkantede bokselementet
-   - Score-tall i midten, «Trust Score» under, og fargekodet Trust Level-badge under gaugen
+**2. Oppdater `src/lib/demoSeedMSP.ts`**
+- Fjern `if (!user) throw new Error("Ikke innlogget")`
+- Bruk en fast demo-bruker-ID (f.eks. `"00000000-0000-0000-0000-000000000000"`) som fallback når `user` er `null`
+- Legg til anonym INSERT-policy med `WITH CHECK (msp_user_id = '00000000-...')` for demo-formål
 
-3. **Rydd opp kortlayout**:
-   - Fjern separate «Claimet/Ikke claimet»-badge (behold kun ikonet med tooltip)
-   - Fjern «Samsvar»-teksten
-   - Flytt frameworks-badges til en mer kompakt visning
-   - Behold claimed-ikon (UserCheck/UserX) ved navn
+**3. Oppdater `MSPDashboard.tsx`, `MSPLicenses.tsx`, `MSPInvoicesTab.tsx`**
+- Fjern `enabled: !!user?.id` fra alle queries (eller sett `enabled: true`)
+- Fjern `user?.id` fra queryKeys der det brukes som filter
 
-### Visuelt resultat
+**4. Oppdater `deleteDemoMSP()` i `demoSeedMSP.ts`**
+- Bruk samme fallback demo-bruker-ID for sletting
 
-Hvert kort får en mini Trust Score-gauge til høyre (samme stil som Trust Profile-headeren) med fargekodet «High Trust» / «Medium Trust» / «Low Trust»-badge under.
+### Filer som endres
+
+| Fil | Endring |
+|-----|---------|
+| Ny migrering | Anonym SELECT + begrenset INSERT-policy |
+| `src/lib/demoSeedMSP.ts` | Fjern auth-krav, bruk fallback-ID |
+| `src/pages/MSPDashboard.tsx` | Fjern `enabled: !!user?.id` |
+| `src/pages/MSPLicenses.tsx` | Ingen endring (bruker ikke user-gating) |
+| `src/components/msp/MSPInvoicesTab.tsx` | Fjern `enabled: !!user?.id` |
 
