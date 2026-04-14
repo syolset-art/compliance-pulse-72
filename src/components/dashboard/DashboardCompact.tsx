@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
+import { DeletionAgentPromoCard } from "./DeletionAgentPromoCard";
+import { DeletionAgentCard } from "./DeletionAgentCard";
 import {
   ShieldCheck,
   AlertTriangle,
