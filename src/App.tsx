@@ -23,6 +23,7 @@ import VendorDashboard from "./pages/VendorDashboard";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
 import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
+import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
 import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
@@ -108,6 +109,7 @@ const App = () => (
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/reports/compliance" element={<ComplianceOverview />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
+                  <Route path="/settings" element={<PersonalSettings />} />
                   <Route path="/regulations" element={<Regulations />} />
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
