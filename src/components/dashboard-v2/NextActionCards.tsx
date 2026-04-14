@@ -34,7 +34,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
   const top = actions.slice(0, 5);
 
-  if (top3.length === 0) {
+  if (top.length === 0) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 flex items-center justify-center text-muted-foreground text-sm">
         {isNorwegian ? "🎉 Ingen ventende handlinger!" : "🎉 No pending actions!"}
@@ -48,7 +48,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
         {isNorwegian ? "Neste handling" : "Next actions"}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {top3.map((action) => {
+        {top.map((action) => {
           const xp = XP_MAP[action.priority] || 10;
           const Icon = CATEGORY_ICON[action.category] || Shield;
           const route = CATEGORY_ROUTE[action.category] || "/tasks";
