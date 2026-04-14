@@ -92,12 +92,8 @@ export default function Subscriptions() {
         <div className="container max-w-4xl mx-auto p-6 space-y-10 pb-20">
 
           {/* Hero heading */}
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">Din compliance-reise</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Start gratis med Trust Center og bygg ut i ditt tempo — legg til regelverk for bredere dekning,
-              eller aktiver moduler for AI-drevet automatisering.
-            </p>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Abonnement</h1>
           </div>
 
           {/* ── STEG 1: TRUST CENTER ── */}
