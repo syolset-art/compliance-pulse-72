@@ -712,6 +712,14 @@ const AssetTrustProfile = () => {
           ? (isNb ? "Hjelp meg med å vurdere risikoen ved denne leverandøren" : "Help me assess the risk of this vendor")
           : (isNb ? "Hjelp meg med å gjennomgå dette systemet" : "Help me review this system")}
       />
+
+      {isVendor && (
+        <RegisterActivityDialog
+          open={activityDialogOpen}
+          onOpenChange={setActivityDialogOpen}
+          onSubmit={() => setActivityDialogOpen(false)}
+        />
+      )}
     </SidebarProvider>
   );
 };
