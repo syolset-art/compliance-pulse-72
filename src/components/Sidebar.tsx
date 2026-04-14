@@ -290,6 +290,8 @@ const SidebarContent = () => {
           );
         })}
 
+        <TrustCenterMenu />
+
         {/* Styringsverktøy section - collapsible */}
         <div className="pt-3">
           <button
@@ -370,7 +372,6 @@ const SidebarContent = () => {
           )}
         </div>
 
-        <TrustCenterMenu />
 
         {/* Innstillinger section */}
         <div className="pt-3">
