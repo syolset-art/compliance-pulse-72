@@ -372,7 +372,6 @@ const SidebarContent = () => {
           )}
         </div>
 
-        <TrustCenterMenu />
 
         {/* Innstillinger section */}
         <div className="pt-3">
