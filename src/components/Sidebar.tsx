@@ -24,7 +24,8 @@ import {
   Bell,
   Pencil,
   Briefcase,
-  Database
+  Database,
+  Lock
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -39,6 +40,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
