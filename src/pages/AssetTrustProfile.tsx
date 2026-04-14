@@ -44,6 +44,7 @@ import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
+import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
