@@ -93,7 +93,7 @@ export default function Subscriptions() {
 
           {/* Hero heading */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{isNb ? "Abonnement" : "Subscription"}</h1>
+            <h1 className="text-2xl font-bold text-foreground">Abonnement</h1>
           </div>
 
           {/* ── STEG 1: TRUST CENTER ── */}
