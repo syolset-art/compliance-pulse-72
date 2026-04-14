@@ -1,58 +1,54 @@
 
 
-## Plan: Reorganiser sidebar-navigasjon
+## Plan: Abonnementsstyrt synlighet av Mynder Core og Registre
 
-### Analyse av brukerens poeng
+### Analyse
 
-Kunder starter typisk med **Trust Profile**, deretter utvider de til Mynder Core. Navigasjonen bør speile denne reisen. Noen menypunkter er feilplassert:
+Produkthierarkiet har tre nivåer av tilgang:
 
-| Nåværende plassering | Menypunkt | Riktig plassering | Begrunnelse |
-|---|---|---|---|
-| Styringsverktøy | Regelverk | **Global** (toppnivå) | Regelverk gjelder hele virksomheten, ikke bare Core |
-| Styringsverktøy | Forespørsler | **Global** (toppnivå, omdøpt) | Meldinger mellom alle parter |
-| Styringsverktøy | Arbeidsområder, Oppgaver, Avvik, Rapporter | **Mynder Core** | Korrekt — dette er kontekstuelt arbeid |
+| Seksjon | Tilgjengelighet | Betingelse |
+|---|---|---|
+| Dashboard, Trust Center, Regelverk & krav, Meldinger | **Alltid synlig** | Gratis for alle |
+| Mynder Core (Arbeidsområder, Oppgaver, Avvik, Rapporter) | **Betinget** | Krever Basis eller høyere |
+| Registre (Leverandører, Systemer, Enheter) | **Betinget** | Krever Basis eller høyere (modulbasert) |
 
-### Ny sidebar-struktur
+### Tilnærming
+
+Seksjonene Mynder Core og Registre skal **alltid vises i sidebaren**, men med en visuell indikator og oppgraderingsknapp for brukere på gratisplanen. Å skjule dem helt ville gjort det vanskelig for brukere å oppdage funksjonaliteten.
+
+### Endringer
+
+**1. `src/components/Sidebar.tsx`**
+- Importere `useSubscription` og hente `currentTier`
+- For Mynder Core og Registre-seksjonene: dersom `currentTier === "free"`, vis seksjonen med redusert opacity og et lite `Lock`-ikon / «Oppgrader»-badge ved siden av tittelen
+- Klikk på en låst seksjon navigerer til `/subscriptions` i stedet for å ekspandere undermenyene
+- Undermenylenker rendres ikke når låst (for å unngå navigasjon til sider som ikke fungerer)
+
+**2. `src/hooks/useSubscription.ts`**
+- Legge til hjelpere: `hasModule(moduleId: "systems" | "vendors"): boolean` og `hasCoreAccess: boolean` som sjekker `currentTier !== "free"`
+- Eksportere disse fra hooken
+
+### Visuell struktur
 
 ```text
 ┌─────────────────────────────────┐
-│  [Logo]            [🌐] [🌙]   │
-├─────────────────────────────────┤
 │  ● Dashboard                    │
-│                                 │
 │  🌍 Trust Center           ▾   │
-│     Trust Profile               │
-│     Rediger profil              │
-│     Products & Services         │
-│     Dokumentasjon & Evidens     │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
-│  ⚖️ Regelverk & krav            │  ← Global toppnivå
-│  ✉️ Meldinger                   │  ← Omdøpt, global toppnivå
+│  ⚖️ Regelverk & krav            │
+│  ✉️ Meldinger                   │
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
-│  📋 Mynder Core             ▾   │  ← Omdøpt fra "Styringsverktøy"
-│     Arbeidsområder              │
-│     Oppgaver                    │
-│     Avvik                       │
-│     Rapporter                   │
+│  📋 Mynder Core      🔒 Oppgr. │  ← Dimmed + lock badge
 │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
-│  🗄️ Registre                ▾   │
-│     Leverandører                │
-│     Systemer                    │
-│     Enheter                     │
+│  🗄️ Registre          🔒 Oppgr. │  ← Dimmed + lock badge
 └─────────────────────────────────┘
 ```
 
-### Endringer i `src/components/Sidebar.tsx`
-
-1. **Flytt «Regelverk» og «Forespørsler» ut av `managementNav`** — gjør dem til egne toppnivå-lenker mellom Trust Center og Mynder Core
-2. **Omdøp «Forespørsler» til «Meldinger»** — oppdater i18n-nøkkel (`nav.messages`) og ikon til `MessageSquare` (fra lucide-react)
-3. **Omdøp seksjonen «Styringsverktøy» til «Mynder Core»** — oppdater i18n-nøkkel (`nav.mynderCore`)
-4. **Oppdater `managementNav`-arrayet** — behold kun Arbeidsområder, Oppgaver, Avvik, Rapporter
-5. **Legg til ny global nav-array** med Regelverk og Meldinger, rendret som enkeltstående lenker med samme styling som Dashboard
+Når brukeren har Basis/Premium vises seksjonene normalt med full funksjonalitet som i dag.
 
 ### Tekniske detaljer
-- Kun endringer i `Sidebar.tsx`
-- Oppdater i18n-filer (nb.json, en.json) med nye nøkler: `nav.messages`, `nav.mynderCore`
-- Nytt ikon-import: `MessageSquare` fra lucide-react
-- Ingen endring i ruter eller sidekomponenter
+- `useSubscription` kalles i `SidebarContent`-komponenten
+- Låst tilstand: `opacity-50`, `Lock`-ikon (h-3 w-3), liten `Badge` med «Oppgrader»
+- Klikk-handler bytter mellom `navigate("/subscriptions")` (låst) og `setOpen(!open)` (ulåst)
+- Ingen nye tabeller eller migrasjoner nødvendig — bruker eksisterende `currentTier` fra abonnementet
 
