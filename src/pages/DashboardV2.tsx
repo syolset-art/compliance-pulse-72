@@ -2,13 +2,14 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Sidebar } from "@/components/Sidebar";
 import { ComplianceShield } from "@/components/dashboard-v2/ComplianceShield";
+import { KPIRow } from "@/components/dashboard-v2/KPIRow";
+import { MaturityOverview } from "@/components/dashboard-v2/MaturityOverview";
+import { RecentActivityFeed } from "@/components/dashboard-v2/RecentActivityFeed";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
 import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalendarSection";
 import { SecurityBreachWidget } from "@/components/widgets/SecurityBreachWidget";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
-import { getISOWeek, getISOWeekYear, subWeeks } from "date-fns";
-
-const XP_MAP: Record<string, number> = { critical: 50, high: 30, medium: 20, low: 10 };
+import { useUserTasks } from "@/hooks/useUserTasks";
 
 const MATURITY_LEVELS = [
   { min: 0, key: "initial", label_no: "Startfase", label_en: "Initial" },
@@ -18,86 +19,29 @@ const MATURITY_LEVELS = [
   { min: 80, key: "optimized", label_no: "Optimalisert", label_en: "Optimized" },
 ];
 
-function calculateStreak(completedDates: string[]): number {
-  if (completedDates.length === 0) return 0;
-
-  const now = new Date();
-  const weekSet = new Set(
-    completedDates.map((d) => {
-      const date = new Date(d);
-      return `${getISOWeekYear(date)}-${getISOWeek(date)}`;
-    })
-  );
-
-  let streak = 0;
-  for (let i = 0; i < 52; i++) {
-    const checkDate = subWeeks(now, i);
-    const weekKey = `${getISOWeekYear(checkDate)}-${getISOWeek(checkDate)}`;
-    if (weekSet.has(weekKey)) {
-      streak++;
-    } else if (i > 0) {
-      break;
-    }
-  }
-  return streak;
-}
-
-const REGULATION_LABELS: Record<string, { label_no: string; label_en: string }> = {
-  privacy: { label_no: "Personvern", label_en: "Privacy" },
-  security: { label_no: "Sikkerhet", label_en: "Security" },
-  ai: { label_no: "AI", label_en: "AI" },
-};
-
 const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> = {
   governance: { label_no: "Styring", label_en: "Governance" },
   operations: { label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
-  identity_access: { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
-  supplier_ecosystem: { label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain" },
-  privacy_data: { label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
+  identity_access: { label_no: "Identitet og tilgang", label_en: "Identity & Access" },
+  supplier_ecosystem: { label_no: "Tredjepartstyring", label_en: "Third-Party Management" },
+  privacy_data: { label_no: "Personvern og data", label_en: "Privacy & Data" },
 };
+
+const PRIORITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
 export default function DashboardV2() {
   const { i18n } = useTranslation();
   const isNorwegian = i18n.language === "nb" || i18n.language === "no";
   const { requirements, grouped, stats } = useComplianceRequirements();
+  const { tasks: userTasks } = useUserTasks();
 
-  // XP
-  const xp = useMemo(
-    () =>
-      requirements
-        .filter((r) => r.status === "completed")
-        .reduce((sum, r) => sum + (XP_MAP[r.priority] || 0), 0),
-    [requirements]
-  );
-
-  // Streak
-  const streak = useMemo(() => {
-    const dates = requirements
-      .filter((r) => r.completed_at)
-      .map((r) => r.completed_at!);
-    return calculateStreak(dates);
-  }, [requirements]);
-
-  // Shield score = overall maturity-based score
   const score = stats.progressPercent;
 
-  // Level
   const level = useMemo(() => {
     const l = [...MATURITY_LEVELS].reverse().find((l) => score >= l.min);
     return l || MATURITY_LEVELS[0];
   }, [score]);
 
-  // Regulation domains (Privacy / Security / AI)
-  const regulationDomains = useMemo(() => {
-    const byReg = stats.byRegulationDomain || {};
-    return ["privacy", "security", "ai"].map((key) => ({
-      label_no: REGULATION_LABELS[key]?.label_no || key,
-      label_en: REGULATION_LABELS[key]?.label_en || key,
-      percent: byReg[key]?.score || 0,
-    }));
-  }, [stats.byRegulationDomain]);
-
-  // Focus areas (Governance / Operations & Security / Privacy & Data Handling / Third-Party & Value Chain)
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
     return ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"].map((key) => ({
@@ -107,43 +51,78 @@ export default function DashboardV2() {
     }));
   }, [stats.byDomainArea]);
 
+  // Merge compliance actions + user tasks, sort by priority
+  const mergedActions = useMemo(() => {
+    const complianceActions = grouped.incompleteManual.map((a) => ({
+      ...a,
+      _source: "compliance" as const,
+    }));
+
+    const openUserTasks = userTasks
+      .filter((t) => t.status !== "done")
+      .map((t) => ({
+        framework_id: "user",
+        requirement_id: t.id,
+        name: t.title,
+        name_no: t.title,
+        category: "organizational" as const,
+        priority: "medium" as const,
+        status: t.status,
+        description: t.description,
+        description_no: t.description,
+        domain: "governance",
+        agent_capability: "manual" as const,
+        sort_order: 0,
+        is_active: true,
+        is_relevant: true,
+        created_at: t.created_at,
+        updated_at: t.updated_at,
+        completed_at: null,
+        completed_by: null,
+        maturity_level: null,
+        id: t.id,
+        _source: "user" as const,
+      }));
+
+    const all = [...complianceActions, ...openUserTasks];
+    all.sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 4) - (PRIORITY_ORDER[b.priority] ?? 4));
+    return all.slice(0, 5);
+  }, [grouped.incompleteManual, userTasks]);
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
       <main className="flex-1 p-6 lg:p-8">
-        <div className="container max-w-5xl mx-auto space-y-6">
+        <div className="container max-w-5xl mx-auto space-y-5">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-foreground">
-              Dashboard 2.0
-            </h1>
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-              Beta
-            </span>
+          <h1 className="text-2xl font-bold text-foreground">
+            Dashboard
+          </h1>
+
+          {/* Zone 1: Shield + KPI */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4">
+            <ComplianceShield
+              score={score}
+              levelLabel_no={level.label_no}
+              levelLabel_en={level.label_en}
+              assessed={stats.overallScore?.assessed || 0}
+              total={stats.overallScore?.total || 0}
+              avgMaturity={stats.overallScore?.avgMaturity || 0}
+            />
+            <KPIRow />
           </div>
 
-          {/* Zone 1: Shield */}
-          <ComplianceShield
-            score={score}
-            xp={xp}
-            streak={streak}
-            level={level.key}
-            levelLabel_no={level.label_no}
-            levelLabel_en={level.label_en}
-            regulationDomains={regulationDomains}
-            focusAreas={focusAreas}
-            assessed={stats.overallScore?.assessed || 0}
-            total={stats.overallScore?.total || 0}
-            avgMaturity={stats.overallScore?.avgMaturity || 0}
-          />
+          {/* Zone 2+3: Maturity + Activity */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <MaturityOverview focusAreas={focusAreas} />
+            <RecentActivityFeed />
+          </div>
 
-          {/* Zone 2: Security breach feed */}
+          {/* Zone 4: Actions */}
+          <NextActionCards actions={mergedActions} />
+
+          {/* Zone 5: Security + Risk/Calendar */}
           <SecurityBreachWidget />
-
-          {/* Zone 3: Next actions */}
-          <NextActionCards actions={grouped.incompleteManual} />
-
-          {/* Zone 4: Risk + Calendar */}
           <RiskAndCalendarSection requirements={requirements} />
         </div>
       </main>
