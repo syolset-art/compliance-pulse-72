@@ -305,7 +305,31 @@ const SidebarContent = () => {
         {/* Separator */}
         <div className="my-2 border-b border-sidebar-border/40" />
 
-        {/* Styringsverktøy section */}
+        {/* Global nav: Regelverk & Meldinger */}
+        {globalNav.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                isActive
+                  ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+              )}
+            >
+              {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+              <item.icon className="h-4 w-4" />
+              {t(item.name)}
+            </Link>
+          );
+        })}
+
+        {/* Separator */}
+        <div className="my-2 border-b border-sidebar-border/40" />
+
+        {/* Mynder Core section */}
         <div>
           <button
             onClick={() => setManagementOpen(!managementOpen)}
@@ -319,7 +343,7 @@ const SidebarContent = () => {
             <div className="flex items-center gap-2.5">
               <Briefcase className="h-4 w-4" />
               <span className="text-xs font-semibold">
-                {t("nav.managementTools", "Styringsverktøy")}
+                {t("nav.mynderCore", "Mynder Core")}
               </span>
             </div>
             <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", managementOpen && "rotate-180")} />
