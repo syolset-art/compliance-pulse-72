@@ -23,7 +23,7 @@ const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
     id: "demo-out-2",
     vendor_name: "Amazon Web Services",
     request_type: "iso_documentation",
-    status: "awaiting",
+    status: "sent",
     due_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
     sent_date: new Date(Date.now() - 3 * 86400000).toISOString().split("T")[0],
   },
@@ -31,7 +31,7 @@ const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
     id: "demo-out-3",
     vendor_name: "Salesforce Inc.",
     request_type: "vendor_assessment",
-    status: "in_progress",
+    status: "awaiting",
     due_date: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
     sent_date: new Date(Date.now() - 8 * 86400000).toISOString().split("T")[0],
   },
@@ -89,7 +89,7 @@ export function OutboundRequestsTab() {
   }, [requests, search, typeFilter, statusFilter]);
 
   const totalSent = requests.length;
-  const awaiting = requests.filter((r) => r.status === "awaiting" || r.status === "in_progress").length;
+  const awaiting = requests.filter((r) => r.status === "sent" || r.status === "awaiting").length;
   const received = requests.filter((r) => r.status === "received").length;
   const overdue = requests.filter((r) => r.status === "overdue").length;
 
@@ -111,7 +111,7 @@ export function OutboundRequestsTab() {
         id: `out-new-${Date.now()}-${type}-${i}`,
         vendor_name: vendorNames?.[id] || `Leverandør ${id.substring(0, 6)}`,
         request_type: type,
-        status: "awaiting" as const,
+        status: "sent" as const,
         due_date: dueDate,
         sent_date: new Date().toISOString().split("T")[0],
       }))
@@ -178,8 +178,8 @@ export function OutboundRequestsTab() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isNb ? "Alle" : "All"}</SelectItem>
-            <SelectItem value="awaiting">{isNb ? "Avventer" : "Awaiting"}</SelectItem>
-            <SelectItem value="in_progress">{isNb ? "Under arbeid" : "In Progress"}</SelectItem>
+            <SelectItem value="sent">{isNb ? "Sendt" : "Sent"}</SelectItem>
+            <SelectItem value="awaiting">{isNb ? "Venter på svar" : "Awaiting reply"}</SelectItem>
             <SelectItem value="received">{isNb ? "Mottatt" : "Received"}</SelectItem>
             <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
           </SelectContent>
