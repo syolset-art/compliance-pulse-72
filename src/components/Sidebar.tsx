@@ -196,19 +196,7 @@ const SidebarContent = () => {
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [hasQualityModule, setHasQualityModule] = useState(false);
 
-  useEffect(() => {
-    const fetchQualityModules = async () => {
-      const { data } = await supabase
-        .from('quality_modules' as any)
-        .select('id')
-        .eq('is_active', true)
-        .limit(1);
-      setHasQualityModule(!!(data && data.length > 0));
-    };
-    fetchQualityModules();
-  }, []);
 
   const handleResetDemo = async () => {
     setResetting(true);
