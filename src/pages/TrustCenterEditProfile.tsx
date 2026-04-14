@@ -194,6 +194,18 @@ const TrustCenterEditProfile = () => {
               </p>
             </div>
 
+            {/* Contextual intro box */}
+            <Card className="p-4 border-primary/20 bg-primary/5">
+              <div className="flex gap-3">
+                <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  {isNb
+                    ? "Trust Profilen er din virksomhets digitale tillitserklæring. Start med å beskrive organisasjonen — du kan legge til produktprofiler når som helst."
+                    : "Your Trust Profile is your organization's digital trust declaration. Start by describing your organization — you can add product profiles at any time."}
+                </p>
+              </div>
+            </Card>
+
             {/* Readiness Indicator */}
             <PublishingReadiness
               trustScore={trustScore}
@@ -208,7 +220,7 @@ const TrustCenterEditProfile = () => {
               {[
                 { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                { icon: Package, label: isNb ? "Koblede profiler" : "Linked profiles", anchor: "#linked" },
+                { icon: Package, label: isNb ? "Produkter" : "Products", anchor: "#linked" },
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
               ].map(tab => (
@@ -405,55 +417,29 @@ const TrustCenterEditProfile = () => {
             </section>
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Koblede profiler */}
+            {/* SECTION: Produkter og tjenester */}
             {/* ═══════════════════════════════════════════ */}
             <section id="linked" className="space-y-4">
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-primary" />
                 <h2 className="text-base font-semibold text-foreground">
-                  {isNb ? "Koblede profiler" : "Linked Profiles"}
+                  {isNb ? "Produkter og tjenester" : "Products & Services"}
                 </h2>
-                <Badge variant={sectionCompleteness.linked.done > 0 ? "action" : "secondary"} className="text-[10px] ml-auto">
-                  {sectionCompleteness.linked.done}/{sectionCompleteness.linked.total}
+                <Badge variant="secondary" className="text-[10px] ml-auto">
+                  {isNb ? "Valgfritt" : "Optional"}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {isNb
-                  ? "Organisasjonens Trust Profile kobles til produkter dere leverer og leverandører dere bruker."
-                  : "Your organization's Trust Profile is linked to your products and vendors."}
+                  ? "Du kan legge til individuelle produktprofiler senere. Din organisasjonsprofil fungerer selvstendig."
+                  : "You can add individual product profiles later. Your organization profile works on its own."}
               </p>
 
-              {/* GDPR Data Role */}
-              <Card className="p-5 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Din rolle i datahåndtering" : "Your role in data handling"}
-                </h3>
-                <RadioGroup defaultValue={gdprRole} className="space-y-2">
-                  {[
-                    { value: "processor", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Vi bestemmer formål og middel for behandling av personopplysninger.", descEn: "We determine the purpose and means of processing personal data." },
-                    { value: "sub_processor", labelNb: "Databehandler", labelEn: "Data Processor", descNb: "Vi behandler personopplysninger på vegne av andre virksomheter.", descEn: "We process personal data on behalf of other organizations." },
-                    { value: "both", labelNb: "Begge roller", labelEn: "Both roles", descNb: "Vi har begge roller avhengig av tjeneste eller kundeavtale.", descEn: "We have both roles depending on service or agreement." },
-                  ].map(role => (
-                    <label
-                      key={role.value}
-                      className="flex items-start gap-3 rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
-                    >
-                      <RadioGroupItem value={role.value} className="mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
-                        <p className="text-xs text-muted-foreground">{isNb ? role.descNb : role.descEn}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </Card>
-
-              {/* Products & Services */}
               <Card className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Layers className="h-4 w-4 text-muted-foreground" />
-                    {isNb ? "Produkter og tjenester" : "Products & Services"}
+                    {isNb ? "Produktprofiler" : "Product Profiles"}
                   </h3>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate("/trust-center/products")}>
                     <Plus className="h-3 w-3" />
