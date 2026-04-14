@@ -18,7 +18,7 @@ export default function MSPDashboard() {
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
-    queryKey: ["msp-customers", user?.id],
+    queryKey: ["msp-customers"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("msp_customers" as any)
@@ -27,7 +27,6 @@ export default function MSPDashboard() {
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!user?.id,
   });
 
   const handleSeed = async () => {

@@ -13,15 +13,17 @@ const DEMO_CUSTOMERS = [
   { customer_name: "Tromsø Utdanning", industry: "Utdanning", employees: "201-500", compliance_score: 71, status: "onboarding", subscription_plan: "Basis", org_number: "989012345", contact_person: "Ole Karlsen", contact_email: "ole@tromsoutdanning.no" },
 ];
 
+const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
+
 export async function seedDemoMSP() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Ikke innlogget");
+  const effectiveUserId = user?.id || DEMO_USER_ID;
 
   // Check if demo data already exists
   const { data: existing } = await supabase
     .from("msp_customers" as any)
     .select("id")
-    .eq("msp_user_id", user.id)
+    .eq("msp_user_id", effectiveUserId)
     .limit(1);
   if (existing && existing.length > 0) return;
 
@@ -41,8 +43,8 @@ export async function seedDemoMSP() {
   const { data: purchases, error: pErr } = await supabase
     .from("msp_license_purchases" as any)
     .insert([
-      { msp_user_id: user.id, quantity: qty1, unit_price: basisTier.priceOre, discount_percent: disc1, total_amount: total1, status: "active" },
-      { msp_user_id: user.id, quantity: qty2, unit_price: premiumTier.priceOre, discount_percent: disc2, total_amount: total2, status: "active" },
+      { msp_user_id: effectiveUserId, quantity: qty1, unit_price: basisTier.priceOre, discount_percent: disc1, total_amount: total1, status: "active" },
+      { msp_user_id: effectiveUserId, quantity: qty2, unit_price: premiumTier.priceOre, discount_percent: disc2, total_amount: total2, status: "active" },
     ])
     .select("id");
   if (pErr) { console.error("Seed purchases failed:", pErr); return; }
@@ -52,8 +54,8 @@ export async function seedDemoMSP() {
 
   // Create 8 licenses (5 basis + 3 premium)
   const licenseRows: any[] = [];
-  for (let i = 0; i < qty1; i++) licenseRows.push({ purchase_id: p1Id, msp_user_id: user.id, status: "available" });
-  for (let i = 0; i < qty2; i++) licenseRows.push({ purchase_id: p2Id, msp_user_id: user.id, status: "available" });
+  for (let i = 0; i < qty1; i++) licenseRows.push({ purchase_id: p1Id, msp_user_id: effectiveUserId, status: "available" });
+  for (let i = 0; i < qty2; i++) licenseRows.push({ purchase_id: p2Id, msp_user_id: effectiveUserId, status: "available" });
 
   const { data: licenses, error: lErr } = await supabase
     .from("msp_licenses" as any)
@@ -66,7 +68,7 @@ export async function seedDemoMSP() {
   // Insert 9 customers; assign a license to first 6
   const customerRows = DEMO_CUSTOMERS.map((c, i) => ({
     ...c,
-    msp_user_id: user.id,
+    msp_user_id: effectiveUserId,
     onboarding_completed: c.status === "active",
     active_frameworks: c.subscription_plan === "Premium" ? ["ISO 27001", "GDPR"] : ["GDPR"],
   }));
@@ -89,26 +91,26 @@ export async function seedDemoMSP() {
 
   // Create 2 invoices
   await supabase.from("msp_invoices" as any).insert([
-    { msp_user_id: user.id, invoice_number: "DEMO-2025-001", description: `${qty1}x Basis-lisens (demo)`, amount: total1, status: "paid", paid_at: new Date().toISOString() },
-    { msp_user_id: user.id, invoice_number: "DEMO-2025-002", description: `${qty2}x Premium-lisens (demo)`, amount: total2, status: "paid", paid_at: new Date().toISOString() },
+    { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-001", description: `${qty1}x Basis-lisens (demo)`, amount: total1, status: "paid", paid_at: new Date().toISOString() },
+    { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-002", description: `${qty2}x Premium-lisens (demo)`, amount: total2, status: "paid", paid_at: new Date().toISOString() },
   ]);
 }
 
 export async function deleteDemoMSP() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  const effectiveUserId = user?.id || DEMO_USER_ID;
 
   // Delete in correct order: invoices, licenses, purchases, customers
-  await supabase.from("msp_invoices" as any).delete().eq("msp_user_id", user.id);
-  await supabase.from("msp_licenses" as any).delete().eq("msp_user_id", user.id);
-  await supabase.from("msp_license_purchases" as any).delete().eq("msp_user_id", user.id);
+  await supabase.from("msp_invoices" as any).delete().eq("msp_user_id", effectiveUserId);
+  await supabase.from("msp_licenses" as any).delete().eq("msp_user_id", effectiveUserId);
+  await supabase.from("msp_license_purchases" as any).delete().eq("msp_user_id", effectiveUserId);
 
   // Delete assessments for user's customers first
-  const { data: custs } = await supabase.from("msp_customers" as any).select("id").eq("msp_user_id", user.id);
+  const { data: custs } = await supabase.from("msp_customers" as any).select("id").eq("msp_user_id", effectiveUserId);
   if (custs && custs.length > 0) {
     const ids = (custs as any[]).map(c => c.id);
     await supabase.from("msp_customer_assessments" as any).delete().in("msp_customer_id", ids);
   }
 
-  await supabase.from("msp_customers" as any).delete().eq("msp_user_id", user.id);
+  await supabase.from("msp_customers" as any).delete().eq("msp_user_id", effectiveUserId);
 }

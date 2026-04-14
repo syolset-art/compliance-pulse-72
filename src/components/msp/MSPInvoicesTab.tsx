@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
@@ -15,10 +15,9 @@ import {
 import { formatAmount, generateInvoicePdf } from "./generateInvoicePdf";
 
 export function MSPInvoicesTab() {
-  const { user } = useAuth();
 
   const { data: invoices = [] } = useQuery({
-    queryKey: ["msp-invoices", user?.id],
+    queryKey: ["msp-invoices"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("msp_invoices" as any)
@@ -27,7 +26,6 @@ export function MSPInvoicesTab() {
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!user?.id,
   });
 
   const statusConfig: Record<string, { label: string; variant: "action" | "warning" | "destructive" }> = {
