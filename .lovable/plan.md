@@ -1,50 +1,39 @@
 
 
-## Plan: Slå sammen Oppfølgingsstatus og Oppgaver
+## Plan: Rename header to "Oppgaver" with status + criticality only
 
-### Hva endres
+### What changes
 
-TPRM-statusbanneret og Oppgaver-kortet slås sammen til én samlet komponent som gir bedre oversikt. Brukeren ser status, gjenstående oppgaver og siste utførte aktiviteter i ett og samme panel — uten å måtte utvide flere separate kort.
+The top module header in `VendorTPRMStatus.tsx` currently shows only the status badge, risk, maturity stats, and task count. It needs to:
 
-### Ny layout for den sammenslåtte komponenten
+1. Show **"Oppgaver"** as the module title (like a section heading)
+2. Show **status** badge (Under oppfølging / Godkjent / etc.)
+3. Show **criticality** badge
+4. Remove maturity stats and task count from the header line
+
+This makes it a standardized header reusable across vendors and systems.
+
+### New header layout
 
 ```text
-┌─────────────────────────────────────────────────┐
-│ 🟡 Under oppfølging · Høy · 5/13 (38%)  [Endre]│
-├─────────────────────────────────────────────────┤
-│ Risiko: Høy  |  Kontroll: 5/13 (38%)           │
-│ ⚠ 8 kontroller gjenstår for å nå «Godkjent»    │
-├─────────────────────────────────────────────────┤
-│ ✅ UTFØRT (siste 3 aktiviteter)                 │
-│  ✓ DPA lastet opp — Jan, Compliance — 2d siden  │
-│  ✓ Sikkerhetsgjennomgang — Per — 5d siden        │
-│  ✓ SLA godkjent — Jan — 1 uke siden              │
-│                                    [Se alle →]   │
-├─────────────────────────────────────────────────┤
-│ 📋 GJENSTÅR (6 oppgaver)                        │
-│  ○ Last opp risikovurdering        [Gå til dok] │
-│  ○ Sett risikonivå                 [Gå til risk]│
-│  ○ Dokumenter underleverandører    [Gå til rel.] │
-│  ...                                             │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│ 📋 Oppgaver   🟡 Under oppfølging  · Høy    [▼]    │
+└──────────────────────────────────────────────────────┘
 ```
 
-### Tekniske detaljer
+### Technical details
 
-**Fil: `src/components/trust-controls/VendorTPRMStatus.tsx`**
-- Flytte oppgaveinnholdet (fra VendorOverviewTab) inn i TPRM-komponenten
-- Ny prop: `openTasks` (array) og `highlightedTaskId`
-- Legge til ny seksjon «Utført» som viser de 3 siste aktivitetene (allerede har `recentActivities`)
-- Endre «Siste aktiviteter» til å vises som «Utført»-seksjon med suksess-ikoner
-- Legge til «Gjenstår»-seksjon med oppgaveliste og CTA-knapper
-- Ekspandert innhold deles i to tydelige seksjoner: Utført og Gjenstår
-- Hele panelet er som standard utvidet når det finnes åpne oppgaver
+**File: `src/components/trust-controls/VendorTPRMStatus.tsx`**
 
-**Fil: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
-- Fjerne det separate Tasks-kortet (linje 331-418)
-- Sende `openTasks`, `highlightedTaskId`, `onNavigateToTab` som props til `VendorTPRMStatus`
-- Beholde `tasksRef` og `id="vendor-tasks-section"` på TPRM-komponenten i stedet
-- Fjerne duplisert state for `tasksExpanded`
+In the always-visible header (lines 206-240):
+- Add "Oppgaver" / "Tasks" as a bold text label after the Shield icon
+- Keep the status badge (`cfg.emoji` + `cfg.label`)
+- Keep the criticality indicator (from `asset.criticality`)
+- **Remove** the maturity stats display (`implementedCount/totalControls`)
+- **Remove** the open tasks count badge
+- Keep the status dropdown and expand button on the right
 
-**Ingen databaseendringer.**
+Add a new prop or use existing `asset.criticality` to show criticality as a simple badge (e.g. "Høy", "Middels", "Lav") with appropriate color.
+
+No other files need changes. No database changes.
 
