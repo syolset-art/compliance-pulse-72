@@ -1,25 +1,45 @@
 
 
-# Plan: Slumre-funksjon og sletterapport for Slette-agenten
+# Plan: Forbedret Forretningsrisiko – Prioriterte tiltak
 
-## 1. Slumre-knapp på hver oppgave
+## Problem
+Siden viser risikoer som en flat liste. Ledere trenger visuell hjelp til å forstå *hvorfor* noe er prioritert og *hva som gir mest igjen* for pengene.
 
-Legger til en «Slumre»-knapp (BellOff-ikon) på oppgaver med status `scheduled` eller `overdue`. Klikk åpner en liten popover med valg: 7 dager, 14 dager, 30 dager. Når slumret, bytter oppgaven til status `snoozed` med visning av «Slumret til [dato]». Lagres i komponent-state (demo).
+## Endringer
 
-## 2. Slettelogg/rapport (dialog)
+### 1. Risikomatrise (sannsynlighet × konsekvens)
+Legger til en visuell 2D-matrise øverst der hver risiko plottes som en sirkel. X-akse = sannsynlighet (%), Y-akse = konsekvens (%). Størrelse = eksponering. Fargekodet etter kategori. Gir umiddelbar visuell forståelse av hvilke risikoer som er i «rød sone».
 
-«Se slettelogg»-knappen i bunnen åpner en Dialog med tabs: Siste uke / Siste måned / Siste år. Viser en liste med demo-data over slettede poster (dato, aktivitet, system, antall poster). Oppsummering øverst: totalt antall slettinger og poster.
+```text
+Konsekvens
+  90│      ● HireVue    ● Salesforce
+  60│         ● M365
+  55│  ● Visma
+  40│              ○ Cloudflare
+    └──────────────────────────
+     10   20   35   40   Sannsynlighet %
+```
+
+### 2. ROI-rangering av tiltak
+Under matrisen: en sortert tabell/liste som viser tiltak rangert etter **avkastning** (besparelse ÷ tiltakskostnad). Gjør det tydelig for ledere hva som gir best verdi:
+- Tiltak, System, Kostnad, Besparelse, ROI-faktor (f.eks. «11.8×»)
+- Grønn/gul/rød fargekoding på ROI
+
+### 3. Forbedrede oppsummeringskort
+Legger til et fjerde kort: **Gjennomsnittlig ROI** — viser at investering i tiltak lønner seg samlet.
+
+### 4. Beholde eksisterende detaljkort
+Collapsible-kortene beholdes under, men listen sorteres etter ROI (beste avkastning først) i stedet for eksponering.
 
 ## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/components/dashboard/DeletionAgentCard.tsx` | Legg til `snoozed` status, slumre-knapp med popover, og slettelogg-dialog med tidsperiode-tabs |
+| `src/pages/BusinessRiskDetail.tsx` | Legger til risikomatrise (CSS grid), ROI-tabell, ekstra MetricCard, og omsorterer listen etter ROI |
 
 ## Teknisk
-- Ny status `snoozed` i `DeletionStatus` type
-- Slumre-state lagres i `useState` (demo — ingen persistering)
-- Slettelogg-dialog bruker eksisterende `Dialog` + `Tabs` komponenter
-- Demo-data for logg: 8-10 hardkodede slettinger fordelt over uke/måned/år
+- Risikomatrisen bygges med CSS `position: relative` og plottede sirkler (ingen eksternt bibliotek)
+- ROI beregnes som `(exposure - residual_exposure - mitigation_cost) / mitigation_cost`
+- Gjenbruker eksisterende `RISK_DATA`, `CATEGORY_STYLES`, `formatNOK` fra widget
 - EN/NB lokalisert
 
