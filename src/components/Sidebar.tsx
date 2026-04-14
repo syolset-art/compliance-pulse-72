@@ -200,6 +200,8 @@ const SidebarContent = () => {
   const isNb = i18n.language === "nb";
   const { signOut, user } = useAuth();
   const queryClient = useQueryClient();
+  const { hasCoreAccess } = useSubscription();
+  const isLocked = !hasCoreAccess;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
