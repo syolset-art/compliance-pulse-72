@@ -6,19 +6,19 @@ import {
   AlertTriangle,
   ClipboardCheck,
   ChevronRight,
-  Bot,
-  CheckCircle2,
-  Send,
-  Search,
-  FileText,
   Clock,
   CalendarDays,
-  TrendingDown,
+  Users,
+  TrendingUp,
+  Loader2,
+  Building2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   PieChart,
   Pie,
@@ -56,7 +56,6 @@ function KPIRow({ isNb }: { isNb: boolean }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      {/* Compliance donut card */}
       <Card className="p-3 flex items-center gap-3 border-border/50">
         <div className="h-12 w-12 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
@@ -74,7 +73,6 @@ function KPIRow({ isNb }: { isNb: boolean }) {
         </div>
       </Card>
 
-      {/* Risk card */}
       <Card className="p-3 flex items-center gap-3 border-border/50">
         <div className={cn("rounded-lg p-2 bg-muted/50", stats.riskColor)}>
           <AlertTriangle className="h-5 w-5" />
@@ -86,7 +84,6 @@ function KPIRow({ isNb }: { isNb: boolean }) {
         </div>
       </Card>
 
-      {/* Controls card */}
       <Card className="p-3 flex items-center gap-3 border-border/50">
         <div className="rounded-lg p-2 bg-muted/50 text-primary">
           <ClipboardCheck className="h-5 w-5" />
@@ -149,146 +146,116 @@ function ControlAreasChart({ isNb }: { isNb: boolean }) {
   );
 }
 
-/* ─── Sone 3: Krever oppmerksomhet ─── */
-interface AttentionItem {
-  id: string;
-  label: string;
-  urgency: "high" | "medium";
-  route: string;
-}
-
-function AttentionSection({ isNb }: { isNb: boolean }) {
+/* ─── Sone 3: Kundeoversikt (Partner) ─── */
+function PartnerCustomerOverview({ isNb }: { isNb: boolean }) {
   const navigate = useNavigate();
-  const { requirements } = useComplianceRequirements();
+  const { data: customers = [] } = useQuery({
+    queryKey: ["msp-customers-compact"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("msp_customers")
+        .select("compliance_score, status, onboarding_completed");
+      return data || [];
+    },
+  });
 
-  const items = useMemo<AttentionItem[]>(() => {
-    const result: AttentionItem[] = [];
-    const criticalNotStarted = requirements.filter(
-      r => r.priority === "critical" && r.status === "not_started"
-    );
-    if (criticalNotStarted.length > 0) {
-      result.push({
-        id: "critical-controls",
-        label: isNb
-          ? `${criticalNotStarted.length} kritiske kontroller ikke startet`
-          : `${criticalNotStarted.length} critical controls not started`,
-        urgency: "high",
-        route: "/compliance",
-      });
-    }
-    const aiWorking = requirements.filter(r => r.is_ai_handling && r.status === "in_progress");
-    if (aiWorking.length > 0) {
-      result.push({
-        id: "ai-working",
-        label: isNb
-          ? `Lara jobber med ${aiWorking.length} kontroller`
-          : `Lara is working on ${aiWorking.length} controls`,
-        urgency: "medium",
-        route: "/compliance",
-      });
-    }
-    result.push({
-      id: "vendor-dpa",
-      label: isNb ? "2 leverandører mangler oppdatert DPA" : "2 vendors missing updated DPA",
-      urgency: "high",
-      route: "/assets",
-    });
-    result.push({
-      id: "review-deadline",
-      label: isNb ? "Revisjon av ISO 27001 om 12 dager" : "ISO 27001 review in 12 days",
-      urgency: "medium",
-      route: "/compliance",
-    });
-    return result.slice(0, 5);
-  }, [requirements, isNb]);
+  const total = customers.length;
+  const avgScore = total > 0
+    ? Math.round(customers.reduce((s, c) => s + (c.compliance_score || 0), 0) / total)
+    : 0;
+  const onboarding = customers.filter(c => !c.onboarding_completed).length;
+  const lowScore = customers.filter(c => (c.compliance_score || 0) < 50).length;
 
-  if (items.length === 0) return null;
-
-  return (
-    <div className="rounded-lg border border-orange-200 dark:border-orange-800/40 bg-orange-50/50 dark:bg-orange-950/20 p-3">
-      <div className="flex items-center gap-2 mb-2">
-        <AlertTriangle className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-        <h2 className="text-xs font-semibold text-orange-800 dark:text-orange-300">
-          {isNb ? "Krever din oppmerksomhet" : "Needs your attention"}
-        </h2>
-      </div>
-      <div className="space-y-1">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.route)}
-            className="w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs hover:bg-orange-100/60 dark:hover:bg-orange-900/20 transition-colors group"
-          >
-            <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", item.urgency === "high" ? "bg-destructive" : "bg-orange-400")} />
-            <span className="flex-1 text-foreground">{item.label}</span>
-            <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Sone 4a: AI-agent logg ─── */
-function AIAgentLog({ isNb }: { isNb: boolean }) {
-  const { requirements } = useComplianceRequirements();
-
-  const stats = useMemo(() => {
-    const aiHandled = requirements.filter(r => r.is_ai_handling || r.agent_capability === "full");
-    const completed = aiHandled.filter(r => r.status === "completed").length;
-    const inProgress = aiHandled.filter(r => r.status === "in_progress").length;
-    const estimatedHours = Math.round(completed * 0.5 + inProgress * 0.3);
-    return { completed, inProgress, total: aiHandled.length, estimatedHours };
-  }, [requirements]);
-
-  const logItems = [
-    { icon: Send, text: isNb ? "Sendt DPA-krav til 3 leverandører" : "Sent DPA requests to 3 vendors", done: true },
-    { icon: Search, text: isNb ? `Analysert ${stats.total} kontroller` : `Analyzed ${stats.total} controls`, done: true },
-    { icon: FileText, text: isNb ? "Generert 4 policydokumenter" : "Generated 4 policy documents", done: true },
-    ...(stats.inProgress > 0
-      ? [{ icon: Bot, text: isNb ? `Jobber med ${stats.inProgress} kontroller nå` : `Working on ${stats.inProgress} controls now`, done: false }]
-      : []),
+  const metrics = [
+    { icon: Users, label: isNb ? "Kunder" : "Customers", value: total, color: "text-primary" },
+    { icon: TrendingUp, label: isNb ? "Gj.snitt" : "Avg. score", value: `${avgScore}%`, color: "text-emerald-600" },
+    { icon: Loader2, label: isNb ? "Onboarding" : "Onboarding", value: onboarding, color: "text-chart-2" },
+    { icon: AlertTriangle, label: isNb ? "Lav score" : "Low score", value: lowScore, color: lowScore > 0 ? "text-destructive" : "text-muted-foreground" },
   ];
 
   return (
-    <Card className="p-3 flex flex-col border-primary/20 bg-gradient-to-br from-card to-primary/5">
-      <div className="flex items-center gap-2 mb-2">
-        <Bot className="h-4 w-4 text-primary" />
-        <h3 className="text-xs font-semibold text-foreground">
-          {isNb ? "Lara (AI-agent)" : "Lara (AI agent)"}
+    <Card
+      className="p-3 cursor-pointer hover:shadow-md transition-shadow border-border/50"
+      onClick={() => navigate("/msp-dashboard")}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-xs font-semibold text-foreground flex items-center gap-2">
+          <Building2 className="h-3.5 w-3.5 text-primary" />
+          {isNb ? "Kundeoversikt" : "Customer Overview"}
         </h3>
-        <Badge variant="outline" className="text-[10px] ml-auto gap-1 bg-emerald-500/10 text-emerald-600 border-emerald-500/30 px-1.5 py-0">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-          </span>
-          Live
-        </Badge>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
       </div>
-      <p className="text-[10px] text-muted-foreground mb-2">{isNb ? "Siste 7 dager" : "Last 7 days"}</p>
-      <div className="space-y-1.5 flex-1">
-        {logItems.map((item, i) => (
-          <div key={i} className="flex items-start gap-2 text-xs">
-            {item.done ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
-            ) : (
-              <item.icon className="h-3.5 w-3.5 text-primary animate-pulse shrink-0 mt-0.5" />
-            )}
-            <span className="text-foreground/80">{item.text}</span>
+      <div className="grid grid-cols-2 gap-2">
+        {metrics.map((m, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <m.icon className={cn("h-3.5 w-3.5 shrink-0", m.color)} />
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight text-foreground">{m.value}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{m.label}</p>
+            </div>
           </div>
         ))}
-      </div>
-      <div className="mt-2 pt-2 border-t border-border/50 flex items-center gap-1.5">
-        <TrendingDown className="h-3.5 w-3.5 text-emerald-500" />
-        <span className="text-[11px] font-medium text-emerald-600">
-          {isNb ? `Spart ~${stats.estimatedHours} timer` : `Saved ~${stats.estimatedHours} hours`}
-        </span>
       </div>
     </Card>
   );
 }
 
-/* ─── Sone 4b: Frister ─── */
+/* ─── Sone 3b: Siste kunder ─── */
+function RecentCustomersPanel({ isNb }: { isNb: boolean }) {
+  const navigate = useNavigate();
+  const { data: customers = [] } = useQuery({
+    queryKey: ["msp-customers-recent"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("msp_customers")
+        .select("id, customer_name, status, compliance_score, onboarding_completed, created_at")
+        .order("created_at", { ascending: false })
+        .limit(4);
+      return data || [];
+    },
+  });
+
+  return (
+    <Card
+      className="p-3 cursor-pointer hover:shadow-md transition-shadow border-border/50"
+      onClick={() => navigate("/msp-dashboard")}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-xs font-semibold text-foreground flex items-center gap-2">
+          <Users className="h-3.5 w-3.5 text-primary" />
+          {isNb ? "Siste kunder" : "Recent Customers"}
+        </h3>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+      </div>
+      {customers.length === 0 ? (
+        <p className="text-xs text-muted-foreground py-2">
+          {isNb ? "Ingen kunder ennå" : "No customers yet"}
+        </p>
+      ) : (
+        <div className="space-y-1.5">
+          {customers.map((c) => (
+            <div key={c.id} className="flex items-center gap-2 text-xs">
+              <span className="flex-1 text-foreground/80 truncate">{c.customer_name}</span>
+              <Badge
+                variant={c.onboarding_completed ? "action" : "secondary"}
+                className="text-[10px] px-1.5 py-0"
+              >
+                {c.onboarding_completed
+                  ? (isNb ? "Aktiv" : "Active")
+                  : (isNb ? "Onboarding" : "Onboarding")}
+              </Badge>
+              <span className="text-[10px] font-medium text-muted-foreground tabular-nums w-8 text-right">
+                {c.compliance_score || 0}%
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ─── Sone 4: Frister ─── */
 function DeadlinesPanel({ isNb }: { isNb: boolean }) {
   const deadlines = [
     { label: isNb ? "ISO 27001-revisjon" : "ISO 27001 review", date: "24. apr", daysLeft: 12, urgent: true },
@@ -327,20 +294,17 @@ export function DashboardCompact() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* KPIs - stacks on mobile */}
       <KPIRow isNb={isNb} />
-
-      {/* Control areas bar chart */}
       <ControlAreasChart isNb={isNb} />
 
-      {/* Attention */}
-      <AttentionSection isNb={isNb} />
-
-      {/* AI + Deadlines - stacks on mobile */}
+      {/* Partner widgets */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <AIAgentLog isNb={isNb} />
-        <DeadlinesPanel isNb={isNb} />
+        <PartnerCustomerOverview isNb={isNb} />
+        <RecentCustomersPanel isNb={isNb} />
       </div>
+
+      {/* Deadlines - full width */}
+      <DeadlinesPanel isNb={isNb} />
     </div>
   );
 }
