@@ -15,7 +15,6 @@ import {
 import { formatAmount, generateInvoicePdf } from "./generateInvoicePdf";
 
 export function MSPInvoicesTab() {
-  export function MSPInvoicesTab() {
 
   const { data: invoices = [] } = useQuery({
     queryKey: ["msp-invoices"],
