@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
-import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye } from "lucide-react";
+import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye, Settings2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MoreHorizontal, Building2, Server, Mail } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { AssetHeader } from "@/components/asset-profile/AssetHeader";
 import { AssetMetrics } from "@/components/asset-profile/AssetMetrics";
@@ -168,7 +170,12 @@ const AssetTrustProfile = () => {
   const isMobile = useIsMobile();
 
   // ── Vendor tabs ──
-  const allVendorTabs = [
+  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'deliveries', 'evidence'];
+  const LOCKED_TAB = 'overview'; // always visible
+  const MAX_VISIBLE_TABS = 7;
+  const STORAGE_KEY = 'mynder_vendor_tab_prefs';
+
+  const allVendorTabs = useMemo(() => [
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
     { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
@@ -179,14 +186,47 @@ const AssetTrustProfile = () => {
     { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
-  ];
+  ], [isNb]);
+
+  const [visibleTabIds, setVisibleTabIds] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        // Ensure locked tab is always included
+        if (!parsed.includes(LOCKED_TAB)) parsed.unshift(LOCKED_TAB);
+        return parsed;
+      }
+    } catch {}
+    return DEFAULT_VISIBLE_TABS;
+  });
+
+  const updateVisibleTabs = useCallback((newIds: string[]) => {
+    setVisibleTabIds(newIds);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newIds));
+  }, []);
+
+  const toggleTab = useCallback((tabId: string) => {
+    if (tabId === LOCKED_TAB) return;
+    setVisibleTabIds(prev => {
+      const next = prev.includes(tabId)
+        ? prev.filter(id => id !== tabId)
+        : prev.length >= MAX_VISIBLE_TABS
+          ? prev // at max
+          : [...prev, tabId];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const mobileVisibleCount = 4;
-  const desktopVisibleCount = 7;
-  const visibleCount = isMobile ? mobileVisibleCount : desktopVisibleCount;
 
-  const vendorTabDefs = allVendorTabs.slice(0, visibleCount);
-  const vendorOverflowTabDefs = allVendorTabs.slice(visibleCount);
+  // On mobile, limit visible tabs; on desktop show all user-selected
+  const effectiveVisibleIds = isMobile ? visibleTabIds.slice(0, mobileVisibleCount) : visibleTabIds;
+
+  // Maintain original order from allVendorTabs
+  const vendorTabDefs = allVendorTabs.filter(t => effectiveVisibleIds.includes(t.value));
+  const vendorOverflowTabDefs = allVendorTabs.filter(t => !effectiveVisibleIds.includes(t.value));
 
   const activeVendorOverflowTab = vendorOverflowTabDefs.find(t => t.value === activeTab);
 
@@ -412,6 +452,58 @@ const AssetTrustProfile = () => {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
+
+                    {/* Tab customization popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 shrink-0"
+                          aria-label={isNb ? "Tilpass faner" : "Customize tabs"}
+                        >
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-64 p-3">
+                        <p className="text-sm font-medium mb-2">
+                          {isNb ? "Tilpass faner" : "Customize tabs"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          {isNb
+                            ? `Velg opptil ${MAX_VISIBLE_TABS} faner som vises direkte.`
+                            : `Choose up to ${MAX_VISIBLE_TABS} tabs to show directly.`}
+                        </p>
+                        <div className="space-y-1.5">
+                          {allVendorTabs.map((tab) => {
+                            const isLocked = tab.value === LOCKED_TAB;
+                            const isChecked = visibleTabIds.includes(tab.value);
+                            const isAtMax = visibleTabIds.length >= MAX_VISIBLE_TABS && !isChecked;
+                            return (
+                              <label
+                                key={tab.value}
+                                className={cn(
+                                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-muted/50 transition-colors",
+                                  isLocked && "opacity-60 cursor-not-allowed"
+                                )}
+                              >
+                                <Checkbox
+                                  checked={isChecked}
+                                  disabled={isLocked || isAtMax}
+                                  onCheckedChange={() => toggleTab(tab.value)}
+                                />
+                                <span className="flex-1">{tab.labelFull}</span>
+                                {isLocked && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {isNb ? "Låst" : "Locked"}
+                                  </span>
+                                )}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </nav>
 
