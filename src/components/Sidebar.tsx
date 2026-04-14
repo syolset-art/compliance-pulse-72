@@ -61,6 +61,7 @@ const managementNav = [
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
+  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
 // Registre (Registries)
@@ -68,7 +69,6 @@ const registriesNav = [
   { name: "nav.vendors", href: "/vendors", icon: Building2 },
   { name: "nav.systems", href: "/systems", icon: Cloud },
   { name: "nav.assetsDevices", href: "/assets", icon: Package },
-  { name: "nav.requests", href: "/customer-requests", icon: FileQuestion },
 ];
 
 // Innstillinger submenu (merged Admin + Company settings)
