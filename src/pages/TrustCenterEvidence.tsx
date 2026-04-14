@@ -14,6 +14,25 @@ import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
 const policyTypes = ["policy", "privacy_policy", "acceptable_use", "incident_response", "security_policy", "data_protection_policy"];
 const certTypes = ["certification"];
 
+const docTypeLabel = (type: string, isNb: boolean): string => {
+  const map: Record<string, [string, string]> = {
+    policy: ["Retningslinje", "Policy"],
+    privacy_policy: ["Personvernerklæring", "Privacy Policy"],
+    acceptable_use: ["Akseptabel bruk", "Acceptable Use"],
+    incident_response: ["Hendelseshåndtering", "Incident Response"],
+    security_policy: ["Sikkerhetspolicy", "Security Policy"],
+    data_protection_policy: ["Databeskyttelsespolicy", "Data Protection Policy"],
+    certification: ["Sertifisering", "Certification"],
+    agreement: ["Avtale", "Agreement"],
+    report: ["Rapport", "Report"],
+    evidence: ["Bevis", "Evidence"],
+    other: ["Annet", "Other"],
+  };
+  const pair = map[type];
+  if (pair) return isNb ? pair[0] : pair[1];
+  return type;
+};
+
 const getStatusBadge = (status: string | null, isNb: boolean) => {
   switch (status) {
     case "verified":
