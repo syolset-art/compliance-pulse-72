@@ -171,6 +171,16 @@ const AssetTrustProfile = () => {
 
   const isMobile = useIsMobile();
 
+  // ── Needs action indicator for overview tab ──
+  const overviewNeedsAction = useMemo(() => {
+    if (!asset) return false;
+    const riskLevel = asset.risk_level;
+    const tprmStatus = asset.tprm_status;
+    if (tprmStatus === 'action_required' || riskLevel === 'high') return true;
+    if (!tprmStatus || tprmStatus === 'not_assessed') return true;
+    return false;
+  }, [asset]);
+
   // ── Vendor tabs ──
   const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'deliveries', 'evidence'];
   const LOCKED_TAB = 'overview'; // always visible
@@ -426,11 +436,17 @@ const AssetTrustProfile = () => {
                         <TabsTrigger
                           key={tab.value}
                           value={tab.value}
-                          className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2 sm:px-3 py-1.5"
+                          className="relative text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-2 sm:px-3 py-1.5"
                           role="tab"
                         >
                           <span className="sm:hidden">{tab.label}</span>
                           <span className="hidden sm:inline">{tab.labelFull}</span>
+                          {tab.value === 'overview' && overviewNeedsAction && (
+                            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
+                            </span>
+                          )}
                         </TabsTrigger>
                       ))}
                     </TabsList>
