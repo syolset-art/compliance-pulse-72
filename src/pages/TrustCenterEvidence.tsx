@@ -324,11 +324,11 @@ const TrustCenterEvidence = () => {
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1.5">
                   {doc.visibility === "published" ? (
-                    <Globe className="h-3.5 w-3.5 text-success" />
+                    <Globe className="h-3.5 w-3.5 text-primary" />
                   ) : (
                     <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
-                  <span className={`text-xs min-w-[42px] ${doc.visibility === "published" ? "text-success" : "text-muted-foreground"}`}>
+                  <span className={`text-xs min-w-[42px] ${doc.visibility === "published" ? "text-primary" : "text-muted-foreground"}`}>
                     {doc.visibility === "published" ? (isNb ? "Offentlig" : "Public") : (isNb ? "Intern" : "Private")}
                   </span>
                   <Switch
@@ -337,7 +337,7 @@ const TrustCenterEvidence = () => {
                       id: doc.id,
                       updates: { visibility: checked ? "published" : "hidden" },
                     })}
-                    className="data-[state=checked]:bg-success data-[state=unchecked]:bg-muted-foreground/30"
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
                   />
                 </div>
               </TooltipTrigger>
