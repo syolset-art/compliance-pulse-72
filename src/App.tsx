@@ -99,7 +99,6 @@ const App = () => (
                   <Route path="/ai-registry" element={<AISystemRegistry />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/trust-engine-onboarding" element={<Onboarding />} />
                   <Route path="/vendors" element={<VendorDashboard />} />
                   <Route path="/sustainability" element={<Sustainability />} />
                   <Route path="/transparency" element={<Transparency />} />

@@ -193,7 +193,7 @@ const TrustCenterEditProfile = () => {
           <main className="flex-1 p-6 text-center py-20">
             <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-xl font-semibold">{isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}</h2>
-            <Button className="mt-4" onClick={() => navigate("/trust-engine-onboarding")}>Start onboarding</Button>
+            <Button className="mt-4" onClick={() => navigate("/onboarding")}>Start onboarding</Button>
           </main>
         </div>
       </SidebarProvider>

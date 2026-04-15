@@ -1,29 +1,40 @@
 
 
-# Plan: Ny onboarding-rute og redirect til Trust Profile
+# Plan: Gruppere "Flere tjenester" i kategorier
 
-## Endringer
+## Problem
 
-### 1. Ny rute i `src/App.tsx`
-- Legg til `/trust-engine-onboarding` som peker til eksisterende `Onboarding`-komponent (gjenbruk)
-- Beholder `/onboarding` som alias for bakoverkompatibilitet
+Når moduler vises under "Flere tjenester", er de en flat liste. Brukeren ønsker at de grupperes logisk:
 
-### 2. Oppdater `src/pages/Onboarding.tsx`
-- `goToDashboard()` endres til å navigere til `/trust-center/profile` i stedet for `/`
-- Oppdater teksten i "complete"-steget fra "dashboard" til "Trust Profile"
-- Oppdater toast-melding tilsvarende
-- "Til dashboard"-knappen i headeren endres til å peke til `/trust-center/profile`
+```text
+▾ Flere tjenester
+  ── Mynder Core ──
+    Arbeidsområder
+    Oppgaver
+    Avviksregister
+    Rapporter
+    Systemer
 
-### 3. Oppdater referanser
-- `src/pages/TrustCenterProfile.tsx` linje 168: endre `/onboarding` → `/trust-engine-onboarding`
-- `src/pages/TrustCenterEditProfile.tsx` linje 196: endre `/onboarding` → `/trust-engine-onboarding`
+  ── Registre ──
+    Leverandører
+    Assets
+```
 
-## Filer
+## Endring
+
+### `src/components/Sidebar.tsx`
+
+Oppdatere renderingen av "Flere tjenester"-seksjonen (linje 462-478):
+
+1. **Splitte `exploreItems` i to grupper** — `exploreCoreItems` (fra `managementNav` hvis ikke aktiv) og `exploreRegistryItems` (Leverandører + Assets hvis ikke aktive)
+2. **Legge til underoverskrifter** inne i den collapsible seksjonen — små `text-[10px] uppercase text-muted-foreground` labels for "Mynder Core" og "Registre"
+3. **Bare vise kategori-headere** når den kategorien har items (f.eks. hvis bare Leverandører mangler, vis kun "Registre"-headeren)
+
+Endringene er kun i renderingen av explore-seksjonen — ingen ny fil, ingen andre filer.
+
+## Fil
 
 | Fil | Endring |
 |---|---|
-| `src/App.tsx` | Legg til `/trust-engine-onboarding` rute |
-| `src/pages/Onboarding.tsx` | Redirect til `/trust-center/profile` etter fullført |
-| `src/pages/TrustCenterProfile.tsx` | Oppdater onboarding-link |
-| `src/pages/TrustCenterEditProfile.tsx` | Oppdater onboarding-link |
+| `src/components/Sidebar.tsx` | Gruppere explore-items under kategori-overskrifter |
 
