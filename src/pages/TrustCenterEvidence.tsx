@@ -116,6 +116,10 @@ const TrustCenterEvidence = () => {
   // Approve dialog state (for verified status)
   const [approveDoc, setApproveDoc] = useState<any>(null);
   const [approverName, setApproverName] = useState("");
+  // Preview state
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
