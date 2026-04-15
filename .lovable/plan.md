@@ -1,54 +1,61 @@
 
 
-# Plan: Demo-data for Framdrift Innovasjon AS i Trust Profile
+# Plan: Ny abonnementsside med bundlede pakker
 
-## Bakgrunn
+## Ny prismodell
 
-Dere skal vise demo for Framdrift Innovasjon AS (Bergen). Per nå er det "Mynder AS" som vises i plattformen via `company_profile`-tabellen og `assets` med `asset_type = "self"`. Vi lager en dedikert demo-seed-funksjon som setter opp Framdrift Innovasjon AS som den aktive virksomheten, med realistisk compliance-data i Trust Profilen.
+Prisene oppdateres og pakkes i tydelige nivåer:
 
-## Selskapsinformasjon (fra offentlige kilder)
+```text
+┌─────────────────────────────────────────────────────┐
+│  Gratis          │  Basis           │  Pro           │
+│  kr 0/mnd        │  kr 4 900/mnd    │  kr 8 900/mnd  │
+│                  │                  │                │
+│  Trust Center    │  Alt i Gratis +  │  Alt i Basis + │
+│  GDPR + ISO27001 │  Mynder Core     │  Leverandør-   │
+│  10 credits/mnd  │  (systemer,      │  styring       │
+│  5 systemer      │  arbeidsområder, │  (DPA, risiko, │
+│  5 leverandører  │  oppgaver, risk) │  scoring)      │
+│                  │  100 credits/mnd │  300 credits/mnd│
+│                  │  Inntil 20 syst. │  Ubegrenset    │
+│                  │  Inntil 20 lev.  │  alt            │
+└─────────────────────────────────────────────────────┘
+```
 
-| Felt | Verdi |
-|---|---|
-| Navn | Framdrift Innovasjon AS |
-| Org.nr | 936 431 127 |
-| Adresse | Jahnebakken 6, 5007 Bergen |
-| Bransje | Bedriftsrådgivning (NACE 70.200) |
-| Ansatte | ~5 (nyetablert 2025) |
-| Domain | framdrift.no |
+Credits brukes til AI-analyse, dokumentklassifisering, rapportgenerering etc. Større virksomheter bruker flere credits fordi de har flere systemer, leverandører og regelverk.
 
 ## Endringer
 
-### 1. Ny fil: `src/lib/demoSeedTrustProfile.ts`
+### 1. `src/lib/planConstants.ts`
+- Oppdater `MODULES.systems.monthlyPriceKr` til `4900` og `yearlyPriceKr` til `49000`
+- Oppdater `MODULES.vendors.monthlyPriceKr` til `4900` og `yearlyPriceKr` til `49000` (tilsvarende)
+- Oppdater `PLAN_TIERS` til å reflektere bundlede pakker:
+  - Basis: `monthly: 4900`, `monthlyCredits: 100`, inkluderer Mynder Core
+  - Premium: `monthly: 8900`, `monthlyCredits: 300`, inkluderer Core + Vendors
+- Legg til `includedModules: ModuleId[]` i `PlanDefinition` for å knytte moduler til planer
 
-Oppretter `seedDemoTrustProfile()` og `deleteDemoTrustProfile()`:
+### 2. `src/pages/Subscriptions.tsx` — Full redesign
+Erstatte nåværende layout med en **sammenlignende pakkeoversikt**:
 
-- **company_profile**: Upsert med Framdrift Innovasjon AS-data (navn, org.nr, bransje "Rådgivning", domain, compliance_officer, osv.)
-- **self-asset**: Upsert `assets` med `asset_type = "self"`, `name = "Framdrift Innovasjon AS"`, `compliance_score = 62`, `publish_mode = "public"`, realistic metadata
-- **selected_frameworks**: Sørge for at GDPR og ISO 27001 er valgt
-- **evidence_checks**: Legge inn ~8-10 demo evidence checks knyttet til self-asset (governance, security, privacy, third-party) med blanding av `fresh`, `stale`, `missing` statuser
-- **vendor_documents**: 3-4 demo-dokumenter (DPA, personvernerklæring, informasjonssikkerhetspolicy) med `visibility = "published"`
-- **Delete-funksjon**: Rydder opp og tilbakestiller til tomt
+**Seksjon 1: Velg din pakke** — 3-kolonne kort (Gratis / Basis / Pro) side ved side
+- Hver med pris, inkluderte moduler, credits/mnd, grenser
+- Tydelig "Nåværende plan"-markering og "Oppgrader"-knapp
+- Forklaring nederst: "Credits brukes til AI-drevet analyse, dokumentklassifisering og rapportgenerering. En liten bedrift trenger færre credits enn en stor virksomhet med mange regelverk."
 
-### 2. Oppdater `src/components/Sidebar.tsx`
+**Seksjon 2: Kjøp ekstra credits** — Kompakt rad med 3 pakker (som nå, men under planvalg)
 
-Legge til "Sett opp Framdrift-demo" og "Slett Framdrift-demo" i virksomhets-dropdown (der demo reset allerede finnes), eller erstatte eksisterende demo-knapper med dette.
+**Seksjon 3: Regelverk-tillegg** — Beholder nåværende collapsible regelverk-seksjon
 
-### 3. Alternativt: Legge til i eksisterende demo-meny
+**Seksjon 4: Oppsummering + betaling** — Beholder nåværende oppsummering
 
-Hvis det allerede er en demo-meny i sidebaren, legge til Trust Profile-demo der.
-
-## Teknisk
-
-- `company_profile` har ingen foreign key constraints, så vi kan upsert direkte
-- Self-asset opprettes allerede av Sidebar.tsx hvis det mangler — vi overskriver den
-- Evidence checks bruker `asset_id` + `control_key` for å matche trust controls
-- Ingen DB-migrasjoner nødvendig — alle tabeller eksisterer
+### 3. Oppdater `useCredits.ts`
+- `monthlyAllowance` beregnes fra planens `monthlyCredits` + eventuelle bonus
 
 ## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/lib/demoSeedTrustProfile.ts` | Ny — seed/delete Framdrift-data for Trust Profile |
-| `src/components/Sidebar.tsx` | Legge til demo-knapp i company dropdown |
+| `src/lib/planConstants.ts` | Oppdater priser, legg til `includedModules` |
+| `src/pages/Subscriptions.tsx` | Redesign til sammenlignende pakkekort |
+| `src/hooks/useCredits.ts` | Koble credits til plan-tier |
 
