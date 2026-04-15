@@ -393,6 +393,42 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
+      {/* Search and filters */}
+      {vendorDocs.length > 0 && !isLoading && (
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={isNb ? "Søk i dokumenter..." : "Search documents..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[170px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
+              <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
+              <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
+              <SelectItem value="document">{isNb ? "Dokumenter" : "Documents"}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{isNb ? "Alle" : "All"}</SelectItem>
+              <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
+              <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
