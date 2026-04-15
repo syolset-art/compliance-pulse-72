@@ -265,7 +265,7 @@ export default function Tasks() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-2">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">Oppgaver</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("nav.tasks")}</h1>
               <Badge variant="secondary" className="text-xs">
                 {autoTasks.filter((t) => t.status !== "fullført").length} åpne
               </Badge>
@@ -583,7 +583,7 @@ export default function Tasks() {
             open={helpOpen}
             onOpenChange={setHelpOpen}
             icon={ClipboardListHelp}
-            title="Oppgaver"
+            title={t("nav.tasks")}
             description="Oppgaveoversikten viser handlinger Lara AI har oppdaget at du bør gjennomføre. Oppgavene genereres automatisk basert på mangler i systemer, leverandører og behandlingsaktiviteter."
             itemsHeading="Slik fungerer det"
             items={[

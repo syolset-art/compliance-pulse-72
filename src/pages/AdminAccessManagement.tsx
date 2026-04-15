@@ -57,7 +57,7 @@ const DEMO_MEMBERS: TeamMember[] = [
 ];
 
 const AdminAccessManagement = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [inviteOpen, setInviteOpen] = useState(false);
   const [manageRolesOpen, setManageRolesOpen] = useState(false);
@@ -147,7 +147,7 @@ const AdminAccessManagement = () => {
               <div>
                 <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
                   <Users className="h-6 w-6 text-primary" />
-                  {isNb ? "Tilganger" : "Access Management"}
+                  {t("nav.accessManagement")}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isNb
