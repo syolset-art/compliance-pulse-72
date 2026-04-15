@@ -17,7 +17,9 @@ import {
   UserPlus, FileSpreadsheet, Server, ArrowLeft, Search, Building2,
   MapPin, Loader2, CheckCircle2, User, Mail, Briefcase,
 } from "lucide-react";
-import { COMPANY_ROLES, SUBSCRIPTION_PLANS } from "@/lib/mspCustomerConstants";
+import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstants";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { formatKr } from "@/lib/planConstants";
 import {
   MSP_ASSESSMENT_QUESTIONS,
   type AssessmentResponse,
@@ -63,7 +65,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_person: "",
     contact_email: "",
     contact_company_role: "",
-    subscription_plan: "Basis",
+    subscription_plan: "Gratis",
   });
 
   // License info
@@ -94,7 +96,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setDuplicateFound(false);
     setAssessmentResponses([]);
     setSelectedFrameworks([]);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Basis" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis" });
   }, []);
 
   useEffect(() => {
@@ -459,15 +461,34 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </Select>
               </div>
               <div>
-                <Label className="text-sm">Abonnement</Label>
-                <Select value={form.subscription_plan} onValueChange={(v) => setForm({ ...form, subscription_plan: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {SUBSCRIPTION_PLANS.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-sm mb-2 block">Abonnement</Label>
+                <RadioGroup
+                  value={form.subscription_plan}
+                  onValueChange={(v) => setForm({ ...form, subscription_plan: v })}
+                  className="grid gap-2"
+                >
+                  {MSP_SUBSCRIPTION_TIERS.map((tier) => (
+                    <label
+                      key={tier.id}
+                      className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                        form.subscription_plan === tier.name
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <RadioGroupItem value={tier.name} className="mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-foreground text-sm">{tier.name}</span>
+                          <span className="text-sm font-medium text-foreground">
+                            {tier.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier.monthlyPriceKr)}/mnd`}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">{tier.description}</p>
+                      </div>
+                    </label>
+                  ))}
+                </RadioGroup>
               </div>
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("results")} className="gap-1">
@@ -589,11 +610,23 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </div>
               </div>
 
-              {/* Plan */}
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Abonnement</span>
-                <span className="font-medium text-foreground">{form.subscription_plan}</span>
-              </div>
+              {/* Plan & billing */}
+              {(() => {
+                const tier = MSP_SUBSCRIPTION_TIERS.find((t) => t.name === form.subscription_plan);
+                return (
+                  <div className="rounded-lg border border-border p-3 space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-foreground">Abonnement</span>
+                      <span className="font-medium text-foreground">
+                        {tier?.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier?.monthlyPriceKr ?? 0)}/mnd`}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Credits-bruk faktureres løpende basert på kundens aktivitet.
+                    </p>
+                  </div>
+                );
+              })()}
 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("gap")} className="gap-1">
