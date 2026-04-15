@@ -336,10 +336,6 @@ const Reports = () => {
             <span className="text-muted-foreground">Utkast <span className="font-semibold text-yellow-600">{draftCount}</span></span>
             <span className="text-muted-foreground">Venter <span className="font-semibold text-blue-600">{pendingCount}</span></span>
             <span className="text-muted-foreground">Forfalt <span className="font-semibold text-red-600">{overdueCount}</span></span>
-            <div className="flex items-center gap-2 ml-auto">
-              <Progress value={completionRate} className="h-1.5 w-24" />
-              <span className="text-xs text-muted-foreground">{completionRate}%</span>
-            </div>
           </div>
 
           {/* Report Tabs */}
