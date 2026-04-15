@@ -13,7 +13,6 @@ export function OrganizationSwitcher() {
   const [addOrgOpen, setAddOrgOpen] = useState(false);
 
   const ownOrgs = organizations.filter((o) => o.type === "own");
-  const partnerOrgs = organizations.filter((o) => o.type === "partner");
 
   if (loading || !activeOrg) {
     return (
