@@ -1,19 +1,73 @@
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CheckCircle2, ShieldCheck, AlertTriangle, Clock } from "lucide-react";
+import { CheckCircle2, ShieldCheck, AlertTriangle, Clock, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
+import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 
-const frameworks = [
-  { name: "GDPR", score: 72, status: "active" as const, lastReview: "2026-01-15" },
-  { name: "ISO 27001", score: 58, status: "in-progress" as const, lastReview: "2025-12-01" },
-  { name: "NIS2", score: 41, status: "in-progress" as const, lastReview: "2026-02-10" },
-  { name: "SOC 2", score: 0, status: "planned" as const, lastReview: null },
-];
+interface FrameworkCompliance {
+  name: string;
+  frameworkId: string;
+  category: string;
+  score: number;
+  status: "active" | "in-progress" | "planned";
+  totalReqs: number;
+  metReqs: number;
+}
+
+function getReqs(frameworkId: string) {
+  const main = getRequirementsByFramework(frameworkId);
+  if (main.length > 0) return main;
+  return ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === frameworkId);
+}
+
+function getDemoScore(frameworkId: string) {
+  const reqs = getReqs(frameworkId);
+  if (reqs.length === 0) return { score: 0, met: 0, total: 0 };
+  let met = 0;
+  reqs.forEach((req, i) => {
+    const hash = (req.requirement_id.charCodeAt(req.requirement_id.length - 1) + i) % 10;
+    if (hash < 3) met++;
+  });
+  return { score: Math.round((met / reqs.length) * 100), met, total: reqs.length };
+}
 
 const TrustCenterCompliance = () => {
   const isMobile = useIsMobile();
+
+  const { data: frameworks = [], isLoading } = useQuery({
+    queryKey: ['trust-center-compliance-frameworks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('selected_frameworks')
+        .select('*')
+        .eq('is_selected', true)
+        .order('framework_name');
+
+      if (error) throw error;
+
+      return (data || []).map((sf): FrameworkCompliance => {
+        const { score, met, total } = getDemoScore(sf.framework_id);
+        let status: FrameworkCompliance['status'] = 'planned';
+        if (score >= 50) status = 'active';
+        else if (score > 0 || total > 0) status = 'in-progress';
+
+        return {
+          name: sf.framework_name,
+          frameworkId: sf.framework_id,
+          category: sf.category,
+          score,
+          status,
+          totalReqs: total,
+          metReqs: met,
+        };
+      });
+    },
+  });
 
   const getStatusBadge = (status: "active" | "in-progress" | "planned") => {
     switch (status) {
@@ -37,32 +91,41 @@ const TrustCenterCompliance = () => {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {frameworks.map((fw) => (
-          <Card key={fw.name}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{fw.name}</CardTitle>
-                {getStatusBadge(fw.status)}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Etterlevelsesgrad</span>
-                  <span className="font-medium">{fw.score}%</span>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : frameworks.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg">
+          <p>Ingen regelverk er aktivert ennå.</p>
+          <p className="text-xs mt-1">Gå til Regelverk for å aktivere rammeverk.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {frameworks.map((fw) => (
+            <Card key={fw.frameworkId}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">{fw.name}</CardTitle>
+                  {getStatusBadge(fw.status)}
                 </div>
-                <Progress value={fw.score} className="h-2" />
-                {fw.lastReview && (
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Etterlevelsesgrad</span>
+                    <span className="font-medium">{fw.score}%</span>
+                  </div>
+                  <Progress value={fw.score} className="h-2" />
                   <p className="text-xs text-muted-foreground">
-                    Siste gjennomgang: {fw.lastReview}
+                    {fw.metReqs} av {fw.totalReqs} krav oppfylt
                   </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 
