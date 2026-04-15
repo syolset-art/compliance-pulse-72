@@ -32,6 +32,7 @@ export default function VendorDashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -219,9 +220,13 @@ export default function VendorDashboard() {
       <AddVendorDialog
         open={isVendorDialogOpen}
         onOpenChange={setIsVendorDialogOpen}
-        onVendorAdded={() => {
+        onVendorAdded={(newId?: string) => {
           queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
           queryClient.invalidateQueries({ queryKey: ["assets"] });
+          if (newId) {
+            setNewlyAddedId(newId);
+            setTimeout(() => setNewlyAddedId(null), 5500);
+          }
         }}
       />
 
