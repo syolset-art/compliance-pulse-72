@@ -22,6 +22,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Send, Sparkles, AlertTriangle, Paperclip, BookOpen, Upload, X, FileText } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
 // Reuse template storage from SendRequestWizard
@@ -247,6 +248,57 @@ export function RequestUpdateDialog({
         </DialogHeader>
 
         <div className="space-y-5 py-2">
+          {/* Agent automation preview */}
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                {isNb ? "La Lara håndtere dette automatisk" : "Let Lara handle this automatically"}
+              </span>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                {isNb ? "Kommer snart" : "Coming soon"}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {isNb
+                ? "Agenten sender forespørselen, følger opp ved fristbrudd, og varsler deg når svar mottas."
+                : "The agent sends the request, follows up on missed deadlines, and notifies you when a response arrives."}
+            </p>
+            <div className="flex items-center gap-3 opacity-50 pointer-events-none">
+              <div className="flex items-center gap-2">
+                <Switch disabled checked={false} />
+                <span className="text-xs text-muted-foreground">
+                  {isNb ? "Aktiver automatisk oppfølging" : "Enable automatic follow-up"}
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 opacity-40 pointer-events-none">
+              <div className="space-y-1">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "Purrefrekvens" : "Reminder"}
+                </span>
+                <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">
+                  {isNb ? "Etter 7 dager" : "After 7 days"}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "Maks purringer" : "Max reminders"}
+                </span>
+                <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">
+                  3
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "Eskaler til" : "Escalate to"}
+                </span>
+                <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">
+                  {isNb ? "Ansvarlig" : "Manager"}
+                </div>
+              </div>
+            </div>
+          </div>
           {/* Expired documents alert */}
           {expiredDocs.length > 0 && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 space-y-2">
