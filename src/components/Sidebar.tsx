@@ -44,6 +44,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
+import { seedDemoTrustProfile, deleteDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 import {
   AlertDialog,
   AlertDialogAction,
