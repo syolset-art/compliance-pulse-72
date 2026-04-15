@@ -1,45 +1,36 @@
 
 
-# Plan: Forbedret Forretningsrisiko – Prioriterte tiltak
+# Plan: Samsvar mellom menynavn og sidetitler
 
-## Problem
-Siden viser risikoer som en flat liste. Ledere trenger visuell hjelp til å forstå *hvorfor* noe er prioritert og *hva som gir mest igjen* for pengene.
+## Funn
 
-## Endringer
+Gjennomgang av sidebar-meny (`Sidebar.tsx`), ruter (`App.tsx`), i18n-filer og faktiske sidetitler avdekker følgende avvik:
 
-### 1. Risikomatrise (sannsynlighet × konsekvens)
-Legger til en visuell 2D-matrise øverst der hver risiko plottes som en sirkel. X-akse = sannsynlighet (%), Y-akse = konsekvens (%). Størrelse = eksponering. Fargekodet etter kategori. Gir umiddelbar visuell forståelse av hvilke risikoer som er i «rød sone».
+### Avvik mellom menynavn og sidetitler
 
-```text
-Konsekvens
-  90│      ● HireVue    ● Salesforce
-  60│         ● M365
-  55│  ● Visma
-  40│              ○ Cloudflare
-    └──────────────────────────
-     10   20   35   40   Sannsynlighet %
-```
+| Sidebar-meny (nb) | Sidetittel (hardkodet) | Problem |
+|---|---|---|
+| **Organisasjon** (`nav.adminOrganisation`) | "Organiser etterlevelse i organisasjonen" | Menynavn og tittel stemmer ikke overens |
+| **Tilgangsstyring** (`nav.accessManagement`) | "Tilganger" | Ulikt begrep |
+| **Oppgaver** (Tasks.tsx) | "Oppgaver" (hardkodet) | Ikke lokalisert — burde bruke i18n. Minne sier "Aktivitet" |
+| **Avviksregister** (Deviations.tsx) | "Avviksregister" (hardkodet) | Ikke lokalisert |
+| **Regelverk** (Regulations.tsx) | "Regelverk og standarder" (hardkodet) | Menynavn og tittel avviker, + hardkodet |
 
-### 2. ROI-rangering av tiltak
-Under matrisen: en sortert tabell/liste som viser tiltak rangert etter **avkastning** (besparelse ÷ tiltakskostnad). Gjør det tydelig for ledere hva som gir best verdi:
-- Tiltak, System, Kostnad, Besparelse, ROI-faktor (f.eks. «11.8×»)
-- Grønn/gul/rød fargekoding på ROI
+### Det som stemmer (ingen endring nødvendig)
+- Dashboard, Trust Center (Profile/Edit/Products/Evidence), Meldinger, Rapporter, Systemer, Leverandører, Assets, Varslinger — alle har samsvar mellom meny og side.
 
-### 3. Forbedrede oppsummeringskort
-Legger til et fjerde kort: **Gjennomsnittlig ROI** — viser at investering i tiltak lønner seg samlet.
-
-### 4. Beholde eksisterende detaljkort
-Collapsible-kortene beholdes under, men listen sorteres etter ROI (beste avkastning først) i stedet for eksponering.
-
-## Filer
+## Foreslåtte endringer
 
 | Fil | Endring |
 |---|---|
-| `src/pages/BusinessRiskDetail.tsx` | Legger til risikomatrise (CSS grid), ROI-tabell, ekstra MetricCard, og omsorterer listen etter ROI |
+| `src/pages/Tasks.tsx` | Bruk `t("nav.tasks")` i stedet for hardkodet "Oppgaver" |
+| `src/pages/Deviations.tsx` | Bruk i18n for tittel og undertekst |
+| `src/pages/Regulations.tsx` | Bruk `t("nav.regulations")` + lokalisert undertekst |
+| `src/pages/AdminOrganisation.tsx` | Endre sidetittel til "Organisasjon" / "Organisation" (matcher meny) |
+| `src/pages/AdminAccessManagement.tsx` | Endre sidetittel fra "Tilganger" til "Tilgangsstyring" / "Access Management" (matcher meny) |
 
 ## Teknisk
-- Risikomatrisen bygges med CSS `position: relative` og plottede sirkler (ingen eksternt bibliotek)
-- ROI beregnes som `(exposure - residual_exposure - mitigation_cost) / mitigation_cost`
-- Gjenbruker eksisterende `RISK_DATA`, `CATEGORY_STYLES`, `formatNOK` fra widget
-- EN/NB lokalisert
+- Alle endringer er kun i sidetitler (`<h1>`) og undertekster
+- Bruker eksisterende i18n-nøkler der de finnes, eller legger til nye
+- Ingen funksjonelle endringer
 
