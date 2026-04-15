@@ -85,6 +85,20 @@ interface ControlItem {
   taskKeywords: string[];
 }
 
+// Document control keys that support inline upload
+const DOCUMENT_CONTROL_KEYS = new Set([
+  "dpa_verified", "documentation_available", "vendor_privacy_policy",
+  "vendor_security_review", "risk_assessment",
+]);
+
+const DOC_TYPE_MAP: Record<string, string> = {
+  "dpa_verified": "dpa",
+  "documentation_available": "other",
+  "vendor_privacy_policy": "other",
+  "vendor_security_review": "other",
+  "risk_assessment": "risk_assessment",
+};
+
 export const VendorTPRMStatus = ({
   assetId,
   assetName = "",
@@ -105,6 +119,9 @@ export const VendorTPRMStatus = ({
   const [expanded, setExpanded] = useState<boolean | null>(null);
   const [requestType, setRequestType] = useState<string | undefined>();
   const [innerTab, setInnerTab] = useState<"remaining" | "completed">("remaining");
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadTargetTaskId, setUploadTargetTaskId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const allDemoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
