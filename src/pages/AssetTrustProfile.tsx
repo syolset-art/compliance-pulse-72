@@ -333,7 +333,6 @@ const AssetTrustProfile = () => {
               {isVendor && (
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
                     size="sm"
                     onClick={() => setActivityDialogOpen(true)}
                     className="gap-2"
@@ -342,7 +341,6 @@ const AssetTrustProfile = () => {
                     {isNb ? "Registrer aktivitet" : "Log activity"}
                   </Button>
                   <Button
-                    variant="outline"
                     size="sm"
                     onClick={() => setRequestDialogOpen(true)}
                     className="gap-2"
