@@ -4,6 +4,7 @@ import {
   Sparkles, Check, CreditCard, FileText, ArrowRight,
   CheckCircle2, Shield, Cpu, Truck,
   ChevronDown, ChevronUp, Star, Zap, Package,
+  Calendar, TrendingUp,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
