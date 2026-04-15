@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Upload,
   FileText,
@@ -20,8 +20,11 @@ import {
   Shield,
   ScrollText,
   AlertTriangle,
-  FileCheck,
   Plus,
+  Brain,
+  BrainCircuit,
+  MoreHorizontal,
+  Search,
 } from "lucide-react";
 
 const DOCUMENT_TYPES = [
@@ -55,6 +58,13 @@ const GENERATE_TEMPLATES = [
   },
 ];
 
+// Group config for document types
+const DOC_GROUPS = [
+  { key: "agreements", label: "Avtaler", types: ["dpa", "sla", "nda", "contract"], icon: ScrollText },
+  { key: "policies", label: "Retningslinjer", types: ["privacy_policy", "risk_assessment"], icon: Shield },
+  { key: "other", label: "Andre dokumenter", types: ["other"], icon: FileText },
+];
+
 interface WorkAreaDocumentsTabProps {
   workAreaId: string;
   workAreaName: string;
@@ -67,8 +77,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
   const [generatedTitle, setGeneratedTitle] = useState("");
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
-  const [selectedDocType, setSelectedDocType] = useState("other");
-  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
 
   const { data: documents = [], isLoading } = useQuery({
@@ -84,23 +93,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
     },
   });
 
-  // Fetch assets to check for missing DPAs
-  const { data: assets = [] } = useQuery({
-    queryKey: ["work-area-assets-dpa-check", workAreaId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("assets")
-        .select("id, name, gdpr_role")
-        .eq("work_area_id", workAreaId)
-        .eq("gdpr_role", "processor");
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const dpaDocCount = documents.filter((d: any) => d.document_type === "dpa").length;
-  const processorAssets = assets.length;
-  const missingDPAs = Math.max(0, processorAssets - dpaDocCount);
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["work-area-documents", workAreaId] });
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -122,22 +115,18 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
           file_name: file.name,
           file_path: filePath,
           file_size: file.size,
-          document_type: selectedDocType,
+          document_type: "other",
           generated: false,
+          ai_enabled: false,
         });
 
       if (insertError) throw insertError;
 
-      toast({ title: "Dokument lastet opp", description: file.name });
-      queryClient.invalidateQueries({ queryKey: ["work-area-documents", workAreaId] });
-      setSelectedDocType("other");
+      toast.success("Dokument lastet opp", { description: file.name });
+      invalidate();
     } catch (error: any) {
       console.error("Upload error:", error);
-      toast({
-        title: "Feil ved opplasting",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error("Feil ved opplasting", { description: error.message });
     } finally {
       setIsUploading(false);
     }
@@ -147,14 +136,48 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
     try {
       await supabase.storage.from("documents").remove([filePath]);
       await supabase.from("work_area_documents" as any).delete().eq("id", docId);
-      toast({ title: "Dokument slettet" });
-      queryClient.invalidateQueries({ queryKey: ["work-area-documents", workAreaId] });
+      toast.success("Dokument slettet");
+      invalidate();
     } catch (error: any) {
-      toast({
-        title: "Feil ved sletting",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error("Feil ved sletting", { description: error.message });
+    }
+  };
+
+  const handleToggleAI = async (docId: string, enabled: boolean, docName: string) => {
+    try {
+      await supabase
+        .from("work_area_documents" as any)
+        .update({ ai_enabled: enabled })
+        .eq("id", docId);
+
+      if (enabled) {
+        toast.success(`«${docName}» er nå tilgjengelig for AI`, {
+          description: "AI-agenter kan bruke dette dokumentet til analyse og generering.",
+        });
+      } else {
+        toast(`«${docName}» er ikke lenger tilgjengelig for AI`, {
+          description: "Dokumentet brukes ikke av AI-agenter.",
+        });
+      }
+      invalidate();
+    } catch (error: any) {
+      toast.error("Kunne ikke oppdatere AI-tilgang", { description: error.message });
+    }
+  };
+
+  const handleDownload = async (filePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage.from("documents").download(filePath);
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      toast.error("Feil ved nedlasting", { description: error.message });
     }
   };
 
@@ -175,11 +198,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
       setShowPreviewDialog(true);
     } catch (error: any) {
       console.error("Generate error:", error);
-      toast({
-        title: "Feil ved generering",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error("Feil ved generering", { description: error.message });
     } finally {
       setIsGenerating(null);
     }
@@ -212,86 +231,56 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
         file_size: blob.size,
         document_type: docType,
         generated: true,
+        ai_enabled: false,
       });
 
-      toast({ title: "Dokument lagret", description: fileName });
-      queryClient.invalidateQueries({ queryKey: ["work-area-documents", workAreaId] });
+      toast.success("Dokument lagret", { description: fileName });
+      invalidate();
       setShowPreviewDialog(false);
       setGeneratedContent(null);
     } catch (error: any) {
-      toast({
-        title: "Feil ved lagring",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDownload = async (filePath: string, fileName: string) => {
-    try {
-      const { data, error } = await supabase.storage.from("documents").download(filePath);
-      if (error) throw error;
-
-      const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error: any) {
-      toast({
-        title: "Feil ved nedlasting",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error("Feil ved lagring", { description: error.message });
     }
   };
 
   const getDocTypeLabel = (type: string) =>
     DOCUMENT_TYPES.find((d) => d.value === type)?.label || type;
 
-  return (
-    <div className="space-y-4">
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card variant="flat">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FileCheck className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{documents.length}</p>
-              <p className="text-xs text-muted-foreground">Dokumenter lastet opp</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="flat">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <ScrollText className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{dpaDocCount}</p>
-              <p className="text-xs text-muted-foreground">Databehandleravtaler</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="flat">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${missingDPAs > 0 ? "bg-destructive/10" : "bg-green-500/10"}`}>
-              <AlertTriangle className={`h-5 w-5 ${missingDPAs > 0 ? "text-destructive" : "text-green-500"}`} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{missingDPAs}</p>
-              <p className="text-xs text-muted-foreground">Manglende DPA-er</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+  // Filter documents
+  const filtered = documents.filter((doc: any) =>
+    doc.file_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
+  // Group documents
+  const grouped = DOC_GROUPS.map((group) => ({
+    ...group,
+    docs: filtered.filter((doc: any) => group.types.includes(doc.document_type)),
+  })).filter((g) => g.docs.length > 0);
+
+  // Ungrouped
+  const groupedTypes = DOC_GROUPS.flatMap((g) => g.types);
+  const ungrouped = filtered.filter((doc: any) => !groupedTypes.includes(doc.document_type));
+  if (ungrouped.length > 0) {
+    grouped.push({ key: "uncategorized", label: "Ukategorisert", types: [], icon: FileText, docs: ungrouped });
+  }
+
+  // AI summary
+  const aiCount = documents.filter((d: any) => d.ai_enabled).length;
+
+  return (
+    <div className="space-y-6">
       {/* Actions row */}
-      <div className="flex flex-wrap gap-2">
-        <div className="relative">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Søk i dokumenter..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
           <input
             type="file"
             id="doc-upload"
@@ -299,119 +288,151 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
             onChange={handleFileUpload}
             disabled={isUploading}
           />
-          <div className="flex gap-2">
-            <Select value={selectedDocType} onValueChange={setSelectedDocType}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Dokumenttype" />
-              </SelectTrigger>
-              <SelectContent>
-                {DOCUMENT_TYPES.map((dt) => (
-                  <SelectItem key={dt.value} value={dt.value}>
-                    {dt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => document.getElementById("doc-upload")?.click()}
-              disabled={isUploading}
-            >
-              {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              Last opp
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => document.getElementById("doc-upload")?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Last opp
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setShowGenerateDialog(true)}
+          >
+            <Sparkles className="h-4 w-4" />
+            Generer
+          </Button>
         </div>
-
-        <Button
-          variant="secondary"
-          className="gap-2 ml-auto"
-          onClick={() => setShowGenerateDialog(true)}
-        >
-          <Sparkles className="h-4 w-4" />
-          Generer dokument
-        </Button>
       </div>
 
-      {/* Documents table */}
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Dokumentnavn</TableHead>
-              <TableHead className="w-[180px]">Type</TableHead>
-              <TableHead className="w-[120px]">Dato</TableHead>
-              <TableHead className="w-[80px]">Kilde</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                </TableCell>
-              </TableRow>
-            ) : documents.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  Ingen dokumenter ennå. Last opp en kontrakt eller generer et dokument.
-                </TableCell>
-              </TableRow>
-            ) : (
-              documents.map((doc: any) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-sm">{doc.file_name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">
-                      {getDocTypeLabel(doc.document_type)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(doc.created_at).toLocaleDateString("nb-NO")}
-                  </TableCell>
-                  <TableCell>
-                    {doc.generated ? (
-                      <Badge className="text-xs bg-violet-500/10 text-violet-600 border-violet-500/30">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        AI
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="text-xs">Opplastet</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => handleDelete(doc.id, doc.file_path)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+      {/* AI summary */}
+      {documents.length > 0 && (
+        <div className="flex items-center gap-3 px-1">
+          <div className="flex items-center gap-1.5 text-sm">
+            <Brain className="h-4 w-4 text-primary" />
+            <span className="font-medium">{aiCount}</span>
+            <span className="text-muted-foreground">tilgjengelig for AI</span>
+          </div>
+          <span className="text-muted-foreground">·</span>
+          <div className="flex items-center gap-1.5 text-sm">
+            <BrainCircuit className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{documents.length - aiCount}</span>
+            <span className="text-muted-foreground">ikke AI</span>
+          </div>
+        </div>
+      )}
+
+      {/* Document list */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : documents.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-12 text-center">
+          Ingen dokumenter ennå. Last opp en kontrakt eller generer et dokument.
+        </p>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-8 text-center">
+          Ingen dokumenter matcher søket.
+        </p>
+      ) : (
+        <div className="space-y-8">
+          {grouped.map((group) => {
+            const GroupIcon = group.icon;
+            return (
+              <section key={group.key}>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                  <GroupIcon className="h-4 w-4" />
+                  {group.label}
+                  <Badge variant="secondary" className="text-[13px] px-1.5">{group.docs.length}</Badge>
+                </h2>
+                <div className="space-y-2">
+                  {group.docs.map((doc: any) => (
+                    <Card key={doc.id} className="hover:bg-accent/30 transition-colors">
+                      <CardContent className="flex items-center gap-3 p-3">
+                        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileText className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium truncate">{doc.file_name}</p>
+                            {doc.generated && (
+                              <Badge className="text-[11px] bg-violet-500/10 text-violet-600 border-violet-500/30 shrink-0">
+                                <Sparkles className="h-2.5 w-2.5 mr-0.5" />
+                                AI
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {getDocTypeLabel(doc.document_type)} · {new Date(doc.created_at).toLocaleDateString("nb-NO")}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1.5">
+                                  {doc.ai_enabled ? (
+                                    <Brain className="h-3.5 w-3.5 text-primary" />
+                                  ) : (
+                                    <BrainCircuit className="h-3.5 w-3.5 text-muted-foreground" />
+                                  )}
+                                  <span className={`text-xs min-w-[28px] ${doc.ai_enabled ? "text-primary" : "text-muted-foreground"}`}>
+                                    {doc.ai_enabled ? "AI" : "Ikke AI"}
+                                  </span>
+                                  <Switch
+                                    checked={!!doc.ai_enabled}
+                                    onCheckedChange={(checked) => handleToggleAI(doc.id, checked, doc.file_name)}
+                                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
+                                  />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <p className="text-xs">
+                                  {doc.ai_enabled
+                                    ? "Tilgjengelig for AI-agenter — klikk for å deaktivere"
+                                    : "Ikke tilgjengelig for AI — klikk for å aktivere"}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleDownload(doc.file_path, doc.file_name)}>
+                                <Download className="h-4 w-4 mr-2" />
+                                Last ned
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDelete(doc.id, doc.file_path)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Slett
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
 
       {/* Generate dialog */}
       <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>

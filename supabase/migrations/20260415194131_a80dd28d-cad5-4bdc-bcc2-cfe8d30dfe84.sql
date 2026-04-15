@@ -1,0 +1,1 @@
+ALTER TABLE public.work_area_documents ADD COLUMN ai_enabled boolean DEFAULT false;

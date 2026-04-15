@@ -3439,6 +3439,7 @@ export type Database = {
       }
       work_area_documents: {
         Row: {
+          ai_enabled: boolean | null
           created_at: string | null
           document_type: string | null
           file_name: string
@@ -3451,6 +3452,7 @@ export type Database = {
           work_area_id: string
         }
         Insert: {
+          ai_enabled?: boolean | null
           created_at?: string | null
           document_type?: string | null
           file_name: string
@@ -3463,6 +3465,7 @@ export type Database = {
           work_area_id: string
         }
         Update: {
+          ai_enabled?: boolean | null
           created_at?: string | null
           document_type?: string | null
           file_name?: string
