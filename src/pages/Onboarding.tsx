@@ -451,9 +451,9 @@ export default function Onboarding() {
   const goToDashboard = () => {
     toast({
       title: "🎉 Velkommen til Mynder!",
-      description: "Du er nå 70% compliant"
+      description: "Din Trust Profile er klar — se den nå."
     });
-    navigate("/");
+    navigate("/trust-center/profile");
   };
 
   return (
@@ -471,7 +471,7 @@ export default function Onboarding() {
               <div className="text-sm text-muted-foreground">{overallProgress}% ferdig</div>
               <Button variant="outline" size="sm" onClick={goToDashboard}>
                 <LayoutDashboard className="w-4 h-4 mr-2" />
-                Til dashboard
+                Til Trust Profile
               </Button>
             </div>
           </div>
@@ -1309,11 +1309,11 @@ export default function Onboarding() {
             </p>
 
             <p className="text-sm text-muted-foreground animate-pulse">
-              Sender deg til dashbordet om et øyeblikk...
+              Sender deg til din Trust Profile om et øyeblikk...
             </p>
 
             <Button onClick={goToDashboard} size="lg" className="text-lg px-8">
-              Gå til Dashboard →
+              Gå til Trust Profile →
             </Button>
           </div>
         )}
