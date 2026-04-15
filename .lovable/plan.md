@@ -1,27 +1,35 @@
 
 
-# Plan: Oppdatere abonnementsvalg i «Legg til kunde» — pris per måned
+# Plan: Koble virksomhet til innstillinger visuelt
 
-## Endringer
+## Problem
+Abonnements- og innstillingssiden viser ingen referanse til hvilken virksomhet innstillingene gjelder for. Brukeren bytter virksomhet i sidebaren, men det er ingen visuell kobling mellom valgt virksomhet og innstillingene som vises.
 
-### 1. `src/lib/mspCustomerConstants.ts`
-Erstatte `SUBSCRIPTION_PLANS`-arrayet med en ny struktur `MSP_SUBSCRIPTION_TIERS`:
+## Løsning
+Legge til en tydelig **virksomhets-kontekst-header** øverst på Subscriptions-siden (og andre innstillingssider) som viser hvilken virksomhet innstillingene gjelder for.
 
-| Tier | Pris | Beskrivelse |
-|------|------|-------------|
-| Gratis | 0 kr/mnd | Grunnleggende compliance-oversikt |
-| Basis | 4 900 kr/mnd | For SMB-kunder som trenger mer |
-| Pro | 8 900 kr/mnd | Full tilgang med alle komponenter |
+### 1. Ny komponent: `OrganizationContextBanner`
+En liten, gjenbrukbar banner-komponent som viser:
+- Virksomhetens navn (fra `useActiveOrganization`)
+- Org.nummer
+- En subtil Building2-ikon
+- Lenke/knapp for å bytte virksomhet (åpner sidebar-switcher eller navigerer)
 
-### 2. `src/components/msp/AddMSPCustomerDialog.tsx`
-- Default `subscription_plan` → `"Gratis"`
-- Erstatte Select-dropdown med visuell plan-velger (3 radio-kort) som viser plannavn, **månedspris** og kort beskrivelse
-- Legge til faktura-oppsummering i bekreftelses-steget: valgt plan + note om at credits faktureres løpende
+Visuelt: en kompakt stripe under overskriften med virksomhetsinfo, lignende "Du administrerer: **Selskap AS** (org. 123 456 789)"
+
+### 2. Oppdater `src/pages/Subscriptions.tsx`
+- Importere `useActiveOrganization`
+- Legge til `OrganizationContextBanner` rett under h1-overskriften
+- Oppdater underteksten til å inkludere virksomhetsnavnet: "Innstillinger for **{orgName}**"
+
+### 3. Oppdater `src/pages/AdminOrganisation.tsx`
+- Samme banner øverst for konsistens
 
 ## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/lib/mspCustomerConstants.ts` | Ny `MSP_SUBSCRIPTION_TIERS` med månedspriser |
-| `src/components/msp/AddMSPCustomerDialog.tsx` | Visuell plan-velger, default Gratis, faktura-oppsummering |
+| `src/components/OrganizationContextBanner.tsx` | **Ny** — gjenbrukbar kontekst-banner |
+| `src/pages/Subscriptions.tsx` | Legg til banner under overskrift |
+| `src/pages/AdminOrganisation.tsx` | Legg til banner under overskrift |
 
