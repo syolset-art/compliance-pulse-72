@@ -13,9 +13,11 @@ import {
   TrendingDown,
   MessageCircle,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
+import { useCredits } from "@/hooks/useCredits";
 
 interface FrameworkActivationDialogProps {
   open: boolean;
@@ -33,11 +35,13 @@ export function FrameworkActivationDialog({
 }: FrameworkActivationDialogProps) {
   const { t } = useTranslation();
   const { openChatWithMessage } = useGlobalChat();
+  const { balance } = useCredits();
 
   if (!framework) return null;
 
   const category = getCategoryById(framework.category);
   const CategoryIcon = category?.icon;
+  const estimated = framework.estimatedCredits ?? 5;
 
   const handleAskLara = () => {
     onOpenChange(false);
@@ -78,6 +82,19 @@ export function FrameworkActivationDialog({
             <p className="text-sm text-green-700 dark:text-green-400">
               {framework.name} er nå aktivt i din compliance-portefølje.
             </p>
+          </div>
+
+          {/* Credits estimate */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+            <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="text-foreground">
+                Vi estimerer ca. <span className="font-semibold">~{estimated} credits</span> for å etablere baseline for {framework.name}.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Du har {balance} credits tilgjengelig. Du vil bli varslet om du trenger å fylle på — enkelt og raskt.
+              </p>
+            </div>
           </div>
 
           {/* Score impact warning */}

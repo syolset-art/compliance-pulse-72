@@ -8,6 +8,7 @@ export interface Framework {
   isMandatory?: boolean;
   isRecommended?: boolean;
   triggerQuestion?: string;
+  estimatedCredits?: number;
 }
 
 export interface FrameworkCategory {
@@ -26,14 +27,16 @@ export const frameworks: Framework[] = [
     name: 'GDPR / Personvernforordningen',
     description: 'EUs personvernlovgivning - gjelder alle som behandler personopplysninger',
     category: 'privacy',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 5
   },
   {
     id: 'personopplysningsloven',
     name: 'Personopplysningsloven',
     description: 'Norsk lov som utfyller GDPR',
     category: 'privacy',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 3
   },
   
   // Information Security
@@ -43,7 +46,8 @@ export const frameworks: Framework[] = [
     description: 'Internasjonal standard for informasjonssikkerhetsstyring',
     category: 'security',
     isRecommended: true,
-    triggerQuestion: 'Har dere kunder som krever ISO-sertifisering?'
+    triggerQuestion: 'Har dere kunder som krever ISO-sertifisering?',
+    estimatedCredits: 12
   },
   {
     id: 'iso27701',
@@ -51,42 +55,48 @@ export const frameworks: Framework[] = [
     description: 'Utvidelse av ISO 27001 for personvernadministrasjon (PIMS)',
     category: 'security',
     isRecommended: false,
-    triggerQuestion: 'Ønsker dere å utvide ISO 27001 med personvernadministrasjon?'
+    triggerQuestion: 'Ønsker dere å utvide ISO 27001 med personvernadministrasjon?',
+    estimatedCredits: 8
   },
   {
     id: 'nis2',
     name: 'NIS2-direktivet',
     description: 'EUs direktiv om sikkerhet i nettverks- og informasjonssystemer',
     category: 'security',
-    triggerQuestion: 'Er virksomheten innen kritisk infrastruktur eller digital tjenesteleveranse?'
+    triggerQuestion: 'Er virksomheten innen kritisk infrastruktur eller digital tjenesteleveranse?',
+    estimatedCredits: 15
   },
   {
     id: 'nsm',
     name: 'NSMs grunnprinsipper',
     description: 'Nasjonal sikkerhetsmyndighets anbefalinger for IKT-sikkerhet',
     category: 'security',
-    isRecommended: true
+    isRecommended: true,
+    estimatedCredits: 8
   },
   {
     id: 'soc2',
     name: 'SOC 2',
     description: 'Service Organization Control - sikkerhet, tilgjengelighet og konfidensialitet',
     category: 'security',
-    triggerQuestion: 'Har dere amerikanske kunder som krever SOC 2-sertifisering?'
+    triggerQuestion: 'Har dere amerikanske kunder som krever SOC 2-sertifisering?',
+    estimatedCredits: 15
   },
   {
     id: 'dora',
     name: 'DORA',
     description: 'Digital Operational Resilience Act – EUs forordning om digital operasjonell motstandsdyktighet for finanssektoren',
     category: 'security',
-    triggerQuestion: 'Er virksomheten i finanssektoren eller leverer IKT-tjenester til finansforetak?'
+    triggerQuestion: 'Er virksomheten i finanssektoren eller leverer IKT-tjenester til finansforetak?',
+    estimatedCredits: 12
   },
   {
     id: 'cra',
     name: 'Cyber Resilience Act (CRA)',
     description: 'EUs forordning om cybersikkerhetskrav for produkter med digitale elementer',
     category: 'security',
-    triggerQuestion: 'Utvikler eller selger dere produkter med digitale elementer i EU?'
+    triggerQuestion: 'Utvikler eller selger dere produkter med digitale elementer i EU?',
+    estimatedCredits: 10
   },
   
   // AI Governance
@@ -95,7 +105,8 @@ export const frameworks: Framework[] = [
     name: 'EU AI Act',
     description: 'EUs forordning om kunstig intelligens',
     category: 'ai',
-    triggerQuestion: 'Bruker virksomheten AI-systemer eller utvikler AI-løsninger?'
+    triggerQuestion: 'Bruker virksomheten AI-systemer eller utvikler AI-løsninger?',
+    estimatedCredits: 12
   },
   {
     id: 'iso42001',
@@ -103,14 +114,16 @@ export const frameworks: Framework[] = [
     description: 'Internasjonal standard for AI Management Systems (AIMS)',
     category: 'ai',
     isRecommended: true,
-    triggerQuestion: 'Ønsker dere å sertifisere AI-styringssystemet etter ISO-standard?'
+    triggerQuestion: 'Ønsker dere å sertifisere AI-styringssystemet etter ISO-standard?',
+    estimatedCredits: 10
   },
   {
     id: 'iso42005',
     name: 'ISO/IEC 42005',
     description: 'Standard for konsekvensanalyse (Impact Assessment) av AI-systemer',
     category: 'ai',
-    triggerQuestion: 'Trenger dere strukturert metodikk for AI-konsekvensanalyser?'
+    triggerQuestion: 'Trenger dere strukturert metodikk for AI-konsekvensanalyser?',
+    estimatedCredits: 8
   },
   {
     id: 'ai-ethics',
@@ -118,7 +131,8 @@ export const frameworks: Framework[] = [
     description: 'Interne retningslinjer for ansvarlig bruk av AI',
     category: 'ai',
     isRecommended: true,
-    triggerQuestion: 'Bruker virksomheten AI-systemer?'
+    triggerQuestion: 'Bruker virksomheten AI-systemer?',
+    estimatedCredits: 5
   },
   
   // Quality Management
@@ -128,35 +142,40 @@ export const frameworks: Framework[] = [
     description: 'Internasjonal standard for kvalitetsstyring',
     category: 'other',
     isRecommended: true,
-    triggerQuestion: 'Ønsker dere å sertifisere kvalitetsstyringssystemet?'
+    triggerQuestion: 'Ønsker dere å sertifisere kvalitetsstyringssystemet?',
+    estimatedCredits: 10
   },
   {
     id: 'iso14001',
     name: 'ISO 14001',
     description: 'Internasjonal standard for miljøledelse',
     category: 'other',
-    triggerQuestion: 'Ønsker dere å implementere et miljøledelsessystem?'
+    triggerQuestion: 'Ønsker dere å implementere et miljøledelsessystem?',
+    estimatedCredits: 8
   },
   {
     id: 'iso45001',
     name: 'ISO 45001',
     description: 'Internasjonal standard for arbeidsmiljøledelse (HMS)',
     category: 'other',
-    triggerQuestion: 'Ønsker dere å sertifisere HMS-systemet?'
+    triggerQuestion: 'Ønsker dere å sertifisere HMS-systemet?',
+    estimatedCredits: 8
   },
   {
     id: 'internkontroll',
     name: 'Internkontrollforskriften',
     description: 'Forskrift om systematisk helse-, miljø- og sikkerhetsarbeid',
     category: 'other',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 5
   },
   {
     id: 'arbeidsmiljoloven',
     name: 'Arbeidsmiljøloven',
     description: 'Lov om arbeidsmiljø, arbeidstid og stillingsvern',
     category: 'other',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 4
   },
   
   // Other
@@ -165,35 +184,40 @@ export const frameworks: Framework[] = [
     name: 'Åpenhetsloven',
     description: 'Krav til aktsomhetsvurderinger og transparens i leverandørkjeder',
     category: 'other',
-    triggerQuestion: 'Har virksomheten over 50 ansatte eller over 70 MNOK i omsetning?'
+    triggerQuestion: 'Har virksomheten over 50 ansatte eller over 70 MNOK i omsetning?',
+    estimatedCredits: 8
   },
   {
     id: 'hms',
     name: 'HMS-lovgivningen',
     description: 'Helse, miljø og sikkerhet på arbeidsplassen',
     category: 'other',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 4
   },
   {
     id: 'bokforingsloven',
     name: 'Bokføringsloven',
     description: 'Krav til oppbevaring og dokumentasjon av regnskapsmateriale',
     category: 'other',
-    isMandatory: true
+    isMandatory: true,
+    estimatedCredits: 3
   },
   {
     id: 'hvitvasking',
     name: 'Hvitvaskingsloven',
     description: 'Tiltak mot hvitvasking og terrorfinansiering',
     category: 'other',
-    triggerQuestion: 'Er virksomheten rapporteringspliktig etter hvitvaskingsloven?'
+    triggerQuestion: 'Er virksomheten rapporteringspliktig etter hvitvaskingsloven?',
+    estimatedCredits: 6
   },
   {
     id: 'csrd',
     name: 'CSRD',
     description: 'Corporate Sustainability Reporting Directive - bærekraftsrapportering',
     category: 'other',
-    triggerQuestion: 'Er virksomheten omfattet av krav til bærekraftsrapportering?'
+    triggerQuestion: 'Er virksomheten omfattet av krav til bærekraftsrapportering?',
+    estimatedCredits: 10
   }
 ];
 
