@@ -17,7 +17,7 @@ import {
   FileBarChart,
   HelpCircle,
   LogOut,
-  RotateCcw,
+  
   MessageSquare,
   Globe,
   Layers,
