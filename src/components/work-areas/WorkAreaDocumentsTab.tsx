@@ -269,9 +269,9 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
 
   return (
     <div className="space-y-6">
-      {/* Actions row */}
+      {/* Actions row - single line */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-[180px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Søk i dokumenter..."
@@ -280,6 +280,23 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
             className="pl-9"
           />
         </div>
+
+        {documents.length > 0 && (
+          <>
+            <div className="flex items-center gap-1.5 text-sm">
+              <Brain className="h-4 w-4 text-primary" />
+              <span className="font-medium">{aiCount}</span>
+              <span className="text-muted-foreground">AI</span>
+            </div>
+            <span className="text-muted-foreground">·</span>
+            <div className="flex items-center gap-1.5 text-sm">
+              <BrainCircuit className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{documents.length - aiCount}</span>
+              <span className="text-muted-foreground">ikke AI</span>
+            </div>
+          </>
+        )}
+
         <div className="flex items-center gap-2 ml-auto">
           <input
             type="file"
@@ -309,23 +326,6 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
           </Button>
         </div>
       </div>
-
-      {/* AI summary */}
-      {documents.length > 0 && (
-        <div className="flex items-center gap-3 px-1">
-          <div className="flex items-center gap-1.5 text-sm">
-            <Brain className="h-4 w-4 text-primary" />
-            <span className="font-medium">{aiCount}</span>
-            <span className="text-muted-foreground">tilgjengelig for AI</span>
-          </div>
-          <span className="text-muted-foreground">·</span>
-          <div className="flex items-center gap-1.5 text-sm">
-            <BrainCircuit className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{documents.length - aiCount}</span>
-            <span className="text-muted-foreground">ikke AI</span>
-          </div>
-        </div>
-      )}
 
       {/* Document list */}
       {isLoading ? (
