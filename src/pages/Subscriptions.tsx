@@ -35,26 +35,22 @@ import { Settings2 } from "lucide-react";
 
 const PLAN_FEATURES: Record<PlanTier, string[]> = {
   free: [
-    "Trust Center",
-    "GDPR + ISO 27001",
+    "Trust Center (alle undermenyer)",
+    "GDPR + ISO 27001 regelverk",
     "10 credits/mnd",
-    "Inntil 5 systemer",
-    "Inntil 5 leverandører",
+    "Synlig i Mynder Trust Engine",
   ],
   basis: [
     "Alt i Gratis +",
-    "Mynder Core (systemer, arbeidsområder, oppgaver, risiko)",
     "100 credits/mnd",
-    "Inntil 20 systemer",
-    "Inntil 20 leverandører",
+    "Arbeidsområder og oppgaver",
+    "Prioritert onboarding",
   ],
   premium: [
     "Alt i Basis +",
-    "Leverandørstyring (DPA, risiko, scoring)",
     "300 credits/mnd",
-    "Ubegrenset systemer",
-    "Ubegrenset leverandører",
     "Prioritert support",
+    "Avansert rapportering",
   ],
   enterprise: [],
 };
@@ -265,7 +261,7 @@ export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { addons, activateAddon, currentTier } = useSubscription();
-  const { isServiceActive } = useActivatedServices();
+  const { isServiceActive, activateService } = useActivatedServices();
 
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [editFrameworksOpen, setEditFrameworksOpen] = useState(false);
@@ -386,7 +382,7 @@ export default function Subscriptions() {
                 <div>
                   <h3 className="font-bold text-foreground">Enterprise</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Ubegrenset alt, dedikert kontaktperson, tilpassede integrasjoner og SLA.
+                    Skreddersydd volum, dedikert kontaktperson, integrasjoner og SLA.
                   </p>
                 </div>
                 <Button variant="outline" size="sm">Kontakt salg</Button>
@@ -407,6 +403,75 @@ export default function Subscriptions() {
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* ── KOMPONENTER ── */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Cpu className="h-5 w-5 text-primary" />
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Komponenter</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Valgfrie tillegg som trekker credits basert på bruk</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(["systems", "vendors"] as ModuleId[]).map((modId) => {
+                const mod = MODULES[modId];
+                const serviceKey = modId === "systems" ? "module-systems" : "module-vendors";
+                const active = isServiceActive(serviceKey);
+                const ModIcon = modId === "systems" ? Cpu : Truck;
+
+                return (
+                  <Card key={modId} className={`transition-all ${active ? "border-primary/30 bg-primary/[0.02]" : "border-border"}`}>
+                    <CardContent className="p-5 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${active ? "bg-primary/10" : "bg-muted"}`}>
+                          <ModIcon className={`h-4.5 w-4.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-foreground text-sm">{mod.displayName}</h3>
+                          <p className="text-xs text-muted-foreground">{mod.description}</p>
+                        </div>
+                        {active && (
+                          <Badge variant="outline" className="border-success/30 text-success text-[10px]">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Aktiv
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        {mod.features.map((feature, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <Check className="h-3.5 w-3.5 text-success shrink-0" />
+                            <span className="text-xs text-foreground">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {!active && (
+                        <Button
+                          className="w-full gap-2"
+                          size="sm"
+                          onClick={() => {
+                            activateService(serviceKey, "user");
+                            toast.success(`${mod.displayName} aktivert! Komponenten trekker credits basert på din bruk.`);
+                          }}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Aktiver {mod.displayName}
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center italic">
+              Liten bedrift? Færre credits. Stor virksomhet? Mynders agenter skalerer med deg — du betaler kun for det du bruker.
+            </p>
           </section>
 
           {/* ── CREDITS OVERVIEW ── */}

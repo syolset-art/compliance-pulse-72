@@ -27,7 +27,7 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
     setIsActivating(true);
     await new Promise((r) => setTimeout(r, 1200));
     activateService("module-systems", "user");
-    toast.success(`Mynder Core aktivert! Du kan nå legge til ubegrenset systemer og får +${mod.bonusCredits} credits/mnd.`);
+    toast.success(`Mynder Core aktivert! Komponenten trekker credits basert på din bruk. +${mod.bonusCredits} credits/mnd inkludert.`);
     onActivated("active");
     onOpenChange(false);
     setIsActivating(false);

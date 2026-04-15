@@ -23,7 +23,7 @@ export function VendorActivateDialog({ open, onOpenChange, onActivated }: Vendor
 
   const handleActivate = () => {
     activateService("module-vendors", "user");
-    toast.success(`Leverandørstyring aktivert! Du kan nå administrere ubegrenset leverandører og får +${mod.bonusCredits} credits/mnd.`);
+    toast.success(`Leverandørstyring aktivert! Komponenten trekker credits basert på din bruk. +${mod.bonusCredits} credits/mnd inkludert.`);
     onActivated();
     onOpenChange(false);
   };
