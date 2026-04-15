@@ -61,7 +61,7 @@ import {
 interface AddVendorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onVendorAdded?: () => void;
+  onVendorAdded?: (newId?: string) => void;
 }
 
 type Step = "quantity" | "method" | "search" | "categorize" | "contact" | "confirm" | "file-upload" | "file-analyzing" | "file-results" | "scan-limit";
@@ -357,7 +357,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         url: manualUrl || null,
       };
 
-      const { error: insertError } = await supabase.from("assets").insert({
+      const { data: insertData, error: insertError } = await supabase.from("assets").insert({
         name: vendor.name,
         asset_type: "vendor",
         country: vendor.country || country,
@@ -372,18 +372,18 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
           industry: (vendor as VendorSearchResult).industry,
           contact_role: contactRole || null,
         },
-      } as any);
+      } as any).select("id").single();
 
       if (insertError) throw insertError;
-      return vendor.name;
+      return { name: vendor.name, id: insertData?.id };
     },
-    onSuccess: (name) => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
-      toast.success(t("addVendor.success", "{{name}} ble lagt til", { name }));
-      onVendorAdded?.();
+      toast.success(t("addVendor.success", "{{name}} ble lagt til", { name: result.name }));
+      onVendorAdded?.(result.id);
 
       if (mode === "multiple") {
-        setAddedVendors((prev) => [...prev, name]);
+        setAddedVendors((prev) => [...prev, result.name]);
         resetForNext();
       } else {
         onOpenChange(false);

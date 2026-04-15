@@ -81,9 +81,10 @@ interface VendorListTabProps {
   allAssets: Asset[];
   relationships: { source_asset_id: string; target_asset_id: string }[];
   onDelete: (id: string) => void;
+  newlyAddedId?: string | null;
 }
 
-export function VendorListTab({ vendors, allAssets, relationships, onDelete }: VendorListTabProps) {
+export function VendorListTab({ vendors, allAssets, relationships, onDelete, newlyAddedId }: VendorListTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -198,8 +199,18 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
         return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       });
     }
+
+    // Always put newly added vendor first
+    if (newlyAddedId) {
+      const idx = result.findIndex(a => a.id === newlyAddedId);
+      if (idx > 0) {
+        const [item] = result.splice(idx, 1);
+        result.unshift(item);
+      }
+    }
+
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -409,6 +420,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               key={v.id}
               vendor={v}
               scoreDisplay={scoreDisplay}
+              isNew={v.id === newlyAddedId}
               connectedSystemsCount={getConnectedCount(v.id)}
               hasDPA={(v.compliance_score || 0) >= 30}
               inboxCount={inboxCounts[v.id] || 0}
@@ -444,11 +456,15 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               const scoreColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
               const riskColor = { high: "bg-destructive", medium: "bg-warning", low: "bg-success" }[asset.risk_level || ""] || "bg-muted-foreground";
               const ownerName = getOwnerName(asset);
+              const isNewRow = asset.id === newlyAddedId;
               return (
                 <div
                   key={asset.id}
                   onClick={() => navigate(`/assets/${asset.id}`)}
-                  className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                  className={cn(
+                    "grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-all cursor-pointer",
+                    isNewRow && "bg-primary/5 ring-1 ring-primary/30 animate-fade-in"
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
