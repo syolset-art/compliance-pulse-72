@@ -768,15 +768,6 @@ export default function WorkAreas() {
                   </span>
                 </button>
               ))}
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setIsAddDialogOpen(true)}
-                className="gap-1 flex-shrink-0"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("myWorkAreas.addNew")}</span>
-              </Button>
             </div>
           </div>
 
