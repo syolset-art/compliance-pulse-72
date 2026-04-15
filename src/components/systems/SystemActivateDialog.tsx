@@ -2,16 +2,12 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Check, Sparkles, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import {
-  MODULES, FREE_INCLUSIONS, formatKr, getModulePrice, getModuleAnnualSavingsKr,
-  type BillingInterval, type ModuleTier,
-} from "@/lib/planConstants";
+import { MODULES, FREE_INCLUSIONS, formatKr, getModulePrice, type BillingInterval } from "@/lib/planConstants";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 interface SystemActivateDialogProps {
   open: boolean;
@@ -20,34 +16,33 @@ interface SystemActivateDialogProps {
 }
 
 export function SystemActivateDialog({ open, onOpenChange, onActivated }: SystemActivateDialogProps) {
-  const [selectedTier, setSelectedTier] = useState<ModuleTier>("basis");
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [isActivating, setIsActivating] = useState(false);
+  const { activateService } = useActivatedServices();
 
   const mod = MODULES.systems;
+  const price = getModulePrice("systems", billingInterval);
 
   const handleActivate = async () => {
     setIsActivating(true);
     await new Promise((r) => setTimeout(r, 1200));
-    localStorage.setItem("system_premium_activated", "true");
-    localStorage.setItem("system_premium_tier", selectedTier);
-    const config = mod.tiers[selectedTier];
-    toast.success(`Systemmodul (${selectedTier === "premium" ? "Premium" : "Basis"}) aktivert! Du kan nå legge til opptil ${config.maxItems} systemer.`);
-    onActivated(selectedTier);
+    activateService("module-systems", "user");
+    toast.success(`Mynder Core aktivert! Du kan nå legge til ubegrenset systemer og får +${mod.bonusCredits} credits/mnd.`);
+    onActivated("active");
     onOpenChange(false);
     setIsActivating(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Oppgrader Systemmodulen
+            Aktiver {mod.displayName}
           </DialogTitle>
           <DialogDescription>
-            Velg nivået som passer din organisasjon. Inkluderer arbeidsområder, oppgaver, risikovurdering og compliance-oversikt.
+            {mod.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -64,77 +59,30 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
           </div>
         </div>
 
-        {/* Billing toggle */}
-        <div className="flex items-center justify-center gap-3 py-2">
-          <span className={`text-sm ${billingInterval === "monthly" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-            Månedlig
-          </span>
-          <Switch
-            checked={billingInterval === "yearly"}
-            onCheckedChange={(checked) => setBillingInterval(checked ? "yearly" : "monthly")}
-          />
-          <span className={`text-sm ${billingInterval === "yearly" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-            Årlig
-          </span>
-          {billingInterval === "yearly" && (
-            <Badge variant="secondary" className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-              Spar 2 mnd
-            </Badge>
-          )}
+        {/* Price */}
+        <div className="text-center py-3">
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="text-3xl font-bold text-foreground">{formatKr(price)}</span>
+            <span className="text-sm text-muted-foreground">
+              {billingInterval === "yearly" ? "/år" : "/mnd"}
+            </span>
+          </div>
+          <button
+            className="text-xs text-primary underline mt-1"
+            onClick={() => setBillingInterval(billingInterval === "monthly" ? "yearly" : "monthly")}
+          >
+            {billingInterval === "monthly" ? "Vis årspris (spar 2 mnd)" : "Vis månedspris"}
+          </button>
         </div>
 
-        {/* Tier cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {(["basis", "premium"] as ModuleTier[]).map((tier) => {
-            const config = mod.tiers[tier];
-            const price = getModulePrice("systems", tier, billingInterval);
-            const isRecommended = tier === "premium";
-
-            return (
-              <Card
-                key={tier}
-                className={`p-5 cursor-pointer transition-all relative ${
-                  selectedTier === tier
-                    ? "border-primary ring-2 ring-primary/20"
-                    : "border-border hover:border-primary/40"
-                }`}
-                onClick={() => setSelectedTier(tier)}
-              >
-                {isRecommended && (
-                  <Badge className="absolute -top-2.5 right-4 bg-primary text-primary-foreground text-[10px]">
-                    Anbefalt
-                  </Badge>
-                )}
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground">
-                      {tier === "basis" ? "Basis" : "Premium"}
-                    </h3>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl font-bold text-foreground">{formatKr(price)}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {billingInterval === "yearly" ? "/år" : "/mnd"}
-                      </span>
-                    </div>
-                    {billingInterval === "yearly" && (
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
-                        Spar {formatKr(getModuleAnnualSavingsKr("systems", tier))} per år
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {config.features.map((feature, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary shrink-0" />
-                        <span className="text-sm text-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+        {/* Features */}
+        <div className="space-y-2">
+          {mod.features.map((feature, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm text-foreground">{feature}</span>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-end gap-3 mt-2">
@@ -144,12 +92,10 @@ export function SystemActivateDialog({ open, onOpenChange, onActivated }: System
           <Button
             onClick={handleActivate}
             disabled={isActivating}
-            className="gap-2 bg-gradient-to-r from-blue-600 to-primary hover:from-blue-700 hover:to-primary/90 text-white"
+            className="gap-2"
           >
             <Sparkles className="h-4 w-4" />
-            {isActivating
-              ? "Aktiverer..."
-              : `Aktiver ${selectedTier === "basis" ? "Basis" : "Premium"} – ${formatKr(getModulePrice("systems", selectedTier, billingInterval))}${billingInterval === "yearly" ? "/år" : "/mnd"}`}
+            {isActivating ? "Aktiverer..." : `Aktiver – ${formatKr(price)}/${billingInterval === "yearly" ? "år" : "mnd"}`}
           </Button>
         </div>
       </DialogContent>
