@@ -165,7 +165,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <h2 className="text-xl font-semibold">
                 {isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}
               </h2>
-              <Button onClick={() => navigate("/onboarding")}>
+              <Button onClick={() => navigate("/trust-engine-onboarding")}>
                 {isNb ? "Start onboarding" : "Start onboarding"}
               </Button>
             </div>
