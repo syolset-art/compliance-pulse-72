@@ -199,8 +199,18 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       });
     }
+
+    // Always put newly added vendor first
+    if (newlyAddedId) {
+      const idx = result.findIndex(a => a.id === newlyAddedId);
+      if (idx > 0) {
+        const [item] = result.splice(idx, 1);
+        result.unshift(item);
+      }
+    }
+
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -410,6 +420,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               key={v.id}
               vendor={v}
               scoreDisplay={scoreDisplay}
+              isNew={v.id === newlyAddedId}
               connectedSystemsCount={getConnectedCount(v.id)}
               hasDPA={(v.compliance_score || 0) >= 30}
               inboxCount={inboxCounts[v.id] || 0}
