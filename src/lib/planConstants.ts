@@ -77,6 +77,7 @@ export const MODULES: Record<ModuleId, ModuleDefinition> = {
 export interface PlanDefinition {
   id: PlanTier;
   displayName: string;
+  description: string;
   maxSystems: number;
   maxVendors: number;
   monthly: number;
@@ -91,6 +92,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
   free: {
     id: "free",
     displayName: "Gratis",
+    description: "Kom i gang med Trust Center og grunnleggende etterlevelse",
     maxSystems: 5,
     maxVendors: 5,
     monthly: 0,
@@ -103,6 +105,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
   basis: {
     id: "basis",
     displayName: "Basis",
+    description: "For virksomheter som vil velge komponenter fritt",
     maxSystems: 20,
     maxVendors: 20,
     monthly: 4900,
@@ -115,6 +118,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
   premium: {
     id: "premium",
     displayName: "Pro",
+    description: "Full kontroll med prioritert support og avansert rapportering",
     maxSystems: 70,
     maxVendors: 70,
     monthly: 8900,
@@ -127,6 +131,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
   enterprise: {
     id: "enterprise",
     displayName: "Enterprise",
+    description: "Skreddersydd for store virksomheter med dedikert support",
     maxSystems: 9999,
     maxVendors: 9999,
     monthly: 0,
