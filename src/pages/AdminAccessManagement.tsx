@@ -147,7 +147,7 @@ const AdminAccessManagement = () => {
               <div>
                 <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
                   <Users className="h-6 w-6 text-primary" />
-                  {isNb ? "Tilganger" : "Access Management"}
+                  {t("nav.accessManagement")}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isNb

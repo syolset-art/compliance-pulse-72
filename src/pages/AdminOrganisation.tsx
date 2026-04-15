@@ -175,7 +175,7 @@ export default function AdminOrganisation() {
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          {isNb ? "Organiser etterlevelse i organisasjonen" : "Organize compliance in your organization"}
+          {t("nav.organisation")}
         </h1>
         <p className="text-muted-foreground mt-1">
           {isNb

@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { HelpCircle, AlertTriangle as AlertTriangleHelp, ClipboardList as ClipboardListHelp, Users as UsersHelp } from "lucide-react";
