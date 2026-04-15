@@ -191,10 +191,6 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
             <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => setWizardOpen(true)} className="gap-1.5 ml-auto">
-          <Plus className="h-4 w-4" />
-          {isNb ? "Ny melding" : "New message"}
-        </Button>
       </div>
 
       {/* List */}
