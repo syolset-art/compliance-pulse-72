@@ -1,26 +1,27 @@
 
 
-# Plan: Navigere til dashboard og speile valgt virksomhet ved bytte
-
-## Problem
-1. Når brukeren bytter virksomhet i OrganizationSwitcher skjer det ingen navigering — brukeren kan bli stående på en underside som viser data fra forrige org.
-2. Dashboard henter `companyName` fra `company_profile` uavhengig av valgt org, og reagerer ikke på bytte.
+# Plan: Oppdatere abonnementsvalg i «Legg til kunde» — pris per måned
 
 ## Endringer
 
-### 1. `src/components/sidebar/OrganizationSwitcher.tsx`
-- Importere `useNavigate` fra react-router-dom
-- Ved klikk på en org: kalle `setActiveOrg(org)`, lukke listen, og navigere til `/`
+### 1. `src/lib/mspCustomerConstants.ts`
+Erstatte `SUBSCRIPTION_PLANS`-arrayet med en ny struktur `MSP_SUBSCRIPTION_TIERS`:
 
-### 2. `src/pages/Index.tsx`
-- Importere `useActiveOrganization`
-- Bruke `activeOrg.name` som `companyName` i stedet for å fetche separat fra `company_profile`
-- Fjerne den separate `companyName`-staten og tilhørende fetch (beholde `assetTypeTemplates`-fetch)
+| Tier | Pris | Beskrivelse |
+|------|------|-------------|
+| Gratis | 0 kr/mnd | Grunnleggende compliance-oversikt |
+| Basis | 4 900 kr/mnd | For SMB-kunder som trenger mer |
+| Pro | 8 900 kr/mnd | Full tilgang med alle komponenter |
+
+### 2. `src/components/msp/AddMSPCustomerDialog.tsx`
+- Default `subscription_plan` → `"Gratis"`
+- Erstatte Select-dropdown med visuell plan-velger (3 radio-kort) som viser plannavn, **månedspris** og kort beskrivelse
+- Legge til faktura-oppsummering i bekreftelses-steget: valgt plan + note om at credits faktureres løpende
 
 ## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/components/sidebar/OrganizationSwitcher.tsx` | Legge til `useNavigate` og navigere til `/` ved org-bytte |
-| `src/pages/Index.tsx` | Bruke `activeOrg.name` fra context i stedet for separat DB-fetch |
+| `src/lib/mspCustomerConstants.ts` | Ny `MSP_SUBSCRIPTION_TIERS` med månedspriser |
+| `src/components/msp/AddMSPCustomerDialog.tsx` | Visuell plan-velger, default Gratis, faktura-oppsummering |
 
