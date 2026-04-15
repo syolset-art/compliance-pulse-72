@@ -12,6 +12,7 @@ import {
   deriveKeyRisks,
   inferVerificationSource,
   groupControlsByArea,
+  applyEvidencePenalties,
 } from "@/lib/trustControlDefinitions";
 
 interface AssetLike {
