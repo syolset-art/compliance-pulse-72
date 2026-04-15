@@ -100,6 +100,7 @@ export interface PlanDefinition {
   yearly: number;
   includesWorkAreas: boolean;
   prioritySupport: boolean;
+  monthlyCredits: number;
 }
 
 export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
@@ -112,6 +113,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     yearly: 0,
     includesWorkAreas: false,
     prioritySupport: false,
+    monthlyCredits: 10,
   },
   basis: {
     id: "basis",
@@ -122,6 +124,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     yearly: 14900,
     includesWorkAreas: true,
     prioritySupport: false,
+    monthlyCredits: 100,
   },
   premium: {
     id: "premium",
@@ -132,6 +135,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     yearly: 24900,
     includesWorkAreas: true,
     prioritySupport: true,
+    monthlyCredits: 300,
   },
   enterprise: {
     id: "enterprise",
@@ -142,6 +146,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     yearly: 0,
     includesWorkAreas: true,
     prioritySupport: true,
+    monthlyCredits: 999999,
   },
 };
 

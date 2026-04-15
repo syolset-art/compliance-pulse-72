@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
+import { CreditIndicator } from "@/components/sidebar/CreditIndicator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -587,6 +588,7 @@ const SidebarContent = () => {
           </div>
         )}
       </div>
+      <CreditIndicator />
     </>
   );
 };
