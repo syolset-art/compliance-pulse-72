@@ -60,7 +60,7 @@ const TrustCenterEditProfile = () => {
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-edit"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("assets").select("*").eq("asset_type", "self").maybeSingle();
+      const { data, error } = await supabase.from("assets").select("*").eq("asset_type", "self").order("updated_at", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -69,7 +69,7 @@ const TrustCenterEditProfile = () => {
   const { data: companyProfile } = useQuery({
     queryKey: ["company_profile_edit"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("company_profile").select("*").maybeSingle();
+      const { data, error } = await supabase.from("company_profile").select("*").order("updated_at", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
       if (error) throw error;
       return data;
     },
