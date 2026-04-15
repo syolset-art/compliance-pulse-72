@@ -277,7 +277,7 @@ const TrustCenterEvidence = () => {
   );
 
   const renderDocRow = (doc: any, icon: React.ReactNode) => (
-    <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+    <Card key={doc.id} className="hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openPreview(doc)}>
       <CardContent className="flex items-center justify-between py-4 px-5">
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -291,7 +291,7 @@ const TrustCenterEvidence = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
           {getStatusBadge(doc.status, isNb, doc.approved_by)}
           {getVisibilityIcon(doc.visibility)}
           {renderActionMenu(doc)}
