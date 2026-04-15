@@ -492,6 +492,7 @@ const SidebarContent = () => {
                     </button>
                   );
                 })}
+                <CreditMenuItem />
                 {/* Demo Reset */}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -588,7 +589,7 @@ const SidebarContent = () => {
           </div>
         )}
       </div>
-      <CreditIndicator />
+      
     </>
   );
 };
