@@ -195,6 +195,7 @@ export default function VendorDashboard() {
                 allAssets={allAssets}
                 relationships={relationships}
                 onDelete={(id) => deleteAsset.mutate(id)}
+                newlyAddedId={newlyAddedId}
               />
             </TabsContent>
 

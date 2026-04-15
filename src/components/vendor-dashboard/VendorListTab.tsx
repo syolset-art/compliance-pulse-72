@@ -456,11 +456,15 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               const scoreColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
               const riskColor = { high: "bg-destructive", medium: "bg-warning", low: "bg-success" }[asset.risk_level || ""] || "bg-muted-foreground";
               const ownerName = getOwnerName(asset);
+              const isNewRow = asset.id === newlyAddedId;
               return (
                 <div
                   key={asset.id}
                   onClick={() => navigate(`/assets/${asset.id}`)}
-                  className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-colors cursor-pointer"
+                  className={cn(
+                    "grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-all cursor-pointer",
+                    isNewRow && "bg-primary/5 ring-1 ring-primary/30 animate-fade-in"
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
