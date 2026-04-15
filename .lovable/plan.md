@@ -1,36 +1,25 @@
 
 
-## Slett, rediger og status med godkjenner — dokumenter på Evidence-siden
+## Vis alle dokumenter i én liste, slett og åpne direkte i vinduet
 
-### Hva skal bygges
-Hvert dokument i listen skal kunne **slettes**, **redigeres inline**, og brukeren skal kunne **endre status** (Utkast, Venter, Godkjent, Utløpt). Når status settes til "Godkjent", lagres navnet på godkjenneren og vises i UI.
+### Hva endres
 
-### Database-endring
-Legge til to nye kolonner på `vendor_documents`:
-- `approved_by` (text, nullable) — hvem som godkjente
-- `approved_at` (timestamptz, nullable) — når det ble godkjent
+**1. Fjern tab-oppdeling — vis alt i én flat liste**
+- Erstatt `Tabs`-komponenten med én samlet liste over alle `vendorDocs`
+- Grupper visuelt med overskrifter (Retningslinjer, Sertifiseringer, Dokumenter) men alt er synlig samtidig
+- Beholder eksisterende sortering (nyeste først innen hver gruppe)
 
-### UI-endringer i `TrustCenterEvidence.tsx`
+**2. Åpne filer direkte i et dialog-vindu (ikke naviger bort)**
+- Klikk på dokumentraden åpner en forhåndsvisnings-dialog
+- Henter signed URL fra `vendor-documents` storage bucket via `supabase.storage.from("vendor-documents").createSignedUrl()`
+- PDF: vises i `<iframe>` inne i dialogen
+- Bilder (jpg/png): vises med `<img>`
+- Andre filer: viser filinfo + nedlastingsknapp som fallback
+- Dialogen har full bredde (`sm:max-w-4xl`) med lukke-knapp
 
-**1. Handlingsknapper per rad**
-- Erstatte den passive ExternalLink-knappen med en **DropdownMenu** (tre-prikk-meny) med:
-  - "Rediger" → åpner inline redigeringsdialog
-  - "Slett" → bekreftelses-dialog → sletter fra DB
-  - "Endre status" → undermeny med statusvalg
+**3. Slett-funksjonalitet (allerede implementert)**
+- Eksisterende slett via DropdownMenu og AlertDialog er på plass — ingen endring nødvendig
 
-**2. Statusvelger med godkjenner**
-- Statusvalg: `draft`, `pending`, `verified` (= godkjent), `expired`
-- Når bruker velger "Godkjent/Verifisert" → prompt for navn (eller autofyll fra profil)
-- Badge viser "Godkjent av [Navn]" ved hover eller inline tekst
-
-**3. Redigeringsdialog**
-- Enkel dialog med felter: Visningsnavn, Dokumenttype, Gyldighets-datoer, Synlighet, Notater
-- Lagre oppdaterer `vendor_documents` direkte
-
-**4. Sletting**
-- AlertDialog-bekreftelse → DELETE fra `vendor_documents` + invalidate query
-
-### Filer som endres
-1. **DB-migrasjon** — `ALTER TABLE vendor_documents ADD COLUMN approved_by text, ADD COLUMN approved_at timestamptz`
-2. **`src/pages/TrustCenterEvidence.tsx`** — DropdownMenu per rad, slett-logikk, status-endring med godkjenner-felt, redigerings-dialog
+### Fil som endres
+1. `src/pages/TrustCenterEvidence.tsx` — fjern Tabs, legg til forhåndsvisnings-dialog med signed URL
 
