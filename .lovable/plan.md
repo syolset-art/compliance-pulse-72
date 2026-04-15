@@ -1,39 +1,25 @@
 
 
-# Plan: Komprimere arbeidsområde-kortet
+# Plan: Øke tekststørrelsen i sidebaren
 
 ## Problem
-Det store kortet som vises når et arbeidsområde er valgt (lines 786-881 i `WorkAreas.tsx`) tar mye vertikal plass med risiko-gauge, badge, beskrivelse og karusell-prikker. Sammenlignet med den kompakte oppsummeringslinjen på Regelverk-siden er dette unødvendig tungt.
+Seksjonsoverskriftene i sidebaren bruker `text-xs` (12px) som er for lite. Menyelementene bruker `text-sm` (14px) som også kan virke smått.
 
-## Løsning
-Redesigne det valgte arbeidsområdet til en kompakt oppsummeringslinje — lignende stilen på Regelverk-siden — i stedet for et stort kort med mye innhold.
+## Endringer i `src/components/Sidebar.tsx`
 
-## Endringer i `src/pages/WorkAreas.tsx`
+### Seksjonsoverskrifter (CollapsibleSection headers)
+- Linje 275: `text-xs font-semibold` → `text-sm font-semibold`
+- Linje 447: `text-xs font-semibold` → `text-sm font-semibold`
 
-### Erstatte det store kortet (linje 786-881) med en kompakt linje:
+### Menyelementer (links)
+Menyelementene bruker allerede `text-sm` — disse kan økes til `text-[0.9375rem]` (15px) for bedre lesbarhet, eller beholdes som `text-sm` om bare overskriftene var problemet.
 
-- **Fjerne**: Den store Card-komponenten med `border-t-[3px]`, bakgrunnsfargen, risiko-gauge, badge og karusell-prikker
-- **Erstatte med**: En kompakt rad som inneholder:
-  - Arbeidsområdets navn og status (Aktiv/Inaktiv) inline
-  - Nøkkeltall på én linje: `3 systemer · 2 prosesser · 3 medlemmer`
-  - Risikoindikatorn som en liten farge-dot eller badge (ikke en full progress bar)
-  - Ansvarlig person som en liten tekst
-  - Redigerings- og sletteknapper som ikoner til høyre
-- **Beskrivelse**: Vises som en liten `text-xs` linje under, ikke i et stort kort
+### Ikoner
+Seksjonsikonene er `h-4 w-4` (16px) — disse økes til `h-[18px] w-[18px]` for å matche litt større tekst.
 
-### Visuell referanse (fra Regelverk-siden):
-```text
-┌──────────────────────────────────────────────────────┐
-│ 🟣 HR · Aktiv  ·  10 systemer · 2 prosesser · ⚠ Mid │
-│   Ansvarlig for personaladministrasjon og HR-systemer │
-└──────────────────────────────────────────────────────┘
-```
-
-Kortet reduseres fra ~200px høyde til ~60-80px.
-
-## Filer
+## Fil
 
 | Fil | Endring |
 |---|---|
-| `src/pages/WorkAreas.tsx` | Erstatte det store arbeidsområde-kortet med en kompakt oppsummeringslinje |
+| `src/components/Sidebar.tsx` | Øke `text-xs` → `text-sm` på seksjonsoverskrifter, vurdere økning på menyelementer |
 
