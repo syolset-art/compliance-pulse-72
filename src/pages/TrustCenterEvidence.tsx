@@ -358,6 +358,23 @@ const TrustCenterEvidence = () => {
         </div>
       </div>
 
+      {/* Trust Profile summary */}
+      {vendorDocs.length > 0 && !isLoading && (
+        <div className="mb-6 flex items-center gap-3 px-1">
+          <div className="flex items-center gap-1.5 text-sm">
+            <Eye className="h-4 w-4 text-success" />
+            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility === "published").length}</span>
+            <span className="text-muted-foreground">{isNb ? "publisert i Trust Profile" : "published to Trust Profile"}</span>
+          </div>
+          <span className="text-muted-foreground">·</span>
+          <div className="flex items-center gap-1.5 text-sm">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility !== "published").length}</span>
+            <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
