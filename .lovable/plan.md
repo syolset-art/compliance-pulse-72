@@ -1,31 +1,39 @@
 
 
-# Plan: Credits-estimat ved aktivering av regelverk
+# Plan: Komprimere arbeidsområde-kortet
 
-## Oversikt
+## Problem
+Det store kortet som vises når et arbeidsområde er valgt (lines 786-881 i `WorkAreas.tsx`) tar mye vertikal plass med risiko-gauge, badge, beskrivelse og karusell-prikker. Sammenlignet med den kompakte oppsummeringslinjen på Regelverk-siden er dette unødvendig tungt.
 
-Oppdatere `FrameworkActivationDialog` til å vise et estimert credit-forbruk per regelverk, presentert på en lav-friksjon måte. Brukeren skal føle seg trygg — ikke bekymret for kostnader.
+## Løsning
+Redesigne det valgte arbeidsområdet til en kompakt oppsummeringslinje — lignende stilen på Regelverk-siden — i stedet for et stort kort med mye innhold.
 
-## Endringer
+## Endringer i `src/pages/WorkAreas.tsx`
 
-### 1. Legg til credit-estimat per regelverk i `planConstants.ts`
-Legge til et `estimatedCredits`-felt på `Framework`-definisjonen eller som en separat mapping. Eksempel: GDPR ~5 credits, NIS2 ~15 credits, ISO 27001 ~10 credits osv. Disse representerer estimert AI-bruk for baseline-etablering.
+### Erstatte det store kortet (linje 786-881) med en kompakt linje:
 
-### 2. Oppdater `FrameworkActivationDialog.tsx`
-Legge til en ny seksjon mellom suksess-meldingen og score-advarselen:
+- **Fjerne**: Den store Card-komponenten med `border-t-[3px]`, bakgrunnsfargen, risiko-gauge, badge og karusell-prikker
+- **Erstatte med**: En kompakt rad som inneholder:
+  - Arbeidsområdets navn og status (Aktiv/Inaktiv) inline
+  - Nøkkeltall på én linje: `3 systemer · 2 prosesser · 3 medlemmer`
+  - Risikoindikatorn som en liten farge-dot eller badge (ikke en full progress bar)
+  - Ansvarlig person som en liten tekst
+  - Redigerings- og sletteknapper som ikoner til høyre
+- **Beskrivelse**: Vises som en liten `text-xs` linje under, ikke i et stort kort
 
-- Ikon: `Sparkles` (credits-ikonet)
-- Myk bakgrunn (primary/5)
-- Tekst: "Vi estimerer ca. **~15 credits** for å etablere baseline for NIS2."
-- Undertekst: "Du har X credits tilgjengelig. Du vil bli varslet om du trenger å fylle på — enkelt og raskt."
-- Ingen prisdetaljer, ingen knapper for kjøp, ingen friksjon
+### Visuell referanse (fra Regelverk-siden):
+```text
+┌──────────────────────────────────────────────────────┐
+│ 🟣 HR · Aktiv  ·  10 systemer · 2 prosesser · ⚠ Mid │
+│   Ansvarlig for personaladministrasjon og HR-systemer │
+└──────────────────────────────────────────────────────┘
+```
 
-Importere `useCredits` for å vise nåværende saldo i kontekst.
+Kortet reduseres fra ~200px høyde til ~60-80px.
 
-### 3. Filer som endres
+## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/lib/frameworkDefinitions.ts` | Legge til `estimatedCredits` per framework |
-| `src/components/dialogs/FrameworkActivationDialog.tsx` | Ny credits-info-seksjon med saldo og estimat |
+| `src/pages/WorkAreas.tsx` | Erstatte det store arbeidsområde-kortet med en kompakt oppsummeringslinje |
 
