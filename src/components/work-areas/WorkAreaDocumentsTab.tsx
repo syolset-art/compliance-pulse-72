@@ -22,7 +22,7 @@ import {
   AlertTriangle,
   Plus,
   Brain,
-  BrainOff,
+  BrainCircuit,
   MoreHorizontal,
   Search,
 } from "lucide-react";
