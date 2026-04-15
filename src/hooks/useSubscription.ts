@@ -57,6 +57,7 @@ export const DOMAIN_ADDON_PRICES: Record<string, number> = {
 
 export function useSubscription() {
   const queryClient = useQueryClient();
+  const { isServiceActive } = useActivatedServices();
 
   const { data: plans } = useQuery({
     queryKey: ["subscription-plans"],
