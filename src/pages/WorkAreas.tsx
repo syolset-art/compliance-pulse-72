@@ -887,14 +887,6 @@ export default function WorkAreas() {
                 </TabsList>
                 </div>
               </div>
-              {activeWorkAreaTab === "protocols" && (
-                <div className="flex justify-end mt-3">
-                  <Button size="sm" className="gap-1" onClick={() => navigate("/reports")}>
-                    <FileText className="h-4 w-4" />
-                    Start rapport
-                  </Button>
-                </div>
-              )}
 
               <TabsContent value="assets" className="mt-4">
 
