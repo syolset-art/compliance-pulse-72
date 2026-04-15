@@ -808,9 +808,15 @@ export default function WorkAreas() {
                   </Badge>
                 </div>
                 {selectedWorkArea.responsible_person && (
-                  <p className="text-xs text-muted-foreground truncate">
-                    {selectedWorkArea.responsible_person}
-                  </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center">
+                      <span className="text-[11px] font-semibold text-primary">
+                        {selectedWorkArea.responsible_person.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-foreground">{selectedWorkArea.responsible_person}</span>
+                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 font-normal text-muted-foreground">Eier</Badge>
+                  </div>
                 )}
               </div>
               {selectedWorkArea.description && (
