@@ -43,7 +43,7 @@ const PLAN_FEATURES: Record<PlanTier, string[]> = {
   basis: [
     "Alt i Gratis +",
     "100 credits/mnd",
-    "Arbeidsområder og oppgaver",
+    "Velg komponenter fritt",
     "Prioritert onboarding",
   ],
   premium: [
