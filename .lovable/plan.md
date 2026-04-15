@@ -1,38 +1,43 @@
 
 
-# Plan: Forbedre leverandørsiden — tydeligere kort og ingen overlapping
+# Plan: Omgruppere tjenester i sidebaren
 
-## Problemer identifisert
+## Ny struktur
 
-1. **VendorCard**: Alle badges (Leverandør, DPA, risiko, score, action menu) ligger på én rad — de overlapper og klemmes sammen på smalere skjermer
-2. **Kort-grid i "Alle"-fanen**: 3 kolonner med mye innhold per kort gir trangt layout
-3. **Redundant "Showing X vendors"-tekst** under toolbar (allerede vist i toolbar)
-4. **VendorDashboard header**: `pt-16 pt-11` — dobbel padding-top
+Systemer flyttes fra "Registre" til "Mynder Core". Leverandører og Assets blir egne toppnivå-lenker (ikke gruppert under "Registre") — hver kan aktiveres separat.
+
+```text
+Dashboard
+Trust Center
+─────────
+Regelverk
+Meldinger
+─────────
+▾ Mynder Core          ← pakke 1
+  Arbeidsområder
+  Oppgaver
+  Avviksregister
+  Rapporter
+  Systemer             ← flyttet hit
+─────────
+Leverandører           ← egen toppnivå (pakke 2)
+Assets                 ← egen toppnivå (pakke 3)
+```
 
 ## Endringer
 
-### 1. Redesigne `VendorCard.tsx` — to-rads layout
-Flytte badges til en **egen rad under** leverandørnavn:
-- **Rad 1**: Ikon + navn + kategori/land (venstre) — compliance-score + action menu (høyre)
-- **Rad 2**: Badges (prioritet, mangler DPA, utdaterte dok, risiko) med `flex-wrap` slik at de aldri overlapper
-- Større klikkflate, bedre spacing (`py-4 px-4`)
+### `Sidebar.tsx`
+1. Flytte `{ name: "nav.systems", href: "/systems", icon: Cloud }` fra `registriesNav` til `managementNav`
+2. Fjerne `registriesNav`-arrayet — erstatte med to separate toppnivå-lenker for Leverandører og Assets
+3. Oppdatere rendering-logikken:
+   - Mynder Core vises som collapsible (som nå, men med Systemer inkludert)
+   - Leverandører og Assets rendres som individuelle lenker (ikke collapsible gruppe) med samme styling som Dashboard/Regelverk
+   - Beholde soft-gate logikk: vises i "Flere tjenester" hvis ikke aktivert
+4. Oppdatere `isRegistriesActive`-sjekken og `showRegistriesNormal`-logikken til å håndtere Leverandører og Assets individuelt
 
-### 2. Oppdater grid i `VendorListTab.tsx`
-- Endre card-grid fra `grid-cols-3` til `grid-cols-1 md:grid-cols-2 xl:grid-cols-3` — gir pusterom
-- Fjerne duplikat "Showing X vendors"-tekst (linje 364-366)
-
-### 3. Fiks dobbel padding i `VendorDashboard.tsx`
-- Endre `pt-16 pt-11` til `pt-11`
-
-### 4. Klarere tekster
-- VendorCard: "Ikke vurdert" → tydeliggjøres med muted styling og ikon
-- Badge-tekster: sikre at de er lesbare og har minimum padding
-
-## Filer
+## Fil
 
 | Fil | Endring |
 |---|---|
-| `src/components/vendor-dashboard/VendorCard.tsx` | To-rads layout med wrapped badges |
-| `src/components/vendor-dashboard/VendorListTab.tsx` | Bedre grid breakpoints, fjern duplikat tekst |
-| `src/pages/VendorDashboard.tsx` | Fiks dobbel pt |
+| `src/components/Sidebar.tsx` | Flytte Systems til managementNav, splitte registre til individuelle lenker |
 
