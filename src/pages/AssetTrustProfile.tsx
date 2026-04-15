@@ -346,7 +346,7 @@ const AssetTrustProfile = () => {
                     className="gap-2"
                   >
                     <Mail className="h-4 w-4" />
-                    {isNb ? "Send forespørsel" : "Send request"}
+                    {isNb ? "Be om oppdatering" : "Request update"}
                   </Button>
                 </div>
               )}
@@ -702,7 +702,7 @@ const AssetTrustProfile = () => {
           { icon: FileText, title: isNb ? "Dokumentasjon" : "Documentation", description: isNb ? "Last opp og administrer DPA, SLA og annen avtalebasert dokumentasjon." : "Upload and manage DPA, SLA and other agreement-based documentation." },
           { icon: Shield, title: isNb ? "Risikovurdering" : "Risk assessment", description: isNb ? "Se risikoprofilen og gjennomfør revisjoner basert på kontrollområdene." : "View the risk profile and conduct audits based on control areas." },
           { icon: ClipboardList, title: isNb ? "Oppgaver og tiltak" : "Tasks and actions", description: isNb ? "Følg opp tiltak og oppgaver knyttet til leverandøren." : "Follow up on actions and tasks related to the vendor." },
-          { icon: Send, title: isNb ? "Send forespørsel" : "Send request", description: isNb ? "Be leverandøren om manglende dokumentasjon eller oppdateringer." : "Ask the vendor for missing documentation or updates." },
+          { icon: Send, title: isNb ? "Be om oppdatering" : "Request update", description: isNb ? "Be leverandøren om manglende dokumentasjon eller oppdateringer." : "Ask the vendor for missing documentation or updates." },
           { icon: PenLine, title: isNb ? "Registrer aktivitet" : "Log activity", description: isNb ? "Logg e-post, møte eller annen kontakt med leverandøren." : "Log email, meeting or other contact with the vendor." },
         ] : [
           { icon: Shield, title: isNb ? "Kontroller" : "Controls", description: isNb ? "Se og oppdater kontrollstatus for systemet." : "View and update control status for the system." },

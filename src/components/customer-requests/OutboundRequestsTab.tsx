@@ -186,7 +186,7 @@ export function OutboundRequestsTab() {
         </Select>
         <Button onClick={() => setWizardOpen(true)} className="gap-1.5 ml-auto">
           <Plus className="h-4 w-4" />
-          {isNb ? "Send forespørsel" : "Send Request"}
+          {isNb ? "Ny melding" : "New message"}
         </Button>
       </div>
 

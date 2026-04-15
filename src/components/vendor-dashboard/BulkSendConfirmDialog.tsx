@@ -180,12 +180,12 @@ export function BulkSendConfirmDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-4 w-4 text-primary" />
-            {isNb ? "Send forespørsel" : "Send Request"}
+            {isNb ? "Send melding" : "Send message"}
           </DialogTitle>
           <DialogDescription>
             {isNb
-              ? `Send forespørsel om ${typeLabel.toLowerCase()} til ${vendorNames.length} leverandør${vendorNames.length > 1 ? "er" : ""}.`
-              : `Send a request for ${typeLabel} to ${vendorNames.length} vendor${vendorNames.length > 1 ? "s" : ""}.`}
+              ? `Send melding om ${typeLabel.toLowerCase()} til ${vendorNames.length} leverandør${vendorNames.length > 1 ? "er" : ""}.`
+              : `Send a message about ${typeLabel} to ${vendorNames.length} vendor${vendorNames.length > 1 ? "s" : ""}.`}
           </DialogDescription>
         </DialogHeader>
 

@@ -230,7 +230,7 @@ export function VendorActionCards({
                         }
                       >
                         <Send className="h-3 w-3" />
-                        Send forespørsel
+                        Be om oppdatering
                       </Button>
                     )}
                     {cat.key === "pending_inbox" && (
