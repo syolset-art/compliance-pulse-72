@@ -44,7 +44,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
-import { seedDemoTrustProfile, deleteDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
+import { AddOrganizationDialog } from "@/components/sidebar/AddOrganizationDialog";
+import { Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -591,63 +592,13 @@ const SidebarContent = () => {
                   );
                 })}
                 <CreditMenuItem />
-                {/* Demo Reset */}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-                      disabled={resetting}
-                    >
-                      <RotateCcw className={cn("h-3.5 w-3.5", resetting && "animate-spin")} />
-                      {resetting ? "Tilbakestiller..." : "Start demo på nytt"}
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tilbakestill demo?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        All data blir slettet – leverandører, innboks, dokumenter og bedriftsprofil. 
-                        Du starter onboarding fra begynnelsen.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleResetDemo} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Ja, tilbakestill
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                {/* Framdrift demo */}
+                {/* Legg til virksomhet */}
                 <button
-                  onClick={async () => {
-                    try {
-                      await seedDemoTrustProfile();
-                      queryClient.invalidateQueries();
-                      toast.success("Framdrift Innovasjon AS er satt opp");
-                    } catch (e: any) {
-                      toast.error(e.message || "Kunne ikke sette opp demo");
-                    }
-                  }}
+                  onClick={() => setAddOrgOpen(true)}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
-                  <Building2 className="h-3.5 w-3.5" />
-                  Sett opp Framdrift-demo
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      await deleteDemoTrustProfile();
-                      queryClient.invalidateQueries();
-                      toast.success("Framdrift-demo slettet");
-                    } catch (e: any) {
-                      toast.error(e.message || "Kunne ikke slette demo");
-                    }
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Slett Framdrift-demo
+                  <Plus className="h-3.5 w-3.5" />
+                  Legg til virksomhet
                 </button>
                 <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
