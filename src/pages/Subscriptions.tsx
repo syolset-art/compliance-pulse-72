@@ -107,6 +107,7 @@ function PlanCard({ tier, currentTier }: { tier: PlanTier; currentTier: PlanTier
           </div>
           <div>
             <h3 className="font-bold text-foreground text-base">{plan.displayName}</h3>
+            <p className="text-[11px] text-muted-foreground leading-snug">{plan.description}</p>
           </div>
         </div>
 
