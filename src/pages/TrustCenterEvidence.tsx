@@ -69,15 +69,21 @@ const getStatusBadge = (status: string | null, isNb: boolean, approvedBy?: strin
   }
 };
 
-const getVisibilityIcon = (visibility: string | null) => {
-  switch (visibility) {
-    case "published":
-      return <Eye className="h-3.5 w-3.5 text-success" />;
-    case "hidden":
-      return <Lock className="h-3.5 w-3.5 text-warning" />;
-    default:
-      return <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />;
+const getVisibilityBadge = (visibility: string | null, isNb: boolean) => {
+  if (visibility === "published") {
+    return (
+      <Badge className="bg-success/10 text-success border-success/20 text-[12px] gap-1 font-normal">
+        <Eye className="h-3 w-3" />
+        {isNb ? "Offentlig" : "Public"}
+      </Badge>
+    );
   }
+  return (
+    <Badge variant="outline" className="text-[12px] gap-1 font-normal text-muted-foreground">
+      <Lock className="h-3 w-3" />
+      {isNb ? "Intern" : "Private"}
+    </Badge>
+  );
 };
 
 const seedDemoEvidence = async (assetId: string) => {
@@ -293,7 +299,16 @@ const TrustCenterEvidence = () => {
         </div>
         <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
           {getStatusBadge(doc.status, isNb, doc.approved_by)}
-          {getVisibilityIcon(doc.visibility)}
+          <button
+            className="cursor-pointer"
+            onClick={() => updateMutation.mutate({
+              id: doc.id,
+              updates: { visibility: doc.visibility === "published" ? "hidden" : "published" },
+            })}
+            title={isNb ? "Klikk for å endre synlighet" : "Click to toggle visibility"}
+          >
+            {getVisibilityBadge(doc.visibility, isNb)}
+          </button>
           {renderActionMenu(doc)}
         </div>
       </CardContent>
@@ -342,6 +357,23 @@ const TrustCenterEvidence = () => {
           </Button>
         </div>
       </div>
+
+      {/* Trust Profile summary */}
+      {vendorDocs.length > 0 && !isLoading && (
+        <div className="mb-6 flex items-center gap-3 px-1">
+          <div className="flex items-center gap-1.5 text-sm">
+            <Eye className="h-4 w-4 text-success" />
+            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility === "published").length}</span>
+            <span className="text-muted-foreground">{isNb ? "publisert i Trust Profile" : "published to Trust Profile"}</span>
+          </div>
+          <span className="text-muted-foreground">·</span>
+          <div className="flex items-center gap-1.5 text-sm">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility !== "published").length}</span>
+            <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
