@@ -29,6 +29,7 @@ import { DashboardCompact } from "@/components/dashboard/DashboardCompact";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ROLE_WIDGET_DEFAULTS } from "@/lib/roleContentConfig";
 import { ROLE_LABELS } from "@/hooks/useUserRole";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 // Widget definitions with size and component mapping
 const WIDGET_DEFS: { id: string; label: string; labelEn: string; size: TileSize }[] = [
@@ -74,6 +75,8 @@ const Index = () => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const { primaryRole } = useUserRole();
+  const { activeOrg } = useActiveOrganization();
+  const companyName = activeOrg?.name || null;
 
   // Initialize hidden widgets from role defaults if user hasn't customized
   const [hiddenWidgets, setHiddenWidgets] = useState<string[]>(() => {
@@ -103,7 +106,6 @@ const Index = () => {
   const [isQualityWizardOpen, setIsQualityWizardOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
-  const [companyName, setCompanyName] = useState<string | null>(null);
   const [assetTypeTemplates, setAssetTypeTemplates] = useState<Array<{
     asset_type: string; display_name: string; display_name_plural: string; icon: string; color: string;
   }>>([]);
@@ -115,9 +117,6 @@ const Index = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: companyData } = await supabase
-        .from("company_profile").select("name").limit(1).maybeSingle();
-      if (companyData?.name) setCompanyName(companyData.name);
       const { data: templates } = await supabase
         .from("asset_type_templates")
         .select("asset_type, display_name, display_name_plural, icon, color");
