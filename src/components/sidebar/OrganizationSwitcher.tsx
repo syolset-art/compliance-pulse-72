@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 export function OrganizationSwitcher() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const { activeOrg, setActiveOrg, organizations, loading } = useActiveOrganization();
+  const { activeOrg, setActiveOrg, organizations, loading, refetch } = useActiveOrganization();
   const [listOpen, setListOpen] = useState(false);
   const [addOrgOpen, setAddOrgOpen] = useState(false);
 
@@ -17,10 +17,10 @@ export function OrganizationSwitcher() {
 
   if (loading || !activeOrg) {
     return (
-      <div className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-sidebar-accent flex items-center justify-center">
-            <Building2 className="h-4 w-4 text-sidebar-foreground/60" />
+      <div className="px-3 py-2">
+        <div className="flex items-center gap-3 px-3 py-2.5">
+          <div className="h-7 w-7 rounded-lg bg-sidebar-accent flex items-center justify-center">
+            <Building2 className="h-3.5 w-3.5 text-sidebar-foreground/60" />
           </div>
           <div className="h-4 w-24 bg-sidebar-accent rounded animate-pulse" />
         </div>
@@ -31,7 +31,6 @@ export function OrganizationSwitcher() {
   return (
     <>
       <div className="px-3 py-2">
-        {/* Active org trigger */}
         <button
           onClick={() => setListOpen(!listOpen)}
           className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-sidebar-accent transition-colors"
@@ -47,7 +46,6 @@ export function OrganizationSwitcher() {
           <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/50 transition-transform flex-shrink-0", listOpen && "rotate-180")} />
         </button>
 
-        {/* Org list */}
         {listOpen && (
           <div className="mt-1 ml-2 space-y-0.5 animate-fade-in">
             {ownOrgs.length > 0 && (
@@ -68,11 +66,7 @@ export function OrganizationSwitcher() {
                           : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
                       )}
                     >
-                      {isActive ? (
-                        <Check className="h-3 w-3 text-primary flex-shrink-0" />
-                      ) : (
-                        <span className="h-3 w-3 flex-shrink-0" />
-                      )}
+                      {isActive ? <Check className="h-3 w-3 text-primary flex-shrink-0" /> : <span className="h-3 w-3 flex-shrink-0" />}
                       <span className="truncate">{org.name}</span>
                     </button>
                   );
@@ -98,11 +92,7 @@ export function OrganizationSwitcher() {
                           : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
                       )}
                     >
-                      {isActive ? (
-                        <Check className="h-3 w-3 text-primary flex-shrink-0" />
-                      ) : (
-                        <span className="h-3 w-3 flex-shrink-0" />
-                      )}
+                      {isActive ? <Check className="h-3 w-3 text-primary flex-shrink-0" /> : <span className="h-3 w-3 flex-shrink-0" />}
                       <span className="truncate">{org.name}</span>
                     </button>
                   );
@@ -124,13 +114,8 @@ export function OrganizationSwitcher() {
 
       <AddOrganizationDialog open={addOrgOpen} onOpenChange={(open) => {
         setAddOrgOpen(open);
-        // Refetch when dialog closes after adding
         if (!open) {
-          // Small delay to allow DB write to complete
-          setTimeout(() => {
-            const { refetch } = useActiveOrganization();
-            refetch();
-          }, 500);
+          setTimeout(() => refetch(), 500);
         }
       }} />
     </>
