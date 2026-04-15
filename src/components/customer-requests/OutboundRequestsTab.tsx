@@ -143,6 +143,11 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
     toast.success(isNb ? "Melding arkivert" : "Message archived");
   };
 
+  const handleToggleVisibility = (id: string, makePublic: boolean) => {
+    setRequests((prev) => prev.map((r) => r.id === id ? { ...r, visibility: makePublic ? "public" : "private" } : r));
+    toast.success(isNb ? (makePublic ? "Satt til offentlig" : "Satt til privat") : (makePublic ? "Set to public" : "Set to private"));
+  };
+
   return (
     <div className="space-y-6">
       {/* GDPR auto-cleanup info */}
@@ -201,7 +206,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
           </div>
         ) : (
           filtered.map((req) => (
-            <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} />
+            <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
           ))
         )}
       </div>

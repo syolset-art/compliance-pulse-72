@@ -160,6 +160,19 @@ export function InboundRequestsContent() {
     }
     setDeleteId(null);
   };
+
+  const handleToggleVisibility = (id: string, makePublic: boolean) => {
+    const newMode = makePublic ? "public" : null;
+    if (dbRequests.length > 0) {
+      supabase.from("customer_compliance_requests").update({ shared_mode: newMode }).eq("id", id).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["customer-compliance-requests"] });
+        toast.success(isNb ? (makePublic ? "Satt til offentlig" : "Satt til privat") : (makePublic ? "Set to public" : "Set to private"));
+      });
+    } else {
+      setDemoRequests((prev) => prev.map((r) => r.id === id ? { ...r, shared_mode: newMode } : r));
+      toast.success(isNb ? (makePublic ? "Satt til offentlig" : "Satt til privat") : (makePublic ? "Set to public" : "Set to private"));
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Metrics */}
@@ -203,7 +216,7 @@ export function InboundRequestsContent() {
               </div>
             ) : (
               (tabData[tab] || []).map((req: any) => (
-                <CustomerRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} />
+                <CustomerRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
               ))
             )}
           </TabsContent>
