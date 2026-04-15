@@ -29,9 +29,27 @@ import {
   Building2,
   SlidersHorizontal,
   X,
+  Percent,
+  Type,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+export type ScoreDisplayMode = "percent" | "label";
+
+export function scoreToLabel(score: number, isNb = true): string {
+  if (score <= 0) return isNb ? "Ikke vurdert" : "Not assessed";
+  if (score >= 75) return isNb ? "Høy" : "High";
+  if (score >= 50) return isNb ? "Middels" : "Medium";
+  return isNb ? "Lav" : "Low";
+}
+
+export function scoreLabelColor(score: number): string {
+  if (score <= 0) return "text-muted-foreground";
+  if (score >= 75) return "text-success";
+  if (score >= 50) return "text-warning";
+  return "text-destructive";
+}
 
 interface Asset {
   id: string;
@@ -143,6 +161,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
   });
 
   const [viewMode, setViewMode] = useState<"list" | "card">("card");
+  const [scoreDisplay, setScoreDisplay] = useState<ScoreDisplayMode>("percent");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [riskFilter, setRiskFilter] = useState("");
@@ -351,6 +370,26 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} leverandører</span>
           <div className="flex border border-border rounded-lg">
+            <Button
+              variant={scoreDisplay === "percent" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setScoreDisplay("percent")}
+              title="Vis prosent"
+            >
+              <Percent className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant={scoreDisplay === "label" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setScoreDisplay("label")}
+              title="Vis nivå"
+            >
+              <Type className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          <div className="flex border border-border rounded-lg">
             <Button variant={viewMode === "card" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("card")}>
               <LayoutGrid className="h-4 w-4" />
             </Button>
@@ -369,6 +408,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
             <VendorCard
               key={v.id}
               vendor={v}
+              scoreDisplay={scoreDisplay}
               connectedSystemsCount={getConnectedCount(v.id)}
               hasDPA={(v.compliance_score || 0) >= 30}
               inboxCount={inboxCounts[v.id] || 0}
@@ -424,7 +464,11 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
                       <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
                     )}
                   </div>
-                  <div className={`font-semibold ${scoreColor}`}>{score > 0 ? `${score}%` : "Ikke vurdert"}</div>
+                  <div className={`font-semibold ${scoreColor}`}>
+                    {score > 0
+                      ? scoreDisplay === "percent" ? `${score}%` : scoreToLabel(score)
+                      : "Ikke vurdert"}
+                  </div>
                   <div className="flex justify-center"><div className={`h-3 w-3 rounded-full ${riskColor}`} /></div>
                   <div className="flex justify-end" onClick={e => e.stopPropagation()}>
                     <AssetRowActionMenu
