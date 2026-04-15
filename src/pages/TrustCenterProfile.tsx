@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
@@ -39,6 +39,7 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
 
 const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetId?: string; readOnly?: boolean }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const isServiceProfile = !!propAssetId;
@@ -156,7 +157,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     );
   }
 
-  if (!asset) {
+  if (!asset && !isSeeding) {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
@@ -167,9 +168,41 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <h2 className="text-xl font-semibold">
                 {isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}
               </h2>
-              <Button onClick={() => navigate("/onboarding")}>
-                {isNb ? "Start onboarding" : "Start onboarding"}
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                {isNb ? "Det ser ut til at virksomheten ikke har en Trust Profile ennå. Opprett en nå for å komme i gang." : "It looks like the company doesn't have a Trust Profile yet. Create one now to get started."}
+              </p>
+              <Button onClick={async () => {
+                setIsSeeding(true);
+                try {
+                  await seedDemoTrustProfile();
+                  queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+                  queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                  toast.success(isNb ? "Trust Profile opprettet!" : "Trust Profile created!");
+                } catch (e) {
+                  console.error(e);
+                  toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
+                } finally {
+                  setIsSeeding(false);
+                }
+              }}>
+                {isNb ? "Opprett Trust Profile" : "Create Trust Profile"}
               </Button>
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
+  if (isSeeding) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <Sidebar />
+          <main className="flex-1 p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 w-48 bg-muted rounded" />
+              <div className="h-64 bg-muted rounded" />
             </div>
           </main>
         </div>
