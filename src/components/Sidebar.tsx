@@ -560,7 +560,6 @@ const SidebarContent = () => {
                   <div className="ml-4 space-y-1">
                     {[
                       { name: "Kunder", href: "/msp-dashboard", icon: Users },
-                      { name: "Lisenser", href: "/msp-licenses", icon: CreditCard },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
                       { name: "ROI-kalkulator", href: "/msp-roi", icon: FileBarChart },
                       { name: "Salgsguide", href: "/msp-sales-guide", icon: FileText },
