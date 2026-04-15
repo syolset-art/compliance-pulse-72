@@ -320,7 +320,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
           </div>
           <span className="text-muted-foreground">·</span>
           <div className="flex items-center gap-1.5 text-sm">
-            <BrainOff className="h-4 w-4 text-muted-foreground" />
+            <BrainCircuit className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{documents.length - aiCount}</span>
             <span className="text-muted-foreground">ikke AI</span>
           </div>
@@ -381,7 +381,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
                                   {doc.ai_enabled ? (
                                     <Brain className="h-3.5 w-3.5 text-primary" />
                                   ) : (
-                                    <BrainOff className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <BrainCircuit className="h-3.5 w-3.5 text-muted-foreground" />
                                   )}
                                   <span className={`text-xs min-w-[28px] ${doc.ai_enabled ? "text-primary" : "text-muted-foreground"}`}>
                                     {doc.ai_enabled ? "AI" : "Ikke AI"}
