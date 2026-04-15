@@ -186,9 +186,11 @@ const TrustCenterEvidence = () => {
       const { error } = await supabase.from("vendor_documents").update(updates).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       invalidate();
-      toast.success(isNb ? "Oppdatert" : "Updated");
+      if (!variables.updates.visibility) {
+        toast.success(isNb ? "Oppdatert" : "Updated");
+      }
     },
     onError: () => toast.error(isNb ? "Kunne ikke oppdatere" : "Failed to update"),
   });
