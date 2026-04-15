@@ -271,8 +271,8 @@ const SidebarContent = () => {
         )}
       >
         <div className="flex items-center gap-2.5">
-          {React.createElement(icon, { className: "h-4 w-4" })}
-          <span className="text-xs font-semibold">{label}</span>
+          {React.createElement(icon, { className: "h-[18px] w-[18px]" })}
+          <span className="text-sm font-semibold">{label}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {extraBadge}
@@ -443,8 +443,8 @@ const SidebarContent = () => {
                 )}
               >
                 <div className="flex items-center gap-2.5">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="text-xs font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
+                  <Sparkles className="h-[18px] w-[18px]" />
+                   <span className="text-sm font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
