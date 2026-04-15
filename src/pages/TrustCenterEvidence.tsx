@@ -2,15 +2,22 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, ExternalLink, Award, Calendar, CheckCircle2, AlertTriangle, Upload, FolderOpen, Loader2, Eye, EyeOff, Lock, Database } from "lucide-react";
+import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
 import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const policyTypes = ["policy", "privacy_policy", "acceptable_use", "incident_response", "security_policy", "data_protection_policy"];
 const certTypes = ["certification"];
@@ -34,10 +41,22 @@ const docTypeLabel = (type: string, isNb: boolean): string => {
   return type;
 };
 
-const getStatusBadge = (status: string | null, isNb: boolean) => {
+const statusOptions = [
+  { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
+  { value: "pending", labelNb: "Venter", labelEn: "Pending" },
+  { value: "verified", labelNb: "Godkjent", labelEn: "Verified" },
+  { value: "expired", labelNb: "Utløpt", labelEn: "Expired" },
+];
+
+const getStatusBadge = (status: string | null, isNb: boolean, approvedBy?: string | null) => {
   switch (status) {
     case "verified":
-      return <Badge className="bg-success/15 text-success border-success/30 text-[13px] gap-1"><CheckCircle2 className="h-3 w-3" />{isNb ? "Verifisert" : "Verified"}</Badge>;
+      return (
+        <Badge className="bg-success/15 text-success border-success/30 text-[13px] gap-1" title={approvedBy ? `${isNb ? "Godkjent av" : "Approved by"} ${approvedBy}` : undefined}>
+          <CheckCircle2 className="h-3 w-3" />{isNb ? "Godkjent" : "Verified"}
+          {approvedBy && <span className="ml-0.5 opacity-70">({approvedBy})</span>}
+        </Badge>
+      );
     case "expiring":
       return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />{isNb ? "Utløper snart" : "Expiring"}</Badge>;
     case "expired":
@@ -50,6 +69,7 @@ const getStatusBadge = (status: string | null, isNb: boolean) => {
       return status ? <Badge variant="outline" className="text-[13px]">{status}</Badge> : null;
   }
 };
+
 const getVisibilityIcon = (visibility: string | null) => {
   switch (visibility) {
     case "published":
@@ -64,7 +84,6 @@ const getVisibilityIcon = (visibility: string | null) => {
 const seedDemoEvidence = async (assetId: string) => {
   const now = new Date();
   const demoRows = [
-    // Policies
     { asset_id: assetId, document_type: "privacy_policy", file_name: "personvernpolicy-2024.pdf", file_path: "demo/personvernpolicy-2024.pdf", display_name: "Personvernpolicy", status: "verified", visibility: "published", category: "policy", created_at: new Date(now.getTime() - 90 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "security_policy", file_name: "infosec-policy-v3.pdf", file_path: "demo/infosec-policy-v3.pdf", display_name: "Informasjonssikkerhetspolicy", status: "verified", visibility: "published", category: "policy", created_at: new Date(now.getTime() - 120 * 86400000).toISOString() },
     { asset_id: assetId, document_type: "acceptable_use", file_name: "akseptabel-bruk.pdf", file_path: "demo/akseptabel-bruk.pdf", display_name: "Akseptabel bruk-policy", status: "verified", visibility: "published", category: "policy", created_at: new Date(now.getTime() - 60 * 86400000).toISOString() },
@@ -91,6 +110,14 @@ const TrustCenterEvidence = () => {
   const [seeding, setSeeding] = useState(false);
   const queryClient = useQueryClient();
 
+  // Edit state
+  const [editDoc, setEditDoc] = useState<any>(null);
+  // Delete state
+  const [deleteDoc, setDeleteDoc] = useState<any>(null);
+  // Approve dialog state (for verified status)
+  const [approveDoc, setApproveDoc] = useState<any>(null);
+  const [approverName, setApproverName] = useState("");
+
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
     queryFn: async () => {
@@ -102,7 +129,6 @@ const TrustCenterEvidence = () => {
         .limit(1)
         .maybeSingle();
       if (data) return data;
-      // Create a self asset if none exists
       const { data: created, error } = await supabase
         .from("assets")
         .insert({ name: "Min organisasjon", asset_type: "self" })
@@ -118,7 +144,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, valid_to, display_name, category, visibility")
+        .select("id, document_type, file_name, status, created_at, valid_to, display_name, category, visibility, notes, approved_by, approved_at")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -126,9 +152,132 @@ const TrustCenterEvidence = () => {
     enabled: !!asset?.id,
   });
 
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("vendor_documents").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success(isNb ? "Dokument slettet" : "Document deleted");
+      setDeleteDoc(null);
+    },
+    onError: () => toast.error(isNb ? "Kunne ikke slette" : "Failed to delete"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
+      const { error } = await supabase.from("vendor_documents").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success(isNb ? "Oppdatert" : "Updated");
+    },
+    onError: () => toast.error(isNb ? "Kunne ikke oppdatere" : "Failed to update"),
+  });
+
+  const handleStatusChange = (doc: any, newStatus: string) => {
+    if (newStatus === "verified") {
+      setApproveDoc(doc);
+      setApproverName("");
+    } else {
+      updateMutation.mutate({ id: doc.id, updates: { status: newStatus, approved_by: null, approved_at: null } });
+    }
+  };
+
+  const confirmApproval = () => {
+    if (!approveDoc) return;
+    updateMutation.mutate({
+      id: approveDoc.id,
+      updates: { status: "verified", approved_by: approverName || null, approved_at: new Date().toISOString() },
+    });
+    setApproveDoc(null);
+  };
+
+  const saveEdit = () => {
+    if (!editDoc) return;
+    updateMutation.mutate({
+      id: editDoc.id,
+      updates: {
+        display_name: editDoc.display_name,
+        document_type: editDoc.document_type,
+        valid_to: editDoc.valid_to || null,
+        visibility: editDoc.visibility,
+        notes: editDoc.notes || null,
+      },
+    });
+    setEditDoc(null);
+  };
+
   const policies = vendorDocs.filter((d: any) => policyTypes.includes(d.document_type));
   const certifications = vendorDocs.filter((d: any) => certTypes.includes(d.document_type));
   const documents = vendorDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+
+  const renderActionMenu = (doc: any) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={() => setEditDoc({ ...doc })}>
+          <Pencil className="h-3.5 w-3.5 mr-2" />
+          {isNb ? "Rediger" : "Edit"}
+        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <ShieldCheck className="h-3.5 w-3.5 mr-2" />
+            {isNb ? "Endre status" : "Change status"}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {statusOptions.map((s) => (
+              <DropdownMenuItem
+                key={s.value}
+                onClick={() => handleStatusChange(doc, s.value)}
+                className={doc.status === s.value ? "bg-accent" : ""}
+              >
+                {isNb ? s.labelNb : s.labelEn}
+                {doc.status === s.value && <CheckCircle2 className="h-3 w-3 ml-auto" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setDeleteDoc(doc)} className="text-destructive focus:text-destructive">
+          <Trash2 className="h-3.5 w-3.5 mr-2" />
+          {isNb ? "Slett" : "Delete"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const renderDocRow = (doc: any, icon: React.ReactNode) => (
+    <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+      <CardContent className="flex items-center justify-between py-4 px-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            {icon}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{doc.display_name || doc.file_name}</p>
+            <p className="text-xs text-muted-foreground">
+              {docTypeLabel(doc.document_type, isNb)} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
+              {doc.valid_to && <> · {isNb ? "Utløper" : "Expires"} {new Date(doc.valid_to).toLocaleDateString(isNb ? "nb-NO" : "en-US")}</>}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {getStatusBadge(doc.status, isNb, doc.approved_by)}
+          {getVisibilityIcon(doc.visibility)}
+          {renderActionMenu(doc)}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const content = (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-16 md:pt-20">
@@ -154,7 +303,7 @@ const TrustCenterEvidence = () => {
               setSeeding(true);
               try {
                 await seedDemoEvidence(asset.id);
-                await queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+                await invalidate();
                 toast.success(isNb ? "Demo-data lagt til" : "Demo data added");
               } catch (e) {
                 toast.error(isNb ? "Kunne ikke legge til demo-data" : "Failed to add demo data");
@@ -195,7 +344,6 @@ const TrustCenterEvidence = () => {
           </div>
         ) : (
           <>
-            {/* Policies */}
             <TabsContent value="policies" className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
@@ -203,36 +351,10 @@ const TrustCenterEvidence = () => {
               {policies.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen retningslinjer registrert ennå." : "No policies registered yet."}</p>
               ) : (
-                <div className="space-y-3">
-                  {policies.map((doc: any) => (
-                    <Card key={doc.id} className="hover:shadow-sm transition-shadow">
-                      <CardContent className="flex items-center justify-between py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FileText className="h-4 w-4 text-primary" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">{doc.display_name || doc.file_name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {docTypeLabel(doc.document_type, isNb)} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(doc.status, isNb)}
-                          {getVisibilityIcon(doc.visibility)}
-                          <Button variant="ghost" size="sm">
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <div className="space-y-3">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
               )}
             </TabsContent>
 
-            {/* Certifications */}
             <TabsContent value="certifications" className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
@@ -240,39 +362,10 @@ const TrustCenterEvidence = () => {
               {certifications.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen sertifiseringer registrert ennå." : "No certifications registered yet."}</p>
               ) : (
-                <div className="space-y-3">
-                  {certifications.map((cert: any) => (
-                    <Card key={cert.id}>
-                      <CardContent className="flex items-start justify-between py-4 px-5">
-                        <div className="flex items-start gap-3">
-                          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                            <Award className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium">{cert.display_name || cert.file_name}</p>
-                              {getStatusBadge(cert.status, isNb)}
-                              {getVisibilityIcon(cert.visibility)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {isNb ? "Opprettet" : "Created"} {new Date(cert.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        {cert.valid_to && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                            <Calendar className="h-3 w-3" />
-                            {isNb ? "Utløper" : "Expires"}: {new Date(cert.valid_to).toLocaleDateString()}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <div className="space-y-3">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
               )}
             </TabsContent>
 
-            {/* Documents */}
             <TabsContent value="documents" className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
@@ -280,35 +373,114 @@ const TrustCenterEvidence = () => {
               {documents.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
               ) : (
-                <div className="space-y-3">
-                  {documents.map((doc: any) => (
-                    <Card key={doc.id} className="hover:shadow-sm transition-shadow">
-                      <CardContent className="flex items-center justify-between py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FolderOpen className="h-4 w-4 text-primary" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">{doc.display_name || doc.file_name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {docTypeLabel(doc.document_type, isNb)} · {isNb ? "Opprettet" : "Created"} {new Date(doc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(doc.status, isNb)}
-                          {getVisibilityIcon(doc.visibility)}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <div className="space-y-3">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
               )}
             </TabsContent>
           </>
         )}
       </Tabs>
+
       {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isNb ? "Rediger dokument" : "Edit document"}</DialogTitle>
+          </DialogHeader>
+          {editDoc && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>{isNb ? "Visningsnavn" : "Display name"}</Label>
+                <Input value={editDoc.display_name || ""} onChange={(e) => setEditDoc({ ...editDoc, display_name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{isNb ? "Dokumenttype" : "Document type"}</Label>
+                <Select value={editDoc.document_type} onValueChange={(v) => setEditDoc({ ...editDoc, document_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.keys({ policy: 1, privacy_policy: 1, acceptable_use: 1, incident_response: 1, security_policy: 1, data_protection_policy: 1, certification: 1, agreement: 1, report: 1, evidence: 1, other: 1 }).map((t) => (
+                      <SelectItem key={t} value={t}>{docTypeLabel(t, isNb)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{isNb ? "Utløpsdato" : "Expiry date"}</Label>
+                <Input type="date" value={editDoc.valid_to || ""} onChange={(e) => setEditDoc({ ...editDoc, valid_to: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{isNb ? "Synlighet" : "Visibility"}</Label>
+                <Select value={editDoc.visibility || "hidden"} onValueChange={(v) => setEditDoc({ ...editDoc, visibility: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="published">{isNb ? "Publisert" : "Published"}</SelectItem>
+                    <SelectItem value="hidden">{isNb ? "Skjult" : "Hidden"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{isNb ? "Notater" : "Notes"}</Label>
+                <Textarea value={editDoc.notes || ""} onChange={(e) => setEditDoc({ ...editDoc, notes: e.target.value })} rows={3} />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDoc(null)}>{isNb ? "Avbryt" : "Cancel"}</Button>
+            <Button onClick={saveEdit}>{isNb ? "Lagre" : "Save"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteDoc} onOpenChange={(open) => !open && setDeleteDoc(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isNb ? "Slett dokument" : "Delete document"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isNb
+                ? `Er du sikker på at du vil slette "${deleteDoc?.display_name || deleteDoc?.file_name}"? Denne handlingen kan ikke angres.`
+                : `Are you sure you want to delete "${deleteDoc?.display_name || deleteDoc?.file_name}"? This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{isNb ? "Avbryt" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteDoc && deleteMutation.mutate(deleteDoc.id)}
+            >
+              {isNb ? "Slett" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Approve Dialog */}
+      <Dialog open={!!approveDoc} onOpenChange={(open) => !open && setApproveDoc(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{isNb ? "Godkjenn dokument" : "Approve document"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {isNb ? "Hvem godkjenner dette dokumentet?" : "Who is approving this document?"}
+            </p>
+            <Input
+              placeholder={isNb ? "Navn på godkjenner" : "Approver name"}
+              value={approverName}
+              onChange={(e) => setApproverName(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApproveDoc(null)}>{isNb ? "Avbryt" : "Cancel"}</Button>
+            <Button onClick={confirmApproval}>
+              <CheckCircle2 className="h-4 w-4 mr-1.5" />
+              {isNb ? "Godkjenn" : "Approve"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
