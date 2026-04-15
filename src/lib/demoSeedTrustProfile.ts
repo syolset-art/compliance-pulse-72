@@ -1,17 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const HULTIT_PROFILE = {
-  name: "HULT-IT AS",
-  org_number: "920862981",
-  industry: "IT-tjenester",
-  brreg_industry: "Konsulentvirksomhet tilknyttet informasjonsteknologi",
-  domain: "hult-it.no",
+const FRAMDRIFT_PROFILE = {
+  name: "Framdrift Innovasjon AS",
+  org_number: "936431127",
+  industry: "Rådgivning",
+  brreg_industry: "Bedriftsrådgivning og annen administrativ rådgivning",
+  domain: "framdrift.no",
   employees: "1-10",
-  brreg_employees: 8,
-  compliance_officer: "Thomas Hult",
-  compliance_officer_email: "thomas@hult-it.no",
-  dpo_name: "Thomas Hult",
-  dpo_email: "thomas@hult-it.no",
+  brreg_employees: 5,
+  compliance_officer: "Marte Solberg",
+  compliance_officer_email: "marte@framdrift.no",
+  dpo_name: "Marte Solberg",
+  dpo_email: "marte@framdrift.no",
   geographic_scope: "Norge",
   governance_level: "medium",
   sensitive_data: "limited",
@@ -23,19 +23,19 @@ const HULTIT_PROFILE = {
 
 const SELF_ASSET = {
   asset_type: "self",
-  name: "HULT-IT AS",
-  description: "Norsk IT-partner med fokus på drift, sikkerhet og compliance for små og mellomstore bedrifter. Tilbyr helhetlige managed services med kontor i Haugesund.",
+  name: "Framdrift Innovasjon AS",
+  description: "Bedriftsrådgivning og innovasjonspartner med kontor i Bergen. Spesialiserer seg på strategisk rådgivning, bærekraft og digital transformasjon for SMB-markedet.",
   compliance_score: 62,
   publish_mode: "public",
   lifecycle_status: "active",
   criticality: "high",
   risk_level: "medium",
   country: "Norge",
-  region: "Rogaland",
-  org_number: "920862981",
-  contact_person: "Thomas Hult",
-  contact_email: "thomas@hult-it.no",
-  url: "https://hult-it.no",
+  region: "Vestland",
+  org_number: "936431127",
+  contact_person: "Marte Solberg",
+  contact_email: "marte@framdrift.no",
+  url: "https://framdrift.no",
 };
 
 const EVIDENCE_CHECKS = [
@@ -58,13 +58,13 @@ export async function seedDemoTrustProfile() {
   if (existing && existing.length > 0) {
     const { error } = await supabase
       .from("company_profile")
-      .update(HULTIT_PROFILE)
+      .update(FRAMDRIFT_PROFILE)
       .eq("id", existing[0].id);
     if (error) throw new Error("Kunne ikke oppdatere bedriftsprofil: " + error.message);
   } else {
     const { error } = await supabase
       .from("company_profile")
-      .insert(HULTIT_PROFILE);
+      .insert(FRAMDRIFT_PROFILE);
     if (error) throw new Error("Kunne ikke opprette bedriftsprofil: " + error.message);
   }
 
@@ -120,7 +120,7 @@ export async function deleteDemoTrustProfile() {
   if (existing && existing.length > 0) {
     await supabase
       .from("company_profile")
-      .update({ name: "HULT-IT AS", org_number: null, domain: null, industry: "IT-tjenester", employees: null, brreg_industry: null, brreg_employees: null, compliance_officer: null, compliance_officer_email: null, dpo_name: null, dpo_email: null, maturity: null })
+      .update({ name: "Min bedrift", org_number: null, domain: null, industry: "Teknologi", employees: null, brreg_industry: null, brreg_employees: null, compliance_officer: null, compliance_officer_email: null, dpo_name: null, dpo_email: null, maturity: null })
       .eq("id", existing[0].id);
   }
 
@@ -130,7 +130,7 @@ export async function deleteDemoTrustProfile() {
     await supabase.from("evidence_checks").delete().eq("asset_id", selfAssets[0].id);
     await supabase
       .from("assets")
-      .update({ name: "HULT-IT AS", description: null, compliance_score: 0, publish_mode: "private", country: null, region: null, org_number: null, contact_person: null, contact_email: null, url: null })
+      .update({ name: "Min bedrift", description: null, compliance_score: 0, publish_mode: "private", country: null, region: null, org_number: null, contact_person: null, contact_email: null, url: null })
       .eq("id", selfAssets[0].id);
   }
 }
