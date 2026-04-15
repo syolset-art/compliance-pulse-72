@@ -25,7 +25,7 @@ import {
   Bell,
   Pencil,
   Briefcase,
-  Database,
+  
   Sparkles
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
@@ -73,14 +73,12 @@ const managementNav = [
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
+  { name: "nav.systems", href: "/systems", icon: Cloud },
 ];
 
-// Registre (Registries)
-const registriesNav = [
-  { name: "nav.vendors", href: "/vendors", icon: Building2 },
-  { name: "nav.systems", href: "/systems", icon: Cloud },
-  { name: "nav.assetsDevices", href: "/assets", icon: Package },
-];
+// Standalone module links (each activatable independently)
+const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
+const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
@@ -204,12 +202,14 @@ const SidebarContent = () => {
   const queryClient = useQueryClient();
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
 
-  // Determine display mode:
-  // "normal" = selected at onboarding OR paid → show Mynder Core / Registre normally
-  // "explore" = not selected and not paid → show "Flere tjenester" combined
+  // Determine display mode per module
   const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess;
-  const showRegistriesNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  const showExploreSection = !showCoreNormal || !showRegistriesNormal;
+  // Vendors and Assets are independent — check registries access for both
+  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
+  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
+  
+  // "Flere tjenester" collects anything not shown normally
+  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
@@ -220,13 +220,11 @@ const SidebarContent = () => {
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
 
-  const isRegistriesActive = registriesNav.some(item => location.pathname === item.href);
-  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
-
-  // "Flere tjenester" combines items from both sections when in explore mode
+  // "Flere tjenester" combines items from sections not shown normally
   const exploreItems = [
     ...(!showCoreNormal ? managementNav : []),
-    ...(!showRegistriesNormal ? registriesNav : []),
+    ...(!showVendorsNormal ? [vendorLink] : []),
+    ...(!showAssetsNormal ? [assetsLink] : []),
   ];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
@@ -417,25 +415,53 @@ const SidebarContent = () => {
           isManagementActive,
         )}
 
-        {/* Registre — only if selected at onboarding or paid */}
-        {showRegistriesNormal && (
+        {/* Standalone modules: Leverandører & Assets */}
+        {(showVendorsNormal || showAssetsNormal) && (
           <>
             {showCoreNormal && <div className="my-2 border-b border-sidebar-border/40" />}
-            {renderCollapsibleSection(
-              t("nav.registries", "Registre"),
-              Database,
-              registriesNav,
-              registriesOpen,
-              setRegistriesOpen,
-              isRegistriesActive,
-            )}
+            {showVendorsNormal && (() => {
+              const isActive = location.pathname === vendorLink.href;
+              return (
+                <Link
+                  to={vendorLink.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    isActive
+                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  )}
+                >
+                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                  <vendorLink.icon className="h-4 w-4" />
+                  {t(vendorLink.name)}
+                </Link>
+              );
+            })()}
+            {showAssetsNormal && (() => {
+              const isActive = location.pathname === assetsLink.href;
+              return (
+                <Link
+                  to={assetsLink.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    isActive
+                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  )}
+                >
+                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                  <assetsLink.icon className="h-4 w-4" />
+                  {t(assetsLink.name)}
+                </Link>
+              );
+            })()}
           </>
         )}
 
-        {/* "Flere tjenester" — for sections NOT selected at onboarding */}
+        {/* "Flere tjenester" — for modules NOT selected at onboarding */}
         {showExploreSection && (
           <>
-            {(showCoreNormal || showRegistriesNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
+            {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
             {renderCollapsibleSection(
               t("nav.moreServices", "Flere tjenester"),
               Sparkles,
