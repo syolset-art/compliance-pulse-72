@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +64,27 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [controlsExpanded, setControlsExpanded] = useState(false);
   const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const taskStatusMutation = useMutation({
+    mutationFn: async ({ taskId, newStatus }: { taskId: string; newStatus: string }) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ status: newStatus })
+        .eq("id", taskId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-tasks", asset.id] });
+      import("sonner").then(({ toast }) => {
+        toast.success(isNb ? "Oppgave oppdatert" : "Task updated");
+      });
+    },
+  });
+
+  const handleTaskStatusChange = useCallback((taskId: string, newStatus: string) => {
+    taskStatusMutation.mutate({ taskId, newStatus });
+  }, [taskStatusMutation]);
 
   const handleScrollToTasks = useCallback(() => {
     setTimeout(() => {
@@ -321,6 +343,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           openTasks={openTasks}
           highlightedTaskId={highlightedTaskId}
           responsiblePerson={responsiblePerson}
+          onTaskStatusChange={handleTaskStatusChange}
           maturityStats={evaluation ? {
             implementedCount: evaluation.implementedCount,
             partialCount: evaluation.partialCount,

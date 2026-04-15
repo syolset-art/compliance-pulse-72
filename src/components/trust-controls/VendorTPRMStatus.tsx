@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown, ClipboardList, Activity } from "lucide-react";
+import { Shield, AlertTriangle, HelpCircle, Mail, Clock, CheckCircle2, AlertCircle, Timer, ArrowRight, ChevronDown, ClipboardList, Activity, User } from "lucide-react";
 import { RequestUpdateDialog } from "@/components/asset-profile/RequestUpdateDialog";
 import { toast } from "sonner";
 import { generateDemoActivities, formatRelativeDate, PHASE_CONFIG, OUTCOME_COLORS } from "@/utils/vendorActivityData";
@@ -43,6 +44,7 @@ interface VendorTPRMStatusProps {
   openTasks?: OpenTask[];
   highlightedTaskId?: string | null;
   responsiblePerson?: string;
+  onTaskStatusChange?: (taskId: string, newStatus: string) => void;
 }
 
 type TPRMLevel = "approved" | "under_review" | "action_required" | "not_assessed";
@@ -95,6 +97,7 @@ export const VendorTPRMStatus = ({
   openTasks = [],
   highlightedTaskId,
   responsiblePerson,
+  onTaskStatusChange,
 }: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
@@ -295,50 +298,81 @@ export const VendorTPRMStatus = ({
 
                 {/* ── GJENSTÅR (Remaining Tasks) ── */}
                 {innerTab === "remaining" && (
-                  <div className="space-y-2">
-                    {responsiblePerson && (
-                      <span className="text-[13px] text-muted-foreground block">
-                        {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
-                      </span>
-                    )}
-                    {openTasks.length > 0 ? (
+                  <div className="space-y-3">
+                    {/* ── Action tasks ── */}
+                    {openTasks.length > 0 && (
                       <div className="space-y-1.5">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                          {isNb ? "Krever handling" : "Requires action"}
+                        </p>
                         {openTasks.map((task) => {
                           const isHighlighted = highlightedTaskId === task.id;
+                          const isDbTask = !task.isControlTask;
+                          const priorityBorder =
+                            task.priority === "high" || task.priority === "critical"
+                              ? "border-l-destructive"
+                              : task.priority === "medium"
+                              ? "border-l-warning"
+                              : "border-l-muted-foreground/30";
+
+                          const handleCheck = () => {
+                            if (isDbTask && onTaskStatusChange) {
+                              onTaskStatusChange(task.id, "completed");
+                            } else {
+                              toast.info(
+                                isNb
+                                  ? "Fullfør denne ved å utføre handlingen beskrevet nedenfor"
+                                  : "Complete this by performing the action described below"
+                              );
+                            }
+                          };
+
                           return (
                             <div
                               key={task.id}
                               id={`task-${task.id}`}
-                              className={`flex items-start sm:items-center justify-between gap-3 p-2.5 rounded-lg transition-all duration-500 ${
-                                isHighlighted ? "bg-primary/10 ring-2 ring-primary/40" : "bg-background/60 border border-border"
+                              className={`flex items-start gap-3 p-3 rounded-lg border-l-4 transition-all duration-500 ${priorityBorder} ${
+                                isHighlighted
+                                  ? "bg-primary/10 ring-2 ring-primary/40"
+                                  : "bg-background/60 border border-border border-l-4"
                               }`}
                             >
+                              <Checkbox
+                                checked={task.status === "completed"}
+                                onCheckedChange={handleCheck}
+                                className="mt-0.5 shrink-0"
+                                aria-label={`${isNb ? "Marker som utført" : "Mark as completed"}: ${task.title}`}
+                              />
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <div className={`h-2 w-2 rounded-full shrink-0 ${
-                                    task.status === "in_progress" ? "bg-warning" : "bg-muted-foreground/40"
-                                  }`} />
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-xs font-medium text-foreground">{task.title}</span>
                                   {task.isControlTask && (
-                                    <Shield className="h-3 w-3 text-primary/60 shrink-0" />
+                                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 gap-0.5">
+                                      <Shield className="h-2.5 w-2.5" />
+                                      {isNb ? "Kontroll" : "Control"}
+                                    </Badge>
                                   )}
-                                  {task.priority === "high" && (
-                                    <Badge variant="destructive" className="text-[13px] shrink-0 h-4">
+                                  {(task.priority === "high" || task.priority === "critical") && (
+                                    <Badge variant="destructive" className="text-[10px] h-4">
                                       {isNb ? "Høy" : "High"}
                                     </Badge>
                                   )}
                                 </div>
                                 {task.action && (
-                                  <p className="text-[13px] text-muted-foreground mt-0.5 ml-4">
+                                  <p className="text-[11px] text-muted-foreground mt-0.5">
                                     {task.action}
                                   </p>
                                 )}
+                                <div className="flex items-center gap-1 mt-1 text-[11px] text-muted-foreground">
+                                  <User className="h-3 w-3" />
+                                  <span>{responsiblePerson || (isNb ? "Ikke tildelt" : "Not assigned")}</span>
+                                </div>
                               </div>
                               {task.ctaLabel && task.targetTab && onNavigateToTab && (
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-6 text-[13px] gap-1 shrink-0 whitespace-nowrap"
+                                  className="h-6 text-[11px] gap-1 shrink-0 whitespace-nowrap"
                                   onClick={() => onNavigateToTab(task.targetTab!)}
                                 >
                                   {task.ctaLabel}
@@ -349,17 +383,21 @@ export const VendorTPRMStatus = ({
                           );
                         })}
                       </div>
-                    ) : null}
-                    {/* Pending activities (waiting/deviation) */}
+                    )}
+
+                    {/* ── Pending activities (waiting for response) ── */}
                     {pendingActivities.length > 0 && (
-                      <div className="space-y-1.5">
+                      <div className="space-y-1.5 mt-2">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                          {isNb ? `Venter på svar (${pendingActivities.length})` : `Awaiting response (${pendingActivities.length})`}
+                        </p>
                         {pendingActivities.map((act) => {
                           const OutIcon = OUTCOME_ICON_MAP[act.outcomeStatus];
                           const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
                           return (
                             <div
                               key={act.id}
-                              className="flex items-start gap-2 p-2.5 rounded-lg bg-warning/5 border border-warning/20"
+                              className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/30 border border-border/60 opacity-80"
                             >
                               <div className={`mt-0.5 ${outcomeColor}`}>
                                 <OutIcon className="h-3.5 w-3.5" />
@@ -368,18 +406,19 @@ export const VendorTPRMStatus = ({
                                 <span className="text-xs font-medium text-foreground">
                                   {isNb ? act.titleNb : act.titleEn}
                                 </span>
-                                <p className="text-[13px] text-muted-foreground mt-0.5">
+                                <p className="text-[11px] text-muted-foreground mt-0.5">
                                   {act.actor} — {formatRelativeDate(act.date, isNb)}
                                 </p>
                               </div>
-                              <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-4 bg-warning/10 text-warning border-warning/30 shrink-0">
-                                {isNb ? "Venter svar" : "Awaiting response"}
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-warning/10 text-warning border-warning/30 shrink-0">
+                                {isNb ? "Venter" : "Pending"}
                               </Badge>
                             </div>
                           );
                         })}
                       </div>
                     )}
+
                     {openTasks.length === 0 && pendingActivities.length === 0 && (
                       <p className="text-xs text-muted-foreground italic">
                         {isNb ? "Ingen åpne aktiviteter — godt jobbet! 🎉" : "No open activities — great work! 🎉"}
