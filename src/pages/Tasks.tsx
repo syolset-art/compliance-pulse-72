@@ -614,6 +614,18 @@ export default function Tasks() {
             laraSuggestion="Hjelp meg med å prioritere oppgavene mine"
           />
         </div>
+
+        <CreateTaskDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+          currentUser={currentUser}
+          onTaskCreated={(task) => {
+            setManualTasks((prev) => [task, ...prev]);
+            toast.success(`Oppgave «${task.title}» opprettet`, {
+              description: "Oppgaven er lagt til øverst i listen.",
+            });
+          }}
+        />
       </main>
     </div>
   );
