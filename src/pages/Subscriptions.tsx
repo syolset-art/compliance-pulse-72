@@ -31,6 +31,7 @@ import {
   type PlanTier, type ModuleId,
 } from "@/lib/planConstants";
 import { Settings2 } from "lucide-react";
+import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 
 // ─── Plan Comparison Cards ──────────────────────────────────────────
 
