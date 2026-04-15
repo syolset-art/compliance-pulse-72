@@ -660,6 +660,47 @@ export type Database = {
           },
         ]
       }
+      company_credits: {
+        Row: {
+          balance: number
+          company_id: string
+          created_at: string | null
+          id: string
+          last_reset_at: string | null
+          monthly_allowance: number
+          next_reset_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          balance?: number
+          company_id: string
+          created_at?: string | null
+          id?: string
+          last_reset_at?: string | null
+          monthly_allowance?: number
+          next_reset_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          balance?: number
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          last_reset_at?: string | null
+          monthly_allowance?: number
+          next_reset_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_credits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_profile: {
         Row: {
           active_roles: string[] | null
@@ -904,6 +945,47 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "security_micro_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          company_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profile"
             referencedColumns: ["id"]
           },
         ]
