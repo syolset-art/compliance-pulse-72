@@ -343,6 +343,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
           openTasks={openTasks}
           highlightedTaskId={highlightedTaskId}
           responsiblePerson={responsiblePerson}
+          onTaskStatusChange={handleTaskStatusChange}
           maturityStats={evaluation ? {
             implementedCount: evaluation.implementedCount,
             partialCount: evaluation.partialCount,
