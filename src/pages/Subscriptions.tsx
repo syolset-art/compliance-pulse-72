@@ -158,56 +158,142 @@ function PlanCard({ tier, currentTier }: { tier: PlanTier; currentTier: PlanTier
   );
 }
 
-// ─── Credits Section ─────────────────────────────────────────────────
+// ─── Hero Status Banner ──────────────────────────────────────────────
 
-function CreditsSection() {
-  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, recentTransactions, purchaseCredits, isPurchasing } = useCredits();
-  const [showPackages, setShowPackages] = useState(false);
+function PlanStatusBanner() {
+  const { currentTier, subscription } = useSubscription();
+  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, recentTransactions } = useCredits();
+  const tierConfig = PLAN_TIERS[currentTier];
+
+  const periodEnd = subscription?.current_period_end;
+  const daysLeft = periodEnd
+    ? Math.max(0, Math.ceil((new Date(periodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   const barColor = isExhausted ? "bg-destructive" : isLow ? "bg-warning" : "bg-primary";
 
   return (
-    <div className="space-y-3">
-      <Card className={isExhausted ? "border-destructive/30 bg-destructive/[0.03]" : isLow ? "border-warning/30 bg-warning/[0.03]" : "border-border"}>
-        <CardContent className="p-5 space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Current Plan Card */}
+      <Card className="border-primary/20 bg-primary/[0.02]">
+        <CardContent className="p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${isExhausted ? "bg-destructive/10" : isLow ? "bg-warning/10" : "bg-primary/10"}`}>
-                <Zap className={`h-5 w-5 ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-primary"}`} />
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Credits</h3>
-                <p className="text-sm text-muted-foreground">
-                  {monthlyAllowance} credits/mnd inkludert i din plan
+                <p className="text-xs text-muted-foreground">Nåværende plan</p>
+                <h3 className="text-lg font-bold text-foreground">{tierConfig.displayName}</h3>
+              </div>
+            </div>
+            <Badge className="bg-success/10 text-success border-success/20 text-[10px]">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Aktiv
+            </Badge>
+          </div>
+
+          <Separator />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Credits inkludert</p>
+                <p className="text-sm font-semibold text-foreground">{tierConfig.monthlyCredits}/mnd</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 text-primary" />
+              <div>
+                <p className="text-xs text-muted-foreground">Fornyes</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {daysLeft !== null ? `om ${daysLeft} dager` : "—"}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className={`text-2xl font-bold ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-foreground"}`}>
-                {balance}
-              </p>
-              <p className="text-xs text-muted-foreground">tilgjengelig</p>
-            </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Credits Overview Card */}
+      <Card className={isExhausted ? "border-destructive/30 bg-destructive/[0.03]" : isLow ? "border-warning/30 bg-warning/[0.03]" : "border-border"}>
+        <CardContent className="p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${isExhausted ? "bg-destructive/10" : isLow ? "bg-warning/10" : "bg-primary/10"}`}>
+                <Zap className={`h-4 w-4 ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-primary"}`} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Credits tilgjengelig</p>
+                <h3 className={`text-lg font-bold ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-foreground"}`}>
+                  {balance} <span className="text-sm font-normal text-muted-foreground">av {monthlyAllowance}</span>
+                </h3>
+              </div>
+            </div>
+            {isExhausted && (
+              <Badge variant="destructive" className="text-[10px]">Oppbrukt</Badge>
+            )}
+            {isLow && !isExhausted && (
+              <Badge className="bg-warning/10 text-warning border-warning/20 text-[10px]">Lite igjen</Badge>
+            )}
+          </div>
+
           <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${barColor}`}
               style={{ width: `${Math.max(percentRemaining, 2)}%` }}
             />
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            {percentRemaining}% gjenstår av månedlige credits
+          </p>
 
-          <Button
-            variant={isExhausted ? "default" : "outline"}
-            size="sm"
-            className="w-full gap-2"
-            onClick={() => setShowPackages(!showPackages)}
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Kjøp ekstra credits
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant={isExhausted ? "default" : "outline"} className="flex-1 gap-1.5 text-xs" asChild>
+              <a href="#credits-section">
+                <Sparkles className="h-3 w-3" />
+                Kjøp credits
+              </a>
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs gap-1.5" asChild>
+              <a href="#credits-section">
+                <TrendingUp className="h-3 w-3" />
+                Historikk
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ─── Credits Section (Purchase & History) ────────────────────────────
+
+function CreditsSection() {
+  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, recentTransactions, purchaseCredits, isPurchasing } = useCredits();
+  const [showPackages, setShowPackages] = useState(false);
+
+  return (
+    <div className="space-y-3" id="credits-section">
+      <Card>
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-foreground text-sm">Kjøp ekstra credits</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+              onClick={() => setShowPackages(!showPackages)}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {showPackages ? "Skjul pakker" : "Vis pakker"}
+            </Button>
+          </div>
 
           {showPackages && (
-            <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-3 gap-3">
               {CREDIT_PACKAGES.map((pkg) => (
                 <Card
                   key={pkg.id}
