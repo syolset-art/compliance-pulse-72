@@ -1,60 +1,73 @@
 
 
-## Agent-drevet "Be om oppdatering" — UI-konsept og plan
+## Forbedre aktivitetslisten — klarere oppgaver med status og avhuking
 
-### Idé
+### Problemet (fra bildet)
 
-Legge til en **"Automatiser med agent"**-toggle/CTA inne i `RequestUpdateDialog` og på knappen i headeren, slik at brukeren kan velge mellom manuell sending og å la en agent håndtere oppfølgingen automatisk.
+Listen med oppgaver og ventende aktiviteter er vanskelig å forstå:
+- Alle elementer ser like ut — ingen visuell gruppering eller hierarki
+- Ingen mulighet til å markere oppgaver som utført eller pågående
+- Ingen synlig tildelt person per oppgave
+- Brukeropprettede aktiviteter blander seg inn uten kontekst
+- "Venter svar"-elementene nederst ser ut som oppgaver, men er passive ventepunkter
 
-### UI-design
+### Løsning
 
-**1. Knappen i headeren (AssetTrustProfile, SystemHeader, etc.)**
-- Beholde nåværende "Be om oppdatering"-knapp som den er
-- Legge til en liten `Sparkles`-ikon/badge ved siden av knappen som indikerer "Agent tilgjengelig" — en subtil lilla prikk eller sparkle
+**Redesign av oppgaveradene i `VendorTPRMStatus`** med tre forbedringer:
 
-**2. Inne i RequestUpdateDialog — ny seksjon øverst**
-- En ny "Agent mode"-banner/card øverst i dialogen:
+#### 1. Interaktiv checkbox for statusendring
+- Erstatte den passive fargedotten med en klikkbar **Checkbox** per oppgave
+- Klikk = marker som utført (oppdaterer status i DB for DB-oppgaver, eller viser toast for kontrolloppgaver)
+- Checkbox viser tre tilstander visuelt:
+  - Tom sirkel = åpen
+  - Halvsirkel/strek = pågående  
+  - Avhuket = utført (raden fades ut og flyttes til "Utført"-fanen)
 
-```text
-┌──────────────────────────────────────────────┐
-│ ✨ La Lara håndtere dette automatisk         │
-│                                              │
-│ Agenten sender forespørselen, følger opp     │
-│ ved fristbrudd, og varsler deg når svar       │
-│ mottas. Du kan sette regler for oppfølging.  │
-│                                              │
-│  [Aktiver automatisk oppfølging]  ← toggle   │
-└──────────────────────────────────────────────┘
-```
+#### 2. Tydelig ansvarlig person per rad
+- Vise **hvem** som er ansvarlig under oppgavetittelen (f.eks. "Jan Olsen" eller "Ikke tildelt")
+- For kontrolloppgaver: bruke den overordnede `responsiblePerson`
+- For DB-oppgaver: bruke `assigned_to`-feltet fra tasks-tabellen
 
-- Når toggled **på**, vises ekstra felter:
-  - **Purrefrekvens**: Velg mellom "Etter 7 dager" / "Etter 14 dager" / "Ukentlig"
-  - **Maks purringer**: 1, 2, 3
-  - **Eskaler til**: Dropdown med ansvarlig person
-  - Knappen endres fra "Send forespørsel" → "Start automatisk oppfølging"
-
-**3. "Kommer snart"-tilnærming (anbefalt for nå)**
-- Siden dette er en funksjon som "skal komme", vis agent-banneret med en `Badge` som sier "Kommer snart" / "Coming soon"
-- Toggle er disabled med tooltip som forklarer at det snart er tilgjengelig
-- Gir brukeren en forsmak uten å kreve backend-endringer
+#### 3. Visuell gruppering med bedre hierarki
+- Oppgaver som krever handling: hvit bakgrunn med venstre fargekant (rød for høy prioritet, gul for middels)
+- "Venter svar"-elementer: tydelig adskilt med en liten overskrift "Venter på svar" og dempet styling
+- Kontrolloppgaver merket med et lite shield-ikon + "Kontroll"-label
 
 ### Teknisk plan
 
-**Fil: `src/components/asset-profile/RequestUpdateDialog.tsx`**
-- Legge til en ny seksjon rett under `DialogDescription` med agent-preview UI
-- Inkluderer en disabled toggle med "Kommer snart"-badge
-- Viser purreinnstillinger som grayed-out preview (disabled inputs)
-- Bruker eksisterende Sparkles-ikon og primary-farger
+**Fil 1: `src/components/trust-controls/VendorTPRMStatus.tsx`**
+- Importere `Checkbox` fra ui-komponenter
+- Legge til `onTaskStatusChange`-callback i props for å oppdatere task-status
+- Oppgaverader: erstatte fargedot med Checkbox, legge til `onClick`-handler
+- Vise ansvarlig person som grå tekst under tittelen
+- Legge til venstre border-farge basert på prioritet (`border-l-4 border-l-destructive` for høy)
+- Separere "Venter svar"-seksjonen med en liten heading
 
-**Fil: `src/pages/AssetTrustProfile.tsx`**
-- Legge til en liten Sparkles-ikon på "Be om oppdatering"-knappen for å indikere agent-mulighet
+**Fil 2: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
+- Legge til `onTaskStatusChange`-funksjon som oppdaterer task-status via Supabase
+- Sende denne som ny prop til `VendorTPRMStatus`
+- Invalidere query-cache etter statusendring
 
-**Fil: `src/components/system-profile/SystemHeader.tsx`**
-- Samme Sparkles-indikator på knappen
+### Visuelt resultat
 
-### Designprinsipper
-- Følger plattformens 3-nivå autonomiskala (Automatisk → Assistert → Manuell)
-- Banneret bruker `bg-primary/5 border-primary/20` for gjenkjennelig agent-styling
-- "Kommer snart"-badge i `secondary` variant
-- Ingen database-endringer nødvendig — ren UI-preview
+```text
+┌─────────────────────────────────────────────────┐
+│ ☐ Databehandleravtale verifisert     Høy        │
+│   Last opp i dokumentfanen                      │
+│   👤 Jan Olsen              Gå til dokumenter → │
+├─────────────────────────────────────────────────┤
+│ ☐ Sikkerhetskontakt definert         Høy        │
+│   Legg til i leverandørprofilen                 │
+│   👤 Ikke tildelt             Rediger profil →  │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ Venter på svar (3)                              │
+│ ⚠ Hendelse rapportert          Venter svar      │
+│   Jan Olsen — 3 måneder siden                   │
+└─────────────────────────────────────────────────┘
+```
+
+### Filer som endres
+1. `src/components/trust-controls/VendorTPRMStatus.tsx` — UI-redesign av oppgaverader
+2. `src/components/asset-profile/tabs/VendorOverviewTab.tsx` — statusendring-logikk
 
