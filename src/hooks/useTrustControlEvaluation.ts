@@ -212,7 +212,10 @@ export function useTrustControlEvaluation(assetId: string) {
       status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
     }));
-    const allControls = [...evaluatedGeneric, ...evaluatedType];
+    
+    // Apply evidence-based penalties before scoring
+    const rawControls = [...evaluatedGeneric, ...evaluatedType];
+    const allControls = applyEvidencePenalties(rawControls, evidenceChecks);
 
     const trustScore = calculateTrustScore(allControls);
     const confidenceScore = calculateConfidenceScore(allControls);
@@ -231,6 +234,28 @@ export function useTrustControlEvaluation(assetId: string) {
       return Math.round(((impl + partial * 0.5) / controls.length) * 100);
     };
 
+    // Derive evidence summary per area
+    const evidenceSummary = Object.entries(grouped).reduce((acc, [area, controls]) => {
+      const controlKeys = controls.map(c => c.key);
+      const areaChecks = evidenceChecks.filter(ec => controlKeys.includes(ec.control_key));
+      const statuses = areaChecks.map(ec => ec.status as "fresh" | "stale" | "expired" | "missing");
+      const worst = statuses.includes("expired") ? "expired"
+        : statuses.includes("stale") ? "stale"
+        : statuses.length > 0 ? "fresh" : null;
+      acc[area as ControlArea] = {
+        worst,
+        staleCount: statuses.filter(s => s === "stale").length,
+        expiredCount: statuses.filter(s => s === "expired").length,
+        lastChecked: areaChecks.length > 0
+          ? areaChecks.reduce((latest, ec) => {
+              const t = ec.last_verified_at || "";
+              return t > latest ? t : latest;
+            }, "")
+          : null,
+      };
+      return acc;
+    }, {} as Record<ControlArea, { worst: string | null; staleCount: number; expiredCount: number; lastChecked: string | null }>);
+
     return {
       allControls,
       trustScore,
@@ -241,6 +266,8 @@ export function useTrustControlEvaluation(assetId: string) {
       partialCount,
       missingCount,
       areaScore,
+      evidenceSummary,
+      evidenceChecks,
     };
-  }, [asset, docsCount]);
+  }, [asset, docsCount, evidenceChecks]);
 }
