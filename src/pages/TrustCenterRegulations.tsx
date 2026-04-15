@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
+import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { FrameworkDocumentsDialog } from "@/components/regulations/FrameworkDocumentsDialog";
 import { LaraAgent } from "@/components/LaraAgent";
 import {
@@ -77,6 +78,7 @@ export default function TrustCenterRegulations() {
   const [initializing, setInitializing] = useState(false);
   const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
+  const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
   const [docsDialogFramework, setDocsDialogFramework] = useState<{ id: string; name: string } | null>(null);
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -192,11 +194,27 @@ export default function TrustCenterRegulations() {
   }, [companyProfile, selectedFrameworks]);
 
   const toggleFramework = async (frameworkId: string, currentlySelected: boolean) => {
+    const fw = frameworks.find((f) => f.id === frameworkId);
+    if (!fw) return;
+
     const existingFramework = selectedFrameworks.find((f) => f.framework_id === frameworkId);
     if (existingFramework?.is_mandatory) {
       toast({ title: "Obligatorisk regelverk", description: "Kan ikke deaktiveres", variant: "destructive" });
       return;
     }
+
+    // If activating, show purchase/confirm dialog first
+    if (!currentlySelected) {
+      setPurchaseFramework(fw);
+      return;
+    }
+
+    // Deactivating — proceed directly
+    await executeToggleFramework(frameworkId, currentlySelected);
+  };
+
+  const executeToggleFramework = async (frameworkId: string, currentlySelected: boolean) => {
+    const existingFramework = selectedFrameworks.find((f) => f.framework_id === frameworkId);
     setUpdating(frameworkId);
     try {
       if (existingFramework) {
@@ -228,6 +246,13 @@ export default function TrustCenterRegulations() {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handlePurchaseConfirm = async () => {
+    if (!purchaseFramework) return;
+    const fw = purchaseFramework;
+    setPurchaseFramework(null);
+    await executeToggleFramework(fw.id, false);
   };
 
   const toggleCategory = (categoryId: string) => {
@@ -557,6 +582,14 @@ export default function TrustCenterRegulations() {
       </main>
 
       <LaraAgent />
+
+      <FrameworkPurchaseDialog
+        open={!!purchaseFramework}
+        onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
+        framework={purchaseFramework}
+        onConfirm={handlePurchaseConfirm}
+        isLoading={!!updating}
+      />
 
       {showActivationDialog && activatedFramework && (
         <FrameworkActivationDialog

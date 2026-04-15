@@ -17,6 +17,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { frameworks as allFrameworkDefs, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
+import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -119,6 +120,7 @@ export default function Subscriptions() {
   // Framework management state
   const [editFrameworksOpen, setEditFrameworksOpen] = useState(false);
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
+  const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
   const [expandedGroup, setExpandedGroup] = useState<string | null>("recommended");
 
@@ -157,6 +159,20 @@ export default function Subscriptions() {
   }, []);
 
   const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    const fw = allFrameworkDefs.find((f) => f.id === frameworkId);
+    if (!fw) return;
+
+    // If activating, show purchase/confirm dialog first
+    if (!currentlyActive) {
+      setPurchaseFramework(fw);
+      return;
+    }
+
+    // Deactivating — proceed directly
+    await executeToggleFramework(frameworkId, currentlyActive);
+  };
+
+  const executeToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
     setUpdatingFrameworkId(frameworkId);
     try {
       const existing = selectedFrameworks?.find((sf: any) => sf.framework_id === frameworkId);
@@ -192,6 +208,13 @@ export default function Subscriptions() {
     } finally {
       setUpdatingFrameworkId(null);
     }
+  };
+
+  const handlePurchaseConfirm = async () => {
+    if (!purchaseFramework) return;
+    const fw = purchaseFramework;
+    setPurchaseFramework(null);
+    await executeToggleFramework(fw.id, false);
   };
 
   const systemsActive = localStorage.getItem("system_premium_activated") === "true";
@@ -900,6 +923,13 @@ export default function Subscriptions() {
             activeFrameworkIds={activeFrameworkIds}
             onToggle={handleToggleFramework}
             updatingId={updatingFrameworkId}
+          />
+          <FrameworkPurchaseDialog
+            open={!!purchaseFramework}
+            onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
+            framework={purchaseFramework}
+            onConfirm={handlePurchaseConfirm}
+            isLoading={!!updatingFrameworkId}
           />
           <FrameworkActivationDialog
             open={!!activationFramework}
