@@ -373,6 +373,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Clock className="h-3 w-3" />
                   <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
                 </div>
+                {evaluation?.evidenceChecks && evaluation.evidenceChecks.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Badge variant="outline" className="text-[9px] gap-1 border-primary/20 text-primary">
+                      <Zap className="h-2.5 w-2.5" />
+                      {isNb ? "Agent-verifisert" : "Agent-verified"}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </div>
 
