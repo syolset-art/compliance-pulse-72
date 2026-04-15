@@ -1,35 +1,34 @@
 
 
-# Plan: Koble virksomhet til innstillinger visuelt
+## Rename "Send forespørsel" → contextually appropriate labels
 
-## Problem
-Abonnements- og innstillingssiden viser ingen referanse til hvilken virksomhet innstillingene gjelder for. Brukeren bytter virksomhet i sidebaren, men det er ingen visuell kobling mellom valgt virksomhet og innstillingene som vises.
+The term "Send forespørsel" (Send request) feels formal and transactional. As a UX consideration, the label should match the user's mental model in each context:
 
-## Løsning
-Legge til en tydelig **virksomhets-kontekst-header** øverst på Subscriptions-siden (og andre innstillingssider) som viser hvilken virksomhet innstillingene gjelder for.
+### Proposed labels per location
 
-### 1. Ny komponent: `OrganizationContextBanner`
-En liten, gjenbrukbar banner-komponent som viser:
-- Virksomhetens navn (fra `useActiveOrganization`)
-- Org.nummer
-- En subtil Building2-ikon
-- Lenke/knapp for å bytte virksomhet (åpner sidebar-switcher eller navigerer)
+| Location | Current (NB) | New (NB) | New (EN) |
+|---|---|---|---|
+| **AssetTrustProfile** CTA button | Send forespørsel | Be om oppdatering | Request update |
+| **AssetTrustProfile** help card | Send forespørsel | Be om oppdatering | Request update |
+| **OutboundRequestsTab** button | Send forespørsel | Ny melding | New message |
+| **BulkSendConfirmDialog** title | Send forespørsel | Send melding | Send message |
+| **VendorActionCards** button | Send forespørsel | Be om oppdatering | Request update |
+| **VendorDashboard** help item | Send forespørsel | Be om oppdatering | Request update |
+| **SendRequestWizard** title | Send forespørsel til leverandører | Send melding til leverandører | Send message to vendors |
+| **TemplateLibrary** hint text | «Send forespørsel»-wizarden | «Send melding»-wizarden | "Send message" wizard |
+| **Tasks** action label | Send forespørsel | Be om oppdatering | Request update |
 
-Visuelt: en kompakt stripe under overskriften med virksomhetsinfo, lignende "Du administrerer: **Selskap AS** (org. 123 456 789)"
+### Rationale
+- **"Be om oppdatering"** — used where the action is vendor-facing and specific (requesting docs/updates). Matches the existing `RequestUpdateDialog` title.
+- **"Send melding"** / **"Ny melding"** — used in the Messages/outbound context where the framing is communication-oriented.
 
-### 2. Oppdater `src/pages/Subscriptions.tsx`
-- Importere `useActiveOrganization`
-- Legge til `OrganizationContextBanner` rett under h1-overskriften
-- Oppdater underteksten til å inkludere virksomhetsnavnet: "Innstillinger for **{orgName}**"
-
-### 3. Oppdater `src/pages/AdminOrganisation.tsx`
-- Samme banner øverst for konsistens
-
-## Filer
-
-| Fil | Endring |
-|---|---|
-| `src/components/OrganizationContextBanner.tsx` | **Ny** — gjenbrukbar kontekst-banner |
-| `src/pages/Subscriptions.tsx` | Legg til banner under overskrift |
-| `src/pages/AdminOrganisation.tsx` | Legg til banner under overskrift |
+### Files to modify
+1. `src/pages/AssetTrustProfile.tsx` (2 occurrences)
+2. `src/components/customer-requests/OutboundRequestsTab.tsx`
+3. `src/components/vendor-dashboard/BulkSendConfirmDialog.tsx`
+4. `src/components/vendor-dashboard/VendorActionCards.tsx`
+5. `src/pages/VendorDashboard.tsx`
+6. `src/components/customer-requests/SendRequestWizard.tsx`
+7. `src/components/customer-requests/TemplateLibrary.tsx`
+8. `src/pages/Tasks.tsx`
 
