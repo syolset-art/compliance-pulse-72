@@ -437,6 +437,12 @@ export default function Tasks() {
                             <Eye className="h-3 w-3" />
                             {task.source}
                           </span>
+                          {(task as any).collaborators?.length > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              +{(task as any).collaborators.length} deltaker{(task as any).collaborators.length > 1 ? "e" : ""}
+                            </span>
+                          )}
                         </div>
                       </div>
 
