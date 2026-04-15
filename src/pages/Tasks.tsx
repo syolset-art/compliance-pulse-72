@@ -5,8 +5,9 @@ import {
   CheckCircle2, X, AlertTriangle, Clock, HelpCircle,
   Crown, Plus, User, Calendar, ExternalLink, Cpu, Building2,
   FileText, ShieldAlert, ClipboardCheck, Eye, Bot, Play,
-  ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2,
+  ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2, Users,
 } from "lucide-react";
+import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -198,12 +199,16 @@ export default function Tasks() {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [approvalTask, setApprovalTask] = useState<AutoTask | null>(null);
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [manualTasks, setManualTasks] = useState<AutoTask[]>([]);
 
   // Simulated current user
   const currentUser = "Maria Larsen";
 
   // Filter logic
-  const filteredTasks = autoTasks.filter((task) => {
+  const allTasks = [...manualTasks, ...autoTasks];
+
+  const filteredTasks = allTasks.filter((task) => {
     if (viewFilter === "mine" && task.assignee !== currentUser) return false;
     if (categoryFilter !== "alle" && task.category !== categoryFilter) return false;
     if (priorityFilter !== "alle" && task.priority !== priorityFilter) return false;
@@ -211,11 +216,11 @@ export default function Tasks() {
   });
 
   const counts = {
-    alle: autoTasks.length,
-    mine: autoTasks.filter((t) => t.assignee === currentUser).length,
-    system: autoTasks.filter((t) => t.category === "system").length,
-    leverandør: autoTasks.filter((t) => t.category === "leverandør").length,
-    behandling: autoTasks.filter((t) => t.category === "behandling").length,
+    alle: allTasks.length,
+    mine: allTasks.filter((t) => t.assignee === currentUser).length,
+    system: allTasks.filter((t) => t.category === "system").length,
+    leverandør: allTasks.filter((t) => t.category === "leverandør").length,
+    behandling: allTasks.filter((t) => t.category === "behandling").length,
   };
 
   const formatDate = (d: string) => {
@@ -267,13 +272,13 @@ export default function Tasks() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-foreground">{t("nav.tasks")}</h1>
               <Badge variant="secondary" className="text-xs">
-                {autoTasks.filter((t) => t.status !== "fullført").length} åpne
+                {allTasks.filter((t) => t.status !== "fullført").length} åpne
               </Badge>
             </div>
             <Button
-              variant="outline"
               size="sm"
               className="gap-2 w-full sm:w-auto"
+              onClick={() => setIsCreateOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Opprett oppgave
@@ -355,7 +360,7 @@ export default function Tasks() {
 
           {/* Result count */}
           <p className="text-xs text-muted-foreground mb-4">
-            Viser {filteredTasks.length} av {autoTasks.length} oppgaver
+            Viser {filteredTasks.length} av {allTasks.length} oppgaver
           </p>
 
           {/* Task list */}
@@ -432,6 +437,12 @@ export default function Tasks() {
                             <Eye className="h-3 w-3" />
                             {task.source}
                           </span>
+                          {(task as any).collaborators?.length > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              +{(task as any).collaborators.length} deltaker{(task as any).collaborators.length > 1 ? "e" : ""}
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -603,6 +614,18 @@ export default function Tasks() {
             laraSuggestion="Hjelp meg med å prioritere oppgavene mine"
           />
         </div>
+
+        <CreateTaskDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+          currentUser={currentUser}
+          onTaskCreated={(task) => {
+            setManualTasks((prev) => [task, ...prev]);
+            toast.success(`Oppgave «${task.title}» opprettet`, {
+              description: "Oppgaven er lagt til øverst i listen.",
+            });
+          }}
+        />
       </main>
     </div>
   );
