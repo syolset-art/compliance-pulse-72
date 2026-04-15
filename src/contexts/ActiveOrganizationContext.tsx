@@ -34,37 +34,24 @@ export function ActiveOrganizationProvider({ children }: { children: React.React
   const fetchOrganizations = useCallback(async () => {
     setLoading(true);
     try {
-      const [companyRes, mspRes] = await Promise.all([
-        supabase.from("company_profile").select("id, name, org_number"),
-        supabase.from("msp_customers").select("id, customer_name, org_number"),
-      ]);
+      const { data } = await supabase.from("company_profile").select("id, name, org_number");
 
-      const ownOrgs: Organization[] = (companyRes.data || []).map((c) => ({
+      const orgs: Organization[] = (data || []).map((c) => ({
         id: c.id,
         name: c.name,
         type: "own" as const,
         orgNumber: c.org_number,
       }));
 
-      const partnerOrgs: Organization[] = (mspRes.data || []).map((m) => ({
-        id: m.id,
-        name: m.customer_name,
-        type: "partner" as const,
-        orgNumber: m.org_number,
-      }));
+      setOrganizations(orgs);
 
-      const all = [...ownOrgs, ...partnerOrgs];
-      setOrganizations(all);
-
-      // Restore from localStorage or default to first own org
       const storedId = localStorage.getItem("activeOrgId");
-      const restored = all.find((o) => o.id === storedId);
+      const restored = orgs.find((o) => o.id === storedId);
       if (restored) {
         setActiveOrgState(restored);
-      } else if (all.length > 0) {
-        const defaultOrg = ownOrgs[0] || all[0];
-        setActiveOrgState(defaultOrg);
-        localStorage.setItem("activeOrgId", defaultOrg.id);
+      } else if (orgs.length > 0) {
+        setActiveOrgState(orgs[0]);
+        localStorage.setItem("activeOrgId", orgs[0].id);
       }
     } catch (e) {
       console.error("Failed to fetch organizations", e);

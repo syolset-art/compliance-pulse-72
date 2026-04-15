@@ -13,7 +13,6 @@ export function OrganizationSwitcher() {
   const [addOrgOpen, setAddOrgOpen] = useState(false);
 
   const ownOrgs = organizations.filter((o) => o.type === "own");
-  const partnerOrgs = organizations.filter((o) => o.type === "partner");
 
   if (loading || !activeOrg) {
     return (
@@ -48,57 +47,24 @@ export function OrganizationSwitcher() {
 
         {listOpen && (
           <div className="mt-1 ml-2 space-y-0.5 animate-fade-in">
-            {ownOrgs.length > 0 && (
-              <>
-                <p className="px-3 pt-2 pb-1 text-[11px] font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
-                  {isNb ? "Mine virksomheter" : "My organizations"}
-                </p>
-                {ownOrgs.map((org) => {
-                  const isActive = activeOrg.id === org.id;
-                  return (
-                    <button
-                      key={org.id}
-                      onClick={() => { setActiveOrg(org); setListOpen(false); }}
-                      className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      {isActive ? <Check className="h-3 w-3 text-primary flex-shrink-0" /> : <span className="h-3 w-3 flex-shrink-0" />}
-                      <span className="truncate">{org.name}</span>
-                    </button>
-                  );
-                })}
-              </>
-            )}
-
-            {partnerOrgs.length > 0 && (
-              <>
-                <p className="px-3 pt-3 pb-1 text-[11px] font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
-                  {isNb ? "Partnerkunder" : "Partner customers"}
-                </p>
-                {partnerOrgs.map((org) => {
-                  const isActive = activeOrg.id === org.id;
-                  return (
-                    <button
-                      key={org.id}
-                      onClick={() => { setActiveOrg(org); setListOpen(false); }}
-                      className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      {isActive ? <Check className="h-3 w-3 text-primary flex-shrink-0" /> : <span className="h-3 w-3 flex-shrink-0" />}
-                      <span className="truncate">{org.name}</span>
-                    </button>
-                  );
-                })}
-              </>
-            )}
+            {ownOrgs.map((org) => {
+              const isActive = activeOrg.id === org.id;
+              return (
+                <button
+                  key={org.id}
+                  onClick={() => { setActiveOrg(org); setListOpen(false); }}
+                  className={cn(
+                    "flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
+                    isActive
+                      ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                  )}
+                >
+                  {isActive ? <Check className="h-3 w-3 text-primary flex-shrink-0" /> : <span className="h-3 w-3 flex-shrink-0" />}
+                  <span className="truncate">{org.name}</span>
+                </button>
+              );
+            })}
 
             <div className="border-t border-sidebar-border my-1.5" />
             <button
