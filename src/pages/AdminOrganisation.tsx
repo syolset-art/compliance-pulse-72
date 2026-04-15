@@ -3,12 +3,13 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Hash, Factory, Users, Layers, Monitor, UserCheck, ChevronRight, Scale, Shield, CheckCircle2, Eye, Clock } from "lucide-react";
+import { Building2, Hash, Factory, Users, Layers, Monitor, UserCheck, ChevronRight, Scale, Shield, CheckCircle2, Eye, Clock, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 interface OrgData {
   name: string;
@@ -382,6 +383,34 @@ export default function AdminOrganisation() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Arbeidsområder section — only if module-systems is active */}
+      {isServiceActive("module-systems") && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+              <div className="flex items-center gap-3">
+                <Settings className="h-6 w-6 text-primary flex-shrink-0" />
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">{isNb ? "Arbeidsområder" : "Work Areas"}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isNb
+                      ? "Administrer arbeidsområder, prosesser og ansvar i virksomheten."
+                      : "Manage work areas, processes and responsibilities in the organization."}
+                  </p>
+                </div>
+              </div>
+              <Button variant="outline" onClick={() => navigate("/work-areas/manage")} className="gap-1.5">
+                {isNb ? "Administrer" : "Manage"}
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3">
+              {isNb ? "Aktive arbeidsområder:" : "Active work areas:"} <strong>{stats.activeWorkAreas}</strong>
+            </p>
+          </CardContent>
+        </Card>
+      )
     </div>
   );
 
