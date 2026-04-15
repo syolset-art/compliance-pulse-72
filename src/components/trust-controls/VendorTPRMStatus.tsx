@@ -369,6 +369,9 @@ export const VendorTPRMStatus = ({
                         {openTasks.map((task) => {
                           const isHighlighted = highlightedTaskId === task.id;
                           const isDbTask = !task.isControlTask;
+                          const controlKey = task.id.replace("ctrl-", "");
+                          const isDocumentTask = task.isControlTask && DOCUMENT_CONTROL_KEYS.has(controlKey);
+                          const isExpanded = expandedTaskId === task.id;
                           const priorityBorder =
                             task.priority === "high" || task.priority === "critical"
                               ? "border-l-destructive"
@@ -379,6 +382,8 @@ export const VendorTPRMStatus = ({
                           const handleCheck = () => {
                             if (isDbTask && onTaskStatusChange) {
                               onTaskStatusChange(task.id, "completed");
+                            } else if (isDocumentTask) {
+                              setExpandedTaskId(isExpanded ? null : task.id);
                             } else {
                               toast.info(
                                 isNb
@@ -392,53 +397,109 @@ export const VendorTPRMStatus = ({
                             <div
                               key={task.id}
                               id={`task-${task.id}`}
-                              className={`flex items-start gap-3 p-3 rounded-lg border-l-4 transition-all duration-500 ${priorityBorder} ${
+                              className={`rounded-lg border-l-4 transition-all duration-500 ${priorityBorder} ${
                                 isHighlighted
                                   ? "bg-primary/10 ring-2 ring-primary/40"
                                   : "bg-background/60 border border-border border-l-4"
                               }`}
                             >
-                              <Checkbox
-                                checked={task.status === "completed"}
-                                onCheckedChange={handleCheck}
-                                className="mt-0.5 shrink-0"
-                                aria-label={`${isNb ? "Marker som utført" : "Mark as completed"}: ${task.title}`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-xs font-medium text-foreground">{task.title}</span>
-                                  {task.isControlTask && (
-                                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 gap-0.5">
-                                      <Shield className="h-2.5 w-2.5" />
-                                      {isNb ? "Kontroll" : "Control"}
-                                    </Badge>
+                              <div className="flex items-start gap-3 p-3">
+                                <Checkbox
+                                  checked={task.status === "completed"}
+                                  onCheckedChange={handleCheck}
+                                  className="mt-0.5 shrink-0"
+                                  aria-label={`${isNb ? "Marker som utført" : "Mark as completed"}: ${task.title}`}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-medium text-foreground">{task.title}</span>
+                                    {task.isControlTask && (
+                                      <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 gap-0.5">
+                                        <Shield className="h-2.5 w-2.5" />
+                                        {isNb ? "Kontroll" : "Control"}
+                                      </Badge>
+                                    )}
+                                    {(task.priority === "high" || task.priority === "critical") && (
+                                      <Badge variant="destructive" className="text-[10px] h-4">
+                                        {isNb ? "Høy" : "High"}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {task.action && (
+                                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                                      {task.action}
+                                    </p>
                                   )}
-                                  {(task.priority === "high" || task.priority === "critical") && (
-                                    <Badge variant="destructive" className="text-[10px] h-4">
-                                      {isNb ? "Høy" : "High"}
-                                    </Badge>
-                                  )}
+                                  <div className="flex items-center gap-1 mt-1 text-[11px] text-muted-foreground">
+                                    <User className="h-3 w-3" />
+                                    <span>{responsiblePerson || (isNb ? "Ikke tildelt" : "Not assigned")}</span>
+                                  </div>
                                 </div>
-                                {task.action && (
-                                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                                    {task.action}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-1 mt-1 text-[11px] text-muted-foreground">
-                                  <User className="h-3 w-3" />
-                                  <span>{responsiblePerson || (isNb ? "Ikke tildelt" : "Not assigned")}</span>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {isDocumentTask && (
+                                    <Button
+                                      size="sm"
+                                      variant={isExpanded ? "secondary" : "outline"}
+                                      className="h-6 text-[11px] gap-1"
+                                      onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                                    >
+                                      <Upload className="h-3 w-3" />
+                                      {isNb ? "Last opp" : "Upload"}
+                                    </Button>
+                                  )}
+                                  {task.ctaLabel && task.targetTab && onNavigateToTab && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-6 text-[11px] gap-1 whitespace-nowrap"
+                                      onClick={() => onNavigateToTab(task.targetTab!)}
+                                    >
+                                      {task.ctaLabel}
+                                      <ArrowRight className="h-3 w-3" />
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
-                              {task.ctaLabel && task.targetTab && onNavigateToTab && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-6 text-[11px] gap-1 shrink-0 whitespace-nowrap"
-                                  onClick={() => onNavigateToTab(task.targetTab!)}
-                                >
-                                  {task.ctaLabel}
-                                  <ArrowRight className="h-3 w-3" />
-                                </Button>
+
+                              {/* Inline upload panel */}
+                              {isExpanded && isDocumentTask && (
+                                <div className="px-3 pb-3 pt-0 border-t border-border/50 mt-0">
+                                  <div className="mt-2 p-3 rounded-md bg-muted/40 border border-dashed border-border">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span className="text-[11px] font-medium text-foreground">
+                                        {isNb ? "Last opp dokumentasjon som bevis" : "Upload documentation as evidence"}
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] text-muted-foreground mb-3">
+                                      {isNb
+                                        ? "Velg en fil (PDF, DOCX, XLSX, bilde) for å verifisere denne kontrollen."
+                                        : "Select a file (PDF, DOCX, XLSX, image) to verify this control."}
+                                    </p>
+                                    <input
+                                      ref={fileInputRef}
+                                      type="file"
+                                      className="hidden"
+                                      accept=".pdf,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg"
+                                      onChange={handleFileChange}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      className="h-7 text-xs gap-1.5"
+                                      disabled={uploadEvidenceMutation.isPending}
+                                      onClick={() => {
+                                        setUploadTargetTaskId(task.id);
+                                        fileInputRef.current?.click();
+                                      }}
+                                    >
+                                      <Upload className="h-3 w-3" />
+                                      {uploadEvidenceMutation.isPending && uploadTargetTaskId === task.id
+                                        ? (isNb ? "Laster opp…" : "Uploading…")
+                                        : (isNb ? "Velg fil" : "Choose file")}
+                                    </Button>
+                                  </div>
+                                </div>
                               )}
                             </div>
                           );
