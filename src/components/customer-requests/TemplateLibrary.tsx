@@ -37,8 +37,8 @@ export function TemplateLibrary() {
         </h3>
         <p className="text-xs text-muted-foreground max-w-sm mx-auto">
           {isNb
-            ? "Når du laster opp et dokument i «Send forespørsel»-wizarden, kan du velge å lagre det som en mal for gjenbruk."
-            : "When you upload a document in the Send Request wizard, you can choose to save it as a reusable template."}
+            ? "Når du laster opp et dokument i «Send melding»-wizarden, kan du velge å lagre det som en mal for gjenbruk."
+            : "When you upload a document in the Send message wizard, you can choose to save it as a reusable template."}
         </p>
       </div>
     );
