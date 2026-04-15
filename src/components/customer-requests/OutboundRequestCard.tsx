@@ -11,7 +11,7 @@ export interface OutboundRequest {
   vendor_name: string;
   vendor_category?: string;
   request_type: string;
-  status: "sent" | "awaiting" | "received" | "overdue";
+  status: "sent" | "awaiting" | "received" | "overdue" | "archived";
   due_date: string;
   sent_date: string;
   response_date?: string;
@@ -50,6 +50,8 @@ function getStatusConfig(status: string, isNb: boolean) {
       return { label: isNb ? "Venter på svar" : "Awaiting reply", className: "bg-amber-500/15 text-amber-700 border-amber-500/30", icon: Clock };
     case "overdue":
       return { label: isNb ? "Forfalt" : "Overdue", className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertTriangle };
+    case "archived":
+      return { label: isNb ? "Arkivert" : "Archived", className: "bg-muted text-muted-foreground border-muted", icon: Archive };
     case "sent":
     default:
       return { label: isNb ? "Sendt" : "Sent", className: "bg-blue-500/15 text-blue-700 border-blue-500/30", icon: Send };
