@@ -2,18 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
-
-const PLAN_CREDITS: Record<string, number> = {
-  free: 10,
-  basis: 100,
-  premium: 300,
-  enterprise: 999999,
-};
+import { BASE_FREE_CREDITS, CREDIT_PACKAGES, MODULES, type ModuleId } from "@/lib/planConstants";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 export function useCredits() {
   const queryClient = useQueryClient();
-  const { companyProfile, currentTier } = useSubscription();
-  const monthlyAllowance = PLAN_CREDITS[currentTier] ?? 10;
+  const { companyProfile } = useSubscription();
+  const { isServiceActive } = useActivatedServices();
+
+  // Calculate monthly allowance from base + active modules
+  const baseCredits = BASE_FREE_CREDITS;
+  const moduleBonusCredits =
+    (isServiceActive("module-systems") ? MODULES.systems.bonusCredits : 0) +
+    (isServiceActive("module-vendors") ? MODULES.vendors.bonusCredits : 0);
+  const monthlyAllowance = baseCredits + moduleBonusCredits;
 
   const { data: credits, isLoading } = useQuery({
     queryKey: ["company-credits", companyProfile?.id],
@@ -69,24 +71,22 @@ export function useCredits() {
   const percentUsed = monthlyAllowance > 0
     ? Math.round(((monthlyAllowance - balance) / monthlyAllowance) * 100)
     : 0;
-  const percentRemaining = 100 - percentUsed;
+  const percentRemaining = Math.max(0, 100 - percentUsed);
   const isLow = percentRemaining <= 20 && percentRemaining > 0;
   const isExhausted = balance <= 0;
-  const isUnlimited = currentTier === "enterprise";
+  const isUnlimited = false; // No more enterprise unlimited concept
 
   const deductMutation = useMutation({
     mutationFn: async ({ amount, description }: { amount: number; description: string }) => {
       if (!companyProfile?.id) throw new Error("No company");
       const newBalance = Math.max(0, balance - amount);
-      
-      // Update balance
+
       const { error: updateErr } = await supabase
         .from("company_credits")
         .update({ balance: newBalance })
         .eq("company_id", companyProfile.id);
       if (updateErr) throw updateErr;
 
-      // Log transaction
       const { error: txErr } = await supabase
         .from("credit_transactions")
         .insert({
@@ -104,8 +104,42 @@ export function useCredits() {
       queryClient.invalidateQueries({ queryKey: ["company-credits"] });
       queryClient.invalidateQueries({ queryKey: ["credit-transactions"] });
       if (newBalance <= (monthlyAllowance * 0.2)) {
-        toast.warning("Du har lite credits igjen. Vurder å oppgradere planen din.");
+        toast.warning("Du har lite credits igjen. Vurder å kjøpe flere.");
       }
+    },
+  });
+
+  const purchaseMutation = useMutation({
+    mutationFn: async (packageId: string) => {
+      if (!companyProfile?.id) throw new Error("No company");
+      const pkg = CREDIT_PACKAGES.find((p) => p.id === packageId);
+      if (!pkg) throw new Error("Unknown package");
+
+      const newBalance = balance + pkg.credits;
+
+      const { error: updateErr } = await supabase
+        .from("company_credits")
+        .update({ balance: newBalance })
+        .eq("company_id", companyProfile.id);
+      if (updateErr) throw updateErr;
+
+      const { error: txErr } = await supabase
+        .from("credit_transactions")
+        .insert({
+          company_id: companyProfile.id,
+          amount: pkg.credits,
+          balance_after: newBalance,
+          transaction_type: "purchase",
+          description: `Kjøpt ${pkg.name}-pakke (${pkg.credits} credits)`,
+        });
+      if (txErr) throw txErr;
+
+      return newBalance;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-credits"] });
+      queryClient.invalidateQueries({ queryKey: ["credit-transactions"] });
+      toast.success("Credits lagt til!");
     },
   });
 
@@ -122,5 +156,8 @@ export function useCredits() {
     deductCredits: (amount: number, description: string) =>
       deductMutation.mutateAsync({ amount, description }),
     isDeducting: deductMutation.isPending,
+    purchaseCredits: (packageId: string) =>
+      purchaseMutation.mutateAsync(packageId),
+    isPurchasing: purchaseMutation.isPending,
   };
 }

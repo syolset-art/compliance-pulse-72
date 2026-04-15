@@ -2,16 +2,16 @@ import { useCredits } from "@/hooks/useCredits";
 import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useNavigate } from "react-router-dom";
 
 export function CreditIndicator() {
-  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, isUnlimited, isLoading } = useCredits();
+  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, isLoading } = useCredits();
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNb = i18n.language === "nb";
 
   if (isLoading) return null;
-  if (isUnlimited) return null;
 
   const barColor = isExhausted
     ? "bg-destructive"
@@ -22,7 +22,10 @@ export function CreditIndicator() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="px-4 py-3 border-t border-sidebar-border">
+        <button
+          onClick={() => navigate("/subscriptions")}
+          className="w-full px-4 py-3 border-t border-sidebar-border hover:bg-sidebar-accent/50 transition-colors text-left"
+        >
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-sidebar-foreground/60" />
@@ -32,7 +35,7 @@ export function CreditIndicator() {
               "text-xs font-semibold",
               isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-sidebar-foreground/70"
             )}>
-              {balance}/{monthlyAllowance}
+              {balance}
             </span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-sidebar-accent overflow-hidden">
@@ -41,13 +44,18 @@ export function CreditIndicator() {
               style={{ width: `${Math.max(percentRemaining, 2)}%` }}
             />
           </div>
-        </div>
+          {isExhausted && (
+            <p className="text-[10px] text-destructive mt-1 font-medium">
+              {isNb ? "Kjøp flere credits" : "Buy more credits"}
+            </p>
+          )}
+        </button>
       </TooltipTrigger>
       <TooltipContent side="right">
         <p className="text-xs">
           {isNb
-            ? `${balance} av ${monthlyAllowance} credits gjenstår denne måneden`
-            : `${balance} of ${monthlyAllowance} credits remaining this month`}
+            ? `${balance} credits tilgjengelig · Klikk for å kjøpe flere`
+            : `${balance} credits available · Click to buy more`}
         </p>
       </TooltipContent>
     </Tooltip>

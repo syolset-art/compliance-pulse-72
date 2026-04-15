@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 import {
   PLAN_TIERS,
   FRAMEWORK_ADDONS,
@@ -56,6 +57,7 @@ export const DOMAIN_ADDON_PRICES: Record<string, number> = {
 
 export function useSubscription() {
   const queryClient = useQueryClient();
+  const { isServiceActive } = useActivatedServices();
 
   const { data: plans } = useQuery({
     queryKey: ["subscription-plans"],
@@ -140,6 +142,13 @@ export function useSubscription() {
     (subscription?.billing_interval as BillingInterval) || "monthly";
   const tierConfig = PLAN_TIERS[currentTier];
 
+  // Module access based on activated services
+  const systemsActive = isServiceActive("module-systems");
+  const vendorsActive = isServiceActive("module-vendors");
+
+  const maxSystems = systemsActive ? 70 : 5;
+  const maxVendors = vendorsActive ? 70 : 5;
+
   // Onboarding use_cases mapping
   const useCases = companyProfile?.use_cases ?? [];
   const selectedCoreAtOnboarding = useCases.some((uc: string) =>
@@ -149,13 +158,13 @@ export function useSubscription() {
     ["vendors", "security"].includes(uc)
   );
 
-  // Access: paid OR selected at onboarding (free tier still gets limited access)
-  const hasCoreAccess = currentTier !== "free" || selectedCoreAtOnboarding;
-  const hasRegistriesAccess = currentTier !== "free" || selectedRegistriesAtOnboarding;
-  const hasModule = (moduleId: "systems" | "vendors"): boolean => currentTier !== "free";
+  const hasCoreAccess = systemsActive || selectedCoreAtOnboarding;
+  const hasRegistriesAccess = vendorsActive || selectedRegistriesAtOnboarding;
+  const hasModule = (moduleId: "systems" | "vendors"): boolean =>
+    isServiceActive(`module-${moduleId}`);
 
-  // Whether user needs upgrade (on free tier, regardless of onboarding choice)
-  const needsUpgrade = (moduleId: ModuleId): boolean => currentTier === "free";
+  const needsUpgrade = (moduleId: ModuleId): boolean =>
+    !isServiceActive(`module-${moduleId}`);
 
   const isDomainIncluded = (domainId: string): boolean => {
     const planIncludes =
@@ -212,10 +221,10 @@ export function useSubscription() {
     currentTier,
     billingInterval,
     tierConfig,
-    maxSystems: tierConfig.maxSystems,
-    maxVendors: tierConfig.maxVendors,
-    canAddSystem: (count: number) => count < tierConfig.maxSystems,
-    canAddVendor: (count: number) => count < tierConfig.maxVendors,
+    maxSystems,
+    maxVendors,
+    canAddSystem: (count: number) => count < maxSystems,
+    canAddVendor: (count: number) => count < maxVendors,
     // Access helpers
     hasCoreAccess,
     hasRegistriesAccess,

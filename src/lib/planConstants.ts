@@ -1,25 +1,39 @@
-// ─── Unified module-based pricing model ──────────────────────────────
+// ─── Credits-first business model ────────────────────────────────────
 
 export type BillingInterval = "monthly" | "yearly";
-
-export type ModuleTier = "basis" | "premium";
 
 export type PlanTier = "free" | "basis" | "premium" | "enterprise";
 
 export type ModuleId = "systems" | "vendors";
 
+// ─── Credit packages (one-time purchases) ────────────────────────────
+
+export interface CreditPackage {
+  id: string;
+  name: string;
+  credits: number;
+  priceKr: number;
+  popular?: boolean;
+}
+
+export const CREDIT_PACKAGES: CreditPackage[] = [
+  { id: "starter", name: "Starter", credits: 100, priceKr: 490 },
+  { id: "standard", name: "Standard", credits: 300, priceKr: 990, popular: true },
+  { id: "pro", name: "Pro", credits: 800, priceKr: 1990 },
+];
+
+// ─── Modules (optional monthly packages) ─────────────────────────────
+
 export interface ModuleDefinition {
   id: ModuleId;
   displayName: string;
   description: string;
-  tiers: Record<ModuleTier, ModuleTierConfig>;
-}
-
-export interface ModuleTierConfig {
-  maxItems: number;
-  monthly: number; // kr
-  yearly: number;  // kr
+  monthlyPriceKr: number;
+  yearlyPriceKr: number;
+  bonusCredits: number;
   features: string[];
+  freeLimit: number;
+  paidLimit: number;
 }
 
 export const MODULES: Record<ModuleId, ModuleDefinition> = {
@@ -27,69 +41,41 @@ export const MODULES: Record<ModuleId, ModuleDefinition> = {
     id: "systems",
     displayName: "Mynder Core",
     description: "Kjerneplattformen med systemer, arbeidsområder, oppgaver, risikovurdering og compliance-oversikt",
-    tiers: {
-      basis: {
-        maxItems: 20,
-        monthly: 1490,
-        yearly: 14900,
-        features: [
-          "Inntil 20 systemer",
-          "Arbeidsområder",
-          "Oppgaver",
-          "Risikovurdering",
-          "Compliance-oversikt",
-        ],
-      },
-      premium: {
-        maxItems: 70,
-        monthly: 2490,
-        yearly: 24900,
-        features: [
-          "Inntil 70 systemer",
-          "Arbeidsområder",
-          "Oppgaver",
-          "Risikovurdering",
-          "Compliance-oversikt",
-          "Prioritert support",
-        ],
-      },
-    },
+    monthlyPriceKr: 490,
+    yearlyPriceKr: 4900,
+    bonusCredits: 50,
+    freeLimit: 5,
+    paidLimit: 70,
+    features: [
+      "Ubegrenset systemer",
+      "Arbeidsområder",
+      "Oppgaver og aktiviteter",
+      "Risikovurdering",
+      "Compliance-oversikt",
+      "+50 credits/mnd inkludert",
+    ],
   },
   vendors: {
     id: "vendors",
-    displayName: "Leverandør (tillegg)",
-    description: "Valgfri tilleggsmodul for leverandørstyring, DPA-sporing, risikoanalyse og varsler",
-    tiers: {
-      basis: {
-        maxItems: 20,
-        monthly: 1490,
-        yearly: 14900,
-        features: [
-          "Inntil 20 leverandører",
-          "Automatisk DPA-sporing",
-          "Risikoanalyse",
-          "Compliance-scoring",
-          "Varsler ved utløp",
-        ],
-      },
-      premium: {
-        maxItems: 70,
-        monthly: 2490,
-        yearly: 24900,
-        features: [
-          "Inntil 70 leverandører",
-          "Automatisk DPA-sporing",
-          "Risikoanalyse",
-          "Compliance-scoring",
-          "Varsler ved utløp",
-          "Prioritert support",
-        ],
-      },
-    },
+    displayName: "Leverandørstyring",
+    description: "Komplett leverandørstyring med DPA-sporing, risikoanalyse, compliance-scoring og varsler",
+    monthlyPriceKr: 490,
+    yearlyPriceKr: 4900,
+    bonusCredits: 50,
+    freeLimit: 5,
+    paidLimit: 70,
+    features: [
+      "Ubegrenset leverandører",
+      "Automatisk DPA-sporing",
+      "Risikoanalyse",
+      "Compliance-scoring",
+      "Varsler ved utløp",
+      "+50 credits/mnd inkludert",
+    ],
   },
 };
 
-// ─── Legacy PlanTier support (for backward compat) ──────────────────
+// ─── Legacy PlanTier support (backward compat) ──────────────────────
 
 export interface PlanDefinition {
   id: PlanTier;
@@ -152,6 +138,19 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
 
 export const ORDERED_TIERS: PlanTier[] = ["free", "basis", "premium", "enterprise"];
 
+// ─── Base free package ───────────────────────────────────────────────
+
+export const BASE_FREE_CREDITS = 10;
+
+export const FREE_INCLUSIONS = [
+  "Trust Center (alle undermenyer)",
+  "GDPR regelverk",
+  "ISO 27001 regelverk",
+  "10 credits/mnd",
+  "Inntil 5 systemer",
+  "Inntil 5 leverandører",
+] as const;
+
 // ─── Framework add-on pricing ────────────────────────────────────────
 
 export const FREE_FRAMEWORKS = ["gdpr", "iso27001"] as const;
@@ -208,26 +207,16 @@ export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
   },
 };
 
-// ─── Free inclusions ─────────────────────────────────────────────────
-
-export const FREE_INCLUSIONS = [
-  "Trust Center (alle undermenyer)",
-  "GDPR regelverk",
-  "ISO 27001 regelverk",
-  "Inntil 5 systemer",
-  "Inntil 5 leverandører",
-] as const;
-
 // ─── Helper functions ────────────────────────────────────────────────
 
-export function getModulePrice(moduleId: ModuleId, tier: ModuleTier, interval: BillingInterval): number {
-  const config = MODULES[moduleId].tiers[tier];
-  return interval === "yearly" ? config.yearly : config.monthly;
+export function getModulePrice(moduleId: ModuleId, interval: BillingInterval): number {
+  const mod = MODULES[moduleId];
+  return interval === "yearly" ? mod.yearlyPriceKr : mod.monthlyPriceKr;
 }
 
-export function getModuleAnnualSavingsKr(moduleId: ModuleId, tier: ModuleTier): number {
-  const config = MODULES[moduleId].tiers[tier];
-  return config.monthly * 2; // 2 months free
+export function getModuleAnnualSavingsKr(moduleId: ModuleId): number {
+  const mod = MODULES[moduleId];
+  return mod.monthlyPriceKr * 2; // 2 months free on yearly
 }
 
 export function getPlanPrice(tier: PlanTier, interval: BillingInterval): number {
