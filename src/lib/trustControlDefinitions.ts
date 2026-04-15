@@ -438,6 +438,38 @@ export function groupControlsByArea(controls: EvaluatedControl[]): Record<Contro
 }
 
 /**
+ * Apply evidence-based penalties to evaluated controls.
+ * If evidence is expired → control becomes "missing".
+ * If evidence is stale → control becomes at most "partial".
+ */
+export function applyEvidencePenalties(
+  controls: EvaluatedControl[],
+  evidenceChecks: Array<{ control_key: string; status: string }>
+): EvaluatedControl[] {
+  const penaltyMap = new Map<string, string>();
+  for (const check of evidenceChecks) {
+    const existing = penaltyMap.get(check.control_key);
+    // Keep the worst status per control key
+    if (!existing || check.status === "expired" || (check.status === "stale" && existing === "fresh")) {
+      penaltyMap.set(check.control_key, check.status);
+    }
+  }
+
+  return controls.map((control) => {
+    const penalty = penaltyMap.get(control.key);
+    if (!penalty) return control;
+
+    if (penalty === "expired") {
+      return { ...control, status: "missing" as TrustControlStatus };
+    }
+    if (penalty === "stale" && control.status === "implemented") {
+      return { ...control, status: "partial" as TrustControlStatus };
+    }
+    return control;
+  });
+}
+
+/**
  * Navigation map: control key → profile tab (or "_header:field" for header-level fields).
  */
 export const CONTROL_NAV_MAP: Record<string, string> = {
