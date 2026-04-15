@@ -890,9 +890,9 @@ export default function WorkAreas() {
 
               <TabsContent value="assets" className="mt-4">
 
-                {/* Category cards grid */}
+                {/* Category filter chips */}
                 <div className="flex items-center justify-between mb-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
+                  <div className="flex flex-wrap gap-1.5 flex-1">
                     {[
                       { key: "system", icon: Server, label: "Systemer", enabled: true },
                       { key: "vendor", icon: Building2, label: "Leverandører", enabled: true },
@@ -903,29 +903,26 @@ export default function WorkAreas() {
                       const count = allAssets.filter(a => a.asset_type === key).length;
                       const isSelected = assetTypeFilter === key;
                       return (
-                        <div
+                        <button
                           key={key}
+                          disabled={!enabled}
                           className={cn(
-                            "flex flex-col items-center p-3 border rounded-lg transition-all duration-150",
+                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all border",
                             enabled
                               ? isSelected
-                                ? "border-primary bg-primary/5 shadow-sm cursor-pointer"
-                                : "border-border hover:border-primary/50 cursor-pointer"
-                              : "opacity-50 cursor-not-allowed border-border"
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                              : "opacity-40 cursor-not-allowed border-border text-muted-foreground"
                           )}
                           onClick={() => {
                             if (!enabled) return;
                             setAssetTypeFilter(isSelected ? "all" : key);
                           }}
                         >
-                          <Icon className={cn("h-5 w-5 mb-1.5", isSelected ? "text-primary" : "text-muted-foreground")} />
-                          <span className="text-xs font-medium">{label}</span>
-                          {enabled ? (
-                            <span className="text-xs text-muted-foreground">{count}</span>
-                          ) : (
-                            <span className="text-[13px] text-muted-foreground">Kommer</span>
-                          )}
-                        </div>
+                          <Icon className="h-3 w-3" />
+                          {label}
+                          {enabled && <span className="text-[11px] opacity-70">{count}</span>}
+                        </button>
                       );
                     })}
                   </div>
