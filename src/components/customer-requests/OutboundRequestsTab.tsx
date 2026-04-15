@@ -70,14 +70,21 @@ function saveOutboundRequests(requests: OutboundRequest[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
 }
 
-export function OutboundRequestsTab() {
+interface OutboundRequestsTabProps {
+  wizardOpen?: boolean;
+  onWizardOpenChange?: (open: boolean) => void;
+}
+
+export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOpenChange }: OutboundRequestsTabProps = {}) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [requests, setRequests] = useState<OutboundRequest[]>(loadOutboundRequests);
-  const [wizardOpen, setWizardOpen] = useState(false);
+  const [internalWizardOpen, setInternalWizardOpen] = useState(false);
+  const wizardOpen = externalWizardOpen ?? internalWizardOpen;
+  const setWizardOpen = onWizardOpenChange ?? setInternalWizardOpen;
 
   const filtered = useMemo(() => {
     return requests.filter((r) => {
@@ -184,10 +191,6 @@ export function OutboundRequestsTab() {
             <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={() => setWizardOpen(true)} className="gap-1.5 ml-auto">
-          <Plus className="h-4 w-4" />
-          {isNb ? "Ny melding" : "New message"}
-        </Button>
       </div>
 
       {/* List */}
