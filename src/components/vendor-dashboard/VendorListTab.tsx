@@ -81,9 +81,10 @@ interface VendorListTabProps {
   allAssets: Asset[];
   relationships: { source_asset_id: string; target_asset_id: string }[];
   onDelete: (id: string) => void;
+  newlyAddedId?: string | null;
 }
 
-export function VendorListTab({ vendors, allAssets, relationships, onDelete }: VendorListTabProps) {
+export function VendorListTab({ vendors, allAssets, relationships, onDelete, newlyAddedId }: VendorListTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
