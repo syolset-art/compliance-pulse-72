@@ -95,7 +95,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
     return requests.filter((r) => {
       const matchesSearch = !search || r.vendor_name.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "all" || r.request_type === typeFilter;
-      const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+      const matchesStatus = statusFilter === "all" ? r.status !== "archived" : r.status === statusFilter;
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [requests, search, typeFilter, statusFilter]);
@@ -139,7 +139,7 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
   };
 
   const handleArchive = (id: string) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
+    setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "archived" as const } : r));
     toast.success(isNb ? "Melding arkivert" : "Message archived");
   };
 
@@ -188,11 +188,12 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{isNb ? "Alle" : "All"}</SelectItem>
+            <SelectItem value="all">{isNb ? "Alle aktive" : "All active"}</SelectItem>
             <SelectItem value="sent">{isNb ? "Sendt" : "Sent"}</SelectItem>
             <SelectItem value="awaiting">{isNb ? "Venter på svar" : "Awaiting reply"}</SelectItem>
             <SelectItem value="received">{isNb ? "Mottatt" : "Received"}</SelectItem>
             <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
+            <SelectItem value="archived">{isNb ? "Arkivert" : "Archived"}</SelectItem>
           </SelectContent>
         </Select>
       </div>

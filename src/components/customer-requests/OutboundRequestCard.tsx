@@ -11,7 +11,7 @@ export interface OutboundRequest {
   vendor_name: string;
   vendor_category?: string;
   request_type: string;
-  status: "sent" | "awaiting" | "received" | "overdue";
+  status: "sent" | "awaiting" | "received" | "overdue" | "archived";
   due_date: string;
   sent_date: string;
   response_date?: string;
