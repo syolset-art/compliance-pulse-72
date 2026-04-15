@@ -44,6 +44,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
+import { seedDemoTrustProfile, deleteDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -546,6 +547,37 @@ const SidebarContent = () => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                {/* Framdrift demo */}
+                <button
+                  onClick={async () => {
+                    try {
+                      await seedDemoTrustProfile();
+                      queryClient.invalidateQueries();
+                      toast.success("Framdrift Innovasjon AS er satt opp");
+                    } catch (e: any) {
+                      toast.error(e.message || "Kunne ikke sette opp demo");
+                    }
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  Sett opp Framdrift-demo
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await deleteDemoTrustProfile();
+                      queryClient.invalidateQueries();
+                      toast.success("Framdrift-demo slettet");
+                    } catch (e: any) {
+                      toast.error(e.message || "Kunne ikke slette demo");
+                    }
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Slett Framdrift-demo
+                </button>
                 <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
