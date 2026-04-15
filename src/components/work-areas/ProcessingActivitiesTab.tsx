@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Select,
   SelectContent,
@@ -149,78 +150,41 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
 
   return (
     <div className="space-y-4">
-      {/* Actions bar */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={
-              selectedRecords.length === filteredProcesses.length &&
-              filteredProcesses.length > 0
-            }
-            onCheckedChange={toggleSelectAll}
-          />
-          <span className="text-sm text-muted-foreground">Velg alle</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* View toggle */}
-          <div className="flex border border-border rounded-md">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 px-2 rounded-r-none",
-                viewMode === "cards" && "bg-muted"
-              )}
-              onClick={() => setViewMode("cards")}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 px-2 rounded-l-none",
-                viewMode === "table" && "bg-muted"
-              )}
-              onClick={() => setViewMode("table")}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={selectedRecords.length === 0}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Skriv ut valgte
-          </Button>
-          <Button
-            size="sm"
-            className="gap-2"
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Legg til
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
+      {/* Toolbar — single row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Søk etter tittel eller formål"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-9"
           />
         </div>
+
+        {/* View toggle */}
+        <div className="flex border border-border rounded-md">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-8 px-2 rounded-r-none", viewMode === "cards" && "bg-muted")}
+            onClick={() => setViewMode("cards")}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-8 px-2 rounded-l-none", viewMode === "table" && "bg-muted")}
+            onClick={() => setViewMode("table")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
+
         <Select value={riskFilter} onValueChange={setRiskFilter}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filtrer etter risikonivå" />
+          <SelectTrigger className="w-[170px]">
+            <SelectValue placeholder="Risiko" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Alle risikonivåer</SelectItem>
@@ -229,6 +193,25 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
             <SelectItem value="high">Høy risiko</SelectItem>
           </SelectContent>
         </Select>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={selectedRecords.length === 0}
+          className="gap-1.5"
+        >
+          <Download className="h-4 w-4" />
+          Skriv ut valgte
+        </Button>
+
+        <Button
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Legg til
+        </Button>
       </div>
 
       {/* Content */}
