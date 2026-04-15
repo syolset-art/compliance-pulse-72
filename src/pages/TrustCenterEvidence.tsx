@@ -200,6 +200,31 @@ const TrustCenterEvidence = () => {
     setApproveDoc(null);
   };
 
+  const openPreview = async (doc: any) => {
+    setPreviewDoc(doc);
+    setPreviewUrl(null);
+    setPreviewLoading(true);
+    try {
+      const { data, error } = await supabase.storage.from("vendor-documents").createSignedUrl(doc.file_path, 3600);
+      if (error) throw error;
+      setPreviewUrl(data.signedUrl);
+    } catch {
+      setPreviewUrl(null);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const isImageFile = (name: string) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name);
+  const isPdfFile = (name: string) => /\.pdf$/i.test(name);
+    if (!approveDoc) return;
+    updateMutation.mutate({
+      id: approveDoc.id,
+      updates: { status: "verified", approved_by: approverName || null, approved_at: new Date().toISOString() },
+    });
+    setApproveDoc(null);
+  };
+
   const saveEdit = () => {
     if (!editDoc) return;
     updateMutation.mutate({
