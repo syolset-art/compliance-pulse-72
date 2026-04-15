@@ -315,10 +315,27 @@ const TrustCenterEvidence = () => {
                   </span>
                   <Switch
                     checked={doc.visibility === "published"}
-                    onCheckedChange={(checked) => updateMutation.mutate({
-                      id: doc.id,
-                      updates: { visibility: checked ? "published" : "hidden" },
-                    })}
+                    onCheckedChange={(checked) => {
+                      const docName = doc.display_name || doc.file_name;
+                      updateMutation.mutate({
+                        id: doc.id,
+                        updates: { visibility: checked ? "published" : "hidden" },
+                      }, {
+                        onSuccess: () => {
+                          if (checked) {
+                            toast.success(
+                              isNb ? `«${docName}» er nå offentlig` : `"${docName}" is now public`,
+                              { description: isNb ? "Dokumentet er synlig i din Trust Profile og kan ses av kunder og partnere." : "The document is visible in your Trust Profile and can be viewed by customers and partners." }
+                            );
+                          } else {
+                            toast(
+                              isNb ? `«${docName}» er nå intern` : `"${docName}" is now private`,
+                              { description: isNb ? "Dokumentet er skjult fra Trust Profile og kun synlig for ditt team." : "The document is hidden from your Trust Profile and only visible to your team." }
+                            );
+                          }
+                        }
+                      });
+                    }}
                     className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
                   />
                 </div>
