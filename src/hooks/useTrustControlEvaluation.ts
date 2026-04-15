@@ -177,6 +177,19 @@ export function useTrustControlEvaluation(assetId: string) {
     enabled: !!assetId,
   });
 
+  const { data: evidenceChecks = [] } = useQuery({
+    queryKey: ["evidence-checks", assetId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("evidence_checks")
+        .select("control_key, status, check_type, last_verified_at, expires_at, staleness_days")
+        .eq("asset_id", assetId);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!assetId,
+  });
+
   return useMemo(() => {
     if (!asset) return null;
 
