@@ -18,6 +18,7 @@ import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHisto
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
+import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
@@ -63,6 +64,7 @@ const Regulations = () => {
   const [initializing, setInitializing] = useState(false);
   const [activatedFramework, setActivatedFramework] = useState<Framework | null>(null);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
+  const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
@@ -180,6 +182,20 @@ const Regulations = () => {
   );
 
   const toggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    const fw = frameworks.find((f) => f.id === frameworkId);
+    if (!fw) return;
+
+    // If activating, show purchase/confirm dialog first
+    if (!currentlyActive) {
+      setPurchaseFramework(fw);
+      return;
+    }
+
+    // Deactivating — proceed directly
+    await executeToggleFramework(frameworkId, currentlyActive);
+  };
+
+  const executeToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
     const existing = selectedFrameworks.find((f) => f.framework_id === frameworkId);
     setUpdating(frameworkId);
     try {
@@ -226,6 +242,13 @@ const Regulations = () => {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handlePurchaseConfirm = async () => {
+    if (!purchaseFramework) return;
+    const fw = purchaseFramework;
+    setPurchaseFramework(null);
+    await executeToggleFramework(fw.id, false);
   };
 
   if (loading) {
