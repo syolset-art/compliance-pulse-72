@@ -485,6 +485,53 @@ const TrustCenterEvidence = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); setPreviewUrl(null); } }}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{previewDoc?.display_name || previewDoc?.file_name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0 overflow-auto">
+            {previewLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : previewUrl && previewDoc ? (
+              isPdfFile(previewDoc.file_name) ? (
+                <iframe src={previewUrl} className="w-full h-[70vh] rounded border" title={previewDoc.display_name || previewDoc.file_name} />
+              ) : isImageFile(previewDoc.file_name) ? (
+                <img src={previewUrl} alt={previewDoc.display_name || previewDoc.file_name} className="max-w-full max-h-[70vh] mx-auto rounded" />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <FolderOpen className="h-12 w-12 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">{isNb ? "Forhåndsvisning ikke tilgjengelig for denne filtypen." : "Preview not available for this file type."}</p>
+                  <Button asChild>
+                    <a href={previewUrl} download={previewDoc.file_name} target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4 mr-1.5" />
+                      {isNb ? "Last ned" : "Download"}
+                    </a>
+                  </Button>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 gap-2">
+                <p className="text-sm text-muted-foreground">{isNb ? "Kunne ikke laste filen." : "Could not load the file."}</p>
+              </div>
+            )}
+          </div>
+          {previewUrl && previewDoc && (isPdfFile(previewDoc.file_name) || isImageFile(previewDoc.file_name)) && (
+            <DialogFooter>
+              <Button variant="outline" asChild>
+                <a href={previewUrl} download={previewDoc.file_name} target="_blank" rel="noopener noreferrer">
+                  <Download className="h-4 w-4 mr-1.5" />
+                  {isNb ? "Last ned" : "Download"}
+                </a>
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
