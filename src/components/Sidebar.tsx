@@ -218,6 +218,7 @@ const SidebarContent = () => {
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [addOrgOpen, setAddOrgOpen] = useState(false);
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
