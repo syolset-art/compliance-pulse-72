@@ -261,7 +261,7 @@ export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { addons, activateAddon, currentTier } = useSubscription();
-  const { isServiceActive } = useActivatedServices();
+  const { isServiceActive, activateService } = useActivatedServices();
 
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [editFrameworksOpen, setEditFrameworksOpen] = useState(false);
