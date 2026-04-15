@@ -1,73 +1,57 @@
 
 
-## Forbedre aktivitetslisten — klarere oppgaver med status og avhuking
+## Snu flyten: Last opp først, la AI klassifisere automatisk
 
-### Problemet (fra bildet)
+### Nåværende flyt
+1. Velg kategori manuelt (policy / sertifisering / dokument)
+2. Fyll inn detaljer manuelt
+3. Last opp fil (valgfritt)
+4. Velg synlighet → Lagre
 
-Listen med oppgaver og ventende aktiviteter er vanskelig å forstå:
-- Alle elementer ser like ut — ingen visuell gruppering eller hierarki
-- Ingen mulighet til å markere oppgaver som utført eller pågående
-- Ingen synlig tildelt person per oppgave
-- Brukeropprettede aktiviteter blander seg inn uten kontekst
-- "Venter svar"-elementene nederst ser ut som oppgaver, men er passive ventepunkter
-
-### Løsning
-
-**Redesign av oppgaveradene i `VendorTPRMStatus`** med tre forbedringer:
-
-#### 1. Interaktiv checkbox for statusendring
-- Erstatte den passive fargedotten med en klikkbar **Checkbox** per oppgave
-- Klikk = marker som utført (oppdaterer status i DB for DB-oppgaver, eller viser toast for kontrolloppgaver)
-- Checkbox viser tre tilstander visuelt:
-  - Tom sirkel = åpen
-  - Halvsirkel/strek = pågående  
-  - Avhuket = utført (raden fades ut og flyttes til "Utført"-fanen)
-
-#### 2. Tydelig ansvarlig person per rad
-- Vise **hvem** som er ansvarlig under oppgavetittelen (f.eks. "Jan Olsen" eller "Ikke tildelt")
-- For kontrolloppgaver: bruke den overordnede `responsiblePerson`
-- For DB-oppgaver: bruke `assigned_to`-feltet fra tasks-tabellen
-
-#### 3. Visuell gruppering med bedre hierarki
-- Oppgaver som krever handling: hvit bakgrunn med venstre fargekant (rød for høy prioritet, gul for middels)
-- "Venter svar"-elementer: tydelig adskilt med en liten overskrift "Venter på svar" og dempet styling
-- Kontrolloppgaver merket med et lite shield-ikon + "Kontroll"-label
+### Ny agentisk flyt
+1. **Last opp fil** — brukeren drar/klikker en fil (det eneste steget som kreves)
+2. **AI analyserer** — spinner med "Lara analyserer dokumentet..." → kaller `classify-document`-edge-funksjonen som allerede finnes
+3. **AI-forslag vises** — pre-fylt kort med kategori, type, navn, datoer, oppsummering. Brukeren kan redigere alt, men trenger ikke det
+4. **Bekreft og lagre** — én knapp. Synlighet default til "published"
 
 ### Teknisk plan
 
-**Fil 1: `src/components/trust-controls/VendorTPRMStatus.tsx`**
-- Importere `Checkbox` fra ui-komponenter
-- Legge til `onTaskStatusChange`-callback i props for å oppdatere task-status
-- Oppgaverader: erstatte fargedot med Checkbox, legge til `onClick`-handler
-- Vise ansvarlig person som grå tekst under tittelen
-- Legge til venstre border-farge basert på prioritet (`border-l-4 border-l-destructive` for høy)
-- Separere "Venter svar"-seksjonen med en liten heading
+**Fil: `src/components/trust-center/AddEvidenceDialog.tsx`** — full omskriving av steg-flyten:
 
-**Fil 2: `src/components/asset-profile/tabs/VendorOverviewTab.tsx`**
-- Legge til `onTaskStatusChange`-funksjon som oppdaterer task-status via Supabase
-- Sende denne som ny prop til `VendorTPRMStatus`
-- Invalidere query-cache etter statusendring
+- **Steg 1 (ny): Filopplasting**
+  - Drop-zone med drag-and-drop + klikk
+  - Aksepterer PDF, DOC, DOCX, JPG, PNG
+  - Når fil velges → gå automatisk til steg 2
 
-### Visuelt resultat
+- **Steg 2 (ny): AI-analyse**
+  - Leser filinnhold med `FileReader` (text for PDF, fileName for binære)
+  - Kaller `classify-document` edge function via `supabase.functions.invoke`
+  - Viser animert laster-tilstand med Sparkles-ikon og "Lara analyserer..."
+  - Ved suksess: pre-fyller `category`, `subType`, `displayName`, `expiryDate`, `issuedDate`, `notes` (summary)
+  - Ved feil: fallback til manuell utfylling med toast-varsel
 
-```text
-┌─────────────────────────────────────────────────┐
-│ ☐ Databehandleravtale verifisert     Høy        │
-│   Last opp i dokumentfanen                      │
-│   👤 Jan Olsen              Gå til dokumenter → │
-├─────────────────────────────────────────────────┤
-│ ☐ Sikkerhetskontakt definert         Høy        │
-│   Legg til i leverandørprofilen                 │
-│   👤 Ikke tildelt             Rediger profil →  │
-├─────────────────────────────────────────────────┤
-│                                                 │
-│ Venter på svar (3)                              │
-│ ⚠ Hendelse rapportert          Venter svar      │
-│   Jan Olsen — 3 måneder siden                   │
-└─────────────────────────────────────────────────┘
+- **Steg 3 (ny): Bekreft/rediger**
+  - Viser AI-forslaget i et kompakt kort med redigerbare felter
+  - Badge "AI-foreslått" ved hvert pre-fylt felt
+  - Brukeren kan overstyre alt
+  - Synlighet-velger inline (ikke eget steg)
+  - "Lagre"-knapp nederst
+
+- **Beholde manuell fallback**: Liten lenke "Legg til uten fil" som hopper til det gamle manuelle skjemaet (kategori → detaljer)
+
+**Mapping fra AI-klassifisering til skjemafelter:**
+```
+classification.documentType → category + subType
+classification.documentTypeLabel → displayName (som default)
+classification.summary → notes
+classification.validFrom → issuedDate
+classification.validTo → expiryDate
+classification.expiryStatus → status hint i UI
 ```
 
+**Fil: `src/pages/TrustCenterEvidence.tsx`**
+- Ingen endringer nødvendig, dialogen styrer alt selv
+
 ### Filer som endres
-1. `src/components/trust-controls/VendorTPRMStatus.tsx` — UI-redesign av oppgaverader
-2. `src/components/asset-profile/tabs/VendorOverviewTab.tsx` — statusendring-logikk
+1. `src/components/trust-center/AddEvidenceDialog.tsx` — omskrevet til upload-first + AI-klassifisering
 
