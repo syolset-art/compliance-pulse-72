@@ -59,7 +59,9 @@ export function AssignVendorDialog({ open, onOpenChange, workAreaId, workAreaNam
           .eq("id", id);
         if (error) throw error;
       }
-      queryClient.invalidateQueries({ queryKey: ["work-area-assets"] });
+      queryClient.invalidateQueries({ queryKey: ["work-area-assets-owned"] });
+      queryClient.invalidateQueries({ queryKey: ["work-area-assets-used"] });
+      queryClient.invalidateQueries({ queryKey: ["all-work-area-assets-risk"] });
       queryClient.invalidateQueries({ queryKey: ["vendor-assets-for-assign"] });
       toast.success(`${selected.length} leverandør${selected.length > 1 ? "er" : ""} tilordnet ${workAreaName}`);
       setSelected([]);
