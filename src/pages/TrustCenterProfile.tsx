@@ -157,42 +157,24 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     );
   }
 
-  if (!asset && !isSeeding) {
-    return (
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background">
-          <Sidebar />
-          <main className="flex-1 p-6">
-            <div className="text-center py-20 space-y-4">
-              <Shield className="h-12 w-12 mx-auto text-muted-foreground" />
-              <h2 className="text-xl font-semibold">
-                {isNb ? "Ingen Trust Profile funnet" : "No Trust Profile found"}
-              </h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                {isNb ? "Det ser ut til at virksomheten ikke har en Trust Profile ennå. Opprett en nå for å komme i gang." : "It looks like the company doesn't have a Trust Profile yet. Create one now to get started."}
-              </p>
-              <Button onClick={async () => {
-                setIsSeeding(true);
-                try {
-                  await seedDemoTrustProfile();
-                  queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-                  queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-                  toast.success(isNb ? "Trust Profile opprettet!" : "Trust Profile created!");
-                } catch (e) {
-                  console.error(e);
-                  toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
-                } finally {
-                  setIsSeeding(false);
-                }
-              }}>
-                {isNb ? "Opprett Trust Profile" : "Create Trust Profile"}
-              </Button>
-            </div>
-          </main>
-        </div>
-      </SidebarProvider>
-    );
-  }
+  // Auto-seed demo profile if none exists
+  useEffect(() => {
+    if (!asset && !isLoading && !isSeeding) {
+      setIsSeeding(true);
+      seedDemoTrustProfile()
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+          queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+        })
+        .catch((e) => {
+          console.error("Auto-seed failed:", e);
+          toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
+        })
+        .finally(() => setIsSeeding(false));
+    }
+  }, [asset, isLoading, isSeeding]);
+
+  if (!asset) {
 
   if (isSeeding) {
     return (
