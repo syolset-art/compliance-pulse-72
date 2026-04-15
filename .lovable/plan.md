@@ -1,73 +1,78 @@
 
 
-# Plan: Credits-system med UI og abonnementskobling
+# Plan: Betalingsbekreftelse ved aktivering av regelverk
 
 ## Konsept
 
-Hvert abonnement inkluderer et visst antall credits per måned (f.eks. Basis = 100, Premium = 300). Credits brukes til AI-handlinger (Lara-analyse, dokumentklassifisering, risikovurdering) og premium-operasjoner. Brukeren ser alltid sin saldo og kan kjøpe ekstra credits.
+Når en bruker forsøker å aktivere et regelverk, skal det komme en bekreftelses-dialog **før** aktivering — ikke etter. GDPR og ISO 27001 er gratis og aktiveres umiddelbart med en enkel bekreftelse. Alle andre betalte regelverk viser pris, hva som er inkludert, og krever eksplisitt godkjenning.
 
-## 1. Database: `company_credits`-tabell
+## Flyten
 
-Ny tabell som sporer credits-saldo og forbruk:
-
-```sql
-CREATE TABLE company_credits (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id uuid NOT NULL,
-  balance integer NOT NULL DEFAULT 0,
-  monthly_allowance integer NOT NULL DEFAULT 0,
-  last_reset_at timestamptz DEFAULT now(),
-  next_reset_at timestamptz,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE credit_transactions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id uuid NOT NULL,
-  amount integer NOT NULL,          -- positiv = påfyll, negativ = forbruk
-  balance_after integer NOT NULL,
-  transaction_type text NOT NULL,   -- 'monthly_grant', 'usage', 'purchase', 'refund'
-  description text,
-  metadata jsonb DEFAULT '{}',
-  created_at timestamptz DEFAULT now()
-);
+```text
+Bruker klikker "Aktiver" på et regelverk
+        │
+        ▼
+   Er det gratis? ──── JA ──→ Enkel bekreftelsesdialog
+   (GDPR/ISO 27001)          "Inkludert i ditt abonnement"
+        │                     → Aktiver direkte
+        NO
+        │
+        ▼
+   FrameworkPurchaseDialog
+   ┌─────────────────────────────────┐
+   │ [Ikon] NIS2-direktivet         │
+   │ ────────────────────────────────│
+   │ ✓ Gap-analyse                  │
+   │ ✓ Tiltaksliste                 │
+   │ ✓ Modenhetsvurdering           │
+   │ ✓ Rapportdeling                │
+   │ ────────────────────────────────│
+   │ Pris: 4 167 kr/mnd (50 000/år) │
+   │ ────────────────────────────────│
+   │ ⚠ Compliance-skåren vil        │
+   │   beregnes på nytt             │
+   │ ────────────────────────────────│
+   │ [Avbryt]  [Godkjenn og aktiver]│
+   └─────────────────────────────────┘
+        │
+        ▼
+   Aktivering → Suksess-dialog (eksisterende)
 ```
 
-## 2. Credits per plan i `planConstants.ts`
+## Endringer
 
-Utvide `PlanDefinition` med `monthlyCredits`:
+### 1. Ny komponent: `FrameworkPurchaseDialog.tsx`
+Pre-aktiverings dialog med:
+- Regelverkets navn, ikon og kategori
+- Liste over hva som er inkludert (fra `FRAMEWORK_ADDONS[id].includes`)
+- Pris per måned og per år
+- For gratis regelverk: "Inkludert i ditt abonnement" med grønn badge
+- Advarsel om at compliance-skåren vil beregnes på nytt
+- "Godkjenn og aktiver"-knapp som kaller den faktiske aktiveringsfunksjonen
+- Avbryt-knapp
 
-| Plan | Credits/mnd |
-|---|---|
-| Free | 10 |
-| Basis | 100 |
-| Premium | 300 |
-| Enterprise | Ubegrenset |
+### 2. Oppdater `Subscriptions.tsx`
+Endre `handleToggleFramework` slik at:
+- Når bruker **aktiverer** et regelverk → åpne `FrameworkPurchaseDialog` først
+- Når bruker **deaktiverer** → deaktiver direkte (eventuelt med enkel bekreftelse)
+- Etter godkjenning i purchase-dialogen → kjør eksisterende aktiveringslogikk → vis `FrameworkActivationDialog`
 
-## 3. Hook: `useCredits()`
+### 3. Oppdater `Regulations.tsx` og `TrustCenterRegulations.tsx`
+Samme mønster: aktivering via purchase-dialog først.
 
-Ny hook som henter saldo fra `company_credits`, eksponerer `balance`, `monthlyAllowance`, `percentUsed`, og en `deductCredits(amount, description)`-funksjon.
+### 4. Oppdater `FrameworkActivationDialog.tsx`
+Fjerne pris-info herfra (den er nå i purchase-dialogen). Beholde suksess-melding, score-advarsel og Lara-hjelp.
 
-## 4. UI-komponenter
+### 5. Differensiert prising i `planConstants.ts`
+Legge til månedspris-beregning (`yearlyPriceKr / 12`) som hjelpefunksjon, og evt. mer varierte priser per regelverk (f.eks. NIS2 dyrere enn Åpenhetsloven).
 
-### A. Credits-indikator i sidebar/topbar
-En liten progress-bar med "42/100 credits" under brukerens profil i sidebaren.
-
-### B. Credits-seksjon på Abonnement-siden
-Viser nåværende saldo, forbruksgraf, og "Kjøp ekstra credits"-knapp.
-
-### C. Credits-advarsel
-Toast/banner når brukeren har <20% credits igjen.
-
-## 5. Filer
+## Filer
 
 | Fil | Endring |
 |---|---|
-| Ny migrasjon | `company_credits` + `credit_transactions` tabeller |
-| `src/lib/planConstants.ts` | Legg til `monthlyCredits` per plan |
-| `src/hooks/useCredits.ts` | Ny hook for saldo og transaksjoner |
-| `src/components/sidebar/CreditIndicator.tsx` | Ny komponent — credits progress bar |
-| `src/components/Sidebar.tsx` | Vis CreditIndicator nederst |
-| `src/pages/Subscriptions.tsx` | Legg til credits-seksjon |
+| `src/components/dialogs/FrameworkPurchaseDialog.tsx` | Ny — pre-aktiverings bekreftelses-dialog |
+| `src/pages/Subscriptions.tsx` | Koble purchase-dialog inn i toggle-flyten |
+| `src/pages/Regulations.tsx` | Koble purchase-dialog inn ved aktivering |
+| `src/pages/TrustCenterRegulations.tsx` | Koble purchase-dialog inn ved aktivering |
+| `src/lib/planConstants.ts` | Legge til `getFrameworkMonthlyPrice()` hjelpefunksjon |
 
