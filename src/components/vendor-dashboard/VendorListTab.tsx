@@ -361,13 +361,10 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        {t("vendorDashboard.showing", "Showing {{count}} vendors", { count: filtered.length })}
-      </p>
 
       {/* Card View */}
       {viewMode === "card" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {filtered.map(v => (
             <VendorCard
               key={v.id}

@@ -1,4 +1,4 @@
-import { Building2, MapPin, Shield, Link2, Mail, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal } from "lucide-react";
+import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, MinusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
@@ -21,12 +21,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   it_operations: "IT-drift",
   facilities: "Kontor",
   other: "Annet",
-};
-
-const GDPR_LABELS: Record<string, string> = {
-  databehandler: "Databehandler",
-  underdatabehandler: "Underdatabehandler",
-  ingen: "Ingen persondata",
 };
 
 interface WorkArea {
@@ -74,15 +68,20 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
 
   const complianceColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
 
+  const priorityLabel = vendor.priority
+    ? ({ critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" } as Record<string, string>)[vendor.priority] || vendor.priority
+    : null;
+
   return (
     <Card
       variant="flat"
       onClick={onClick}
       className={cn(
-        "px-4 py-3.5 cursor-pointer hover:shadow-md transition-all hover:border-primary/30",
-        compact && "px-3 py-2.5"
+        "px-4 py-4 cursor-pointer hover:shadow-md transition-all hover:border-primary/30",
+        compact && "px-3 py-3"
       )}
     >
+      {/* Row 1: Name + score */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
@@ -107,27 +106,14 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
-            {`Leverandør${vendor.priority ? ` · ${({ critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" } as Record<string, string>)[vendor.priority] || vendor.priority}` : ""}`}
-          </Badge>
-          {!hasDPA && (
-            <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 gap-1 px-1.5 py-0">
-              <Shield className="h-2.5 w-2.5" />
-              DPA
-            </Badge>
+          {score > 0 ? (
+            <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score}%</span>
+          ) : (
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <MinusCircle className="h-3 w-3" />
+              Ikke vurdert
+            </span>
           )}
-          {expiredDocsCount > 0 && (
-            <Badge variant="outline" className="text-[10px] gap-1 bg-destructive/10 text-destructive border-destructive/20 px-1.5 py-0">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              {expiredDocsCount}
-            </Badge>
-          )}
-          {vendor.risk_level && (
-            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", riskColor)}>
-              {t(`vendorDashboard.risk.${vendor.risk_level}`, vendor.risk_level)}
-            </Badge>
-          )}
-          <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score > 0 ? `${score}%` : "Ikke vurdert"}</span>
           {onSetOwner && onArchive && onDelete && (
             <div onClick={(e) => e.stopPropagation()}>
               <AssetRowActionMenu
@@ -141,6 +127,32 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
             </div>
           )}
         </div>
+      </div>
+
+      {/* Row 2: Badges */}
+      <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pl-[42px]">
+        {priorityLabel && (
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
+            {priorityLabel}
+          </Badge>
+        )}
+        {!hasDPA && (
+          <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 gap-1 px-1.5 py-0">
+            <Shield className="h-2.5 w-2.5" />
+            Mangler DPA
+          </Badge>
+        )}
+        {expiredDocsCount > 0 && (
+          <Badge variant="outline" className="text-[10px] gap-1 bg-destructive/10 text-destructive border-destructive/20 px-1.5 py-0">
+            <AlertTriangle className="h-2.5 w-2.5" />
+            {expiredDocsCount} utløpt
+          </Badge>
+        )}
+        {vendor.risk_level && (
+          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", riskColor)}>
+            {t(`vendorDashboard.risk.${vendor.risk_level}`, vendor.risk_level)}
+          </Badge>
+        )}
       </div>
     </Card>
   );
