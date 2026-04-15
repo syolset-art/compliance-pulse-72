@@ -670,7 +670,7 @@ const SidebarContent = () => {
           </div>
         )}
       </div>
-      
+      <AddOrganizationDialog open={addOrgOpen} onOpenChange={setAddOrgOpen} />
     </>
   );
 };
