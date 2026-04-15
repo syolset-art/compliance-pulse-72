@@ -274,16 +274,9 @@ export default function Tasks() {
               variant="outline"
               size="sm"
               className="gap-2 w-full sm:w-auto"
-              onClick={() =>
-                navigate("/subscriptions")
-              }
             >
               <Plus className="h-4 w-4" />
               Opprett oppgave
-              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-[13px] px-1.5 py-0">
-                <Crown className="h-2.5 w-2.5 mr-0.5" />
-                Premium
-              </Badge>
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
