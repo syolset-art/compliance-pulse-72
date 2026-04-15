@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { FileText, Shield, FileCheck, Clock, AlertTriangle, CheckCircle2, Hourglass, MoreHorizontal, Archive, Trash2 } from "lucide-react";
+import { FileText, Shield, FileCheck, Clock, AlertTriangle, CheckCircle2, Hourglass, MoreHorizontal, Archive, Trash2, Globe, Lock } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const REQUEST_TYPE_ICONS: Record<string, typeof FileText> = {
   vendor_assessment: FileText,
@@ -48,6 +49,7 @@ interface CustomerRequestCardProps {
   request: CustomerRequest;
   onDelete?: (id: string) => void;
   onArchive?: (id: string) => void;
+  onToggleVisibility?: (id: string, isPublic: boolean) => void;
 }
 
 function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) {
@@ -132,10 +134,11 @@ function getStatusConfig(status: string, isNb: boolean) {
   return configs[status] || configs.new;
 }
 
-export function CustomerRequestCard({ request, onDelete, onArchive }: CustomerRequestCardProps) {
+export function CustomerRequestCard({ request, onDelete, onArchive, onToggleVisibility }: CustomerRequestCardProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const locale = isNb ? "nb-NO" : "en-US";
+  const isPublic = request.shared_mode === "public";
 
   const Icon = REQUEST_TYPE_ICONS[request.request_type] || FileText;
   const typeLabel = isNb
@@ -158,7 +161,24 @@ export function CustomerRequestCard({ request, onDelete, onArchive }: CustomerRe
               <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{request.customer_name}</p>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-7 w-7 ${isPublic ? "text-emerald-600" : "text-muted-foreground"}`}
+                      onClick={() => onToggleVisibility?.(request.id, !isPublic)}
+                    >
+                      {isPublic ? <Globe className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs">{isPublic ? (isNb ? "Offentlig — klikk for privat" : "Public — click to make private") : (isNb ? "Privat — klikk for offentlig" : "Private — click to make public")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Badge variant="outline" className={`text-[13px] ${statusInfo.className}`}>
                 {statusInfo.label}
               </Badge>
