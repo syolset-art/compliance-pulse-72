@@ -318,7 +318,7 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-          {getStatusBadge(doc.status, isNb, doc.approved_by)}
+          
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
