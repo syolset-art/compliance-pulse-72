@@ -55,6 +55,7 @@ function getReqs(frameworkId: string): ComplianceRequirement[] {
 
 const Regulations = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [selectedFrameworks, setSelectedFrameworks] = useState<SelectedFramework[]>([]);
   const [loading, setLoading] = useState(true);
