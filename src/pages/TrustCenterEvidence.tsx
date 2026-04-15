@@ -113,6 +113,9 @@ const TrustCenterEvidence = () => {
   const isNb = i18n.language === "nb";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
   const queryClient = useQueryClient();
 
   // Edit state
@@ -239,9 +242,24 @@ const TrustCenterEvidence = () => {
     setEditDoc(null);
   };
 
-  const policies = vendorDocs.filter((d: any) => policyTypes.includes(d.document_type));
-  const certifications = vendorDocs.filter((d: any) => certTypes.includes(d.document_type));
-  const documents = vendorDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+  // Apply search and filters
+  const filteredDocs = vendorDocs.filter((d: any) => {
+    const matchesSearch = !searchQuery || 
+      (d.display_name || d.file_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      docTypeLabel(d.document_type, isNb).toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" ||
+      (categoryFilter === "policy" && policyTypes.includes(d.document_type)) ||
+      (categoryFilter === "certification" && certTypes.includes(d.document_type)) ||
+      (categoryFilter === "document" && !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+    const matchesVisibility = visibilityFilter === "all" ||
+      (visibilityFilter === "published" && d.visibility === "published") ||
+      (visibilityFilter === "hidden" && d.visibility !== "published");
+    return matchesSearch && matchesCategory && matchesVisibility;
+  });
+
+  const policies = filteredDocs.filter((d: any) => policyTypes.includes(d.document_type));
+  const certifications = filteredDocs.filter((d: any) => certTypes.includes(d.document_type));
+  const documents = filteredDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
 
   const renderActionMenu = (doc: any) => (
     <DropdownMenu>
