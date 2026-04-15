@@ -257,22 +257,22 @@ export default function Deviations() {
               {status.label}
             </Badge>
             {deviation.source === "7security" && (
-              <Badge className="text-[10px] bg-orange-500/15 text-orange-700 border-orange-500/30">
+              <Badge className="text-[13px] bg-orange-500/15 text-orange-700 border-orange-500/30">
                 7 Security
               </Badge>
             )}
             {deviation.source === "employee" && (
-              <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30">
+              <Badge className="text-[13px] bg-blue-500/15 text-blue-700 border-blue-500/30">
                 Ansattmelding
               </Badge>
             )}
             {deviation.source === "notification" && (
-              <Badge className="text-[10px] bg-purple-500/15 text-purple-700 border-purple-500/30">
+              <Badge className="text-[13px] bg-purple-500/15 text-purple-700 border-purple-500/30">
                 Varsel
               </Badge>
             )}
             {deviation.auto_created && (
-              <Badge variant="outline" className="text-[10px]">Auto</Badge>
+              <Badge variant="outline" className="text-[13px]">Auto</Badge>
             )}
           </div>
 
@@ -347,7 +347,7 @@ export default function Deviations() {
                 <Badge
                   key={fw}
                   variant="outline"
-                  className="text-[10px] px-1.5 py-0.5 bg-muted/50"
+                  className="text-[13px] px-1.5 py-0.5 bg-muted/50"
                 >
                   {fw}
                 </Badge>
@@ -399,7 +399,7 @@ export default function Deviations() {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-foreground">Live avvik</h3>
                     {liveEnabled && (
-                      <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px]">
+                      <Badge className="bg-primary/15 text-primary border-primary/30 text-[13px]">
                         Aktiv
                       </Badge>
                     )}
@@ -475,22 +475,22 @@ export default function Deviations() {
                     <p className="text-xs font-medium text-foreground mb-3">Slik fungerer det:</p>
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] bg-background">1</Badge>
+                        <Badge variant="outline" className="text-[13px] bg-background">1</Badge>
                         <span>Leverandør oppdager hendelse</span>
                       </div>
                       <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] bg-background">2</Badge>
+                        <Badge variant="outline" className="text-[13px] bg-background">2</Badge>
                         <span>Hendelsen sendes til Lara Innboks</span>
                       </div>
                       <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] bg-background">3</Badge>
+                        <Badge variant="outline" className="text-[13px] bg-background">3</Badge>
                         <span>Lara oppretter avvik automatisk</span>
                       </div>
                       <ArrowRight className="h-3 w-3 hidden md:block text-muted-foreground/50" />
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] bg-background">4</Badge>
+                        <Badge variant="outline" className="text-[13px] bg-background">4</Badge>
                         <span>Du får varsel og kan følge opp</span>
                       </div>
                     </div>
@@ -674,13 +674,13 @@ export default function Deviations() {
                       {status.label}
                     </Badge>
                     {selectedDeviation.source === "employee" && (
-                      <Badge className="text-[10px] bg-blue-500/15 text-blue-700 border-blue-500/30">Ansattmelding</Badge>
+                      <Badge className="text-[13px] bg-blue-500/15 text-blue-700 border-blue-500/30">Ansattmelding</Badge>
                     )}
                     {selectedDeviation.source === "notification" && (
-                      <Badge className="text-[10px] bg-purple-500/15 text-purple-700 border-purple-500/30">Varsel</Badge>
+                      <Badge className="text-[13px] bg-purple-500/15 text-purple-700 border-purple-500/30">Varsel</Badge>
                     )}
                     {selectedDeviation.source === "7security" && (
-                      <Badge className="text-[10px] bg-orange-500/15 text-orange-700 border-orange-500/30">7 Security</Badge>
+                      <Badge className="text-[13px] bg-orange-500/15 text-orange-700 border-orange-500/30">7 Security</Badge>
                     )}
                   </div>
 
@@ -743,17 +743,17 @@ export default function Deviations() {
                     <div className="text-center p-2 rounded-lg bg-muted/50">
                       <Monitor className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
                       <p className="text-lg font-bold text-foreground">{selectedDeviation.systems_count || 0}</p>
-                      <p className="text-[10px] text-muted-foreground">Systemer</p>
+                      <p className="text-[13px] text-muted-foreground">Systemer</p>
                     </div>
                     <div className="text-center p-2 rounded-lg bg-muted/50">
                       <Layers className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
                       <p className="text-lg font-bold text-foreground">{selectedDeviation.processes_count || 0}</p>
-                      <p className="text-[10px] text-muted-foreground">Prosesser</p>
+                      <p className="text-[13px] text-muted-foreground">Prosesser</p>
                     </div>
                     <div className="text-center p-2 rounded-lg bg-muted/50">
                       <ListChecks className="h-4 w-4 mx-auto text-muted-foreground mb-1" />
                       <p className="text-lg font-bold text-foreground">{selectedDeviation.measures_count || 0}</p>
-                      <p className="text-[10px] text-muted-foreground">Tiltak</p>
+                      <p className="text-[13px] text-muted-foreground">Tiltak</p>
                     </div>
                   </div>
 

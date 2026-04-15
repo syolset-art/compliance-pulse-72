@@ -161,7 +161,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
             >
               <Inbox className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
               {globalInboxCount > 0 && (
-                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[10px] bg-primary text-primary-foreground shadow-md">
+                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[13px] bg-primary text-primary-foreground shadow-md">
                   {globalInboxCount}
                 </Badge>
               )}

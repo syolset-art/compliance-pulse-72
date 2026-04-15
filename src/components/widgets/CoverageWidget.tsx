@@ -37,7 +37,7 @@ export function CoverageWidget() {
 
         <div className="rounded-lg border border-border bg-muted/50 p-3 mb-3">
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider">
               Overall coverage
             </p>
             <span className="text-sm font-bold text-foreground">{COVERAGE_PERCENT}%</span>

@@ -94,10 +94,10 @@ function DomainSummaryCard({
             <CardTitle className="text-base">
               {t(`tasks.readiness.domains.${config.id}`)}
             </CardTitle>
-            <p className="text-[10px] font-medium text-muted-foreground mt-0.5">
+            <p className="text-[13px] font-medium text-muted-foreground mt-0.5">
               {standards.primary}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               + {standards.supporting.join(', ')}
             </p>
           </div>
@@ -110,7 +110,7 @@ function DomainSummaryCard({
           <p className="text-xs text-muted-foreground">
             {stats.completed}/{stats.total} {t("tasks.readiness.requirements")}
           </p>
-          <p className="text-[10px] font-medium text-muted-foreground">
+          <p className="text-[13px] font-medium text-muted-foreground">
             {t("isoReadiness.maturityLevel")}: {stats.maturityName}
           </p>
         </div>

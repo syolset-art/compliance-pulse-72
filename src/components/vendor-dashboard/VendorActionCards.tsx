@@ -163,7 +163,7 @@ export function VendorActionCards({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-foreground">{cat.label}</span>
-                    <Badge variant="outline" className="text-[10px]">{cat.vendors.length}</Badge>
+                    <Badge variant="outline" className="text-[13px]">{cat.vendors.length}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">{cat.description}</p>
                 </div>
@@ -183,7 +183,7 @@ export function VendorActionCards({
                     {v.risk_level && (
                       <Badge
                         variant="outline"
-                        className={`text-[9px] h-4 ${
+                        className={`text-[13px] h-4 ${
                           v.risk_level === "high"
                             ? "bg-destructive/10 text-destructive border-destructive/20"
                             : v.risk_level === "medium"
@@ -209,7 +209,7 @@ export function VendorActionCards({
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                     <span className="text-xs font-medium text-emerald-700">Forespørsel sendt</span>
-                    <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-600 gap-1">
+                    <Badge variant="outline" className="text-[13px] border-emerald-500/30 text-emerald-600 gap-1">
                       <Bell className="h-2.5 w-2.5" />
                       Lara purrer automatisk
                     </Badge>

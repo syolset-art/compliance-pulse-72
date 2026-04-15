@@ -192,7 +192,7 @@ export function BulkSendConfirmDialog({
         <div className="space-y-5 py-2">
           {/* Request type */}
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-            <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
               {isNb ? "Forespørselstype" : "Request type"}
             </Label>
             <p className="text-sm font-medium mt-1">{typeLabel}</p>
@@ -200,7 +200,7 @@ export function BulkSendConfirmDialog({
 
           {/* Vendors */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
               {isNb ? "Mottakere" : "Recipients"} ({vendorNames.length})
             </Label>
             <div className="flex flex-wrap gap-1.5">
@@ -240,7 +240,7 @@ export function BulkSendConfirmDialog({
                 >
                   <BookOpen className="h-3.5 w-3.5" />
                   {isNb ? "Velg fra malbiblioteket" : "Choose from template library"}
-                  <Badge variant="secondary" className="text-[10px] ml-auto">{templates.length}</Badge>
+                  <Badge variant="secondary" className="text-[13px] ml-auto">{templates.length}</Badge>
                 </Button>
 
                 {showTemplates && (
@@ -260,7 +260,7 @@ export function BulkSendConfirmDialog({
                         <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
                           <span className="text-sm font-medium truncate block">{tpl.name}</span>
-                          <span className="text-[10px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</span>
+                          <span className="text-[13px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</span>
                         </div>
                       </label>
                     ))}
@@ -294,7 +294,7 @@ export function BulkSendConfirmDialog({
                   <div key={`file-${idx}`} className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5 text-sm">
                     <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="flex-1 truncate text-xs">{file.name}</span>
-                    <span className="text-[10px] text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</span>
+                    <span className="text-[13px] text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</span>
                     <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => removeFile(idx)}>
                       <X className="h-3 w-3" />
                     </Button>
@@ -307,7 +307,7 @@ export function BulkSendConfirmDialog({
                     <div key={id} className="flex items-center gap-2 rounded-md bg-primary/5 border border-primary/20 px-3 py-1.5 text-sm">
                       <BookOpen className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span className="flex-1 truncate text-xs font-medium">{tpl.name}</span>
-                      <Badge variant="outline" className="text-[9px]">{isNb ? "Mal" : "Template"}</Badge>
+                      <Badge variant="outline" className="text-[13px]">{isNb ? "Mal" : "Template"}</Badge>
                       <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => toggleTemplate(id)}>
                         <X className="h-3 w-3" />
                       </Button>
@@ -320,7 +320,7 @@ export function BulkSendConfirmDialog({
 
           {/* Process explanation */}
           <div className="space-y-2">
-            <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
               {isNb ? "Hva skjer videre?" : "What happens next?"}
             </Label>
             <div className="space-y-0">
@@ -355,7 +355,7 @@ export function BulkSendConfirmDialog({
               ? `Send via Lara (${vendorNames.length})`
               : `Send via Lara (${vendorNames.length})`}
             {totalAttachments > 0 && (
-              <Badge variant="secondary" className="text-[10px] ml-1">{totalAttachments} {isNb ? "vedlegg" : "att."}</Badge>
+              <Badge variant="secondary" className="text-[13px] ml-1">{totalAttachments} {isNb ? "vedlegg" : "att."}</Badge>
             )}
           </Button>
         </DialogFooter>

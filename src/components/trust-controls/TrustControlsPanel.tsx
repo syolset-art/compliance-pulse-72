@@ -320,7 +320,7 @@ export function TrustControlsPanel({
               {hideHeader !== "title-only" && (
                 <h3 className="text-lg font-bold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
               )}
-              <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${coverageLabel.color}`}>
+              <span className={`text-[13px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${coverageLabel.color}`}>
                 {isNb ? coverageLabel.nb : coverageLabel.en}
               </span>
               <Button
@@ -378,15 +378,15 @@ export function TrustControlsPanel({
 
         {/* Summary badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+          <span className="text-[13px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
             {totalImplemented} {isNb ? "OPPFYLT" : "FULFILLED"}
           </span>
           {remaining > 0 && (
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+            <span className="text-[13px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
               {remaining} {isNb ? "GJENSTÅR" : "REMAINING"}
             </span>
           )}
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
+          <span className="text-[13px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
             {securityAreas.length} {isNb ? "KONTROLLOMRÅDER" : "CONTROL AREAS"}
           </span>
         </div>
@@ -423,7 +423,7 @@ export function TrustControlsPanel({
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-semibold text-foreground">{isNb ? areaNb : label}</span>
-                      <p className="text-[11px] text-muted-foreground">{implemented}/{controls.length} {isNb ? "oppfylt" : "fulfilled"}</p>
+                      <p className="text-[13px] text-muted-foreground">{implemented}/{controls.length} {isNb ? "oppfylt" : "fulfilled"}</p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <span className={`text-xl font-bold tabular-nums ${getScoreColor(score)}`}>{score}%</span>
@@ -432,14 +432,14 @@ export function TrustControlsPanel({
                   </div>
 
                   {/* Description */}
-                  <p className="text-[11px] text-muted-foreground mb-2 pl-[38px]">{isNb ? descNb : descEn}</p>
+                  <p className="text-[13px] text-muted-foreground mb-2 pl-[38px]">{isNb ? descNb : descEn}</p>
 
                   {/* Coverage label + remaining */}
                   <div className="flex items-center justify-between pl-[38px] mb-2">
                     {remaining > 0 && (
-                      <span className="text-[10px] text-muted-foreground">{remaining} {isNb ? "gjenstår" : "remaining"}</span>
+                      <span className="text-[13px] text-muted-foreground">{remaining} {isNb ? "gjenstår" : "remaining"}</span>
                     )}
-                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${areaCoverage.color} ml-auto`}>
+                    <span className={`text-[13px] font-semibold uppercase tracking-wider ${areaCoverage.color} ml-auto`}>
                       {isNb ? areaCoverage.nb : areaCoverage.en}
                     </span>
                   </div>
@@ -468,14 +468,14 @@ export function TrustControlsPanel({
                           <span className="text-xs text-foreground flex-1">{isNb ? control.labelNb : control.labelEn}</span>
                           {isActionable ? (
                             <button
-                              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
+                              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[13px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
                               onClick={(e) => { e.stopPropagation(); handleControlClick(control, area); }}
                             >
                               {isNb ? (ACTION_LABELS[control.key]?.nb || "Fiks") : (ACTION_LABELS[control.key]?.en || "Fix")}
                               <ChevronRight className="h-3 w-3" />
                             </button>
                           ) : (
-                            <span className={`text-[10px] font-medium ${
+                            <span className={`text-[13px] font-medium ${
                               control.status === "implemented" ? "text-green-600 dark:text-green-400" :
                               control.status === "partial" ? "text-orange-500 dark:text-orange-400" :
                               "text-destructive"

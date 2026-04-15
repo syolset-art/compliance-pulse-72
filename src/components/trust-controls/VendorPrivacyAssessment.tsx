@@ -87,7 +87,7 @@ export function VendorPrivacyAssessment({
                 : "The analysis is based on publicly available information about the system (privacy policy, DPA, etc.) collected by Lara. It explains the use of personal data, the security measures described, and to what extent the system meets 12 key requirements in privacy and data security."}
             </p>
           </div>
-          <Badge className={`shrink-0 text-[10px] border ${statusColor}`}>
+          <Badge className={`shrink-0 text-[13px] border ${statusColor}`}>
             {complianceScore}% - {statusLabel}
           </Badge>
         </div>
@@ -104,7 +104,7 @@ export function VendorPrivacyAssessment({
           </p>
           <div className="flex items-start gap-2 mt-2">
             <AlertTriangle className="h-3.5 w-3.5 text-warning shrink-0 mt-0.5" />
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
               {isNb
                 ? "Innholdet er generert av kunstig intelligens og kan inneholde feil eller unøyaktigheter. Vi anbefaler at det gjennomgås og verifiseres av mennesker før bruk. Analysen bygger på offentlig tilgjengelig informasjon (personvernerklæringer, databehandleravtaler o.l.) og påvirkes ikke av dokumenter din organisasjon har lastet opp."
                 : "The content is AI-generated and may contain errors or inaccuracies. We recommend that it is reviewed and verified by humans before use."}
@@ -146,7 +146,7 @@ export function VendorPrivacyAssessment({
                   <Info className="h-3 w-3 text-muted-foreground/50" />
                 </div>
                 <p className="text-2xl font-bold text-foreground">{complianceScore}%</p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground">
                   {complianceScore >= 80
                     ? (isNb ? "God" : "Good")
                     : complianceScore >= 40
@@ -163,7 +163,7 @@ export function VendorPrivacyAssessment({
                 <p className="text-2xl font-bold text-foreground mt-1">
                   {coverageAssessed} / {coverageTotal}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground">
                   {isNb
                     ? `kategorier med høyt samsvar (≥80%)`
                     : `categories with high compliance (≥80%)`}

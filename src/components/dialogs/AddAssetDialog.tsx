@@ -1661,7 +1661,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   <Icon className={cn("h-4 w-4", isSelected ? "text-primary" : "text-muted-foreground")} />
                   <span className="text-sm">{type.label}</span>
                   {type.priority === "medium" && (
-                    <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground ml-auto">
+                    <span className="text-[13px] px-1 py-0.5 rounded bg-muted text-muted-foreground ml-auto">
                       Optional
                     </span>
                   )}

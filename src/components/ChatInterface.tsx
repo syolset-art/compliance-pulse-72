@@ -1204,7 +1204,7 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                               <span className="flex items-center gap-1 text-success">
                                 <TrendingUp className="h-3 w-3" /> +{step.trust_impact}%
                               </span>
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              <Badge variant="outline" className="text-[13px] px-1.5 py-0">
                                 {step.priority.toUpperCase()}
                               </Badge>
                             </div>

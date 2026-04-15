@@ -290,7 +290,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
           <div className="space-y-3 py-2">
             <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 mb-2">
               <Network className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-blue-700 dark:text-blue-300">
+              <p className="text-[13px] text-blue-700 dark:text-blue-300">
                 {isNb
                   ? "Du kan bare sende forespørsler til leverandører som er registrert i systemet ditt."
                   : "You can only send requests to vendors registered in your system."}
@@ -303,7 +303,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
               {dataProcessors.length > 0 && (
                 <Button variant="outline" size="sm" className="text-xs h-7" onClick={selectAllProcessors}>
                   {isNb ? "Velg alle databehandlere" : "Select all data processors"}
-                  <Badge variant="secondary" className="ml-1 text-[10px]">{dataProcessors.length}</Badge>
+                  <Badge variant="secondary" className="ml-1 text-[13px]">{dataProcessors.length}</Badge>
                 </Button>
               )}
             </div>
@@ -329,10 +329,10 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                       <span className="text-sm font-medium">{v.name}</span>
                       <div className="flex gap-1.5 mt-0.5">
                         {v.vendor_category && (
-                          <Badge variant="outline" className="text-[10px] capitalize">{v.vendor_category}</Badge>
+                          <Badge variant="outline" className="text-[13px] capitalize">{v.vendor_category}</Badge>
                         )}
                         {v.gdpr_role && (
-                          <Badge variant="secondary" className="text-[10px] capitalize">{v.gdpr_role}</Badge>
+                          <Badge variant="secondary" className="text-[13px] capitalize">{v.gdpr_role}</Badge>
                         )}
                       </div>
                     </div>
@@ -407,14 +407,14 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                       <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-medium">{tpl.name}</span>
-                        <p className="text-[10px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</p>
+                        <p className="text-[13px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</p>
                       </div>
                     </label>
                   ))}
                   {relevantTemplates.length > 0 && otherTemplates.length > 0 && (
                     <>
                       <div className="px-3 py-1">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                        <span className="text-[13px] text-muted-foreground uppercase tracking-wide">
                           {isNb ? "Andre maler" : "Other templates"}
                         </span>
                       </div>
@@ -432,7 +432,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                           <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                           <div className="flex-1 min-w-0">
                             <span className="text-sm font-medium">{tpl.name}</span>
-                            <p className="text-[10px] text-muted-foreground">{tpl.fileName}</p>
+                            <p className="text-[13px] text-muted-foreground">{tpl.fileName}</p>
                           </div>
                         </label>
                       ))}
@@ -480,7 +480,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                   <div key={i} className="flex items-center gap-2 rounded-md border px-3 py-1.5">
                     <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="text-sm flex-1 truncate">{f.name}</span>
-                    <span className="text-[10px] text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</span>
+                    <span className="text-[13px] text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</span>
                     <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-foreground">
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -505,7 +505,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                 <span className="text-sm text-muted-foreground">{isNb ? "Typer" : "Types"}</span>
                 <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
                   {selectedTypeNames.map((t) => (
-                    <Badge key={t.value} variant="secondary" className="text-[10px]">
+                    <Badge key={t.value} variant="secondary" className="text-[13px]">
                       {isNb ? t.labelNb : t.labelEn}
                     </Badge>
                   ))}

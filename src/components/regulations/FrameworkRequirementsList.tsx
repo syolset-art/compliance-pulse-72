@@ -184,7 +184,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 <div className="flex items-center gap-3 shrink-0">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={`text-[10px] font-bold tracking-wider cursor-help ${cap.color}`}>{cap.label}</span>
+                      <span className={`text-[13px] font-bold tracking-wider cursor-help ${cap.color}`}>{cap.label}</span>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-[220px]">
                       <p className="text-xs">{cap.tooltip}</p>

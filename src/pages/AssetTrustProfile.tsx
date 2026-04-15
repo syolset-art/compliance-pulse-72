@@ -525,7 +525,7 @@ const AssetTrustProfile = () => {
                                 />
                                 <span className="flex-1">{tab.labelFull}</span>
                                 {isLocked && (
-                                  <span className="text-[10px] text-muted-foreground">
+                                  <span className="text-[13px] text-muted-foreground">
                                     {isNb ? "Låst" : "Locked"}
                                   </span>
                                 )}
@@ -620,7 +620,7 @@ const AssetTrustProfile = () => {
                               </>
                             )}
                             {!activeOverflowTab && inboxCount > 0 && (
-                              <Badge className="h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">{inboxCount}</Badge>
+                              <Badge className="h-4 min-w-4 px-1 text-[13px] bg-primary text-primary-foreground">{inboxCount}</Badge>
                             )}
                           </Button>
                         </DropdownMenuTrigger>
@@ -633,7 +633,7 @@ const AssetTrustProfile = () => {
                             >
                               <span className="flex-1">{tab.label}</span>
                               {'badge' in tab && (tab as any).badge > 0 && (
-                                <Badge className="ml-2 h-4 min-w-4 px-1 text-[9px] bg-primary text-primary-foreground">
+                                <Badge className="ml-2 h-4 min-w-4 px-1 text-[13px] bg-primary text-primary-foreground">
                                   {(tab as any).badge}
                                 </Badge>
                               )}

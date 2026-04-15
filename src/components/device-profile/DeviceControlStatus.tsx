@@ -121,12 +121,12 @@ export function DeviceControlStatus({ controls }: DeviceControlStatusProps) {
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono shrink-0">
+                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono shrink-0">
                       {c.isoRef}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-3 flex-wrap text-[11px]">
+                  <div className="flex items-center gap-3 flex-wrap text-[13px]">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       {isNb ? c.fixEffort : c.fixEffortEn}
@@ -152,7 +152,7 @@ export function DeviceControlStatus({ controls }: DeviceControlStatusProps) {
                     )}
                     <Badge
                       variant={statusVariant(st)}
-                      className="text-[10px] cursor-pointer ml-auto"
+                      className="text-[13px] cursor-pointer ml-auto"
                       onClick={() => cycleStatus(c.id)}
                     >
                       {statusLabel(st)}
@@ -188,7 +188,7 @@ export function DeviceControlStatus({ controls }: DeviceControlStatusProps) {
                     </div>
                     <Badge
                       variant="action"
-                      className="text-[10px] cursor-pointer"
+                      className="text-[13px] cursor-pointer"
                       onClick={() => cycleStatus(c.id)}
                     >
                       {statusLabel("done")}
@@ -221,7 +221,7 @@ export function DeviceControlStatus({ controls }: DeviceControlStatusProps) {
                     <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                     <span className="text-sm text-muted-foreground">{isNb ? c.label : c.labelEn}</span>
                   </div>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono shrink-0">
+                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono shrink-0">
                     {c.isoRef}
                   </Badge>
                 </div>

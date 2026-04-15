@@ -83,7 +83,7 @@ export function ImmediateAttentionWidget() {
             Immediate attention
           </CardTitle>
           {items.length > 0 && (
-            <Badge variant="destructive" className="text-[10px] h-5">
+            <Badge variant="destructive" className="text-[13px] h-5">
               {items.length}
             </Badge>
           )}
@@ -109,7 +109,7 @@ export function ImmediateAttentionWidget() {
                   <Icon className={cn("h-3.5 w-3.5", config.text)} />
                 </div>
                 <p className="flex-1 min-w-0 text-sm font-medium text-foreground truncate">{item.title}</p>
-                <Badge variant="outline" className={cn("text-[9px] shrink-0 border h-4", config.bg, config.text)}>
+                <Badge variant="outline" className={cn("text-[13px] shrink-0 border h-4", config.bg, config.text)}>
                   {config.label}
                 </Badge>
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />

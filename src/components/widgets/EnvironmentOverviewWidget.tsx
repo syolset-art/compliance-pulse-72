@@ -157,7 +157,7 @@ export function EnvironmentOverviewWidget() {
                   {card.alert && (
                     <div className="flex items-center gap-1 mt-0.5 justify-center">
                       <AlertTriangle className="h-3 w-3 text-amber-500" />
-                      <span className="text-[10px] text-amber-600 dark:text-amber-400">{card.alert}</span>
+                      <span className="text-[13px] text-amber-600 dark:text-amber-400">{card.alert}</span>
                     </div>
                   )}
                 </div>

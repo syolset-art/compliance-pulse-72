@@ -227,7 +227,7 @@ export default function QualityDashboard() {
                           <div className="flex items-center gap-2 mt-1">
                             <p className="text-xs text-muted-foreground">{formatDate(deviation.created_at)}</p>
                             {deviation.category && (
-                              <Badge variant="outline" className="text-[10px]">
+                              <Badge variant="outline" className="text-[13px]">
                                 {categoryLabel(deviation.category)}
                               </Badge>
                             )}

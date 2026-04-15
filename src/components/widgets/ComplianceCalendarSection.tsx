@@ -125,18 +125,18 @@ export function ComplianceCalendarSection() {
                   </span>
                   <div className="flex items-center gap-1.5">
                     {completedCount > 0 && (
-                      <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
                         {completedCount}/{q.activities.length}
                       </span>
                     )}
                     {qi === currentQuarter && (
-                      <Badge className="text-[9px] font-semibold bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5">
+                      <Badge className="text-[13px] font-semibold bg-primary/20 text-primary border-primary/30 px-1.5 py-0.5">
                         {isNorwegian ? "Nå" : "Now"}
                       </Badge>
                     )}
                   </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground font-medium">
+                <p className="text-[13px] text-muted-foreground font-medium">
                   {isNorwegian ? q.phase_no : q.phase_en}
                 </p>
               </div>
@@ -163,11 +163,11 @@ export function ComplianceCalendarSection() {
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 ml-[18px]">
-                          <Badge variant="outline" className={cn("text-[9px] px-1 py-0 h-4 border", freq.color)}>
+                          <Badge variant="outline" className={cn("text-[13px] px-1 py-0 h-4 border", freq.color)}>
                             {isNorwegian ? freq.label_no : freq.label_en}
                           </Badge>
                           {a.isoRef && (
-                            <span className="text-[9px] text-muted-foreground/60">{a.isoRef}</span>
+                            <span className="text-[13px] text-muted-foreground/60">{a.isoRef}</span>
                           )}
                         </div>
                       </button>

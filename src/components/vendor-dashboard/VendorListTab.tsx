@@ -232,7 +232,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
               <SlidersHorizontal className="h-3.5 w-3.5" />
               Filter
               {activeFilterCount > 0 && (
-                <Badge className="h-4 min-w-4 px-1 text-[10px] rounded-full bg-primary text-primary-foreground">
+                <Badge className="h-4 min-w-4 px-1 text-[13px] rounded-full bg-primary text-primary-foreground">
                   {activeFilterCount}
                 </Badge>
               )}
@@ -316,31 +316,31 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete }: V
         {activeFilterCount > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
             {riskFilter && riskFilter !== "all" && (
-              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {riskFilter === "high" ? "Høy" : riskFilter === "medium" ? "Medium" : "Lav"} risiko
                 <button onClick={() => setRiskFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {vendorCategoryFilter && vendorCategoryFilter !== "all" && (
-              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {vendorCategoryFilter}
                 <button onClick={() => setVendorCategoryFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {gdprRoleFilter && gdprRoleFilter !== "all" && (
-              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {gdprRoleFilter}
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {priorityFilter && priorityFilter !== "all" && (
-              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {priorityFilter === "critical" ? "Kritisk" : priorityFilter === "high" ? "Høy" : priorityFilter === "medium" ? "Medium" : "Lav"} prioritet
                 <button onClick={() => setPriorityFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {categoryFilter && categoryFilter !== "all" && (
-              <Badge variant="secondary" className="text-[11px] gap-1 pl-2 pr-1 py-0.5">
+              <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
                 {categoryFilter}
                 <button onClick={() => setCategoryFilter("")}><X className="h-3 w-3" /></button>
               </Badge>

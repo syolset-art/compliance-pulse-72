@@ -70,7 +70,7 @@ export function DeviceTechnicalStatus({ meta }: DeviceTechnicalStatusProps) {
             <div className="flex items-center gap-1.5">
               <span className="text-sm text-muted-foreground">{row.value}</span>
               {row.note && (
-                <Badge variant="outline" className="text-[9px] text-warning border-warning/30">
+                <Badge variant="outline" className="text-[13px] text-warning border-warning/30">
                   {row.note}
                 </Badge>
               )}

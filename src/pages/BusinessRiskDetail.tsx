@@ -132,20 +132,20 @@ function RiskMatrix({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
 
           {/* Axis labels */}
           <div className="absolute -left-0 top-0 bottom-0 flex items-center">
-            <span className="text-[10px] text-muted-foreground font-medium -rotate-90 whitespace-nowrap">
+            <span className="text-[13px] text-muted-foreground font-medium -rotate-90 whitespace-nowrap">
               {isNb ? "Konsekvens %" : "Consequence %"}
             </span>
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex justify-center">
-            <span className="text-[10px] text-muted-foreground font-medium translate-y-4">
+            <span className="text-[13px] text-muted-foreground font-medium translate-y-4">
               {isNb ? "Sannsynlighet %" : "Probability %"}
             </span>
           </div>
 
           {/* Scale labels */}
-          <span className="absolute left-1 bottom-0 text-[9px] text-muted-foreground">0</span>
-          <span className="absolute right-0 bottom-0 text-[9px] text-muted-foreground">50%</span>
-          <span className="absolute left-1 top-0 text-[9px] text-muted-foreground">100%</span>
+          <span className="absolute left-1 bottom-0 text-[13px] text-muted-foreground">0</span>
+          <span className="absolute right-0 bottom-0 text-[13px] text-muted-foreground">50%</span>
+          <span className="absolute left-1 top-0 text-[13px] text-muted-foreground">100%</span>
 
           {/* Risk dots */}
           {risks.map((r) => {
@@ -199,7 +199,7 @@ function RiskMatrix({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
                 key === "regelverksbrudd" ? "bg-yellow-500/80" :
                 "bg-purple-500/80"
               )} />
-              <span className="text-[11px] text-muted-foreground">{isNb ? cat.label_no : cat.label_en}</span>
+              <span className="text-[13px] text-muted-foreground">{isNb ? cat.label_no : cat.label_en}</span>
             </div>
           ))}
         </div>
@@ -293,11 +293,11 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                     <span className="text-muted-foreground font-normal">/ {risk.system}</span>
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium", cat.className)}>
+                    <span className={cn("px-1.5 py-0.5 rounded text-[13px] font-medium", cat.className)}>
                       {isNb ? cat.label_no : cat.label_en}
                     </span>
                     <span className={cn(
-                      "px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums",
+                      "px-1.5 py-0.5 rounded text-[13px] font-semibold tabular-nums",
                       roi >= 8 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
                       roi >= 4 ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" :
                       "bg-orange-500/15 text-orange-700 dark:text-orange-400"
@@ -305,12 +305,12 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                       ROI {roi.toFixed(1)}×
                     </span>
                     {risk.trend === "up" && (
-                      <span className="flex items-center gap-0.5 text-[10px] text-destructive">
+                      <span className="flex items-center gap-0.5 text-[13px] text-destructive">
                         <TrendingUp className="h-3 w-3" /> {isNb ? "Økende" : "Rising"}
                       </span>
                     )}
                     {risk.trend === "down" && (
-                      <span className="flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400">
+                      <span className="flex items-center gap-0.5 text-[13px] text-emerald-600 dark:text-emerald-400">
                         <TrendingDown className="h-3 w-3" /> {isNb ? "Synkende" : "Declining"}
                       </span>
                     )}
@@ -339,7 +339,7 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                 <div className="bg-amber-500/70 transition-all" style={{ width: `${(risk.mitigation_cost / maxVal) * 100}%` }} />
                 <div className="bg-emerald-500/70 transition-all" style={{ width: `${Math.max(0, savings) / maxVal * 100}%` }} />
               </div>
-              <div className="flex flex-wrap gap-3 text-[11px]">
+              <div className="flex flex-wrap gap-3 text-[13px]">
                 <span className="flex items-center gap-1">
                   <span className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
                   {isNb ? "Restrisiko" : "Residual"}: {formatNOK(risk.residual_exposure)}
@@ -357,19 +357,19 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
               <div className="rounded-lg border border-border p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                <p className="text-[13px] uppercase tracking-wider text-muted-foreground mb-1">
                   {isNb ? "Sannsynlighet" : "Probability"}
                 </p>
                 <p className="text-base font-bold text-foreground">{risk.probability}%</p>
               </div>
               <div className="rounded-lg border border-border p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                <p className="text-[13px] uppercase tracking-wider text-muted-foreground mb-1">
                   {isNb ? "Konsekvens" : "Consequence"}
                 </p>
                 <p className="text-base font-bold text-foreground">{risk.consequence}%</p>
               </div>
               <div className="rounded-lg border border-border p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                <p className="text-[13px] uppercase tracking-wider text-muted-foreground mb-1">
                   {isNb ? "Tiltakskostnad" : "Mitigation cost"}
                 </p>
                 <p className="text-base font-bold text-foreground">{formatNOK(risk.mitigation_cost)}</p>
@@ -377,7 +377,7 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
             </div>
 
             <div className="rounded-lg border border-border bg-muted/50 p-3">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+              <p className="text-[13px] uppercase tracking-wider text-muted-foreground mb-1">
                 {isNb ? "Anbefalt tiltak" : "Recommended action"}
               </p>
               <p className="text-sm text-foreground">

@@ -216,7 +216,7 @@ export default function Assets() {
                 <Monitor className="h-4 w-4" />
                 {t("assets.devices", "Enheter")}
                 {devices.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[13px] font-bold">
                     {devices.length}
                   </span>
                 )}
@@ -225,7 +225,7 @@ export default function Assets() {
                 <HardDrive className="h-4 w-4" />
                 {t("assets.otherAssets", "Andre assets")}
                 {otherAssets.length > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[10px] font-bold">
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/15 px-1 text-[13px] font-bold">
                     {otherAssets.length}
                   </span>
                 )}

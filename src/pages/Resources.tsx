@@ -209,7 +209,7 @@ const Resources = () => {
                   >
                     <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     <span className="text-sm font-medium text-foreground">{update.title}</span>
-                    <Badge className={`text-[10px] px-1.5 py-0 ${style.className}`}>{style.label}</Badge>
+                    <Badge className={`text-[13px] px-1.5 py-0 ${style.className}`}>{style.label}</Badge>
                   </button>
                 );
               })}

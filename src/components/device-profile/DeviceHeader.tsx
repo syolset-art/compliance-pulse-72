@@ -90,13 +90,13 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
-            <Badge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-[13px]">
               {isNb ? "Enhet" : "Device"}
             </Badge>
-            <Badge className="bg-success/15 text-success border-success/30 text-[10px]">
+            <Badge className="bg-success/15 text-success border-success/30 text-[13px]">
               {isNb ? "Aktiv" : "Active"}
             </Badge>
-            <Badge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-[13px]">
               {isNb ? "Kritikalitet" : "Criticality"}: {criticalityLabel}
             </Badge>
           </div>
@@ -134,15 +134,15 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-border">
         {/* Security Areas */}
         <div>
-          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
             {isNb ? "Sikkerhetsområder" : "Security Areas"}
           </h3>
           <div className="space-y-2">
             {areaScores.map(a => (
               <div key={a.label} className="space-y-0.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-foreground">{a.label}</span>
-                  <span className="text-[11px] font-semibold tabular-nums">{a.score}%</span>
+                  <span className="text-[13px] font-medium text-foreground">{a.label}</span>
+                  <span className="text-[13px] font-semibold tabular-nums">{a.score}%</span>
                 </div>
                 <Progress value={a.score} className="h-1" />
               </div>
@@ -152,7 +152,7 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
 
         {/* Compliance impact */}
         <div>
-          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
             {isNb ? "Compliance-påvirkning" : "Compliance Impact"}
           </h3>
           <div className="flex flex-wrap gap-1.5">
@@ -160,7 +160,7 @@ export function DeviceHeader({ asset, meta, trustScore, controls }: DeviceHeader
               <Badge
                 key={ci.framework}
                 variant="outline"
-                className={`text-[10px] gap-1 ${ci.color}`}
+                className={`text-[13px] gap-1 ${ci.color}`}
               >
                 <AlertTriangle className="h-2.5 w-2.5" />
                 {ci.framework} → {ci.status}

@@ -219,7 +219,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
               <Scale className="h-3.5 w-3.5" />
               {isNb ? "Velg leverandører" : "Select vendors"}
               {selectedIds.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">{selectedIds.length}</Badge>
+                <Badge variant="secondary" className="ml-1 h-4 px-1 text-[13px]">{selectedIds.length}</Badge>
               )}
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
@@ -253,7 +253,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                       "h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0",
                       checked ? "bg-primary border-primary" : "border-border"
                     )}>
-                      {checked && <span className="text-primary-foreground text-[9px]">✓</span>}
+                      {checked && <span className="text-primary-foreground text-[13px]">✓</span>}
                     </div>
                     <span className="truncate flex-1">{v.name}</span>
                   </button>
@@ -317,7 +317,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                         {v.trustScore}
                       </span>
                     </div>
-                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[10px]">
+                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[13px]">
                       {v.risk_level || "–"}
                     </Badge>
                   </div>
@@ -362,7 +362,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                             <div className="w-40 shrink-0" />
                             <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${compareData.length}, 1fr)` }}>
                               {compareData.map((v: any) => (
-                                <span key={v.id} className="text-[10px] font-medium text-muted-foreground text-center truncate">{v.name}</span>
+                                <span key={v.id} className="text-[13px] font-medium text-muted-foreground text-center truncate">{v.name}</span>
                               ))}
                             </div>
                             <div className="w-3.5" />
@@ -412,7 +412,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
                 <span className="text-xs font-medium text-muted-foreground">{isNb ? "Risikonivå" : "Risk Level"}</span>
                 {compareData.map((v: any) => (
                   <div key={v.id} className="flex justify-center">
-                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[10px]">
+                    <Badge variant={v.risk_level === "high" ? "destructive" : v.risk_level === "medium" ? "secondary" : "outline"} className="text-[13px]">
                       {v.risk_level || "–"}
                     </Badge>
                   </div>

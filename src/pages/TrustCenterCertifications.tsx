@@ -17,11 +17,11 @@ const TrustCenterCertifications = () => {
   const getStatusBadge = (status: "valid" | "expiring" | "expired") => {
     switch (status) {
       case "valid":
-        return <Badge className="bg-success/15 text-success border-success/30 text-[10px] gap-1"><CheckCircle2 className="h-3 w-3" />Gyldig</Badge>;
+        return <Badge className="bg-success/15 text-success border-success/30 text-[13px] gap-1"><CheckCircle2 className="h-3 w-3" />Gyldig</Badge>;
       case "expiring":
-        return <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />Utløper snart</Badge>;
+        return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />Utløper snart</Badge>;
       case "expired":
-        return <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />Utløpt</Badge>;
+        return <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />Utløpt</Badge>;
     }
   };
 

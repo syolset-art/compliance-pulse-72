@@ -81,7 +81,7 @@ export function BusinessRiskExposureWidget() {
                   <span className="text-muted-foreground">/ {r.system}</span>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium", cat.className)}>
+                  <span className={cn("px-1.5 py-0.5 rounded text-[13px] font-medium", cat.className)}>
                     {isNb ? cat.label_no : cat.label_en}
                   </span>
                   {r.trend === "up" && <TrendingUp className="h-3 w-3 text-destructive" />}
@@ -95,11 +95,11 @@ export function BusinessRiskExposureWidget() {
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
-                <span className="text-[11px] font-semibold tabular-nums w-20 text-right">
+                <span className="text-[13px] font-semibold tabular-nums w-20 text-right">
                   {formatNOK(r.exposure)}
                 </span>
                 {savings > 0 && (
-                  <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums w-20 text-right">
+                  <span className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums w-20 text-right">
                     +{formatNOK(savings)}
                   </span>
                 )}

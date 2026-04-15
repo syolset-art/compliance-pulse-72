@@ -61,7 +61,7 @@ export function MonthlyTasksWidget() {
           </span>
         </div>
         <Progress value={pct} className="h-2" />
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[13px] text-muted-foreground">
           {isNorwegian ? "Denne måneden" : "This month"} · {pct}%
         </p>
       </CardContent>

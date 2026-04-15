@@ -225,7 +225,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             <span className="text-xs text-muted-foreground">Totalt leverandører</span>
           </div>
           <p className="text-2xl font-bold text-primary">{metrics.total}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">{metrics.compliant} compliant (&ge;80%)</p>
+          <p className="text-[13px] text-muted-foreground mt-1">{metrics.compliant} compliant (&ge;80%)</p>
         </Card>
         <Card variant="flat" className="p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -241,7 +241,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             <span className="text-xs text-muted-foreground">Høy risiko</span>
           </div>
           <p className="text-2xl font-bold text-destructive">{metrics.highRisk}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">{metrics.missingDPA} mangler DPA</p>
+          <p className="text-[13px] text-muted-foreground mt-1">{metrics.missingDPA} mangler DPA</p>
         </Card>
         <Card variant="flat" className="p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -249,7 +249,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             <span className="text-xs text-muted-foreground">Krever oppfølging</span>
           </div>
           <p className="text-2xl font-bold text-warning">{totalAttention}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">{metrics.withExpiredDocs} utdaterte dok.</p>
+          <p className="text-[13px] text-muted-foreground mt-1">{metrics.withExpiredDocs} utdaterte dok.</p>
         </Card>
       </div>
 
@@ -348,7 +348,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 <span className="flex items-center gap-1.5 text-muted-foreground">
                   <MapPin className="h-3 w-3" /> {c.country}
                 </span>
-                <Badge variant="outline" className="text-[10px]">{c.count}</Badge>
+                <Badge variant="outline" className="text-[13px]">{c.count}</Badge>
               </div>
             ))}
           </div>
@@ -361,7 +361,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Lavest compliance-score</h3>
-            <Badge variant="outline" className="text-[10px]">Topp 5</Badge>
+            <Badge variant="outline" className="text-[13px]">Topp 5</Badge>
           </div>
           <div className="space-y-2">
             {topRiskVendors.map(v => {
@@ -378,12 +378,12 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
                       {v.vendor_category && <span>{CATEGORY_LABELS[v.vendor_category] || v.vendor_category}</span>}
                       {v.risk_level && (
                         <Badge
                           variant="outline"
-                          className={`text-[9px] h-4 ${
+                          className={`text-[13px] h-4 ${
                             v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/20" :
                             v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/20" :
                             "bg-success/10 text-success border-success/20"

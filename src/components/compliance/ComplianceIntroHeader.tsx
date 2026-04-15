@@ -97,14 +97,14 @@ export function ComplianceIntroHeader({ stats, frameworkName = "ISO 27001" }: Co
                   <span className="font-semibold text-sm text-foreground">{cap.count}</span>
                   <span className="text-xs text-muted-foreground">{cap.label}</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mb-1.5">{cap.desc}</p>
+                <p className="text-[13px] text-muted-foreground mb-1.5">{cap.desc}</p>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
                   <div
                     className={`h-full ${cap.color.replace('text-', 'bg-')} transition-all duration-500`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
+                <p className="text-[13px] text-muted-foreground mt-1">
                   {cap.completed}/{cap.count} {isNorwegian ? "fullført" : "done"}
                 </p>
               </div>

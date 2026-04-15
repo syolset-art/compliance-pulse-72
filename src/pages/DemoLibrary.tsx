@@ -222,7 +222,7 @@ export default function DemoLibrary() {
                       <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                         <item.icon className="h-5 w-5 text-primary" />
                       </div>
-                      <Badge className={cn("text-[10px]", difficultyColors[item.difficulty])}>
+                      <Badge className={cn("text-[13px]", difficultyColors[item.difficulty])}>
                         {item.difficulty}
                       </Badge>
                     </div>
@@ -249,7 +249,7 @@ export default function DemoLibrary() {
                     </div>
                     <div className="flex gap-1.5 mt-3 flex-wrap">
                       {item.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
+                        <Badge key={tag} variant="secondary" className="text-[13px] px-1.5 py-0">
                           {tag}
                         </Badge>
                       ))}

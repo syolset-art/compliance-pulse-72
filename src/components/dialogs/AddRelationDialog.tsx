@@ -190,7 +190,7 @@ export const AddRelationDialog = ({
             <div className="flex flex-col items-center gap-0.5 shrink-0">
               <ArrowRight className="h-5 w-5 text-muted-foreground" />
               {relationshipType && (
-                <span className="text-[10px] text-muted-foreground max-w-[80px] text-center leading-tight">
+                <span className="text-[13px] text-muted-foreground max-w-[80px] text-center leading-tight">
                   {relationshipTypes.find((r) => r.value === relationshipType)?.label}
                 </span>
               )}

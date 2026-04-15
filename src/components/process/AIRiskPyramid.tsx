@@ -130,7 +130,7 @@ export const AIRiskPyramidExplainer = () => {
                 <p className="text-xs text-muted-foreground">{level.description}</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {level.examples.map((ex, i) => (
-                    <span key={i} className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{ex}</span>
+                    <span key={i} className="text-[13px] bg-muted px-1.5 py-0.5 rounded">{ex}</span>
                   ))}
                 </div>
               </div>
@@ -159,7 +159,7 @@ export const AIRiskPyramid = ({
   showLabels = true
 }: AIRiskPyramidProps) => {
   const sizeClasses = {
-    sm: { pyramid: 'max-w-[200px]', text: 'text-[10px]', padding: 'py-1.5 px-2' },
+    sm: { pyramid: 'max-w-[200px]', text: 'text-[13px]', padding: 'py-1.5 px-2' },
     md: { pyramid: 'max-w-[280px]', text: 'text-xs', padding: 'py-2 px-3' },
     lg: { pyramid: 'max-w-[360px]', text: 'text-sm', padding: 'py-3 px-4' }
   };

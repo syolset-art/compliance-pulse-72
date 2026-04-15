@@ -181,7 +181,7 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
               {tprmControlName && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Dekker</span>
-                  <Badge variant="secondary" className="text-[10px]">{tprmControlName}</Badge>
+                  <Badge variant="secondary" className="text-[13px]">{tprmControlName}</Badge>
                 </div>
               )}
 

@@ -89,12 +89,12 @@ function PlanCard({ tier, currentTier }: { tier: PlanTier; currentTier: PlanTier
       isCurrent ? "border-primary ring-1 ring-primary/20" : "border-border"
     } ${tier === "premium" ? "bg-primary/[0.02]" : ""}`}>
       {tier === "premium" && (
-        <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] px-3">
+        <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[13px] px-3">
           Mest populær
         </Badge>
       )}
       {isCurrent && (
-        <Badge className="absolute -top-2.5 right-3 bg-success/10 text-success border-success/20 text-[10px] px-2">
+        <Badge className="absolute -top-2.5 right-3 bg-success/10 text-success border-success/20 text-[13px] px-2">
           Nåværende
         </Badge>
       )}
@@ -107,7 +107,7 @@ function PlanCard({ tier, currentTier }: { tier: PlanTier; currentTier: PlanTier
           </div>
           <div>
             <h3 className="font-bold text-foreground text-base">{plan.displayName}</h3>
-            <p className="text-[11px] text-muted-foreground leading-snug">{plan.description}</p>
+            <p className="text-[13px] text-muted-foreground leading-snug">{plan.description}</p>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ function PlanStatusBanner() {
                 <h3 className="text-lg font-bold text-foreground">{tierConfig.displayName}</h3>
               </div>
             </div>
-            <Badge className="bg-success/10 text-success border-success/20 text-[10px]">
+            <Badge className="bg-success/10 text-success border-success/20 text-[13px]">
               <CheckCircle2 className="h-3 w-3 mr-1" />
               Aktiv
             </Badge>
@@ -232,10 +232,10 @@ function PlanStatusBanner() {
               </div>
             </div>
             {isExhausted && (
-              <Badge variant="destructive" className="text-[10px]">Oppbrukt</Badge>
+              <Badge variant="destructive" className="text-[13px]">Oppbrukt</Badge>
             )}
             {isLow && !isExhausted && (
-              <Badge className="bg-warning/10 text-warning border-warning/20 text-[10px]">Lite igjen</Badge>
+              <Badge className="bg-warning/10 text-warning border-warning/20 text-[13px]">Lite igjen</Badge>
             )}
           </div>
 
@@ -245,7 +245,7 @@ function PlanStatusBanner() {
               style={{ width: `${Math.max(percentRemaining, 2)}%` }}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[13px] text-muted-foreground">
             {percentRemaining}% gjenstår av månedlige credits
           </p>
 
@@ -300,14 +300,14 @@ function CreditsSection() {
                   className={`relative cursor-pointer transition-all hover:border-primary/40 ${pkg.popular ? "border-primary ring-1 ring-primary/20" : ""}`}
                 >
                   {pkg.popular && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[9px] px-2">
+                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[13px] px-2">
                       Populær
                     </Badge>
                   )}
                   <CardContent className="p-3 text-center space-y-2">
                     <p className="text-sm font-bold text-foreground">{pkg.name}</p>
                     <p className="text-lg font-bold text-primary">{pkg.credits}</p>
-                    <p className="text-[10px] text-muted-foreground">credits</p>
+                    <p className="text-[13px] text-muted-foreground">credits</p>
                     <p className="text-sm font-semibold text-foreground">{formatKr(pkg.priceKr)}</p>
                     <Button
                       size="sm"
@@ -525,7 +525,7 @@ export default function Subscriptions() {
                           <p className="text-xs text-muted-foreground">{mod.description}</p>
                         </div>
                         {active && (
-                          <Badge variant="outline" className="border-success/30 text-success text-[10px]">
+                          <Badge variant="outline" className="border-success/30 text-success text-[13px]">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             Aktiv
                           </Badge>
@@ -579,7 +579,7 @@ export default function Subscriptions() {
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold text-foreground">Regelverk</h2>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-[13px]">
                 {activeCount} av {totalCount} aktive
               </Badge>
             </div>
@@ -605,7 +605,7 @@ export default function Subscriptions() {
               <CollapsibleTrigger className="flex items-center gap-2 w-full group">
                 <Star className="h-3.5 w-3.5 text-primary shrink-0" />
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anbefalt for din virksomhet</h3>
-                <Badge variant="outline" className="text-[9px] ml-1">{recommended.filter(fw => activeFrameworkIds.has(fw.id)).length}/{recommended.length}</Badge>
+                <Badge variant="outline" className="text-[13px] ml-1">{recommended.filter(fw => activeFrameworkIds.has(fw.id)).length}/{recommended.length}</Badge>
                 <span className="ml-auto">
                   {expandedGroup === "recommended" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
                 </span>
@@ -625,8 +625,8 @@ export default function Subscriptions() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm text-foreground">{fw.name}</span>
-                            {isFree && <Badge className="bg-success/10 text-success border-0 text-[9px]">Inkludert</Badge>}
-                            {hasPaidAddon && !isFree && <span className="text-[10px] text-muted-foreground font-medium">{formatKr(price)}/år</span>}
+                            {isFree && <Badge className="bg-success/10 text-success border-0 text-[13px]">Inkludert</Badge>}
+                            {hasPaidAddon && !isFree && <span className="text-[13px] text-muted-foreground font-medium">{formatKr(price)}/år</span>}
                           </div>
                         </div>
                       </div>
@@ -642,7 +642,7 @@ export default function Subscriptions() {
               <CollapsibleTrigger className="flex items-center gap-2 w-full group">
                 <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Valgfrie tillegg</h3>
-                <Badge variant="outline" className="text-[9px] ml-1">{optional.filter(fw => activeFrameworkIds.has(fw.id)).length}/{optional.length}</Badge>
+                <Badge variant="outline" className="text-[13px] ml-1">{optional.filter(fw => activeFrameworkIds.has(fw.id)).length}/{optional.length}</Badge>
                 <span className="ml-auto">
                   {expandedGroup === "optional" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
                 </span>
@@ -661,7 +661,7 @@ export default function Subscriptions() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm text-foreground">{fw.name}</span>
-                            {hasPaidAddon && price > 0 && <span className="text-[10px] text-muted-foreground font-medium">{formatKr(price)}/år</span>}
+                            {hasPaidAddon && price > 0 && <span className="text-[13px] text-muted-foreground font-medium">{formatKr(price)}/år</span>}
                           </div>
                         </div>
                       </div>

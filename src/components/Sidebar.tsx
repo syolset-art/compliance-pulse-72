@@ -432,7 +432,7 @@ const SidebarContent = () => {
                    <span className="text-sm font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
+                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
                     {t("nav.exploreBadge", "Utforsk")}
                   </Badge>
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", exploreOpen && "rotate-180")} />
@@ -445,7 +445,7 @@ const SidebarContent = () => {
                 <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
                   {exploreCoreItems.length > 0 && (
                     <>
-                      <p className="px-2.5 pt-2 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      <p className="px-2.5 pt-2 pb-1 text-[13px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Mynder Core
                       </p>
                       {exploreCoreItems.map((item) => {
@@ -471,7 +471,7 @@ const SidebarContent = () => {
                   )}
                   {exploreRegistryItems.length > 0 && (
                     <>
-                      <p className="px-2.5 pt-2 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      <p className="px-2.5 pt-2 pb-1 text-[13px] uppercase tracking-wider text-muted-foreground font-semibold">
                         {t("nav.registries", "Registre")}
                       </p>
                       {exploreRegistryItems.map((item) => {

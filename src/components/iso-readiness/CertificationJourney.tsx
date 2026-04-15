@@ -58,7 +58,7 @@ export function CertificationJourney({ completedPercent }: CertificationJourneyP
       {/* Optional phases separator */}
       <div className="flex items-center gap-2 my-3">
         <div className="h-px flex-1 bg-border" />
-        <Badge variant="outline" className="text-[10px] text-muted-foreground font-normal">
+        <Badge variant="outline" className="text-[13px] text-muted-foreground font-normal">
           {isNorwegian ? "Valgfritt" : "Optional"}
         </Badge>
         <div className="h-px flex-1 bg-border" />
@@ -145,12 +145,12 @@ function PhaseItem({ phase, status, name, isExpanded, isNorwegian, onToggle, com
                 {name}
               </span>
               {status === 'in_progress' && (
-                <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+                <Badge variant="outline" className="text-[13px] text-primary border-primary/30">
                   {isNorwegian ? "Aktiv" : "Active"}
                 </Badge>
               )}
               {status === 'completed' && (
-                <Badge variant="action" className="text-[10px]">
+                <Badge variant="action" className="text-[13px]">
                   {isNorwegian ? "Fullført" : "Complete"}
                 </Badge>
               )}

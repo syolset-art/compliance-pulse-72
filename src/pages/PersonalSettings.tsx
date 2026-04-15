@@ -261,22 +261,22 @@ export default function PersonalSettings() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="rounded-lg border border-border p-3 space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "E-post" : "Email"}</p>
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "E-post" : "Email"}</p>
                       <p className="text-sm font-medium text-foreground">{user?.email || "–"}</p>
                     </div>
                     <div className="rounded-lg border border-border p-3 space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Sist innlogget" : "Last signed in"}</p>
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Sist innlogget" : "Last signed in"}</p>
                       <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                         {lastSignIn}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border p-3 space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Konto opprettet" : "Account created"}</p>
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Konto opprettet" : "Account created"}</p>
                       <p className="text-sm font-medium text-foreground">{createdAt}</p>
                     </div>
                     <div className="rounded-lg border border-border p-3 space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Organisasjon" : "Organization"}</p>
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Organisasjon" : "Organization"}</p>
                       <p className="text-sm font-medium text-foreground">{companyProfile?.name || "–"}</p>
                     </div>
                   </div>
@@ -286,7 +286,7 @@ export default function PersonalSettings() {
                     <>
                       <Separator />
                       <div className="space-y-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Roller" : "Roles"}</p>
+                        <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">{isNb ? "Roller" : "Roles"}</p>
                         <div className="flex flex-wrap gap-2">
                           {userRoles.map((r: any) => (
                             <Badge key={r.role} variant={r.is_primary ? "default" : "secondary"} className="text-xs">
@@ -453,13 +453,13 @@ export default function PersonalSettings() {
                                   {isNb ? agent.nameNb : agent.nameEn}
                                 </h4>
                                 {isConnected && (
-                                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] gap-0.5">
+                                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-0.5">
                                     <CheckCircle2 className="h-3 w-3" />
                                     {isNb ? "Aktiv" : "Active"}
                                   </Badge>
                                 )}
                                 {!isConnected && (
-                                  <Badge variant="outline" className="text-[10px]">
+                                  <Badge variant="outline" className="text-[13px]">
                                     {isNb ? "Kommer snart" : "Coming soon"}
                                   </Badge>
                                 )}
@@ -544,13 +544,13 @@ export default function PersonalSettings() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="rounded-lg border border-border p-3 text-center">
                       <p className="text-2xl font-bold text-foreground">{connectedAgents.length}</p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
                         {isNb ? "Aktive agenter" : "Active agents"}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border p-3 text-center">
                       <p className="text-2xl font-bold text-foreground">{userRoles.length}</p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
                         {isNb ? "Roller" : "Roles"}
                       </p>
                     </div>
@@ -558,7 +558,7 @@ export default function PersonalSettings() {
                       <p className="text-2xl font-bold text-foreground">
                         {notifPrefs.filter((p: any) => p.enabled).length || NOTIFICATION_TYPES.length}
                       </p>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">
                         {isNb ? "Aktive varsler" : "Active alerts"}
                       </p>
                     </div>

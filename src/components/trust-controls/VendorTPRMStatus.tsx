@@ -210,13 +210,13 @@ export const VendorTPRMStatus = ({
               <div className="flex items-center gap-2 min-w-0">
                 <Activity className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="text-sm font-semibold text-foreground">{isNb ? "Aktiviteter" : "Activities"}</span>
-                <Badge variant="outline" className={`text-[11px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
+                <Badge variant="outline" className={`text-[13px] font-bold px-2 py-0.5 ${cfg.badgeBg}`}>
                   {cfg.emoji} {cfg.label}
                 </Badge>
                 {asset?.criticality && (
                   <>
                     <span className="text-border">·</span>
-                    <Badge variant="outline" className={`text-[11px] px-2 py-0.5 ${
+                    <Badge variant="outline" className={`text-[13px] px-2 py-0.5 ${
                       asset.criticality.toLowerCase() === "critical" || asset.criticality.toLowerCase() === "high"
                         ? "bg-destructive/10 text-destructive border-destructive/30"
                         : asset.criticality.toLowerCase() === "medium"
@@ -273,7 +273,7 @@ export const VendorTPRMStatus = ({
                   >
                     {isNb ? "Gjenstår" : "Remaining"}
                     {openTasks.length > 0 && (
-                      <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
+                      <Badge variant="outline" className="ml-1.5 text-[13px] px-1 py-0 h-4">
                         {openTasks.length + pendingActivities.length}
                       </Badge>
                     )}
@@ -287,7 +287,7 @@ export const VendorTPRMStatus = ({
                     }`}
                   >
                     {isNb ? "Utført" : "Completed"}
-                    <Badge variant="outline" className="ml-1.5 text-[9px] px-1 py-0 h-4">
+                    <Badge variant="outline" className="ml-1.5 text-[13px] px-1 py-0 h-4">
                       {completedActivities.length}
                     </Badge>
                   </button>
@@ -297,7 +297,7 @@ export const VendorTPRMStatus = ({
                 {innerTab === "remaining" && (
                   <div className="space-y-2">
                     {responsiblePerson && (
-                      <span className="text-[10px] text-muted-foreground block">
+                      <span className="text-[13px] text-muted-foreground block">
                         {isNb ? "Ansvarlig:" : "Responsible:"} {responsiblePerson}
                       </span>
                     )}
@@ -323,13 +323,13 @@ export const VendorTPRMStatus = ({
                                     <Shield className="h-3 w-3 text-primary/60 shrink-0" />
                                   )}
                                   {task.priority === "high" && (
-                                    <Badge variant="destructive" className="text-[9px] shrink-0 h-4">
+                                    <Badge variant="destructive" className="text-[13px] shrink-0 h-4">
                                       {isNb ? "Høy" : "High"}
                                     </Badge>
                                   )}
                                 </div>
                                 {task.action && (
-                                  <p className="text-[10px] text-muted-foreground mt-0.5 ml-4">
+                                  <p className="text-[13px] text-muted-foreground mt-0.5 ml-4">
                                     {task.action}
                                   </p>
                                 )}
@@ -338,7 +338,7 @@ export const VendorTPRMStatus = ({
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-6 text-[10px] gap-1 shrink-0 whitespace-nowrap"
+                                  className="h-6 text-[13px] gap-1 shrink-0 whitespace-nowrap"
                                   onClick={() => onNavigateToTab(task.targetTab!)}
                                 >
                                   {task.ctaLabel}
@@ -368,11 +368,11 @@ export const VendorTPRMStatus = ({
                                 <span className="text-xs font-medium text-foreground">
                                   {isNb ? act.titleNb : act.titleEn}
                                 </span>
-                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                <p className="text-[13px] text-muted-foreground mt-0.5">
                                   {act.actor} — {formatRelativeDate(act.date, isNb)}
                                 </p>
                               </div>
-                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-warning/10 text-warning border-warning/30 shrink-0">
+                              <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-4 bg-warning/10 text-warning border-warning/30 shrink-0">
                                 {isNb ? "Venter svar" : "Awaiting response"}
                               </Badge>
                             </div>
@@ -421,11 +421,11 @@ export const VendorTPRMStatus = ({
                                 <span className="text-xs font-medium text-foreground truncate">
                                   {isNb ? act.titleNb : act.titleEn}
                                 </span>
-                                <Badge variant="outline" className={`text-[9px] px-1 py-0 border-0 ${phaseConf.color}`}>
+                                <Badge variant="outline" className={`text-[13px] px-1 py-0 border-0 ${phaseConf.color}`}>
                                   {isNb ? phaseConf.nb : phaseConf.en}
                                 </Badge>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                              <p className="text-[13px] text-muted-foreground mt-0.5">
                                 {act.actor}, {act.actorRole} — {formatRelativeDate(act.date, isNb)}
                               </p>
                             </div>

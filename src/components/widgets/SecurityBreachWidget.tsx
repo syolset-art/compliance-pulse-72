@@ -155,15 +155,15 @@ export function SecurityBreachWidget() {
                       <p className="text-sm font-medium text-foreground truncate">
                         {incident.subject}
                       </p>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${sevConf.className}`}>
+                      <Badge variant="outline" className={`text-[13px] px-1.5 py-0 ${sevConf.className}`}>
                         {isNb ? sevConf.label_no : sevConf.label_en}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground">
                         {incident.sender_name}
                       </span>
-                      <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                      <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                         <Clock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(incident.received_at), {
                           addSuffix: true,
@@ -171,7 +171,7 @@ export function SecurityBreachWidget() {
                         })}
                       </span>
                       {isActive && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-destructive/30 text-destructive">
+                        <Badge variant="outline" className="text-[13px] px-1.5 py-0 border-destructive/30 text-destructive">
                           {isNb ? "Ubehandlet" : "Unprocessed"}
                         </Badge>
                       )}

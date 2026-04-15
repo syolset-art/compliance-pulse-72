@@ -69,7 +69,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
             <Wrench className="h-5 w-5 text-primary" />
             {isNb ? "Prioriterte tiltak" : "Prioritized Actions"}
             {activeItems.length > 0 && (
-              <Badge variant="destructive" className="text-[10px] ml-1">{activeItems.length}</Badge>
+              <Badge variant="destructive" className="text-[13px] ml-1">{activeItems.length}</Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -87,7 +87,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
               <div key={c.id} className="px-5 py-4 border-b last:border-b-0 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2 min-w-0 flex-1">
-                    <Badge className={`text-[9px] shrink-0 ${priorityColor}`}>{priority}</Badge>
+                    <Badge className={`text-[13px] shrink-0 ${priorityColor}`}>{priority}</Badge>
                     <div className="min-w-0">
                       <span className="text-sm font-semibold">{isNb ? c.label : c.labelEn}</span>
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -97,7 +97,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 flex-wrap text-[11px]">
+                <div className="flex items-center gap-3 flex-wrap text-[13px]">
                   <div className="flex items-center gap-1 text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     {isNb ? c.fixEffort : c.fixEffortEn}
@@ -109,7 +109,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
                     </div>
                   )}
                   {c.serviceAvailable && (
-                    <Badge variant="outline" className="text-[9px] gap-1 text-primary border-primary/30">
+                    <Badge variant="outline" className="text-[13px] gap-1 text-primary border-primary/30">
                       <ShoppingCart className="h-2.5 w-2.5" />
                       {isNb ? "Tilgjengelig som tjeneste" : "Available as service"}
                     </Badge>
@@ -129,7 +129,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
                   )}
                   <Badge
                     variant={statusVariant(st)}
-                    className="text-[10px] cursor-pointer ml-auto"
+                    className="text-[13px] cursor-pointer ml-auto"
                     onClick={() => cycleStatus(c.id)}
                   >
                     {statusLabel(st)}
@@ -164,7 +164,7 @@ export function DeviceActionPlans({ controls, meta, totalControls }: DeviceActio
                     </div>
                     <Badge
                       variant="action"
-                      className="text-[10px] cursor-pointer"
+                      className="text-[13px] cursor-pointer"
                       onClick={() => cycleStatus(c.id)}
                     >
                       {statusLabel("done")}

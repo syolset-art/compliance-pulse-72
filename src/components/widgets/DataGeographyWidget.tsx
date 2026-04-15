@@ -184,7 +184,7 @@ export function DataGeographyWidget() {
           {/* Donut chart */}
           <div className="flex flex-col items-center gap-1.5">
             <DonutChart segments={donutSegments} size={130} />
-            <span className="text-[10px] text-muted-foreground font-medium mt-1">
+            <span className="text-[13px] text-muted-foreground font-medium mt-1">
               {isNb ? "Totalt" : "Total"}
             </span>
           </div>
@@ -225,7 +225,7 @@ export function DataGeographyWidget() {
                       ) : (
                         <ShieldAlert className="h-3 w-3 text-amber-500" />
                       )}
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground">
                         {region.gdprSafe ? "GDPR OK" : isNb ? "Krever vurdering" : "Needs review"}
                       </span>
                     </div>
@@ -235,13 +235,13 @@ export function DataGeographyWidget() {
                   {isExpanded && count > 0 && (
                     <div className="w-full mt-1 space-y-1 text-left max-h-24 overflow-y-auto">
                       {region.assets.slice(0, 8).map((a) => (
-                        <div key={a.id} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <div key={a.id} className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
                           <div className={cn("w-1.5 h-1.5 rounded-full", region.bgColor)} />
                           <span className="truncate">{a.name}</span>
                         </div>
                       ))}
                       {count > 8 && (
-                        <p className="text-[10px] text-muted-foreground/60 pl-3">
+                        <p className="text-[13px] text-muted-foreground/60 pl-3">
                           +{count - 8} {isNb ? "til" : "more"}
                         </p>
                       )}
@@ -258,15 +258,15 @@ export function DataGeographyWidget() {
           {Object.values(regionGroups).map((r) => (
             <div key={r.id} className="flex items-center gap-1.5">
               <div className={cn("w-2.5 h-2.5 rounded-full", r.bgColor)} />
-              <span className="text-[11px] text-muted-foreground">{isNb ? r.label : r.labelEn}</span>
+              <span className="text-[13px] text-muted-foreground">{isNb ? r.label : r.labelEn}</span>
             </div>
           ))}
           <div className="ml-auto flex items-center gap-3">
-            <Badge variant="outline" className="text-[10px] gap-1 h-5">
+            <Badge variant="outline" className="text-[13px] gap-1 h-5">
               <ShieldCheck className="h-3 w-3 text-emerald-500" />
               GDPR OK
             </Badge>
-            <Badge variant="outline" className="text-[10px] gap-1 h-5">
+            <Badge variant="outline" className="text-[13px] gap-1 h-5">
               <ShieldAlert className="h-3 w-3 text-amber-500" />
               {isNb ? "Krever vurdering" : "Needs review"}
             </Badge>

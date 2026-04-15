@@ -71,7 +71,7 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
           <div>
             <h2 className="text-sm font-semibold text-foreground">{isNb ? "Risikooversikt" : "Risk Overview"}</h2>
             <span className={`text-xs font-medium ${level.color}`}>{level.label} {isNb ? "risiko" : "risk"}</span>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{totalRisks} {isNb ? "identifiserte risikoer" : "identified risks"}</p>
+            <p className="text-[13px] text-muted-foreground mt-0.5">{totalRisks} {isNb ? "identifiserte risikoer" : "identified risks"}</p>
           </div>
         </div>
 
@@ -80,22 +80,22 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
           <div className="flex-1 flex flex-col items-center justify-center gap-1 p-4 border-r border-border bg-destructive/5">
             <TriangleAlert className="h-4 w-4 text-destructive" aria-hidden="true" />
             <span className="text-2xl font-bold text-destructive">{highRisks}</span>
-            <span className="text-[10px] font-medium text-destructive uppercase tracking-wider">{isNb ? "Høy" : "High"}</span>
+            <span className="text-[13px] font-medium text-destructive uppercase tracking-wider">{isNb ? "Høy" : "High"}</span>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center gap-1 p-4 border-r border-border bg-warning/5">
             <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
             <span className="text-2xl font-bold text-warning">{mediumRisks}</span>
-            <span className="text-[10px] font-medium text-warning uppercase tracking-wider">{isNb ? "Middels" : "Medium"}</span>
+            <span className="text-[13px] font-medium text-warning uppercase tracking-wider">{isNb ? "Middels" : "Medium"}</span>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center gap-1 p-4 border-r border-border bg-muted/30">
             <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <span className="text-2xl font-bold text-muted-foreground">{lowRisks}</span>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{isNb ? "Lav" : "Low"}</span>
+            <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider">{isNb ? "Lav" : "Low"}</span>
           </div>
 
           {/* Right: Top risks list */}
           <div className="flex-[2] p-4 min-w-0">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               {isNb ? "Viktigste risikoer" : "Top risks"}
             </p>
             {risks.length > 0 ? (
@@ -110,7 +110,7 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
                           <TriangleAlert className={`h-3 w-3 shrink-0 ${sev.color}`} aria-hidden="true" />
                           <span className={`text-xs truncate ${sev.color}`}>{isNb ? r.titleNb : r.titleEn}</span>
                         </div>
-                        <Badge variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"} className="text-[9px] shrink-0 px-1.5 py-0">
+                        <Badge variant={r.severity === "high" ? "destructive" : r.severity === "medium" ? "warning" : "outline"} className="text-[13px] shrink-0 px-1.5 py-0">
                           {isNb ? sev.labelNb : sev.labelEn}
                         </Badge>
                       </div>
@@ -121,7 +121,7 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
                               window.dispatchEvent(new CustomEvent("switch-to-tab", { detail: { tab: action.targetTab } }));
                             }
                           }}
-                          className="ml-4.5 mt-0.5 text-[10px] text-primary hover:underline flex items-center gap-0.5 cursor-pointer"
+                          className="ml-4.5 mt-0.5 text-[13px] text-primary hover:underline flex items-center gap-0.5 cursor-pointer"
                         >
                           {isNb ? action.titleNb : action.titleEn}
                           <ArrowRight className="h-2.5 w-2.5" />

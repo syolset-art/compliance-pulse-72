@@ -142,7 +142,7 @@ export const ProcessOverviewCard = ({
             </h4>
             {aiUsage?.hasAI && (
               <div className={cn(
-                "flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-medium",
+                "flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[13px] font-medium",
                 getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).bgClass,
                 getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).borderClass,
                 getAIRiskConfig(aiUsage.riskCategory, aiUsage.complianceStatus).textClass
@@ -153,7 +153,7 @@ export const ProcessOverviewCard = ({
             )}
           </div>
           {process.description && (
-            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3">
+            <p className="text-[13px] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3">
               {process.description}
             </p>
           )}
@@ -176,12 +176,12 @@ export const ProcessOverviewCard = ({
             >
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <RiskIcon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", riskConfig.textClass)} />
-                <span className="text-[10px] sm:text-xs font-medium">AI-risiko</span>
+                <span className="text-[13px] sm:text-xs font-medium">AI-risiko</span>
               </div>
               <Badge
                 variant="outline"
                 className={cn(
-                  "border-0 text-[10px] sm:text-xs",
+                  "border-0 text-[13px] sm:text-xs",
                   riskConfig.bgClass,
                   riskConfig.textClass
                 )}
@@ -198,11 +198,11 @@ export const ProcessOverviewCard = ({
         >
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Shield className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${critConfig.textClass}`} />
-            <span className="text-[10px] sm:text-xs font-medium">Kritikalitet</span>
+            <span className="text-[13px] sm:text-xs font-medium">Kritikalitet</span>
           </div>
           <Badge
             variant="outline"
-            className={`${critConfig.bgClass} ${critConfig.textClass} border-0 text-[10px] sm:text-xs`}
+            className={`${critConfig.bgClass} ${critConfig.textClass} border-0 text-[13px] sm:text-xs`}
           >
             {critConfig.label}
           </Badge>
@@ -210,45 +210,45 @@ export const ProcessOverviewCard = ({
 
         {/* Process Statistics - More compact on mobile */}
         <div className="space-y-1.5 sm:space-y-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-xs text-muted-foreground">
             <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             <span className="font-medium">Statistikk</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 sm:space-y-1.5 sm:block sm:pl-5">
-            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+            <div className="flex items-center justify-between text-[13px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${getStatDotColor(stats.dataTypes)}`} />
                 <span className="text-muted-foreground">Datatyper</span>
               </div>
-              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs">
                 {stats.dataTypes}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+            <div className="flex items-center justify-between text-[13px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${getStatDotColor(stats.systems)}`} />
                 <span className="text-muted-foreground">Systemer</span>
               </div>
-              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs">
                 {stats.systems}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-[10px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+            <div className="flex items-center justify-between text-[13px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${stats.riskScenarios > 0 ? "bg-orange-400" : "bg-blue-400"}`} />
                 <span className="text-muted-foreground">Risikoer</span>
               </div>
-              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs">
+              <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs">
                 {stats.riskScenarios}
               </Badge>
             </div>
             {stats.pendingMitigations > 0 && (
-              <div className="flex items-center justify-between text-[10px] sm:text-xs bg-orange-50 dark:bg-orange-950/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+              <div className="flex items-center justify-between text-[13px] sm:text-xs bg-orange-50 dark:bg-orange-950/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
                 <div className="flex items-center gap-1 sm:gap-2">
                   <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-orange-400" />
                   <span className="text-orange-400 truncate">Tiltak mangler</span>
                 </div>
-                <Badge variant="outline" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[10px] sm:text-xs text-orange-400 border-orange-400/50">
+                <Badge variant="outline" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs text-orange-400 border-orange-400/50">
                   {stats.pendingMitigations}
                 </Badge>
               </div>
@@ -258,11 +258,11 @@ export const ProcessOverviewCard = ({
 
         {/* Process Owner - Compact on mobile */}
         <div className="space-y-1 sm:space-y-1.5 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[13px] sm:text-xs text-muted-foreground">
             <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             <span className="font-medium">Ansvarlig</span>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 pl-4 sm:pl-5 text-[10px] sm:text-xs">
+          <div className="flex items-center gap-1.5 sm:gap-2 pl-4 sm:pl-5 text-[13px] sm:text-xs">
             <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-400" />
             <span className="truncate">{processOwner}</span>
           </div>

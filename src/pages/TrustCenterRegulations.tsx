@@ -399,7 +399,7 @@ export default function TrustCenterRegulations() {
                         <span className="text-muted-foreground font-medium">{formatKr(addon.yearlyPriceKr)}/år</span>
                       </div>
                     ))}
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-[13px] text-muted-foreground mt-1">
                       Inkl. gap-analyse, tiltaksliste, modenhet og rapport
                     </p>
                   </div>
@@ -432,7 +432,7 @@ export default function TrustCenterRegulations() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-sm">{framework.name}</span>
-                              <Badge variant={priority === "high" ? "default" : "outline"} className="text-[10px] px-1.5 py-0">
+                              <Badge variant={priority === "high" ? "default" : "outline"} className="text-[13px] px-1.5 py-0">
                                 {priority === "high" ? "Høy prioritet" : priority === "medium" ? "Anbefalt" : "Valgfritt"}
                               </Badge>
                             </div>
@@ -504,31 +504,31 @@ export default function TrustCenterRegulations() {
                                   {framework.name}
                                 </span>
                                 {isMandatory && (
-                                  <Badge variant="destructive" className="text-[10px] px-1.5 py-0 gap-1">
+                                  <Badge variant="destructive" className="text-[13px] px-1.5 py-0 gap-1">
                                     <Lock className="h-2.5 w-2.5" />
                                     Obligatorisk
                                   </Badge>
                                 )}
                                 {framework.isRecommended && !isMandatory && (
-                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 gap-1">
+                                  <Badge variant="secondary" className="text-[13px] px-1.5 py-0 gap-1">
                                     <Sparkles className="h-2.5 w-2.5" />
                                     Anbefalt
                                   </Badge>
                                 )}
                                 {(framework as any).comingSoon && (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1">
+                                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1">
                                     <Clock className="h-2.5 w-2.5" />
                                     Kommer
                                   </Badge>
                                 )}
                                 {/* Pricing badge */}
                                 {isFrameworkFree(framework.id) ? (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 border-green-500/30 text-green-600 dark:text-green-400">
+                                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 border-green-500/30 text-green-600 dark:text-green-400">
                                     <CheckCircle2 className="h-2.5 w-2.5" />
                                     Gratis
                                   </Badge>
                                 ) : FRAMEWORK_ADDONS[framework.id] ? (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1">
+                                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1">
                                     <CreditCard className="h-2.5 w-2.5" />
                                     {formatKr(getFrameworkYearlyPrice(framework.id))}/år
                                   </Badge>
@@ -536,7 +536,7 @@ export default function TrustCenterRegulations() {
                                 {docs > 0 && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setDocsDialogFramework({ id: framework.id, name: framework.name }); }}
-                                    className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
+                                    className="inline-flex items-center gap-1 text-[13px] text-primary hover:underline"
                                   >
                                     <FileText className="h-2.5 w-2.5" />
                                     {docs} dok.

@@ -103,8 +103,8 @@ export function RecentActivityWidget() {
           <div className="space-y-3">
             {items.map((item) => (
               <div key={item.id} className="flex items-start gap-2.5">
-                <Avatar className="h-7 w-7 text-[10px]">
-                  <AvatarFallback className="bg-muted text-muted-foreground text-[10px]">
+                <Avatar className="h-7 w-7 text-[13px]">
+                  <AvatarFallback className="bg-muted text-muted-foreground text-[13px]">
                     {item.initials}
                   </AvatarFallback>
                 </Avatar>
@@ -113,7 +113,7 @@ export function RecentActivityWidget() {
                     {iconMap[item.type]}
                     <span className="text-xs font-medium truncate">{item.label}</span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
                     {item.time
                       ? formatDistanceToNow(new Date(item.time), {
                           addSuffix: true,

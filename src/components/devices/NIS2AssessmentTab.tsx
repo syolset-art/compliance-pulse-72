@@ -65,25 +65,25 @@ const capabilityBadge = (cap: NIS2AgentCapability) => {
   switch (cap) {
     case "ai_ready":
       return (
-        <Badge variant="outline" className="text-[10px] h-5 gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
           <Bot className="h-3 w-3" /> Lara håndterer
         </Badge>
       );
     case "activatable":
       return (
-        <Badge variant="outline" className="text-[10px] h-5 gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
           <Zap className="h-3 w-3" /> Kan aktiveres
         </Badge>
       );
     case "assisted":
       return (
-        <Badge variant="outline" className="text-[10px] h-5 gap-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800">
           <Sparkles className="h-3 w-3" /> Assistert
         </Badge>
       );
     case "manual":
       return (
-        <Badge variant="outline" className="text-[10px] h-5 gap-1 bg-slate-50 dark:bg-slate-950/30 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-slate-50 dark:bg-slate-950/30 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700">
           <User className="h-3 w-3" /> Manuell
         </Badge>
       );
@@ -361,13 +361,13 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                         </span>
                         {capabilityBadge(req.agentCapability)}
                         {entry?.autoChecked && (
-                          <Badge variant="secondary" className="text-[10px] gap-1 h-5">
+                          <Badge variant="secondary" className="text-[13px] gap-1 h-5">
                             <Sparkles className="h-3 w-3" />
                             Automatisk vurdert
                           </Badge>
                         )}
                         {docs.length > 0 && (
-                          <Badge variant="outline" className="text-[10px] h-5 gap-1">
+                          <Badge variant="outline" className="text-[13px] h-5 gap-1">
                             <FileText className="h-3 w-3" />
                             {docs.length} dok.
                           </Badge>
@@ -409,7 +409,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                           )}
                         </div>
                         {entry?.autoChecked && (
-                          <Badge variant="outline" className="text-[10px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 shrink-0">
+                          <Badge variant="outline" className="text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 shrink-0">
                             <ShieldCheck className="h-3 w-3" />
                             Verifisert
                           </Badge>
@@ -425,7 +425,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{req.activatableServiceLabel}</p>
                           <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">{req.agentAction}</p>
                           {serviceActivated ? (
-                            <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
                               <CheckCircle2 className="h-3 w-3" />
                               Aktivert {activatedServices[req.activatableServiceId]?.activatedAt
                                 ? new Date(activatedServices[req.activatableServiceId].activatedAt).toLocaleDateString("nb-NO")
@@ -454,7 +454,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{req.activatableServiceLabel}</p>
                           <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">Kan også aktiveres som tjeneste for ekstra dekning.</p>
                           {serviceActivated ? (
-                            <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
                               <CheckCircle2 className="h-3 w-3" />
                               Aktivert
                             </Badge>
@@ -576,7 +576,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
 
                     {/* Timestamp */}
                     {entry?.updatedAt && (
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[13px] text-muted-foreground">
                         Sist oppdatert: {new Date(entry.updatedAt).toLocaleString("nb-NO")}
                       </p>
                     )}

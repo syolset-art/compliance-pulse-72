@@ -64,7 +64,7 @@ function RoleField({
     <div className="space-y-2 p-3 rounded-lg border border-border bg-background">
       <div className="flex items-center gap-2 flex-wrap">
         <Label className="text-sm font-medium">{role.label}</Label>
-        <Badge variant={config.variant} className="text-[10px] px-1.5 py-0 h-5">
+        <Badge variant={config.variant} className="text-[13px] px-1.5 py-0 h-5">
           <Icon className="h-3 w-3 mr-1" />
           {config.badge}
         </Badge>

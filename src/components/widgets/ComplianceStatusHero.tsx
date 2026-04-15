@@ -159,7 +159,7 @@ export function ComplianceStatusHero({ companyName }: Props) {
                     {i < currentIndex ? (
                       <CheckCircle2 className="h-4 w-4" />
                     ) : (
-                      <span className="text-[10px] font-bold">{i + 1}</span>
+                      <span className="text-[13px] font-bold">{i + 1}</span>
                     )}
                   </div>
                   {i < STAGES.length - 1 && (

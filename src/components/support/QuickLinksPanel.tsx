@@ -40,7 +40,7 @@ export const QuickLinksPanel = ({ onSelectContext, activeContext }: QuickLinksPa
                 <p className={`font-medium text-[13px] leading-tight ${isActive ? "text-primary" : ""}`}>
                   {t(link.titleKey)}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug line-clamp-1">
+                <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug line-clamp-1">
                   {t(link.descKey)}
                 </p>
               </div>

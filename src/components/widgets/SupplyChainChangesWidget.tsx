@@ -76,12 +76,12 @@ export function SupplyChainChangesWidget() {
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-medium truncate">{c.name}</span>
                     {c.riskLevel === "high" && (
-                      <Badge variant="destructive" className="text-[9px] px-1.5 py-0">
+                      <Badge variant="destructive" className="text-[13px] px-1.5 py-0">
                         {isNorwegian ? "Høy" : "High"}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {c.isNew
                       ? isNorwegian
                         ? "Ny leverandør"

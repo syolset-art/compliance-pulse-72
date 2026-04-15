@@ -170,19 +170,19 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2 text-sm">
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 mt-0.5 shrink-0">1</Badge>
+                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 mt-0.5 shrink-0">1</Badge>
                     <span className="text-foreground">
                       {isNb ? "Vi registrerer innspillet ditt i vår backlog" : "We'll register your input in our backlog"}
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 mt-0.5 shrink-0">2</Badge>
+                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 mt-0.5 shrink-0">2</Badge>
                     <span className="text-foreground">
                       {isNb ? "Teamet vårt vurderer og prioriterer" : "Our team evaluates and prioritizes"}
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 mt-0.5 shrink-0">3</Badge>
+                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 mt-0.5 shrink-0">3</Badge>
                     <span className="text-foreground">
                       {isNb ? "Du får beskjed når det er løst (vi bygger løsninger på ~30 min)" : "You'll be notified when it's resolved (we build solutions in ~30 min)"}
                     </span>

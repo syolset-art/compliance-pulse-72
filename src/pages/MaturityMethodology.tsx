@@ -282,7 +282,7 @@ const MaturityMethodology = () => {
               <div className="relative h-2 rounded-full bg-muted/40 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-amber-400 via-orange-400 to-indigo-500 rounded-full" />
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground font-medium px-1">
+              <div className="flex justify-between text-[13px] text-muted-foreground font-medium px-1">
                 <span>{t("LAV KVALITET", "LOW QUALITY")}</span>
                 <span>{t("HØY KVALITET", "HIGH QUALITY")}</span>
               </div>
@@ -333,7 +333,7 @@ const MaturityMethodology = () => {
                         <div className={`h-8 w-8 rounded-lg ${stage.color} flex items-center justify-center`}>
                           <span className="text-xs font-bold text-white">{stage.step}</span>
                         </div>
-                        <Badge variant="outline" className="text-[10px] font-mono">{stage.quality}</Badge>
+                        <Badge variant="outline" className="text-[13px] font-mono">{stage.quality}</Badge>
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5 mb-1">
@@ -349,7 +349,7 @@ const MaturityMethodology = () => {
                           ))}
                         </ul>
                       </div>
-                      <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">{t(stage.by_no, stage.by_en)}</p>
+                      <p className="text-[13px] font-medium text-muted-foreground/70 uppercase tracking-wider">{t(stage.by_no, stage.by_en)}</p>
                     </div>
                   );
                 })}
@@ -510,7 +510,7 @@ const MaturityMethodology = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-semibold text-foreground">{t("Sikkerhetsmodenhet", "Security maturity")}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                    <p className="text-[13px] text-muted-foreground mt-0.5 leading-tight">
                       {t("Basert på implementerte kontroller.", "Based on implemented controls.")}
                     </p>
                   </div>
@@ -523,7 +523,7 @@ const MaturityMethodology = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-semibold text-foreground">{t("Dekningsgrad", "Coverage")}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                    <p className="text-[13px] text-muted-foreground mt-0.5 leading-tight">
                       {t("Systemer, leverandører og prosesser kartlagt.", "Systems, vendors and processes mapped.")}
                     </p>
                   </div>
@@ -536,7 +536,7 @@ const MaturityMethodology = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-semibold text-foreground">{t("Risikoeksponering", "Risk exposure")}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                    <p className="text-[13px] text-muted-foreground mt-0.5 leading-tight">
                       {t("Basert på identifiserte risikoer på tvers av prosesser.", "Based on identified risks across processes.")}
                     </p>
                   </div>

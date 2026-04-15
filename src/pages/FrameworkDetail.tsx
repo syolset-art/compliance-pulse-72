@@ -212,7 +212,7 @@ const FrameworkDetailPage = () => {
 
                     {/* Right side: capability + progress */}
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className={`text-[10px] font-bold tracking-wider ${cap.color}`}>
+                      <span className={`text-[13px] font-bold tracking-wider ${cap.color}`}>
                         {cap.label}
                       </span>
                       <span

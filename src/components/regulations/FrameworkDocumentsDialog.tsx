@@ -340,7 +340,7 @@ export function FrameworkDocumentsDialog({
               <FileText className="h-5 w-5 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{pendingFile.name}</p>
-                <p className="text-[10px] text-muted-foreground">{formatSize(pendingFile.size)}</p>
+                <p className="text-[13px] text-muted-foreground">{formatSize(pendingFile.size)}</p>
               </div>
               <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={resetUploadState}>
                 <ArrowLeft className="h-3 w-3 mr-1" />
@@ -358,7 +358,7 @@ export function FrameworkDocumentsDialog({
                 <p className="text-xs text-muted-foreground">{aiSuggestion.documentDescription}</p>
                 <div className="flex items-start gap-1.5 mt-1">
                   <Lightbulb className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
-                  <p className="text-[11px] text-muted-foreground">{aiSuggestion.metadataTip}</p>
+                  <p className="text-[13px] text-muted-foreground">{aiSuggestion.metadataTip}</p>
                 </div>
               </div>
             )}
@@ -379,7 +379,7 @@ export function FrameworkDocumentsDialog({
                   </SelectContent>
                 </Select>
                 {aiSuggestion && selectedType === aiSuggestion.suggestedType && (
-                  <p className="text-[10px] text-primary flex items-center gap-1">
+                  <p className="text-[13px] text-primary flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     {aiSuggestion.suggestedTypeReason}
                   </p>
@@ -403,7 +403,7 @@ export function FrameworkDocumentsDialog({
                   </SelectContent>
                 </Select>
                 {aiSuggestion && owner === aiSuggestion.suggestedOwner && (
-                  <p className="text-[10px] text-primary flex items-center gap-1">
+                  <p className="text-[13px] text-primary flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     {aiSuggestion.suggestedOwnerReason}
                   </p>
@@ -418,7 +418,7 @@ export function FrameworkDocumentsDialog({
                 </div>
 
                 {aiSuggestion && (
-                  <p className="text-[10px] text-muted-foreground flex items-start gap-1">
+                  <p className="text-[13px] text-muted-foreground flex items-start gap-1">
                     <Lightbulb className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
                     {aiSuggestion.workAreaTip}
                   </p>
@@ -465,7 +465,7 @@ export function FrameworkDocumentsDialog({
                             wa.name.toLowerCase().includes(s.toLowerCase()) ||
                             s.toLowerCase().includes(wa.name.toLowerCase())
                           ) && (
-                            <Badge variant="secondary" className="text-[9px] px-1 py-0 h-4">
+                            <Badge variant="secondary" className="text-[13px] px-1 py-0 h-4">
                               <Sparkles className="h-2.5 w-2.5 mr-0.5" />
                               Foreslått
                             </Badge>
@@ -541,20 +541,20 @@ export function FrameworkDocumentsDialog({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{doc.file_name}</p>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="text-[13px] px-1.5 py-0">
                             {getDocTypeLabel(doc.document_type)}
                           </Badge>
                           {doc.file_size && (
-                            <span className="text-[10px] text-muted-foreground">{formatSize(doc.file_size)}</span>
+                            <span className="text-[13px] text-muted-foreground">{formatSize(doc.file_size)}</span>
                           )}
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-[13px] text-muted-foreground">
                             {format(new Date(doc.created_at), "d. MMM yyyy", { locale: nb })}
                           </span>
                         </div>
                         {(doc.uploaded_by || meta?.owner) && (
                           <div className="flex items-center gap-1 mt-1">
                             <User className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[13px] text-muted-foreground">
                               Eier: {getOwnerLabel(doc.uploaded_by || meta?.owner || "")}
                             </span>
                           </div>
@@ -562,7 +562,7 @@ export function FrameworkDocumentsDialog({
                         {meta?.workAreaNames && (
                           <div className="flex items-center gap-1 mt-0.5">
                             <Building2 className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[13px] text-muted-foreground">
                               {meta.workAreaNames.join(", ")}
                             </span>
                           </div>

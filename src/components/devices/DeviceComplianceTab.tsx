@@ -230,10 +230,10 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
                       <span className="text-xs text-muted-foreground">{llm.provider}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${config.color}`}>
+                      <span className={`text-[13px] font-medium px-2 py-0.5 rounded-full ${config.color}`}>
                         {config.label}
                       </span>
-                      <Badge variant={riskColors[llm.sensitiveDataRisk] as any} className="text-[10px]">
+                      <Badge variant={riskColors[llm.sensitiveDataRisk] as any} className="text-[13px]">
                         Risiko: {llm.sensitiveDataRisk === "high" ? "Høy" : llm.sensitiveDataRisk === "medium" ? "Middels" : "Lav"}
                       </Badge>
                     </div>
@@ -269,7 +269,7 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-sm">{item.label}</span>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono">
+                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono">
                     {item.isoRef}
                   </Badge>
                 </div>

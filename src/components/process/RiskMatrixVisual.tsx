@@ -78,8 +78,8 @@ export const RiskMatrixVisual = ({
   interactive = false,
   size = "md",
 }: RiskMatrixVisualProps) => {
-  const cellSize = size === "sm" ? "w-8 h-8 text-[10px]" : size === "lg" ? "w-14 h-14 text-sm" : "w-10 h-10 text-xs";
-  const labelSize = size === "sm" ? "text-[9px]" : size === "lg" ? "text-sm" : "text-xs";
+  const cellSize = size === "sm" ? "w-8 h-8 text-[13px]" : size === "lg" ? "w-14 h-14 text-sm" : "w-10 h-10 text-xs";
+  const labelSize = size === "sm" ? "text-[13px]" : size === "lg" ? "text-sm" : "text-xs";
 
   // Reverse likelihood for display (critical at top)
   const displayLikelihood = [...LIKELIHOOD_LEVELS].reverse();

@@ -103,7 +103,7 @@ export function SupplyChainTab({ vendors, allAssets, relationships }: SupplyChai
                   >
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-sm text-foreground">{asset!.name}</span>
-                    <Badge variant="outline" className="text-[10px] ml-auto">
+                    <Badge variant="outline" className="text-[13px] ml-auto">
                       {relationship_type}
                     </Badge>
                   </div>
@@ -116,7 +116,7 @@ export function SupplyChainTab({ vendors, allAssets, relationships }: SupplyChai
                   >
                     <ChevronRight className="h-3.5 w-3.5 text-primary rotate-180" />
                     <span className="text-sm text-foreground">{asset!.name}</span>
-                    <Badge variant="outline" className="text-[10px] ml-auto">
+                    <Badge variant="outline" className="text-[13px] ml-auto">
                       {relationship_type}
                     </Badge>
                   </div>

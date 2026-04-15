@@ -142,7 +142,7 @@ export function StatusOverviewWidget() {
                 <div className="text-left min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs sm:text-sm font-medium text-foreground">{domain.name}</span>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 hidden sm:inline-flex">
+                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-4 hidden sm:inline-flex">
                       {domain.maturityLabel}
                     </Badge>
                   </div>
@@ -168,7 +168,7 @@ export function StatusOverviewWidget() {
                 <div className="bg-background/50 rounded-lg p-3 mt-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-muted-foreground font-medium">{domain.standardLabel}</span>
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant="secondary" className="text-[13px]">
                       {domain.maturityLabel}
                     </Badge>
                   </div>

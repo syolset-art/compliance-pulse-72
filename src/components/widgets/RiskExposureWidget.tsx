@@ -41,7 +41,7 @@ export function RiskExposureWidget() {
         </div>
 
         <div className="rounded-lg border border-border bg-muted/50 p-3 mb-3">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
             Top risk
           </p>
           <p className="text-xs text-foreground leading-relaxed">{TOP_RISK}</p>

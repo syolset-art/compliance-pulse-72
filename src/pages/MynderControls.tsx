@@ -290,7 +290,7 @@ const MynderControls = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-semibold text-foreground">Mynder Controls</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-[13px] text-muted-foreground mt-0.5">
                         {t("Én kontrollmodell", "One control model")}
                       </p>
                     </div>
