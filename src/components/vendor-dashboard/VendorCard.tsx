@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, MinusCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,14 +53,25 @@ interface VendorCardProps {
   onClick?: () => void;
   compact?: boolean;
   scoreDisplay?: ScoreDisplayMode;
+  isNew?: boolean;
   workAreas?: WorkArea[];
   onSetOwner?: (itemId: string, workAreaId: string) => void;
   onArchive?: (itemId: string) => void;
   onDelete?: (id: string) => void;
 }
 
-export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, scoreDisplay = "percent", workAreas = [], onSetOwner, onArchive, onDelete }: VendorCardProps) {
+export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, scoreDisplay = "percent", isNew = false, workAreas = [], onSetOwner, onArchive, onDelete }: VendorCardProps) {
   const { t } = useTranslation();
+  const [highlight, setHighlight] = useState(isNew);
+
+  useEffect(() => {
+    if (isNew) {
+      setHighlight(true);
+      const timer = setTimeout(() => setHighlight(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isNew]);
+
   const score = vendor.compliance_score || 0;
 
   const riskColor = {
@@ -80,8 +92,10 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
       onClick={onClick}
       className={cn(
         "px-4 py-4 cursor-pointer hover:shadow-md transition-all hover:border-primary/30",
-        compact && "px-3 py-3"
+        compact && "px-3 py-3",
+        highlight && "ring-2 ring-primary/50 border-primary/40 bg-primary/5 shadow-lg animate-fade-in transition-all duration-500"
       )}
+      style={highlight ? { transition: "all 0.5s ease-out" } : undefined}
     >
       {/* Row 1: Name + score */}
       <div className="flex items-center justify-between gap-3">
