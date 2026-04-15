@@ -3353,6 +3353,8 @@ export type Database = {
       }
       vendor_documents: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           asset_id: string
           category: string | null
           created_at: string
@@ -3376,6 +3378,8 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           asset_id: string
           category?: string | null
           created_at?: string
@@ -3399,6 +3403,8 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           asset_id?: string
           category?: string | null
           created_at?: string
