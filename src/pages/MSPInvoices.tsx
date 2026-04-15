@@ -66,9 +66,6 @@ export default function MSPInvoices() {
                 <p className="text-lg font-semibold text-foreground mt-1">
                   {currentTier === "free" ? "Gratis" : `${formatKr(price)}${billingInterval === "yearly" ? "/år" : "/mnd"}`}
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Inntil {tier.maxSystems} systemer · {tier.maxVendors} leverandører
-                </p>
               </CardContent>
             </Card>
 

@@ -152,8 +152,7 @@ export const FREE_INCLUSIONS = [
   "GDPR regelverk",
   "ISO 27001 regelverk",
   "10 credits/mnd",
-  "Inntil 5 systemer",
-  "Inntil 5 leverandører",
+  "Synlig i Mynder Trust Engine — bli enklere funnet av kunder og partnere",
 ] as const;
 
 // ─── Framework add-on pricing ────────────────────────────────────────
