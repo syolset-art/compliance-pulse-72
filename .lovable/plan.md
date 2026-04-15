@@ -1,81 +1,73 @@
 
 
-# Plan: Agent-Native Bevis-Innhenting og Automatisk Trust Score-Nedgradering
+# Plan: Credits-system med UI og abonnementskobling
 
-## Oversikt
-Bygge et system der bakgrunnsagenter automatisk overvåker bevis-status og nedgraderer Trust Score når evidens blir foreldet. Tre lag: datamodell, edge function (agent), og UI-integrasjon.
+## Konsept
 
-## 1. Database: Evidence Freshness Tracking
+Hvert abonnement inkluderer et visst antall credits per måned (f.eks. Basis = 100, Premium = 300). Credits brukes til AI-handlinger (Lara-analyse, dokumentklassifisering, risikovurdering) og premium-operasjoner. Brukeren ser alltid sin saldo og kan kjøpe ekstra credits.
 
-Ny tabell `evidence_checks` som logger agentens automatiske sjekker:
+## 1. Database: `company_credits`-tabell
+
+Ny tabell som sporer credits-saldo og forbruk:
 
 ```sql
-CREATE TABLE evidence_checks (
+CREATE TABLE company_credits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  asset_id uuid NOT NULL,
-  check_type text NOT NULL,        -- 'certificate_expiry', 'document_status', 'vendor_change'
-  control_key text NOT NULL,       -- kobler til TrustControlDefinition.key
-  status text NOT NULL DEFAULT 'fresh',  -- 'fresh', 'stale', 'expired', 'missing'
-  last_verified_at timestamptz DEFAULT now(),
-  expires_at timestamptz,
-  staleness_days integer DEFAULT 0,
-  details jsonb DEFAULT '{}',
-  agent_id text DEFAULT 'system',
+  company_id uuid NOT NULL,
+  balance integer NOT NULL DEFAULT 0,
+  monthly_allowance integer NOT NULL DEFAULT 0,
+  last_reset_at timestamptz DEFAULT now(),
+  next_reset_at timestamptz,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
+
+CREATE TABLE credit_transactions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id uuid NOT NULL,
+  amount integer NOT NULL,          -- positiv = påfyll, negativ = forbruk
+  balance_after integer NOT NULL,
+  transaction_type text NOT NULL,   -- 'monthly_grant', 'usage', 'purchase', 'refund'
+  description text,
+  metadata jsonb DEFAULT '{}',
+  created_at timestamptz DEFAULT now()
+);
 ```
 
-Ny kolonne på `assets.metadata` — ingen migrasjon nødvendig, bare bruke JSONB-feltet `evidence_freshness_score` som agenten oppdaterer.
+## 2. Credits per plan i `planConstants.ts`
 
-## 2. Edge Function: `check-evidence-freshness`
+Utvide `PlanDefinition` med `monthlyCredits`:
 
-Ny bakgrunnsagent som kjører periodisk og sjekker:
+| Plan | Credits/mnd |
+|---|---|
+| Free | 10 |
+| Basis | 100 |
+| Premium | 300 |
+| Enterprise | Ubegrenset |
 
-| Sjekk | Logikk | Nedgradering |
-|---|---|---|
-| **Sertifikat-utløp** | `vendor_documents.valid_to` < nå + 30d | `stale` → `expired` |
-| **Dokument-alder** | `vendor_documents.created_at` > 365 dager | `fresh` → `stale` |
-| **Leverandør-endringer** | Metadata-endringer uten oppdatert review | Kontroll → `partial` |
-| **Manglende evidens** | Kontroll uten tilhørende dokument | `missing` |
+## 3. Hook: `useCredits()`
 
-Agenten oppdaterer `evidence_checks`-tabellen og setter `assets.metadata.evidence_penalties` med en liste over nedgraderte kontroller.
+Ny hook som henter saldo fra `company_credits`, eksponerer `balance`, `monthlyAllowance`, `percentUsed`, og en `deductCredits(amount, description)`-funksjon.
 
-## 3. Trust Score-Integrasjon
+## 4. UI-komponenter
 
-Endre `useTrustControlEvaluation.ts` til å hente `evidence_checks` for asset og justere kontrollstatus:
+### A. Credits-indikator i sidebar/topbar
+En liten progress-bar med "42/100 credits" under brukerens profil i sidebaren.
 
-```
-if evidence_check.status === 'expired' → kontroll.status = 'missing'
-if evidence_check.status === 'stale'   → kontroll.status = 'partial'  
-```
+### B. Credits-seksjon på Abonnement-siden
+Viser nåværende saldo, forbruksgraf, og "Kjøp ekstra credits"-knapp.
 
-Dette betyr at Trust Score automatisk synker når evidens forfaller — uten manuell intervensjon.
+### C. Credits-advarsel
+Toast/banner når brukeren har <20% credits igjen.
 
-## 4. UI: Evidence Status på Trust Profile
-
-På Trust Profile-siden, vise per kontrollområde:
-- Grønn prikk: Alle bevis ferske
-- Gul prikk + "2 bevis utløper snart": Stale evidens
-- Rød prikk + "Utløpt evidens": Expired, Trust Score nedgradert
-
-Legge til et lite "Agent status"-badge i Trust Profile-headeren som viser siste sjekk-tidspunkt.
-
-## Filer
+## 5. Filer
 
 | Fil | Endring |
 |---|---|
-| `evidence_checks` tabell | Ny migrasjon |
-| `supabase/functions/check-evidence-freshness/index.ts` | Ny edge function |
-| `src/hooks/useTrustControlEvaluation.ts` | Hente evidence_checks, justere kontrollstatus |
-| `src/lib/trustControlDefinitions.ts` | Ny `applyEvidencePenalties()` funksjon |
-| `src/pages/TrustCenterProfile.tsx` | Vise evidence-status per kontrollområde |
-| `src/components/trust-controls/EvidenceStatusBadge.tsx` | Ny komponent for fersk/stale/expired-indikator |
-
-## Teknisk
-
-- Edge function bruker service role key for å lese alle assets og dokumenter
-- Evidens-sjekken er idempotent — kan kjøres mange ganger uten duplikater
-- Staleness-regler: Dokument >365d = stale, Sertifikat <30d til utløp = stale, Utløpt = expired
-- Trust Score-formelen forblir uendret — kun input-kontrollene justeres basert på evidens-status
+| Ny migrasjon | `company_credits` + `credit_transactions` tabeller |
+| `src/lib/planConstants.ts` | Legg til `monthlyCredits` per plan |
+| `src/hooks/useCredits.ts` | Ny hook for saldo og transaksjoner |
+| `src/components/sidebar/CreditIndicator.tsx` | Ny komponent — credits progress bar |
+| `src/components/Sidebar.tsx` | Vis CreditIndicator nederst |
+| `src/pages/Subscriptions.tsx` | Legg til credits-seksjon |
 
