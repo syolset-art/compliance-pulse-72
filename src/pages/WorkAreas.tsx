@@ -624,6 +624,15 @@ export default function WorkAreas() {
                 {t("myWorkAreas.subtitle")}
               </p>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsAddDialogOpen(true)}
+              className="gap-1.5 flex-shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+              {t("myWorkAreas.addNew")}
+            </Button>
           </div>
 
           {/* Intro banner for new users */}
