@@ -32,6 +32,7 @@ import {
 } from "@/lib/planConstants";
 import { Settings2 } from "lucide-react";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
+import { PurchaseCreditsDialog } from "@/components/credits/PurchaseCreditsDialog";
 
 // ─── Plan Comparison Cards ──────────────────────────────────────────
 
@@ -273,57 +274,27 @@ function PlanStatusBanner() {
 // ─── Credits Section (Purchase & History) ────────────────────────────
 
 function CreditsSection() {
-  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, recentTransactions, purchaseCredits, isPurchasing } = useCredits();
-  const [showPackages, setShowPackages] = useState(false);
+  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, recentTransactions } = useCredits();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="space-y-3" id="credits-section">
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-foreground text-sm">Kjøp ekstra credits</h3>
+            <div>
+              <h3 className="font-semibold text-foreground text-sm">Credit-saldo</h3>
+              <p className="text-2xl font-bold text-foreground mt-1">{balance} <span className="text-sm font-normal text-muted-foreground">credits</span></p>
+            </div>
             <Button
-              variant="outline"
               size="sm"
-              className="gap-2 text-xs"
-              onClick={() => setShowPackages(!showPackages)}
+              className="gap-2"
+              onClick={() => setDialogOpen(true)}
             >
               <Sparkles className="h-3.5 w-3.5" />
-              {showPackages ? "Skjul pakker" : "Vis pakker"}
+              Kjøp credits
             </Button>
           </div>
-
-          {showPackages && (
-            <div className="grid grid-cols-3 gap-3">
-              {CREDIT_PACKAGES.map((pkg) => (
-                <Card
-                  key={pkg.id}
-                  className={`relative cursor-pointer transition-all hover:border-primary/40 ${pkg.popular ? "border-primary ring-1 ring-primary/20" : ""}`}
-                >
-                  {pkg.popular && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[13px] px-2">
-                      Populær
-                    </Badge>
-                  )}
-                  <CardContent className="p-3 text-center space-y-2">
-                    <p className="text-sm font-bold text-foreground">{pkg.name}</p>
-                    <p className="text-lg font-bold text-primary">{pkg.credits}</p>
-                    <p className="text-[13px] text-muted-foreground">credits</p>
-                    <p className="text-sm font-semibold text-foreground">{formatKr(pkg.priceKr)}</p>
-                    <Button
-                      size="sm"
-                      variant={pkg.popular ? "default" : "outline"}
-                      className="w-full text-xs"
-                      onClick={() => purchaseCredits(pkg.id)}
-                      disabled={isPurchasing}
-                    >
-                      Kjøp
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
 
           {recentTransactions.length > 0 && (
             <div className="space-y-1.5 pt-1">
@@ -340,10 +311,10 @@ function CreditsSection() {
           )}
         </CardContent>
       </Card>
+      <PurchaseCreditsDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }
-
 // ─── Main Page ───────────────────────────────────────────────────────
 
 export default function Subscriptions() {
