@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  FileText, Award, FolderOpen, ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Loader2,
+  FileText, Award, FolderOpen, ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Loader2, Upload, X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,39 +55,69 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState<DocCategory | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [subType, setSubType] = useState("");
+  const [issuer, setIssuer] = useState("");
+  const [issuedDate, setIssuedDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [notes, setNotes] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("published");
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const reset = () => {
     setStep(1);
     setCategory(null);
     setDisplayName("");
     setSubType("");
+    setIssuer("");
+    setIssuedDate("");
     setExpiryDate("");
     setNotes("");
     setVisibility("published");
+    setFile(null);
+    setUploading(false);
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const ext = file.name.split(".").pop();
+    const path = `${assetId}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("vendor-documents")
+      .upload(path, file);
+    if (error) throw error;
+    return path;
   };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      setUploading(true);
+      let filePath = "";
+      let fileName = displayName;
+
+      if (file) {
+        filePath = await uploadFile(file);
+        fileName = file.name;
+      }
+
       const docType = category === "certification" ? "certification" : subType || "policy";
       const { error } = await supabase.from("vendor_documents").insert({
         asset_id: assetId,
         document_type: docType,
-        file_name: displayName,
-        file_path: "",
+        file_name: fileName || displayName,
+        file_path: filePath,
         display_name: displayName,
         status: "draft",
         visibility,
+        valid_from: issuedDate || null,
         valid_to: expiryDate || null,
-        category: subType || null,
+        category: category === "certification" ? "certification" : subType || null,
         notes: notes || null,
+        source: issuer || null,
       });
       if (error) throw error;
     },
@@ -99,6 +129,7 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
       onOpenChange(false);
     },
     onError: () => {
+      setUploading(false);
       toast.error(isNb ? "Kunne ikke lagre" : "Failed to save");
     },
   });
@@ -113,6 +144,8 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
     { key: "document", icon: FolderOpen, label: isNb ? "Dokument" : "Document", desc: isNb ? "Avtaler, rapporter, bevis" : "Agreements, reports, evidence" },
   ];
 
+  const isCert = category === "certification";
+
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
       <DialogContent className="sm:max-w-lg">
@@ -120,12 +153,14 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
           <DialogTitle>
             {step === 1 && (isNb ? "Legg til dokumentasjon" : "Add documentation")}
             {step === 2 && (isNb ? "Detaljer" : "Details")}
-            {step === 3 && (isNb ? "Synlighet" : "Visibility")}
+            {step === 3 && (isNb ? "Last opp fil" : "Upload file")}
+            {step === 4 && (isNb ? "Synlighet" : "Visibility")}
           </DialogTitle>
           <DialogDescription>
             {step === 1 && (isNb ? "Velg type dokumentasjon du vil legge til." : "Choose the type of documentation to add.")}
             {step === 2 && (isNb ? "Fyll inn informasjon om dokumentet." : "Fill in document information.")}
-            {step === 3 && (isNb ? "Bestem hvem som kan se dette dokumentet." : "Decide who can see this document.")}
+            {step === 3 && (isNb ? "Last opp sertifikat eller dokument (valgfritt)." : "Upload certificate or document (optional).")}
+            {step === 4 && (isNb ? "Bestem hvem som kan se dette dokumentet." : "Decide who can see this document.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,11 +193,13 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
               <Input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder={isNb ? "F.eks. Personvernpolicy 2025" : "E.g. Privacy Policy 2025"}
+                placeholder={isCert
+                  ? (isNb ? "F.eks. ISO 27001:2022" : "E.g. ISO 27001:2022")
+                  : (isNb ? "F.eks. Personvernpolicy 2025" : "E.g. Privacy Policy 2025")}
               />
             </div>
             <div className="space-y-2">
-              <Label>{isNb ? "Undertype" : "Sub-type"}</Label>
+              <Label>{isNb ? "Type" : "Type"}</Label>
               <Select value={subType} onValueChange={setSubType}>
                 <SelectTrigger>
                   <SelectValue placeholder={isNb ? "Velg type..." : "Select type..."} />
@@ -176,7 +213,37 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
                 </SelectContent>
               </Select>
             </div>
-            {(category === "certification" || category === "document") && (
+            {isCert && (
+              <div className="space-y-2">
+                <Label>{isNb ? "Utsteder" : "Issuer"}</Label>
+                <Input
+                  value={issuer}
+                  onChange={(e) => setIssuer(e.target.value)}
+                  placeholder={isNb ? "F.eks. DNV GL, Bureau Veritas" : "E.g. DNV GL, Bureau Veritas"}
+                />
+              </div>
+            )}
+            {isCert && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{isNb ? "Utstedt dato" : "Issue date"}</Label>
+                  <Input
+                    type="date"
+                    value={issuedDate}
+                    onChange={(e) => setIssuedDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{isNb ? "Utløpsdato" : "Expiry date"}</Label>
+                  <Input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+            {!isCert && category === "document" && (
               <div className="space-y-2">
                 <Label>{isNb ? "Utløpsdato" : "Expiry date"}</Label>
                 <Input
@@ -191,7 +258,9 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder={isNb ? "Valgfrie notater..." : "Optional notes..."}
+                placeholder={isCert
+                  ? (isNb ? "F.eks. Omfang: Informasjonssikkerhetsstyring" : "E.g. Scope: Information security management")
+                  : (isNb ? "Valgfrie notater..." : "Optional notes...")}
                 rows={2}
               />
             </div>
@@ -206,8 +275,65 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
           </div>
         )}
 
-        {/* Step 3: Visibility */}
+        {/* Step 3: File upload */}
         {step === 3 && (
+          <div className="space-y-4 py-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) setFile(f);
+              }}
+            />
+
+            {!file ? (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-muted-foreground/30 p-8 text-center transition-colors hover:border-primary/50 hover:bg-accent/30"
+              >
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Upload className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{isNb ? "Klikk for å laste opp" : "Click to upload"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">PDF, JPG, PNG, DOC · Max 10 MB</p>
+                </div>
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 rounded-lg border p-4 bg-accent/20">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setFile(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground text-center">
+              {isNb ? "Du kan også legge til fil senere." : "You can also add the file later."}
+            </p>
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> {isNb ? "Tilbake" : "Back"}
+              </Button>
+              <Button size="sm" onClick={() => setStep(4)}>
+                {file ? (isNb ? "Neste" : "Next") : (isNb ? "Hopp over" : "Skip")} <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Visibility */}
+        {step === 4 && (
           <div className="space-y-4 py-2">
             <RadioGroup value={visibility} onValueChange={(v) => setVisibility(v as Visibility)} className="space-y-3">
               <label className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors hover:bg-accent/50 data-[state=checked]:border-primary/50">
@@ -249,11 +375,11 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
             </RadioGroup>
 
             <div className="flex justify-between pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+              <Button variant="ghost" size="sm" onClick={() => setStep(3)}>
                 <ArrowLeft className="h-4 w-4 mr-1" /> {isNb ? "Tilbake" : "Back"}
               </Button>
-              <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-                {saveMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending || uploading}>
+                {(saveMutation.isPending || uploading) && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
                 {isNb ? "Lagre" : "Save"}
               </Button>
             </div>
