@@ -69,15 +69,21 @@ const getStatusBadge = (status: string | null, isNb: boolean, approvedBy?: strin
   }
 };
 
-const getVisibilityIcon = (visibility: string | null) => {
-  switch (visibility) {
-    case "published":
-      return <Eye className="h-3.5 w-3.5 text-success" />;
-    case "hidden":
-      return <Lock className="h-3.5 w-3.5 text-warning" />;
-    default:
-      return <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />;
+const getVisibilityBadge = (visibility: string | null, isNb: boolean) => {
+  if (visibility === "published") {
+    return (
+      <Badge className="bg-success/10 text-success border-success/20 text-[12px] gap-1 font-normal">
+        <Eye className="h-3 w-3" />
+        {isNb ? "Offentlig" : "Public"}
+      </Badge>
+    );
   }
+  return (
+    <Badge variant="outline" className="text-[12px] gap-1 font-normal text-muted-foreground">
+      <Lock className="h-3 w-3" />
+      {isNb ? "Intern" : "Private"}
+    </Badge>
+  );
 };
 
 const seedDemoEvidence = async (assetId: string) => {
