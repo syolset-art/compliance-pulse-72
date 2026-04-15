@@ -1,0 +1,2 @@
+CREATE POLICY "Allow anon insert evidence_checks" ON public.evidence_checks FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "Allow anon delete evidence_checks" ON public.evidence_checks FOR DELETE TO anon USING (true);
