@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Shield, FileCheck, Clock, AlertTriangle, CheckCircle2, Hourglass } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { FileText, Shield, FileCheck, Clock, AlertTriangle, CheckCircle2, Hourglass, MoreHorizontal, Archive, Trash2 } from "lucide-react";
 
 const REQUEST_TYPE_ICONS: Record<string, typeof FileText> = {
   vendor_assessment: FileText,
@@ -44,6 +46,8 @@ interface CustomerRequest {
 
 interface CustomerRequestCardProps {
   request: CustomerRequest;
+  onDelete?: (id: string) => void;
+  onArchive?: (id: string) => void;
 }
 
 function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) {
@@ -128,7 +132,7 @@ function getStatusConfig(status: string, isNb: boolean) {
   return configs[status] || configs.new;
 }
 
-export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
+export function CustomerRequestCard({ request, onDelete, onArchive }: CustomerRequestCardProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const locale = isNb ? "nb-NO" : "en-US";
@@ -154,9 +158,29 @@ export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
               <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{request.customer_name}</p>
             </div>
-            <Badge variant="outline" className={`text-[13px] flex-shrink-0 ${statusInfo.className}`}>
-              {statusInfo.label}
-            </Badge>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Badge variant="outline" className={`text-[13px] ${statusInfo.className}`}>
+                {statusInfo.label}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => onArchive?.(request.id)}>
+                    <Archive className="h-3.5 w-3.5 mr-2" />
+                    {isNb ? "Arkiver" : "Archive"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onDelete?.(request.id)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="h-3.5 w-3.5 mr-2" />
+                    {isNb ? "Slett" : "Delete"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Deadline indicator */}

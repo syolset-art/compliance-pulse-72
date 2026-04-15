@@ -7,7 +7,9 @@ import { CustomerRequestCard } from "@/components/customer-requests/CustomerRequ
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Inbox, Clock, Send, AlertCircle, Search } from "lucide-react";
+import { toast } from "sonner";
 
 const INITIAL_DEMO_REQUESTS = [
   {
@@ -97,11 +99,13 @@ const INITIAL_DEMO_REQUESTS = [
 ];
 
 export function InboundRequestsContent() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("open");
   const [demoRequests, setDemoRequests] = useState(INITIAL_DEMO_REQUESTS);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { data: dbRequests = [] } = useQuery({
     queryKey: ["customer-compliance-requests"],
@@ -128,7 +132,34 @@ export function InboundRequestsContent() {
 
   const tabData: Record<string, any[]> = { open, responded, all: filtered, archived };
 
+  const handleArchive = (id: string) => {
+    if (dbRequests.length > 0) {
+      // DB mode — update status
+      supabase.from("customer_compliance_requests").update({ status: "archived", archived_at: new Date().toISOString() }).eq("id", id).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["customer-compliance-requests"] });
+        toast.success(isNb ? "Melding arkivert" : "Message archived");
+      });
+    } else {
+      setDemoRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "archived" } : r));
+      toast.success(isNb ? "Melding arkivert" : "Message archived");
+    }
+  };
 
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const confirmDelete = () => {
+    if (!deleteId) return;
+    if (dbRequests.length > 0) {
+      supabase.from("customer_compliance_requests").delete().eq("id", deleteId).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["customer-compliance-requests"] });
+        toast.success(isNb ? "Melding slettet" : "Message deleted");
+      });
+    } else {
+      setDemoRequests((prev) => prev.filter((r) => r.id !== deleteId));
+      toast.success(isNb ? "Melding slettet" : "Message deleted");
+    }
+    setDeleteId(null);
+  };
   return (
     <div className="space-y-6">
       {/* Metrics */}
@@ -172,12 +203,32 @@ export function InboundRequestsContent() {
               </div>
             ) : (
               (tabData[tab] || []).map((req: any) => (
-                <CustomerRequestCard key={req.id} request={req} />
+                <CustomerRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} />
               ))
             )}
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{isNb ? "Slett melding" : "Delete message"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isNb
+                ? "Er du sikker på at du vil slette denne meldingen? Handlingen kan ikke angres."
+                : "Are you sure you want to delete this message? This action cannot be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{isNb ? "Avbryt" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={confirmDelete}>
+              {isNb ? "Slett" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
