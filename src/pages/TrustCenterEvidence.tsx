@@ -4,7 +4,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon } from "lucide-react";
+import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon, Globe } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -315,18 +317,37 @@ const TrustCenterEvidence = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
           {getStatusBadge(doc.status, isNb, doc.approved_by)}
-          <button
-            className="cursor-pointer"
-            onClick={() => updateMutation.mutate({
-              id: doc.id,
-              updates: { visibility: doc.visibility === "published" ? "hidden" : "published" },
-            })}
-            title={isNb ? "Klikk for å endre synlighet" : "Click to toggle visibility"}
-          >
-            {getVisibilityBadge(doc.visibility, isNb)}
-          </button>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1.5">
+                  {doc.visibility === "published" ? (
+                    <Globe className="h-3.5 w-3.5 text-success" />
+                  ) : (
+                    <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                  <span className="text-xs text-muted-foreground min-w-[42px]">
+                    {doc.visibility === "published" ? (isNb ? "Offentlig" : "Public") : (isNb ? "Intern" : "Private")}
+                  </span>
+                  <Switch
+                    checked={doc.visibility === "published"}
+                    onCheckedChange={(checked) => updateMutation.mutate({
+                      id: doc.id,
+                      updates: { visibility: checked ? "published" : "hidden" },
+                    })}
+                    className="data-[state=checked]:bg-success"
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="text-xs">{doc.visibility === "published"
+                  ? (isNb ? "Synlig i Trust Profile — klikk for å skjule" : "Visible in Trust Profile — click to hide")
+                  : (isNb ? "Skjult fra Trust Profile — klikk for å publisere" : "Hidden from Trust Profile — click to publish")}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {renderActionMenu(doc)}
         </div>
       </CardContent>
