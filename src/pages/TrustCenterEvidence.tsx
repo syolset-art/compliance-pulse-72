@@ -328,7 +328,7 @@ const TrustCenterEvidence = () => {
                   ) : (
                     <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
-                  <span className="text-xs text-muted-foreground min-w-[42px]">
+                  <span className={`text-xs min-w-[42px] ${doc.visibility === "published" ? "text-success" : "text-muted-foreground"}`}>
                     {doc.visibility === "published" ? (isNb ? "Offentlig" : "Public") : (isNb ? "Intern" : "Private")}
                   </span>
                   <Switch
@@ -337,7 +337,7 @@ const TrustCenterEvidence = () => {
                       id: doc.id,
                       updates: { visibility: checked ? "published" : "hidden" },
                     })}
-                    className="data-[state=checked]:bg-success"
+                    className="data-[state=checked]:bg-success data-[state=unchecked]:bg-muted-foreground/30"
                   />
                 </div>
               </TooltipTrigger>
