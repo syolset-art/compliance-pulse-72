@@ -32,6 +32,7 @@ import {
 } from "@/lib/planConstants";
 import { Settings2 } from "lucide-react";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
+import { PurchaseCreditsDialog } from "@/components/credits/PurchaseCreditsDialog";
 
 // ─── Plan Comparison Cards ──────────────────────────────────────────
 
