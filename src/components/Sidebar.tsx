@@ -202,12 +202,14 @@ const SidebarContent = () => {
   const queryClient = useQueryClient();
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
 
-  // Determine display mode:
-  // "normal" = selected at onboarding OR paid → show Mynder Core / Registre normally
-  // "explore" = not selected and not paid → show "Flere tjenester" combined
+  // Determine display mode per module
   const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess;
-  const showRegistriesNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  const showExploreSection = !showCoreNormal || !showRegistriesNormal;
+  // Vendors and Assets are independent — check registries access for both
+  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
+  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
+  
+  // "Flere tjenester" collects anything not shown normally
+  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
@@ -218,13 +220,11 @@ const SidebarContent = () => {
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
 
-  const isRegistriesActive = registriesNav.some(item => location.pathname === item.href);
-  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
-
-  // "Flere tjenester" combines items from both sections when in explore mode
+  // "Flere tjenester" combines items from sections not shown normally
   const exploreItems = [
     ...(!showCoreNormal ? managementNav : []),
-    ...(!showRegistriesNormal ? registriesNav : []),
+    ...(!showVendorsNormal ? [vendorLink] : []),
+    ...(!showAssetsNormal ? [assetsLink] : []),
   ];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
