@@ -2,20 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
-import { BASE_FREE_CREDITS, CREDIT_PACKAGES, MODULES, type ModuleId } from "@/lib/planConstants";
+import { CREDIT_PACKAGES, MODULES, type ModuleId } from "@/lib/planConstants";
 import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 export function useCredits() {
   const queryClient = useQueryClient();
-  const { companyProfile } = useSubscription();
+  const { companyProfile, tierConfig } = useSubscription();
   const { isServiceActive } = useActivatedServices();
 
-  // Calculate monthly allowance from base + active modules
-  const baseCredits = BASE_FREE_CREDITS;
+  // Monthly allowance comes from the plan tier + any active module bonuses
+  const planCredits = tierConfig?.monthlyCredits ?? 10;
   const moduleBonusCredits =
     (isServiceActive("module-systems") ? MODULES.systems.bonusCredits : 0) +
     (isServiceActive("module-vendors") ? MODULES.vendors.bonusCredits : 0);
-  const monthlyAllowance = baseCredits + moduleBonusCredits;
+  const monthlyAllowance = planCredits + moduleBonusCredits;
 
   const { data: credits, isLoading } = useQuery({
     queryKey: ["company-credits", companyProfile?.id],
@@ -74,7 +74,7 @@ export function useCredits() {
   const percentRemaining = Math.max(0, 100 - percentUsed);
   const isLow = percentRemaining <= 20 && percentRemaining > 0;
   const isExhausted = balance <= 0;
-  const isUnlimited = false; // No more enterprise unlimited concept
+  const isUnlimited = false;
 
   const deductMutation = useMutation({
     mutationFn: async ({ amount, description }: { amount: number; description: string }) => {
