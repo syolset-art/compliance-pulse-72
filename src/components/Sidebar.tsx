@@ -140,7 +140,7 @@ const TrustCenterMenu = () => {
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
     { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Pencil },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
-    { name: isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence", href: "/trust-center/evidence", icon: FileText },
+    { name: isNb ? "Dokumentasjon" : "Documentation", href: "/trust-center/evidence", icon: FileText },
   ];
 
   const isActive = trustCenterItems.some(item => item.href && location.pathname === item.href);
