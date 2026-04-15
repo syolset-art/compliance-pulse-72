@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
 import { EditCompanyProfileDialog } from "@/components/dialogs/EditCompanyProfileDialog";
 import { AssignAssetDialog } from "@/components/dialogs/AssignAssetDialog";
+import { AssignVendorDialog } from "@/components/dialogs/AssignVendorDialog";
 import { CompanyOnboarding } from "@/components/onboarding/CompanyOnboarding";
 import { ProcessList } from "@/components/process/ProcessList";
 import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePersonEditor";
@@ -152,6 +153,7 @@ export default function WorkAreas() {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [isCompanyProfileDialogOpen, setIsCompanyProfileDialogOpen] = useState(false);
   const [isAssignAssetDialogOpen, setIsAssignAssetDialogOpen] = useState(false);
+  const [isAssignVendorDialogOpen, setIsAssignVendorDialogOpen] = useState(false);
   const [assetTypeFilter, setAssetTypeFilter] = useState<string>("all");
   const [activeWorkAreaTab, setActiveWorkAreaTab] = useState("assets");
   const [ownershipFilter, setOwnershipFilter] = useState<"all" | "mine" | "member">("all");
@@ -940,7 +942,7 @@ export default function WorkAreas() {
                           <Server className="h-4 w-4 mr-2" />
                           System
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate('/assets?type=vendor&addNew=true')}>
+                        <DropdownMenuItem onClick={() => setIsAssignVendorDialogOpen(true)}>
                           <Building2 className="h-4 w-4 mr-2" />
                           Leverandør
                         </DropdownMenuItem>
