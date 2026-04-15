@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { AddOrganizationDialog } from "./AddOrganizationDialog";
 import { Building2, ChevronDown, Plus, Check } from "lucide-react";
@@ -8,6 +9,7 @@ import { useTranslation } from "react-i18next";
 export function OrganizationSwitcher() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const navigate = useNavigate();
   const { activeOrg, setActiveOrg, organizations, loading, refetch } = useActiveOrganization();
   const [listOpen, setListOpen] = useState(false);
   const [addOrgOpen, setAddOrgOpen] = useState(false);
@@ -52,7 +54,7 @@ export function OrganizationSwitcher() {
               return (
                 <button
                   key={org.id}
-                  onClick={() => { setActiveOrg(org); setListOpen(false); }}
+                  onClick={() => { setActiveOrg(org); setListOpen(false); navigate("/"); }}
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
                     isActive
