@@ -371,6 +371,15 @@ const Regulations = () => {
         updatingId={updating}
       />
 
+      {/* Framework purchase dialog */}
+      <FrameworkPurchaseDialog
+        open={!!purchaseFramework}
+        onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
+        framework={purchaseFramework}
+        onConfirm={handlePurchaseConfirm}
+        isLoading={!!updating}
+      />
+
       {/* Framework activation dialog */}
       <FrameworkActivationDialog
         open={showActivationDialog}
