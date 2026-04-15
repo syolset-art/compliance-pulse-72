@@ -110,8 +110,23 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-base;
+  }
+
+  /* Prevent text-xs from being too small — bump to 13px minimum */
+  .text-xs {
+    font-size: 0.8125rem !important; /* 13px */
+    line-height: 1.25rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.375rem;
   }
 }
 
