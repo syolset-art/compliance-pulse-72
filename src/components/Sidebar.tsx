@@ -221,12 +221,13 @@ const SidebarContent = () => {
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
 
-  // "Flere tjenester" combines items from sections not shown normally
-  const exploreItems = [
-    ...(!showCoreNormal ? managementNav : []),
+  // "Flere tjenester" combines items from sections not shown normally, split by category
+  const exploreCoreItems = !showCoreNormal ? managementNav : [];
+  const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
   ];
+  const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
 
@@ -463,17 +464,87 @@ const SidebarContent = () => {
         {showExploreSection && (
           <>
             {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
-            {renderCollapsibleSection(
-              t("nav.moreServices", "Flere tjenester"),
-              Sparkles,
-              exploreItems,
-              exploreOpen,
-              setExploreOpen,
-              isExploreActive,
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
-                {t("nav.exploreBadge", "Utforsk")}
-              </Badge>,
-            )}
+            <div>
+              <button
+                onClick={() => setExploreOpen(!exploreOpen)}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  isExploreActive
+                    ? "text-sidebar-primary border-l-2 border-primary/30"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-xs font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
+                    {t("nav.exploreBadge", "Utforsk")}
+                  </Badge>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", exploreOpen && "rotate-180")} />
+                </div>
+              </button>
+              <div className={cn(
+                "overflow-hidden transition-all duration-200",
+                exploreOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+              )}>
+                <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+                  {exploreCoreItems.length > 0 && (
+                    <>
+                      <p className="px-2.5 pt-2 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                        Mynder Core
+                      </p>
+                      {exploreCoreItems.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={cn(
+                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-primary"
+                                : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                            )}
+                          >
+                            {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                            <item.icon className="h-3.5 w-3.5" />
+                            {t(item.name)}
+                          </Link>
+                        );
+                      })}
+                    </>
+                  )}
+                  {exploreRegistryItems.length > 0 && (
+                    <>
+                      <p className="px-2.5 pt-2 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                        {t("nav.registries", "Registre")}
+                      </p>
+                      {exploreRegistryItems.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={cn(
+                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-primary"
+                                : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                            )}
+                          >
+                            {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                            <item.icon className="h-3.5 w-3.5" />
+                            {t(item.name)}
+                          </Link>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           </>
         )}
 
