@@ -97,6 +97,7 @@ export const VendorTPRMStatus = ({
   openTasks = [],
   highlightedTaskId,
   responsiblePerson,
+  onTaskStatusChange,
 }: VendorTPRMStatusProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
