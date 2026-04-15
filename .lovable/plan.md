@@ -1,78 +1,88 @@
 
 
-# Plan: Betalingsbekreftelse ved aktivering av regelverk
+# Plan: Credits-first forretningsmodell
 
 ## Konsept
 
-Når en bruker forsøker å aktivere et regelverk, skal det komme en bekreftelses-dialog **før** aktivering — ikke etter. GDPR og ISO 27001 er gratis og aktiveres umiddelbart med en enkel bekreftelse. Alle andre betalte regelverk viser pris, hva som er inkludert, og krever eksplisitt godkjenning.
+Forretningsmodellen forenkles til **credits som valuta** for alt på plattformen. Mynder Core og Leverandørstyring blir **valgfrie pakker** brukeren aktiverer når de trenger det — ikke noe de må forholde seg til fra start. Regelverk fortsetter som separate tillegg.
 
-## Flyten
+### Ny modell
 
 ```text
-Bruker klikker "Aktiver" på et regelverk
-        │
-        ▼
-   Er det gratis? ──── JA ──→ Enkel bekreftelsesdialog
-   (GDPR/ISO 27001)          "Inkludert i ditt abonnement"
-        │                     → Aktiver direkte
-        NO
-        │
-        ▼
-   FrameworkPurchaseDialog
-   ┌─────────────────────────────────┐
-   │ [Ikon] NIS2-direktivet         │
-   │ ────────────────────────────────│
-   │ ✓ Gap-analyse                  │
-   │ ✓ Tiltaksliste                 │
-   │ ✓ Modenhetsvurdering           │
-   │ ✓ Rapportdeling                │
-   │ ────────────────────────────────│
-   │ Pris: 4 167 kr/mnd (50 000/år) │
-   │ ────────────────────────────────│
-   │ ⚠ Compliance-skåren vil        │
-   │   beregnes på nytt             │
-   │ ────────────────────────────────│
-   │ [Avbryt]  [Godkjenn og aktiver]│
-   └─────────────────────────────────┘
-        │
-        ▼
-   Aktivering → Suksess-dialog (eksisterende)
+┌───────────────────────────────────┐
+│  GRUNNPAKKE (gratis)              │
+│  • Trust Center                   │
+│  • GDPR + ISO 27001               │
+│  • 10 credits/mnd                 │
+│  • Inntil 5 systemer/leverandører │
+└───────────────────────────────────┘
+         │
+         ▼  Bruker kjøper credits
+┌───────────────────────────────────┐
+│  CREDITS-PAKKER                   │
+│  Starter:   100 credits — 490 kr  │
+│  Standard:  300 credits — 990 kr  │
+│  Pro:       800 credits — 1 990 kr│
+│  Enterprise: Ubegrenset (kontakt) │
+└───────────────────────────────────┘
+         │
+         ▼  Bruker aktiverer ved behov
+┌────────────────┐ ┌────────────────┐
+│ Mynder Core    │ │ Leverandør-    │
+│ (pakke)        │ │ styring (pakke)│
+│ 490 kr/mnd     │ │ 490 kr/mnd    │
+│ Fjerner grenser│ │ Fjerner grenser│
+│ +50 credits/mnd│ │ +50 credits/mnd│
+└────────────────┘ └────────────────┘
 ```
 
 ## Endringer
 
-### 1. Ny komponent: `FrameworkPurchaseDialog.tsx`
-Pre-aktiverings dialog med:
-- Regelverkets navn, ikon og kategori
-- Liste over hva som er inkludert (fra `FRAMEWORK_ADDONS[id].includes`)
-- Pris per måned og per år
-- For gratis regelverk: "Inkludert i ditt abonnement" med grønn badge
-- Advarsel om at compliance-skåren vil beregnes på nytt
-- "Godkjenn og aktiver"-knapp som kaller den faktiske aktiveringsfunksjonen
-- Avbryt-knapp
+### 1. Oppdater `planConstants.ts`
+- Erstatte `PLAN_TIERS` (free/basis/premium/enterprise) med **credits-pakker** (`CREDIT_PACKAGES`)
+- Beholde `MODULES` men forenkle til én tier per modul (ikke basis/premium) — en flat månedspris som fjerner grensene og gir ekstra credits
+- Beholde `FRAMEWORK_ADDONS` uendret
 
-### 2. Oppdater `Subscriptions.tsx`
-Endre `handleToggleFramework` slik at:
-- Når bruker **aktiverer** et regelverk → åpne `FrameworkPurchaseDialog` først
-- Når bruker **deaktiverer** → deaktiver direkte (eventuelt med enkel bekreftelse)
-- Etter godkjenning i purchase-dialogen → kjør eksisterende aktiveringslogikk → vis `FrameworkActivationDialog`
+### 2. Redesigne `Subscriptions.tsx`
+Ny sidestruktur:
 
-### 3. Oppdater `Regulations.tsx` og `TrustCenterRegulations.tsx`
-Samme mønster: aktivering via purchase-dialog først.
+1. **Credits-oversikt** — nåværende saldo, progress bar, kjøp-knapper for credit-pakker
+2. **Trust Center** — gratis, alltid aktiv (som nå)
+3. **Regelverk** — som nå med purchase-dialog
+4. **Pakker** — Mynder Core og Leverandørstyring som valgfrie kort med "Aktiver"/"Deaktiver"
+5. **Oppsummering** — aktive pakker + regelverk-tillegg
 
-### 4. Oppdater `FrameworkActivationDialog.tsx`
-Fjerne pris-info herfra (den er nå i purchase-dialogen). Beholde suksess-melding, score-advarsel og Lara-hjelp.
+### 3. Oppdater `useCredits.ts`
+- Fjerne kobling til `currentTier` for `monthlyAllowance`
+- Hente `monthly_allowance` direkte fra `company_credits`-tabellen (settes ved kjøp og pakke-aktivering)
+- Legge til `purchaseCredits(packageId)` funksjon
 
-### 5. Differensiert prising i `planConstants.ts`
-Legge til månedspris-beregning (`yearlyPriceKr / 12`) som hjelpefunksjon, og evt. mer varierte priser per regelverk (f.eks. NIS2 dyrere enn Åpenhetsloven).
+### 4. Oppdater `useSubscription.ts`
+- Forenkle `currentTier`-logikk — fjerne binding til basis/premium
+- `maxSystems`/`maxVendors` avhenger av om pakken er aktivert (5 uten, 50/70 med)
+- Beholde `hasModule()` som sjekker om pakken er aktiv
+
+### 5. Oppdater `CreditIndicator.tsx`
+- Vise credits uten referanse til plan-tier
+- Legge til "Kjøp credits" lenke
+
+### 6. Oppdater `useActivatedServices.ts`
+- Allerede brukt for å tracke aktiverte tjenester — gjenbruke for pakke-status
 
 ## Filer
 
 | Fil | Endring |
 |---|---|
-| `src/components/dialogs/FrameworkPurchaseDialog.tsx` | Ny — pre-aktiverings bekreftelses-dialog |
-| `src/pages/Subscriptions.tsx` | Koble purchase-dialog inn i toggle-flyten |
-| `src/pages/Regulations.tsx` | Koble purchase-dialog inn ved aktivering |
-| `src/pages/TrustCenterRegulations.tsx` | Koble purchase-dialog inn ved aktivering |
-| `src/lib/planConstants.ts` | Legge til `getFrameworkMonthlyPrice()` hjelpefunksjon |
+| `src/lib/planConstants.ts` | Ny `CREDIT_PACKAGES`-definisjon, forenkle `MODULES` til én tier |
+| `src/pages/Subscriptions.tsx` | Redesigne til credits-first layout |
+| `src/hooks/useCredits.ts` | Fjerne tier-kobling, hente fra DB, legge til `purchaseCredits` |
+| `src/hooks/useSubscription.ts` | Forenkle tier-logikk til pakke-basert |
+| `src/components/sidebar/CreditIndicator.tsx` | Fjerne tier-referanse, legge til kjøp-lenke |
+
+## Teknisk
+
+- Credits-pakker er engangskjøp som fyller på saldoen — ingen endring i `company_credits`-skjema
+- Pakker (Mynder Core / Leverandør) er månedlige abonnementer som gir ekstra kapasitet + bonus-credits
+- `CREDIT_PACKAGES` defineres med `id`, `name`, `credits`, `priceKr`
+- Eksisterende `credit_transactions` brukes for å logge kjøp (`transaction_type: 'purchase'`)
 
