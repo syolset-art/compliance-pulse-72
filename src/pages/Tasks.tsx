@@ -199,6 +199,8 @@ export default function Tasks() {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [approvalTask, setApprovalTask] = useState<AutoTask | null>(null);
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [manualTasks, setManualTasks] = useState<AutoTask[]>([]);
 
   // Simulated current user
   const currentUser = "Maria Larsen";
