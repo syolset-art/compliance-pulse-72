@@ -206,7 +206,7 @@ const SidebarContent = () => {
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [resetting, setResetting] = useState(false);
+  const [addOrgOpen, setAddOrgOpen] = useState(false);
   const [addOrgOpen, setAddOrgOpen] = useState(false);
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
@@ -222,28 +222,6 @@ const SidebarContent = () => {
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
 
-  const handleResetDemo = async () => {
-    setResetting(true);
-    try {
-      await supabase.from("vendor_documents" as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("lara_inbox").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("asset_ai_usage").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("asset_relationships").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("assets").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("onboarding_progress").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      await supabase.from("company_profile").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      
-      queryClient.clear();
-      toast.success("Demo tilbakestilt! Starter onboarding på nytt...");
-      navigate("/");
-      window.location.reload();
-    } catch (error) {
-      console.error("Reset error:", error);
-      toast.error("Kunne ikke tilbakestille demo");
-    } finally {
-      setResetting(false);
-    }
-  };
 
   const handleLogout = async () => {
     setLoggingOut(true);
