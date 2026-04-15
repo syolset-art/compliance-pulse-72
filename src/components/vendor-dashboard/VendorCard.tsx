@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { type ScoreDisplayMode, scoreToLabel, scoreLabelColor } from "./VendorListTab";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   saas: <Cloud className="h-2.5 w-2.5" />,
@@ -50,13 +51,14 @@ interface VendorCardProps {
   expiredDocsCount?: number;
   onClick?: () => void;
   compact?: boolean;
+  scoreDisplay?: ScoreDisplayMode;
   workAreas?: WorkArea[];
   onSetOwner?: (itemId: string, workAreaId: string) => void;
   onArchive?: (itemId: string) => void;
   onDelete?: (id: string) => void;
 }
 
-export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, workAreas = [], onSetOwner, onArchive, onDelete }: VendorCardProps) {
+export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, inboxCount = 0, expiredDocsCount = 0, onClick, compact, scoreDisplay = "percent", workAreas = [], onSetOwner, onArchive, onDelete }: VendorCardProps) {
   const { t } = useTranslation();
   const score = vendor.compliance_score || 0;
 
@@ -107,7 +109,9 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {score > 0 ? (
-            <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score}%</span>
+            <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>
+              {scoreDisplay === "percent" ? `${score}%` : scoreToLabel(score)}
+            </span>
           ) : (
             <span className="text-[13px] text-muted-foreground flex items-center gap-1">
               <MinusCircle className="h-3 w-3" />
