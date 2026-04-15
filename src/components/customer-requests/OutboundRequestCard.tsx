@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { FileText, Shield, FileCheck, Clock, Send, AlertTriangle, CheckCircle2, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { FileText, Shield, FileCheck, Clock, Send, AlertTriangle, CheckCircle2, Building2, MoreHorizontal, Archive, Trash2 } from "lucide-react";
 
 export interface OutboundRequest {
   id: string;
@@ -53,7 +54,13 @@ function getStatusConfig(status: string, isNb: boolean) {
   }
 }
 
-export function OutboundRequestCard({ request }: { request: OutboundRequest }) {
+interface OutboundRequestCardProps {
+  request: OutboundRequest;
+  onDelete?: (id: string) => void;
+  onArchive?: (id: string) => void;
+}
+
+export function OutboundRequestCard({ request, onDelete, onArchive }: OutboundRequestCardProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const locale = isNb ? "nb-NO" : "en-US";
@@ -86,9 +93,29 @@ export function OutboundRequestCard({ request }: { request: OutboundRequest }) {
                 )}
               </div>
             </div>
-            <Badge className={`${statusCfg.className} text-xs shrink-0`}>
-              {statusCfg.label}
-            </Badge>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Badge className={`${statusCfg.className} text-xs`}>
+                {statusCfg.label}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => onArchive?.(request.id)}>
+                    <Archive className="h-3.5 w-3.5 mr-2" />
+                    {isNb ? "Arkiver" : "Archive"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onDelete?.(request.id)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="h-3.5 w-3.5 mr-2" />
+                    {isNb ? "Slett" : "Delete"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
