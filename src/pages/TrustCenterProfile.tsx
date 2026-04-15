@@ -140,23 +140,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
 
-
-  if (isLoading) {
-    return (
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background">
-          <Sidebar />
-          <main className="flex-1 p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 w-48 bg-muted rounded" />
-              <div className="h-64 bg-muted rounded" />
-            </div>
-          </main>
-        </div>
-      </SidebarProvider>
-    );
-  }
-
   // Auto-seed demo profile if none exists
   useEffect(() => {
     if (!asset && !isLoading && !isSeeding) {
@@ -174,9 +157,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     }
   }, [asset, isLoading, isSeeding]);
 
-  if (!asset) {
-
-  if (isSeeding) {
+  if (isLoading || !asset) {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
