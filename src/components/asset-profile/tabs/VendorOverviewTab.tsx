@@ -76,8 +76,9 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["asset-tasks", asset.id] });
-      const { toast } = await import("sonner");
-      toast.success(isNb ? "Oppgave oppdatert" : "Task updated");
+      import("sonner").then(({ toast }) => {
+        toast.success(isNb ? "Oppgave oppdatert" : "Task updated");
+      });
     },
   });
 
