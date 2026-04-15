@@ -100,8 +100,16 @@ const TrustCenterEvidence = () => {
         .eq("asset_type", "self")
         .order("created_at", { ascending: true })
         .limit(1)
+        .maybeSingle();
+      if (data) return data;
+      // Create a self asset if none exists
+      const { data: created, error } = await supabase
+        .from("assets")
+        .insert({ name: "Min organisasjon", asset_type: "self" })
+        .select("id")
         .single();
-      return data;
+      if (error) throw error;
+      return created;
     },
   });
 
