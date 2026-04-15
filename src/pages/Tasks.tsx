@@ -5,8 +5,9 @@ import {
   CheckCircle2, X, AlertTriangle, Clock, HelpCircle,
   Crown, Plus, User, Calendar, ExternalLink, Cpu, Building2,
   FileText, ShieldAlert, ClipboardCheck, Eye, Bot, Play,
-  ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2,
+  ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2, Users,
 } from "lucide-react";
+import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
