@@ -583,6 +583,14 @@ export default function TrustCenterRegulations() {
 
       <LaraAgent />
 
+      <FrameworkPurchaseDialog
+        open={!!purchaseFramework}
+        onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
+        framework={purchaseFramework}
+        onConfirm={handlePurchaseConfirm}
+        isLoading={!!updating}
+      />
+
       {showActivationDialog && activatedFramework && (
         <FrameworkActivationDialog
           open={showActivationDialog}
