@@ -159,7 +159,7 @@ export function DeletionAgentCard() {
               {isNb ? "Slette-agent" : "Deletion Agent"}
             </h3>
           </div>
-          <Badge variant="action" className="text-[10px] px-1.5 py-0">
+          <Badge variant="action" className="text-[13px] px-1.5 py-0">
             {isNb ? "Aktiv" : "Active"}
           </Badge>
         </div>
@@ -187,9 +187,9 @@ export function DeletionAgentCard() {
                   <span className="text-xs font-medium text-foreground truncate">
                     {task.activity}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">— {task.system}</span>
+                  <span className="text-[13px] text-muted-foreground">— {task.system}</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   {task.status === "completed"
                     ? `${task.records} ${isNb ? "poster slettet" : "records deleted"} ${task.completedDate}`
                     : task.status === "snoozed"
@@ -211,7 +211,7 @@ export function DeletionAgentCard() {
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-36 p-1.5" align="end">
-                    <p className="text-[10px] font-medium text-muted-foreground px-1.5 pb-1">{isNb ? "Slumre" : "Snooze"}</p>
+                    <p className="text-[13px] font-medium text-muted-foreground px-1.5 pb-1">{isNb ? "Slumre" : "Snooze"}</p>
                     {[7, 14, 30].map(d => (
                       <button
                         key={d}
@@ -227,7 +227,7 @@ export function DeletionAgentCard() {
 
               <span
                 className={cn(
-                  "text-[10px] font-medium tabular-nums whitespace-nowrap mt-0.5",
+                  "text-[13px] font-medium tabular-nums whitespace-nowrap mt-0.5",
                   task.status === "completed"
                     ? "text-emerald-600"
                     : task.status === "overdue"
@@ -254,7 +254,7 @@ export function DeletionAgentCard() {
         {/* Footer */}
         <button
           onClick={() => setLogOpen(true)}
-          className="mt-3 w-full flex items-center justify-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-3 w-full flex items-center justify-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         >
           {isNb ? "Se slettelogg" : "View deletion log"}
           <ChevronRight className="h-3 w-3" />

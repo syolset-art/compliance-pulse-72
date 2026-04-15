@@ -72,7 +72,7 @@ function KPIRow({ isNb }: { isNb: boolean }) {
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground truncate">{isNb ? "Samsvar" : "Compliance"}</p>
           <p className="text-lg font-bold leading-tight text-primary">{stats.compliancePct}%</p>
-          <p className="text-[10px] text-muted-foreground truncate">{isNb ? "av kontroller oppfylt" : "of controls met"}</p>
+          <p className="text-[13px] text-muted-foreground truncate">{isNb ? "av kontroller oppfylt" : "of controls met"}</p>
         </div>
       </Card>
 
@@ -83,7 +83,7 @@ function KPIRow({ isNb }: { isNb: boolean }) {
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground truncate">{isNb ? "Risikonivå" : "Risk Level"}</p>
           <p className={cn("text-lg font-bold leading-tight", stats.riskColor)}>{stats.riskLevel}</p>
-          <p className="text-[10px] text-muted-foreground truncate">{isNb ? `${stats.highRisk} kritiske åpne` : `${stats.highRisk} critical open`}</p>
+          <p className="text-[13px] text-muted-foreground truncate">{isNb ? `${stats.highRisk} kritiske åpne` : `${stats.highRisk} critical open`}</p>
         </div>
       </Card>
 
@@ -94,7 +94,7 @@ function KPIRow({ isNb }: { isNb: boolean }) {
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground truncate">{isNb ? "Kontroller" : "Controls"}</p>
           <p className="text-lg font-bold leading-tight text-primary">{stats.assessed}/{stats.total}</p>
-          <p className="text-[10px] text-muted-foreground truncate">{isNb ? "vurdert" : "assessed"}</p>
+          <p className="text-[13px] text-muted-foreground truncate">{isNb ? "vurdert" : "assessed"}</p>
         </div>
       </Card>
     </div>
@@ -194,7 +194,7 @@ function PartnerCustomerOverview({ isNb }: { isNb: boolean }) {
             <m.icon className={cn("h-3.5 w-3.5 shrink-0", m.color)} />
             <div className="min-w-0">
               <p className="text-sm font-bold leading-tight text-foreground">{m.value}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{m.label}</p>
+              <p className="text-[13px] text-muted-foreground truncate">{m.label}</p>
             </div>
           </div>
         ))}
@@ -241,13 +241,13 @@ function RecentCustomersPanel({ isNb }: { isNb: boolean }) {
               <span className="flex-1 text-foreground/80 truncate">{c.customer_name}</span>
               <Badge
                 variant={c.onboarding_completed ? "action" : "secondary"}
-                className="text-[10px] px-1.5 py-0"
+                className="text-[13px] px-1.5 py-0"
               >
                 {c.onboarding_completed
                   ? (isNb ? "Aktiv" : "Active")
                   : (isNb ? "Onboarding" : "Onboarding")}
               </Badge>
-              <span className="text-[10px] font-medium text-muted-foreground tabular-nums w-8 text-right">
+              <span className="text-[13px] font-medium text-muted-foreground tabular-nums w-8 text-right">
                 {c.compliance_score || 0}%
               </span>
             </div>
@@ -280,7 +280,7 @@ function DeadlinesPanel({ isNb }: { isNb: boolean }) {
           <div key={i} className="flex items-center gap-2 text-xs">
             <Clock className={cn("h-3 w-3 shrink-0", d.urgent ? "text-destructive" : "text-muted-foreground")} />
             <span className="flex-1 text-foreground/80 truncate">{d.label}</span>
-            <span className={cn("text-[10px] font-medium tabular-nums whitespace-nowrap", d.urgent ? "text-destructive" : "text-muted-foreground")}>
+            <span className={cn("text-[13px] font-medium tabular-nums whitespace-nowrap", d.urgent ? "text-destructive" : "text-muted-foreground")}>
               {d.date}
             </span>
           </div>

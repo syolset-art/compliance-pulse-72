@@ -97,7 +97,7 @@ export function DashboardGrid({ tiles, order, hiddenIds, onReorder, onHide, edit
               <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                 <div className="flex items-center gap-0.5 rounded-md bg-muted/90 backdrop-blur-sm px-1.5 py-1 cursor-grab active:cursor-grabbing">
                   <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[10px] font-medium text-muted-foreground select-none">
+                  <span className="text-[13px] font-medium text-muted-foreground select-none">
                     {tile.label}
                   </span>
                 </div>

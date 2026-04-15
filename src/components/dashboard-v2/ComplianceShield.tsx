@@ -54,7 +54,7 @@ export function ComplianceShield({ score, levelLabel_no, levelLabel_en, assessed
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={cn("text-2xl font-bold", colors.text)}>{score}</span>
-          <span className="text-[10px] text-muted-foreground font-medium">/100</span>
+          <span className="text-[13px] text-muted-foreground font-medium">/100</span>
         </div>
       </div>
 

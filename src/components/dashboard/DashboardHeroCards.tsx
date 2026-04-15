@@ -52,7 +52,7 @@ function MetricPill({ icon: Icon, label, value, color }: {
     <div className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2">
       <Icon className={`h-4 w-4 ${color}`} />
       <span className="text-lg font-bold text-foreground leading-none">{value}</span>
-      <span className="text-[11px] text-muted-foreground truncate">{label}</span>
+      <span className="text-[13px] text-muted-foreground truncate">{label}</span>
     </div>
   );
 }
@@ -128,7 +128,7 @@ export function DashboardHeroCards() {
               { label: isNb ? "Evidensdekning" : "Evidence coverage", value: 18, max: 24 },
             ].map(bar => (
               <div key={bar.label}>
-                <div className="flex justify-between text-[11px] text-muted-foreground mb-0.5">
+                <div className="flex justify-between text-[13px] text-muted-foreground mb-0.5">
                   <span>{bar.label}</span>
                   <span className="font-medium text-foreground">{bar.value}/{bar.max}</span>
                 </div>

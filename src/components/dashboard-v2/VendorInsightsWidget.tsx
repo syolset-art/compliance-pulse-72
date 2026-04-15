@@ -137,7 +137,7 @@ export function VendorInsightsWidget() {
         </div>
 
         {/* Summary */}
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+        <div className="flex items-center gap-3 text-[13px] text-muted-foreground mb-3">
           <span>{stats.total} {isNb ? "leverandører" : "vendors"}</span>
           {stats.criticalHigh > 0 && (
             <span className="text-destructive font-medium">
@@ -178,7 +178,7 @@ export function VendorInsightsWidget() {
               return renderVendorRow(
                 v,
                 p ? (
-                  <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", p.color)}>
+                  <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0", p.color)}>
                     {isNb ? p.no : p.en}
                   </Badge>
                 ) : null
@@ -191,7 +191,7 @@ export function VendorInsightsWidget() {
               return renderVendorRow(
                 v,
                 r ? (
-                  <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", r.color)}>
+                  <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0", r.color)}>
                     {isNb ? r.no : r.en}
                   </Badge>
                 ) : null
@@ -205,7 +205,7 @@ export function VendorInsightsWidget() {
                 <div key={role} className="px-3 py-2.5">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs font-medium text-foreground">{isNb ? label.no : label.en}</span>
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                    <Badge variant="secondary" className="text-[13px] px-1.5 py-0">
                       {items.length}
                     </Badge>
                   </div>
@@ -214,13 +214,13 @@ export function VendorInsightsWidget() {
                       <button
                         key={v.id}
                         onClick={() => navigate(`/vendors/${v.id}`)}
-                        className="text-[11px] text-muted-foreground hover:text-primary transition-colors truncate max-w-[140px]"
+                        className="text-[13px] text-muted-foreground hover:text-primary transition-colors truncate max-w-[140px]"
                       >
                         {v.name}
                       </button>
                     ))}
                     {items.length > 4 && (
-                      <span className="text-[11px] text-muted-foreground">+{items.length - 4}</span>
+                      <span className="text-[13px] text-muted-foreground">+{items.length - 4}</span>
                     )}
                   </div>
                 </div>

@@ -85,7 +85,7 @@ function CircularGauge({ percent, size = 40 }: { percent: number; size?: number 
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
       />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
-        className="fill-foreground text-[9px] font-bold"
+        className="fill-foreground text-[13px] font-bold"
       >
         {percent}%
       </text>
@@ -162,7 +162,7 @@ export function AggregatedMaturityWidget() {
                     key={mode.key}
                     onClick={() => setViewMode(mode.key)}
                     className={cn(
-                      "flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all",
+                      "flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all",
                       isActive
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -187,7 +187,7 @@ export function AggregatedMaturityWidget() {
 
         {/* Coverage badge + summary pills */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border-0", overallCoverage.className)}>
+          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallCoverage.className)}>
             {overallCoverage.label}
           </Badge>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -270,7 +270,7 @@ export function AggregatedMaturityWidget() {
               <h4 className="text-xs font-semibold text-foreground">
                 {isNb ? "Samsvarsstatus per regelverk" : "Compliance status per framework"}
               </h4>
-              <Badge variant="outline" className="text-[10px] h-5">
+              <Badge variant="outline" className="text-[13px] h-5">
                 {activeFrameworks.length} {isNb ? "regelverk" : "frameworks"}
               </Badge>
             </div>
@@ -281,9 +281,9 @@ export function AggregatedMaturityWidget() {
                 return (
                   <div key={fw.id} className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col items-center gap-1.5 hover:bg-muted/40 transition-colors">
                     <CircularGauge percent={percent} />
-                    <span className="text-[11px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
-                    <Badge className={cn("text-[8px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>{cov.label}</Badge>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                    <span className="text-[13px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
+                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>{cov.label}</Badge>
+                    <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                       <CheckCircle2 className="h-2.5 w-2.5 text-emerald-500" />
                       {fw.data.assessed}/{fw.data.total}
                     </span>
@@ -375,18 +375,18 @@ export function AggregatedMaturityWidget() {
                           <span className="text-sm font-bold text-foreground tabular-nums">{percent}%</span>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-[13px] text-muted-foreground">
                             {domainData.assessed || 0}/{domainData.total || 0} {isNb ? "oppfylt" : "fulfilled"}
                           </span>
                           {remaining > 0 && (
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-[13px] text-muted-foreground">
                               · {remaining} {isNb ? "gjenstår" : "remaining"}
                             </span>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Badge className={cn("text-[9px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", coverage.className)}>
+                        <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", coverage.className)}>
                           {coverage.label}
                         </Badge>
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
@@ -434,7 +434,7 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
             <Badge
               variant="outline"
               className={cn(
-                "text-[9px] h-4 px-1.5 shrink-0",
+                "text-[13px] h-4 px-1.5 shrink-0",
                 ctrl.status === "completed" && "border-emerald-300 text-emerald-600 dark:text-emerald-400",
                 ctrl.status === "in_progress" && "border-amber-300 text-amber-600 dark:text-amber-400",
                 ctrl.status === "not_started" && "border-border text-muted-foreground"
@@ -448,7 +448,7 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
         );
       })}
       {sorted.length > 10 && (
-        <p className="text-[10px] text-muted-foreground pl-6 pt-1">
+        <p className="text-[13px] text-muted-foreground pl-6 pt-1">
           +{sorted.length - 10} {isNb ? "flere kontroller" : "more controls"}
         </p>
       )}
