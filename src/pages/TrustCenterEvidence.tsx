@@ -4,11 +4,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -117,6 +116,10 @@ const TrustCenterEvidence = () => {
   // Approve dialog state (for verified status)
   const [approveDoc, setApproveDoc] = useState<any>(null);
   const [approverName, setApproverName] = useState("");
+  // Preview state
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
@@ -197,6 +200,24 @@ const TrustCenterEvidence = () => {
     setApproveDoc(null);
   };
 
+  const openPreview = async (doc: any) => {
+    setPreviewDoc(doc);
+    setPreviewUrl(null);
+    setPreviewLoading(true);
+    try {
+      const { data, error } = await supabase.storage.from("vendor-documents").createSignedUrl(doc.file_path, 3600);
+      if (error) throw error;
+      setPreviewUrl(data.signedUrl);
+    } catch {
+      setPreviewUrl(null);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const isImageFile = (name: string) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name);
+  const isPdfFile = (name: string) => /\.pdf$/i.test(name);
+
   const saveEdit = () => {
     if (!editDoc) return;
     updateMutation.mutate({
@@ -256,7 +277,7 @@ const TrustCenterEvidence = () => {
   );
 
   const renderDocRow = (doc: any, icon: React.ReactNode) => (
-    <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+    <Card key={doc.id} className="hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openPreview(doc)}>
       <CardContent className="flex items-center justify-between py-4 px-5">
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -270,7 +291,7 @@ const TrustCenterEvidence = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
           {getStatusBadge(doc.status, isNb, doc.approved_by)}
           {getVisibilityIcon(doc.visibility)}
           {renderActionMenu(doc)}
@@ -322,63 +343,46 @@ const TrustCenterEvidence = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="policies" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
-          <TabsTrigger value="policies">
-            {isNb ? "Retningslinjer" : "Policies"}
-            {policies.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{policies.length}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="certifications">
-            {isNb ? "Sertifiseringer" : "Certifications"}
-            {certifications.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{certifications.length}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="documents">
-            {isNb ? "Dokumenter" : "Documents"}
-            {documents.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{documents.length}</Badge>}
-          </TabsTrigger>
-        </TabsList>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <>
-            <TabsContent value="policies" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
-              </p>
-              {policies.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen retningslinjer registrert ennå." : "No policies registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="certifications" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
-              </p>
-              {certifications.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen sertifiseringer registrert ennå." : "No certifications registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="documents" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
-              </p>
-              {documents.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : vendorDocs.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-12 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
+      ) : (
+        <div className="space-y-8">
+          {policies.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                {isNb ? "Retningslinjer" : "Policies"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{policies.length}</Badge>
+              </h2>
+              <div className="space-y-2">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+          {certifications.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <Award className="h-4 w-4" />
+                {isNb ? "Sertifiseringer" : "Certifications"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{certifications.length}</Badge>
+              </h2>
+              <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+          {documents.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <FolderOpen className="h-4 w-4" />
+                {isNb ? "Dokumenter" : "Documents"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
+              </h2>
+              <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+        </div>
+      )}
 
       {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
 
@@ -479,6 +483,53 @@ const TrustCenterEvidence = () => {
               {isNb ? "Godkjenn" : "Approve"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); setPreviewUrl(null); } }}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{previewDoc?.display_name || previewDoc?.file_name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0 overflow-auto">
+            {previewLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : previewUrl && previewDoc ? (
+              isPdfFile(previewDoc.file_name) ? (
+                <iframe src={previewUrl} className="w-full h-[70vh] rounded border" title={previewDoc.display_name || previewDoc.file_name} />
+              ) : isImageFile(previewDoc.file_name) ? (
+                <img src={previewUrl} alt={previewDoc.display_name || previewDoc.file_name} className="max-w-full max-h-[70vh] mx-auto rounded" />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <FolderOpen className="h-12 w-12 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">{isNb ? "Forhåndsvisning ikke tilgjengelig for denne filtypen." : "Preview not available for this file type."}</p>
+                  <Button asChild>
+                    <a href={previewUrl} download={previewDoc.file_name} target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4 mr-1.5" />
+                      {isNb ? "Last ned" : "Download"}
+                    </a>
+                  </Button>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 gap-2">
+                <p className="text-sm text-muted-foreground">{isNb ? "Kunne ikke laste filen." : "Could not load the file."}</p>
+              </div>
+            )}
+          </div>
+          {previewUrl && previewDoc && (isPdfFile(previewDoc.file_name) || isImageFile(previewDoc.file_name)) && (
+            <DialogFooter>
+              <Button variant="outline" asChild>
+                <a href={previewUrl} download={previewDoc.file_name} target="_blank" rel="noopener noreferrer">
+                  <Download className="h-4 w-4 mr-1.5" />
+                  {isNb ? "Last ned" : "Download"}
+                </a>
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
