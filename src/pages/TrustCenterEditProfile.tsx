@@ -18,7 +18,7 @@ import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package, Sparkles,
+  Info, Settings, Package, Sparkles, Settings2,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
@@ -708,8 +708,9 @@ const TrustCenterEditProfile = () => {
                     {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
                   </Badge>
                 </div>
-                <Button variant="ghost" size="sm" className="text-xs gap-1.5 text-muted-foreground" onClick={() => navigate("/trust-center/regulations")}>
-                  {isNb ? "Administrer" : "Manage"}
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/trust-center/regulations")}>
+                  <Settings2 className="h-4 w-4" />
+                  {isNb ? "Endre regelverk" : "Change regulations"}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
