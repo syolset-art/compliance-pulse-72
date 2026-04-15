@@ -8,6 +8,7 @@ export interface Framework {
   isMandatory?: boolean;
   isRecommended?: boolean;
   triggerQuestion?: string;
+  estimatedCredits?: number;
 }
 
 export interface FrameworkCategory {
