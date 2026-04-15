@@ -64,6 +64,26 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const [controlsExpanded, setControlsExpanded] = useState(false);
   const [showAllFrameworks, setShowAllFrameworks] = useState(false);
   const tasksRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const taskStatusMutation = useMutation({
+    mutationFn: async ({ taskId, newStatus }: { taskId: string; newStatus: string }) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ status: newStatus })
+        .eq("id", taskId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["asset-tasks", asset.id] });
+      const { toast } = await import("sonner");
+      toast.success(isNb ? "Oppgave oppdatert" : "Task updated");
+    },
+  });
+
+  const handleTaskStatusChange = useCallback((taskId: string, newStatus: string) => {
+    taskStatusMutation.mutate({ taskId, newStatus });
+  }, [taskStatusMutation]);
 
   const handleScrollToTasks = useCallback(() => {
     setTimeout(() => {
