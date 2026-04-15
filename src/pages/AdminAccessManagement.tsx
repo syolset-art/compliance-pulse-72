@@ -57,7 +57,7 @@ const DEMO_MEMBERS: TeamMember[] = [
 ];
 
 const AdminAccessManagement = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [inviteOpen, setInviteOpen] = useState(false);
   const [manageRolesOpen, setManageRolesOpen] = useState(false);

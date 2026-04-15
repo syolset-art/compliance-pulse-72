@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 
 import { useNavigate } from "react-router-dom";
