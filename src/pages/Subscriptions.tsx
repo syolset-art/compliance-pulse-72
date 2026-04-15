@@ -189,6 +189,9 @@ export default function Subscriptions() {
             <h1 className="text-2xl font-bold text-foreground">Abonnement</h1>
           </div>
 
+          {/* ── CREDITS OVERVIEW ── */}
+          <CreditsSection />
+
           {/* ── STEG 1: TRUST CENTER ── */}
           <section className="space-y-3">
             <div className="flex items-center gap-3">
