@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +26,7 @@ import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
+import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 
