@@ -34,6 +34,75 @@ const MODULE_ICONS: Record<ModuleId, typeof Cpu> = {
   vendors: Truck,
 };
 
+function CreditsSection() {
+  const { balance, monthlyAllowance, percentRemaining, isLow, isExhausted, isUnlimited, recentTransactions } = useCredits();
+
+  if (isUnlimited) {
+    return (
+      <Card className="border-primary/20 bg-primary/[0.03]">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">AI Credits</h3>
+              <p className="text-sm text-muted-foreground">Enterprise — ubegrenset credits</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const barColor = isExhausted ? "bg-destructive" : isLow ? "bg-warning" : "bg-primary";
+
+  return (
+    <Card className={isExhausted ? "border-destructive/30 bg-destructive/[0.03]" : isLow ? "border-warning/30 bg-warning/[0.03]" : "border-border"}>
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${isExhausted ? "bg-destructive/10" : isLow ? "bg-warning/10" : "bg-primary/10"}`}>
+              <Zap className={`h-5 w-5 ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-primary"}`} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">AI Credits</h3>
+              <p className="text-sm text-muted-foreground">
+                Brukes til Lara-analyse, dokumentklassifisering og risikovurdering
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className={`text-2xl font-bold ${isExhausted ? "text-destructive" : isLow ? "text-warning" : "text-foreground"}`}>
+              {balance}
+            </p>
+            <p className="text-xs text-muted-foreground">av {monthlyAllowance} denne måneden</p>
+          </div>
+        </div>
+        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+            style={{ width: `${Math.max(percentRemaining, 2)}%` }}
+          />
+        </div>
+        {recentTransactions.length > 0 && (
+          <div className="space-y-1.5 pt-1">
+            <p className="text-xs font-medium text-muted-foreground">Siste transaksjoner</p>
+            {recentTransactions.slice(0, 5).map((tx) => (
+              <div key={tx.id} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground truncate max-w-[60%]">{tx.description || tx.transaction_type}</span>
+                <span className={tx.amount < 0 ? "text-destructive font-medium" : "text-success font-medium"}>
+                  {tx.amount > 0 ? "+" : ""}{tx.amount}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
