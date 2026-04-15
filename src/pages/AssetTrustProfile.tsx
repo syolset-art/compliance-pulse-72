@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
-import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye, Settings2, PenLine } from "lucide-react";
+import { Handshake, FileText, Shield, AlertTriangle, Upload, BarChart3, Send, Share2, ClipboardList, Eye, Settings2, PenLine, Sparkles } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -347,6 +347,7 @@ const AssetTrustProfile = () => {
                   >
                     <Mail className="h-4 w-4" />
                     {isNb ? "Be om oppdatering" : "Request update"}
+                    <Sparkles className="h-3 w-3 text-primary/60" />
                   </Button>
                 </div>
               )}

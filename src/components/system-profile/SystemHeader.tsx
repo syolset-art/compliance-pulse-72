@@ -16,6 +16,7 @@ import {
   User,
   Users,
   Send,
+  Sparkles,
 } from "lucide-react";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { useState } from "react";
@@ -171,6 +172,7 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
             >
               <Send className="h-3 w-3" />
               {isNb ? "Be om oppdatering" : "Request update"}
+              <Sparkles className="h-2.5 w-2.5 text-primary/60" />
             </Button>
           </div>
 
