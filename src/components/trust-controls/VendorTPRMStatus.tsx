@@ -168,6 +168,7 @@ export const VendorTPRMStatus = ({
     e.target.value = "";
   };
 
+  const allDemoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
   const pendingActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus === "warning"), [allDemoActivities]);
   const completedActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus !== "warning").slice(0, 3), [allDemoActivities]);
 
