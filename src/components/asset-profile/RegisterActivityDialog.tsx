@@ -5,7 +5,7 @@ import { CalendarIcon, PlusCircle, Mail, Phone, Users, PenLine } from "lucide-re
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,14 +58,20 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [contactPerson, setContactPerson] = useState("");
   const [participants, setParticipants] = useState("");
   const [attachmentNote, setAttachmentNote] = useState("");
+  const [titleError, setTitleError] = useState(false);
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
     setPhase("ongoing"); setOutcome("informed"); setDate(new Date());
     setContactPerson(""); setParticipants(""); setAttachmentNote("");
+    setTitleError(false);
   };
 
   const handleSubmit = () => {
+    if (!title.trim()) {
+      setTitleError(true);
+      return;
+    }
     const out = OUTCOMES.find(o => o.value === outcome) ?? OUTCOMES[3];
     const activity: VendorActivity = {
       id: `manual-${Date.now()}`,
@@ -102,20 +108,20 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isNb ? "Registrer aktivitet" : "Register activity"}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription>
             {isNb
               ? "Loggfør kommunikasjon og hendelser knyttet til denne leverandøren."
               : "Log communication and events related to this vendor."}
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 pt-2">
-          {/* Type selector - icon grid */}
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-5 pt-2">
+          {/* Type selector - radio group */}
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground" id="activity-type-label">
               {isNb ? "Type aktivitet" : "Activity type"}
             </Label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="activity-type-label">
               {ACTIVITY_TYPES.map(t => {
                 const Icon = t.icon;
                 const isSelected = type === t.value;
@@ -123,6 +129,8 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
                   <button
                     key={t.value}
                     type="button"
+                    role="radio"
+                    aria-checked={isSelected}
                     onClick={() => setType(t.value)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all text-center",
@@ -144,16 +152,25 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           {/* Title & Description */}
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label>{isNb ? "Tittel" : "Title"} <span className="text-destructive">*</span></Label>
+              <Label htmlFor="reg-activity-title">{isNb ? "Tittel" : "Title"} <span className="text-destructive">*</span></Label>
               <Input
+                id="reg-activity-title"
+                aria-required="true"
+                aria-invalid={titleError}
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={e => { setTitle(e.target.value); if (titleError) setTitleError(false); }}
                 placeholder={isNb ? "F.eks. «Statusmøte Q1»" : "E.g. 'Status meeting Q1'"}
               />
+              {titleError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {isNb ? "Tittel er påkrevd." : "Title is required."}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
-              <Label>{isNb ? "Beskrivelse" : "Description"}</Label>
+              <Label htmlFor="reg-activity-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
               <Textarea
+                id="reg-activity-desc"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder={isNb ? "Hva ble diskutert, avtalt eller besluttet?" : "What was discussed, agreed, or decided?"}
@@ -171,16 +188,18 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
             </Label>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">{isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}</Label>
+                <Label htmlFor="reg-activity-contact" className="text-xs">{isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}</Label>
                 <Input
+                  id="reg-activity-contact"
                   value={contactPerson}
                   onChange={e => setContactPerson(e.target.value)}
                   placeholder={isNb ? "Navn" : "Name"}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">{isNb ? "Interne deltakere" : "Internal participants"}</Label>
+                <Label htmlFor="reg-activity-participants" className="text-xs">{isNb ? "Interne deltakere" : "Internal participants"}</Label>
                 <Input
+                  id="reg-activity-participants"
                   value={participants}
                   onChange={e => setParticipants(e.target.value)}
                   placeholder={isNb ? "Navn, kommaseparert" : "Names, comma-separated"}
@@ -194,9 +213,9 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           {/* Phase, Outcome, Date */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{isNb ? "Fase" : "Phase"}</Label>
+              <Label htmlFor="reg-activity-phase" className="text-xs">{isNb ? "Fase" : "Phase"}</Label>
               <Select value={phase} onValueChange={v => setPhase(v as Phase)}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="reg-activity-phase" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PHASES.map(p => (
                     <SelectItem key={p.value} value={p.value}>{isNb ? p.nb : p.en}</SelectItem>
@@ -205,9 +224,9 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{isNb ? "Utfall" : "Outcome"}</Label>
+              <Label htmlFor="reg-activity-outcome" className="text-xs">{isNb ? "Utfall" : "Outcome"}</Label>
               <Select value={outcome} onValueChange={setOutcome}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="reg-activity-outcome" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {OUTCOMES.map(o => (
                     <SelectItem key={o.value} value={o.value}>{isNb ? o.nb : o.en}</SelectItem>
@@ -216,10 +235,10 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{isNb ? "Dato" : "Date"}</Label>
+              <Label htmlFor="reg-activity-date" className="text-xs">{isNb ? "Dato" : "Date"}</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full h-9 justify-start text-left font-normal text-xs", !date && "text-muted-foreground")}>
+                  <Button id="reg-activity-date" variant="outline" className={cn("w-full h-9 justify-start text-left font-normal text-xs", !date && "text-muted-foreground")}>
                     <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
                     {date ? format(date, "dd.MM.yyyy") : (isNb ? "Velg" : "Pick")}
                   </Button>
@@ -233,18 +252,19 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
           {/* Attachment note */}
           <div className="space-y-1.5">
-            <Label className="text-xs">{isNb ? "Vedleggsnotat" : "Attachment note"}</Label>
+            <Label htmlFor="reg-activity-attachment" className="text-xs">{isNb ? "Vedleggsnotat" : "Attachment note"}</Label>
             <Input
+              id="reg-activity-attachment"
               value={attachmentNote}
               onChange={e => setAttachmentNote(e.target.value)}
               placeholder={isNb ? "Referanse til vedlegg, f.eks. filnavn eller lenke" : "Reference to attachment, e.g. filename or link"}
             />
           </div>
 
-          <Button onClick={handleSubmit} disabled={!title.trim()} className="w-full">
+          <Button type="submit" className="w-full">
             {isNb ? "Lagre aktivitet" : "Save activity"}
           </Button>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
