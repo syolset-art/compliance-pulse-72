@@ -313,12 +313,12 @@ export const FrameworkAssessment = ({ onComplete }: FrameworkAssessmentProps) =>
                               {t(`frameworkAssessment.frameworks.${framework.nameKey}.name`)}
                             </span>
                             {isMandatory && (
-                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                              <Badge variant="secondary" className="text-[13px] px-1.5 py-0">
                                 {t("frameworkAssessment.mandatory")}
                               </Badge>
                             )}
                             {framework.isRecommended && !isMandatory && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary border-primary/30">
+                              <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-primary border-primary/30">
                                 {t("frameworkAssessment.recommended")}
                               </Badge>
                             )}

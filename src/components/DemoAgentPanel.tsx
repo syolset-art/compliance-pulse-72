@@ -368,7 +368,7 @@ export function DemoAgentPanel({
                         {scenario.title}
                       </span>
                       {scenario.estimatedTime && (
-                        <Badge variant="secondary" className="text-[10px] shrink-0">
+                        <Badge variant="secondary" className="text-[13px] shrink-0">
                           {scenario.estimatedTime}
                         </Badge>
                       )}

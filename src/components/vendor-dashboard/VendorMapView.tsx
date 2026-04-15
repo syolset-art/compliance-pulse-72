@@ -68,7 +68,7 @@ export function VendorMapView({ vendors }: VendorMapViewProps) {
                     <Badge variant="outline" className="text-xs">{regionVendors.length}</Badge>
                   </div>
                   {!config.gdprSafe && regionVendors.length > 0 && (
-                    <Badge variant="outline" className="text-[10px] gap-1 bg-warning/10 text-warning border-warning/20">
+                    <Badge variant="outline" className="text-[13px] gap-1 bg-warning/10 text-warning border-warning/20">
                       <AlertTriangle className="h-2.5 w-2.5" />
                       {t("vendorDashboard.gdprTransfer", "GDPR Transfer")}
                     </Badge>

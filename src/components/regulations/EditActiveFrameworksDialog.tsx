@@ -75,7 +75,7 @@ export const EditActiveFrameworksDialog = ({
                                 <TooltipTrigger>
                                   <Badge
                                     variant={isMandatoryButOff ? "destructive" : "secondary"}
-                                    className="text-[10px] px-1.5 py-0 gap-1"
+                                    className="text-[13px] px-1.5 py-0 gap-1"
                                   >
                                     <Lock className="h-2.5 w-2.5" />
                                     Obligatorisk
@@ -95,7 +95,7 @@ export const EditActiveFrameworksDialog = ({
                           {isMandatoryButOff && (
                             <div className="flex items-center gap-1.5 mt-1.5">
                               <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
-                              <span className="text-[11px] text-destructive font-medium">
+                              <span className="text-[13px] text-destructive font-medium">
                                 Lovpålagt regelverk er deaktivert — anbefales å aktivere
                               </span>
                             </div>

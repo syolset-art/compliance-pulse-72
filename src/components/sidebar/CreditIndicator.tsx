@@ -45,7 +45,7 @@ export function CreditIndicator() {
             />
           </div>
           {isExhausted && (
-            <p className="text-[10px] text-destructive mt-1 font-medium">
+            <p className="text-[13px] text-destructive mt-1 font-medium">
               {isNb ? "Kjøp flere credits" : "Buy more credits"}
             </p>
           )}

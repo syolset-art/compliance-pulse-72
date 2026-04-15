@@ -186,7 +186,7 @@ export function DeviceRiskFindings({ controls, meta, asset }: DeviceRiskFindings
               <span className={`text-sm font-semibold ${textColor}`}>
                 {isNb ? f.title : f.titleEn}
               </span>
-              <Badge variant={badgeVariant} className="text-[9px] uppercase">
+              <Badge variant={badgeVariant} className="text-[13px] uppercase">
                 {f.severity}
               </Badge>
             </div>
@@ -203,7 +203,7 @@ export function DeviceRiskFindings({ controls, meta, asset }: DeviceRiskFindings
           </Button>
           <Badge
             variant={statusVariant(st)}
-            className="text-[10px] cursor-pointer ml-auto"
+            className="text-[13px] cursor-pointer ml-auto"
             onClick={() => cycleStatus(f.id)}
           >
             {statusLabel(st)}
@@ -220,7 +220,7 @@ export function DeviceRiskFindings({ controls, meta, asset }: DeviceRiskFindings
           <CardTitle className="flex items-center gap-2 text-lg">
             <ShieldAlert className="h-5 w-5 text-destructive" />
             {isNb ? "Kritiske funn" : "Critical Findings"}
-            <Badge variant="destructive" className="text-[10px] ml-1">{criticalHigh.length}</Badge>
+            <Badge variant="destructive" className="text-[13px] ml-1">{criticalHigh.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-0 p-0">

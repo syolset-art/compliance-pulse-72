@@ -64,10 +64,10 @@ function RequirementRow({
             </span>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <Badge variant="outline" className={cn("text-[10px]", priorityColors[requirement.priority])}>
+            <Badge variant="outline" className={cn("text-[13px]", priorityColors[requirement.priority])}>
               {t(`tasks.priority.${requirement.priority === "critical" ? "high" : requirement.priority}`)}
             </Badge>
-            <Badge variant="secondary" className="text-[10px]">{requirement.category}</Badge>
+            <Badge variant="secondary" className="text-[13px]">{requirement.category}</Badge>
           </div>
           
           {requirement.evidence_notes && !showComment && (

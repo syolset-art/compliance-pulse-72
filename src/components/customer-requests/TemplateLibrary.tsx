@@ -61,17 +61,17 @@ export function TemplateLibrary() {
             <div className="flex-1 min-w-0">
               <span className="text-sm font-medium">{tpl.name}</span>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[10px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</span>
+                <span className="text-[13px] text-muted-foreground">{tpl.fileName} · {(tpl.fileSize / 1024).toFixed(0)} KB</span>
                 {tpl.requestTypes.map((rt) => {
                   const label = REQUEST_TYPE_LABELS[rt];
                   return label ? (
-                    <Badge key={rt} variant="outline" className="text-[10px]">
+                    <Badge key={rt} variant="outline" className="text-[13px]">
                       {isNb ? label.nb : label.en}
                     </Badge>
                   ) : null;
                 })}
               </div>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[13px] text-muted-foreground">
                 {isNb ? "Opprettet" : "Created"}: {new Date(tpl.createdAt).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
               </span>
             </div>

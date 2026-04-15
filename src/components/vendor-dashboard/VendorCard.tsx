@@ -91,13 +91,13 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
             <p className="text-sm font-medium text-foreground truncate">{vendor.name}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               {vendor.vendor_category && (
-                <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <span className="text-[13px] text-muted-foreground flex items-center gap-1">
                   {CATEGORY_ICONS[vendor.vendor_category]}
                   {CATEGORY_LABELS[vendor.vendor_category] || vendor.vendor_category}
                 </span>
               )}
               {vendor.country && (
-                <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                   <MapPin className="h-2.5 w-2.5" />
                   {vendor.country}
                 </span>
@@ -109,7 +109,7 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
           {score > 0 ? (
             <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>{score}%</span>
           ) : (
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <span className="text-[13px] text-muted-foreground flex items-center gap-1">
               <MinusCircle className="h-3 w-3" />
               Ikke vurdert
             </span>
@@ -132,24 +132,24 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
       {/* Row 2: Badges */}
       <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pl-[42px]">
         {priorityLabel && (
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
             {priorityLabel}
           </Badge>
         )}
         {!hasDPA && (
-          <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 gap-1 px-1.5 py-0">
+          <Badge variant="outline" className="text-[13px] bg-destructive/10 text-destructive border-destructive/20 gap-1 px-1.5 py-0">
             <Shield className="h-2.5 w-2.5" />
             Mangler DPA
           </Badge>
         )}
         {expiredDocsCount > 0 && (
-          <Badge variant="outline" className="text-[10px] gap-1 bg-destructive/10 text-destructive border-destructive/20 px-1.5 py-0">
+          <Badge variant="outline" className="text-[13px] gap-1 bg-destructive/10 text-destructive border-destructive/20 px-1.5 py-0">
             <AlertTriangle className="h-2.5 w-2.5" />
             {expiredDocsCount} utløpt
           </Badge>
         )}
         {vendor.risk_level && (
-          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", riskColor)}>
+          <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0", riskColor)}>
             {t(`vendorDashboard.risk.${vendor.risk_level}`, vendor.risk_level)}
           </Badge>
         )}

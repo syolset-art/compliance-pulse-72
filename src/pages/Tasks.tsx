@@ -280,7 +280,7 @@ export default function Tasks() {
             >
               <Plus className="h-4 w-4" />
               Opprett oppgave
-              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-[10px] px-1.5 py-0">
+              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 text-[13px] px-1.5 py-0">
                 <Crown className="h-2.5 w-2.5 mr-0.5" />
                 Premium
               </Badge>
@@ -396,20 +396,20 @@ export default function Tasks() {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <Badge variant="outline" className={`text-[10px] ${prio.className}`}>
+                          <Badge variant="outline" className={`text-[13px] ${prio.className}`}>
                             {prio.label}
                           </Badge>
-                          <Badge variant="outline" className={`text-[10px] ${stat.className}`}>
+                          <Badge variant="outline" className={`text-[13px] ${stat.className}`}>
                             {stat.label}
                           </Badge>
                           {overdue && (
-                            <Badge variant="destructive" className="text-[10px] gap-1">
+                            <Badge variant="destructive" className="text-[13px] gap-1">
                               <AlertTriangle className="h-2.5 w-2.5" />
                               Forfalt
                             </Badge>
                           )}
                           {task.aiDraftable && (
-                            <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/20">
+                            <Badge variant="outline" className="text-[13px] gap-1 bg-primary/5 text-primary border-primary/20">
                               <Sparkles className="h-2.5 w-2.5" />
                               Lara kan hjelpe
                             </Badge>

@@ -251,7 +251,7 @@ export const ProcessSuggestionsDialog = ({
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                             <h4 className="font-medium text-xs sm:text-sm break-words">{suggestion.name}</h4>
                             {suggestion.likely_has_ai && (
-                              <Badge variant="outline" className="text-[10px] sm:text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800 shrink-0">
+                              <Badge variant="outline" className="text-[13px] sm:text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800 shrink-0">
                                 <Bot className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                                 AI
                               </Badge>
@@ -298,7 +298,7 @@ export const ProcessSuggestionsDialog = ({
                                 <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
                                   {suggestion.ai_use_description}
                                 </p>
-                                <div className="flex items-start gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-amber-600 dark:text-amber-500">
+                                <div className="flex items-start gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 text-[13px] sm:text-xs text-amber-600 dark:text-amber-500">
                                   <AlertTriangle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mt-0.5 shrink-0" />
                                   <span>
                                     AI-bruk registreres automatisk og krever risikovurdering.
@@ -309,10 +309,10 @@ export const ProcessSuggestionsDialog = ({
                             
                             {suggestion.related_systems.length > 0 && (
                               <div>
-                                <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">Relaterte systemer:</span>
+                                <span className="text-[13px] sm:text-xs font-medium text-muted-foreground">Relaterte systemer:</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {suggestion.related_systems.map((sys, sysIdx) => (
-                                    <Badge key={sysIdx} variant="secondary" className="text-[10px] sm:text-xs">
+                                    <Badge key={sysIdx} variant="secondary" className="text-[13px] sm:text-xs">
                                       {sys}
                                     </Badge>
                                   ))}
@@ -322,10 +322,10 @@ export const ProcessSuggestionsDialog = ({
 
                             {suggestion.data_types && suggestion.data_types.length > 0 && (
                               <div>
-                                <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">Datatyper:</span>
+                                <span className="text-[13px] sm:text-xs font-medium text-muted-foreground">Datatyper:</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {suggestion.data_types.map((dt, dtIdx) => (
-                                    <Badge key={dtIdx} variant="outline" className="text-[10px] sm:text-xs">
+                                    <Badge key={dtIdx} variant="outline" className="text-[13px] sm:text-xs">
                                       {dt}
                                     </Badge>
                                   ))}
@@ -333,14 +333,14 @@ export const ProcessSuggestionsDialog = ({
                               </div>
                             )}
 
-                            <div className="text-[10px] sm:text-xs text-muted-foreground italic">
+                            <div className="text-[13px] sm:text-xs text-muted-foreground italic">
                               {suggestion.reason}
                             </div>
                           </div>
                         )}
 
                         {!suggestion.isExpanded && suggestion.related_systems.length > 0 && (
-                          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2 truncate">
+                          <p className="text-[13px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2 truncate">
                             Systemer: {suggestion.related_systems.join(", ")}
                           </p>
                         )}

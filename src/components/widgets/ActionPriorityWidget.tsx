@@ -201,7 +201,7 @@ export function ActionPriorityWidget() {
                           </p>
                         )}
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px] shrink-0 border", priorityColor[item.priority])}>
+                      <Badge variant="outline" className={cn("text-[13px] shrink-0 border", priorityColor[item.priority])}>
                         {priorityLabel[item.priority]}
                       </Badge>
                       <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />

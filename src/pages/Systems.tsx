@@ -362,7 +362,7 @@ export default function Systems() {
             </div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
-              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadge.badgeClass}`}>
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-[13px] font-medium ${statusBadge.badgeClass}`}>
                 {statusBadge.label}
               </span>
             </div>
@@ -571,7 +571,7 @@ export default function Systems() {
     return (
       <div className="border border-border rounded-lg overflow-hidden bg-card">
         {/* Table header */}
-        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>System</span>
           <span>Type</span>
           <span className="flex items-center gap-1">
@@ -631,7 +631,7 @@ export default function Systems() {
                 {/* Maturity */}
                 <div className="hidden sm:flex items-center gap-1.5">
                   <TrendingUp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${maturity.className}`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[13px] font-medium whitespace-nowrap ${maturity.className}`}>
                     {maturity.label}
                   </span>
                 </div>
@@ -764,10 +764,10 @@ export default function Systems() {
                       <circle cx="24" cy="24" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
                       <circle cx="24" cy="24" r={r} fill="none" stroke={maturityStroke} strokeWidth="3" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} />
                     </svg>
-                    <span className={`absolute text-[9px] font-bold ${maturityColor}`}>{maturityLabel}</span>
+                    <span className={`absolute text-[13px] font-bold ${maturityColor}`}>{maturityLabel}</span>
                   </div>
                 ) : (
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Ikke scoret</span>
+                  <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">Ikke scoret</span>
                 )}
               </div>
 
@@ -775,17 +775,17 @@ export default function Systems() {
               <h3 className="text-sm font-semibold text-foreground truncate mb-1.5">{system.name}</h3>
 
               {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground">
                 {system.category && (
                   <>
                     <span>{system.category}</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    <span className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                       {system.category?.toUpperCase()}
                     </span>
                   </>
                 )}
                 {ownerWa && (
-                  <span className="text-[10px] font-medium">{ownerWa.name}</span>
+                  <span className="text-[13px] font-medium">{ownerWa.name}</span>
                 )}
               </div>
             </div>

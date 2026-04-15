@@ -103,9 +103,9 @@ export default function MSPCustomerNIS2() {
                         {meta.os && <p className="text-xs text-muted-foreground">{meta.os}</p>}
                         {meta.hostname && <p className="text-xs text-muted-foreground font-mono">{meta.hostname}</p>}
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {meta.encryption && <Badge variant="secondary" className="text-[10px]">Kryptert</Badge>}
-                          {meta.mdm && <Badge variant="secondary" className="text-[10px]">MDM</Badge>}
-                          {meta.antivirus && <Badge variant="secondary" className="text-[10px]">Antivirus</Badge>}
+                          {meta.encryption && <Badge variant="secondary" className="text-[13px]">Kryptert</Badge>}
+                          {meta.mdm && <Badge variant="secondary" className="text-[13px]">MDM</Badge>}
+                          {meta.antivirus && <Badge variant="secondary" className="text-[13px]">Antivirus</Badge>}
                         </div>
                       </div>
                     </div>

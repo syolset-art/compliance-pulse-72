@@ -82,7 +82,7 @@ export function EvidenceStatusBadge({ status, count, compact = false }: Evidence
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Badge variant={config.variant} className="text-[10px] gap-1">
+        <Badge variant={config.variant} className="text-[13px] gap-1">
           <Icon className="h-3 w-3" />
           {isNb ? config.labelNb : config.labelEn}
           {count !== undefined && count > 0 && ` (${count})`}

@@ -18,11 +18,11 @@ const TrustCenterCompliance = () => {
   const getStatusBadge = (status: "active" | "in-progress" | "planned") => {
     switch (status) {
       case "active":
-        return <Badge className="bg-success/15 text-success border-success/30 text-[10px] gap-1"><CheckCircle2 className="h-3 w-3" />Aktiv</Badge>;
+        return <Badge className="bg-success/15 text-success border-success/30 text-[13px] gap-1"><CheckCircle2 className="h-3 w-3" />Aktiv</Badge>;
       case "in-progress":
-        return <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px] gap-1"><Clock className="h-3 w-3" />Pågår</Badge>;
+        return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] gap-1"><Clock className="h-3 w-3" />Pågår</Badge>;
       case "planned":
-        return <Badge variant="secondary" className="text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />Planlagt</Badge>;
+        return <Badge variant="secondary" className="text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />Planlagt</Badge>;
     }
   };
 

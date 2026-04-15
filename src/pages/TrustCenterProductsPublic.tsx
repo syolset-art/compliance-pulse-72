@@ -123,7 +123,7 @@ const TrustCenterProductsPublic = () => {
                       <p className="text-sm font-semibold text-foreground">{svc.name}</p>
                       <Badge
                         variant={svc.asset_type === "saas" ? "default" : "secondary"}
-                        className="text-[10px]"
+                        className="text-[13px]"
                       >
                         {svc.asset_type === "saas" ? "SaaS" : "Service"}
                       </Badge>

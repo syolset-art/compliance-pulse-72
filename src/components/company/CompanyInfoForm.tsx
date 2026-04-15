@@ -183,7 +183,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               <Upload className="h-3 w-3" />
               Last opp logo
             </Button>
-            <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
+            <p className="text-[13px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
           </div>
         </div>
       </div>
@@ -245,7 +245,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           <Users className="h-4 w-4 text-primary" />
           <div>
             <label className="text-xs font-semibold text-foreground">Kontaktperson</label>
-            <p className="text-[10px] text-muted-foreground">Hvem er hovedkontakt for sikkerhet og etterlevelse?</p>
+            <p className="text-[13px] text-muted-foreground">Hvem er hovedkontakt for sikkerhet og etterlevelse?</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -270,12 +270,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
-          <Badge variant="outline" className="text-[9px] gap-1 text-primary border-primary/30">
+          <Badge variant="outline" className="text-[13px] gap-1 text-primary border-primary/30">
             <Shield className="h-2.5 w-2.5" />
             Publiseres med AI
           </Badge>
         </div>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[13px] text-muted-foreground">
           Denne beskrivelsen er automatisk generert basert på offentlige registre og virksomhetens nettside. Du kan fritt redigere teksten.
         </p>
         {isEditing ? (
@@ -299,7 +299,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               <div className="rounded-md border border-dashed border-primary/30 bg-primary/5 p-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Sparkles className="h-3 w-3 text-primary" />
-                  <span className="text-[10px] font-medium text-primary">AI-forslag</span>
+                  <span className="text-[13px] font-medium text-primary">AI-forslag</span>
                 </div>
                 <p className="text-xs text-muted-foreground italic">
                   Klikk «Rediger» for å se og tilpasse det automatiske forslaget fra offentlige kilder.
@@ -328,7 +328,7 @@ function FieldBlock({
     <div className="space-y-1.5">
       <label className="text-xs font-medium text-foreground">{label}</label>
       {children}
-      <p className="text-[10px] text-muted-foreground">{hint}</p>
+      <p className="text-[13px] text-muted-foreground">{hint}</p>
     </div>
   );
 }

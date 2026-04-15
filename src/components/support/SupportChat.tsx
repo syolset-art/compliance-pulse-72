@@ -209,7 +209,7 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
     };
     const c = config[source];
     if (!c) return null;
-    return <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${c.className}`}>{c.label}</Badge>;
+    return <Badge variant="outline" className={`text-[13px] px-1.5 py-0 ${c.className}`}>{c.label}</Badge>;
   };
 
   return (
@@ -227,7 +227,7 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
                   : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
-              <span className="text-[11px]">{chip.emoji}</span>
+              <span className="text-[13px]">{chip.emoji}</span>
               {t(chip.labelKey)}
             </button>
           ))}

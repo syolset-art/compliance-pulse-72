@@ -366,7 +366,7 @@ const Reports = () => {
                 >
                   <Shield className="h-4 w-4 mr-2" />
                   GDPR
-                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{gdprReports.length}</span>
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[13px] font-medium text-muted-foreground">{gdprReports.length}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="nis2"
@@ -374,7 +374,7 @@ const Reports = () => {
                 >
                   <Server className="h-4 w-4 mr-2" />
                   NIS2
-                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{nis2Reports.length}</span>
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[13px] font-medium text-muted-foreground">{nis2Reports.length}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="iso27001"
@@ -382,7 +382,7 @@ const Reports = () => {
                 >
                   <ClipboardCheck className="h-4 w-4 mr-2" />
                   <span className="hidden sm:inline">ISO 27001</span><span className="sm:hidden">ISO</span>
-                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{iso27001Reports.length}</span>
+                  <span className="ml-2 hidden sm:inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-[13px] font-medium text-muted-foreground">{iso27001Reports.length}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="aiact"

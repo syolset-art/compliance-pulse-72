@@ -63,13 +63,13 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
           <TooltipTrigger asChild>
             <button onClick={() => toggleCard("risk")} className={`${cardBase} ${cardHover} border-border`}>
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Risikonivå" : "Risk Level"}
                 </p>
                 <AlertTriangle className={`h-4 w-4 ${risk.iconColor} group-hover:scale-110 transition-transform`} />
               </div>
               <p className={`text-sm font-bold ${risk.color}`}>{risk.label}</p>
-              <span className="absolute bottom-1.5 right-2 text-[9px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+              <span className="absolute bottom-1.5 right-2 text-[13px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 {isNb ? "Se detaljer" : "Details"} <ExternalLink className="h-2.5 w-2.5" />
               </span>
             </button>
@@ -84,7 +84,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
           <TooltipTrigger asChild>
             <button onClick={() => toggleCard("maturity")} className={`${cardBase} ${cardHover} ${expandedCard === "maturity" ? "border-primary/40 shadow-md" : "border-border"}`}>
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Modenhet" : "Maturity"}
                 </p>
                 <TrendingUp className={`h-4 w-4 ${matColor} group-hover:scale-110 transition-transform`} />
@@ -93,7 +93,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                 <span className={`text-2xl font-extrabold tabular-nums leading-none ${matColor}`}>{maturityPercent}</span>
                 <span className="text-xs text-muted-foreground font-medium mb-0.5">%</span>
               </div>
-              <span className="absolute bottom-1.5 right-2 text-[9px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+              <span className="absolute bottom-1.5 right-2 text-[13px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 {isNb ? "Se kontroller" : "Controls"} <ExternalLink className="h-2.5 w-2.5" />
               </span>
             </button>
@@ -108,13 +108,13 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
           <TooltipTrigger asChild>
             <button onClick={() => toggleCard("assessment")} className={`${cardBase} ${cardHover} ${expandedCard === "assessment" ? "border-primary/40 shadow-md" : "border-border"}`}>
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Intern risikovurd." : "Risk Assessment"}
                 </p>
                 <ClipboardCheck className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:scale-110 transition-all" />
               </div>
               <p className="text-sm font-bold text-foreground">{lastAssessmentDate}</p>
-              <span className="absolute bottom-1.5 right-2 text-[9px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+              <span className="absolute bottom-1.5 right-2 text-[13px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 {isNb ? "Åpne" : "Open"} <ExternalLink className="h-2.5 w-2.5" />
               </span>
             </button>
@@ -132,7 +132,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
               className={`${cardBase} ${cardHover} border-border`}
             >
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {isNb ? "Oppgaver" : "Tasks"}
                 </p>
                 <ListTodo className="h-4 w-4 text-warning group-hover:scale-110 transition-transform" />
@@ -144,7 +144,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
               {openTasks > 0 && (
                 <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-warning border-2 border-background" />
               )}
-              <span className="absolute bottom-1.5 right-2 text-[9px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+              <span className="absolute bottom-1.5 right-2 text-[13px] text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 {isNb ? "Se oppgaver" : "View tasks"} <ExternalLink className="h-2.5 w-2.5" />
               </span>
             </button>
@@ -164,7 +164,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
               {expandedCard === "maturity" && (isNb ? "Modenhet per kontrollområde" : "Maturity by Control Area")}
               {expandedCard === "assessment" && (isNb ? "Intern risikovurdering" : "Internal Risk Assessment")}
             </h4>
-            <button className="text-[10px] text-primary hover:underline font-medium flex items-center gap-1">
+            <button className="text-[13px] text-primary hover:underline font-medium flex items-center gap-1">
               {isNb ? "Gå til fullstendig visning" : "Go to full view"}
               <ArrowRight className="h-3 w-3" />
             </button>
@@ -180,7 +180,7 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                   ].map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-background">
                       <span className="text-xs font-medium text-foreground">{item.label}</span>
-                      <Badge className={`text-[9px] ${item.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-warning/10 text-warning border-warning/20"}`}>
+                      <Badge className={`text-[13px] ${item.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-warning/10 text-warning border-warning/20"}`}>
                         {item.severity === "high" ? (isNb ? "Høy" : "High") : (isNb ? "Middels" : "Med")}
                       </Badge>
                     </div>
@@ -213,16 +213,16 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                 <p className="text-xs text-muted-foreground">{isNb ? "Siste interne risikovurdering ble gjennomført 23. mars 2026." : "Last internal risk assessment was completed on March 23, 2026."}</p>
                 <div className="flex items-center gap-4 p-3 rounded-lg border border-border bg-background">
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{isNb ? "Neste vurdering" : "Next assessment"}</p>
+                    <p className="text-[13px] text-muted-foreground uppercase tracking-wider font-semibold">{isNb ? "Neste vurdering" : "Next assessment"}</p>
                     <p className="text-sm font-bold text-foreground">23.09.2026</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{isNb ? "Ansvarlig" : "Responsible"}</p>
+                    <p className="text-[13px] text-muted-foreground uppercase tracking-wider font-semibold">{isNb ? "Ansvarlig" : "Responsible"}</p>
                     <p className="text-sm font-bold text-foreground">Lars Hansen</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</p>
-                    <Badge className="bg-success/10 text-success border-success/20 text-[9px]">{isNb ? "Fullført" : "Completed"}</Badge>
+                    <p className="text-[13px] text-muted-foreground uppercase tracking-wider font-semibold">Status</p>
+                    <Badge className="bg-success/10 text-success border-success/20 text-[13px]">{isNb ? "Fullført" : "Completed"}</Badge>
                   </div>
                 </div>
               </div>

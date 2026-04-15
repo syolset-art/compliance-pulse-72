@@ -81,7 +81,7 @@ export function SystemsInUseWidget() {
           >
             <stat.icon className={`h-4.5 w-4.5 ${stat.color}`} />
             <span className="text-xl font-bold text-foreground">{stat.count}</span>
-            <span className="text-[10px] font-medium text-muted-foreground text-center leading-tight">
+            <span className="text-[13px] font-medium text-muted-foreground text-center leading-tight">
               {stat.label}
             </span>
           </div>
@@ -91,12 +91,12 @@ export function SystemsInUseWidget() {
       {(critical > 0 || highRisk > 0 || missingOwner > 0) && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {critical > 0 && (
-            <Badge variant="destructive" className="text-[10px]">
+            <Badge variant="destructive" className="text-[13px]">
               {critical} {isNb ? "kritiske systemer" : "critical systems"}
             </Badge>
           )}
           {missingOwner > 0 && (
-            <Badge variant="outline" className="text-[10px] border-orange-300 text-orange-600 dark:text-orange-400">
+            <Badge variant="outline" className="text-[13px] border-orange-300 text-orange-600 dark:text-orange-400">
               {missingOwner} {isNb ? "uten eier" : "without owner"}
             </Badge>
           )}

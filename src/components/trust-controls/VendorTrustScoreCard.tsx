@@ -63,10 +63,10 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
                 <span className={`text-2xl font-bold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
                   {score}
                 </span>
-                <span className="text-[8px] font-semibold text-muted-foreground uppercase">/100</span>
+                <span className="text-[13px] font-semibold text-muted-foreground uppercase">/100</span>
               </div>
             </div>
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+            <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
           </div>
 
           {/* Info */}
@@ -75,7 +75,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
               <h3 className="text-sm font-semibold text-foreground">
                 {isNb ? "Leverandørens Trust Score" : "Vendor Trust Score"}
               </h3>
-              <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
+              <Badge variant="outline" className="text-[13px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
                 <ShieldCheck className="h-2.5 w-2.5" />
                 {isNb ? "Egenerklæring" : "Self-declared"}
               </Badge>
@@ -87,7 +87,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
                 : "This score reflects the vendor's baseline based on available documentation and controls. It updates automatically as new evidence is registered."}
             </p>
 
-            <div className="flex items-center gap-3 text-[11px]">
+            <div className="flex items-center gap-3 text-[13px]">
               <div className="flex items-center gap-1">
                 {conf >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
                 {conf >= 50 && conf < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
@@ -98,7 +98,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
               </div>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <Clock className="h-2.5 w-2.5" />
-                <span className="text-[10px]">
+                <span className="text-[13px]">
                   {isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}
                 </span>
               </div>
@@ -109,7 +109,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
         {/* Expand toggle */}
         <button
           onClick={() => setExpanded(prev => !prev)}
-          className="w-full flex items-center justify-center gap-1.5 mt-3 pt-3 border-t border-border/50 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 mt-3 pt-3 border-t border-border/50 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         >
           {expanded ? (isNb ? "Skjul detaljer" : "Hide details") : (isNb ? "Se kontrollområder" : "View control areas")}
           {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -126,7 +126,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
                 return (
                   <div key={area} className="rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-1.5">
                     <Icon className={`h-5 w-5 ${color}`} />
-                    <span className="text-[11px] font-medium text-foreground leading-tight">{isNb ? lNb : lEn}</span>
+                    <span className="text-[13px] font-medium text-foreground leading-tight">{isNb ? lNb : lEn}</span>
                     <span className={`text-lg font-bold tabular-nums ${scoreClr}`}>{areaScore}%</span>
                     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-500 ${barClr}`} style={{ width: `${areaScore}%` }} />
@@ -144,7 +144,7 @@ export function VendorTrustScoreCard({ trustScore, confidenceScore, lastUpdated,
               return (
                 <div className="rounded-lg border border-border bg-background p-3 flex items-center gap-4">
                   <Icon className={`h-5 w-5 ${color} shrink-0`} />
-                  <span className="text-[11px] font-medium text-foreground whitespace-nowrap">{isNb ? lNb : lEn}</span>
+                  <span className="text-[13px] font-medium text-foreground whitespace-nowrap">{isNb ? lNb : lEn}</span>
                   <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                     <div className={`h-full rounded-full transition-all duration-500 ${bc}`} style={{ width: `${ps}%` }} />
                   </div>

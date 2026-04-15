@@ -47,7 +47,7 @@ export function ComplianceMaturityWidget() {
             {STAGES.map((stage) => (
               <span
                 key={stage.key}
-                className={`text-[10px] ${
+                className={`text-[13px] ${
                   stage.key === currentStage.key
                     ? "text-primary font-semibold"
                     : "text-muted-foreground"

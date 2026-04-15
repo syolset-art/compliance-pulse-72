@@ -186,7 +186,7 @@ export function ManageSharingDialog({
           <div className="flex gap-1">
             <button
               onClick={() => step === 2 && setStep(1)}
-              className={`flex-1 text-[11px] font-medium py-1.5 rounded-md transition-colors ${
+              className={`flex-1 text-[13px] font-medium py-1.5 rounded-md transition-colors ${
                 step === 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -194,7 +194,7 @@ export function ManageSharingDialog({
             </button>
             <button
               disabled={sharingMode !== "selected"}
-              className={`flex-1 text-[11px] font-medium py-1.5 rounded-md transition-colors ${
+              className={`flex-1 text-[13px] font-medium py-1.5 rounded-md transition-colors ${
                 step === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
               } ${sharingMode !== "selected" ? "opacity-50 cursor-not-allowed" : ""}`}
             >
@@ -209,7 +209,7 @@ export function ManageSharingDialog({
           <div className="space-y-4 flex-1 overflow-auto">
             <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
               <Info className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-blue-700 dark:text-blue-300">
+              <p className="text-[13px] text-blue-700 dark:text-blue-300">
                 {isNb
                   ? "Steg 1 av 2: Velg hvem som skal få tilgang. Ingenting sendes ennå."
                   : "Step 1 of 2: Choose who should have access. Nothing is sent yet."}
@@ -217,7 +217,7 @@ export function ManageSharingDialog({
             </div>
 
             {currentSharedWith.length > 0 && (
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-[13px]">
                 {isNb ? `Delt med ${currentSharedWith.length} kunder` : `Shared with ${currentSharedWith.length} customers`}
               </Badge>
             )}
@@ -235,7 +235,7 @@ export function ManageSharingDialog({
                     <Users className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">{isNb ? "Del med alle kunder" : "Share with all customers"}</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {isNb ? "Nye kunder får automatisk tilgang." : "New customers get access automatically."}
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export function ManageSharingDialog({
                     <UserCheck className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">{isNb ? "Del med utvalgte kunder" : "Share with selected customers"}</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {isNb ? "Velg nøyaktig hvem som får tilgang." : "Choose exactly who gets access."}
                   </p>
                 </div>
@@ -271,7 +271,7 @@ export function ManageSharingDialog({
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">{isNb ? "Ikke del ennå" : "Don't share yet"}</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {isNb ? "Ingen kunder ser dette foreløpig." : "No customers see this for now."}
                   </p>
                 </div>
@@ -285,7 +285,7 @@ export function ManageSharingDialog({
           <div className="space-y-3 flex-1 overflow-auto">
             <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
               <Info className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[11px] text-blue-700 dark:text-blue-300">
+              <p className="text-[13px] text-blue-700 dark:text-blue-300">
                 {isNb
                   ? "Steg 2 av 2: Velg kunder og legg til kontaktperson med e-post."
                   : "Step 2 of 2: Select customers and add contact person with email."}
@@ -293,11 +293,11 @@ export function ManageSharingDialog({
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1" onClick={handleResetToCurrentSharing}>
+              <Button variant="ghost" size="sm" className="h-7 text-[13px] gap-1" onClick={handleResetToCurrentSharing}>
                 <RotateCcw className="h-3 w-3" />
                 {isNb ? "Tilbakestill" : "Reset"}
               </Button>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-[13px] text-muted-foreground">
                 {selectedCustomers.length} {isNb ? "av" : "of"} {allCustomers.length} {isNb ? "valgt" : "selected"}
               </span>
             </div>
@@ -315,7 +315,7 @@ export function ManageSharingDialog({
               <Button
                 variant={showPriorityOnly ? "default" : "outline"}
                 size="sm"
-                className="h-8 text-[11px] gap-1"
+                className="h-8 text-[13px] gap-1"
                 onClick={() => setShowPriorityOnly(!showPriorityOnly)}
               >
                 <Filter className="h-3 w-3" />
@@ -324,10 +324,10 @@ export function ManageSharingDialog({
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={handleSelectAll}>
+              <Button variant="ghost" size="sm" className="h-6 text-[13px]" onClick={handleSelectAll}>
                 {isNb ? "Velg alle" : "Select all"}
               </Button>
-              <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={handleDeselectAll}>
+              <Button variant="ghost" size="sm" className="h-6 text-[13px]" onClick={handleDeselectAll}>
                 {isNb ? "Fjern alle" : "Deselect all"}
               </Button>
             </div>
@@ -371,35 +371,35 @@ export function ManageSharingDialog({
                         <span className="text-sm font-medium">{customer.name}</span>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           {customer.contactPerson && (
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                               <User className="h-2.5 w-2.5" />
                               {customer.contactPerson}
                             </span>
                           )}
                           {customer.contactEmail && (
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                               <Mail className="h-2.5 w-2.5" />
                               {customer.contactEmail}
                             </span>
                           )}
                           {isPending && (
-                            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[9px] px-1.5 py-0 gap-0.5">
+                            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px] px-1.5 py-0 gap-0.5">
                               <Clock className="h-2.5 w-2.5" />
                               {isNb ? "Avventer godkjenning" : "Awaiting approval"}
                             </Badge>
                           )}
                           {isDeclined && (
-                            <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[9px] px-1.5 py-0">
+                            <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[13px] px-1.5 py-0">
                               {isNb ? "Avslått" : "Declined"}
                             </Badge>
                           )}
                           {customer.status === "accepted" && customer.isShared && (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[9px] px-1.5 py-0">
+                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] px-1.5 py-0">
                               {isNb ? "Delt" : "Shared"}
                             </Badge>
                           )}
                           {customer.category && (
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                            <Badge variant="outline" className="text-[13px] px-1.5 py-0">
                               {customer.category}
                             </Badge>
                           )}
@@ -421,14 +421,14 @@ export function ManageSharingDialog({
                       <div className="border border-t-0 border-border rounded-b-lg bg-muted/30 px-3 py-2.5 ml-8 space-y-2">
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <Label className="text-[10px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
+                            <Label className="text-[13px] text-muted-foreground">{isNb ? "Kontaktperson" : "Contact person"}</Label>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <User className="h-3 w-3 text-muted-foreground shrink-0" />
                               <span className="text-xs">{customer.contactPerson || (isNb ? "Ikke angitt" : "Not set")}</span>
                             </div>
                           </div>
                           <div>
-                            <Label className="text-[10px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
+                            <Label className="text-[13px] text-muted-foreground">{isNb ? "E-post" : "Email"}</Label>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
                               <span className="text-xs">{customer.contactEmail || (isNb ? "Ikke angitt" : "Not set")}</span>

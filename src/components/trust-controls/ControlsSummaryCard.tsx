@@ -44,7 +44,7 @@ export function ControlsSummaryCard({ assetId, onSelectMissing }: ControlsSummar
         </div>
         <div className="text-right">
           <span className="text-2xl font-bold text-foreground">{completionPct}%</span>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <p className="text-[13px] text-muted-foreground uppercase tracking-wider">
             {isNb ? "fullført" : "complete"}
           </p>
         </div>
@@ -59,21 +59,21 @@ export function ControlsSummaryCard({ assetId, onSelectMissing }: ControlsSummar
         <div className="col-span-1 flex flex-col items-center gap-0.5 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
           <XCircle className="h-4 w-4 text-destructive" />
           <span className="text-2xl font-bold text-destructive leading-tight">{missingCount}</span>
-          <span className="text-[9px] font-semibold text-destructive/80 uppercase tracking-wide">
+          <span className="text-[13px] font-semibold text-destructive/80 uppercase tracking-wide">
             {isNb ? "Mangler" : "Missing"}
           </span>
         </div>
         <div className="flex flex-col items-center gap-0.5 p-3 rounded-lg bg-warning/10">
           <AlertTriangle className="h-3.5 w-3.5 text-warning" />
           <span className="text-xl font-bold text-warning leading-tight">{partialCount}</span>
-          <span className="text-[9px] font-medium text-warning/80 uppercase tracking-wide">
+          <span className="text-[13px] font-medium text-warning/80 uppercase tracking-wide">
             {isNb ? "Delvis" : "Partial"}
           </span>
         </div>
         <div className="flex flex-col items-center gap-0.5 p-3 rounded-lg bg-success/10">
           <CheckCircle2 className="h-3.5 w-3.5 text-success" />
           <span className="text-xl font-bold text-success leading-tight">{implementedCount}</span>
-          <span className="text-[9px] font-medium text-success/80 uppercase tracking-wide">
+          <span className="text-[13px] font-medium text-success/80 uppercase tracking-wide">
             {isNb ? "OK" : "Done"}
           </span>
         </div>
@@ -82,7 +82,7 @@ export function ControlsSummaryCard({ assetId, onSelectMissing }: ControlsSummar
       {/* What's missing — action-focused list */}
       {needsActionCount > 0 && (
         <div className="border-t border-border pt-3">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             {isNb ? "Gjenstår å gjøre" : "Needs attention"}
           </p>
           <div className="space-y-1.5">
@@ -105,7 +105,7 @@ export function ControlsSummaryCard({ assetId, onSelectMissing }: ControlsSummar
             {needsActionCount > missingControls.length + partialControls.length && (
               <button
                 onClick={onSelectMissing}
-                className="flex items-center gap-1 text-[11px] text-primary hover:underline mt-1"
+                className="flex items-center gap-1 text-[13px] text-primary hover:underline mt-1"
               >
                 <ChevronRight className="h-3 w-3" />
                 {needsActionCount - missingControls.length - partialControls.length}{" "}

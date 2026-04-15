@@ -58,7 +58,7 @@ export default function MSPInvoices() {
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold text-foreground">{tier.displayName}</span>
                   {currentTier !== "free" && (
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant="secondary" className="text-[13px]">
                       {billingInterval === "yearly" ? "Årlig" : "Månedlig"}
                     </Badge>
                   )}

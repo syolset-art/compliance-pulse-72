@@ -37,17 +37,17 @@ const docTypeLabel = (type: string, isNb: boolean): string => {
 const getStatusBadge = (status: string | null, isNb: boolean) => {
   switch (status) {
     case "verified":
-      return <Badge className="bg-success/15 text-success border-success/30 text-[10px] gap-1"><CheckCircle2 className="h-3 w-3" />{isNb ? "Verifisert" : "Verified"}</Badge>;
+      return <Badge className="bg-success/15 text-success border-success/30 text-[13px] gap-1"><CheckCircle2 className="h-3 w-3" />{isNb ? "Verifisert" : "Verified"}</Badge>;
     case "expiring":
-      return <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />{isNb ? "Utløper snart" : "Expiring"}</Badge>;
+      return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />{isNb ? "Utløper snart" : "Expiring"}</Badge>;
     case "expired":
-      return <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />{isNb ? "Utløpt" : "Expired"}</Badge>;
+      return <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[13px] gap-1"><AlertTriangle className="h-3 w-3" />{isNb ? "Utløpt" : "Expired"}</Badge>;
     case "pending":
-      return <Badge variant="secondary" className="text-[10px]">{isNb ? "Venter" : "Pending"}</Badge>;
+      return <Badge variant="secondary" className="text-[13px]">{isNb ? "Venter" : "Pending"}</Badge>;
     case "draft":
-      return <Badge variant="secondary" className="text-[10px]">{isNb ? "Utkast" : "Draft"}</Badge>;
+      return <Badge variant="secondary" className="text-[13px]">{isNb ? "Utkast" : "Draft"}</Badge>;
     default:
-      return status ? <Badge variant="outline" className="text-[10px]">{status}</Badge> : null;
+      return status ? <Badge variant="outline" className="text-[13px]">{status}</Badge> : null;
   }
 };
 const getVisibilityIcon = (visibility: string | null) => {
@@ -167,15 +167,15 @@ const TrustCenterEvidence = () => {
         <TabsList className="grid w-full grid-cols-3 max-w-md">
           <TabsTrigger value="policies">
             {isNb ? "Retningslinjer" : "Policies"}
-            {policies.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5">{policies.length}</Badge>}
+            {policies.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{policies.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="certifications">
             {isNb ? "Sertifiseringer" : "Certifications"}
-            {certifications.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5">{certifications.length}</Badge>}
+            {certifications.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{certifications.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="documents">
             {isNb ? "Dokumenter" : "Documents"}
-            {documents.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5">{documents.length}</Badge>}
+            {documents.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{documents.length}</Badge>}
           </TabsTrigger>
         </TabsList>
 

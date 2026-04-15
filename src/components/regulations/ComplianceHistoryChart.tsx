@@ -108,7 +108,7 @@ const CustomTooltip = ({ active, payload }: any) => {
             <div key={i} className="flex items-start gap-1.5">
               <EventIcon type={ev.type} className="h-3 w-3 mt-0.5 shrink-0" />
               <div>
-                <span className="font-mono text-[10px] text-muted-foreground">{ev.requirementId}</span>
+                <span className="font-mono text-[13px] text-muted-foreground">{ev.requirementId}</span>
                 <span className={`ml-1 font-medium ${eventTypeColor[ev.type]}`}>{eventTypeLabel[ev.type]}</span>
               </div>
             </div>

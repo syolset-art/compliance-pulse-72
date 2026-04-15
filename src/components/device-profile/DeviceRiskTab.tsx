@@ -144,7 +144,7 @@ export function DeviceRiskTab({ controls, meta, asset }: DeviceRiskTabProps) {
               </div>
             </div>
             <span className={`text-sm font-semibold ${level.color}`}>{level.label}</span>
-            <span className="text-[11px] text-muted-foreground mt-0.5">
+            <span className="text-[13px] text-muted-foreground mt-0.5">
               {isNb ? "Samlet risikonivå" : "Overall risk level"}
             </span>
           </CardContent>
@@ -182,8 +182,8 @@ export function DeviceRiskTab({ controls, meta, asset }: DeviceRiskTabProps) {
                   })}
                 </div>
                 <div className="mt-3 pt-2 border-t border-border flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground">{isNb ? "Snitt" : "Average"}</span>
-                  <Badge variant="outline" className={`text-[10px] ${catLevel.color}`}>
+                  <span className="text-[13px] text-muted-foreground">{isNb ? "Snitt" : "Average"}</span>
+                  <Badge variant="outline" className={`text-[13px] ${catLevel.color}`}>
                     {avgScore}% — {catLevel.label}
                   </Badge>
                 </div>
@@ -219,7 +219,7 @@ export function DeviceRiskTab({ controls, meta, asset }: DeviceRiskTabProps) {
                   </div>
                   <span className="text-xs text-muted-foreground">{entry.event}</span>
                   {idx === 0 && (
-                    <Badge variant="outline" className="text-[9px]">
+                    <Badge variant="outline" className="text-[13px]">
                       {isNb ? "Nå" : "Current"}
                     </Badge>
                   )}

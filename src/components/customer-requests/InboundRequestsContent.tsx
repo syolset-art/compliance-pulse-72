@@ -150,15 +150,15 @@ export function InboundRequestsContent() {
         <TabsList>
           <TabsTrigger value="open" className="gap-1.5">
             {t("customerRequests.tabs.open", "Åpne")}
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{open.length}</Badge>
+            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{open.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="responded" className="gap-1.5">
             {t("customerRequests.tabs.responded", "Besvart")}
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{responded.length}</Badge>
+            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{responded.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="all" className="gap-1.5">
             {t("customerRequests.tabs.all", "Alle")}
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{filtered.length}</Badge>
+            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{filtered.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="archived">{t("customerRequests.tabs.archived", "Arkivert")}</TabsTrigger>
         </TabsList>

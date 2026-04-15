@@ -282,7 +282,7 @@ const LaraInbox = () => {
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-medium truncate">{item.subject || item.file_name}</p>
                                 {incident && sevConfig && (
-                                  <Badge className={`text-[10px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
+                                  <Badge className={`text-[13px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
                                 )}
                               </div>
                               <p className="text-xs text-muted-foreground mt-0.5">
@@ -307,14 +307,14 @@ const LaraInbox = () => {
                                   {!incident && (
                                     <>
                                       som{" "}
-                                      <Badge variant="secondary" className="text-[10px] mx-0.5">
+                                      <Badge variant="secondary" className="text-[13px] mx-0.5">
                                         {DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}
                                       </Badge>
                                     </>
                                   )}
                                 </p>
                                 {item.confidence_score && (
-                                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px] ml-auto flex-shrink-0">
+                                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] ml-auto flex-shrink-0">
                                     {Math.round(item.confidence_score * 100)}% sikker
                                   </Badge>
                                 )}
@@ -363,11 +363,11 @@ const LaraInbox = () => {
                         )}
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-medium truncate">{item.subject || item.file_name}</p>
-                          <p className="text-[10px] text-muted-foreground">
+                          <p className="text-[13px] text-muted-foreground">
                             {item.sender_name || item.sender_email} → {asset?.name || "Ukjent"}
                           </p>
                         </div>
-                        <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[10px]">
+                        <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[13px]">
                           {item.status === "manually_assigned" ? (incident ? "Avvik opprettet" : "Godkjent") : "Avvist"}
                         </Badge>
                       </div>

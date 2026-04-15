@@ -344,7 +344,7 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Virksomhet" : "Company"}
                 </h2>
-                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-[10px] ml-auto">
+                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-[13px] ml-auto">
                   {sectionCompleteness.company.done}/{sectionCompleteness.company.total}
                 </Badge>
               </div>
@@ -453,7 +453,7 @@ const TrustCenterEditProfile = () => {
                   <label className="text-xs font-medium text-foreground">
                     {isNb ? "Hvilke fagområder dekker dere?" : "Which domains do you cover?"}
                   </label>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {isNb ? "Brukes til å vise relevante kontroller og regelverk." : "Used to show relevant controls and regulations."}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -505,7 +505,7 @@ const TrustCenterEditProfile = () => {
                         {isNb ? "Anbefalt rolle: " : "Recommended role: "}
                         <span className="text-primary">{isNb ? suggestedRole.labelNb : suggestedRole.labelEn}</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[13px] text-muted-foreground">
                         {isNb ? suggestedRole.reasonNb : suggestedRole.reasonEn}
                       </p>
                     </div>
@@ -593,7 +593,7 @@ const TrustCenterEditProfile = () => {
                         ? "Resultatet vises i din Trust Center-profil slik at dine kunder og partnere kan se den."
                         : "The result is shown in your Trust Center profile for your customers and partners to see."}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/70 mt-2 italic">
+                    <p className="text-[13px] text-muted-foreground/70 mt-2 italic">
                       {isNb
                         ? "Alle svar er egenerklærte med mindre annet er angitt."
                         : "All responses are self-declared unless otherwise noted."}
@@ -704,7 +704,7 @@ const TrustCenterEditProfile = () => {
                   <h2 className="text-base font-semibold text-foreground">
                     {isNb ? "Regelverk" : "Regulations"}
                   </h2>
-                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[10px]">
+                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[13px]">
                     {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
                   </Badge>
                 </div>

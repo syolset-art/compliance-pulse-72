@@ -88,7 +88,7 @@ export default function MaturityDashboard() {
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("Nivå", "Level")}</p>
+                <p className="text-[13px] text-muted-foreground uppercase tracking-wider">{t("Nivå", "Level")}</p>
                 <p className="text-sm font-bold text-primary">
                   {isNorwegian ? maturityInfo.name_no : maturityInfo.name_en}
                 </p>
@@ -130,7 +130,7 @@ export default function MaturityDashboard() {
                     )}
                   >
                     <div className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+                      "w-5 h-5 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0",
                       isDone ? "bg-primary text-primary-foreground" :
                       isCurrent ? "border-2 border-primary text-primary" :
                       "border border-border text-muted-foreground"
@@ -138,7 +138,7 @@ export default function MaturityDashboard() {
                       {isDone ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
                     </div>
                     {isNorwegian ? phase.name_no : phase.name_en}
-                    {isDone && <span className="text-[10px] text-muted-foreground">{percent}%</span>}
+                    {isDone && <span className="text-[13px] text-muted-foreground">{percent}%</span>}
                   </button>
                   {i < phaseData.length - 1 && (
                     <div className={cn("w-4 h-0.5 rounded-full shrink-0", isDone ? "bg-primary" : "bg-border")} />
@@ -161,13 +161,13 @@ export default function MaturityDashboard() {
                           {isNorwegian ? focusedPhaseData.phase.name_no : focusedPhaseData.phase.name_en}
                         </h2>
                         {focusedPhaseData.status === "completed" && (
-                          <Badge className="bg-primary/10 text-primary border-primary/30 text-[10px]">
+                          <Badge className="bg-primary/10 text-primary border-primary/30 text-[13px]">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             {t("Fullført", "Complete")}
                           </Badge>
                         )}
                         {focusedPhaseData.status === "in_progress" && (
-                          <Badge variant="outline" className="text-[10px] gap-1">
+                          <Badge variant="outline" className="text-[13px] gap-1">
                             <Clock className="h-3 w-3" />
                             {t("Aktiv", "Active")}
                           </Badge>
@@ -179,7 +179,7 @@ export default function MaturityDashboard() {
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-2xl font-bold text-foreground">{focusedPhaseData.percent}%</span>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[13px] text-muted-foreground">
                         {focusedPhaseData.completed}/{focusedPhaseData.total} {t("krav", "req.")}
                       </p>
                     </div>
@@ -195,7 +195,7 @@ export default function MaturityDashboard() {
                     <CardTitle className="text-sm flex items-center gap-2">
                       <Target className="h-4 w-4 text-primary" />
                       {t("Hva du må gjøre", "What you need to do")}
-                      <Badge variant="outline" className="text-[10px] ml-auto">
+                      <Badge variant="outline" className="text-[13px] ml-auto">
                         {focusedPhaseData.remaining.length} {t("gjenstår", "remaining")}
                       </Badge>
                     </CardTitle>
@@ -212,7 +212,7 @@ export default function MaturityDashboard() {
                         )}
                       >
                         <div className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+                          "w-6 h-6 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0",
                           i === 0
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted text-muted-foreground"

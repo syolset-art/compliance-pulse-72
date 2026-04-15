@@ -189,14 +189,14 @@ const AdminAccessManagement = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
-                          <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
+                          <p className="text-[13px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
                           <div className="flex items-center gap-1.5 mt-1.5">
                             {assigned.length > 0 ? (
-                              <Badge variant="secondary" className="text-[10px]">
+                              <Badge variant="secondary" className="text-[13px]">
                                 {assigned.length} {isNb ? "tildelt" : "assigned"}
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="text-[10px] text-warning border-warning/30">
+                              <Badge variant="outline" className="text-[13px] text-warning border-warning/30">
                                 {isNb ? "Ikke tildelt" : "Not assigned"}
                               </Badge>
                             )}
@@ -233,13 +233,13 @@ const AdminAccessManagement = () => {
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium text-foreground truncate">{member.name}</span>
                               {member.status === "invited" && (
-                                <Badge variant="outline" className="text-[10px] gap-1 text-warning border-warning/30">
+                                <Badge variant="outline" className="text-[13px] gap-1 text-warning border-warning/30">
                                   <Clock className="h-2.5 w-2.5" />
                                   {isNb ? "Invitert" : "Invited"}
                                 </Badge>
                               )}
                               {member.status === "active" && (
-                                <Badge variant="outline" className="text-[10px] gap-1 text-success border-success/30">
+                                <Badge variant="outline" className="text-[13px] gap-1 text-success border-success/30">
                                   <CheckCircle2 className="h-2.5 w-2.5" />
                                   {isNb ? "Aktiv" : "Active"}
                                 </Badge>
@@ -249,11 +249,11 @@ const AdminAccessManagement = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <Badge variant="secondary" className="text-[10px]">
+                          <Badge variant="secondary" className="text-[13px]">
                             {isNb ? roleDef.labelNb : roleDef.labelEn}
                           </Badge>
                           {member.lastSeen && (
-                            <span className="text-[10px] text-muted-foreground hidden md:inline">
+                            <span className="text-[13px] text-muted-foreground hidden md:inline">
                               {member.lastSeen}
                             </span>
                           )}
@@ -293,7 +293,7 @@ const AdminAccessManagement = () => {
                     <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
                       {isNb ? "Kan utføre" : "Can execute"}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[13px] text-muted-foreground">
                       — {isNb ? "redigere, opprette oppgaver, laste opp dokumenter" : "edit, create tasks, upload documents"}
                     </span>
                   </div>
@@ -314,10 +314,10 @@ const AdminAccessManagement = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="text-sm font-medium">{isNb ? r.nb : r.en}</p>
-                              <p className="text-[11px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
+                              <p className="text-[13px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
                             </div>
                           </div>
-                          <Badge variant="secondary" className="text-[10px] shrink-0">
+                          <Badge variant="secondary" className="text-[13px] shrink-0">
                             {assigned.length} {isNb ? "tildelt" : "assigned"}
                           </Badge>
                         </div>
@@ -333,7 +333,7 @@ const AdminAccessManagement = () => {
                     <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
                       {isNb ? "Kan se" : "Can view"}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[13px] text-muted-foreground">
                       — {isNb ? "se leverandørprofil, dokumenter og status" : "view vendor profile, documents, and status"}
                     </span>
                   </div>
@@ -355,10 +355,10 @@ const AdminAccessManagement = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="text-sm font-medium">{isNb ? r.nb : r.en}</p>
-                              <p className="text-[11px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
+                              <p className="text-[13px] text-muted-foreground">{isNb ? r.descNb : r.descEn}</p>
                             </div>
                           </div>
-                          <Badge variant="outline" className="text-[10px] shrink-0">
+                          <Badge variant="outline" className="text-[13px] shrink-0">
                             {assigned.length} {isNb ? "tildelt" : "assigned"}
                           </Badge>
                         </div>
@@ -420,7 +420,7 @@ const AdminAccessManagement = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[13px] text-muted-foreground">
                 {isNb
                   ? getRoleDef(inviteRole).descNb
                   : getRoleDef(inviteRole).descEn}
@@ -470,7 +470,7 @@ const AdminAccessManagement = () => {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
-                      <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
+                      <p className="text-[13px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
                     </div>
                   </div>
                   <Switch

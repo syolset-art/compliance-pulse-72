@@ -108,7 +108,7 @@ export function MaturityHistoryChart({ assetId, baselinePercent, enrichmentPerce
         <h4 className="text-sm font-semibold text-foreground">
           {isNb ? "Modenhetshistorikk" : "Maturity History"}
         </h4>
-        <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full" style={{ background: "hsl(142, 71%, 45%)" }} />
             {isNb ? "Tiltak" : "Action"}
@@ -188,7 +188,7 @@ export function MaturityHistoryChart({ assetId, baselinePercent, enrichmentPerce
       </div>
 
       {/* Legend for areas */}
-      <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-4 text-[13px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-2.5 rounded-sm bg-muted-foreground/40" />
           {isNb ? "Leverandørens baseline" : "Vendor baseline"}

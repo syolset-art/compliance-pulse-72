@@ -54,7 +54,7 @@ export function UserActionsWidget() {
             <ClipboardCheck className="h-4 w-4 text-primary" />
             Your actions
           </CardTitle>
-          <Badge variant="outline" className="text-[10px] h-5">
+          <Badge variant="outline" className="text-[13px] h-5">
             {actions.length}
           </Badge>
         </div>
@@ -72,7 +72,7 @@ export function UserActionsWidget() {
               onClick={() => navigate(action.route)}
               className="w-full flex items-center gap-2.5 p-2 rounded-lg border border-border hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
             >
-              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold shrink-0">
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-[13px] font-bold shrink-0">
                 {i + 1}
               </div>
               <p className="flex-1 min-w-0 text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">

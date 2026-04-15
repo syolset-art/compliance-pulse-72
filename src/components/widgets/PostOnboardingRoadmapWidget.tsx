@@ -207,7 +207,7 @@ export function PostOnboardingRoadmapWidget() {
                   {isNorwegian ? govLevelDef.description_no : govLevelDef.description_en}
                 </p>
               </div>
-              <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
+              <Badge variant="outline" className="text-[13px] shrink-0 border-primary/30 text-primary">
                 {isNorwegian ? "Ditt nivå" : "Your level"}
               </Badge>
             </div>
@@ -261,7 +261,7 @@ export function PostOnboardingRoadmapWidget() {
                     </p>
                   </div>
                   {phaseDef && (
-                    <Badge variant="outline" className="text-[10px] shrink-0">
+                    <Badge variant="outline" className="text-[13px] shrink-0">
                       {isNorwegian ? phaseDef.name_no : phaseDef.name_en}
                     </Badge>
                   )}

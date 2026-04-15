@@ -308,13 +308,13 @@ const TrustCenterProducts = () => {
                   <div className="flex items-center gap-2">
                     <Badge
                       variant={svc.asset_type === "saas" ? "default" : "secondary"}
-                      className="text-[10px]"
+                      className="text-[13px]"
                     >
                       {svc.asset_type === "saas" ? "SaaS" : "Service"}
                     </Badge>
                     <Badge
                       variant={svc.publish_mode === "public" ? "default" : "outline"}
-                      className="text-[10px]"
+                      className="text-[13px]"
                     >
                       {svc.publish_mode === "public" ? "Publisert" : "Utkast"}
                     </Badge>

@@ -190,7 +190,7 @@ export function OnboardingProgressWidget() {
                   )}
                 >
                   <span className={cn(
-                    "flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold",
+                    "flex items-center justify-center w-4 h-4 rounded-full text-[13px] font-bold",
                     step.isCompleted
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted-foreground/20 text-muted-foreground"

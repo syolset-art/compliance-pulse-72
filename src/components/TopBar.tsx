@@ -112,7 +112,7 @@ export function TopBar() {
       >
         <Inbox className="h-4 w-4 text-muted-foreground" />
         {inboxCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[13px] font-bold flex items-center justify-center">
             {inboxCount}
           </span>
         )}

@@ -98,21 +98,21 @@ export function NetworkTab() {
     switch (status) {
       case "accepted":
         return (
-          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px] gap-1">
+          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] gap-1">
             <Check className="h-3 w-3" />
             {isNb ? "Godtatt" : "Accepted"}
           </Badge>
         );
       case "pending":
         return (
-          <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px] gap-1">
+          <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px] gap-1">
             <Clock className="h-3 w-3" />
             {isNb ? "Avventer" : "Pending"}
           </Badge>
         );
       case "declined":
         return (
-          <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[10px] gap-1">
+          <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[13px] gap-1">
             <X className="h-3 w-3" />
             {isNb ? "Avslått" : "Declined"}
           </Badge>
@@ -133,7 +133,7 @@ export function NetworkTab() {
             </div>
             <div>
               <p className="text-lg font-semibold">{acceptedCount}</p>
-              <p className="text-[11px] text-muted-foreground">{isNb ? "Godtatte" : "Accepted"}</p>
+              <p className="text-[13px] text-muted-foreground">{isNb ? "Godtatte" : "Accepted"}</p>
             </div>
           </CardContent>
         </Card>
@@ -144,7 +144,7 @@ export function NetworkTab() {
             </div>
             <div>
               <p className="text-lg font-semibold">{pendingCount}</p>
-              <p className="text-[11px] text-muted-foreground">{isNb ? "Avventer" : "Pending"}</p>
+              <p className="text-[13px] text-muted-foreground">{isNb ? "Avventer" : "Pending"}</p>
             </div>
           </CardContent>
         </Card>
@@ -155,7 +155,7 @@ export function NetworkTab() {
             </div>
             <div>
               <p className="text-lg font-semibold">{connections.length}</p>
-              <p className="text-[11px] text-muted-foreground">{isNb ? "Totalt" : "Total"}</p>
+              <p className="text-[13px] text-muted-foreground">{isNb ? "Totalt" : "Total"}</p>
             </div>
           </CardContent>
         </Card>
@@ -240,7 +240,7 @@ export function NetworkTab() {
           <CardTitle className="text-base flex items-center gap-2">
             <Network className="h-4 w-4 text-primary" />
             {isNb ? "Mine forbindelser" : "My connections"}
-            <Badge variant="secondary" className="text-[10px]">{connections.length}</Badge>
+            <Badge variant="secondary" className="text-[13px]">{connections.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -262,7 +262,7 @@ export function NetworkTab() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium">{conn.organization_name}</span>
                     {getStatusBadge(conn.status)}
-                    <Badge variant="outline" className="text-[10px]">
+                    <Badge variant="outline" className="text-[13px]">
                       {conn.connection_type === "customer" ? (isNb ? "Kunde" : "Customer") : (isNb ? "Leverandør" : "Vendor")}
                     </Badge>
                   </div>

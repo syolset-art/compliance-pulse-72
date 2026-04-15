@@ -51,7 +51,7 @@ export function TrustProfileViewsWidget() {
           </div>
           <div>
             <p className="text-lg font-bold">{viewsCount}</p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               {isNorwegian ? "visninger siste 30 dager" : "views last 30 days"}
             </p>
           </div>
@@ -60,7 +60,7 @@ export function TrustProfileViewsWidget() {
         <div className="flex items-center gap-2">
           <Badge
             variant={isPublished ? "action" : "secondary"}
-            className="text-[10px]"
+            className="text-[13px]"
           >
             {isPublished
               ? isNorwegian

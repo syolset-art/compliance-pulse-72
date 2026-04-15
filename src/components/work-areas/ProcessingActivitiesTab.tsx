@@ -343,7 +343,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
                         <AlertTriangle className="h-3.5 w-3.5 text-warning" />
                         <span className="font-medium text-foreground text-xs">DPIA påkrevd</span>
                       </div>
-                      <Badge variant="outline" className="text-[10px] h-5 bg-emerald-500/10 text-emerald-600 border-emerald-200">
+                      <Badge variant="outline" className="text-[13px] h-5 bg-emerald-500/10 text-emerald-600 border-emerald-200">
                         GODKJENT
                       </Badge>
                     </div>

@@ -27,9 +27,9 @@ export function DeviceAutomation({ meta }: DeviceAutomationProps) {
   const hasWarningsOnly = !allOk && inactiveCount === 0;
 
   const statusConfig = {
-    active: { icon: <CheckCircle2 className="h-4 w-4 text-success" />, badge: <Badge className="bg-success/10 text-success border-success/30 text-[10px]">{isNb ? "Aktiv" : "Active"}</Badge> },
-    available: { icon: <AlertTriangle className="h-4 w-4 text-warning" />, badge: <Badge className="bg-warning/10 text-warning border-warning/30 text-[10px]">{isNb ? "Tilgjengelig" : "Available"}</Badge> },
-    inactive: { icon: <XCircle className="h-4 w-4 text-destructive" />, badge: <Badge variant="outline" className="text-[10px] text-destructive border-destructive/30">{isNb ? "Inaktiv" : "Inactive"}</Badge> },
+    active: { icon: <CheckCircle2 className="h-4 w-4 text-success" />, badge: <Badge className="bg-success/10 text-success border-success/30 text-[13px]">{isNb ? "Aktiv" : "Active"}</Badge> },
+    available: { icon: <AlertTriangle className="h-4 w-4 text-warning" />, badge: <Badge className="bg-warning/10 text-warning border-warning/30 text-[13px]">{isNb ? "Tilgjengelig" : "Available"}</Badge> },
+    inactive: { icon: <XCircle className="h-4 w-4 text-destructive" />, badge: <Badge variant="outline" className="text-[13px] text-destructive border-destructive/30">{isNb ? "Inaktiv" : "Inactive"}</Badge> },
   };
 
   return (

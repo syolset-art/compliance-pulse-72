@@ -154,7 +154,7 @@ export function CustomerRequestCard({ request }: CustomerRequestCardProps) {
               <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{request.customer_name}</p>
             </div>
-            <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${statusInfo.className}`}>
+            <Badge variant="outline" className={`text-[13px] flex-shrink-0 ${statusInfo.className}`}>
               {statusInfo.label}
             </Badge>
           </div>

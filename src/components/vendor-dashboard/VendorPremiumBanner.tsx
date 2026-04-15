@@ -44,10 +44,10 @@ export function VendorPremiumBanner({ vendorCount, maxFreeVendors, isActivated, 
           <Card className="p-4 border-primary/20 bg-primary/5 min-w-[220px] text-center">
             <p className="text-xs font-medium text-muted-foreground mb-1">Time-to-Trust</p>
             <p className="text-xl font-bold text-primary">5–15 dager → &lt; 2 timer</p>
-            <p className="text-[11px] text-muted-foreground mt-1">
+            <p className="text-[13px] text-muted-foreground mt-1">
               fra forespørsel til beslutningsgrunnlag*
             </p>
-            <p className="text-[10px] text-muted-foreground italic">
+            <p className="text-[13px] text-muted-foreground italic">
               *Avhenger av kravpakke og datatilgang.
             </p>
           </Card>

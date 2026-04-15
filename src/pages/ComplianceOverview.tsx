@@ -171,13 +171,13 @@ const ComplianceOverview = () => {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-center justify-between gap-1">
                         <p className="text-xs font-semibold text-foreground leading-tight">{pillar.name}</p>
-                        <Badge className={`text-[10px] px-1.5 py-0 ${pillar.badgeColor} border-0 shrink-0`}>
+                        <Badge className={`text-[13px] px-1.5 py-0 ${pillar.badgeColor} border-0 shrink-0`}>
                           {pillar.level}
                         </Badge>
                       </div>
                       <p className="text-2xl font-bold text-foreground">{pillar.score}%</p>
                       <Progress value={pillar.score} className="h-1" />
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[13px] text-muted-foreground">
                         {pillar.measures} målepunkter
                       </p>
                     </CardContent>
@@ -208,7 +208,7 @@ const ComplianceOverview = () => {
                       <p className="text-xs text-muted-foreground">{item.pillar}</p>
                     </div>
                     <Badge variant="outline" className="text-xs shrink-0">{item.framework}</Badge>
-                    <Badge variant={item.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] shrink-0">
+                    <Badge variant={item.severity === 'high' ? 'destructive' : 'secondary'} className="text-[13px] shrink-0">
                       {item.severity === 'high' ? 'Høy' : item.severity === 'medium' ? 'Middels' : 'Lav'}
                     </Badge>
                   </CardContent>
@@ -232,7 +232,7 @@ const ComplianceOverview = () => {
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
                       <p className="text-xs text-muted-foreground">{item.pillar}</p>
                     </div>
-                    <Badge variant={item.status === 'ok' ? 'secondary' : item.status === 'partial' ? 'outline' : 'destructive'} className="text-[10px] shrink-0">
+                    <Badge variant={item.status === 'ok' ? 'secondary' : item.status === 'partial' ? 'outline' : 'destructive'} className="text-[13px] shrink-0">
                       {item.status === 'ok' ? 'Oppfylt' : item.status === 'partial' ? 'Delvis' : 'Mangler'}
                     </Badge>
                   </CardContent>
@@ -287,10 +287,10 @@ const ComplianceOverview = () => {
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge className={`text-[10px] px-1.5 py-0 border-0 ${fw.levelColor}`}>
+                              <Badge className={`text-[13px] px-1.5 py-0 border-0 ${fw.levelColor}`}>
                                 {fw.level}
                               </Badge>
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-[13px] text-muted-foreground">
                                 {fw.fulfilled}/{fw.total} OPPFYLT
                               </span>
                             </div>

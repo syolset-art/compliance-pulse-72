@@ -133,13 +133,13 @@ function TrustProfileBadge({ result }: { result: VendorSearchResult }) {
   const verified = isVerifiedTrustProfile(result);
   if (verified) {
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+      <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
         <Shield className="h-3 w-3" /> Verifisert Trust Profile
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+    <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
       <Sparkles className="h-3 w-3" /> AI-generert profil
     </span>
   );
@@ -235,12 +235,12 @@ function ExistingVendorCard({ vendor, onOpenProfile, onClose }: { vendor: Vendor
       <div className="flex items-center gap-3 flex-wrap">
         <TrustProfileBadge result={vendor} />
         {vendor.complianceScore != null && vendor.complianceScore > 0 && (
-          <span className="text-[10px] font-medium text-muted-foreground">
+          <span className="text-[13px] font-medium text-muted-foreground">
             Compliance: {vendor.complianceScore}%
           </span>
         )}
         {vendor.documentCount != null && vendor.documentCount > 0 && (
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[13px] text-muted-foreground">
             {vendor.documentCount} dokumenter
           </span>
         )}
@@ -704,7 +704,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                 <div>
                   <span className="text-sm font-medium text-muted-foreground">Koble til API</span>
                   <p className="text-xs text-muted-foreground">Automatisk synkronisering</p>
-                  <Badge variant="secondary" className="mt-1 text-[10px]">Kommer snart</Badge>
+                  <Badge variant="secondary" className="mt-1 text-[13px]">Kommer snart</Badge>
                 </div>
               </button>
               <button
@@ -761,7 +761,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     <p className="text-xs text-muted-foreground">eller klikk for å velge</p>
                   </div>
                   <p className="text-xs text-muted-foreground">Støttede formater: CSV, TXT, JSON</p>
-                  <p className="text-[10px] text-yellow-600 mt-1">⚠ PDF, Excel og Word kan ikke leses av AI direkte</p>
+                  <p className="text-[13px] text-yellow-600 mt-1">⚠ PDF, Excel og Word kan ikke leses av AI direkte</p>
                 </>
               )}
               <input
@@ -804,7 +804,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                   <p className="text-sm font-medium">
                     Vi tror dette er: <strong>{classification.documentTypeLabel}</strong>
                   </p>
-                  <Badge variant="secondary" className="mt-1 text-[10px]">
+                  <Badge variant="secondary" className="mt-1 text-[13px]">
                     {Math.round(classification.confidence * 100)}% sikkerhet
                   </Badge>
                 </div>
@@ -1043,7 +1043,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm">{r.name}</span>
                             {r.existingId && (
-                              <Badge variant="warning" className="text-[10px] gap-1">
+                              <Badge variant="warning" className="text-[13px] gap-1">
                                 <CheckCircle2 className="h-2.5 w-2.5" /> Allerede registrert
                               </Badge>
                             )}
@@ -1052,7 +1052,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <TrustProfileBadge result={r} />
                               {r.complianceScore != null && r.complianceScore > 0 && (
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="text-[13px] text-muted-foreground">
                                   Compliance: {r.complianceScore}%
                                 </span>
                               )}
@@ -1195,7 +1195,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">{t("addVendor.vendorType", "Leverandørtype")}</Label>
                 {aiSuggestion?.vendor_category && vendorCategory === aiSuggestion.vendor_category && (
-                  <Badge variant="secondary" className="text-[10px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
+                  <Badge variant="secondary" className="text-[13px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
                 )}
               </div>
               <div className="grid grid-cols-3 gap-2 mt-2">
@@ -1219,7 +1219,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">{t("addVendor.gdprRole", "GDPR-rolle")}</Label>
                 {aiSuggestion?.gdpr_role && gdprRole === aiSuggestion.gdpr_role && (
-                  <Badge variant="secondary" className="text-[10px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
+                  <Badge variant="secondary" className="text-[13px] gap-1"><Sparkles className="h-2.5 w-2.5" /> Lara</Badge>
                 )}
               </div>
               <RadioGroup value={gdprRole} onValueChange={(v) => setGdprRole(v as GdprRole)} className="mt-2 space-y-2">

@@ -84,7 +84,7 @@ export function VendorRiskAssessment({ vendorName = "" }: VendorRiskAssessmentPr
               {isNb ? "Risikovurdering" : "Risk Assessment"}
             </h3>
           </div>
-          <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary uppercase tracking-wider font-semibold">
+          <Badge variant="outline" className="text-[13px] gap-1 border-primary/30 text-primary uppercase tracking-wider font-semibold">
             {isNb ? "KI-analyse" : "AI Analysis"}
           </Badge>
         </div>

@@ -30,7 +30,7 @@ const ProgressRing = ({ pct, size = 36 }: { pct: number; size?: number }) => {
         transform={`rotate(-90 ${center} ${center})`}
         className="transition-all duration-500"
       />
-      <text x={center} y={center} textAnchor="middle" dominantBaseline="central" className="fill-foreground text-[9px] font-bold">
+      <text x={center} y={center} textAnchor="middle" dominantBaseline="central" className="fill-foreground text-[13px] font-bold">
         {pct}%
       </text>
     </svg>
@@ -57,7 +57,7 @@ const CategorySection = ({
       <div className="flex items-center gap-2 mb-2">
         <CatIcon className={cn("h-4 w-4", cat.color)} />
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{cat.name}</span>
-        <span className="text-[10px] text-muted-foreground">({frameworkItems.length})</span>
+        <span className="text-[13px] text-muted-foreground">({frameworkItems.length})</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {frameworkItems.map(({ fw, met, total, pct }) => {
@@ -81,12 +81,12 @@ const CategorySection = ({
                 )}>
                   {fw.name}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground">
                   {met} av {total} krav oppfylt
                 </p>
               </div>
               {fw.isMandatory && (
-                <span className="text-[9px] font-medium text-destructive/70 uppercase tracking-wider shrink-0">Påkrevd</span>
+                <span className="text-[13px] font-medium text-destructive/70 uppercase tracking-wider shrink-0">Påkrevd</span>
               )}
             </button>
           );
@@ -162,8 +162,8 @@ export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getSta
             return (
               <div key={categoryId} className="flex items-center gap-1.5">
                 <div className={cn("h-2.5 w-2.5 rounded-full", cat.bgColor, cat.color.replace("text-", "bg-").replace("500", "500"))} />
-                <span className="text-[11px] text-muted-foreground">{cat.name.split(' ')[0]}</span>
-                <span className="text-[11px] font-medium text-foreground">{Math.round(catPct * 100)}%</span>
+                <span className="text-[13px] text-muted-foreground">{cat.name.split(' ')[0]}</span>
+                <span className="text-[13px] font-medium text-foreground">{Math.round(catPct * 100)}%</span>
               </div>
             );
           })}

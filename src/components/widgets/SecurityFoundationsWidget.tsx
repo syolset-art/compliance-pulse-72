@@ -104,7 +104,7 @@ export function SecurityFoundationsWidget() {
             <Button
               variant={showHistory ? "default" : "outline"}
               size="sm"
-              className="h-6 text-[10px] px-2 gap-1"
+              className="h-6 text-[13px] px-2 gap-1"
               onClick={() => setShowHistory(!showHistory)}
             >
               {showHistory ? <BarChart3 className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
@@ -113,7 +113,7 @@ export function SecurityFoundationsWidget() {
             <span className={cn("text-lg font-bold tabular-nums", maturityLabel(Math.round(overall.score), isNb).className)}>
               {Math.round(overall.score)}%
             </span>
-            <Badge variant="outline" className={cn("text-[10px] h-5", maturityLabel(Math.round(overall.score), isNb).className)}>
+            <Badge variant="outline" className={cn("text-[13px] h-5", maturityLabel(Math.round(overall.score), isNb).className)}>
               {maturityLabel(Math.round(overall.score), isNb).label}
             </Badge>
           </div>
@@ -153,11 +153,11 @@ export function SecurityFoundationsWidget() {
               </ResponsiveContainer>
             </div>
             <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1 text-[13px] text-muted-foreground">
                 <span className="w-3 h-0.5 bg-foreground inline-block" style={{ borderTop: "2px dashed" }} /> {isNb ? "Totalt" : "Overall"}
               </span>
               {PILLARS.map((p, i) => (
-                <span key={p.key} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <span key={p.key} className="flex items-center gap-1 text-[13px] text-muted-foreground">
                   <span className="w-3 h-0.5 inline-block" style={{ backgroundColor: PILLAR_COLORS[i] }} />
                   {isNb ? p.label_no : p.label_en}
                 </span>
@@ -233,7 +233,7 @@ export function SecurityFoundationsWidget() {
                           {domainData.assessed || 0}/{domainData.total || 0}
                         </span>
                         <span className="font-semibold text-xs text-foreground">{percent}%</span>
-                        <span className={cn("text-[10px] font-medium", maturity.className)}>
+                        <span className={cn("text-[13px] font-medium", maturity.className)}>
                           {maturity.label}
                         </span>
                       </div>
@@ -292,7 +292,7 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
             <Badge
               variant="outline"
               className={cn(
-                "text-[9px] h-4 px-1.5 shrink-0",
+                "text-[13px] h-4 px-1.5 shrink-0",
                 ctrl.status === "completed" && "border-emerald-300 text-emerald-600 dark:text-emerald-400",
                 ctrl.status === "in_progress" && "border-amber-300 text-amber-600 dark:text-amber-400",
                 ctrl.status === "not_started" && "border-border text-muted-foreground"
@@ -308,7 +308,7 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
         );
       })}
       {sorted.length > 10 && (
-        <p className="text-[10px] text-muted-foreground pl-6 pt-1">
+        <p className="text-[13px] text-muted-foreground pl-6 pt-1">
           +{sorted.length - 10} {isNb ? "flere kontroller" : "more controls"}
         </p>
       )}

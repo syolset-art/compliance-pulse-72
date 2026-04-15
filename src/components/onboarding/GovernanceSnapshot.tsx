@@ -69,7 +69,7 @@ export function GovernanceSnapshot({
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm">{level.name_no}</span>
                     {isRecommended && (
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                      <span className="text-[13px] uppercase tracking-wider font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                         Anbefalt
                       </span>
                     )}
@@ -81,7 +81,7 @@ export function GovernanceSnapshot({
                     {phases.map((p) => (
                       <span
                         key={p.id}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
+                        className="text-[13px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
                       >
                         {p.name_no}
                       </span>

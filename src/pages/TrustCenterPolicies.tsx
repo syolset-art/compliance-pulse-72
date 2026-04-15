@@ -44,7 +44,7 @@ const TrustCenterPolicies = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={policy.status === "published" ? "default" : "secondary"} className="text-[10px]">
+                <Badge variant={policy.status === "published" ? "default" : "secondary"} className="text-[13px]">
                   {policy.status === "published" ? "Publisert" : "Utkast"}
                 </Badge>
                 <Button variant="ghost" size="sm">

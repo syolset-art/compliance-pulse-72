@@ -103,7 +103,7 @@ function FrameworkListSection({
                   />
                 </div>
                 {framework.totalTasks > 0 && (
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {framework.completedTasks} av {framework.totalTasks} oppgaver fullført
                   </p>
                 )}
@@ -203,21 +203,21 @@ export function MyRegulationsWidget() {
     switch (status) {
       case 'on_track':
         return (
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-green-600 border-green-300 bg-green-50 dark:bg-green-950/30">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-green-600 border-green-300 bg-green-50 dark:bg-green-950/30">
             <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
             På god vei
           </Badge>
         );
       case 'needs_attention':
         return (
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-orange-600 border-orange-300 bg-orange-50 dark:bg-orange-950/30">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-orange-600 border-orange-300 bg-orange-50 dark:bg-orange-950/30">
             <AlertTriangle className="h-2.5 w-2.5 mr-1" />
             Trenger oppmerksomhet
           </Badge>
         );
       case 'not_started':
         return (
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-muted-foreground">
             <Clock className="h-2.5 w-2.5 mr-1" />
             Ikke startet
           </Badge>

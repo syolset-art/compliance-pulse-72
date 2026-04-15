@@ -105,10 +105,10 @@ export function MaturityProgressCard() {
                     {getLevelLabel(level)}
                   </span>
                   {isInitial && index !== currentLevelIndex && (
-                    <span className="text-[10px] text-muted-foreground">↑ Start</span>
+                    <span className="text-[13px] text-muted-foreground">↑ Start</span>
                   )}
                   {isCurrent && (
-                    <span className="text-[10px] text-primary font-medium">↑ Nå</span>
+                    <span className="text-[13px] text-primary font-medium">↑ Nå</span>
                   )}
                 </div>
               );

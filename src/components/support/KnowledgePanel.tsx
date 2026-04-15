@@ -49,10 +49,10 @@ export const KnowledgePanel = () => {
               className="p-3 rounded-xl border border-border/60 hover:border-primary/30 hover:bg-accent/30 transition-all duration-200 cursor-pointer group"
             >
               <p className="text-[13px] font-medium text-foreground leading-tight">{article.title}</p>
-              <p className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{article.summary}</p>
+              <p className="text-[13px] text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{article.summary}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">{article.tag}</Badge>
-                <span className="text-[10px] text-muted-foreground/70">{article.readTime}</span>
+                <Badge variant="secondary" className="text-[13px] px-1.5 py-0 font-normal">{article.tag}</Badge>
+                <span className="text-[13px] text-muted-foreground/70">{article.readTime}</span>
               </div>
             </div>
           ))}
@@ -78,10 +78,10 @@ export const KnowledgePanel = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-[13px]">{cat.title}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{t(cat.descKey)}</p>
+              <p className="text-[13px] text-muted-foreground mt-0.5 line-clamp-1">{t(cat.descKey)}</p>
             </div>
             {cat.articles.length > 0 && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+              <Badge variant="secondary" className="text-[13px] px-1.5 py-0 font-normal">
                 {cat.articles.length}
               </Badge>
             )}

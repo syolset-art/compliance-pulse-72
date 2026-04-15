@@ -50,7 +50,7 @@ function avgScore(items: AssetRow[]) {
 }
 
 const riskBadge = (level?: string | null) => {
-  if (!level) return <Badge variant="outline" className="text-[10px]">–</Badge>;
+  if (!level) return <Badge variant="outline" className="text-[13px]">–</Badge>;
   const map: Record<string, { label: string; cls: string }> = {
     critical: { label: "Kritisk", cls: "bg-destructive/10 text-destructive border-destructive/20" },
     high: { label: "Høy", cls: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
@@ -58,7 +58,7 @@ const riskBadge = (level?: string | null) => {
     low: { label: "Lav", cls: "bg-green-500/10 text-green-700 border-green-500/20" },
   };
   const m = map[level];
-  return m ? <Badge className={`text-[10px] ${m.cls}`}>{m.label}</Badge> : <Badge variant="outline" className="text-[10px]">{level}</Badge>;
+  return m ? <Badge className={`text-[13px] ${m.cls}`}>{m.label}</Badge> : <Badge variant="outline" className="text-[13px]">{level}</Badge>;
 };
 
 function ScoreDisplay({ score }: { score?: number | null }) {
@@ -211,7 +211,7 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
               risk={countByRisk(otherAssets)}
             />
             <div className="rounded-lg border p-4 flex flex-col items-center justify-center gap-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <span className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {isNb ? "Snitt-score" : "Average score"}
               </span>
               <span className={`text-3xl font-bold ${
@@ -221,7 +221,7 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
               }`}>
                 {overallAvg !== null ? `${overallAvg}%` : "–"}
               </span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[13px] text-muted-foreground">
                 {allAssets.length} {isNb ? "totalt" : "total"}
               </span>
             </div>
@@ -337,7 +337,7 @@ function SummaryCard({ icon, label, value, avg, risk }: {
           </span>
         )}
       </div>
-      <div className="flex gap-1.5 text-[10px]">
+      <div className="flex gap-1.5 text-[13px]">
         {(risk.critical + risk.high) > 0 && (
           <span className="text-destructive font-medium">{risk.critical + risk.high} høy</span>
         )}
@@ -365,12 +365,12 @@ function AssetTable({ items, showCategory, showCountry }: {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-[11px] font-semibold uppercase">Navn</TableHead>
-          {showCategory && <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">Kategori</TableHead>}
-          {showCountry && <TableHead className="text-[11px] font-semibold uppercase hidden md:table-cell">Land</TableHead>}
-          <TableHead className="text-[11px] font-semibold uppercase">Risiko</TableHead>
-          <TableHead className="text-[11px] font-semibold uppercase">Score</TableHead>
-          <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">Kritikalitet</TableHead>
+          <TableHead className="text-[13px] font-semibold uppercase">Navn</TableHead>
+          {showCategory && <TableHead className="text-[13px] font-semibold uppercase hidden sm:table-cell">Kategori</TableHead>}
+          {showCountry && <TableHead className="text-[13px] font-semibold uppercase hidden md:table-cell">Land</TableHead>}
+          <TableHead className="text-[13px] font-semibold uppercase">Risiko</TableHead>
+          <TableHead className="text-[13px] font-semibold uppercase">Score</TableHead>
+          <TableHead className="text-[13px] font-semibold uppercase hidden sm:table-cell">Kritikalitet</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

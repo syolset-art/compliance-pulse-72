@@ -69,7 +69,7 @@ export function AIGeneratedBadge({
       variant="outline"
       className={cn(
         "gap-1 font-normal border animate-in fade-in duration-300",
-        size === "sm" ? "text-[10px] px-1.5 py-0" : "text-xs px-2 py-0.5",
+        size === "sm" ? "text-[13px] px-1.5 py-0" : "text-xs px-2 py-0.5",
         config.className,
         className
       )}

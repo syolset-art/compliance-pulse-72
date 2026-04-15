@@ -139,7 +139,7 @@ export function InlineDocumentChecklist({
         <p className="text-xs font-medium text-foreground">
           {isNb ? "Forventet dokumentasjon" : "Expected documentation"}
         </p>
-        <Badge variant="secondary" className="text-[9px]">
+        <Badge variant="secondary" className="text-[13px]">
           {uploadedCount}/{expectedDocs.length} {isNb ? "lastet opp" : "uploaded"}
         </Badge>
       </div>
@@ -166,20 +166,20 @@ export function InlineDocumentChecklist({
                   {isNb ? doc.labelNb : doc.labelEn}
                 </span>
                 {hasDoc && matches[0] && (
-                  <span className="block text-[10px] text-muted-foreground truncate">
+                  <span className="block text-[13px] text-muted-foreground truncate">
                     {matches[0].file_name} · {new Date(matches[0].created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                   </span>
                 )}
               </div>
               {hasDoc ? (
-                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200 text-[9px] shrink-0">
+                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200 text-[13px] shrink-0">
                   {isNb ? "Lastet opp" : "Uploaded"}
                 </Badge>
               ) : (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 text-[10px] gap-1 shrink-0"
+                  className="h-6 text-[13px] gap-1 shrink-0"
                   onClick={() => handleUploadClick(doc.type)}
                   disabled={uploadMutation.isPending}
                 >
@@ -195,7 +195,7 @@ export function InlineDocumentChecklist({
       {onNavigateToDocuments && (
         <button
           onClick={onNavigateToDocuments}
-          className="flex items-center gap-1.5 text-[11px] text-primary hover:underline font-medium mt-3"
+          className="flex items-center gap-1.5 text-[13px] text-primary hover:underline font-medium mt-3"
         >
           <ExternalLink className="h-3 w-3" />
           {isNb ? "Se alle dokumenter i Dokumenter-fanen" : "View all documents in Documents tab"}

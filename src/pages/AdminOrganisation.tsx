@@ -192,7 +192,7 @@ export default function AdminOrganisation() {
             <Shield className="h-3.5 w-3.5 text-primary" />
             <span className="font-medium">Powered by Mynder Trust Center</span>
           </div>
-          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] gap-1">
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-1">
             <CheckCircle2 className="h-3 w-3" />
             Verified
           </Badge>
@@ -219,7 +219,7 @@ export default function AdminOrganisation() {
                     </div>
                   </div>
 
-                  <Badge variant="outline" className="text-[10px]">
+                  <Badge variant="outline" className="text-[13px]">
                     {isNb ? "Egenerklæring" : "Self-declared"}
                   </Badge>
 
@@ -238,24 +238,24 @@ export default function AdminOrganisation() {
                           <>
                             {standards.length > 0 && (
                               <div>
-                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                                   {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
                                 </p>
                                 <div className="flex flex-wrap gap-1.5">
                                   {standards.map(fw => (
-                                    <Badge key={fw} variant="outline" className="text-[10px] font-medium">{fw}</Badge>
+                                    <Badge key={fw} variant="outline" className="text-[13px] font-medium">{fw}</Badge>
                                   ))}
                                 </div>
                               </div>
                             )}
                             {regulations.length > 0 && (
                               <div>
-                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                                   {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
                                 </p>
                                 <div className="flex flex-wrap gap-1.5">
                                   {regulations.map(fw => (
-                                    <Badge key={fw} variant="outline" className="text-[10px] font-medium border-orange-300 text-orange-700 dark:text-orange-400">{fw}</Badge>
+                                    <Badge key={fw} variant="outline" className="text-[13px] font-medium border-orange-300 text-orange-700 dark:text-orange-400">{fw}</Badge>
                                   ))}
                                 </div>
                               </div>
@@ -285,16 +285,16 @@ export default function AdminOrganisation() {
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
-                            <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                            <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
                           </div>
                         </>
                       );
                     })()}
                   </div>
-                  <p className="text-[11px] text-muted-foreground text-center">
+                  <p className="text-[13px] text-muted-foreground text-center">
                     {trustScore >= 80 ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases") : trustScore >= 50 ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases") : (isNb ? "Begrenset egnethet" : "Limited suitability")}
                   </p>
-                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
                   </div>
@@ -310,7 +310,7 @@ export default function AdminOrganisation() {
                   { label: isNb ? "NETTSIDE" : "WEBSITE", value: org.domain || "–" },
                 ].map(item => (
                   <div key={item.label} className="bg-card px-4 py-3">
-                    <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                    <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
                     <p className="text-sm font-medium text-foreground mt-0.5 truncate">{item.value}</p>
                   </div>
                 ))}
