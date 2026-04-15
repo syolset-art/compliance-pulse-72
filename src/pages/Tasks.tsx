@@ -138,7 +138,7 @@ const autoTasks: AutoTask[] = [
     source: "Utløpt sikkerhetsdokumentasjon",
     aiDraftable: true,
     aiAction: "Lara kan sende en automatisk forespørsel til leverandøren om oppdatert SOC 2-dokumentasjon.",
-    actionLabel: "Send forespørsel",
+    actionLabel: "Be om oppdatering",
     actionRoute: "/vendors",
   },
   {

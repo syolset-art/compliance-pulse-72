@@ -234,7 +234,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isNb ? "Send forespørsel til leverandører" : "Send Request to Vendors"}
+            {isNb ? "Send melding til leverandører" : "Send message to vendors"}
           </DialogTitle>
           <div className="flex items-center gap-2 mt-2">
             {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
