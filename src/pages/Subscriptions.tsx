@@ -447,9 +447,12 @@ export default function Subscriptions() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Abonnement og Credits</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Velg pakken som passer din virksomhet — betal kun for det du bruker. Credits brukes til AI-analyse, dokumentklassifisering og rapportgenerering.
+              Velg pakken som passer din virksomhet — betal kun for det du bruker.
             </p>
           </div>
+
+          {/* ── STATUS BANNER ── */}
+          <PlanStatusBanner />
 
           {/* ── PLAN COMPARISON ── */}
           <section className="space-y-4">
