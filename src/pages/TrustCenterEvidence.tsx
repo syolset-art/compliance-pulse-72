@@ -217,13 +217,6 @@ const TrustCenterEvidence = () => {
 
   const isImageFile = (name: string) => /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name);
   const isPdfFile = (name: string) => /\.pdf$/i.test(name);
-    if (!approveDoc) return;
-    updateMutation.mutate({
-      id: approveDoc.id,
-      updates: { status: "verified", approved_by: approverName || null, approved_at: new Date().toISOString() },
-    });
-    setApproveDoc(null);
-  };
 
   const saveEdit = () => {
     if (!editDoc) return;
