@@ -1223,6 +1223,15 @@ export default function WorkAreas() {
         />
       )}
 
+      {selectedWorkArea && (
+        <AssignVendorDialog
+          open={isAssignVendorDialogOpen}
+          onOpenChange={setIsAssignVendorDialogOpen}
+          workAreaId={selectedWorkArea.id}
+          workAreaName={selectedWorkArea.name}
+        />
+      )}
+
       <AlertDialog open={!!deletingWorkArea} onOpenChange={() => setDeletingWorkArea(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
