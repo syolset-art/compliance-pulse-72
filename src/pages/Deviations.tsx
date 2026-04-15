@@ -102,6 +102,7 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
 };
 
 export default function Deviations() {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [titleFilter, setTitleFilter] = useState("");
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
@@ -366,7 +367,7 @@ export default function Deviations() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Avviksregister</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("nav.deviations")}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Administrer og følg opp alle avvik</p>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 w-full sm:w-auto">
