@@ -1175,6 +1175,51 @@ export type Database = {
           },
         ]
       }
+      evidence_checks: {
+        Row: {
+          agent_id: string | null
+          asset_id: string
+          check_type: string
+          control_key: string
+          created_at: string | null
+          details: Json | null
+          expires_at: string | null
+          id: string
+          last_verified_at: string | null
+          staleness_days: number | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          asset_id: string
+          check_type: string
+          control_key: string
+          created_at?: string | null
+          details?: Json | null
+          expires_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          staleness_days?: number | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          asset_id?: string
+          check_type?: string
+          control_key?: string
+          created_at?: string | null
+          details?: Json | null
+          expires_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          staleness_days?: number | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       framework_documents: {
         Row: {
           created_at: string | null

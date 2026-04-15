@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
+import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 
@@ -371,6 +373,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Clock className="h-3 w-3" />
                   <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
                 </div>
+                {evaluation?.evidenceChecks && evaluation.evidenceChecks.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Badge variant="outline" className="text-[9px] gap-1 border-primary/20 text-primary">
+                      <Zap className="h-2.5 w-2.5" />
+                      {isNb ? "Agent-verifisert" : "Agent-verified"}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -399,6 +409,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
                   const score = evaluation?.areaScore(area) ?? 0;
                   const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                  const evidenceInfo = evaluation?.evidenceSummary?.[area];
+                  const evidenceStatus = evidenceInfo?.worst as EvidenceStatus | null;
                   return (
                     <div key={area} className="rounded-lg border border-border overflow-hidden">
                       <div className="w-full text-left p-4">
@@ -409,7 +421,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </div>
                             <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
                           </div>
-                          <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                          <div className="flex items-center gap-2">
+                            {evidenceStatus && (
+                              <EvidenceStatusBadge
+                                status={evidenceStatus}
+                                count={evidenceStatus === "stale" ? evidenceInfo?.staleCount : evidenceStatus === "expired" ? evidenceInfo?.expiredCount : undefined}
+                                compact
+                              />
+                            )}
+                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                          </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${score}%` }} />
