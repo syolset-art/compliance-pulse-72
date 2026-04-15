@@ -140,7 +140,7 @@ const TrustCenterMenu = () => {
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
           isActive
             ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -264,15 +264,15 @@ const SidebarContent = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
           isSectionActive
             ? "text-sidebar-primary border-l-2 border-primary/30"
             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
         )}
       >
         <div className="flex items-center gap-2.5">
-          {React.createElement(icon, { className: "h-4 w-4" })}
-          <span className="text-xs font-semibold">{label}</span>
+          {React.createElement(icon, { className: "h-[18px] w-[18px]" })}
+          <span className="text-sm font-semibold">{label}</span>
         </div>
         <div className="flex items-center gap-1.5">
           {extraBadge}
@@ -333,7 +333,7 @@ const SidebarContent = () => {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
                 isActive
                   ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -359,7 +359,7 @@ const SidebarContent = () => {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
                 isActive
                   ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -395,7 +395,7 @@ const SidebarContent = () => {
                 <Link
                   to={vendorLink.href}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
                     isActive
                       ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -413,7 +413,7 @@ const SidebarContent = () => {
                 <Link
                   to={assetsLink.href}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
                     isActive
                       ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -436,15 +436,15 @@ const SidebarContent = () => {
               <button
                 onClick={() => setExploreOpen(!exploreOpen)}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
                   isExploreActive
                     ? "text-sidebar-primary border-l-2 border-primary/30"
                     : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
                 )}
               >
                 <div className="flex items-center gap-2.5">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="text-xs font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
+                  <Sparkles className="h-[18px] w-[18px]" />
+                   <span className="text-sm font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
@@ -547,7 +547,7 @@ const SidebarContent = () => {
                       key={item.href}
                       onClick={() => navigate(item.href)}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
                         isActive
                           ? "bg-sidebar-accent text-sidebar-primary"
                           : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -562,7 +562,7 @@ const SidebarContent = () => {
                 {/* Legg til virksomhet */}
                 <button
                   onClick={() => setAddOrgOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Legg til virksomhet
@@ -572,7 +572,7 @@ const SidebarContent = () => {
                 <button
                   onClick={() => setPartnerOpen(!partnerOpen)}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-colors",
                     location.pathname.startsWith("/msp-") ? "text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
                 >
@@ -597,7 +597,7 @@ const SidebarContent = () => {
                           key={item.href}
                           onClick={() => navigate(item.href)}
                           className={cn(
-                            "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                            "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
                             isActive
                               ? "bg-sidebar-accent text-sidebar-primary"
                               : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -614,7 +614,7 @@ const SidebarContent = () => {
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   {loggingOut ? t("nav.loggingOut") : t("nav.logout")}
