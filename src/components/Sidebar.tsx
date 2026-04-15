@@ -718,6 +718,7 @@ export function Sidebar() {
         <SidebarContent />
       </div>
       <TopBar />
+      <AddOrganizationDialog open={addOrgOpen} onOpenChange={setAddOrgOpen} />
     </>
   );
 }
