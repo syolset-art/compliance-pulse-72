@@ -39,12 +39,12 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
     const expiry = new Date(validTo);
     const now = new Date();
     const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) return <Badge variant="destructive" className="text-[10px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
-    if (daysLeft <= 30) return <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">{isNb ? "Utløper snart" : "Expiring soon"}</Badge>;
+    if (daysLeft < 0) return <Badge variant="destructive" className="text-[13px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+    if (daysLeft <= 30) return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">{isNb ? "Utløper snart" : "Expiring soon"}</Badge>;
   }
-  if (status === "pending_review") return <Badge variant="secondary" className="text-[10px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
-  if (status === "superseded") return <Badge variant="secondary" className="text-[10px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
-  return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[10px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
+  if (status === "pending_review") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
+  if (status === "superseded") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
+  return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[13px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
 }
 
 export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabProps) {
@@ -113,11 +113,11 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <Table className="min-w-[580px]">
           <TableHeader>
             <TableRow className="bg-muted/30">
-              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Dokument" : "Document"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
-              <TableHead className="text-[11px] font-semibold uppercase">{isNb ? "Tilgang" : "Access"}</TableHead>
+              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Dokument" : "Document"}</TableHead>
+              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
+              <TableHead className="text-[13px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
+              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
+              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Tilgang" : "Access"}</TableHead>
               <TableHead className="w-16" />
             </TableRow>
           </TableHeader>
@@ -136,14 +136,14 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                         <span className={`text-sm font-medium truncate block max-w-[200px] ${isExpired ? "text-destructive" : ""}`}>
                           {doc.file_name}
                         </span>
-                        <span className="text-[11px] text-muted-foreground hidden md:block">
+                        <span className="text-[13px] text-muted-foreground hidden md:block">
                           {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
                         </span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-2.5">
-                    <Badge variant="secondary" className="text-[10px]">{getTypeLabel(doc.document_type)}</Badge>
+                    <Badge variant="secondary" className="text-[13px]">{getTypeLabel(doc.document_type)}</Badge>
                   </TableCell>
                   <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">
                     {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
@@ -245,15 +245,15 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
           <TabsList className="w-full justify-start h-9 bg-muted/50 p-0.5">
             <TabsTrigger value="all" className="text-xs gap-1.5 data-[state=active]:bg-background">
               {isNb ? "Alle" : "All"}
-              <Badge variant="secondary" className="text-[9px] h-4 px-1">{documents.length}</Badge>
+              <Badge variant="secondary" className="text-[13px] h-4 px-1">{documents.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="internal" className="text-xs gap-1.5 data-[state=active]:bg-background">
               {isNb ? "Interne" : "Internal"}
-              <Badge variant="secondary" className="text-[9px] h-4 px-1">{internalDocs.length}</Badge>
+              <Badge variant="secondary" className="text-[13px] h-4 px-1">{internalDocs.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="vendor" className="text-xs gap-1.5 data-[state=active]:bg-background">
               {isNb ? "Fra leverandør" : "From vendor"}
-              <Badge variant="secondary" className="text-[9px] h-4 px-1">{vendorDocs.length}</Badge>
+              <Badge variant="secondary" className="text-[13px] h-4 px-1">{vendorDocs.length}</Badge>
             </TabsTrigger>
           </TabsList>
 

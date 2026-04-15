@@ -129,14 +129,14 @@ export function SelfProfileMetadataRow({
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {fields.map((f) => (
           <div key={f.key}>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
               {f.label}
             </p>
 
             {editingField === f.key ? (
               <div className={`flex items-center gap-1.5 ${f.type === "url" ? "max-w-xs" : ""}`}>
                 {f.type === "url" && (
-                  <span className="text-[10px] text-muted-foreground bg-muted px-2 py-1.5 rounded-l-md border border-r-0 border-input shrink-0">
+                  <span className="text-[13px] text-muted-foreground bg-muted px-2 py-1.5 rounded-l-md border border-r-0 border-input shrink-0">
                     https://
                   </span>
                 )}
@@ -205,7 +205,7 @@ export function SelfProfileMetadataRow({
 
         {/* Category / Classification */}
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+          <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
             {isNb ? "KATEGORI" : "CATEGORY"}
           </p>
           <Select value={asset.vendor_category || ""} onValueChange={handleCategoryChange}>

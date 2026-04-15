@@ -116,9 +116,9 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "compliant": return <Badge className="bg-success/10 text-success border-success/20 text-[9px]">{isNb ? "Oppfylt" : "Compliant"}</Badge>;
-      case "non_compliant": return <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-[9px]">{isNb ? "Ikke oppfylt" : "Non-compliant"}</Badge>;
-      default: return <Badge className="bg-warning/10 text-warning border-warning/20 text-[9px]">{isNb ? "Pågår" : "In progress"}</Badge>;
+      case "compliant": return <Badge className="bg-success/10 text-success border-success/20 text-[13px]">{isNb ? "Oppfylt" : "Compliant"}</Badge>;
+      case "non_compliant": return <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-[13px]">{isNb ? "Ikke oppfylt" : "Non-compliant"}</Badge>;
+      default: return <Badge className="bg-warning/10 text-warning border-warning/20 text-[13px]">{isNb ? "Pågår" : "In progress"}</Badge>;
     }
   };
 
@@ -178,7 +178,7 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
               <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/40">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-foreground">{selectedItem.score}%</div>
-                  <div className="text-[9px] text-muted-foreground uppercase tracking-wide">Score</div>
+                  <div className="text-[13px] text-muted-foreground uppercase tracking-wide">Score</div>
                 </div>
                 <div className="flex-1">
                   <Progress value={selectedItem.score} className="h-2 mb-1.5" />
@@ -196,7 +196,7 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
               {/* Gaps / what's missing */}
               {selectedItem.gapItems.length > 0 ? (
                 <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                     {isNb ? "Hva gjenstår" : "What's missing"}
                   </p>
                   <div className="space-y-2">
@@ -208,7 +208,7 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-foreground">{isNb ? gap.nb : gap.en}</p>
                         </div>
-                        <Badge className={`text-[9px] shrink-0 ${gap.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-warning/10 text-warning border-warning/20"}`}>
+                        <Badge className={`text-[13px] shrink-0 ${gap.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-warning/10 text-warning border-warning/20"}`}>
                           {gap.severity === "high" ? (isNb ? "Høy" : "High") : (isNb ? "Middels" : "Med")}
                         </Badge>
                       </div>
@@ -246,7 +246,7 @@ export const ValidationTab = ({ assetId }: ValidationTabProps) => {
                           <span className="text-sm font-medium text-foreground">{label}</span>
                           <div className="flex items-center gap-2 shrink-0">
                             {gapCount > 0 && (
-                              <span className="text-[10px] text-destructive font-medium">
+                              <span className="text-[13px] text-destructive font-medium">
                                 {gapCount} {isNb ? "mangler" : "gaps"}
                               </span>
                             )}

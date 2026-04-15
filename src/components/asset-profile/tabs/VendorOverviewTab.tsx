@@ -359,7 +359,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                   <span className="text-sm font-semibold text-foreground">
                     {isNb ? "Modenhet per regelverk" : "Maturity per regulation"}
                   </span>
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4">
+                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-4">
                     {frameworks.length}
                   </Badge>
                   <Tooltip>
@@ -388,7 +388,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
                     <div className="flex items-center justify-end">
                       <button
                         onClick={() => setShowAllFrameworks(prev => !prev)}
-                        className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                        className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-primary transition-colors"
                       >
                         <Eye className="h-3 w-3" />
                         {showAllFrameworks

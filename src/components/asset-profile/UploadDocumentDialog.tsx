@@ -454,7 +454,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
             {step === "review" && (
               <>
                 {isNb ? "AI-analyse ferdig" : "AI Analysis Complete"}
-                <Badge variant="secondary" className="text-[10px] gap-1">
+                <Badge variant="secondary" className="text-[13px] gap-1">
                   <Sparkles className="h-3 w-3" />
                   AI
                 </Badge>
@@ -522,7 +522,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
             <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/30">
               <FileText className="h-4 w-4 text-primary shrink-0" />
               <span className="text-sm font-medium truncate">{file?.name}</span>
-              <span className="text-[10px] text-muted-foreground shrink-0">
+              <span className="text-[13px] text-muted-foreground shrink-0">
                 {file && (file.size / 1024 / 1024).toFixed(1)} MB
               </span>
               <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto shrink-0" onClick={() => { setFile(null); setClassification(null); setStep("upload"); }}>
@@ -668,7 +668,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium flex items-center gap-1">
                   {isNb ? "Dokumenttype" : "Document Type"}
-                  {classification && <Badge variant="outline" className="text-[9px] ml-1">AI-forslag</Badge>}
+                  {classification && <Badge variant="outline" className="text-[13px] ml-1">AI-forslag</Badge>}
                 </Label>
                 <Select value={docType} onValueChange={setDocType}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -711,10 +711,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig fra" : "Valid from"}
                   {datesAreDefaults && !classification?.validFrom && (
-                    <Badge variant="outline" className="text-[9px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validFrom && (
-                    <Badge variant="outline" className="text-[9px] ml-1">AI</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
                   )}
                 </Label>
                 <Input type="date" value={validFrom} onChange={(e) => { setValidFrom(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
@@ -724,10 +724,10 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig til" : "Valid to"}
                   {datesAreDefaults && !classification?.validTo && (
-                    <Badge variant="outline" className="text-[9px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validTo && (
-                    <Badge variant="outline" className="text-[9px] ml-1">AI</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
                   )}
                 </Label>
                 <Input type="date" value={validTo} onChange={(e) => { setValidTo(e.target.value); setDatesAreDefaults(false); }} className="h-8 text-xs" />
@@ -749,7 +749,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                       key={reg}
                       type="button"
                       onClick={() => toggleRegulation(reg)}
-                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[13px] font-medium transition-colors ${
                         selected
                           ? "bg-primary text-primary-foreground border-primary"
                           : aiSuggestion
@@ -792,14 +792,14 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               <div className="flex items-center justify-center gap-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-muted-foreground">{complianceImpact.scoreBefore}%</p>
-                  <p className="text-[10px] text-muted-foreground uppercase">{isNb ? "Før" : "Before"}</p>
+                  <p className="text-[13px] text-muted-foreground uppercase">{isNb ? "Før" : "Before"}</p>
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground" />
                 <div className="text-center">
                   <p className={`text-3xl font-bold transition-all duration-700 ${animatedScore > complianceImpact.scoreBefore ? "text-emerald-600" : "text-foreground"}`}>
                     {animatedScore}%
                   </p>
-                  <p className="text-[10px] text-muted-foreground uppercase">{isNb ? "Etter" : "After"}</p>
+                  <p className="text-[13px] text-muted-foreground uppercase">{isNb ? "Etter" : "After"}</p>
                 </div>
               </div>
 
@@ -864,7 +864,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                       <span className={covered ? "font-medium" : "text-muted-foreground"}>
                         {isNb ? typeLabel?.labelNb : typeLabel?.label || type}
                       </span>
-                      {isNew && <Badge className="text-[9px] bg-emerald-500/15 text-emerald-700 border-emerald-500/30">{isNb ? "Ny" : "New"}</Badge>}
+                      {isNew && <Badge className="text-[13px] bg-emerald-500/15 text-emerald-700 border-emerald-500/30">{isNb ? "Ny" : "New"}</Badge>}
                     </div>
                   );
                 })}
@@ -876,7 +876,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
               <div className="flex flex-wrap gap-1.5">
                 <span className="text-xs text-muted-foreground mr-1">{isNb ? "Dekker:" : "Covers:"}</span>
                 {linkedRegulations.map((reg) => (
-                  <Badge key={reg} variant="secondary" className="text-[10px]">{reg}</Badge>
+                  <Badge key={reg} variant="secondary" className="text-[13px]">{reg}</Badge>
                 ))}
               </div>
             )}

@@ -90,18 +90,18 @@ export const FrameworkMaturityGrid = ({ frameworks }: FrameworkMaturityGridProps
                   <span className="font-semibold text-sm text-foreground truncate">{name}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Badge className={`text-[9px] px-1.5 py-0 h-4 border font-semibold ${maturityColor}`}>
+                  <Badge className={`text-[13px] px-1.5 py-0 h-4 border font-semibold ${maturityColor}`}>
                     {maturityLabel}
                   </Badge>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-[13px] text-muted-foreground">
                     ✓ {assessed}/{total}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2">
+                <p className="text-[13px] text-muted-foreground leading-tight line-clamp-2">
                   {isNb ? `${assessed} av ${total} vurderinger oppfylt` : `${assessed} of ${total} assessments fulfilled`}
                 </p>
                 {desc && (
-                  <p className="text-[10px] text-muted-foreground/70 leading-tight mt-0.5 line-clamp-2">{desc}</p>
+                  <p className="text-[13px] text-muted-foreground/70 leading-tight mt-0.5 line-clamp-2">{desc}</p>
                 )}
               </div>
             </div>

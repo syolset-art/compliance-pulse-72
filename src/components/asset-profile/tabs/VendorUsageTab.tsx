@@ -212,14 +212,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[13px] text-muted-foreground leading-tight">
               {isNb
                 ? "Hvor viktig denne leverandøren er for virksomheten. Høy kritikalitet krever strengere oppfølging."
                 : "How important this vendor is to the business. High criticality requires stricter follow-up."}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Tredjepartstyring" : "Affects: Third-party management"}
@@ -262,14 +262,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 <Sparkles className={`h-3.5 w-3.5 text-primary ${laraLoading ? "animate-spin" : ""}`} />
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[13px] text-muted-foreground leading-tight">
               {isNb
                 ? "Risikonivået påvirker oppfølgingskrav og kontrollfrekvens."
                 : "Risk level affects follow-up requirements and control frequency."}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Drift og sikkerhet" : "Affects: Operations & security"}
@@ -300,14 +300,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[13px] text-muted-foreground leading-tight">
               {isNb
                 ? "GDPR-rollen bestemmer hvilke kontroller og dokumentasjonskrav som gjelder (f.eks. DPA-krav)."
                 : "The GDPR role determines which controls and documentation requirements apply (e.g. DPA requirements)."}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Personvern og datahåndtering" : "Affects: Privacy & data handling"}
@@ -338,14 +338,14 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[13px] text-muted-foreground leading-tight">
               {isNb
                 ? "Din prioritering av leverandøren for filtrering og oppfølging. Kan kobles til risikoscenarier."
                 : "Your prioritization of this vendor for filtering and follow-up. Can be linked to risk scenarios."}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
-              className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+              className="flex items-center gap-1 text-[13px] text-primary hover:underline"
             >
               <ArrowRight className="h-2.5 w-2.5" />
               {isNb ? "Påvirker: Filtrering og oppfølging" : "Affects: Filtering & follow-up"}
@@ -389,7 +389,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               {processes.map(p => (
                 <div key={p.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
                   <span className="font-medium">{p.name}</span>
-                  <Badge variant={p.status === "active" ? "default" : "secondary"} className="text-[10px]">{p.status}</Badge>
+                  <Badge variant={p.status === "active" ? "default" : "secondary"} className="text-[13px]">{p.status}</Badge>
                 </div>
               ))}
             </div>
@@ -411,7 +411,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 const other = r.source_asset_id === assetId ? (r as any).target : (r as any).source;
                 return (
                   <div key={r.id} className="flex items-center gap-2 text-sm p-1.5">
-                    <Badge variant="outline" className="text-[10px]">{r.relationship_type}</Badge>
+                    <Badge variant="outline" className="text-[13px]">{r.relationship_type}</Badge>
                     <span>{other?.name || "—"}</span>
                   </div>
                 );
@@ -433,7 +433,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 <div key={p.id} className="flex items-center justify-between text-sm p-1.5">
                   <span className="font-medium">{p.name}</span>
                   {p.eu_eos_compliant !== null && (
-                    <Badge variant={p.eu_eos_compliant ? "default" : "destructive"} className="text-[10px]">
+                    <Badge variant={p.eu_eos_compliant ? "default" : "destructive"} className="text-[13px]">
                       {p.eu_eos_compliant ? "EU/EØS" : (isNb ? "Utenfor EU" : "Non-EU")}
                     </Badge>
                   )}

@@ -233,13 +233,13 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                       <div className="flex items-center gap-2 mb-1">
                         <p className="text-sm font-medium">{item.subject}</p>
                         {sevConfig && (
-                          <Badge className={`text-[10px] ${sevConfig.className}`}>{isNb ? sevConfig.labelNb : sevConfig.labelEn}</Badge>
+                          <Badge className={`text-[13px] ${sevConfig.className}`}>{isNb ? sevConfig.labelNb : sevConfig.labelEn}</Badge>
                         )}
                       </div>
                       {item.file_path && (
                         <p className="text-xs text-muted-foreground line-clamp-2">{item.file_path}</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-1">
+                      <p className="text-[13px] text-muted-foreground mt-1">
                         {item.file_name?.replace(".json", "")} · {new Date(item.received_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                       </p>
                     </div>
@@ -340,17 +340,17 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                           </p>
                         )}
                         {incident.category && (
-                          <Badge variant="outline" className="text-[10px] mt-1">{incident.category}</Badge>
+                          <Badge variant="outline" className="text-[13px] mt-1">{incident.category}</Badge>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       {incident.source === "7security" ? (
-                        <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[10px]">
+                        <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[13px]">
                           7 Security
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">{isNb ? "Manuell" : "Manual"}</Badge>
+                        <Badge variant="secondary" className="text-[13px]">{isNb ? "Manuell" : "Manual"}</Badge>
                       )}
                     </TableCell>
                     <TableCell>{getRiskLevelBadge(incident.risk_level)}</TableCell>

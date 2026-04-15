@@ -64,7 +64,7 @@ export const ContactPersonField = ({
           <Mail className="h-3.5 w-3.5 text-muted-foreground" />
         </div>
         <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+          <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
             {isNb ? "Kontaktperson" : "Contact person"}
           </p>
           <Input
@@ -120,7 +120,7 @@ export const ContactPersonField = ({
       </div>
       <div className="flex items-center gap-3 min-w-0 flex-1 flex-wrap">
         <div className="flex items-center gap-1">
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+          <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider">
             {isNb ? "Kontaktperson" : "Contact person"}
           </p>
           <button
@@ -134,12 +134,12 @@ export const ContactPersonField = ({
           <div className="flex items-center gap-3 text-xs flex-wrap">
             <span className="font-medium text-foreground">{contactPerson}</span>
             {contactEmail && (
-              <a href={`mailto:${contactEmail}`} className="text-primary hover:underline text-[11px]">
+              <a href={`mailto:${contactEmail}`} className="text-primary hover:underline text-[13px]">
                 {contactEmail}
               </a>
             )}
             {contactPhone && (
-              <a href={`tel:${contactPhone}`} className="text-muted-foreground hover:underline text-[11px] flex items-center gap-1">
+              <a href={`tel:${contactPhone}`} className="text-muted-foreground hover:underline text-[13px] flex items-center gap-1">
                 <Phone className="h-3 w-3" />
                 {contactPhone}
               </a>

@@ -57,7 +57,7 @@ export function ActivityDetailPanel({ activity: act }: Props) {
           </div>
           <div className="flex items-center gap-1">
             <Tag className="h-3 w-3" />
-            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
+            <Badge variant="outline" className={`text-[13px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
               {isNb ? phaseConf.nb : phaseConf.en}
             </Badge>
           </div>
@@ -88,7 +88,7 @@ export function ActivityDetailPanel({ activity: act }: Props) {
         {/* Manual badge */}
         {act.isManual && (
           <div className="pt-1">
-            <Badge variant="outline" className="text-[10px] border-dashed text-muted-foreground">
+            <Badge variant="outline" className="text-[13px] border-dashed text-muted-foreground">
               {isNb ? "Manuelt registrert" : "Manually registered"}
             </Badge>
           </div>

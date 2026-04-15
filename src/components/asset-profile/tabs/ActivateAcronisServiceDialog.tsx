@@ -100,10 +100,10 @@ export function ActivateServiceDialog({
 
             {/* ISO controls covered */}
             <div className="w-full text-left">
-              <p className="text-[10px] font-medium text-muted-foreground mb-1.5">{isNb ? "ISO 27001-kontroller som nå dekkes" : "ISO 27001 controls now covered"}</p>
+              <p className="text-[13px] font-medium text-muted-foreground mb-1.5">{isNb ? "ISO 27001-kontroller som nå dekkes" : "ISO 27001 controls now covered"}</p>
               <div className="flex gap-1.5 flex-wrap">
                 {service.linkedControls.map((ctrl) => (
-                  <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
+                  <Badge key={ctrl} variant="outline" className="text-[13px] px-1.5 py-0">{ctrl}</Badge>
                 ))}
               </div>
             </div>
@@ -192,7 +192,7 @@ export function ActivateServiceDialog({
             <p className="text-xs font-medium text-muted-foreground mb-2">{isNb ? "ISO 27001-kontroller som dekkes" : "ISO 27001 controls covered"}</p>
             <div className="flex gap-1.5 flex-wrap">
               {service.linkedControls.map((ctrl) => (
-                <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
+                <Badge key={ctrl} variant="outline" className="text-[13px] px-1.5 py-0">{ctrl}</Badge>
               ))}
             </div>
           </div>

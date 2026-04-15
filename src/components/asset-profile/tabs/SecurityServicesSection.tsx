@@ -72,7 +72,7 @@ function PartnerBanner({ partner, isOverride, onReset, isNb }: { partner: MSPPar
           )}
         </div>
       </div>
-      <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] shrink-0">
+      <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] shrink-0">
         {isOverride ? (isNb ? "Valgt for tjeneste" : "Selected for service") : (isNb ? "MSP-partner" : "MSP partner")}
       </Badge>
     </div>
@@ -81,7 +81,7 @@ function PartnerBanner({ partner, isOverride, onReset, isNb }: { partner: MSPPar
 
 function ActivationInfo({ info, isNb }: { info: ActivatedServiceInfo; isNb: boolean }) {
   return (
-    <p className="text-[10px] text-muted-foreground mt-0.5">
+    <p className="text-[13px] text-muted-foreground mt-0.5">
       {isNb ? "Aktivert av" : "Activated by"} {info.activatedBy} — {format(info.activatedAt, "d. MMM yyyy", { locale: isNb ? nb : enUS })}
     </p>
   );
@@ -117,17 +117,17 @@ function AcronisModuleCard({
         <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : isQuoteRequested ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")} />
         <div className="flex-1 min-w-0 flex items-center gap-2">
           <p className="text-xs font-medium text-foreground truncate">{module.name}</p>
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
           {active ? (
-            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[13px] gap-1">
               <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
-                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
+                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] gap-1">
                   <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
@@ -179,17 +179,17 @@ function MSPProductCard({
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0 flex items-center gap-2">
           <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
-          <span className="text-[10px] text-muted-foreground shrink-0">{product.vendor}</span>
+          <span className="text-[13px] text-muted-foreground shrink-0">{product.vendor}</span>
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
           {isActivated ? (
-            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[10px] gap-1">
+            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[13px] gap-1">
               <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
-                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[10px] gap-1">
+                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] gap-1">
                   <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
@@ -280,7 +280,7 @@ function ServiceDetailCard({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {totalActivated > 0 && (
-            <Badge variant="outline" className="text-[10px] gap-1 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+            <Badge variant="outline" className="text-[13px] gap-1 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
               <CheckCircle className="h-3 w-3" />
               {totalActivated} {isNb ? "aktive" : "active"}
             </Badge>
@@ -341,7 +341,7 @@ function ServiceDetailCard({
                       <span className="flex items-center gap-2">
                         {p.name}
                         {p.specialties.includes(service.id) && (
-                          <Badge variant="outline" className="text-[9px] px-1 py-0 ml-1">{isNb ? "Anbefalt" : "Recommended"}</Badge>
+                          <Badge variant="outline" className="text-[13px] px-1 py-0 ml-1">{isNb ? "Anbefalt" : "Recommended"}</Badge>
                         )}
                       </span>
                     </SelectItem>
@@ -357,7 +357,7 @@ function ServiceDetailCard({
           {/* Level 1: Actionable items */}
           {service.acronisModules.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Acronis</p>
+              <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">Acronis</p>
               {service.acronisModules.map((mod) => (
                 <AcronisModuleCard
                   key={mod.id}
@@ -374,7 +374,7 @@ function ServiceDetailCard({
 
           {service.mspProducts.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{isNb ? "Andre løsninger" : "Other solutions"}</p>
+              <p className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">{isNb ? "Andre løsninger" : "Other solutions"}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {service.mspProducts.map((product) => (
                   <MSPProductCard
@@ -414,7 +414,7 @@ function ServiceDetailCard({
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-medium text-muted-foreground">ISO 27001:</span>
                 {service.linkedControls.map((ctrl) => (
-                  <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">{ctrl}</Badge>
+                  <Badge key={ctrl} variant="outline" className="text-[13px] px-1.5 py-0">{ctrl}</Badge>
                 ))}
               </div>
 
@@ -428,7 +428,7 @@ function ServiceDetailCard({
                   {(isNb ? service.implementationSteps : service.implementationStepsEn).map((step, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] font-bold",
                         status === "covered"
                           ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
                           : "bg-muted text-muted-foreground"

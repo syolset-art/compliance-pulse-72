@@ -148,12 +148,12 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{system.name}</h1>
             {system.vendor && (
-              <Badge variant="secondary" className="text-[10px] shrink-0">
+              <Badge variant="secondary" className="text-[13px] shrink-0">
                 {system.vendor}
               </Badge>
             )}
             {system.status && (
-              <Badge className={`text-[10px] ${getStatusColor(system.status)} shrink-0`}>
+              <Badge className={`text-[13px] ${getStatusColor(system.status)} shrink-0`}>
                 {getStatusLabel(system.status)}
               </Badge>
             )}
@@ -212,7 +212,7 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t("trustProfile.owner")}
             </p>
             <Select value={system.work_area_id || "none"} onValueChange={handleWorkAreaChange}>
@@ -233,7 +233,7 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
             <User className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t("trustProfile.systemManager")}
             </p>
             <Select value={system.system_manager || ""} onValueChange={handleManagerChange}>

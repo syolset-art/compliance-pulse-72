@@ -137,7 +137,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
             <img src={laraButterfly} alt="Lara" className="h-5 w-5" />
             Lara Innboks
             {pendingItems.length > 0 && (
-              <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px]">{pendingItems.length} nye</Badge>
+              <Badge className="bg-primary/15 text-primary border-primary/30 text-[13px]">{pendingItems.length} nye</Badge>
             )}
           </CardTitle>
           <p className="text-xs text-muted-foreground mt-1">
@@ -172,10 +172,10 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                         <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                         <p className="text-xs">
                           <span className="font-medium">Lara foreslår:</span> Koble til <span className="font-semibold">{assetName}</span> som{" "}
-                          <Badge variant="secondary" className="text-[10px] mx-0.5">{DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}</Badge>
+                          <Badge variant="secondary" className="text-[13px] mx-0.5">{DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}</Badge>
                         </p>
                         {item.confidence_score && (
-                          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px] ml-auto flex-shrink-0">
+                          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] ml-auto flex-shrink-0">
                             {Math.round(item.confidence_score * 100)}% sikker
                           </Badge>
                         )}
@@ -212,9 +212,9 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                 <FileText className="h-4 w-4 text-muted-foreground" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium truncate">{item.file_name || item.subject}</p>
-                  <p className="text-[10px] text-muted-foreground">{item.sender_name || item.sender_email}</p>
+                  <p className="text-[13px] text-muted-foreground">{item.sender_name || item.sender_email}</p>
                 </div>
-                <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[10px] ml-auto">
+                <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[13px] ml-auto">
                   {item.status === "manually_assigned" ? "Godkjent" : "Avvist"}
                 </Badge>
               </div>
