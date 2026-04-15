@@ -360,7 +360,7 @@ export default function Tasks() {
 
           {/* Result count */}
           <p className="text-xs text-muted-foreground mb-4">
-            Viser {filteredTasks.length} av {autoTasks.length} oppgaver
+            Viser {filteredTasks.length} av {allTasks.length} oppgaver
           </p>
 
           {/* Task list */}
