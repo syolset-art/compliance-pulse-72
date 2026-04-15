@@ -4,10 +4,11 @@ import {
   Sparkles, Check, CreditCard, FileText, ArrowRight,
   CheckCircle2, Building2, Loader2, Shield, Cpu, Truck,
   Globe, Bot, ClipboardList, FolderKanban, Settings2,
-  ChevronDown, ChevronUp, Star, Info,
+  ChevronDown, ChevronUp, Star, Info, Zap,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCredits } from "@/hooks/useCredits";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
