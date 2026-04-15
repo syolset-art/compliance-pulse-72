@@ -455,8 +455,6 @@ export default function Subscriptions() {
                           className="w-full gap-2"
                           size="sm"
                           onClick={() => {
-                            // Trigger the activate dialog via navigation or direct activation
-                            const { activateService } = useActivatedServices();
                             activateService(serviceKey, "user");
                             toast.success(`${mod.displayName} aktivert! Komponenten trekker credits basert på din bruk.`);
                           }}
