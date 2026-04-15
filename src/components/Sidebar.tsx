@@ -76,7 +76,6 @@ const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
-  { name: "nav.subscriptions", href: "/subscriptions", icon: CreditCard },
 ];
 
 const TrustCenterMenu = () => {
