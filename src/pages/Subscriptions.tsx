@@ -31,6 +31,7 @@ import {
   type PlanTier, type ModuleId,
 } from "@/lib/planConstants";
 import { Settings2 } from "lucide-react";
+import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 
 // ─── Plan Comparison Cards ──────────────────────────────────────────
 
@@ -446,6 +447,7 @@ export default function Subscriptions() {
           {/* Hero heading */}
           <div>
             <h1 className="text-2xl font-bold text-foreground">Abonnement og Credits</h1>
+            <OrganizationContextBanner />
             <p className="text-sm text-muted-foreground mt-1">
               Velg pakken som passer din virksomhet — betal kun for det du bruker.
             </p>

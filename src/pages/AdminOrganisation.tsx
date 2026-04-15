@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 
 interface OrgData {
   name: string;
@@ -177,11 +178,7 @@ export default function AdminOrganisation() {
         <h1 className="text-2xl font-bold text-foreground">
           {t("nav.organisation")}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          {isNb
-            ? "Administrer personvern, informasjonssikkerhet og risikostyring for hele organisasjonen"
-            : "Manage privacy, information security and risk management for the entire organization"}
-        </p>
+        <OrganizationContextBanner />
       </div>
 
       {/* Organisation header — Trust Profile style */}
