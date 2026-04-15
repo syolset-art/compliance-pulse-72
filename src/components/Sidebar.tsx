@@ -73,14 +73,12 @@ const managementNav = [
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
+  { name: "nav.systems", href: "/systems", icon: Cloud },
 ];
 
-// Registre (Registries)
-const registriesNav = [
-  { name: "nav.vendors", href: "/vendors", icon: Building2 },
-  { name: "nav.systems", href: "/systems", icon: Cloud },
-  { name: "nav.assetsDevices", href: "/assets", icon: Package },
-];
+// Standalone module links (each activatable independently)
+const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
+const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
