@@ -142,6 +142,13 @@ export function useSubscription() {
     (subscription?.billing_interval as BillingInterval) || "monthly";
   const tierConfig = PLAN_TIERS[currentTier];
 
+  // Module access based on activated services
+  const systemsActive = isServiceActive("module-systems");
+  const vendorsActive = isServiceActive("module-vendors");
+
+  const maxSystems = systemsActive ? 70 : 5;
+  const maxVendors = vendorsActive ? 70 : 5;
+
   // Onboarding use_cases mapping
   const useCases = companyProfile?.use_cases ?? [];
   const selectedCoreAtOnboarding = useCases.some((uc: string) =>
@@ -151,13 +158,13 @@ export function useSubscription() {
     ["vendors", "security"].includes(uc)
   );
 
-  // Access: paid OR selected at onboarding (free tier still gets limited access)
-  const hasCoreAccess = currentTier !== "free" || selectedCoreAtOnboarding;
-  const hasRegistriesAccess = currentTier !== "free" || selectedRegistriesAtOnboarding;
-  const hasModule = (moduleId: "systems" | "vendors"): boolean => currentTier !== "free";
+  const hasCoreAccess = systemsActive || selectedCoreAtOnboarding;
+  const hasRegistriesAccess = vendorsActive || selectedRegistriesAtOnboarding;
+  const hasModule = (moduleId: "systems" | "vendors"): boolean =>
+    isServiceActive(`module-${moduleId}`);
 
-  // Whether user needs upgrade (on free tier, regardless of onboarding choice)
-  const needsUpgrade = (moduleId: ModuleId): boolean => currentTier === "free";
+  const needsUpgrade = (moduleId: ModuleId): boolean =>
+    !isServiceActive(`module-${moduleId}`);
 
   const isDomainIncluded = (domainId: string): boolean => {
     const planIncludes =
