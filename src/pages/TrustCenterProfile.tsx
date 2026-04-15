@@ -70,11 +70,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         if (error) throw error;
         return data;
       }
+
       const { data, error } = await supabase
         .from("assets")
         .select("*")
         .eq("asset_type", "self")
+        .order("updated_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false, nullsFirst: false })
+        .limit(1)
         .maybeSingle();
+
       if (error) throw error;
       return data;
     },
