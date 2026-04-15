@@ -69,7 +69,7 @@ export function MSPAssessmentStep({ responses, onChange }: MSPAssessmentStepProp
                 <div>
                   <p className="text-sm font-medium text-foreground">{q.question_no}</p>
                   {q.iso_reference && (
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{q.iso_reference}</p>
+                    <p className="text-[13px] text-muted-foreground mt-0.5">{q.iso_reference}</p>
                   )}
                 </div>
                 <div className="flex gap-2">

@@ -122,7 +122,7 @@ export function MSPAssessmentCard({ customerId, assessmentScore }: MSPAssessment
                     <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
                     <span className="flex-1 text-foreground">{gap.question_no}</span>
                     {impact && (
-                      <Badge variant="secondary" className="text-[10px] shrink-0">
+                      <Badge variant="secondary" className="text-[13px] shrink-0">
                         {impact.label}
                       </Badge>
                     )}
