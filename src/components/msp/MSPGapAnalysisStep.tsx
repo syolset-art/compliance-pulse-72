@@ -158,7 +158,7 @@ export function MSPGapAnalysisStep({
                       {fw.isMandatory && (
                         <Badge
                           variant="outline"
-                          className="text-[10px] border-green-500/40 text-green-700 dark:text-green-400"
+                          className="text-[13px] border-green-500/40 text-green-700 dark:text-green-400"
                         >
                           Obligatorisk
                         </Badge>

@@ -81,7 +81,7 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
     const label = isNb
       ? (impact === "high" ? "Høy" : impact === "medium" ? "Middels" : "Lav")
       : (impact === "high" ? "High" : impact === "medium" ? "Medium" : "Low");
-    return <Badge variant={variant} className="text-[9px] px-1.5 py-0">{label}</Badge>;
+    return <Badge variant={variant} className="text-[13px] px-1.5 py-0">{label}</Badge>;
   };
 
   const FactorList = ({ items, emptyMsg }: { items: InfluenceFactor[]; emptyMsg: string }) => (
@@ -135,7 +135,7 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
                 ? (riskLevel === "high" ? "Høy risiko" : riskLevel === "medium" ? "Middels risiko" : "Lav risiko")
                 : (riskLevel === "high" ? "High risk" : riskLevel === "medium" ? "Medium risk" : "Low risk")}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               {isNb ? `Basert på ${allControls.length} kontroller` : `Based on ${allControls.length} controls`}
             </p>
           </div>
@@ -150,7 +150,7 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
               <h4 className="text-xs font-semibold uppercase tracking-wider text-destructive">
                 {isNb ? "Øker risiko" : "Increases risk"}
               </h4>
-              <Badge variant="destructive" className="text-[9px] px-1.5 py-0 ml-auto">{increasing.length}</Badge>
+              <Badge variant="destructive" className="text-[13px] px-1.5 py-0 ml-auto">{increasing.length}</Badge>
             </div>
             <FactorList
               items={increasing}
@@ -165,7 +165,7 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
               <h4 className="text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">
                 {isNb ? "Reduserer risiko" : "Reduces risk"}
               </h4>
-              <Badge variant="outline" className="text-[9px] px-1.5 py-0 ml-auto text-green-600 dark:text-green-400">{decreasing.length}</Badge>
+              <Badge variant="outline" className="text-[13px] px-1.5 py-0 ml-auto text-green-600 dark:text-green-400">{decreasing.length}</Badge>
             </div>
             <FactorList
               items={decreasing}
@@ -182,7 +182,7 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
               <h4 className="text-xs font-semibold uppercase tracking-wider text-warning">
                 {isNb ? "Delvis implementert" : "Partially implemented"}
               </h4>
-              <Badge variant="warning" className="text-[9px] px-1.5 py-0 ml-auto">{neutral.length}</Badge>
+              <Badge variant="warning" className="text-[13px] px-1.5 py-0 ml-auto">{neutral.length}</Badge>
             </div>
             <FactorList
               items={neutral}

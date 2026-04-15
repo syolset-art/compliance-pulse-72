@@ -128,7 +128,7 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
               <div className="flex flex-col sm:flex-row gap-6">
                 {/* Risk Score Circle */}
                 <div className="flex flex-col items-center gap-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {isNb ? "RISIKO SCORE" : "RISK SCORE"}
                   </p>
                   <div className="relative" style={{ width: circleSize, height: circleSize }}>
@@ -163,7 +163,7 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
 
                 {/* Risk Distribution */}
                 <div className="flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                     {isNb ? "RISIKOFORDELING" : "RISK DISTRIBUTION"}
                   </p>
                   <div className="grid grid-cols-4 gap-2">
@@ -353,8 +353,8 @@ function RiskCard({
   return (
     <div className={`rounded-lg border p-3 text-center ${color}`}>
       <span className={`text-2xl font-bold ${textColor}`}>{count}</span>
-      <p className={`text-[9px] font-bold uppercase tracking-wider mt-1 ${textColor}`}>{label}</p>
-      <p className="text-[9px] text-muted-foreground mt-0.5">{sublabel}</p>
+      <p className={`text-[13px] font-bold uppercase tracking-wider mt-1 ${textColor}`}>{label}</p>
+      <p className="text-[13px] text-muted-foreground mt-0.5">{sublabel}</p>
     </div>
   );
 }

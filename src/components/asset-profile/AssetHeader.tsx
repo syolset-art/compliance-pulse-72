@@ -449,20 +449,20 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         <div className="absolute top-0 right-0 z-10">
           <div className={`${ribbonConfig.bg} ${ribbonConfig.text} pl-4 pr-3 py-1.5 rounded-bl-lg shadow-md`}>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider">{ribbonLabel}</span>
+              <span className="text-[13px] font-bold uppercase tracking-wider">{ribbonLabel}</span>
               {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
                 <>
                   <span className="w-px h-3 bg-white/40" />
                   <div className="flex items-center gap-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot}`} />
-                    <span className="text-[10px] font-medium opacity-90">{PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}</span>
+                    <span className="text-[13px] font-medium opacity-90">{PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}</span>
                   </div>
                 </>
               )}
               {!isActive && (
                 <>
                   <span className="w-px h-3 bg-white/40" />
-                  <span className="text-[10px] font-medium opacity-75">{isNb ? "Inaktiv" : "Inactive"}</span>
+                  <span className="text-[13px] font-medium opacity-75">{isNb ? "Inaktiv" : "Inactive"}</span>
                 </>
               )}
             </div>
@@ -487,7 +487,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             {/* Eier (Arbeidsområde) */}
             <div>
               <div className="flex items-center gap-1 mb-1.5">
-                <span className="text-[11px] text-muted-foreground font-medium">
+                <span className="text-[13px] text-muted-foreground font-medium">
                   {isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}
                 </span>
                 <TooltipProvider>
@@ -518,7 +518,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
             {/* Leverandøransvarlig */}
             <div>
               <div className="flex items-center gap-1 mb-1.5">
-                <span className="text-[11px] text-muted-foreground font-medium">
+                <span className="text-[13px] text-muted-foreground font-medium">
                   {isNb ? "Leverandøransvarlig" : "Vendor Manager"}
                 </span>
                 <TooltipProvider>
@@ -583,13 +583,13 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
             {isMspPartner && (
-              <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
+              <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[13px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
                 <Award className="h-3 w-3" />
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
             {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1 shrink-0">
+              <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 shrink-0">
                 <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot}`} />
                 {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
               </Badge>
@@ -603,7 +603,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {tprmIndicator[tprmLevel].emoji} {tprmIndicator[tprmLevel].label}
               </p>
               {missingDocs.length > 0 && tprmLevel !== "approved" && (
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   → {isNb ? "Mangler" : "Missing"}: {missingDocs.join(", ")}
                 </p>
               )}
@@ -702,7 +702,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               <div className="space-y-3 mt-3">
                 {standards.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                       {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -722,7 +722,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                   const hasMore = regulations.length > MAX_VISIBLE;
                   return (
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                         {isNb ? "Gjeldende regelverk" : "Regulatory Coverage"}
                       </p>
                       <div className="flex flex-wrap items-center gap-1.5">
@@ -737,7 +737,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                         {hasMore && !showAllRegulations && (
                           <button
                             onClick={() => setShowAllRegulations(true)}
-                            className="text-[11px] text-primary hover:underline font-medium ml-1"
+                            className="text-[13px] text-primary hover:underline font-medium ml-1"
                           >
                             +{regulations.length - MAX_VISIBLE} {isNb ? "mer" : "more"}
                           </button>
@@ -772,23 +772,23 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
+                  <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
                 </div>
               </div>
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
                   {conf >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
                   {conf >= 50 && conf < 80 && <AlertTriangle className="h-3 w-3 text-warning" />}
                   {conf < 50 && <XCircle className="h-3 w-3 text-muted-foreground" />}
-                  <span className={`text-[11px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>{confLabel}</span>
+                  <span className={`text-[13px] font-medium ${conf >= 80 ? "text-success" : conf >= 50 ? "text-warning" : "text-muted-foreground"}`}>{confLabel}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-2.5 w-2.5 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
+                  <span className="text-[13px] text-muted-foreground">{trustMetrics.lastUpdated}</span>
                 </div>
               </div>
-              <Badge variant="outline" className="text-[9px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
+              <Badge variant="outline" className="text-[13px] text-muted-foreground gap-1 px-2 py-0.5 h-5">
                 <ShieldCheck className="h-2.5 w-2.5" />
                 {isNb ? "Egenerklæring" : "Self-declared"}
               </Badge>
@@ -828,7 +828,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               <div className="flex items-center gap-2">
                 <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.owner")}</p>
+                  <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.owner")}</p>
                   <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
                     <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                       <SelectValue placeholder={t("trustProfile.selectOwner")} />
@@ -845,7 +845,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               <div className="flex items-center gap-2">
                 <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.systemManager")}</p>
+                  <p className="text-[13px] text-muted-foreground font-semibold uppercase tracking-wider">{t("trustProfile.systemManager")}</p>
                   <Select value={asset.asset_manager || "__none__"} onValueChange={handleManagerChange}>
                     <SelectTrigger className="h-6 w-full max-w-[200px] text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded">
                       <SelectValue placeholder={t("trustProfile.assignManager")} />

@@ -87,7 +87,7 @@ export function RecentActivityFeed() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">{item.title}</p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     {item.time
                       ? formatDistanceToNow(new Date(item.time), {
                           addSuffix: true,

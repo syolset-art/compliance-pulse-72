@@ -37,13 +37,13 @@ function getTrustLevel(score: number | null | undefined) {
 function getStatusBadge(status: string) {
   switch (status) {
     case "active":
-      return <Badge variant="default" className="bg-success text-success-foreground text-[10px]">Aktiv</Badge>;
+      return <Badge variant="default" className="bg-success text-success-foreground text-[13px]">Aktiv</Badge>;
     case "onboarding":
-      return <Badge variant="secondary" className="text-[10px]">Under onboarding</Badge>;
+      return <Badge variant="secondary" className="text-[13px]">Under onboarding</Badge>;
     case "inactive":
-      return <Badge variant="outline" className="text-[10px]">Inaktiv</Badge>;
+      return <Badge variant="outline" className="text-[13px]">Inaktiv</Badge>;
     default:
-      return <Badge variant="outline" className="text-[10px]">{status}</Badge>;
+      return <Badge variant="outline" className="text-[13px]">{status}</Badge>;
   }
 }
 
@@ -119,12 +119,12 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
 
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             {customer.industry && (
-              <Badge variant="outline" className="text-[10px]">{customer.industry}</Badge>
+              <Badge variant="outline" className="text-[13px]">{customer.industry}</Badge>
             )}
             {customer.employees && (
-              <Badge variant="outline" className="text-[10px]">{customer.employees} ansatte</Badge>
+              <Badge variant="outline" className="text-[13px]">{customer.employees} ansatte</Badge>
             )}
-            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">
+            <Badge variant="outline" className="text-[13px] border-primary/40 text-primary">
               {customer.subscription_plan || "Gratis"}
             </Badge>
           </div>
@@ -141,7 +141,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                       key={fw}
                       variant="outline"
                       className={cn(
-                        "text-[10px] gap-1 font-semibold",
+                        "text-[13px] gap-1 font-semibold",
                         nis2Urgent
                           ? "border-warning/50 text-warning bg-warning/10 animate-pulse"
                           : "border-success/40 text-success bg-success/10"
@@ -153,7 +153,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                   );
                 }
                 return (
-                  <Badge key={fw} variant="secondary" className="text-[10px]">
+                  <Badge key={fw} variant="secondary" className="text-[13px]">
                     {fw}
                   </Badge>
                 );
@@ -189,8 +189,8 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                   )}
                 </div>
               </div>
-              <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-              <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0", trust.badgeCls)}>
+              <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0", trust.badgeCls)}>
                 {trust.label}
               </Badge>
             </div>

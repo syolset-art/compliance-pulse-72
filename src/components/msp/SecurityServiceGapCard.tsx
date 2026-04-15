@@ -75,7 +75,7 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
               {service.linkedControls.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-auto">
                   {service.linkedControls.slice(0, 3).map((ctrl) => (
-                    <Badge key={ctrl} variant="outline" className="text-[10px] px-1.5 py-0">
+                    <Badge key={ctrl} variant="outline" className="text-[13px] px-1.5 py-0">
                       {ctrl}
                     </Badge>
                   ))}

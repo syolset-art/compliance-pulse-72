@@ -96,7 +96,7 @@ export const VendorControlsTab = ({ assetId }: VendorControlsTabProps) => {
                       <span className="text-sm">{isNb ? c.labelNb : c.labelEn}</span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={c.status === "implemented" ? "default" : c.status === "partial" ? "secondary" : "destructive"} className="text-[10px] px-1.5">
+                      <Badge variant={c.status === "implemented" ? "default" : c.status === "partial" ? "secondary" : "destructive"} className="text-[13px] px-1.5">
                         {c.status === "implemented" ? "OK" : c.status === "partial" ? (isNb ? "Delvis" : "Partial") : (isNb ? "Mangler" : "Missing")}
                       </Badge>
                       {c.verificationSource && (

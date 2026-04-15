@@ -170,7 +170,7 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
                           </p>
                         )}
                         {incident.category && (
-                          <Badge variant="outline" className="text-[10px] mt-1">{incident.category}</Badge>
+                          <Badge variant="outline" className="text-[13px] mt-1">{incident.category}</Badge>
                         )}
                       </div>
                     </TableCell>

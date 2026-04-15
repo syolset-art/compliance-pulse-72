@@ -112,10 +112,10 @@ export function ControlsTab({ assetId }: ControlsTabProps) {
                   <span className="text-sm font-medium">{isNb ? c.labelNb : c.labelEn}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono">
+                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono">
                     {c.area.replace("_", " ")}
                   </Badge>
-                  <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 text-primary">
+                  <Button size="sm" variant="ghost" className="h-6 text-[13px] gap-1 text-primary">
                     <Send className="h-3 w-3" />
                     {isNb ? "Be om" : "Request"}
                   </Button>
@@ -142,7 +142,7 @@ export function ControlsTab({ assetId }: ControlsTabProps) {
                   <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
                   <span className="text-sm font-medium">{isNb ? c.labelNb : c.labelEn}</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono shrink-0">
+                <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono shrink-0">
                   {c.area.replace("_", " ")}
                 </Badge>
               </div>
@@ -166,7 +166,7 @@ export function ControlsTab({ assetId }: ControlsTabProps) {
                 <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                 <span className="text-sm text-muted-foreground">{isNb ? c.labelNb : c.labelEn}</span>
               </div>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono shrink-0">
+              <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-mono shrink-0">
                 {c.area.replace("_", " ")}
               </Badge>
             </div>

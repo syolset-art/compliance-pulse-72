@@ -166,7 +166,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {openTasks.length > 0 && (
-                  <Badge className="bg-warning/15 text-warning border-warning/30 text-[10px]">
+                  <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">
                     {openTasks.length} {isNb ? "ÅPNE" : "OPEN"}
                   </Badge>
                 )}
@@ -200,12 +200,12 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
                       return (
                         <div key={task.id} className="border rounded-lg p-4 bg-card space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                            <span className="text-[13px] font-semibold uppercase tracking-wider text-primary">
                               {isManual
                                 ? (isNb ? "MANUELL OPPGAVE" : "MANUAL TASK")
                                 : (isNb ? "AUTOMATISK OPPGAVE" : "AUTO TASK")}
                             </span>
-                            <span className={`text-[10px] font-semibold uppercase tracking-wider ${priorityColor}`}>
+                            <span className={`text-[13px] font-semibold uppercase tracking-wider ${priorityColor}`}>
                               {priorityLabel}
                             </span>
                           </div>
@@ -218,7 +218,7 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
                           {task.relevant_frameworks && task.relevant_frameworks.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 pt-1">
                               {task.relevant_frameworks.map((fw: string) => (
-                                <Badge key={fw} variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-medium text-primary border-primary/30">
+                                <Badge key={fw} variant="outline" className="text-[13px] px-1.5 py-0 h-4 font-medium text-primary border-primary/30">
                                   {fw.toUpperCase()}
                                 </Badge>
                               ))}

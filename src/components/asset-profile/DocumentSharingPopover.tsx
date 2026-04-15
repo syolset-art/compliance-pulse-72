@@ -87,7 +87,7 @@ export function DocumentSharingPopover({
   // Not shareable — show locked indicator
   if (!isShareable) {
     return (
-      <div className="flex items-center gap-1 text-muted-foreground text-[10px]">
+      <div className="flex items-center gap-1 text-muted-foreground text-[13px]">
         <Lock className="h-3 w-3" />
         <span>{isNb ? "Intern" : "Internal"}</span>
       </div>
@@ -125,7 +125,7 @@ export function DocumentSharingPopover({
         <Button
           variant={display.variant}
           size="sm"
-          className="h-7 text-[10px] gap-1"
+          className="h-7 text-[13px] gap-1"
         >
           {display.icon}
           {display.label}
@@ -203,7 +203,7 @@ export function DocumentSharingPopover({
                       <Badge
                         key={email}
                         variant="secondary"
-                        className="text-[10px] gap-1 pr-1"
+                        className="text-[13px] gap-1 pr-1"
                       >
                         {email}
                         <button

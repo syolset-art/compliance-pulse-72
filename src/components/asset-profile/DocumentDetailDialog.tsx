@@ -188,14 +188,14 @@ export function DocumentDetailDialog({ open, onOpenChange, document, onRequestUp
           {/* Reference & frequency */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-muted/50 p-2.5 space-y-1">
-              <span className="text-[10px] font-semibold uppercase text-muted-foreground flex items-center gap-1">
+              <span className="text-[13px] font-semibold uppercase text-muted-foreground flex items-center gap-1">
                 <BookOpen className="h-3 w-3" />
                 {isNb ? "Referanse" : "Reference"}
               </span>
               <p className="text-xs font-medium">{info.reference}</p>
             </div>
             <div className="rounded-lg bg-muted/50 p-2.5 space-y-1">
-              <span className="text-[10px] font-semibold uppercase text-muted-foreground flex items-center gap-1">
+              <span className="text-[13px] font-semibold uppercase text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {isNb ? "Revisjonshyppighet" : "Review frequency"}
               </span>

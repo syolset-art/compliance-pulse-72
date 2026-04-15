@@ -35,9 +35,9 @@ export function DocumentRequestsSection({ assetId }: Props) {
     const due = new Date(dueDate);
     const daysLeft = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (status === "received") return { icon: CheckCircle2, color: "text-emerald-600", badge: <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">Mottatt</Badge> };
-    if (daysLeft < 0 || status === "overdue") return { icon: AlertTriangle, color: "text-destructive", badge: <Badge variant="destructive" className="text-[10px]">{Math.abs(daysLeft)} dager over frist</Badge> };
-    return { icon: Clock, color: "text-yellow-600", badge: <Badge className="bg-yellow-500/15 text-yellow-700 border-yellow-500/30 text-[10px]">{daysLeft} dager igjen</Badge> };
+    if (status === "received") return { icon: CheckCircle2, color: "text-emerald-600", badge: <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px]">Mottatt</Badge> };
+    if (daysLeft < 0 || status === "overdue") return { icon: AlertTriangle, color: "text-destructive", badge: <Badge variant="destructive" className="text-[13px]">{Math.abs(daysLeft)} dager over frist</Badge> };
+    return { icon: Clock, color: "text-yellow-600", badge: <Badge className="bg-yellow-500/15 text-yellow-700 border-yellow-500/30 text-[13px]">{daysLeft} dager igjen</Badge> };
   };
 
   const handleSendReminder = (requestId: string) => {
@@ -59,7 +59,7 @@ export function DocumentRequestsSection({ assetId }: Props) {
         <CardTitle className="text-base flex items-center gap-2">
           <Send className="h-4 w-4 text-primary" />
           {t("vendorDocs.requestsTitle", "Forespørsler og purringer")}
-          <Badge variant="secondary" className="text-[10px]">{requests.filter((r: any) => r.status !== "received").length} aktive</Badge>
+          <Badge variant="secondary" className="text-[13px]">{requests.filter((r: any) => r.status !== "received").length} aktive</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">

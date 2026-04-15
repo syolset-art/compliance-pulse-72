@@ -272,7 +272,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   <div className="flex flex-wrap items-center gap-2 mb-0.5">
                     <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{asset.name}</h1>
                     {isMspPartner && (
-                      <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[10px] gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
+                      <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[13px] gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
                         <Award className="h-3 w-3" /> Mynder Partner
                       </Badge>
                     )}
@@ -284,11 +284,11 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <p className="text-sm text-muted-foreground/70 mt-1.5 leading-relaxed max-w-xl line-clamp-2">{asset.description}</p>
                   )}
                   <div className="flex items-center gap-1.5 mt-3">
-                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[9px] gap-1">
+                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[13px] gap-1">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       {isNb ? "Verifisert av organisasjon" : "Verified by organisation"}
                     </Badge>
-                    <Badge variant="outline" className="text-[9px] gap-1 text-muted-foreground border-border">
+                    <Badge variant="outline" className="text-[13px] gap-1 text-muted-foreground border-border">
                       <Clock className="h-2.5 w-2.5" />
                       {lastUpdated}
                     </Badge>
@@ -310,12 +310,12 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                       <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>
                         {trustScore}
                       </span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{isNb ? "av" : "of"} 100</span>
+                      <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{isNb ? "av" : "of"} 100</span>
                     </div>
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-semibold text-foreground">{scoreLabel}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Trust Score</p>
+                    <p className="text-[13px] text-muted-foreground mt-0.5">Trust Score</p>
                   </div>
                 </div>
 
@@ -330,28 +330,28 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                           strokeDasharray={`${confDash} ${confCirc}`}
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums text-foreground">
+                      <span className="absolute inset-0 flex items-center justify-center text-[13px] font-bold tabular-nums text-foreground">
                         {confidenceScore}
                       </span>
                     </div>
                     <div>
-                      <p className="text-[10px] font-semibold text-foreground">{confLabel}</p>
-                      <p className="text-[9px] text-muted-foreground">{isNb ? "Verifiseringstillit" : "Verification confidence"}</p>
+                      <p className="text-[13px] font-semibold text-foreground">{confLabel}</p>
+                      <p className="text-[13px] text-muted-foreground">{isNb ? "Verifiseringstillit" : "Verification confidence"}</p>
                     </div>
                   </div>
                   {/* Control summary */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5">
                       <CheckCircle2 className="h-3 w-3 text-success" />
-                      <span className="text-[10px] text-muted-foreground">{implemented} {isNb ? "oppfylt" : "met"}</span>
+                      <span className="text-[13px] text-muted-foreground">{implemented} {isNb ? "oppfylt" : "met"}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <AlertTriangle className="h-3 w-3 text-warning" />
-                      <span className="text-[10px] text-muted-foreground">{partial} {isNb ? "delvis" : "partial"}</span>
+                      <span className="text-[13px] text-muted-foreground">{partial} {isNb ? "delvis" : "partial"}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Info className="h-3 w-3 text-muted-foreground/50" />
-                      <span className="text-[10px] text-muted-foreground">{missing} {isNb ? "mangler" : "missing"}</span>
+                      <span className="text-[13px] text-muted-foreground">{missing} {isNb ? "mangler" : "missing"}</span>
                     </div>
                   </div>
                 </div>
@@ -370,7 +370,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <Building2 className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Org.nr" : "Org no."}</p>
+                    <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Org.nr" : "Org no."}</p>
                     <p className="text-sm font-semibold text-foreground tabular-nums truncate">{asset.org_number}</p>
                   </div>
                 </div>
@@ -381,7 +381,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <Layers className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Bransje" : "Industry"}</p>
+                    <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Bransje" : "Industry"}</p>
                     <p className="text-sm font-semibold text-foreground truncate">{companyProfile.industry}</p>
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <Target className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Kategori" : "Category"}</p>
+                    <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Kategori" : "Category"}</p>
                     <p className="text-sm font-semibold text-foreground truncate">{asset.category}</p>
                   </div>
                 </div>
@@ -403,7 +403,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <Globe className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Nettside" : "Website"}</p>
+                    <p className="text-[13px] text-muted-foreground font-medium uppercase tracking-wider">{isNb ? "Nettside" : "Website"}</p>
                     <a href={asset.url.startsWith("http") ? asset.url : `https://${asset.url}`}
                       target="_blank" rel="noopener noreferrer"
                       className="text-sm font-semibold text-primary hover:underline truncate block"
@@ -424,7 +424,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Security Domains — spans 2 cols */}
             <Card className="lg:col-span-2 p-5">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-1.5">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5" />
                 {isNb ? "Sikkerhetsområder" : "Security Domains"}
               </h3>
@@ -470,7 +470,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   <div className="space-y-4 flex-1">
                     {standards.length > 0 && (
                       <div>
-                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
+                        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
                           <Award className="h-3.5 w-3.5" />
                           {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
                         </h3>
@@ -486,7 +486,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                                   <FileCheck className="h-3.5 w-3.5 shrink-0" />
                                   {fw.framework_name}
                                 </div>
-                                <div className={`flex items-center gap-1 text-[10px] ${status.cls}`}>
+                                <div className={`flex items-center gap-1 text-[13px] ${status.cls}`}>
                                   <StatusIcon className="h-3 w-3" />
                                   {status.label}
                                 </div>
@@ -498,7 +498,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     )}
                     {regulations.length > 0 && (
                       <div>
-                        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
+                        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5 flex items-center gap-1.5">
                           <FileCheck className="h-3.5 w-3.5" />
                           {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
                         </h3>
@@ -514,7 +514,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                                   <FileCheck className="h-3.5 w-3.5 shrink-0" />
                                   {fw.framework_name}
                                 </div>
-                                <div className={`flex items-center gap-1 text-[10px] ${status.cls}`}>
+                                <div className={`flex items-center gap-1 text-[13px] ${status.cls}`}>
                                   <StatusIcon className="h-3 w-3" />
                                   {status.label}
                                 </div>
@@ -537,7 +537,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
 
           {/* ── Risk Overview ── */}
           <Card className="p-5">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
               <TrendingUp className="h-3.5 w-3.5" />
               {isNb ? "Risikooversikt" : "Risk Overview"}
             </h3>
@@ -583,7 +583,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
               {/* Top risks */}
               {risks.length > 0 && (
                 <div className="flex-1 min-w-[200px] space-y-1.5 border-l border-border pl-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                  <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                     {isNb ? "Viktigste funn" : "Key findings"}
                   </p>
                   {risks.slice(0, 3).map((risk, i) => (
@@ -602,7 +602,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
           {/* ── Products & Services ── */}
           {services.length > 0 && (
             <Card className="p-5">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
                 <Package className="h-3.5 w-3.5" />
                 {isNb ? "Produkter og tjenester" : "Products & Services"}
               </h3>
@@ -619,10 +619,10 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{svc.name}</p>
                       {svc.description && (
-                        <p className="text-[10px] text-muted-foreground line-clamp-1">{svc.description}</p>
+                        <p className="text-[13px] text-muted-foreground line-clamp-1">{svc.description}</p>
                       )}
                     </div>
-                    <Badge variant={svc.asset_type === "saas" ? "default" : "secondary"} className="text-[9px] shrink-0">
+                    <Badge variant={svc.asset_type === "saas" ? "default" : "secondary"} className="text-[13px] shrink-0">
                       {svc.asset_type === "saas" ? "SaaS" : "Service"}
                     </Badge>
                   </div>
@@ -633,7 +633,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
 
 
           <Card className="p-5">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
               <Award className="h-3.5 w-3.5" />
               {isNb ? "Sertifikater og dokumentasjon" : "Certifications & Documentation"}
             </h3>
@@ -647,7 +647,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{doc.file_name}</p>
                       {doc.valid_to && (
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-[13px] text-muted-foreground">
                           {isNb ? "Gyldig til" : "Valid until"} {new Date(doc.valid_to).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                         </p>
                       )}
@@ -668,7 +668,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
 
           {/* ── Contact ── */}
           <Card className="p-5">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+            <h3 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
               {isNb ? "Kontaktpersoner" : "Key Contacts"}
             </h3>
@@ -680,7 +680,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{(companyProfile as any).dpo_name}</p>
-                    <p className="text-[10px] text-muted-foreground">{isNb ? "Personvernombud" : "Data Protection Officer"}</p>
+                    <p className="text-[13px] text-muted-foreground">{isNb ? "Personvernombud" : "Data Protection Officer"}</p>
                   </div>
                 </div>
               )}
@@ -691,7 +691,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{(companyProfile as any).compliance_officer}</p>
-                    <p className="text-[10px] text-muted-foreground">{isNb ? "Samsvarsleder" : "Compliance Officer"}</p>
+                    <p className="text-[13px] text-muted-foreground">{isNb ? "Samsvarsleder" : "Compliance Officer"}</p>
                   </div>
                 </div>
               )}
@@ -702,7 +702,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{(asset as any).contact_email}</p>
-                    <p className="text-[10px] text-muted-foreground">{isNb ? "Kontakt e-post" : "Contact email"}</p>
+                    <p className="text-[13px] text-muted-foreground">{isNb ? "Kontakt e-post" : "Contact email"}</p>
                   </div>
                 </div>
               )}
@@ -715,7 +715,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <a href={asset.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline truncate block">
                       {asset.url}
                     </a>
-                    <p className="text-[10px] text-muted-foreground">{isNb ? "Nettsted" : "Website"}</p>
+                    <p className="text-[13px] text-muted-foreground">{isNb ? "Nettsted" : "Website"}</p>
                   </div>
                 </div>
               )}
@@ -731,7 +731,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
         {/* ── Footer ── */}
         <div className="flex items-center justify-center gap-2 py-4 border-t border-border bg-muted/10">
           <Globe className="h-3 w-3 text-muted-foreground/40" />
-          <span className="text-[10px] text-muted-foreground/40 font-medium tracking-wide">
+          <span className="text-[13px] text-muted-foreground/40 font-medium tracking-wide">
             {isNb ? "Drevet av" : "Powered by"} Mynder Trust Engine
           </span>
         </div>

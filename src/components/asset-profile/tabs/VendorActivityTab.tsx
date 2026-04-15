@@ -238,11 +238,11 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   <p className="text-sm font-medium text-foreground">
                                     {isNb ? act.titleNb : act.titleEn}
                                   </p>
-                                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
+                                  <Badge variant="outline" className={`text-[13px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
                                     {isNb ? phaseConf.nb : phaseConf.en}
                                   </Badge>
                                   {act.isManual && (
-                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-dashed text-muted-foreground">
+                                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 border-dashed text-muted-foreground">
                                       {isNb ? "Manuell" : "Manual"}
                                     </Badge>
                                   )}

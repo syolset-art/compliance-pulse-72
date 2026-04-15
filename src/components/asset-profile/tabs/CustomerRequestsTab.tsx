@@ -43,11 +43,11 @@ const DEMO_REQUESTS = [
 function getStatusBadge(status: string, isNb: boolean) {
   switch (status) {
     case "responded":
-      return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px]">{isNb ? "Besvart" : "Responded"}</Badge>;
+      return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px]">{isNb ? "Besvart" : "Responded"}</Badge>;
     case "read":
-      return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[10px]">{isNb ? "Lest" : "Read"}</Badge>;
+      return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[13px]">{isNb ? "Lest" : "Read"}</Badge>;
     default:
-      return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[10px]">{isNb ? "Ny" : "New"}</Badge>;
+      return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px]">{isNb ? "Ny" : "New"}</Badge>;
   }
 }
 
@@ -124,7 +124,7 @@ export function CustomerRequestsTab() {
           <CardTitle className="text-base flex items-center gap-2">
             <FileQuestion className="h-4 w-4 text-primary" />
             {isNb ? "Mottatte meldinger" : "Received Messages"}
-            <Badge variant="secondary" className="text-[10px]">{requests.length}</Badge>
+            <Badge variant="secondary" className="text-[13px]">{requests.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -178,7 +178,7 @@ export function CustomerRequestsTab() {
                   </div>
 
                   {/* Score impact indicator */}
-                  <div className="flex items-center gap-2 pl-6 text-[11px]">
+                  <div className="flex items-center gap-2 pl-6 text-[13px]">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -198,7 +198,7 @@ export function CustomerRequestsTab() {
 
                   {/* Progress */}
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="flex items-center justify-between text-[13px] text-muted-foreground">
                       <span>{isNb ? "Fremdrift" : "Progress"}</span>
                       <span>{req.progress_percent}%</span>
                     </div>

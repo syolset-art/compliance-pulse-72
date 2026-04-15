@@ -124,12 +124,12 @@ export function RiskAndCalendarSection({ requirements }: RiskAndCalendarSectionP
                   <span className="text-xs font-bold uppercase">{q.key.toUpperCase()}</span>
                   <div className="flex items-center gap-1.5">
                     {completedCount > 0 && (
-                      <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
                         {completedCount}/{q.activities.length}
                       </span>
                     )}
                     {qi === currentQuarter && (
-                      <span className="text-[9px] font-semibold bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
+                      <span className="text-[13px] font-semibold bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
                         {isNorwegian ? "Nå" : "Now"}
                       </span>
                     )}
@@ -140,7 +140,7 @@ export function RiskAndCalendarSection({ requirements }: RiskAndCalendarSectionP
                     const status = statuses[a.statusKey] || "not_started";
                     return (
                       <li key={i} className={cn(
-                        "text-[11px] flex items-center gap-1",
+                        "text-[13px] flex items-center gap-1",
                         status === "completed"
                           ? "text-emerald-600 dark:text-emerald-400"
                           : "text-muted-foreground"

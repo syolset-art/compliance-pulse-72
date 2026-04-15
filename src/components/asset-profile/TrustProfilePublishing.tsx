@@ -128,11 +128,11 @@ export const TrustProfilePublishing = ({
         </div>
         <Switch checked={isPublished} onCheckedChange={setIsPublished} className="scale-[0.8]" />
         <div className="h-4 w-px bg-border" />
-        <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
+        <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
           <Eye className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{isNb ? "Forhåndsvis" : "Preview"}</span>
         </button>
-        <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
+        <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
           <Save className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}</span>
         </button>
@@ -143,15 +143,15 @@ export const TrustProfilePublishing = ({
         <div className="mt-2 rounded-xl border border-border bg-card/30 overflow-hidden">
           <Tabs defaultValue="link" className="w-full">
             <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-9 px-2">
-              <TabsTrigger value="link" className="text-[11px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="link" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
                 <Link2 className="h-3 w-3" />
                 {isNb ? "Del lenke" : "Share Link"}
               </TabsTrigger>
-              <TabsTrigger value="badge" className="text-[11px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="badge" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
                 <Code2 className="h-3 w-3" />
                 {isNb ? "Nettside-badge" : "Website Badge"}
               </TabsTrigger>
-              <TabsTrigger value="audience" className="text-[11px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="audience" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
                 <Share2 className="h-3 w-3" />
                 {isNb ? "Målgruppe" : "Audience"}
               </TabsTrigger>
@@ -164,7 +164,7 @@ export const TrustProfilePublishing = ({
                   <Link2 className="h-3.5 w-3.5 text-primary" />
                   {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   {isNb
                     ? "Din unike adresse — som en LinkedIn-profil for virksomhetens sikkerhet."
                     : "Your unique address — like a LinkedIn profile for your organization's security."}
@@ -179,7 +179,7 @@ export const TrustProfilePublishing = ({
                   {copiedLink ? (isNb ? "Kopiert" : "Copied") : (isNb ? "Kopier" : "Copy")}
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[13px] text-muted-foreground">
                 {isNb ? "Del denne lenken med kunder og partnere." : "Share this link with customers and partners."}
               </p>
             </TabsContent>
@@ -190,7 +190,7 @@ export const TrustProfilePublishing = ({
                 <p className="text-xs font-medium text-foreground">
                   {isNb ? "Velg en badge for nettsiden din" : "Choose a badge for your website"}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   {isNb
                     ? "Legg til en badge på nettsiden din som lenker direkte til din Trust Profile."
                     : "Add a badge to your website that links directly to your Trust Profile."}
@@ -209,7 +209,7 @@ export const TrustProfilePublishing = ({
                       Verified by Mynder
                     </span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">{isNb ? "Skjold" : "Shield"}</p>
+                  <p className="text-[13px] text-muted-foreground">{isNb ? "Skjold" : "Shield"}</p>
                 </button>
 
                 {/* Minimal badge */}
@@ -220,7 +220,7 @@ export const TrustProfilePublishing = ({
                   <div className="flex justify-center mb-2">
                     <span className="text-xs text-muted-foreground">🛡️ Trust Profile on Mynder</span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">{isNb ? "Minimal" : "Minimal"}</p>
+                  <p className="text-[13px] text-muted-foreground">{isNb ? "Minimal" : "Minimal"}</p>
                 </button>
 
                 {/* Banner badge */}
@@ -229,21 +229,21 @@ export const TrustProfilePublishing = ({
                   className={`relative rounded-lg border p-4 text-center transition-all hover:border-primary/40 ${selectedBadge === "banner" ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border"}`}
                 >
                   <div className="flex justify-center mb-2">
-                    <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-medium">
+                    <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[13px] font-medium">
                       🔒 View our Trust Profile
                     </span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Banner</p>
+                  <p className="text-[13px] text-muted-foreground">Banner</p>
                 </button>
               </div>
 
               {/* Code snippet */}
               <div className="space-y-2">
-                <p className="text-[11px] font-medium text-muted-foreground">
+                <p className="text-[13px] font-medium text-muted-foreground">
                   {isNb ? "Kopier HTML-kode:" : "Copy HTML code:"}
                 </p>
                 <div className="relative rounded-lg border border-border bg-muted/30 p-3 overflow-x-auto">
-                  <pre className="text-[10px] text-muted-foreground font-mono whitespace-pre-wrap break-all leading-relaxed">
+                  <pre className="text-[13px] text-muted-foreground font-mono whitespace-pre-wrap break-all leading-relaxed">
                     {badgeSnippets[selectedBadge]}
                   </pre>
                   <Button
@@ -278,7 +278,7 @@ export const TrustProfilePublishing = ({
               {audience === "selected" && (
                 <div className="flex flex-wrap gap-2 pl-1">
                   {customers.length === 0 ? (
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[13px] text-muted-foreground">
                       {isNb ? "Ingen kundeforespørsler funnet." : "No customer requests found."}
                     </p>
                   ) : (
