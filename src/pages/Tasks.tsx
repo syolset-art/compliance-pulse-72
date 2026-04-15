@@ -206,7 +206,9 @@ export default function Tasks() {
   const currentUser = "Maria Larsen";
 
   // Filter logic
-  const filteredTasks = autoTasks.filter((task) => {
+  const allTasks = [...manualTasks, ...autoTasks];
+
+  const filteredTasks = allTasks.filter((task) => {
     if (viewFilter === "mine" && task.assignee !== currentUser) return false;
     if (categoryFilter !== "alle" && task.category !== categoryFilter) return false;
     if (priorityFilter !== "alle" && task.priority !== priorityFilter) return false;
@@ -214,11 +216,11 @@ export default function Tasks() {
   });
 
   const counts = {
-    alle: autoTasks.length,
-    mine: autoTasks.filter((t) => t.assignee === currentUser).length,
-    system: autoTasks.filter((t) => t.category === "system").length,
-    leverandør: autoTasks.filter((t) => t.category === "leverandør").length,
-    behandling: autoTasks.filter((t) => t.category === "behandling").length,
+    alle: allTasks.length,
+    mine: allTasks.filter((t) => t.assignee === currentUser).length,
+    system: allTasks.filter((t) => t.category === "system").length,
+    leverandør: allTasks.filter((t) => t.category === "leverandør").length,
+    behandling: allTasks.filter((t) => t.category === "behandling").length,
   };
 
   const formatDate = (d: string) => {
