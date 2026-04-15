@@ -299,7 +299,16 @@ const TrustCenterEvidence = () => {
         </div>
         <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
           {getStatusBadge(doc.status, isNb, doc.approved_by)}
-          {getVisibilityIcon(doc.visibility)}
+          <button
+            className="cursor-pointer"
+            onClick={() => updateMutation.mutate({
+              id: doc.id,
+              updates: { visibility: doc.visibility === "published" ? "hidden" : "published" },
+            })}
+            title={isNb ? "Klikk for å endre synlighet" : "Click to toggle visibility"}
+          >
+            {getVisibilityBadge(doc.visibility, isNb)}
+          </button>
           {renderActionMenu(doc)}
         </div>
       </CardContent>
