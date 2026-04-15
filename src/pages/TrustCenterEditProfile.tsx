@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -51,6 +53,9 @@ const TrustCenterEditProfile = () => {
   const isNb = i18n.language === "nb";
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
+  usePageHelpListener(setHelpOpenCb);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: ["self-asset-edit"],
@@ -765,6 +770,90 @@ const TrustCenterEditProfile = () => {
           </div>
         </main>
       </div>
+
+      <ContextualHelpPanel
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Pencil}
+        title={isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
+        description={
+          isNb
+            ? "Her fyller du ut egenerklæringer for de fire kontrollområdene som utgjør din Trust Score. Jo mer komplett profilen er, desto høyere tillit kan kunder og partnere ha til organisasjonen din."
+            : "Here you fill in self-assessments for the four control areas that make up your Trust Score. The more complete the profile, the more trust customers and partners can place in your organization."
+        }
+        itemsHeading={isNb ? "Hva påvirker Trust Score?" : "What affects Trust Score?"}
+        items={[
+          {
+            icon: Building2,
+            title: isNb ? "Selskapsinformasjon" : "Company information",
+            description: isNb
+              ? "Navn, org.nr, kontaktperson og bransje må være utfylt for å kunne publisere."
+              : "Name, org number, contact person and industry must be filled to publish.",
+          },
+          {
+            icon: Shield,
+            title: isNb ? "Kontrollområder" : "Control areas",
+            description: isNb
+              ? "Hver egenerklæring i de fire områdene bidrar direkte til Trust Score."
+              : "Each self-assessment in the four areas directly contributes to the Trust Score.",
+          },
+          {
+            icon: Scale,
+            title: isNb ? "Regelverk" : "Regulations",
+            description: isNb
+              ? "Valgte rammeverk (GDPR, ISO 27001, NIS2) vises i profilen og styrker tilliten."
+              : "Selected frameworks (GDPR, ISO 27001, NIS2) are shown in the profile and strengthen trust.",
+          },
+          {
+            icon: FileText,
+            title: isNb ? "Dokumentasjon" : "Documentation",
+            description: isNb
+              ? "Opplastede policyer og sertifiseringer gir tyngde til egenerklæringene."
+              : "Uploaded policies and certifications add weight to the self-assessments.",
+          },
+        ]}
+        whyTitle={isNb ? "Readiness-indikatoren" : "The readiness indicator"}
+        whyDescription={
+          isNb
+            ? "Readiness-indikatoren øverst viser deg hvor langt du er fra å kunne publisere. Den sjekker selskapsinformasjon, kontrollområder og rammeverk. Grønn betyr klar for publisering."
+            : "The readiness indicator at the top shows how far you are from being able to publish. It checks company information, control areas, and frameworks. Green means ready to publish."
+        }
+        stepsHeading={isNb ? "Anbefalt rekkefølge" : "Recommended order"}
+        steps={[
+          { text: isNb ? "Fyll ut selskapsinformasjon (navn, org.nr, kontaktperson)" : "Fill in company info (name, org number, contact)" },
+          { text: isNb ? "Beskriv hva virksomheten leverer" : "Describe what your company delivers" },
+          { text: isNb ? "Besvar egenerklæringer i alle fire kontrollområder" : "Answer self-assessments in all four control areas" },
+          { text: isNb ? "Gå til forhåndsvisning og publiser" : "Go to preview and publish" },
+        ]}
+        actions={[
+          {
+            icon: Eye,
+            title: isNb ? "Forhåndsvis profilen" : "Preview profile",
+            description: isNb ? "Se hvordan profilen ser ut for andre" : "See how the profile looks to others",
+            onClick: () => navigate("/trust-center/profile"),
+          },
+          {
+            icon: Settings,
+            title: isNb ? "Detaljinnstillinger" : "Detail settings",
+            description: isNb ? "Avanserte innstillinger og basisdata" : "Advanced settings and base data",
+            onClick: () => navigate(`/assets/${asset?.id}`),
+          },
+        ]}
+        laraSuggestions={[
+          {
+            label: isNb ? "Hjelp meg med kontrollområdene" : "Help me with control areas",
+            message: isNb ? "Hjelp meg å forstå og fylle ut egenerklæringene i de fire kontrollområdene i Trust Profile" : "Help me understand and fill in the self-assessments in the four Trust Profile control areas",
+          },
+          {
+            label: isNb ? "Hva trengs for å publisere?" : "What's needed to publish?",
+            message: isNb ? "Hva må jeg ha på plass for å kunne publisere Trust Profilen min?" : "What do I need to have in place to publish my Trust Profile?",
+          },
+          {
+            label: isNb ? "Forbedre Trust Score" : "Improve Trust Score",
+            message: isNb ? "Gi meg konkrete tips for å forbedre Trust Score i min profil" : "Give me concrete tips to improve the Trust Score in my profile",
+          },
+        ]}
+      />
     </SidebarProvider>
   );
 };

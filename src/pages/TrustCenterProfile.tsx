@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import mynderLogo from "@/assets/mynder-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
+import { usePageHelpListener } from "@/hooks/usePageHelpListener";
+import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 
@@ -47,6 +49,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [publishStep, setPublishStep] = useState<"confirm" | "publishing" | "success">("confirm");
   const [isPublishing, setIsPublishing] = useState(false);
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
+  usePageHelpListener(setHelpOpenCb);
 
   const { data: asset, isLoading } = useQuery({
     queryKey: propAssetId ? ["asset-profile", propAssetId] : ["self-asset-profile"],
@@ -1484,6 +1489,89 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           )}
         </DialogContent>
       </Dialog>
+
+      <ContextualHelpPanel
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        icon={Shield}
+        title={isNb ? "Trust Profile" : "Trust Profile"}
+        description={
+          isNb
+            ? "Trust Profilen er din virksomhets offentlige tillitserklæring. Den samler compliance-dokumentasjon, egenerklæringer og sertifiseringer i en delbar profil som kunder, partnere og myndigheter kan bruke til due diligence."
+            : "The Trust Profile is your organization's public trust declaration. It gathers compliance documentation, self-assessments, and certifications into a shareable profile for due diligence by customers, partners, and regulators."
+        }
+        itemsHeading={isNb ? "De fire kontrollområdene" : "The four control areas"}
+        items={[
+          {
+            icon: Shield,
+            title: isNb ? "Styring og ansvar" : "Governance & Accountability",
+            description: isNb
+              ? "Ledelsesinvolvering, roller, compliance-organisering og internkontroll."
+              : "Management involvement, roles, compliance organization, and internal controls.",
+          },
+          {
+            icon: Lock,
+            title: isNb ? "Sikkerhet" : "Security",
+            description: isNb
+              ? "Tilgangsstyring, logging, hendelseshåndtering og driftssikkerhet."
+              : "Access control, logging, incident management, and operational security.",
+          },
+          {
+            icon: Globe,
+            title: isNb ? "Personvern og datahåndtering" : "Privacy & Data Handling",
+            description: isNb
+              ? "GDPR-etterlevelse, databehandleravtaler, personvernkonsekvensvurderinger og rettighetsbehandling."
+              : "GDPR compliance, data processing agreements, DPIAs, and data subject rights.",
+          },
+          {
+            icon: Layers,
+            title: isNb ? "Tredjepartstyring" : "Third-Party & Supply Chain",
+            description: isNb
+              ? "Leverandørvurdering, underbehandlere, verdikjederisiko og SLA-oppfølging."
+              : "Vendor assessment, sub-processors, supply chain risk, and SLA monitoring.",
+          },
+        ]}
+        whyTitle={isNb ? "Hvorfor publisere?" : "Why publish?"}
+        whyDescription={
+          isNb
+            ? "En publisert Trust Profile gjør det enkelt for kunder og partnere å vurdere din organisasjons modenhet uten å be om dokumentasjon manuelt. Det sparer tid og bygger tillit."
+            : "A published Trust Profile makes it easy for customers and partners to assess your organization's maturity without requesting documentation manually. It saves time and builds trust."
+        }
+        actions={[
+          {
+            icon: Pencil,
+            title: isNb ? "Rediger profilen" : "Edit profile",
+            description: isNb ? "Oppdater egenerklæringer og selskapsinformasjon" : "Update self-assessments and company information",
+            onClick: () => navigate("/trust-center/edit"),
+          },
+          {
+            icon: Share2,
+            title: isNb ? "Del profilen" : "Share profile",
+            description: isNb ? "Kopier lenke eller del med kunder og partnere" : "Copy link or share with customers and partners",
+            onClick: handleCopyLink,
+          },
+          {
+            icon: Eye,
+            title: isNb ? "Se offentlig visning" : "View public profile",
+            description: isNb ? "Se profilen slik andre ser den" : "See the profile as others see it",
+            onClick: () => navigate(`/trust/${asset?.id}`),
+          },
+        ]}
+        laraSuggestions={[
+          {
+            label: isNb ? "Hvordan forbedrer jeg Trust Score?" : "How do I improve my Trust Score?",
+            message: isNb ? "Hvordan kan jeg forbedre Trust Score i min Trust Profile?" : "How can I improve the Trust Score in my Trust Profile?",
+          },
+          {
+            label: isNb ? "Hva bør jeg publisere?" : "What should I publish?",
+            message: isNb ? "Hvilke dokumenter og kontroller bør jeg ha på plass før jeg publiserer Trust Profilen?" : "What documents and controls should I have before publishing my Trust Profile?",
+          },
+          {
+            label: isNb ? "Forklar kontrollområdene" : "Explain the control areas",
+            message: isNb ? "Forklar de fire kontrollområdene i Trust Profile og hva som vurderes i hvert område" : "Explain the four control areas in Trust Profile and what is assessed in each area",
+          },
+        ]}
+      />
     </SidebarProvider>
   );
 };
