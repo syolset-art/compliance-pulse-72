@@ -415,25 +415,53 @@ const SidebarContent = () => {
           isManagementActive,
         )}
 
-        {/* Registre — only if selected at onboarding or paid */}
-        {showRegistriesNormal && (
+        {/* Standalone modules: Leverandører & Assets */}
+        {(showVendorsNormal || showAssetsNormal) && (
           <>
             {showCoreNormal && <div className="my-2 border-b border-sidebar-border/40" />}
-            {renderCollapsibleSection(
-              t("nav.registries", "Registre"),
-              Database,
-              registriesNav,
-              registriesOpen,
-              setRegistriesOpen,
-              isRegistriesActive,
-            )}
+            {showVendorsNormal && (() => {
+              const isActive = location.pathname === vendorLink.href;
+              return (
+                <Link
+                  to={vendorLink.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    isActive
+                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  )}
+                >
+                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                  <vendorLink.icon className="h-4 w-4" />
+                  {t(vendorLink.name)}
+                </Link>
+              );
+            })()}
+            {showAssetsNormal && (() => {
+              const isActive = location.pathname === assetsLink.href;
+              return (
+                <Link
+                  to={assetsLink.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 relative",
+                    isActive
+                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  )}
+                >
+                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                  <assetsLink.icon className="h-4 w-4" />
+                  {t(assetsLink.name)}
+                </Link>
+              );
+            })()}
           </>
         )}
 
-        {/* "Flere tjenester" — for sections NOT selected at onboarding */}
+        {/* "Flere tjenester" — for modules NOT selected at onboarding */}
         {showExploreSection && (
           <>
-            {(showCoreNormal || showRegistriesNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
+            {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
             {renderCollapsibleSection(
               t("nav.moreServices", "Flere tjenester"),
               Sparkles,
