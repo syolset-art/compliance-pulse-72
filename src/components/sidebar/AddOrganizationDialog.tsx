@@ -132,6 +132,17 @@ export function AddOrganizationDialog({ open, onOpenChange }: AddOrganizationDia
           employees: selectedOrg.employees || null,
         });
         if (error) throw error;
+
+        // Also create a Trust Profile (self asset) with the same name
+        await supabase.from("assets").insert({
+          name: selectedOrg.name,
+          asset_type: "self",
+          description: `Trust Profile for ${selectedOrg.name}`,
+          lifecycle_status: "active",
+          compliance_score: 0,
+          org_number: selectedOrg.orgNumber,
+          country: "Norge",
+        });
       }
 
       queryClient.invalidateQueries();
