@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
+import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 
