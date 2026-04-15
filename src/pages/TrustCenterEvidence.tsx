@@ -275,24 +275,6 @@ const TrustCenterEvidence = () => {
           <Pencil className="h-3.5 w-3.5 mr-2" />
           {isNb ? "Rediger" : "Edit"}
         </DropdownMenuItem>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <ShieldCheck className="h-3.5 w-3.5 mr-2" />
-            {isNb ? "Endre status" : "Change status"}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            {statusOptions.map((s) => (
-              <DropdownMenuItem
-                key={s.value}
-                onClick={() => handleStatusChange(doc, s.value)}
-                className={doc.status === s.value ? "bg-accent" : ""}
-              >
-                {isNb ? s.labelNb : s.labelEn}
-                {doc.status === s.value && <CheckCircle2 className="h-3 w-3 ml-auto" />}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setDeleteDoc(doc)} className="text-destructive focus:text-destructive">
           <Trash2 className="h-3.5 w-3.5 mr-2" />
@@ -318,7 +300,7 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-          {getStatusBadge(doc.status, isNb, doc.approved_by)}
+          
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
