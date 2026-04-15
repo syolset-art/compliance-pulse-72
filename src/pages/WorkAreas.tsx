@@ -783,101 +783,48 @@ export default function WorkAreas() {
 
           {/* Selected Work Area Card */}
           {selectedWorkArea && (
-            <Card className="p-0 mb-4 sm:mb-6 overflow-hidden border-t-[3px] border-t-primary">
-              <div className="bg-muted/40 px-4 sm:px-6 pt-4 sm:pt-6 pb-4">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <div className="mb-4 sm:mb-6 rounded-lg border bg-card p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-2.5 w-2.5 rounded-full flex-shrink-0 bg-primary" />
+                  <h2 className="text-sm font-semibold text-foreground truncate">{selectedWorkArea.name}</h2>
+                  {selectedWorkArea.is_active === false ? (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Inaktiv</Badge>
+                  ) : (
+                    <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-0">Aktiv</Badge>
+                  )}
+                  <span className="hidden sm:inline text-xs text-muted-foreground">·</span>
+                  <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><Server className="h-3 w-3" />10 {t("myWorkAreas.systems").toLowerCase()}</span>
+                    <span className="flex items-center gap-1"><FileText className="h-3 w-3" />2 {t("myWorkAreas.processes").toLowerCase()}</span>
+                    <span className="flex items-center gap-1"><UsersIcon className="h-3 w-3" />3 medlemmer</span>
                   </div>
-                    <div className="space-y-1">
-                     <div className="flex items-center gap-2">
-                       <h2 className="text-lg sm:text-xl font-semibold text-foreground">{selectedWorkArea.name}</h2>
-                       {selectedWorkArea.is_active === false ? (
-                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
-                           Inaktiv
-                         </span>
-                       ) : (
-                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
-                           Aktiv
-                         </span>
-                       )}
-                     </div>
-                     {selectedWorkArea.responsible_person && (
-                       <p className="text-xs text-muted-foreground">Arbeidsområdeansvarlig: {selectedWorkArea.responsible_person}</p>
-                     )}
-                   </div>
+                  <span className="hidden sm:inline text-xs text-muted-foreground">·</span>
+                  <Badge variant="outline" className="hidden sm:inline-flex text-[10px] px-1.5 py-0 bg-warning/10 text-warning border-warning/20">
+                    <AlertCircle className="h-2.5 w-2.5 mr-0.5" />
+                    {t("myWorkAreas.riskMedium")}
+                  </Badge>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span>2 {t("myWorkAreas.processes").toLowerCase()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span>3 medlemmer</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Server className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span>10 {t("myWorkAreas.systems").toLowerCase()}</span>
-                  </div>
-                </div>
+                {selectedWorkArea.responsible_person && (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {selectedWorkArea.responsible_person}
+                  </p>
+                )}
               </div>
-              </div>
-              <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4">
-
               {selectedWorkArea.description && (
-                <p className="text-xs sm:text-sm text-muted-foreground mb-4">{selectedWorkArea.description}</p>
+                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">{selectedWorkArea.description}</p>
               )}
-
-              <div className="space-y-2" role="region" aria-label="Risikonivå">
-                <div className="flex items-center gap-2 text-xs sm:text-sm">
-                  <span className="text-muted-foreground">{t("myWorkAreas.risk")}</span>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground cursor-help" aria-hidden="true" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs text-xs" role="tooltip">
-                        Risikonivået beregnes basert på systemene, prosessene og leverandørene i arbeidsområdet, og gir en samlet oversikt over sikkerhets- og personvernsrisiko.
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-muted rounded-full h-2" role="progressbar" aria-valuenow={50} aria-valuemin={0} aria-valuemax={100} aria-label="Risikonivå: middels">
-                    <div 
-                      className="h-2 rounded-full"
-                      style={{ 
-                        width: '50%',
-                        background: 'linear-gradient(90deg, hsl(var(--success)) 0%, hsl(var(--warning)) 50%, hsl(var(--destructive)) 100%)'
-                      }} 
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-warning">{t("myWorkAreas.riskMedium")}</span>
-                </div>
-                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20 text-xs">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {t("myWorkAreas.highCriticality")}
+              {/* Mobile stats */}
+              <div className="flex sm:hidden items-center gap-3 text-xs text-muted-foreground mt-2">
+                <span className="flex items-center gap-1"><Server className="h-3 w-3" />10</span>
+                <span className="flex items-center gap-1"><FileText className="h-3 w-3" />2</span>
+                <span className="flex items-center gap-1"><UsersIcon className="h-3 w-3" />3</span>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-warning/10 text-warning border-warning/20">
+                  <AlertCircle className="h-2.5 w-2.5 mr-0.5" />
+                  {t("myWorkAreas.riskMedium")}
                 </Badge>
               </div>
-
-              {/* Carousel Dots */}
-              <div className="flex items-center justify-center gap-1 mt-4">
-                {[...Array(10)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentSlide(i)}
-                    aria-label={`Gå til lysbilde ${i + 1}`}
-                    className={cn(
-                      "h-1.5 rounded-full transition-all",
-                      i === currentSlide ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
-                    )}
-                  />
-                ))}
-              </div>
-              </div>
-            </Card>
+            </div>
           )}
 
           {/* Tabs Section */}
