@@ -98,7 +98,9 @@ const TrustCenterEvidence = () => {
         .from("assets")
         .select("id")
         .eq("asset_type", "self")
-        .maybeSingle();
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .single();
       return data;
     },
   });
