@@ -44,8 +44,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
-import { AddOrganizationDialog } from "@/components/sidebar/AddOrganizationDialog";
-import { Plus } from "lucide-react";
+import { OrganizationSwitcher } from "@/components/sidebar/OrganizationSwitcher";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 // Top-level dashboard link (single)
 const dashboardNav = [
@@ -202,11 +202,11 @@ const SidebarContent = () => {
   // "Flere tjenester" collects anything not shown normally
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
-  const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
+  const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
-  const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [addOrgOpen, setAddOrgOpen] = useState(false);
+  const { activeOrg } = useActiveOrganization();
+  const companyName = activeOrg?.name || null;
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
@@ -235,20 +235,6 @@ const SidebarContent = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchCompany = async () => {
-      const { data } = await supabase
-        .from("company_profile")
-        .select("name")
-        .limit(1)
-        .maybeSingle();
-      
-      if (data?.name) {
-        setCompanyName(data.name);
-      }
-    };
-    fetchCompany();
-  }, []);
 
   // Render a collapsible section with sub-items
   const renderCollapsibleSection = (
