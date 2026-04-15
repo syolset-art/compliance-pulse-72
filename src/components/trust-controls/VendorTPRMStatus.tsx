@@ -124,7 +124,50 @@ export const VendorTPRMStatus = ({
   const [uploadTargetTaskId, setUploadTargetTaskId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const allDemoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
+  // ── Upload mutation for inline evidence ──
+  const uploadEvidenceMutation = useMutation({
+    mutationFn: async ({ file, docType, controlKey }: { file: File; docType: string; controlKey: string }) => {
+      const filePath = `${assetId}/${Date.now()}_${file.name}`;
+      try {
+        await supabase.storage.from("vendor-documents").upload(filePath, file);
+      } catch (_) { /* continue in demo */ }
+
+      const { error: dbError } = await supabase.from("vendor_documents").insert({
+        asset_id: assetId,
+        file_name: file.name,
+        file_path: filePath,
+        document_type: docType,
+        source: "internal",
+        status: "valid",
+      });
+      if (dbError) throw dbError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents-tprm", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents-count", assetId] });
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents-checklist", assetId] });
+      toast.success(isNb ? "Dokumentasjon lastet opp" : "Documentation uploaded");
+      setExpandedTaskId(null);
+      setUploadTargetTaskId(null);
+    },
+    onError: () => {
+      toast.error(isNb ? "Kunne ikke laste opp" : "Upload failed");
+      setUploadTargetTaskId(null);
+    },
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && uploadTargetTaskId) {
+      const task = openTasks.find(t => t.id === uploadTargetTaskId);
+      const controlKey = task?.id.replace("ctrl-", "") || "";
+      const docType = DOC_TYPE_MAP[controlKey] || "other";
+      uploadEvidenceMutation.mutate({ file, docType, controlKey });
+    }
+    e.target.value = "";
+  };
+
   const pendingActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus === "warning"), [allDemoActivities]);
   const completedActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus !== "warning").slice(0, 3), [allDemoActivities]);
 
