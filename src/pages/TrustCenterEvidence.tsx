@@ -125,12 +125,12 @@ const TrustCenterEvidence = () => {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
-            {isNb ? "Dokumentasjon & Evidens" : "Documentation & Evidence"}
+            {isNb ? "Dokumentasjon og bevis" : "Documentation and Evidence"}
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
             {isNb
-              ? "Samlet oversikt over retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance."
-              : "Overview of policies, certifications and documents supporting your organization's compliance."}
+              ? "Her samler du alle retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance. Dokumentene fungerer som bevis for kontrollene i din Trust Profile og påvirker Trust Score direkte."
+              : "Collect all policies, certifications and documents that support your organization's compliance. Documents serve as evidence for the controls in your Trust Profile and directly impact your Trust Score."}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
