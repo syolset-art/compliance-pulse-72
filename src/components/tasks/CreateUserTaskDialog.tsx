@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -34,12 +36,15 @@ interface CreateUserTaskDialogProps {
 }
 
 export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDialogProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [assignee, setAssignee] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assetId, setAssetId] = useState("");
+  const [titleError, setTitleError] = useState(false);
 
   const { data: assets = [] } = useQuery({
     queryKey: ["assets-for-tasks"],
@@ -54,7 +59,7 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      toast({ title: "Feil", description: "Aktivitetstittel er påkrevd.", variant: "destructive" });
+      setTitleError(true);
       return;
     }
     onSubmit({
@@ -69,8 +74,12 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
     setAssignee("");
     setDueDate("");
     setAssetId("");
+    setTitleError(false);
     setOpen(false);
-    toast({ title: "Aktivitet opprettet", description: "Den nye aktiviteten er lagt til." });
+    toast({
+      title: isNb ? "Aktivitet opprettet" : "Activity created",
+      description: isNb ? "Den nye aktiviteten er lagt til." : "The new activity has been added.",
+    });
   };
 
   return (
@@ -78,29 +87,39 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
       <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Plus className="h-4 w-4" />
-          Ny aktivitet
+          {isNb ? "Ny aktivitet" : "New activity"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Opprett ny aktivitet</DialogTitle>
+          <DialogTitle>{isNb ? "Opprett ny aktivitet" : "Create new activity"}</DialogTitle>
+          <DialogDescription>
+            {isNb ? "Fyll inn detaljer for den nye aktiviteten." : "Fill in details for the new activity."}
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="task-title">Aktivitet *</Label>
+            <Label htmlFor="task-title">{isNb ? "Aktivitet" : "Activity"} *</Label>
             <Input
               id="task-title"
-              placeholder="Hva skal gjøres?"
+              aria-required="true"
+              aria-invalid={titleError}
+              placeholder={isNb ? "Hva skal gjøres?" : "What needs to be done?"}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); if (titleError) setTitleError(false); }}
             />
+            {titleError && (
+              <p role="alert" className="text-xs text-destructive">
+                {isNb ? "Aktivitetstittel er påkrevd." : "Activity title is required."}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="task-desc">Beskrivelse</Label>
+            <Label htmlFor="task-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
             <Textarea
               id="task-desc"
-              placeholder="Legg til detaljer..."
+              placeholder={isNb ? "Legg til detaljer..." : "Add details..."}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -109,16 +128,16 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="task-assignee">Ansvarlig</Label>
+              <Label htmlFor="task-assignee">{isNb ? "Ansvarlig" : "Assignee"}</Label>
               <Input
                 id="task-assignee"
-                placeholder="Navn"
+                placeholder={isNb ? "Navn" : "Name"}
                 value={assignee}
                 onChange={(e) => setAssignee(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-due">Frist</Label>
+              <Label htmlFor="task-due">{isNb ? "Frist" : "Due date"}</Label>
               <Input
                 id="task-due"
                 type="date"
@@ -129,10 +148,10 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
           </div>
 
           <div className="space-y-2">
-            <Label>Koble til eiendel</Label>
+            <Label htmlFor="task-asset">{isNb ? "Koble til eiendel" : "Link to asset"}</Label>
             <Select value={assetId} onValueChange={setAssetId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Velg eiendel (valgfritt)" />
+              <SelectTrigger id="task-asset">
+                <SelectValue placeholder={isNb ? "Velg eiendel (valgfritt)" : "Select asset (optional)"} />
               </SelectTrigger>
               <SelectContent>
                 {assets.map((asset) => (
@@ -144,10 +163,10 @@ export function CreateUserTaskDialog({ onSubmit, isLoading }: CreateUserTaskDial
             </Select>
           </div>
 
-          <Button onClick={handleSubmit} disabled={isLoading} className="w-full">
-            Opprett aktivitet
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isNb ? "Opprett aktivitet" : "Create activity"}
           </Button>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
