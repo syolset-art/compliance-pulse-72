@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { NavigationModeProvider } from "@/hooks/useNavigationMode";
+import { ActiveOrganizationProvider } from "@/contexts/ActiveOrganizationContext";
 import { GlobalChatProvider } from "@/components/GlobalChatProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
@@ -87,6 +88,7 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <BrowserRouter>
         <AuthProvider>
+          <ActiveOrganizationProvider>
           <NavigationModeProvider>
             <TooltipProvider>
               <Toaster />
@@ -172,6 +174,7 @@ const App = () => (
               </GlobalChatProvider>
             </TooltipProvider>
           </NavigationModeProvider>
+          </ActiveOrganizationProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

@@ -44,8 +44,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
-import { AddOrganizationDialog } from "@/components/sidebar/AddOrganizationDialog";
-import { Plus } from "lucide-react";
+import { OrganizationSwitcher } from "@/components/sidebar/OrganizationSwitcher";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 // Top-level dashboard link (single)
 const dashboardNav = [
@@ -202,11 +202,11 @@ const SidebarContent = () => {
   // "Flere tjenester" collects anything not shown normally
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
-  const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-"));
+  const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
-  const [companyName, setCompanyName] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [addOrgOpen, setAddOrgOpen] = useState(false);
+  const { activeOrg } = useActiveOrganization();
+  const companyName = activeOrg?.name || null;
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href);
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
@@ -235,20 +235,6 @@ const SidebarContent = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchCompany = async () => {
-      const { data } = await supabase
-        .from("company_profile")
-        .select("name")
-        .limit(1)
-        .maybeSingle();
-      
-      if (data?.name) {
-        setCompanyName(data.name);
-      }
-    };
-    fetchCompany();
-  }, []);
 
   // Render a collapsible section with sub-items
   const renderCollapsibleSection = (
@@ -521,25 +507,21 @@ const SidebarContent = () => {
 
       {/* Company section at bottom */}
       <div className="border-t border-sidebar-border">
+        {/* Organization switcher */}
+        <OrganizationSwitcher />
+
         {companyName ? (
-          <div className="p-3">
+          <div className="px-3 pb-3">
             <button 
               onClick={() => setCompanyOpen(!companyOpen)}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 hover:bg-sidebar-accent transition-colors"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
             >
-              <div className="flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-sidebar-foreground/70" />
-                <p className="text-sm font-medium text-sidebar-foreground truncate max-w-[140px]">
-                  {companyName}
-                </p>
-              </div>
+              <span>{isNb ? "Innstillinger" : "Settings"}</span>
               <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/60 transition-transform", companyOpen && "rotate-180")} />
             </button>
 
-            {/* Company submenu */}
             {companyOpen && (
-              <div className="mt-2 ml-2 space-y-1 animate-fade-in">
-                {/* Company settings */}
+              <div className="mt-1 ml-2 space-y-1 animate-fade-in">
                 {settingsMenu.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
@@ -559,14 +541,6 @@ const SidebarContent = () => {
                   );
                 })}
                 <CreditMenuItem />
-                {/* Legg til virksomhet */}
-                <button
-                  onClick={() => setAddOrgOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Legg til virksomhet
-                </button>
                 <div className="border-t border-sidebar-border my-2" />
                 {/* Partner submenu */}
                 <button
@@ -636,7 +610,6 @@ const SidebarContent = () => {
           </div>
         )}
       </div>
-      <AddOrganizationDialog open={addOrgOpen} onOpenChange={setAddOrgOpen} />
     </>
   );
 };
