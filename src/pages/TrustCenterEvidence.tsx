@@ -343,63 +343,46 @@ const TrustCenterEvidence = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="policies" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
-          <TabsTrigger value="policies">
-            {isNb ? "Retningslinjer" : "Policies"}
-            {policies.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{policies.length}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="certifications">
-            {isNb ? "Sertifiseringer" : "Certifications"}
-            {certifications.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{certifications.length}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="documents">
-            {isNb ? "Dokumenter" : "Documents"}
-            {documents.length > 0 && <Badge variant="secondary" className="ml-1.5 text-[13px] px-1.5">{documents.length}</Badge>}
-          </TabsTrigger>
-        </TabsList>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <>
-            <TabsContent value="policies" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Organisasjonens retningslinjer og policyer." : "Organization policies and guidelines."}
-              </p>
-              {policies.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen retningslinjer registrert ennå." : "No policies registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="certifications" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Sertifiseringer, attester og godkjenninger." : "Certifications, attestations and approvals."}
-              </p>
-              {certifications.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen sertifiseringer registrert ennå." : "No certifications registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="documents" className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {isNb ? "Generelle dokumenter, avtaler og bevis." : "General documents, agreements and evidence."}
-              </p>
-              {documents.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
-              ) : (
-                <div className="space-y-3">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
-              )}
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : vendorDocs.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-12 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
+      ) : (
+        <div className="space-y-8">
+          {policies.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                {isNb ? "Retningslinjer" : "Policies"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{policies.length}</Badge>
+              </h2>
+              <div className="space-y-2">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+          {certifications.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <Award className="h-4 w-4" />
+                {isNb ? "Sertifiseringer" : "Certifications"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{certifications.length}</Badge>
+              </h2>
+              <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+          {documents.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <FolderOpen className="h-4 w-4" />
+                {isNb ? "Dokumenter" : "Documents"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
+              </h2>
+              <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
+        </div>
+      )}
 
       {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
 
