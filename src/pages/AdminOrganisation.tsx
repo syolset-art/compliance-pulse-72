@@ -56,6 +56,7 @@ export default function AdminOrganisation() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const isNb = i18n.language === "nb";
+  const { isServiceActive } = useActivatedServices();
 
   const [org, setOrg] = useState<OrgData | null>(null);
   const [loading, setLoading] = useState(true);
