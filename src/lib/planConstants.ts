@@ -41,8 +41,8 @@ export const MODULES: Record<ModuleId, ModuleDefinition> = {
     id: "systems",
     displayName: "Mynder Core",
     description: "Kjerneplattformen med systemer, arbeidsområder, oppgaver, risikovurdering og compliance-oversikt",
-    monthlyPriceKr: 490,
-    yearlyPriceKr: 4900,
+    monthlyPriceKr: 4900,
+    yearlyPriceKr: 49000,
     bonusCredits: 50,
     freeLimit: 5,
     paidLimit: 70,
@@ -59,8 +59,8 @@ export const MODULES: Record<ModuleId, ModuleDefinition> = {
     id: "vendors",
     displayName: "Leverandørstyring",
     description: "Komplett leverandørstyring med DPA-sporing, risikoanalyse, compliance-scoring og varsler",
-    monthlyPriceKr: 490,
-    yearlyPriceKr: 4900,
+    monthlyPriceKr: 4900,
+    yearlyPriceKr: 49000,
     bonusCredits: 50,
     freeLimit: 5,
     paidLimit: 70,
@@ -87,6 +87,7 @@ export interface PlanDefinition {
   includesWorkAreas: boolean;
   prioritySupport: boolean;
   monthlyCredits: number;
+  includedModules: ModuleId[];
 }
 
 export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
@@ -100,28 +101,31 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     includesWorkAreas: false,
     prioritySupport: false,
     monthlyCredits: 10,
+    includedModules: [],
   },
   basis: {
     id: "basis",
     displayName: "Basis",
     maxSystems: 20,
     maxVendors: 20,
-    monthly: 1490,
-    yearly: 14900,
+    monthly: 4900,
+    yearly: 49000,
     includesWorkAreas: true,
     prioritySupport: false,
     monthlyCredits: 100,
+    includedModules: ["systems"],
   },
   premium: {
     id: "premium",
-    displayName: "Premium",
+    displayName: "Pro",
     maxSystems: 70,
     maxVendors: 70,
-    monthly: 2490,
-    yearly: 24900,
+    monthly: 8900,
+    yearly: 89000,
     includesWorkAreas: true,
     prioritySupport: true,
     monthlyCredits: 300,
+    includedModules: ["systems", "vendors"],
   },
   enterprise: {
     id: "enterprise",
@@ -133,6 +137,7 @@ export const PLAN_TIERS: Record<PlanTier, PlanDefinition> = {
     includesWorkAreas: true,
     prioritySupport: true,
     monthlyCredits: 999999,
+    includedModules: ["systems", "vendors"],
   },
 };
 
