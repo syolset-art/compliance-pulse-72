@@ -272,13 +272,13 @@ export default function Tasks() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-foreground">{t("nav.tasks")}</h1>
               <Badge variant="secondary" className="text-xs">
-                {autoTasks.filter((t) => t.status !== "fullført").length} åpne
+                {allTasks.filter((t) => t.status !== "fullført").length} åpne
               </Badge>
             </div>
             <Button
-              variant="outline"
               size="sm"
               className="gap-2 w-full sm:w-auto"
+              onClick={() => setIsCreateOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Opprett oppgave
