@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
-  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle,
+  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -84,7 +84,6 @@ export function TopBar() {
     toast.success(lng === "en" ? "Language set to English" : "Språk satt til Norsk (Bokmål)");
   };
 
-  const initials = user?.email?.substring(0, 2).toUpperCase() || "??";
   const currentRoleLabel = AVAILABLE_ROLES.find((r) => r.key === activeRole);
 
   return (
@@ -122,7 +121,7 @@ export function TopBar() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="ml-1 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:ring-2 hover:ring-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/40">
-            <span className="text-xs font-semibold text-primary">{initials}</span>
+            <User className="h-4 w-4 text-primary" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
