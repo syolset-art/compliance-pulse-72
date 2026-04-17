@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Trash2, Sparkles, ShieldCheck, ScrollText } from "lucide-react";
+import { Trash2, Sparkles, ShieldCheck, ScrollText, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,9 +51,10 @@ export function DeletionAgentPromoCard({ onActivate }: DeletionAgentPromoCardPro
               </h3>
             </div>
           </div>
-          <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-            490 kr/{isNb ? "mnd" : "mo"}
-          </span>
+          <Badge variant="outline" className="text-[11px] border-primary/30 text-primary gap-1 whitespace-nowrap">
+            <CheckCircle2 className="h-2.5 w-2.5" />
+            {isNb ? "Inkludert i Profesjonell" : "Included in Professional"}
+          </Badge>
         </div>
 
         <p className="text-xs text-muted-foreground mb-3">
@@ -88,8 +90,8 @@ export function DeletionAgentPromoCard({ onActivate }: DeletionAgentPromoCardPro
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isNb
-                ? "Agenten vil overvåke lagringsfrister og utføre sletting automatisk. Du kan godkjenne hver sletting manuelt. Pris: 490 kr/mnd."
-                : "The agent will monitor retention deadlines and perform deletions automatically. You can approve each deletion manually. Price: 490 kr/mo."}
+                ? "Agenten vil overvåke lagringsfrister og utføre sletting automatisk. Du kan godkjenne hver sletting manuelt. Inkludert i din Profesjonell-plan."
+                : "The agent will monitor retention deadlines and perform deletions automatically. You can approve each deletion manually. Included in your Professional plan."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
