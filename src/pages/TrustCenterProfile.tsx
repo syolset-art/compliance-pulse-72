@@ -404,9 +404,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
             {/* Control areas */}
             <section>
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-base font-semibold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-base font-semibold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[13px] text-muted-foreground">{isNb ? "Trust Score" : "Trust Score"}</span>
+                  <span className={`text-lg font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
+                  <span className="text-[13px] text-muted-foreground">/100</span>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
