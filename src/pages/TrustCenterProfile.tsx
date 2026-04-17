@@ -477,6 +477,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {[
                   { key: "policies", icon: FileText, label: "Policies", count: docsCount, color: "text-primary", items: policies },
                   { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500", items: certs },
+                  { key: "datahandling", icon: Eye, label: isNb ? "Datahåndtering" : "Data handling", count: 0, color: "text-primary", items: [] as any[] },
+                  { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: 0, color: "text-primary", items: [] as any[] },
                 ].map(item => (
                   <div key={item.key}>
                     <button
