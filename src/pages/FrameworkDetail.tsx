@@ -138,15 +138,15 @@ const FrameworkDetailPage = () => {
           {/* Summary bar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-bold text-foreground">Krav og evaluatorer</h2>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">{counts.total} krav totalt</span>
               <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-200 dark:border-emerald-800">
                 <Bot className="h-3 w-3" />
-                {counts.auto} AUTOMATISK
+                {counts.auto} Auto
               </Badge>
               <Badge variant="outline" className="gap-1 text-muted-foreground">
                 <Users className="h-3 w-3" />
-                {counts.manual} MANUELL
+                {counts.manual} Manuell
               </Badge>
             </div>
           </div>
