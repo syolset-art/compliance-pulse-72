@@ -43,10 +43,25 @@ function generateDemoStates(requirements: ComplianceRequirement[]): Record<strin
   return states;
 }
 
-const capabilityLabel: Record<AgentCapability, { label: string; color: string; tooltip: string }> = {
-  full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400", tooltip: "Plattformen verifiserer og fyller ut dette kravet automatisk basert på data og handlinger i systemet." },
-  assisted: { label: "ASSISTERT", color: "text-amber-600 dark:text-amber-400", tooltip: "Lara AI forbereder et utkast eller forslag som du gjennomgår og godkjenner." },
-  manual: { label: "MANUELL", color: "text-muted-foreground", tooltip: "Dette kravet må dokumenteres og bekreftes manuelt av en person." },
+const capabilityLabel: Record<AgentCapability, { label: string; tooltip: string; instruction: string; icon: typeof Bot }> = {
+  full: {
+    label: "Auto",
+    tooltip: "Plattformen verifiserer og fyller ut dette kravet automatisk basert på data og handlinger i systemet.",
+    instruction: "Plattformen henter dette automatisk — ingen handling kreves fra deg.",
+    icon: Bot,
+  },
+  assisted: {
+    label: "Assistert",
+    tooltip: "Lara AI forbereder et utkast eller forslag som du gjennomgår og godkjenner.",
+    instruction: "Lara forbereder et utkast. Du gjennomgår og godkjenner.",
+    icon: Bot,
+  },
+  manual: {
+    label: "Manuell",
+    tooltip: "Dette kravet må dokumenteres og bekreftes manuelt av en person.",
+    instruction: "Last opp et dokument eller skriv en kort beskrivelse av hvordan kravet er oppfylt.",
+    icon: Users,
+  },
 };
 
 interface FrameworkRequirementsListProps {
