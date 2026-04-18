@@ -169,6 +169,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const state = reqStates[req.requirement_id] || { status: "not_met", progress: 0 };
           const isExpanded = expandedId === req.requirement_id;
           const cap = capabilityLabel[req.agent_capability];
+          const CapIcon = cap.icon;
 
           return (
             <div
@@ -178,9 +179,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             >
               <button
                 onClick={() => setExpandedId(isExpanded ? null : req.requirement_id)}
+                aria-expanded={isExpanded}
                 className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
               >
-                <div className="mt-0.5 shrink-0">
+                <div className="mt-1 shrink-0">
                   {state.status === "met" ? (
                     <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                   ) : state.status === "partial" ? (
@@ -190,22 +192,24 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <span className="text-xs font-mono text-muted-foreground">{req.requirement_id}</span>
-                    <span className="font-semibold text-sm text-foreground">{req.name_no}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{req.description_no}</p>
+                  <h4 className="text-base font-semibold text-foreground leading-snug">
+                    {req.name_no}
+                  </h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-3 shrink-0 mt-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={`text-[13px] font-bold tracking-wider cursor-help ${cap.color}`}>{cap.label}</span>
+                      <Badge variant="outline" className="gap-1.5 text-xs font-medium cursor-help">
+                        <CapIcon className="h-3 w-3" />
+                        {cap.label}
+                      </Badge>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-[220px]">
+                    <TooltipContent side="top" className="max-w-[240px]">
                       <p className="text-xs">{cap.tooltip}</p>
                     </TooltipContent>
                   </Tooltip>
-                  <span className={`text-xs font-semibold ${
+                  <span className={`text-sm font-semibold tabular-nums ${
                     state.progress === 100 ? "text-emerald-600" : state.progress > 0 ? "text-amber-600" : "text-muted-foreground"
                   }`}>
                     {state.progress}%
@@ -217,22 +221,25 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               {isExpanded && (
                 <div className="px-4 pb-4">
                   <Separator className="mb-4" />
-                  <div className="space-y-3">
-                    <p className={`text-sm font-medium ${
+                  <div className="space-y-4">
+                    <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
+
+                    <p className={`text-base font-semibold ${
                       state.status === "met" ? "text-emerald-600" : state.status === "partial" ? "text-amber-600" : "text-destructive"
                     }`}>
-                      {state.status === "met" ? "Oppfylt" : state.status === "partial" ? "Delvis oppfylt" : "Ikke oppfylt"}
+                      Status: {state.status === "met" ? "Oppfylt" : state.status === "partial" ? "Delvis oppfylt" : "Ikke oppfylt"}
                     </p>
+
+                    {state.status !== "met" && (
+                      <div className="p-3 rounded-lg bg-muted/40 border">
+                        <p className="text-sm font-semibold text-foreground mb-1">Hva må gjøres?</p>
+                        <p className="text-sm text-muted-foreground">{cap.instruction}</p>
+                      </div>
+                    )}
 
                     {/* Inline note for partial status */}
                     {state.status === "partial" && (
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                          <CircleAlert className="h-4 w-4 text-amber-500 shrink-0" />
-                          <span className="text-sm text-amber-700 dark:text-amber-400">
-                            Delvis oppfylt — legg til et notat om hva som gjenstår.
-                          </span>
-                        </div>
                         {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
                           <div className="p-3 rounded-lg bg-muted/50 border">
                             <div className="flex items-start justify-between gap-2">
@@ -257,7 +264,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         ) : (
                           <div className="space-y-2">
                             <Textarea
-                              value={editingNoteId === req.requirement_id ? draftNote : draftNote}
+                              value={draftNote}
                               onChange={(e) => setDraftNote(e.target.value)}
                               placeholder="Legg til notat om hva som gjenstår..."
                               className="min-h-[80px] text-sm"
@@ -296,7 +303,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
                       >
                         <Users className="h-4 w-4" />
-                        Dokumenter manuelt
+                        Dokumenter dette kravet
                       </Button>
                     )}
                     {state.status === "met" && (
@@ -307,6 +314,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         </span>
                       </div>
                     )}
+
+                    <p className="text-xs text-muted-foreground pt-2 border-t">
+                      Referanse: <span className="font-mono">{req.requirement_id}</span>
+                    </p>
                   </div>
                 </div>
               )}
