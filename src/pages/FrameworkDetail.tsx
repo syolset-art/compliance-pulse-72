@@ -48,10 +48,22 @@ function generateDemoStates(requirements: ComplianceRequirement[]): Record<strin
   return states;
 }
 
-const capabilityLabel: Record<AgentCapability, { label: string; color: string }> = {
-  full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400" },
-  assisted: { label: "HYBRID", color: "text-amber-600 dark:text-amber-400" },
-  manual: { label: "MANUELL", color: "text-muted-foreground" },
+const capabilityLabel: Record<AgentCapability, { label: string; instruction: string; icon: typeof Bot }> = {
+  full: {
+    label: "Auto",
+    instruction: "Plattformen henter dette automatisk — ingen handling kreves.",
+    icon: Bot,
+  },
+  assisted: {
+    label: "Assistert",
+    instruction: "Lara forbereder et utkast. Gjennomgå og godkjenn.",
+    icon: Sparkles,
+  },
+  manual: {
+    label: "Manuell",
+    instruction: "Last opp et dokument eller skriv en kort beskrivelse av hvordan kravet er oppfylt.",
+    icon: Users,
+  },
 };
 
 const FrameworkDetailPage = () => {
