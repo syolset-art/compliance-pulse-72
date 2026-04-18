@@ -48,10 +48,22 @@ function generateDemoStates(requirements: ComplianceRequirement[]): Record<strin
   return states;
 }
 
-const capabilityLabel: Record<AgentCapability, { label: string; color: string }> = {
-  full: { label: "AUTOMATISK", color: "text-emerald-600 dark:text-emerald-400" },
-  assisted: { label: "HYBRID", color: "text-amber-600 dark:text-amber-400" },
-  manual: { label: "MANUELL", color: "text-muted-foreground" },
+const capabilityLabel: Record<AgentCapability, { label: string; instruction: string; icon: typeof Bot }> = {
+  full: {
+    label: "Auto",
+    instruction: "Plattformen henter dette automatisk — ingen handling kreves.",
+    icon: Bot,
+  },
+  assisted: {
+    label: "Assistert",
+    instruction: "Lara forbereder et utkast. Gjennomgå og godkjenn.",
+    icon: Sparkles,
+  },
+  manual: {
+    label: "Manuell",
+    instruction: "Last opp et dokument eller skriv en kort beskrivelse av hvordan kravet er oppfylt.",
+    icon: Users,
+  },
 };
 
 const FrameworkDetailPage = () => {
@@ -138,15 +150,15 @@ const FrameworkDetailPage = () => {
           {/* Summary bar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-bold text-foreground">Krav og evaluatorer</h2>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">{counts.total} krav totalt</span>
               <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-200 dark:border-emerald-800">
                 <Bot className="h-3 w-3" />
-                {counts.auto} AUTOMATISK
+                {counts.auto} Auto
               </Badge>
               <Badge variant="outline" className="gap-1 text-muted-foreground">
                 <Users className="h-3 w-3" />
-                {counts.manual} MANUELL
+                {counts.manual} Manuell
               </Badge>
             </div>
           </div>
@@ -197,26 +209,22 @@ const FrameworkDetailPage = () => {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-xs font-mono text-muted-foreground">
-                          {req.requirement_id}
-                        </span>
-                        <span className="font-semibold text-sm text-foreground">
-                          {req.name_no}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                      <h3 className="text-base font-semibold text-foreground mb-1">
+                        {req.name_no}
+                      </h3>
+                      <p className={`text-sm text-muted-foreground ${isExpanded ? "" : "line-clamp-2"}`}>
                         {req.description_no}
                       </p>
                     </div>
 
                     {/* Right side: capability + progress */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className={`text-[13px] font-bold tracking-wider ${cap.color}`}>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant="outline" className="gap-1 text-xs font-medium">
+                        <cap.icon className="h-3 w-3" />
                         {cap.label}
-                      </span>
+                      </Badge>
                       <span
-                        className={`text-xs font-semibold ${
+                        className={`text-sm font-semibold w-10 text-right ${
                           state.progress === 100
                             ? "text-emerald-600"
                             : state.progress > 0
@@ -238,22 +246,41 @@ const FrameworkDetailPage = () => {
                   {isExpanded && (
                     <div className="px-4 pb-4">
                       <Separator className="mb-4" />
-                      <div className="space-y-3">
-                        <p
-                          className={`text-sm font-medium ${
-                            state.status === "met"
-                              ? "text-emerald-600"
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Status:</span>
+                          <span
+                            className={`text-base font-medium ${
+                              state.status === "met"
+                                ? "text-emerald-600"
+                                : state.status === "partial"
+                                ? "text-amber-600"
+                                : "text-destructive"
+                            }`}
+                          >
+                            {state.status === "met"
+                              ? "Oppfylt"
                               : state.status === "partial"
-                              ? "text-amber-600"
-                              : "text-destructive"
-                          }`}
-                        >
-                          {state.status === "met"
-                            ? "Oppfylt"
-                            : state.status === "partial"
-                            ? "Delvis oppfylt"
-                            : "Ikke oppfylt"}
-                        </p>
+                              ? "Delvis oppfylt"
+                              : "Ikke oppfylt"}
+                          </span>
+                        </div>
+
+                        {state.status !== "met" && (
+                          <div className="rounded-lg bg-muted/50 border border-border p-3">
+                            <div className="flex items-start gap-2">
+                              <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-sm font-semibold text-foreground mb-1">
+                                  Hva må gjøres?
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {cap.instruction}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {state.status !== "met" && (
                           <Button
@@ -267,7 +294,7 @@ const FrameworkDetailPage = () => {
                             }
                           >
                             <Users className="h-4 w-4" />
-                            Dokumenter manuelt
+                            Dokumenter dette kravet
                           </Button>
                         )}
 
@@ -279,6 +306,10 @@ const FrameworkDetailPage = () => {
                             </span>
                           </div>
                         )}
+
+                        <p className="text-xs text-muted-foreground font-mono pt-2 border-t border-border">
+                          Referanse: {req.requirement_id}
+                        </p>
                       </div>
                     </div>
                   )}
