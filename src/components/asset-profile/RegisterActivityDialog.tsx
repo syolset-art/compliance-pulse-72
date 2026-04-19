@@ -12,7 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus } from "@/utils/vendorActivityData";
+import { STATUS_CONFIG } from "@/utils/vendorActivityData";
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
@@ -28,18 +31,18 @@ const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeo
 ];
 
 const PHASES: { value: Phase; nb: string; en: string }[] = [
+  { value: "pre_assessment", nb: "Vurdering før avtale", en: "Pre-contract assessment" },
   { value: "onboarding", nb: "Onboarding", en: "Onboarding" },
   { value: "ongoing", nb: "Løpende oppfølging", en: "Ongoing follow-up" },
-  { value: "audit", nb: "Revisjon", en: "Audit" },
-  { value: "incident", nb: "Hendelseshåndtering", en: "Incident management" },
+  { value: "audit", nb: "Revisjon og kontroll", en: "Audit and control" },
+  { value: "incident", nb: "Hendelse og avvik", en: "Incident and deviation" },
+  { value: "termination", nb: "Avslutning", en: "Termination" },
 ];
 
-const OUTCOMES: { value: string; nb: string; en: string; status: OutcomeStatus }[] = [
-  { value: "approved", nb: "Godkjent", en: "Approved", status: "success" },
-  { value: "deviation", nb: "Avvik funnet", en: "Deviation found", status: "warning" },
-  { value: "waiting", nb: "Venter svar", en: "Awaiting response", status: "warning" },
-  { value: "informed", nb: "Informert", en: "Informed", status: "info" },
-  { value: "other", nb: "Annet", en: "Other", status: "info" },
+const STATUSES: { value: OutcomeStatus; nb: string; en: string }[] = [
+  { value: "in_progress", nb: STATUS_CONFIG.in_progress.nb, en: STATUS_CONFIG.in_progress.en },
+  { value: "completed", nb: STATUS_CONFIG.completed.nb, en: STATUS_CONFIG.completed.en },
+  { value: "needs_followup", nb: STATUS_CONFIG.needs_followup.nb, en: STATUS_CONFIG.needs_followup.en },
 ];
 
 export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange }: Props) {
