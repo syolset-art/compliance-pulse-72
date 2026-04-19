@@ -169,10 +169,10 @@ export const VendorTPRMStatus = ({
   };
 
   const allDemoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
-  const pendingActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus === "warning"), [allDemoActivities]);
-  const completedActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus !== "warning").slice(0, 3), [allDemoActivities]);
+  const pendingActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus === "needs_followup"), [allDemoActivities]);
+  const completedActivities = useMemo(() => allDemoActivities.filter(a => a.outcomeStatus !== "needs_followup").slice(0, 3), [allDemoActivities]);
 
-  const OUTCOME_ICON_MAP = { success: CheckCircle2, warning: AlertCircle, info: Timer } as const;
+  const OUTCOME_ICON_MAP = { in_progress: Timer, completed: CheckCircle2, needs_followup: AlertCircle } as const;
 
   // Auto-expand when there are open tasks (first load only)
   const effectiveExpanded = expanded === null ? (openTasks.length > 0 || pendingActivities.length > 0) : expanded;

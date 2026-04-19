@@ -12,7 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus } from "@/utils/vendorActivityData";
+import { STATUS_CONFIG } from "@/utils/vendorActivityData";
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
@@ -28,18 +31,18 @@ const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeo
 ];
 
 const PHASES: { value: Phase; nb: string; en: string }[] = [
+  { value: "pre_assessment", nb: "Vurdering før avtale", en: "Pre-contract assessment" },
   { value: "onboarding", nb: "Onboarding", en: "Onboarding" },
   { value: "ongoing", nb: "Løpende oppfølging", en: "Ongoing follow-up" },
-  { value: "audit", nb: "Revisjon", en: "Audit" },
-  { value: "incident", nb: "Hendelseshåndtering", en: "Incident management" },
+  { value: "audit", nb: "Revisjon og kontroll", en: "Audit and control" },
+  { value: "incident", nb: "Hendelse og avvik", en: "Incident and deviation" },
+  { value: "termination", nb: "Avslutning", en: "Termination" },
 ];
 
-const OUTCOMES: { value: string; nb: string; en: string; status: OutcomeStatus }[] = [
-  { value: "approved", nb: "Godkjent", en: "Approved", status: "success" },
-  { value: "deviation", nb: "Avvik funnet", en: "Deviation found", status: "warning" },
-  { value: "waiting", nb: "Venter svar", en: "Awaiting response", status: "warning" },
-  { value: "informed", nb: "Informert", en: "Informed", status: "info" },
-  { value: "other", nb: "Annet", en: "Other", status: "info" },
+const STATUSES: { value: OutcomeStatus; nb: string; en: string }[] = [
+  { value: "in_progress", nb: STATUS_CONFIG.in_progress.nb, en: STATUS_CONFIG.in_progress.en },
+  { value: "completed", nb: STATUS_CONFIG.completed.nb, en: STATUS_CONFIG.completed.en },
+  { value: "needs_followup", nb: STATUS_CONFIG.needs_followup.nb, en: STATUS_CONFIG.needs_followup.en },
 ];
 
 export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange }: Props) {
@@ -53,7 +56,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("ongoing");
-  const [outcome, setOutcome] = useState("informed");
+  const [outcome, setOutcome] = useState<OutcomeStatus>("in_progress");
   const [date, setDate] = useState<Date>(new Date());
   const [contactPerson, setContactPerson] = useState("");
   const [participants, setParticipants] = useState("");
@@ -62,7 +65,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
-    setPhase("ongoing"); setOutcome("informed"); setDate(new Date());
+    setPhase("ongoing"); setOutcome("in_progress"); setDate(new Date());
     setContactPerson(""); setParticipants(""); setAttachmentNote("");
     setTitleError(false);
   };
@@ -72,7 +75,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       setTitleError(true);
       return;
     }
-    const out = OUTCOMES.find(o => o.value === outcome) ?? OUTCOMES[3];
+    const out = STATUSES.find(o => o.value === outcome) ?? STATUSES[0];
     const activity: VendorActivity = {
       id: `manual-${Date.now()}`,
       type,
@@ -83,7 +86,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       descriptionEn: description || undefined,
       outcomeNb: out.nb,
       outcomeEn: out.en,
-      outcomeStatus: out.status,
+      outcomeStatus: out.value,
       date,
       actor: isNb ? "Deg" : "You",
       actorRole: isNb ? "Manuell registrering" : "Manual entry",
@@ -211,9 +214,16 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           <Separator />
 
           {/* Phase, Outcome, Date */}
+          <TooltipProvider>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-phase" className="text-xs">{isNb ? "Fase" : "Phase"}</Label>
+              <Label htmlFor="reg-activity-phase" className="text-xs flex items-center gap-1">
+                {isNb ? "Fase" : "Phase"}
+                <Tooltip>
+                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hvor i leverandørens livssyklus er denne aktiviteten?" : "Where in the vendor lifecycle is this activity?"}</p></TooltipContent>
+                </Tooltip>
+              </Label>
               <Select value={phase} onValueChange={v => setPhase(v as Phase)}>
                 <SelectTrigger id="reg-activity-phase" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -224,11 +234,17 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-outcome" className="text-xs">{isNb ? "Utfall" : "Outcome"}</Label>
-              <Select value={outcome} onValueChange={setOutcome}>
+              <Label htmlFor="reg-activity-outcome" className="text-xs flex items-center gap-1">
+                {isNb ? "Status" : "Status"}
+                <Tooltip>
+                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hva er resultatet av aktiviteten så langt?" : "What is the outcome of the activity so far?"}</p></TooltipContent>
+                </Tooltip>
+              </Label>
+              <Select value={outcome} onValueChange={(v) => setOutcome(v as OutcomeStatus)}>
                 <SelectTrigger id="reg-activity-outcome" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {OUTCOMES.map(o => (
+                  {STATUSES.map(o => (
                     <SelectItem key={o.value} value={o.value}>{isNb ? o.nb : o.en}</SelectItem>
                   ))}
                 </SelectContent>
@@ -249,6 +265,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Popover>
             </div>
           </div>
+          </TooltipProvider>
 
           {/* Attachment note */}
           <div className="space-y-1.5">
