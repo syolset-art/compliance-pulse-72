@@ -56,7 +56,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("ongoing");
-  const [outcome, setOutcome] = useState("informed");
+  const [outcome, setOutcome] = useState<OutcomeStatus>("in_progress");
   const [date, setDate] = useState<Date>(new Date());
   const [contactPerson, setContactPerson] = useState("");
   const [participants, setParticipants] = useState("");
@@ -65,7 +65,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
-    setPhase("ongoing"); setOutcome("informed"); setDate(new Date());
+    setPhase("ongoing"); setOutcome("in_progress"); setDate(new Date());
     setContactPerson(""); setParticipants(""); setAttachmentNote("");
     setTitleError(false);
   };
@@ -75,7 +75,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       setTitleError(true);
       return;
     }
-    const out = OUTCOMES.find(o => o.value === outcome) ?? OUTCOMES[3];
+    const out = STATUSES.find(o => o.value === outcome) ?? STATUSES[0];
     const activity: VendorActivity = {
       id: `manual-${Date.now()}`,
       type,
@@ -86,7 +86,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       descriptionEn: description || undefined,
       outcomeNb: out.nb,
       outcomeEn: out.en,
-      outcomeStatus: out.status,
+      outcomeStatus: out.value,
       date,
       actor: isNb ? "Deg" : "You",
       actorRole: isNb ? "Manuell registrering" : "Manual entry",
