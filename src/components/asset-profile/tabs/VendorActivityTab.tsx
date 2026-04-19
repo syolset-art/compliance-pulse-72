@@ -33,7 +33,7 @@ const ACTIVITY_ICONS = {
 } as const;
 
 const OUTCOME_ICON = {
-  success: CheckCircle2, warning: AlertCircle, info: Timer,
+  in_progress: Timer, completed: CheckCircle2, needs_followup: AlertCircle,
 } as const;
 
 export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19 }: VendorActivityTabProps) {
@@ -73,10 +73,12 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
 
   const filterButtons: { key: Phase | "all"; nb: string; en: string }[] = [
     { key: "all", nb: "Alle", en: "All" },
+    { key: "pre_assessment", nb: "Vurdering", en: "Pre-contract" },
     { key: "onboarding", nb: "Onboarding", en: "Onboarding" },
     { key: "ongoing", nb: "Løpende", en: "Ongoing" },
     { key: "audit", nb: "Revisjon", en: "Audit" },
     { key: "incident", nb: "Hendelser", en: "Incidents" },
+    { key: "termination", nb: "Avslutning", en: "Termination" },
   ];
 
   const toggleExpand = (id: string) => {

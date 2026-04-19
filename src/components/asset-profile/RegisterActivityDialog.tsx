@@ -265,6 +265,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Popover>
             </div>
           </div>
+          </TooltipProvider>
 
           {/* Attachment note */}
           <div className="space-y-1.5">
