@@ -1,73 +1,66 @@
 
 
-## Plan: Forenkle kravlisten på Regelverk-siden
+## Plan: Forenkle faser og utfall for leverandøraktiviteter
 
-### Problem
-På `/regulations` vises hver krav-rad slik:
+### Bakgrunn
+Dagens prototype bruker 4 faser (Onboarding, Løpende oppfølging, Revisjon, Hendelseshåndtering) + et eget "outcome"-felt. Dette er to dimensjoner brukeren må forstå samtidig — for komplekst. Helseforetak, banker og andre regulerte virksomheter (DORA, NIS2, ISO 27036) bruker i praksis en livssyklus-modell for tredjepartsstyring, men de trenger ikke se hele rammeverket i en enkel aktivitetslogg.
 
-```
-[ikon]  A.5.1.1  Informasjonssikkerhetspolicy        AUTOMATISK  100% ⌄
-        Organisasjonen skal definere og godkjenne...
-```
+### Anbefaling: To dimensjoner, men forenklet
 
-Den lille mono-koden foran tittelen (`A.5.1.1`, `Art. 32`, osv.) er teknisk referanse som de fleste brukere ikke trenger å se. Den konkurrerer visuelt med selve kravnavnet, og teksten er for liten (`text-xs` = 12px) til å være lesbar iht. WCAG/designmanualen.
+**Dimensjon 1 — FASE (hvor i livssyklusen):** beholdes, men språket forenkles og utvides med én manglende fase.
 
-### Endringer (kun `FrameworkRequirementsList.tsx`)
+| Fase | Forklaring | Når brukes |
+|---|---|---|
+| Vurdering før avtale | Due diligence, risikovurdering før kontrakt | Ny leverandør under evaluering |
+| Onboarding | Avtale signert, oppstart, dokumentinnhenting | Aktiv onboarding |
+| Løpende oppfølging | Periodisk dialog, KPI, statusmøter | Daglig drift |
+| Revisjon og kontroll | Audit, stikkprøver, samsvarsgjennomgang | Årlig/planlagt kontroll |
+| Hendelse og avvik | Sikkerhetshendelse, brudd, eskalering | Når noe har skjedd |
+| Avslutning | Offboarding, terminering, dataoverføring | Avtale avsluttes |
 
-**1. Skjul referanse-koden i sammenslått tilstand**
-- Fjern `{req.requirement_id}` chip-en fra rad-headeren
-- Vis koden kun når raden er ekspandert, som en liten "Referanse: A.5.1.1"-linje nederst sammen med øvrig metadata
+Dette er språket DSB, Finanstilsynet og Helsedirektoratet faktisk bruker — gjenkjennelig for både helseforetak og banker.
 
-**2. Klar visuelt hierarki — "Krav → Beskrivelse → Handling"**
-- Tittel: `text-base font-semibold` (i dag `text-sm`) — kravets navn er det viktigste
-- Beskrivelse: `text-sm text-muted-foreground` (i dag `text-xs line-clamp-2`) — øk til `text-sm` og la den være full lengde når ekspandert, fortsatt clamp-2 i collapsed
-- Status-tekst inni ekspandert: `text-base font-medium`
+**Dimensjon 2 — STATUS (forenklet fra "outcome"):** byttes fra dagens 5–6 utfallsverdier til 3 enkle statuser:
 
-**3. AUTOMATISK/MANUELL-merket roes ned**
-- Bytt fra ren tekst i farge til en liten outline-Badge med ikon (mer Apple-minimal, mindre "skriking")
-- Behold tooltip uendret
+| Status | Betydning |
+|---|---|
+| Pågår | Aktiviteten er startet, ikke ferdig |
+| Fullført | Avsluttet uten anmerkninger |
+| Krever oppfølging | Avsluttet, men noe må følges opp (avvik, action) |
 
-**4. Ekspandert visning får en tydelig "Hva må gjøres?"-seksjon**
-- Når status ≠ "met": legg til en kort, tydelig instruksjonsboks over "Dokumenter manuelt"-knappen som forklarer hva brukeren skal gjøre, basert på `agent_capability`:
-  - `full` (AUTOMATISK): "Plattformen henter dette automatisk — ingen handling kreves."
-  - `assisted` (ASSISTERT): "Lara forbereder et utkast. Gjennomgå og godkjenn."
-  - `manual` (MANUELL): "Last opp et dokument eller skriv en kort beskrivelse av hvordan kravet er oppfylt."
-- Behold "Dokumenter manuelt"-knappen, men gi den tydeligere label: "Dokumenter dette kravet"
+Dette dekker behovet — brukeren slipper å velge mellom "godkjent / ikke godkjent / utsatt / avvist / under behandling" osv.
 
-**5. Overskrift-rad ovenfor listen**
-- Behold "Krav og evaluatorer", men forstørr counter-tekst fra `text-xs` til `text-sm` for bedre lesbarhet
-- Behold AUTOMATISK/MANUELL badges
+### Hvorfor ikke kun status (uten fase)?
+Du foreslo "startet / pågår / ferdig" alene. Problemet: en revisor og en innkjøper trenger å vite *hva slags* aktivitet det er — ikke bare at den pågår. "Møte med leverandør" sier lite uten kontekst om det er onboarding eller hendelseshåndtering. Fasen gir den konteksten på ett blikk og er det DORA art. 28 og NIS2 art. 21 forventer dokumentert.
 
-**6. UU/WCAG**
-- Sørg for `text-sm` (14px) som minimum for all lesbar tekst
-- Status-prosent: behold men gjør den til `text-sm font-semibold` (mer lesbar)
-- Behold `aria-expanded` semantikk via knappen (allerede `<button>`)
+### Endringer i koden
 
-### Resultat — før/etter
+**1. `src/utils/vendorActivityData.ts`**
+- Utvid `phase`-typen med `pre_assessment` og `termination`
+- Oppdater `PHASE_CONFIG` med nye labels (NB/EN) og farger
+- Erstatt `outcomeStatus` enum med 3 verdier: `in_progress`, `completed`, `needs_followup`
+- Oppdater `OUTCOME_COLORS`
+- Oppdater eksisterende seed-data til å bruke nye statuser
 
-```text
-FØR (collapsed):
-[✓] A.5.1.1  Informasjonssikkerhetspolicy           AUTOMATISK  100% ⌄
-    Organisasjonen skal definere og godkjenne...
+**2. `src/components/asset-profile/ActivityDetailPanel.tsx`**
+- Bruk nye labels via `PHASE_CONFIG`
+- Vis ny status-pill med ikon (Clock / CheckCircle2 / AlertCircle)
 
-ETTER (collapsed):
-[✓] Informasjonssikkerhetspolicy                    [🤖 Auto]  100% ⌄
-    Organisasjonen skal definere og godkjenne en informasjonssikkerhetspolicy.
+**3. Aktivitet-opprettelse / filtrering** (tidsline-komponenter som filtrerer på fase)
+- Søk opp komponenter som refererer til gamle outcome-verdier og oppdater dropdown-valg + filterlogikk
 
-ETTER (expanded):
-[✓] Informasjonssikkerhetspolicy                    [🤖 Auto]  100% ⌃
-    Organisasjonen skal definere og godkjenne en informasjonssikkerhetspolicy
-    som kommuniseres til alle ansatte og relevante interessenter.
-    ─────────────────────────────────────────────────────────────
-    Status: Oppfylt
-    
-    💡 Hva må gjøres?
-       Plattformen henter dette automatisk — ingen handling kreves.
-    
-    [ Dokumenter dette kravet ]
-    
-    Referanse: A.5.1.1 · ISO 27001 Annex A
-```
+**4. Tooltip / hjelp**
+- Legg til kort tooltip på fase-velgeren: "Hvor i leverandørens livssyklus er denne aktiviteten?"
+- Tooltip på status: "Hva er resultatet av aktiviteten så langt?"
 
-Ingen andre filer påvirkes. Ingen endringer i datamodell eller logikk — kun presentasjonslag.
+### Migrering av demo-data
+Mapping av gamle outcome-verdier:
+- `approved`, `passed`, `closed` → `completed`
+- `pending`, `in_review` → `in_progress`
+- `failed`, `escalated`, `action_required` → `needs_followup`
+
+### Ut av scope
+- Backend-skjema (kun prototype-data i `vendorActivityData.ts`)
+- Lokalisering utover NB/EN
+- Endringer i selve aktivitetstype-katalogen (e-post, møte, dokument osv.)
 
