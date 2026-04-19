@@ -214,9 +214,16 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           <Separator />
 
           {/* Phase, Outcome, Date */}
+          <TooltipProvider>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-phase" className="text-xs">{isNb ? "Fase" : "Phase"}</Label>
+              <Label htmlFor="reg-activity-phase" className="text-xs flex items-center gap-1">
+                {isNb ? "Fase" : "Phase"}
+                <Tooltip>
+                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hvor i leverandørens livssyklus er denne aktiviteten?" : "Where in the vendor lifecycle is this activity?"}</p></TooltipContent>
+                </Tooltip>
+              </Label>
               <Select value={phase} onValueChange={v => setPhase(v as Phase)}>
                 <SelectTrigger id="reg-activity-phase" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -227,11 +234,17 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-outcome" className="text-xs">{isNb ? "Utfall" : "Outcome"}</Label>
-              <Select value={outcome} onValueChange={setOutcome}>
+              <Label htmlFor="reg-activity-outcome" className="text-xs flex items-center gap-1">
+                {isNb ? "Status" : "Status"}
+                <Tooltip>
+                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hva er resultatet av aktiviteten så langt?" : "What is the outcome of the activity so far?"}</p></TooltipContent>
+                </Tooltip>
+              </Label>
+              <Select value={outcome} onValueChange={(v) => setOutcome(v as OutcomeStatus)}>
                 <SelectTrigger id="reg-activity-outcome" className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {OUTCOMES.map(o => (
+                  {STATUSES.map(o => (
                     <SelectItem key={o.value} value={o.value}>{isNb ? o.nb : o.en}</SelectItem>
                   ))}
                 </SelectContent>
