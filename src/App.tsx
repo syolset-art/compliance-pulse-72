@@ -95,7 +95,9 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <GlobalChatProvider>
+              <DemoSyncProvider>
+                <CustomerRequestDemoController />
+                <GlobalChatProvider>
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/" element={<Index />} />
