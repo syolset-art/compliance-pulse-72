@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, MinusCircle } from "lucide-react";
+import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, Flag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
-import { type ScoreDisplayMode, scoreToLabel, scoreLabelColor } from "./VendorListTab";
+import { type ScoreDisplayMode, scoreToLabel } from "./VendorListTab";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   saas: <Cloud className="h-2.5 w-2.5" />,
