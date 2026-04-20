@@ -361,7 +361,7 @@ const AssetTrustProfile = () => {
                     className="gap-2"
                   >
                     <Mail className="h-4 w-4" />
-                    {isNb ? "Be om oppdatering" : "Request update"}
+                    {isNb ? "Meldinger" : "Messages"}
                     <Sparkles className="h-3 w-3 text-primary/60" />
                   </Button>
                 </div>

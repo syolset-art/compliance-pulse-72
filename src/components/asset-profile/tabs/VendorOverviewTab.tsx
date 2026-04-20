@@ -324,7 +324,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             onClick={() => setRequestOpen(true)}
           >
             <Send className="h-3 w-3" />
-            {isNb ? "Be om oppdatering" : "Request update"}
+            {isNb ? "Meldinger" : "Messages"}
           </Button>
         </div>
       )}
