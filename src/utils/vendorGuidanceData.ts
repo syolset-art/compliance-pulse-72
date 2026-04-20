@@ -2,6 +2,7 @@ import type { ActivityType, Phase } from "./vendorActivityData";
 
 export type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
 export type Criticality = "kritisk" | "hoy" | "medium";
+export type GapStatus = "open" | "in_progress" | "closed";
 
 export interface SuggestedActivity {
   id: string;
@@ -12,6 +13,9 @@ export interface SuggestedActivity {
   descriptionEn: string;
   reasonNb: string;
   reasonEn: string;
+  statusNoteNb: string;
+  statusNoteEn: string;
+  status: GapStatus;
   criticality: Criticality;
   level: GuidanceLevel;
   themeNb: string;
@@ -20,6 +24,33 @@ export interface SuggestedActivity {
   suggestedPhase: Phase;
   contactPerson?: string;
 }
+
+export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: string; bar: string }> = {
+  open: {
+    nb: "Åpen",
+    en: "Open",
+    badge: "bg-destructive/15 text-destructive border border-destructive/25",
+    bar: "bg-destructive",
+  },
+  in_progress: {
+    nb: "Under oppfølging",
+    en: "In progress",
+    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25",
+    bar: "bg-amber-500",
+  },
+  closed: {
+    nb: "Lukket",
+    en: "Closed",
+    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
+    bar: "bg-emerald-500",
+  },
+};
+
+export const LEVEL_DOT: Record<GuidanceLevel, string> = {
+  operasjonelt: "bg-emerald-500",
+  taktisk: "bg-amber-500",
+  strategisk: "bg-primary",
+};
 
 export interface VendorGuidance {
   summaryNb: string;
