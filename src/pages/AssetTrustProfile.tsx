@@ -452,85 +452,85 @@ const AssetTrustProfile = () => {
                       ))}
                     </TabsList>
 
-                    {vendorOverflowTabDefs.length > 0 && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant={activeVendorOverflowTab ? "default" : "outline"}
-                            size="sm"
-                            className="h-9 gap-1.5 shrink-0 text-xs"
-                            aria-label={isNb ? "Vis flere" : "Show more"}
-                          >
-                            {activeVendorOverflowTab ? activeVendorOverflowTab.labelFull : (
-                              <>
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="hidden sm:inline">{isNb ? "Vis flere" : "Show more"}</span>
-                              </>
-                            )}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="min-w-[180px]">
-                          {vendorOverflowTabDefs.map((tab) => (
-                            <DropdownMenuItem
-                              key={tab.value}
-                              onClick={() => setActiveTab(tab.value)}
-                              className={activeTab === tab.value ? "bg-accent font-medium" : ""}
-                            >
-                              {tab.labelFull}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-
-                    {/* Tab customization popover */}
+                    {/* Unified "Mer" menu: overflow tabs + customize */}
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 shrink-0"
-                          aria-label={isNb ? "Tilpass faner" : "Customize tabs"}
+                          variant={activeVendorOverflowTab ? "default" : "outline"}
+                          size="sm"
+                          className="h-9 gap-1.5 shrink-0 text-xs"
+                          aria-label={isNb ? "Flere faner og tilpasning" : "More tabs and customize"}
                         >
-                          <Settings2 className="h-4 w-4" />
+                          {activeVendorOverflowTab ? activeVendorOverflowTab.labelFull : (
+                            <>
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="hidden sm:inline">{isNb ? "Mer" : "More"}</span>
+                            </>
+                          )}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent align="end" className="w-64 p-3">
-                        <p className="text-sm font-medium mb-2">
-                          {isNb ? "Tilpass faner" : "Customize tabs"}
-                        </p>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {isNb
-                            ? `Velg opptil ${MAX_VISIBLE_TABS} faner som vises direkte.`
-                            : `Choose up to ${MAX_VISIBLE_TABS} tabs to show directly.`}
-                        </p>
-                        <div className="space-y-1.5">
-                          {allVendorTabs.map((tab) => {
-                            const isLocked = tab.value === LOCKED_TAB;
-                            const isChecked = visibleTabIds.includes(tab.value);
-                            const isAtMax = visibleTabIds.length >= MAX_VISIBLE_TABS && !isChecked;
-                            return (
-                              <label
-                                key={tab.value}
-                                className={cn(
-                                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-muted/50 transition-colors",
-                                  isLocked && "opacity-60 cursor-not-allowed"
-                                )}
-                              >
-                                <Checkbox
-                                  checked={isChecked}
-                                  disabled={isLocked || isAtMax}
-                                  onCheckedChange={() => toggleTab(tab.value)}
-                                />
-                                <span className="flex-1">{tab.labelFull}</span>
-                                {isLocked && (
-                                  <span className="text-[13px] text-muted-foreground">
-                                    {isNb ? "Låst" : "Locked"}
-                                  </span>
-                                )}
-                              </label>
-                            );
-                          })}
+                      <PopoverContent align="end" className="w-72 p-0">
+                        {vendorOverflowTabDefs.length > 0 && (
+                          <div className="p-2 border-b border-border">
+                            <p className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                              {isNb ? "Flere faner" : "More tabs"}
+                            </p>
+                            <div className="space-y-0.5">
+                              {vendorOverflowTabDefs.map((tab) => (
+                                <button
+                                  key={tab.value}
+                                  onClick={() => setActiveTab(tab.value)}
+                                  className={cn(
+                                    "w-full text-left rounded-md px-2 py-1.5 text-sm hover:bg-muted/50 transition-colors",
+                                    activeTab === tab.value && "bg-accent font-medium"
+                                  )}
+                                >
+                                  {tab.labelFull}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <div className="p-2">
+                          <div className="flex items-center gap-2 px-2 py-1">
+                            <Settings2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                              {isNb ? "Tilpass faner" : "Customize tabs"}
+                            </p>
+                          </div>
+                          <p className="px-2 pb-2 text-xs text-muted-foreground">
+                            {isNb
+                              ? `Velg opptil ${MAX_VISIBLE_TABS} faner som vises direkte.`
+                              : `Choose up to ${MAX_VISIBLE_TABS} tabs to show directly.`}
+                          </p>
+                          <div className="space-y-0.5">
+                            {allVendorTabs.map((tab) => {
+                              const isLocked = tab.value === LOCKED_TAB;
+                              const isChecked = visibleTabIds.includes(tab.value);
+                              const isAtMax = visibleTabIds.length >= MAX_VISIBLE_TABS && !isChecked;
+                              return (
+                                <label
+                                  key={tab.value}
+                                  className={cn(
+                                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-muted/50 transition-colors",
+                                    isLocked && "opacity-60 cursor-not-allowed"
+                                  )}
+                                >
+                                  <Checkbox
+                                    checked={isChecked}
+                                    disabled={isLocked || isAtMax}
+                                    onCheckedChange={() => toggleTab(tab.value)}
+                                  />
+                                  <span className="flex-1">{tab.labelFull}</span>
+                                  {isLocked && (
+                                    <span className="text-[13px] text-muted-foreground">
+                                      {isNb ? "Låst" : "Locked"}
+                                    </span>
+                                  )}
+                                </label>
+                              );
+                            })}
+                          </div>
                         </div>
                       </PopoverContent>
                     </Popover>
