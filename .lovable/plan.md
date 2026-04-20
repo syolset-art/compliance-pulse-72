@@ -1,68 +1,72 @@
 
 
-## Plan: Erstatt "Datatyper" og "Prosesser" med fritekst + AI-forslag
+## Plan: Statusoppfølging på leverandøraktiviteter
 
-I "Bruk og kontekst"-fanen på leverandørprofilen skal de to seksjonene under de fire toppboksene bli redigerbare tekstfelt med AI-assistanse i stedet for lister/badges.
+I dag har hver aktivitet et skjult `outcomeStatus`-felt med kun tre verdier (Pågår / Fullført / Krever oppfølging) som vises som tekst, men brukeren kan ikke endre det. For en realistisk leverandøroppfølging trenger vi flere statuser og en tydelig statusveksler både i listen og i detaljpanelet.
 
-### 1. "Datatyper som behandles" → fritekstfelt
+### 1. Utvid statusmodellen (`src/utils/vendorActivityData.ts`)
 
-**Fil:** `src/components/asset-profile/tabs/PersonalDataCard.tsx` (skrives om)
+Erstatt `OutcomeStatus` med en bredere `ActivityStatus`-type som er naturlig for leverandøroppfølging:
 
-Erstatt dagens badge-liste + AddDataCategoryDialog med:
+| Nøkkel | Norsk | Engelsk | Farge | Når brukes |
+|---|---|---|---|---|
+| `open` | Åpen | Open | grå | Nettopp opprettet, ikke startet |
+| `in_progress` | Under oppfølging | In progress | blå | Aktivt arbeid pågår |
+| `awaiting_vendor` | Venter på leverandør | Awaiting vendor | gul/amber | Sendt forespørsel, venter på svar |
+| `awaiting_internal` | Venter på intern part | Awaiting internal | lilla | Venter på godkjenning/info internt |
+| `blocked` | Blokkert | Blocked | rød | Hindring/eskalering |
+| `completed` | Fullført | Completed | grønn | Ferdig, intet mer å gjøre |
+| `cancelled` | Avbrutt | Cancelled | grå/gjennomstreket | Aktivitet ikke aktuell lenger |
 
-- **Textarea** (min 4 rader, auto-grow) der brukeren skriver fritt hvilke personopplysninger leverandøren behandler
-- **"Foreslå med AI"-knapp** (Sparkles-ikon) over textarea-en til høyre
-  - Kaller edge function `suggest-vendor-data-types` som bruker Lovable AI (`google/gemini-2.5-flash`) med kontekst: leverandørnavn, kategori, beskrivelse, eksisterende personvernerklæring-URL hvis tilgjengelig
-  - Returnerer foreslått tekst (maks ~600 tegn) som settes inn i textarea (overskriver hvis tom, ellers spør om append/replace)
-  - Loading-state med spinner i knappen
-- **"Lagre"-knapp** nederst som lagrer til `assets.metadata.personal_data_text` (ny nøkkel i eksisterende JSONB-felt — ingen schema-endring)
-- Tidsstempel: "Sist oppdatert {dato}" hentes fra `assets.metadata.personal_data_updated_at`
-- Beholder kort-rammen og `ShieldCheck`-ikonet i headeren
+Behold `outcomeStatus`-feltet som alias for bakoverkompatibilitet (`needs_followup` mappes til `awaiting_vendor`). Eksporter `ACTIVITY_STATUS_CONFIG` med full styling/lokalisering og hjelpefunksjon `getStatusGroup(status)` → `"open" | "active" | "waiting" | "done"` for filter-grupperinger.
 
-### 2. "Prosesser som bruker denne leverandøren" → fritekstfelt
+### 2. Statusveksler i `ActivityDetailPanel.tsx`
 
-**Fil:** `src/components/asset-profile/tabs/UsageTab.tsx` (Processes-kortet, linje 109–138)
+Legg til en "Status"-seksjon over "Nivå"-velgeren med samme mønster som level-radiogruppen:
+- Liten label med `Activity`-ikon: "Status"
+- Knapper for hver av de 7 statusene med farget prikk + label
+- Klikk kaller `onUpdate({ outcomeStatus, outcomeNb, outcomeEn })`
+- Aktiv knapp får `border-primary bg-primary/10` (samme stil som level-velger)
+- Knappene wrap'er på små skjermer
 
-Erstatt prosess-listen med:
+### 3. Status-pille i listen (`VendorActivityTab.tsx`)
 
-- Samme mønster som over: textarea + "Foreslå med AI" + "Lagre"
-- Edge function: `suggest-vendor-processes` med kontekst: leverandørnavn, kategori, bransje fra `company_profile`
-- Lagres til `assets.metadata.processes_text` + `assets.metadata.processes_updated_at`
-- Beholder `Workflow`-ikonet i headeren
+I aktivitetsraden:
+- Erstatt dagens `OutcomeIcon` + tekst (linje 266–269) med en kompakt **status-pille** (Badge med farget prikk + status-tekst) som tydelig viser om aktiviteten er åpen, venter eller fullført.
+- Pillen bruker `ACTIVITY_STATUS_CONFIG[status].color` for bakgrunn/border.
+- Endring skjer i detaljpanelet (klikk på raden for å utvide).
 
-### 3. Nye edge functions
+### 4. Statusfilter i toolbar (`VendorActivityTab.tsx`)
 
-**`supabase/functions/suggest-vendor-data-types/index.ts`** og **`supabase/functions/suggest-vendor-processes/index.ts`**
+Legg til en andre rad med statusfiltre under fase-filtrene:
+- "Alle / Åpne / Aktive / Venter / Fullført" (grupper, ikke alle 7 — for å holde det rent)
+- Bruker `getStatusGroup()` for å mappe.
+- Lagrer filter i ny `statusFilter`-state, AND-kombineres med `phaseFilter`.
 
-- Tar imot `{ vendorName, vendorCategory, vendorDescription, vendorUrl?, industry? }`
-- Bruker `LOVABLE_API_KEY` mot Lovable AI Gateway (`google/gemini-2.5-flash`)
-- System-prompt på norsk: foreslå konkrete, realistiske kategorier/prosesser basert på hva slags leverandør dette er. Maks 5 punkter, kompakt liste-format.
-- Returnerer `{ suggestion: string }`
-- CORS headers + 402/429 håndtering med tydelige meldinger
+### 5. Standardstatus i `RegisterActivityDialog.tsx`
 
-### 4. Felles UX-detaljer
+Når brukeren oppretter en ny aktivitet manuelt:
+- Default `outcomeStatus` settes til `open`.
+- Legg til en enkel status-velger i dialogen (samme stil som level-velgeren) slik at brukeren kan starte aktiviteten i riktig tilstand. Gjelder også når den prefilles fra et Mynder-forslag.
 
-- Empty state når feltet er tomt: muted placeholder "Skriv inn eller la AI foreslå…"
-- Toast-bekreftelse ved lagring og ved AI-forslag
-- Hvis textarea har ulagrede endringer: "Lagre"-knappen blir primary, ellers ghost
-- Responsiv: textarea fyller bredden, knapper stables på mobil
+### 6. Demo-data (`generateDemoActivities`)
 
-### Filer som endres / opprettes
+Oppdater seedet for å gi realistisk fordeling så demoen viser hele spekteret:
+- ~30% `completed`, ~25% `in_progress`, ~15% `awaiting_vendor`, ~10% `awaiting_internal`, ~10% `open`, ~5% `blocked`, ~5% `cancelled`
 
-**Endres:**
-- `src/components/asset-profile/tabs/PersonalDataCard.tsx`
-- `src/components/asset-profile/tabs/UsageTab.tsx`
+### 7. Status-historikk (lett-versjon, in-memory)
 
-**Opprettes:**
-- `supabase/functions/suggest-vendor-data-types/index.ts`
-- `supabase/functions/suggest-vendor-processes/index.ts`
+Når status endres via `updateActivity`, legg til en post i `act.statusHistory: { from, to, changedAt, changedBy }[]` (nytt valgfritt felt). I detaljpanelet vises nederst en kompakt liste "Statusendringer" når den finnes (maks 3 synlige, "Vis alle …" hvis flere). Gir sporbarhet uten DB-endring.
 
-**Slettes (eller beholdes ubrukt):**
-- `src/components/asset-profile/tabs/AddDataCategoryDialog.tsx` — ikke lenger referert. Slettes.
+### Filer som endres
+- `src/utils/vendorActivityData.ts` — ny statusmodell + config + demo-fordeling
+- `src/components/asset-profile/ActivityDetailPanel.tsx` — statusveksler + historikk
+- `src/components/asset-profile/tabs/VendorActivityTab.tsx` — status-pille + filter
+- `src/components/asset-profile/RegisterActivityDialog.tsx` — status-velger + default
+- `src/components/trust-controls/VendorTPRMStatus.tsx` — bruker `OUTCOME_COLORS`, justeres til ny config (kun visuelt)
 
 ### Ut av scope
-
-- Migrering av eksisterende `asset_data_categories`-rader til ny tekst (gamle data forblir i tabellen, men vises ikke lenger i denne fanen)
-- Endring av `ProcessDataTypesTab.tsx` (system/process-visningen) — den fortsetter med strukturert data
-- Andre faner i leverandørprofilen
+- Persistering til database (alt holdes in-memory som resten av aktivitetslogikken i demoen)
+- Notifikasjoner ved statusendringer
+- Status-rapporter / eksport
 
