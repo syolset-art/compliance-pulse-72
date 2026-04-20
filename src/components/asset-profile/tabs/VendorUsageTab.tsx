@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
 
 interface VendorUsageTabProps {
   assetId: string;
@@ -354,50 +355,59 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
         </Card>
       </div>
 
-      {/* Data categories */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            {isNb ? "Datatyper som behandles" : "Data types processed"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {dataCategories.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {dataCategories.map(dc => (
-                <Badge key={dc.id} variant="secondary" className="text-xs">{dc.data_type_name}</Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen datatyper registrert" : "No data types registered"}</p>
-          )}
-        </CardContent>
-      </Card>
+      {/* Data usage (free-text + AI suggestions) */}
+      <AISuggestTextarea
+        icon={<Database className="h-4 w-4" />}
+        titleNb="Databruk"
+        titleEn="Data usage"
+        placeholderNb="Beskriv hvilke data leverandøren behandler – personopplysninger, kategorier, mengde, sensitivitet …"
+        placeholderEn="Describe what data the vendor processes – personal data, categories, volume, sensitivity …"
+        value={(asset?.metadata as any)?.data_usage_text || ""}
+        onSave={async (next) => {
+          const newMeta = { ...(asset?.metadata as any || {}), data_usage_text: next };
+          const { error } = await supabase.from("assets").update({ metadata: newMeta }).eq("id", assetId);
+          if (error) {
+            toast.error(isNb ? "Kunne ikke lagre" : "Could not save");
+          } else {
+            toast.success(isNb ? "Lagret" : "Saved");
+            queryClient.invalidateQueries({ queryKey: ["asset-usage", assetId] });
+          }
+        }}
+        edgeFunction="suggest-vendor-data-types"
+        context={{
+          vendorName: asset?.name,
+          vendorCategory: asset?.vendor_category,
+          vendorDescription: asset?.description,
+          vendorUrl: asset?.url,
+        }}
+      />
 
-      {/* Processes */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Workflow className="h-4 w-4" />
-            {isNb ? "Prosesser som bruker denne leverandøren" : "Processes using this vendor"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {processes.length > 0 ? (
-            <div className="space-y-2">
-              {processes.map(p => (
-                <div key={p.id} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
-                  <span className="font-medium">{p.name}</span>
-                  <Badge variant={p.status === "active" ? "default" : "secondary"} className="text-[13px]">{p.status}</Badge>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground italic">{isNb ? "Ingen prosesser koblet" : "No processes linked"}</p>
-          )}
-        </CardContent>
-      </Card>
+      {/* Processes (free-text + AI suggestions) */}
+      <AISuggestTextarea
+        icon={<Workflow className="h-4 w-4" />}
+        titleNb="Prosesser som bruker denne leverandøren"
+        titleEn="Processes using this vendor"
+        placeholderNb="Beskriv hvilke interne prosesser eller arbeidsflyter som bruker leverandøren …"
+        placeholderEn="Describe which internal processes or workflows use this vendor …"
+        value={(asset?.metadata as any)?.processes_text || ""}
+        onSave={async (next) => {
+          const newMeta = { ...(asset?.metadata as any || {}), processes_text: next };
+          const { error } = await supabase.from("assets").update({ metadata: newMeta }).eq("id", assetId);
+          if (error) {
+            toast.error(isNb ? "Kunne ikke lagre" : "Could not save");
+          } else {
+            toast.success(isNb ? "Lagret" : "Saved");
+            queryClient.invalidateQueries({ queryKey: ["asset-usage", assetId] });
+          }
+        }}
+        edgeFunction="suggest-vendor-processes"
+        context={{
+          vendorName: asset?.name,
+          vendorCategory: asset?.vendor_category,
+          vendorDescription: asset?.description,
+          vendorUrl: asset?.url,
+        }}
+      />
 
       {/* Integrations / Relations */}
       {relations.length > 0 && (
