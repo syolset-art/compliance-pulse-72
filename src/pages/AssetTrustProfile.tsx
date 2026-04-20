@@ -338,7 +338,7 @@ const AssetTrustProfile = () => {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto pt-11">
-          <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
+          <div className="w-full mx-auto p-4 md:p-6 lg:px-8 xl:px-12 space-y-4 md:space-y-5">
             {/* Back button */}
             <div className="flex items-center justify-between mb-1">
               <Button variant="ghost" onClick={() => navigate("/assets")}>
