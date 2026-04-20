@@ -73,6 +73,22 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     setTitleError(false);
   };
 
+  // Apply prefill when dialog opens with a guidance suggestion
+  useEffect(() => {
+    if (open && prefillFromGuidance) {
+      setType(prefillFromGuidance.suggestedType);
+      setPhase(prefillFromGuidance.suggestedPhase);
+      setTitle(isNb ? prefillFromGuidance.titleNb : prefillFromGuidance.titleEn);
+      setDescription(isNb ? prefillFromGuidance.descriptionNb : prefillFromGuidance.descriptionEn);
+      setOutcome("in_progress");
+      setDate(new Date());
+      setTitleError(false);
+    } else if (open && !prefillFromGuidance) {
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, prefillFromGuidance?.id]);
+
   const handleSubmit = () => {
     if (!title.trim()) {
       setTitleError(true);
@@ -97,27 +113,57 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       participants: participants || undefined,
       attachmentNote: attachmentNote || undefined,
       isManual: true,
+      linkedGapId: prefillFromGuidance?.gapId,
+      criticality: prefillFromGuidance?.criticality,
     };
     onSubmit(activity);
     reset();
     setOpen(false);
   };
 
+  const clearPrefill = () => {
+    setType("email"); setTitle(""); setDescription(""); setPhase("ongoing");
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1.5">
-          <PlusCircle className="h-3.5 w-3.5" />
-          {isNb ? "Registrer aktivitet" : "Register activity"}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5">
+            <PlusCircle className="h-3.5 w-3.5" />
+            {isNb ? "Registrer aktivitet" : "Register activity"}
+          </Button>
+        </DialogTrigger>
+      )}
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isNb ? "Registrer aktivitet" : "Register activity"}</DialogTitle>
           <DialogDescription>
             {isNb
               ? "Loggfør kommunikasjon og hendelser knyttet til denne leverandøren."
               : "Log communication and events related to this vendor."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {prefillFromGuidance && (
+          <div className="rounded-r-md border-l-4 border-primary bg-primary/10 p-3 flex items-start gap-2">
+            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-foreground">
+                <span className="font-semibold">{isNb ? "Forhåndsutfylt av Mynder" : "Pre-filled by Mynder"}</span>{" "}
+                · {isNb ? prefillFromGuidance.reasonNb : prefillFromGuidance.reasonEn}
+              </p>
+              <button
+                type="button"
+                onClick={clearPrefill}
+                className="text-xs text-primary hover:underline mt-0.5"
+              >
+                {isNb ? "Tøm felt" : "Clear fields"}
+              </button>
+            </div>
+          </div>
+        )}
+
           </DialogDescription>
         </DialogHeader>
 
