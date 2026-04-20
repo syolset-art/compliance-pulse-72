@@ -1,30 +1,25 @@
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Users, Workflow } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, FileText, Users, Workflow, Sparkles, Loader2, Save } from "lucide-react";
+import { toast } from "sonner";
 
 interface UsageTabProps {
   assetId: string;
 }
 
 export const UsageTab = ({ assetId }: UsageTabProps) => {
-  const { t } = useTranslation();
-
-  const { data: processes } = useQuery({
-    queryKey: ["system-processes", assetId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("system_processes")
-        .select("*")
-        .eq("system_id", assetId)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-  });
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const queryClient = useQueryClient();
+  const [processText, setProcessText] = useState("");
+  const [originalProcessText, setOriginalProcessText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const { data: asset } = useQuery({
     queryKey: ["asset-with-workarea", assetId],
@@ -46,6 +41,68 @@ export const UsageTab = ({ assetId }: UsageTabProps) => {
       return data;
     },
   });
+
+  useEffect(() => {
+    const meta = (asset?.metadata as any) || {};
+    const stored = meta.processes_text || "";
+    setProcessText(stored);
+    setOriginalProcessText(stored);
+  }, [asset?.id]);
+
+  const meta = (asset?.metadata as any) || {};
+  const updatedAt = meta.processes_updated_at as string | undefined;
+  const dirty = processText !== originalProcessText;
+
+  const handleAiSuggest = async () => {
+    if (!asset) return;
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-vendor-processes", {
+        body: {
+          vendorName: asset.name,
+          vendorCategory: asset.vendor_category || asset.vendor,
+          vendorDescription: asset.description,
+          language: i18n.language,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      const suggestion = data?.suggestion || "";
+      if (!suggestion) {
+        toast.error(isNb ? "Ingen forslag mottatt" : "No suggestion received");
+        return;
+      }
+      if (processText.trim() && !confirm(isNb ? "Erstatte eksisterende tekst med AI-forslaget?" : "Replace existing text with AI suggestion?")) {
+        setProcessText(processText + "\n\n" + suggestion);
+      } else {
+        setProcessText(suggestion);
+      }
+      toast.success(isNb ? "AI-forslag lagt til" : "AI suggestion added");
+    } catch (e: any) {
+      toast.error(e.message || (isNb ? "Kunne ikke hente forslag" : "Could not fetch suggestion"));
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const newMeta = { ...(meta || {}), processes_text: processText, processes_updated_at: new Date().toISOString() };
+      const { error } = await supabase.from("assets").update({ metadata: newMeta }).eq("id", assetId);
+      if (error) throw error;
+      setOriginalProcessText(processText);
+      toast.success(isNb ? "Lagret" : "Saved");
+      queryClient.invalidateQueries({ queryKey: ["asset-with-workarea", assetId] });
+    } catch (e: any) {
+      toast.error(e.message || (isNb ? "Kunne ikke lagre" : "Could not save"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -94,38 +151,42 @@ export const UsageTab = ({ assetId }: UsageTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Processes */}
+      {/* Processes - free text + AI */}
       <Card className="lg:col-span-2">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Workflow className="h-5 w-5" />
-            {t("trustProfile.processes")}
+            {isNb ? "Prosesser som bruker denne leverandøren" : "Processes using this vendor"}
           </CardTitle>
-          <Button variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            {t("common.add")}
+          <Button variant="outline" size="sm" onClick={handleAiSuggest} disabled={aiLoading}>
+            {aiLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+            {isNb ? "Foreslå med AI" : "Suggest with AI"}
           </Button>
         </CardHeader>
-        <CardContent>
-          {processes && processes.length > 0 ? (
-            <div className="space-y-3">
-              {processes.map((process) => (
-                <div key={process.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{process.name}</p>
-                    {process.description && (
-                      <p className="text-sm text-muted-foreground">{process.description}</p>
-                    )}
-                  </div>
-                  <Badge variant={process.status === "active" ? "default" : "secondary"}>
-                    {process.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-sm">{t("trustProfile.noProcesses")}</p>
-          )}
+        <CardContent className="space-y-3">
+          <Textarea
+            value={processText}
+            onChange={(e) => setProcessText(e.target.value)}
+            placeholder={isNb ? "Beskriv hvilke prosesser i virksomheten som bruker denne leverandøren, eller la AI foreslå…" : "Describe which business processes use this vendor, or let AI suggest…"}
+            rows={6}
+            className="resize-y min-h-[120px]"
+          />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              {updatedAt
+                ? `${isNb ? "Sist oppdatert" : "Last updated"} ${new Date(updatedAt).toLocaleString(isNb ? "nb-NO" : "en-US")}`
+                : isNb ? "Ikke lagret enda" : "Not saved yet"}
+            </p>
+            <Button
+              size="sm"
+              variant={dirty ? "default" : "ghost"}
+              onClick={handleSave}
+              disabled={!dirty || saving}
+            >
+              {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+              {isNb ? "Lagre" : "Save"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
