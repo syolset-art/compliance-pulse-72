@@ -22,7 +22,8 @@ export interface VendorActivity {
   attachmentNote?: string;
   isManual?: boolean;
   linkedGapId?: string;
-  criticality?: "kritisk" | "hoy" | "medium";
+  criticality?: "lav" | "medium" | "hoy" | "kritisk";
+  theme?: string;
   level?: ActivityLevel;
   createdAt?: Date;
 }
