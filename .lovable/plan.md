@@ -1,66 +1,83 @@
 
 
-## Plan: Forenkle faser og utfall for leverandøraktiviteter
+## Plan: "Veiledning fra Mynder"-fane med AI-foreslåtte aktiviteter
 
-### Bakgrunn
-Dagens prototype bruker 4 faser (Onboarding, Løpende oppfølging, Revisjon, Hendelseshåndtering) + et eget "outcome"-felt. Dette er to dimensjoner brukeren må forstå samtidig — for komplekst. Helseforetak, banker og andre regulerte virksomheter (DORA, NIS2, ISO 27036) bruker i praksis en livssyklus-modell for tredjepartsstyring, men de trenger ikke se hele rammeverket i en enkel aktivitetslogg.
+### Konsept
+En ny fane (eller fornyet eksisterende) som viser AI-genererte handlingsforslag basert på det Mynder vet om leverandøren. Brukeren bekrefter med ett klikk i stedet for å fylle ut alt manuelt. Aktiviteter som lukker en kjent gap markeres tydelig.
 
-### Anbefaling: To dimensjoner, men forenklet
+### Endringer
 
-**Dimensjon 1 — FASE (hvor i livssyklusen):** beholdes, men språket forenkles og utvides med én manglende fase.
+**1. Ny datamodell — `src/utils/vendorGuidanceData.ts` (ny fil)**
+```ts
+type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
+type Criticality = "kritisk" | "hoy" | "medium";
 
-| Fase | Forklaring | Når brukes |
-|---|---|---|
-| Vurdering før avtale | Due diligence, risikovurdering før kontrakt | Ny leverandør under evaluering |
-| Onboarding | Avtale signert, oppstart, dokumentinnhenting | Aktiv onboarding |
-| Løpende oppfølging | Periodisk dialog, KPI, statusmøter | Daglig drift |
-| Revisjon og kontroll | Audit, stikkprøver, samsvarsgjennomgang | Årlig/planlagt kontroll |
-| Hendelse og avvik | Sikkerhetshendelse, brudd, eskalering | Når noe har skjedd |
-| Avslutning | Offboarding, terminering, dataoverføring | Avtale avsluttes |
+interface SuggestedActivity {
+  id: string;
+  titleNb/En, descriptionNb/En;       // f.eks. "Følg opp databehandleravtale"
+  reasonNb/En;                         // "DPA ikke mottatt · påkrevd etter GDPR art. 28"
+  criticality: Criticality;
+  level: GuidanceLevel;
+  themeNb/En;                          // "DPA & personvern"
+  suggestedType: ActivityType;         // email | phone | meeting | manual
+  suggestedPhase: Phase;
+  gapId: string;                       // referanse til hva den lukker
+}
 
-Dette er språket DSB, Finanstilsynet og Helsedirektoratet faktisk bruker — gjenkjennelig for både helseforetak og banker.
+generateGuidanceForVendor(vendorId) → { summaryNb, summaryEn, suggestions[] }
+```
 
-**Dimensjon 2 — STATUS (forenklet fra "outcome"):** byttes fra dagens 5–6 utfallsverdier til 3 enkle statuser:
+Demo-data: 3 forslag per leverandør (DPA, SLA, risikovurdering) som matcher bildet.
 
-| Status | Betydning |
-|---|---|
-| Pågår | Aktiviteten er startet, ikke ferdig |
-| Fullført | Avsluttet uten anmerkninger |
-| Krever oppfølging | Avsluttet, men noe må følges opp (avvik, action) |
+**2. Ny komponent — `src/components/asset-profile/MynderGuidanceTab.tsx`**
 
-Dette dekker behovet — brukeren slipper å velge mellom "godkjent / ikke godkjent / utsatt / avvist / under behandling" osv.
+Layout (matcher screenshot):
+- **Lilla synthesis-boks øverst:** "MYNDER SYNTETISERER" badge + statussammendrag. Tekst som "Leverandøren er under aktiv oppfølging. Siste strategiske aktivitet var et revisjonsmøte 15.03.2026. Det er 3 åpne punkter…"
+- **"FORESLÅTTE AKTIVITETER (n)"-overskrift**
+- **Forslagskort** (vertikal liste):
+  - Tittel + kritikalitets-badge høyre (KRITISK rød / HØY oransje / MEDIUM gul)
+  - Begrunnelse i lilla/primary tekst
+  - 3 chips nederst: nivå (Taktisk/Strategisk/Operasjonelt) · tema · forslag-type ("E-post foreslått")
+  - Hele kortet er klikkbart → åpner forhåndsutfylt RegisterActivityDialog
+- **CTA nederst:** "+ Start tom aktivitet" (åpner samme modal uten prefill)
 
-### Hvorfor ikke kun status (uten fase)?
-Du foreslo "startet / pågår / ferdig" alene. Problemet: en revisor og en innkjøper trenger å vite *hva slags* aktivitet det er — ikke bare at den pågår. "Møte med leverandør" sier lite uten kontekst om det er onboarding eller hendelseshåndtering. Fasen gir den konteksten på ett blikk og er det DORA art. 28 og NIS2 art. 21 forventer dokumentert.
+**3. Endringer i `RegisterActivityDialog.tsx`**
+- Nytt prop: `prefillFromGuidance?: SuggestedActivity`
+- Når satt: forhåndsfyll alle felter (type, fase, tittel, beskrivelse, tema)
+- Vis lilla banner øverst i modalen: "🔮 Forhåndsutfylt av Mynder basert på [grunn]" + lenke "Tøm felt"
+- Lagre setter `linkedGapId` på aktiviteten
 
-### Endringer i koden
+**4. Endringer i `vendorActivityData.ts`**
+- Legg til felt på `VendorActivity`: `linkedGapId?: string`, `criticality?: Criticality`
+- Toast ved lagring av guided aktivitet: "Aktivitet lagret og koblet til gap" (grønn)
+- Vanlig toast ellers: "Aktivitet lagret"
 
-**1. `src/utils/vendorActivityData.ts`**
-- Utvid `phase`-typen med `pre_assessment` og `termination`
-- Oppdater `PHASE_CONFIG` med nye labels (NB/EN) og farger
-- Erstatt `outcomeStatus` enum med 3 verdier: `in_progress`, `completed`, `needs_followup`
-- Oppdater `OUTCOME_COLORS`
-- Oppdater eksisterende seed-data til å bruke nye statuser
+**5. Endringer i `VendorActivityTab.tsx` (Aktivitetslogg)**
+- Aktiviteter med `linkedGapId` får grønn venstre-border + "Lukker gap"-badge
+- Sortering: nyeste først (allerede slik)
 
-**2. `src/components/asset-profile/ActivityDetailPanel.tsx`**
-- Bruk nye labels via `PHASE_CONFIG`
-- Vis ny status-pill med ikon (Clock / CheckCircle2 / AlertCircle)
+**6. State-flyt**
+- Bruk lokal state i `AssetTrustProfile` (eller liten zustand store) for `dismissedSuggestionIds`
+- Når en aktivitet lagres med `linkedGapId`, legg gap-id i dismissed → forslaget forsvinner fra listen
+- Synthesis-tekst regnes ut fra `suggestions.length` (3 → 2 åpne punkter)
 
-**3. Aktivitet-opprettelse / filtrering** (tidsline-komponenter som filtrerer på fase)
-- Søk opp komponenter som refererer til gamle outcome-verdier og oppdater dropdown-valg + filterlogikk
+**7. Faneintegrasjon i `AssetTrustProfile.tsx`**
+- Bytt navnet på eksisterende guidance-fane til "Veiledning fra Mynder" (allerede sånn iflg. bildet)
+- Sørg for at "Aktivitetslogg"-fanen viser korrekt count som inkluderer nye aktiviteter
 
-**4. Tooltip / hjelp**
-- Legg til kort tooltip på fase-velgeren: "Hvor i leverandørens livssyklus er denne aktiviteten?"
-- Tooltip på status: "Hva er resultatet av aktiviteten så langt?"
+### Visuelle detaljer (Apple-minimal, deep purple #5A3184)
+- Synthesis-boks: `bg-primary/8 border border-primary/20 rounded-xl p-5`
+- "MYNDER SYNTETISERER"-badge: solid primary, hvit tekst, uppercase tracking-wide
+- Forslagskort: hvit bg, `border border-border` → hover `border-primary/40`
+- Kritikalitet-badges: `bg-destructive/15 text-destructive` (kritisk), `bg-amber-500/15 text-amber-700` (høy), `bg-yellow-500/15 text-yellow-700` (medium)
+- Chips: `bg-muted text-muted-foreground text-xs rounded-md px-2 py-0.5`
+- Banner i modal: `bg-primary/10 border-l-4 border-primary p-3 rounded-r-md`
 
-### Migrering av demo-data
-Mapping av gamle outcome-verdier:
-- `approved`, `passed`, `closed` → `completed`
-- `pending`, `in_review` → `in_progress`
-- `failed`, `escalated`, `action_required` → `needs_followup`
+### Lokalisering
+Alle strenger med NB/EN-varianter via `isNb`-mønsteret som ellers i koden.
 
 ### Ut av scope
-- Backend-skjema (kun prototype-data i `vendorActivityData.ts`)
-- Lokalisering utover NB/EN
-- Endringer i selve aktivitetstype-katalogen (e-post, møte, dokument osv.)
+- Ekte AI-generering (kun seedet demo-data)
+- Backend-persistering av dismissed forslag (kun in-memory)
+- Endringer på andre faner enn Veiledning og Aktivitetslogg
 
