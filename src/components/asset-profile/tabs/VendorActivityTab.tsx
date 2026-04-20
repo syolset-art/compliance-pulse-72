@@ -7,15 +7,17 @@ import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistor
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { ActivityDetailPanel } from "@/components/asset-profile/ActivityDetailPanel";
+import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import { useUserTasks } from "@/hooks/useUserTasks";
 import {
-  generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, OUTCOME_COLORS,
-  type Phase, type VendorActivity,
+  generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, ACTIVITY_STATUS_CONFIG,
+  type Phase, type VendorActivity, type ActivityStatus,
 } from "@/utils/vendorActivityData";
+import { cn } from "@/lib/utils";
 import {
   FileText, AlertTriangle, UserCheck, ClipboardCheck,
-  Package, TrendingUp, Settings, Upload, Eye, Clock, CheckCircle2,
-  AlertCircle, Timer, ListTodo, Filter, Mail, Phone, Users, PenLine, ChevronDown,
+  Package, TrendingUp, Settings, Upload, Eye, Clock,
+  ListTodo, Filter, Mail, Phone, Users, PenLine, ChevronDown, Sparkles,
 } from "lucide-react";
 
 interface VendorActivityTabProps {
@@ -34,16 +36,16 @@ const ACTIVITY_ICONS = {
   email: Mail, phone: Phone, meeting: Users, manual: PenLine,
 } as const;
 
-const OUTCOME_ICON = {
-  in_progress: Timer, completed: CheckCircle2, needs_followup: AlertCircle,
-} as const;
+type StatusFilter = "all" | ActivityStatus;
 
 export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19, externalActivities = [], onActivityAdded }: VendorActivityTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [manualActivities, setManualActivities] = useState<VendorActivity[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [statusEditorId, setStatusEditorId] = useState<string | null>(null);
   const [activityOverrides, setActivityOverrides] = useState<Record<string, Partial<VendorActivity>>>({});
 
   const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
@@ -57,13 +59,50 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const updateActivity = (id: string, patch: Partial<VendorActivity>) => {
     setActivityOverrides(prev => ({ ...prev, [id]: { ...(prev[id] ?? {}), ...patch } }));
   };
+
+  const handleStatusChange = (act: VendorActivity, next: ActivityStatus, comment?: string) => {
+    if (next === act.outcomeStatus && !comment) {
+      setStatusEditorId(null);
+      return;
+    }
+    const conf = ACTIVITY_STATUS_CONFIG[next];
+    const historyEntry = {
+      from: act.outcomeStatus,
+      to: next,
+      comment,
+      changedAt: new Date(),
+      changedBy: isNb ? "Deg" : "You",
+    };
+    updateActivity(act.id, {
+      outcomeStatus: next,
+      outcomeNb: conf.nb,
+      outcomeEn: conf.en,
+      statusHistory: [...(act.statusHistory ?? []), historyEntry],
+    });
+    setStatusEditorId(null);
+  };
+
   const { tasks, createTask } = useUserTasks();
   const vendorTasks = useMemo(() => tasks.filter(t => t.asset_id === assetId && t.status !== "done"), [tasks, assetId]);
 
-  const filtered = useMemo(() =>
-    phaseFilter === "all" ? activities : activities.filter(a => a.phase === phaseFilter),
-    [activities, phaseFilter]
-  );
+  const statusCounts = useMemo(() => {
+    const c = { open: 0, in_progress: 0, closed: 0, not_relevant: 0 } as Record<ActivityStatus, number>;
+    for (const a of activities) c[a.outcomeStatus]++;
+    return c;
+  }, [activities]);
+
+  const closedLast30 = useMemo(() => {
+    const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return activities.filter(a => a.outcomeStatus === "closed" && a.date.getTime() >= cutoff).length;
+  }, [activities]);
+
+  const filtered = useMemo(() => {
+    return activities.filter(a => {
+      if (phaseFilter !== "all" && a.phase !== phaseFilter) return false;
+      if (statusFilter !== "all" && a.outcomeStatus !== statusFilter) return false;
+      return true;
+    });
+  }, [activities, phaseFilter, statusFilter]);
 
   const grouped = useMemo(() => {
     const groups: { label: string; items: VendorActivity[] }[] = [];
@@ -90,8 +129,22 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
     { key: "termination", nb: "Avslutning", en: "Termination" },
   ];
 
+  const statusFilters: { key: StatusFilter; nb: string; en: string; count: number; dot?: string }[] = [
+    { key: "all", nb: "Alle", en: "All", count: activities.length },
+    { key: "open", nb: "Åpne", en: "Open", count: statusCounts.open, dot: ACTIVITY_STATUS_CONFIG.open.filterDot },
+    { key: "in_progress", nb: "Under oppfølging", en: "In progress", count: statusCounts.in_progress, dot: ACTIVITY_STATUS_CONFIG.in_progress.filterDot },
+    { key: "closed", nb: "Lukket", en: "Closed", count: statusCounts.closed, dot: ACTIVITY_STATUS_CONFIG.closed.filterDot },
+    ...(statusCounts.not_relevant > 0 ? [{ key: "not_relevant" as StatusFilter, nb: "Ikke relevant", en: "Not relevant", count: statusCounts.not_relevant, dot: ACTIVITY_STATUS_CONFIG.not_relevant.filterDot }] : []),
+  ];
+
   const toggleExpand = (id: string) => {
     setExpandedId(prev => prev === id ? null : id);
+    if (statusEditorId === id) setStatusEditorId(null);
+  };
+
+  const toggleStatusEditor = (id: string) => {
+    setStatusEditorId(prev => prev === id ? null : id);
+    if (expandedId === id) setExpandedId(null);
   };
 
   return (
