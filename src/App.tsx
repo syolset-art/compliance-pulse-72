@@ -176,6 +176,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
+              </DemoSyncProvider>
             </TooltipProvider>
           </NavigationModeProvider>
           </ActiveOrganizationProvider>
