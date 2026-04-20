@@ -1,85 +1,80 @@
 
 
-## Plan: Nytt menypunkt "AI Autonomi" i Innstillinger
+## Plan: Demo for innkommende kundemelding (med e-postvisning)
 
-Brukeren skal kunne styre hva Mynders AI-agenter får lov til å gjøre, per oppgavetype, med tydelige forklaringer av konsekvenser. Designet bygger på Mynders eksisterende 3-nivå autonomiskala (Automatisk / Assistert / Manuell — SAE-inspirert), og forankres mot **ISO/IEC 42001 (AIMS)** sine prinsipper for human oversight og **NIST AI RMF (Govern/Manage)** for risikobasert styring.
+Subtil demo-knapp i sidebaren som spiller av en sekvens som viser hvordan en e-postmelding fra Mynder ser ut når en kunde ber om leverandøroppdatering.
 
 ### Hva som bygges
 
-**1. Nytt menypunkt i `PersonalSettings.tsx`**
-- Legg til seksjon `{ id: "ai-autonomy", labelNb: "AI Autonomi", labelEn: "AI Autonomy", icon: Sparkles }` i `sections`-arrayet
-- Plasseres rett etter "Agenter"
+**1. Subtil demo-knapp i `Sidebar.tsx`**
+- Plasseres rett over Innstillinger-blokken (nederst)
+- Stil: `text-[11px] text-muted-foreground hover:text-primary`, `Sparkles`-ikon (h-3 w-3), `border border-dashed border-primary/20 rounded-md`, `mx-3 mb-2 px-2 py-1`
+- Tekst: "Demo: Kundemelding"
+- Tooltip: "Spill av demonstrasjon: motta og besvar leverandøroppdatering"
+- Klikk → dispatcher custom event `start-customer-request-demo`
 
-**2. Ny komponent `src/components/settings/AIAutonomySection.tsx`**
+**2. Ny komponent `src/components/demo/CustomerRequestDemoController.tsx`**
+Mountes globalt i `App.tsx`. Lytter på event og kjører en orkestrert sekvens med narrasjons-toasts (~2-3 sek mellomrom):
 
-Layout (top → bottom):
+| Steg | Hendelse | Visuell effekt |
+|---|---|---|
+| 1 | Toast: "Sparebank Vest sender en forespørsel..." | Info-toast |
+| 2 | Bell-ikon i TopBar pulserer + rød dot | Notifikasjons-badge |
+| 3 | **E-postvisning åpnes** (modal) — viser hvordan e-posten ser ut fra Mynder i kundens innboks | Stor modal/dialog |
+| 4 | Auto-naviger til `/customer-requests` | Route-skifte |
+| 5 | Demo-melding fades inn øverst i listen med highlight-glow | Ny rad med "NY"-badge |
+| 6 | Toast: "Mynder har analysert og foreslår et utkast" | Info-toast |
+| 7 | Auto-åpne meldingen → AI-foreslått svar med vedlegg | Drawer |
+| 8 | Toast: "Du kan godkjenne svaret med ett klikk" + "Avslutt demo"-knapp | Info-toast |
 
-**A. Intro-banner (lilla, primary/5)**
-- Tittel: "Styr hva Mynders KI får gjøre"
-- Kort tekst: forklarer at brukeren har full kontroll, at standardvalg følger ISO/IEC 42001 anbefaling om "meaningful human oversight", og at høyere autonomi gir hastighet men reduserer kontrollpunkter.
-- Liten chip-rad: "Basert på ISO/IEC 42001" · "NIST AI RMF" · "EU AI Act art. 14"
+**3. E-postvisning (`EmailPreviewModal.tsx`) — ny i steg 3**
+Viser en realistisk e-post slik den ville sett ut i kundens innboks:
+- **E-post-header** (grå, kompakt): Fra: `noreply@mynder.no`, Til: `compliance@sparebankvest.no`, Emne: "Forespørsel om leverandøroppdatering 2025"
+- **E-postkropp** (hvit container, max-w-2xl, mx-auto):
+  - Mynder-logo øverst
+  - Hilsen: "Hei {kontaktperson},"
+  - Brødtekst: "Sparebank Vest har bedt om en oppdatert leverandørstatus..."
+  - Liste over hva som etterspørres (ISO 27001, DPA, Trust Profile-lenke)
+  - Stor primær CTA-knapp: "Åpne forespørselen i Mynder" (deep purple `#5A3184`)
+  - Footer med lenker (Personvern, Avregistrer)
+- Stil matcher transactional email-templates (white bg, Apple-minimal, Mynder brand)
+- "Lukk og fortsett"-knapp nederst i modal-footer
 
-**B. Globalt autonominivå (Master switch)**
-- Stort kort med 3 valgkort side-om-side (radio-style):
-  - 🟢 **Manuell** — "KI foreslår, du utfører alt"
-  - 🟡 **Assistert** *(anbefalt — default)* — "KI lager utkast, du godkjenner før handling"
-  - 🟣 **Automatisk** — "KI utfører selv innenfor definerte grenser"
-- Hvert kort viser: ikon, navn, kort beskrivelse, "Konsekvens"-linje med 2 punkter (hva du sparer / hva du gir fra deg)
-- Valgt kort får primary border + bg-primary/5
+**4. Demo-state i `DemoSyncContext.tsx`**
+- Legg til `customerRequestDemo: boolean` flag
+- `startCustomerRequestDemo()` / `endCustomerRequestDemo()` helpers
 
-**C. Konsekvens-panel (dynamisk)**
-Endrer seg basert på valgt globalt nivå. Viser et tydelig "Hva betyr dette?"-panel:
-- ✓ grønne fordeler (hastighet, dekning)
-- ⚠ gule risikoer (mindre kontroll, behov for stikkprøver)
-- 🛡 kontrollpunkter som fortsatt finnes (audit log, rollback, override)
+**5. Demo-melding-injeksjon i `InboundRequestsContent.tsx`**
+- Når `demoSync.customerRequestDemo === true`, prepend ekstra rad: "Sparebank Vest — Årlig leverandøroppdatering 2025", deadline 14 dager, etterspør ISO 27001 + DPA + Trust Profile
+- Highlight-ring på raden (`ring-2 ring-primary/30`)
 
-**D. Per-oppgave overstyring (Granulær matrise)**
-Tabell-lignende kortliste der hver KI-oppgave kan ha sitt eget nivå (overstyrer global). Kategorier basert på Mynders moduler:
+**6. Bell-pulse i TopBar**
+- Lytter på `demoSync.customerRequestDemo` → `animate-pulse` på Bell + rød dot
 
-| Oppgavekategori | Eksempler | Standard | Anbefalt maks |
-|---|---|---|---|
-| **Dokumentanalyse** | Klassifisering, utløpsdato-uthenting | Automatisk | Automatisk |
-| **Funn & gap-deteksjon** | Identifisere mangler i DPA, SLA | Assistert | Assistert |
-| **Risikoscoring** | Beregne leverandørrisiko | Assistert | Automatisk |
-| **Aktivitetsforslag** | Forslag i "Veiledning fra Mynder" | Assistert | Assistert |
-| **Kommunikasjon utad** | Sende e-post til leverandør | Manuell | Assistert |
-| **Endring av kontrollstatus** | Markere kontroll som lukket | Manuell | Assistert |
-| **Publisering** | Publisere Trust Profile | Manuell | Manuell |
-
-Hvert rad-kort har:
-- Ikon + navn + 1-linjes beskrivelse
-- Segmentert kontroll (Manuell/Assistert/Automatisk)
-- Hvis bruker velger over "anbefalt maks" → vis ⚠ inline-advarsel: "Høyere enn anbefalt for denne oppgaven. Mynder vil logge alle handlinger for revisjon."
-
-**E. Sikkerhetsnett (alltid på, read-only info)**
-Kort med 4 punkter — viser kontrollene som *alltid* gjelder uansett autonominivå:
-- 📋 Full revisjonslogg av alle KI-handlinger
-- ↩ Angre-funksjon (24t)
-- 🚫 Kill-switch (pause all KI umiddelbart)
-- 👥 Eskalering til menneske ved usikkerhet > terskel
-
-**F. Forankrings-footer**
-Lite info-kort: "Designet etter ISO/IEC 42001 §6.1 (AI risk treatment) og §8.3 (human oversight). EU AI Act art. 14 krever meningsfull menneskelig overvåking for høyrisiko-systemer."
-
-### Persistering
-- Lagres i `localStorage` under `mynder-ai-autonomy-config` (demo)
-- Struktur: `{ globalLevel: "assisted", overrides: { documentAnalysis: "automatic", ... }, killSwitch: false }`
-- Toast ved hver endring: "Autonominivå oppdatert"
+**7. Floating "Avslutt demo"-pille**
+- Synlig under hele sekvensen, øverst til høyre
+- Stopper auto-flyt, fjerner demo-melding, lukker eventuelle åpne modaler
 
 ### Designtokens (Mynder-manualen)
-- Primary: deep purple `#5A3184` for valgt nivå "Automatisk" og banners
-- Success/grønn: `bg-success/10 text-success` for "Manuell" og fordeler
-- Warning/gul-oransje: `bg-warning/10 text-warning` for "Assistert" og advarsler
-- Cards: `border border-border rounded-xl p-5`, hover `border-primary/40`
-- Konsekvens-panel: `bg-muted/30 border-l-4 border-primary`
-- Apple-minimal — masse whitespace, ingen tunge skygger
+- Demo-knapp: subtil `text-muted-foreground` → hover `text-primary`
+- E-postmodal: hvit bg, deep purple `#5A3184` for CTA, Apple-minimal padding
+- Highlight: `ring-2 ring-primary/30 animate-pulse`
+- Ingen tunge skygger
 
-### Filer som endres
-- `src/pages/PersonalSettings.tsx` — legg til seksjon + render
-- `src/components/settings/AIAutonomySection.tsx` *(ny)*
+### Lokalisering
+NB/EN-varianter via `isNb`-mønster (NB primær for denne demoen).
+
+### Filer som endres/opprettes
+- `src/components/Sidebar.tsx` — subtil demo-knapp
+- `src/components/demo/CustomerRequestDemoController.tsx` *(ny)* — orkestrering
+- `src/components/demo/EmailPreviewModal.tsx` *(ny)* — e-postvisning
+- `src/contexts/DemoSyncContext.tsx` — `customerRequestDemo` flag
+- `src/components/customer-requests/InboundRequestsContent.tsx` — injiser demo-melding
+- `src/components/TopBar.tsx` — Bell-pulse
+- `src/App.tsx` — mount controller
 
 ### Ut av scope
-- Faktisk håndheving i AI-agentene (kun UI + lagret config)
-- Backend-tabell for config (kommer når flyt er godkjent)
-- Audit log-visning (egen side senere)
+- Faktisk e-postutsending
+- Backend-persistering
+- Demo for utgående meldinger
 
