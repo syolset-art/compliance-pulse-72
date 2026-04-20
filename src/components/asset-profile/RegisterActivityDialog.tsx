@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
+import { ACTIVITY_STATUS_CONFIG } from "@/utils/vendorActivityData";
 
 type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
