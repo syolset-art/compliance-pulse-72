@@ -113,10 +113,12 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
               >
                 {/* level color bar */}
                 <span className={cn("absolute left-0 top-0 bottom-0 w-1 z-[1]", LEVEL_DOT[s.level])} aria-hidden />
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setActivePrefill(s)}
-                  className="w-full text-left pl-4 pr-4 py-3.5"
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActivePrefill(s); } }}
+                  className="w-full text-left pl-4 pr-4 py-3.5 cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -158,7 +160,7 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
                       <ChevronDown className={cn("h-3 w-3 transition-transform", isEditing && "rotate-180")} />
                     </button>
                   </div>
-                </button>
+                </div>
 
                 {isEditing && (
                   <div className="border-t border-dashed border-border">
