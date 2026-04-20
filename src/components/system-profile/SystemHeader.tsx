@@ -195,6 +195,31 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
           )}
         </div>
 
+        {/* Trust Score gauge — top right */}
+        {trustMetrics && (() => {
+          const score = trustMetrics.trustScore;
+          const isHigh = score >= 75;
+          const isMid = score >= 50;
+          const radius = 32;
+          const circ = 2 * Math.PI * radius;
+          const dash = (score / 100) * circ;
+          const strokeColor = isHigh ? "hsl(var(--success))" : isMid ? "hsl(var(--warning))" : "hsl(var(--destructive))";
+          return (
+            <div className="hidden sm:flex flex-col items-center gap-1 shrink-0 pl-4 border-l border-border">
+              <div className="relative flex items-center justify-center">
+                <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
+                  <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                  <circle cx="40" cy="40" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
+                  <span className="text-[9px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Horizontal metric cards */}
