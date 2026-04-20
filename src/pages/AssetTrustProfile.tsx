@@ -199,22 +199,21 @@ const AssetTrustProfile = () => {
   }, [asset]);
 
   // ── Vendor tabs ──
-  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'deliveries', 'evidence'];
+  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'evidence', 'requests'];
   const LOCKED_TAB = 'overview'; // always visible
   const MAX_VISIBLE_TABS = 7;
-  const STORAGE_KEY = 'mynder_vendor_tab_prefs';
+  const STORAGE_KEY = 'mynder_vendor_tab_prefs_v2';
 
+  // Order matters: defaults first (in display order), then optional tabs in
+  // the order they should appear in the customizer (Aktivitetslogg first).
   const allVendorTabs = useMemo(() => [
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
-    { value: 'vendor-tasks', label: isNb ? 'Oppgaver' : 'Tasks', labelFull: isNb ? 'Oppgaver' : 'Tasks' },
-    { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk & kontekst' : 'Usage & Context' },
-    { value: 'history', label: isNb ? 'Relasjoner' : 'Relations', labelFull: isNb ? 'Relasjoner' : 'Relations' },
-    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
-    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risikovurdering' : 'Audit & Risk Assessment' },
+    { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk og kontekst' : 'Usage & Context' },
     { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
-    { value: 'vendor-incidents', label: isNb ? 'Hendelser' : 'Incidents', labelFull: isNb ? 'Hendelser' : 'Incidents' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+    { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
+    { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risiko' : 'Audit & Risk' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
   ], [isNb]);
 
