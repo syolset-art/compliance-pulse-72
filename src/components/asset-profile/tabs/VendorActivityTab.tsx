@@ -178,7 +178,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
               {isNb ? "Aktivitetslogg" : "Activity Log"}
             </CardTitle>
             <div className="flex items-center gap-2">
-              <RegisterActivityDialog onSubmit={(act) => setManualActivities(prev => [act, ...prev])} />
+              <RegisterActivityDialog onSubmit={(act) => { setManualActivities(prev => [act, ...prev]); onActivityAdded?.(act); }} />
               <CreateUserTaskDialog
                 onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
                 isLoading={createTask.isPending}
@@ -226,7 +226,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                     return (
                       <div key={act.id}>
                         <div
-                          className="flex gap-3 group cursor-pointer rounded-md hover:bg-muted/40 transition-colors -mx-2 px-2 py-0.5"
+                          className={`flex gap-3 group cursor-pointer rounded-md hover:bg-muted/40 transition-colors -mx-2 px-2 py-0.5 ${act.linkedGapId ? "border-l-2 border-success bg-success/5" : ""}`}
                           onClick={() => toggleExpand(act.id)}
                         >
                           <div className="flex flex-col items-center">
@@ -245,7 +245,12 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   <Badge variant="outline" className={`text-[13px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
                                     {isNb ? phaseConf.nb : phaseConf.en}
                                   </Badge>
-                                  {act.isManual && (
+                                  {act.linkedGapId && (
+                                    <Badge className="text-[13px] px-1.5 py-0 bg-success/15 text-success border border-success/20 hover:bg-success/20">
+                                      {isNb ? "Lukker gap" : "Closes gap"}
+                                    </Badge>
+                                  )}
+                                  {act.isManual && !act.linkedGapId && (
                                     <Badge variant="outline" className="text-[13px] px-1.5 py-0 border-dashed text-muted-foreground">
                                       {isNb ? "Manuell" : "Manual"}
                                     </Badge>
