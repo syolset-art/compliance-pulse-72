@@ -1,131 +1,139 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, ShieldCheck, Trash2, Bot, Database } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ShieldCheck, Sparkles, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
-import { AddDataCategoryDialog } from "./AddDataCategoryDialog";
 
 interface PersonalDataCardProps {
   assetId: string;
 }
 
-const getCategoryStyle = (category: string) => {
-  switch (category) {
-    case "sensitive":
-      return "bg-destructive/10 text-destructive border-destructive/20";
-    case "special":
-      return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800";
-    default:
-      return "bg-primary/10 text-primary border-primary/20";
-  }
-};
-
-const getCategoryLabel = (category: string, isNb: boolean) => {
-  switch (category) {
-    case "sensitive": return isNb ? "SENSITIV" : "SENSITIVE";
-    case "special": return isNb ? "SÆRLIG" : "SPECIAL";
-    default: return isNb ? "ORDINÆR" : "ORDINARY";
-  }
-};
-
 export const PersonalDataCard = ({ assetId }: PersonalDataCardProps) => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [originalText, setOriginalText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["asset-data-categories", assetId],
+  const { data: asset } = useQuery({
+    queryKey: ["asset-personal-data", assetId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("asset_data_categories")
-        .select("*")
-        .eq("asset_id", assetId)
-        .order("created_at");
+        .from("assets")
+        .select("id, name, vendor, vendor_category, description, url, metadata")
+        .eq("id", assetId)
+        .maybeSingle();
       if (error) throw error;
-      return data || [];
+      return data;
     },
   });
 
-  const missingRetention = categories.filter((c) => !c.retention_period).length;
+  useEffect(() => {
+    const meta = (asset?.metadata as any) || {};
+    const stored = meta.personal_data_text || "";
+    setText(stored);
+    setOriginalText(stored);
+  }, [asset?.id]);
 
-  const deleteCategory = async (id: string) => {
-    const { error } = await supabase.from("asset_data_categories").delete().eq("id", id);
-    if (error) {
-      toast.error(isNb ? "Kunne ikke slette" : "Could not delete");
-      return;
+  const meta = (asset?.metadata as any) || {};
+  const updatedAt = meta.personal_data_updated_at as string | undefined;
+  const dirty = text !== originalText;
+
+  const handleAiSuggest = async () => {
+    if (!asset) return;
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-vendor-data-types", {
+        body: {
+          vendorName: asset.name,
+          vendorCategory: asset.vendor_category || asset.vendor,
+          vendorDescription: asset.description,
+          vendorUrl: asset.url,
+          language: i18n.language,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      const suggestion = data?.suggestion || "";
+      if (!suggestion) {
+        toast.error(isNb ? "Ingen forslag mottatt" : "No suggestion received");
+        return;
+      }
+      if (text.trim() && !confirm(isNb ? "Erstatte eksisterende tekst med AI-forslaget?" : "Replace existing text with AI suggestion?")) {
+        setText(text + "\n\n" + suggestion);
+      } else {
+        setText(suggestion);
+      }
+      toast.success(isNb ? "AI-forslag lagt til" : "AI suggestion added");
+    } catch (e: any) {
+      toast.error(e.message || (isNb ? "Kunne ikke hente forslag" : "Could not fetch suggestion"));
+    } finally {
+      setAiLoading(false);
     }
-    toast.success(isNb ? "Datatype slettet" : "Data type deleted");
-    queryClient.invalidateQueries({ queryKey: ["asset-data-categories", assetId] });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const newMeta = { ...(meta || {}), personal_data_text: text, personal_data_updated_at: new Date().toISOString() };
+      const { error } = await supabase.from("assets").update({ metadata: newMeta }).eq("id", assetId);
+      if (error) throw error;
+      setOriginalText(text);
+      toast.success(isNb ? "Lagret" : "Saved");
+      queryClient.invalidateQueries({ queryKey: ["asset-personal-data", assetId] });
+    } catch (e: any) {
+      toast.error(e.message || (isNb ? "Kunne ikke lagre" : "Could not save"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <>
-      <Card className="lg:col-span-2">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" />
-            {isNb ? "Personopplysninger som behandles" : "Personal Data Processed"}
-          </CardTitle>
-          <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" />
-            {isNb ? "Legg til" : "Add"}
+    <Card className="lg:col-span-2">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <ShieldCheck className="h-5 w-5" />
+          {isNb ? "Personopplysninger som behandles" : "Personal Data Processed"}
+        </CardTitle>
+        <Button variant="outline" size="sm" onClick={handleAiSuggest} disabled={aiLoading}>
+          {aiLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+          {isNb ? "Foreslå med AI" : "Suggest with AI"}
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={isNb ? "Skriv inn hvilke personopplysninger leverandøren behandler, eller la AI foreslå…" : "Describe what personal data the vendor processes, or let AI suggest…"}
+          rows={6}
+          className="resize-y min-h-[120px]"
+        />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            {updatedAt
+              ? `${isNb ? "Sist oppdatert" : "Last updated"} ${new Date(updatedAt).toLocaleString(isNb ? "nb-NO" : "en-US")}`
+              : isNb ? "Ikke lagret enda" : "Not saved yet"}
+          </p>
+          <Button
+            size="sm"
+            variant={dirty ? "default" : "ghost"}
+            onClick={handleSave}
+            disabled={!dirty || saving}
+          >
+            {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+            {isNb ? "Lagre" : "Save"}
           </Button>
-        </CardHeader>
-        <CardContent>
-          {categories.length > 0 ? (
-            <div className="space-y-2">
-              {categories.map((cat) => (
-                <div key={cat.id} className="flex items-center justify-between gap-2 py-1.5 border-b last:border-0">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Badge variant="outline" className={getCategoryStyle(cat.category)}>
-                      {getCategoryLabel(cat.category, isNb)}
-                    </Badge>
-                    <span className="text-sm truncate">{cat.data_type_name}</span>
-                    {cat.source === "ai_detected" && (
-                      <Badge variant="secondary" className="text-xs gap-0.5 px-1.5 py-0">
-                        <Bot className="h-3 w-3" /> AI
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {cat.retention_period && (
-                      <span className="text-xs text-muted-foreground">{cat.retention_period}</span>
-                    )}
-                    {cat.legal_basis && (
-                      <Badge variant="outline" className="text-xs">{cat.legal_basis}</Badge>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteCategory(cat.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-
-              {missingRetention > 0 && (
-                <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
-                  ⚠ {missingRetention} {isNb ? "datatyper mangler definert oppbevaringstid" : "data types missing retention period"}
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              <Database className="h-8 w-8 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">
-                {isNb
-                  ? "Ingen personopplysningstyper registrert. AI kan kartlegge dette automatisk fra personvernerklæring."
-                  : "No personal data types registered. AI can map these automatically from privacy policies."}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <AddDataCategoryDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={assetId} />
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
