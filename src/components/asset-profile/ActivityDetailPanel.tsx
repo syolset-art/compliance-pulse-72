@@ -1,29 +1,93 @@
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, Users, Paperclip, Calendar, Tag } from "lucide-react";
-import type { VendorActivity } from "@/utils/vendorActivityData";
-import { PHASE_CONFIG, OUTCOME_COLORS, formatRelativeDate } from "@/utils/vendorActivityData";
+import { User, Users, Paperclip, Calendar, Tag, Layers } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { VendorActivity, ActivityLevel } from "@/utils/vendorActivityData";
+import { PHASE_CONFIG, OUTCOME_COLORS, LEVEL_CONFIG } from "@/utils/vendorActivityData";
 
 interface Props {
   activity: VendorActivity;
+  onUpdate?: (patch: Partial<VendorActivity>) => void;
 }
 
-export function ActivityDetailPanel({ activity: act }: Props) {
+const LEVELS: ActivityLevel[] = ["operasjonelt", "taktisk", "strategisk"];
+
+export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const phaseConf = PHASE_CONFIG[act.phase];
   const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
 
   const desc = isNb ? act.descriptionNb : act.descriptionEn;
+  const createdAt = act.createdAt ?? act.date;
+
+  // Generate initials for avatar
+  const initials = (act.actor ?? "?").split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <div className="pl-11 pb-2 animate-in slide-in-from-top-1 fade-in-0 duration-200">
-      <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+      <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
         {/* Description */}
         {desc && (
           <p className="text-sm text-foreground leading-relaxed">{desc}</p>
         )}
+
+        {/* Creator block — prominent */}
+        <div className="rounded-md border bg-background/60 p-3 flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              {isNb ? "Opprettet av" : "Created by"}
+            </p>
+            <p className="text-sm font-medium text-foreground truncate">
+              {act.actor ?? (isNb ? "Ukjent" : "Unknown")}
+              {act.actorRole && (
+                <span className="text-muted-foreground font-normal"> · {act.actorRole}</span>
+              )}
+            </p>
+          </div>
+          <div className="text-right text-xs text-muted-foreground shrink-0">
+            <p>{createdAt.toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+            <p>{createdAt.toLocaleTimeString(isNb ? "nb-NO" : "en-GB", { hour: "2-digit", minute: "2-digit" })}</p>
+          </div>
+        </div>
+
+        {/* Level selector — editable */}
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <Layers className="h-3 w-3" />
+            {isNb ? "Nivå" : "Level"}
+          </div>
+          <div className="flex gap-1.5" role="radiogroup" aria-label={isNb ? "Nivå" : "Level"}>
+            {LEVELS.map(lvl => {
+              const conf = LEVEL_CONFIG[lvl];
+              const selected = act.level === lvl;
+              return (
+                <button
+                  key={lvl}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  disabled={!onUpdate}
+                  onClick={() => onUpdate?.({ level: lvl })}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-all",
+                    selected
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                    !onUpdate && "cursor-default opacity-80"
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", conf.dot)} />
+                  {isNb ? conf.nb : conf.en}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* People row */}
         {(act.contactPerson || act.participants) && (
@@ -64,13 +128,6 @@ export function ActivityDetailPanel({ activity: act }: Props) {
           <div className={`flex items-center gap-1 font-medium ${outcomeColor}`}>
             {isNb ? act.outcomeNb : act.outcomeEn}
           </div>
-          {act.actor && (
-            <div className="flex items-center gap-1">
-              <User className="h-3 w-3" />
-              <span className="font-medium text-foreground/80">{act.actor}</span>
-              {act.actorRole && <span>, {act.actorRole}</span>}
-            </div>
-          )}
         </div>
 
         {/* Attachment note */}
