@@ -20,6 +20,8 @@ export interface VendorActivity {
   participants?: string;
   attachmentNote?: string;
   isManual?: boolean;
+  linkedGapId?: string;
+  criticality?: "kritisk" | "hoy" | "medium";
 }
 
 export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string }> = {

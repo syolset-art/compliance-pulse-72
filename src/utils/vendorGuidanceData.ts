@@ -1,0 +1,131 @@
+import type { ActivityType, Phase } from "./vendorActivityData";
+
+export type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
+export type Criticality = "kritisk" | "hoy" | "medium";
+
+export interface SuggestedActivity {
+  id: string;
+  gapId: string;
+  titleNb: string;
+  titleEn: string;
+  descriptionNb: string;
+  descriptionEn: string;
+  reasonNb: string;
+  reasonEn: string;
+  criticality: Criticality;
+  level: GuidanceLevel;
+  themeNb: string;
+  themeEn: string;
+  suggestedType: ActivityType;
+  suggestedPhase: Phase;
+  contactPerson?: string;
+}
+
+export interface VendorGuidance {
+  summaryNb: string;
+  summaryEn: string;
+  suggestions: SuggestedActivity[];
+}
+
+export const CRITICALITY_CONFIG: Record<Criticality, { nb: string; en: string; badge: string }> = {
+  kritisk: { nb: "Kritisk", en: "Critical", badge: "bg-destructive/15 text-destructive border border-destructive/20" },
+  hoy: { nb: "Høy", en: "High", badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20" },
+  medium: { nb: "Medium", en: "Medium", badge: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20" },
+};
+
+export const LEVEL_CONFIG: Record<GuidanceLevel, { nb: string; en: string }> = {
+  strategisk: { nb: "Strategisk", en: "Strategic" },
+  taktisk: { nb: "Taktisk", en: "Tactical" },
+  operasjonelt: { nb: "Operasjonelt", en: "Operational" },
+};
+
+export const TYPE_LABEL: Record<ActivityType, { nb: string; en: string }> = {
+  email: { nb: "E-post foreslått", en: "Email suggested" },
+  phone: { nb: "Telefon foreslått", en: "Phone suggested" },
+  meeting: { nb: "Møte foreslått", en: "Meeting suggested" },
+  manual: { nb: "Manuell oppgave", en: "Manual task" },
+  document: { nb: "Dokument", en: "Document" },
+  risk: { nb: "Risiko", en: "Risk" },
+  incident: { nb: "Hendelse", en: "Incident" },
+  assignment: { nb: "Tildeling", en: "Assignment" },
+  review: { nb: "Gjennomgang", en: "Review" },
+  delivery: { nb: "Leveranse", en: "Delivery" },
+  maturity: { nb: "Modenhet", en: "Maturity" },
+  setting: { nb: "Innstilling", en: "Setting" },
+  upload: { nb: "Opplasting", en: "Upload" },
+  view: { nb: "Visning", en: "View" },
+};
+
+const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
+  {
+    gapId: "gap-dpa",
+    titleNb: "Følg opp databehandleravtale",
+    titleEn: "Follow up on data processing agreement",
+    descriptionNb: "Send forespørsel til leverandør om signert databehandleravtale (DPA) som dekker behandlingsformål, sikkerhetstiltak og underleverandører.",
+    descriptionEn: "Send a request to the vendor for a signed data processing agreement (DPA) covering processing purpose, security measures and sub-processors.",
+    reasonNb: "DPA ikke mottatt · påkrevd etter GDPR art. 28",
+    reasonEn: "DPA not received · required by GDPR art. 28",
+    criticality: "kritisk",
+    level: "taktisk",
+    themeNb: "DPA & personvern",
+    themeEn: "DPA & privacy",
+    suggestedType: "email",
+    suggestedPhase: "onboarding",
+  },
+  {
+    gapId: "gap-sla",
+    titleNb: "Be om oppdatert SLA-dokumentasjon",
+    titleEn: "Request updated SLA documentation",
+    descriptionNb: "Innhent gjeldende tjenestenivåavtale (SLA) med oppetidsgaranti, responstider og prosedyrer for hendelseshåndtering.",
+    descriptionEn: "Obtain the current service level agreement (SLA) with uptime guarantee, response times and incident handling procedures.",
+    reasonNb: "SLA er over 12 måneder gammel · krav om årlig revisjon",
+    reasonEn: "SLA is over 12 months old · annual review required",
+    criticality: "hoy",
+    level: "operasjonelt",
+    themeNb: "SLA & leveranse",
+    themeEn: "SLA & delivery",
+    suggestedType: "email",
+    suggestedPhase: "ongoing",
+  },
+  {
+    gapId: "gap-risk",
+    titleNb: "Planlegg årlig risikovurdering",
+    titleEn: "Schedule annual risk assessment",
+    descriptionNb: "Avtal et møte med leverandørens sikkerhetskontakt for å gjennomgå risikobildet, endringer i underleverandørkjeden og kontrollnivå.",
+    descriptionEn: "Schedule a meeting with the vendor's security contact to review the risk picture, sub-processor changes and control level.",
+    reasonNb: "Siste risikovurdering var for 11 måneder siden",
+    reasonEn: "Last risk assessment was 11 months ago",
+    criticality: "medium",
+    level: "strategisk",
+    themeNb: "Risiko & revisjon",
+    themeEn: "Risk & audit",
+    suggestedType: "meeting",
+    suggestedPhase: "audit",
+  },
+];
+
+export function generateGuidanceForVendor(vendorId: string): VendorGuidance {
+  let seed = 0;
+  for (let i = 0; i < vendorId.length; i++) seed = ((seed << 5) - seed + vendorId.charCodeAt(i)) | 0;
+  const suggestions: SuggestedActivity[] = TEMPLATES.map((tmpl, idx) => ({
+    ...tmpl,
+    id: `sugg-${Math.abs(seed)}-${idx}`,
+  }));
+
+  return {
+    summaryNb: `Leverandøren er under aktiv oppfølging. Siste strategiske aktivitet var et revisjonsmøte 15.03.2026. Det er ${suggestions.length} åpne punkter Mynder anbefaler at du adresserer for å lukke kjente gap.`,
+    summaryEn: `The vendor is under active follow-up. The last strategic activity was an audit meeting on 15/03/2026. There are ${suggestions.length} open items Mynder recommends you address to close known gaps.`,
+    suggestions,
+  };
+}
+
+export function recomputeSummary(remaining: number, isNb: boolean): string {
+  if (remaining === 0) {
+    return isNb
+      ? "Leverandøren er under aktiv oppfølging. Alle Mynders anbefalte handlingspunkter er adressert. Følg med på nye signaler."
+      : "The vendor is under active follow-up. All of Mynder's recommended actions have been addressed. Watch for new signals.";
+  }
+  return isNb
+    ? `Leverandøren er under aktiv oppfølging. Det er ${remaining} åpne punkter Mynder anbefaler at du adresserer for å lukke kjente gap.`
+    : `The vendor is under active follow-up. There are ${remaining} open items Mynder recommends you address to close known gaps.`;
+}

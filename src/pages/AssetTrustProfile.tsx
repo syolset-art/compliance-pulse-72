@@ -43,8 +43,12 @@ import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
+import type { VendorActivity } from "@/utils/vendorActivityData";
+import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
+import { toast } from "sonner";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -114,6 +118,18 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : (isVendor ? "overview" : "validation"));
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
+  const [guidanceActivities, setGuidanceActivities] = useState<VendorActivity[]>([]);
+  const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState<string[]>([]);
+
+  const handleGuidanceActivitySaved = useCallback((activity: VendorActivity, fromSuggestion?: SuggestedActivity) => {
+    setGuidanceActivities(prev => [activity, ...prev]);
+    if (fromSuggestion) {
+      setDismissedSuggestionIds(prev => [...prev, fromSuggestion.id]);
+      toast.success(isNb ? "Aktivitet lagret og koblet til gap" : "Activity saved and linked to gap");
+    } else {
+      toast.success(isNb ? "Aktivitet lagret" : "Activity saved");
+    }
+  }, [isNb]);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [activityDialogOpen, setActivityDialogOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -538,11 +554,10 @@ const AssetTrustProfile = () => {
                 </nav>
 
                 <TabsContent value="overview" className="mt-6">
-                  <VendorOverviewTab
-                    asset={asset}
-                    tasksCount={tasks?.length || 0}
-                    onTrustMetrics={handleTrustMetrics}
-                    onNavigateToTab={setActiveTab}
+                  <MynderGuidanceTab
+                    assetId={asset.id}
+                    dismissedSuggestionIds={dismissedSuggestionIds}
+                    onActivitySaved={handleGuidanceActivitySaved}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-tasks" className="mt-6">
@@ -577,6 +592,7 @@ const AssetTrustProfile = () => {
                     assetName={asset.name}
                     baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
                     enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    externalActivities={guidanceActivities}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-access" className="mt-6">
