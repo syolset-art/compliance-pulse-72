@@ -1,7 +1,56 @@
 export type ActivityType = "document" | "risk" | "incident" | "assignment" | "review" | "delivery" | "maturity" | "setting" | "upload" | "view" | "email" | "phone" | "meeting" | "manual";
 export type Phase = "pre_assessment" | "onboarding" | "ongoing" | "audit" | "incident" | "termination";
-export type OutcomeStatus = "in_progress" | "completed" | "needs_followup";
+// Simplified 4-status model for vendor activity follow-up
+export type ActivityStatus = "open" | "in_progress" | "closed" | "not_relevant";
+// Legacy alias retained for backwards compatibility — same keys as ActivityStatus
+export type OutcomeStatus = ActivityStatus;
 export type ActivityLevel = "operasjonelt" | "taktisk" | "strategisk";
+
+export interface StatusHistoryEntry {
+  from: ActivityStatus;
+  to: ActivityStatus;
+  comment?: string;
+  changedAt: Date;
+  changedBy?: string;
+}
+
+export const ACTIVITY_STATUS_CONFIG: Record<ActivityStatus, {
+  nb: string;
+  en: string;
+  pill: string;       // pill bg + text + border
+  dot: string;        // colored dot bg
+  filterDot: string;  // dot used in filters
+}> = {
+  open: {
+    nb: "Åpent", en: "Open",
+    pill: "bg-destructive/10 text-destructive border-destructive/30",
+    dot: "bg-destructive",
+    filterDot: "bg-destructive",
+  },
+  in_progress: {
+    nb: "Under oppfølging", en: "In progress",
+    pill: "bg-warning/10 text-warning border-warning/30",
+    dot: "bg-warning",
+    filterDot: "bg-warning",
+  },
+  closed: {
+    nb: "Lukket", en: "Closed",
+    pill: "bg-success/10 text-success border-success/30",
+    dot: "bg-success",
+    filterDot: "bg-success",
+  },
+  not_relevant: {
+    nb: "Ikke relevant", en: "Not relevant",
+    pill: "bg-muted text-muted-foreground border-border",
+    dot: "bg-muted-foreground",
+    filterDot: "bg-muted-foreground",
+  },
+};
+
+export type StatusGroup = "all" | "open" | "in_progress" | "closed";
+export function getStatusGroup(s: ActivityStatus): Exclude<StatusGroup, "all"> | "not_relevant" {
+  return s === "open" ? "open" : s === "in_progress" ? "in_progress" : s === "closed" ? "closed" : "not_relevant";
+}
 
 export interface VendorActivity {
   id: string;
@@ -26,6 +75,7 @@ export interface VendorActivity {
   theme?: string;
   level?: ActivityLevel;
   createdAt?: Date;
+  statusHistory?: StatusHistoryEntry[];
 }
 
 export const LEVEL_CONFIG: Record<ActivityLevel, { nb: string; en: string; dot: string }> = {
@@ -43,10 +93,11 @@ export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string
   termination: { nb: "Avslutning", en: "Termination", color: "bg-slate-100 text-slate-800 dark:bg-slate-900/40 dark:text-slate-300" },
 };
 
-export const STATUS_CONFIG: Record<OutcomeStatus, { nb: string; en: string }> = {
-  in_progress: { nb: "Pågår", en: "In progress" },
-  completed: { nb: "Fullført", en: "Completed" },
-  needs_followup: { nb: "Krever oppfølging", en: "Needs follow-up" },
+export const STATUS_CONFIG: Record<ActivityStatus, { nb: string; en: string }> = {
+  open: { nb: "Åpent", en: "Open" },
+  in_progress: { nb: "Under oppfølging", en: "In progress" },
+  closed: { nb: "Lukket", en: "Closed" },
+  not_relevant: { nb: "Ikke relevant", en: "Not relevant" },
 };
 
 interface Template {
