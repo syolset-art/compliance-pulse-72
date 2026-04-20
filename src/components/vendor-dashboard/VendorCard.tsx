@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, MinusCircle } from "lucide-react";
+import { Building2, MapPin, Shield, AlertTriangle, Cloud, Server, Lightbulb, Monitor, Home, MoreHorizontal, Flag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
-import { type ScoreDisplayMode, scoreToLabel, scoreLabelColor } from "./VendorListTab";
+import { type ScoreDisplayMode, scoreToLabel } from "./VendorListTab";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   saas: <Cloud className="h-2.5 w-2.5" />,
@@ -80,11 +81,24 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
     low: "bg-success/10 text-success border-success/20",
   }[vendor.risk_level || ""] || "bg-muted text-muted-foreground border-border";
 
+  const hasScore = score > 0;
+  const ringTone = !hasScore ? "muted" : score >= 75 ? "success" : score >= 50 ? "warning" : "destructive";
+  const ringStroke = !hasScore ? "hsl(var(--muted-foreground) / 0.3)" : `hsl(var(--${ringTone}))`;
+  const ringText = !hasScore ? "text-muted-foreground" : `text-${ringTone}`;
+  const ringLabel = !hasScore ? (isNb => isNb ? "Ikke vurdert" : "Not assessed")(t("common.lang") === "nb" || true) : scoreToLabel(score);
+  const radius = 16;
+  const circ = 2 * Math.PI * radius;
+  const dash = hasScore ? (score / 100) * circ : 0;
+
   const complianceColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
 
-  const priorityLabel = vendor.priority
-    ? ({ critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" } as Record<string, string>)[vendor.priority] || vendor.priority
-    : null;
+  const priorityMeta: Record<string, { label: string; cls: string }> = {
+    critical: { label: "Kritisk", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+    high: { label: "Høy", cls: "bg-warning/15 text-warning border-warning/30" },
+    medium: { label: "Medium", cls: "bg-primary/10 text-primary border-primary/20" },
+    low: { label: "Lav", cls: "bg-muted text-muted-foreground border-border" },
+  };
+  const priorityInfo = vendor.priority ? priorityMeta[vendor.priority] : null;
 
   return (
     <Card
@@ -121,17 +135,40 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {score > 0 ? (
-            <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>
-              {scoreDisplay === "percent" ? `${score}%` : scoreToLabel(score)}
-            </span>
-          ) : (
-            <span className="text-[13px] text-muted-foreground flex items-center gap-1">
-              <MinusCircle className="h-3 w-3" />
-              Ikke vurdert
-            </span>
-          )}
+        <div className="flex items-center gap-2 shrink-0 pr-1">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative flex items-center justify-center" style={{ width: 40, height: 40 }}>
+                  <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
+                    <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                    {hasScore && (
+                      <circle
+                        cx="20" cy="20" r={radius} fill="none"
+                        stroke={ringStroke} strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={`${dash} ${circ}`}
+                        style={{ transition: "stroke-dasharray 0.5s ease" }}
+                      />
+                    )}
+                  </svg>
+                  <div className={cn("absolute inset-0 flex items-center justify-center", ringText)}>
+                    {hasScore ? (
+                      scoreDisplay === "percent" ? (
+                        <span className="text-[11px] font-bold tabular-nums leading-none">{score}</span>
+                      ) : (
+                        <span className="text-[9px] font-semibold leading-none">{scoreToLabel(score)}</span>
+                      )
+                    ) : (
+                      <span className="text-[11px] font-medium leading-none">–</span>
+                    )}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <span className="text-xs">{hasScore ? `${score}% — ${scoreToLabel(score)}` : "Ikke vurdert"}</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {onSetOwner && onArchive && onDelete && (
             <div onClick={(e) => e.stopPropagation()}>
               <AssetRowActionMenu
@@ -149,9 +186,15 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
 
       {/* Row 2: Badges */}
       <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pl-[42px]">
-        {priorityLabel && (
-          <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
-            {priorityLabel}
+        {priorityInfo ? (
+          <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0 gap-1", priorityInfo.cls)}>
+            <Flag className="h-2.5 w-2.5" />
+            {priorityInfo.label}
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 bg-muted/50 text-muted-foreground border-dashed">
+            <Flag className="h-2.5 w-2.5" />
+            Ikke satt prioritet
           </Badge>
         )}
         {!hasDPA && (
