@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, Mail, Phone, Users, PenLine } from "lucide-react";
+import { CalendarIcon, PlusCircle, Mail, Phone, Users, PenLine, Sparkles } from "lucide-react";
+import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -21,6 +22,8 @@ interface Props {
   onSubmit: (activity: VendorActivity) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  prefillFromGuidance?: SuggestedActivity;
+  hideTrigger?: boolean;
 }
 
 const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeof Mail }[] = [
@@ -45,7 +48,7 @@ const STATUSES: { value: OutcomeStatus; nb: string; en: string }[] = [
   { value: "needs_followup", nb: STATUS_CONFIG.needs_followup.nb, en: STATUS_CONFIG.needs_followup.en },
 ];
 
-export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange }: Props) {
+export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange, prefillFromGuidance, hideTrigger }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [internalOpen, setInternalOpen] = useState(false);
