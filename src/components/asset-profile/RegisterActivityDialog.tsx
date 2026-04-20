@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, Mail, Phone, Users, PenLine, Sparkles } from "lucide-react";
+import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X } from "lucide-react";
 import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
-import type { VendorActivity, ActivityType, Phase, OutcomeStatus } from "@/utils/vendorActivityData";
-import { STATUS_CONFIG } from "@/utils/vendorActivityData";
+import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
+
+type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
 interface Props {
   onSubmit: (activity: VendorActivity) => void;
@@ -33,19 +30,27 @@ const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeo
   { value: "manual", nb: "Annet", en: "Other", icon: PenLine },
 ];
 
-const PHASES: { value: Phase; nb: string; en: string }[] = [
-  { value: "pre_assessment", nb: "Vurdering før avtale", en: "Pre-contract assessment" },
-  { value: "onboarding", nb: "Onboarding", en: "Onboarding" },
-  { value: "ongoing", nb: "Løpende oppfølging", en: "Ongoing follow-up" },
-  { value: "audit", nb: "Revisjon og kontroll", en: "Audit and control" },
-  { value: "incident", nb: "Hendelse og avvik", en: "Incident and deviation" },
-  { value: "termination", nb: "Avslutning", en: "Termination" },
+const LEVELS: { value: ActivityLevel; nb: string; en: string; dot: string }[] = [
+  { value: "operasjonelt", nb: "Operasjonelt", en: "Operational", dot: "bg-emerald-500" },
+  { value: "taktisk", nb: "Taktisk", en: "Tactical", dot: "bg-amber-500" },
+  { value: "strategisk", nb: "Strategisk", en: "Strategic", dot: "bg-primary" },
 ];
 
-const STATUSES: { value: OutcomeStatus; nb: string; en: string }[] = [
-  { value: "in_progress", nb: STATUS_CONFIG.in_progress.nb, en: STATUS_CONFIG.in_progress.en },
-  { value: "completed", nb: STATUS_CONFIG.completed.nb, en: STATUS_CONFIG.completed.en },
-  { value: "needs_followup", nb: STATUS_CONFIG.needs_followup.nb, en: STATUS_CONFIG.needs_followup.en },
+const THEMES: { value: string; nb: string; en: string }[] = [
+  { value: "dpa", nb: "DPA & personvern", en: "DPA & privacy" },
+  { value: "infosec", nb: "Informasjonssikkerhet", en: "Information security" },
+  { value: "sla", nb: "SLA & leveranse", en: "SLA & delivery" },
+  { value: "okonomi", nb: "Økonomi", en: "Finance" },
+  { value: "hendelse", nb: "Hendelse", en: "Incident" },
+  { value: "revisjon", nb: "Revisjon & kontroll", en: "Audit & control" },
+  { value: "generell", nb: "Generell", en: "General" },
+];
+
+const CRITICALITIES: { value: Criticality; nb: string; en: string; activeClass: string }[] = [
+  { value: "lav", nb: "Lav", en: "Low", activeClass: "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
+  { value: "medium", nb: "Middels", en: "Medium", activeClass: "border-yellow-500 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300" },
+  { value: "hoy", nb: "Høy", en: "High", activeClass: "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300" },
+  { value: "kritisk", nb: "Kritisk", en: "Critical", activeClass: "border-destructive bg-destructive/10 text-destructive" },
 ];
 
 export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenChange, prefillFromGuidance, hideTrigger }: Props) {
@@ -56,31 +61,36 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const setOpen = (v: boolean) => { onOpenChange ? onOpenChange(v) : setInternalOpen(v); };
 
   const [type, setType] = useState<ActivityType>("email");
+  const [level, setLevel] = useState<ActivityLevel | null>(null);
+  const [theme, setTheme] = useState<string>("generell");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("ongoing");
-  const [outcome, setOutcome] = useState<OutcomeStatus>("in_progress");
+  const [outcome] = useState<OutcomeStatus>("in_progress");
+  const [criticality, setCriticality] = useState<Criticality | null>(null);
   const [date, setDate] = useState<Date>(new Date());
-  const [contactPerson, setContactPerson] = useState("");
-  const [participants, setParticipants] = useState("");
-  const [attachmentNote, setAttachmentNote] = useState("");
   const [titleError, setTitleError] = useState(false);
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
-    setPhase("ongoing"); setOutcome("in_progress"); setDate(new Date());
-    setContactPerson(""); setParticipants(""); setAttachmentNote("");
-    setTitleError(false);
+    setPhase("ongoing"); setLevel(null); setTheme("generell");
+    setCriticality(null); setDate(new Date()); setTitleError(false);
   };
 
-  // Apply prefill when dialog opens with a guidance suggestion
   useEffect(() => {
     if (open && prefillFromGuidance) {
       setType(prefillFromGuidance.suggestedType);
       setPhase(prefillFromGuidance.suggestedPhase);
+      setLevel(prefillFromGuidance.level);
+      setTheme(prefillFromGuidance.themeNb.toLowerCase().includes("dpa") ? "dpa"
+        : prefillFromGuidance.themeNb.toLowerCase().includes("sla") ? "sla"
+        : prefillFromGuidance.themeNb.toLowerCase().includes("revisjon") ? "revisjon"
+        : prefillFromGuidance.themeNb.toLowerCase().includes("hendelse") ? "hendelse"
+        : prefillFromGuidance.themeNb.toLowerCase().includes("informasjon") ? "infosec"
+        : "generell");
+      setCriticality(prefillFromGuidance.criticality as Criticality);
       setTitle(isNb ? prefillFromGuidance.titleNb : prefillFromGuidance.titleEn);
       setDescription(isNb ? prefillFromGuidance.descriptionNb : prefillFromGuidance.descriptionEn);
-      setOutcome("in_progress");
       setDate(new Date());
       setTitleError(false);
     } else if (open && !prefillFromGuidance) {
@@ -89,33 +99,27 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, prefillFromGuidance?.id]);
 
+  const isValid = !!title.trim() && !!level && !!criticality;
+
   const handleSubmit = () => {
-    if (!title.trim()) {
-      setTitleError(true);
-      return;
-    }
-    const out = STATUSES.find(o => o.value === outcome) ?? STATUSES[0];
+    if (!title.trim()) { setTitleError(true); return; }
+    if (!level || !criticality) return;
     const activity: VendorActivity = {
       id: `manual-${Date.now()}`,
-      type,
-      phase,
-      titleNb: title,
-      titleEn: title,
+      type, phase,
+      titleNb: title, titleEn: title,
       descriptionNb: description || undefined,
       descriptionEn: description || undefined,
-      outcomeNb: out.nb,
-      outcomeEn: out.en,
-      outcomeStatus: out.value,
+      outcomeNb: "Pågår", outcomeEn: "In progress",
+      outcomeStatus: outcome,
       date,
       actor: isNb ? "Deg" : "You",
       actorRole: isNb ? "Manuell registrering" : "Manual entry",
-      contactPerson: contactPerson || undefined,
-      participants: participants || undefined,
-      attachmentNote: attachmentNote || undefined,
       isManual: true,
       linkedGapId: prefillFromGuidance?.gapId,
-      criticality: prefillFromGuidance?.criticality,
-      level: prefillFromGuidance?.level,
+      criticality,
+      level,
+      theme: THEMES.find(t => t.value === theme)?.nb,
       createdAt: new Date(),
     };
     onSubmit(activity);
@@ -123,9 +127,10 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     setOpen(false);
   };
 
-  const clearPrefill = () => {
-    setType("email"); setTitle(""); setDescription(""); setPhase("ongoing");
-  };
+  const RequiredMark = () => <span className="text-destructive ml-0.5">*</span>;
+  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">{children}</div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -137,200 +142,228 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isNb ? "Registrer aktivitet" : "Register activity"}</DialogTitle>
-          <DialogDescription>
-            {isNb
-              ? "Loggfør kommunikasjon og hendelser knyttet til denne leverandøren."
-              : "Log communication and events related to this vendor."}
-          </DialogDescription>
-        </DialogHeader>
-
-        {prefillFromGuidance && (
-          <div className="rounded-r-md border-l-4 border-primary bg-primary/10 p-3 flex items-start gap-2">
-            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-foreground">
-                <span className="font-semibold">{isNb ? "Forhåndsutfylt av Mynder" : "Pre-filled by Mynder"}</span>{" "}
-                · {isNb ? prefillFromGuidance.reasonNb : prefillFromGuidance.reasonEn}
-              </p>
-              <button
-                type="button"
-                onClick={clearPrefill}
-                className="text-xs text-primary hover:underline mt-0.5"
-              >
-                {isNb ? "Tøm felt" : "Clear fields"}
-              </button>
+      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-auto p-0 gap-0">
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 border-b">
+          <div className="flex items-center justify-between mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
+              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</span>
+              {isNb ? "Steg 1 av 2 — Fyll ut" : "Step 1 of 2 — Fill in"}
             </div>
           </div>
-        )}
+          <h2 className="text-xl font-semibold tracking-tight">{isNb ? "Ny aktivitet" : "New activity"}</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isNb ? "Loggfør noe du har gjort eller planlegger." : "Log something you've done or plan to do."}
+          </p>
+        </div>
 
-
-
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-5 pt-2">
-          {/* Type selector - radio group */}
-          <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground" id="activity-type-label">
-              {isNb ? "Type aktivitet" : "Activity type"}
-            </Label>
-            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="activity-type-label">
-              {ACTIVITY_TYPES.map(t => {
-                const Icon = t.icon;
-                const isSelected = type === t.value;
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    onClick={() => setType(t.value)}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all text-center",
-                      isSelected
-                        ? "border-primary bg-primary/5 text-primary shadow-sm"
-                        : "border-border hover:border-primary/40 text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span className="text-xs font-medium">{isNb ? t.nb : t.en}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Title & Description */}
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-title">{isNb ? "Tittel" : "Title"} <span className="text-destructive">*</span></Label>
-              <Input
-                id="reg-activity-title"
-                aria-required="true"
-                aria-invalid={titleError}
-                value={title}
-                onChange={e => { setTitle(e.target.value); if (titleError) setTitleError(false); }}
-                placeholder={isNb ? "F.eks. «Statusmøte Q1»" : "E.g. 'Status meeting Q1'"}
-              />
-              {titleError && (
-                <p role="alert" className="text-xs text-destructive">
-                  {isNb ? "Tittel er påkrevd." : "Title is required."}
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          <div className="px-6 py-5 space-y-6">
+            {/* Context banner */}
+            {prefillFromGuidance ? (
+              <div className="rounded-md border-l-4 border-primary bg-primary/5 px-3 py-2.5 flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <p className="text-xs text-foreground leading-relaxed">
+                  <span className="font-semibold">{isNb ? "Forhåndsutfylt av Mynder" : "Pre-filled by Mynder"}</span>
+                  {" — "}{isNb ? prefillFromGuidance.reasonNb : prefillFromGuidance.reasonEn}
                 </p>
-              )}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
-              <Textarea
-                id="reg-activity-desc"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder={isNb ? "Hva ble diskutert, avtalt eller besluttet?" : "What was discussed, agreed, or decided?"}
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* People */}
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-              {isNb ? "Deltakere" : "Participants"}
-            </Label>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-activity-contact" className="text-xs">{isNb ? "Kontaktperson hos leverandør" : "Vendor contact person"}</Label>
-                <Input
-                  id="reg-activity-contact"
-                  value={contactPerson}
-                  onChange={e => setContactPerson(e.target.value)}
-                  placeholder={isNb ? "Navn" : "Name"}
-                />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-activity-participants" className="text-xs">{isNb ? "Interne deltakere" : "Internal participants"}</Label>
-                <Input
-                  id="reg-activity-participants"
-                  value={participants}
-                  onChange={e => setParticipants(e.target.value)}
-                  placeholder={isNb ? "Navn, kommaseparert" : "Names, comma-separated"}
-                />
+            ) : (
+              <div className="rounded-md border-l-4 border-muted-foreground/30 bg-muted/40 px-3 py-2.5">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="font-semibold text-foreground">{isNb ? "Egen aktivitet" : "Own activity"}</span>
+                  {" — "}{isNb
+                    ? "ikke koblet til et gap Mynder har identifisert. Du kan koble den manuelt etterpå om det blir relevant."
+                    : "not linked to a gap Mynder has identified. You can link it manually later if relevant."}
+                </p>
               </div>
-            </div>
+            )}
+
+            {/* TYPE & CONTEXT */}
+            <section>
+              <SectionLabel>{isNb ? "Type og kontekst" : "Type and context"}</SectionLabel>
+
+              {/* Activity type */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {ACTIVITY_TYPES.map(t => {
+                  const Icon = t.icon;
+                  const isSelected = type === t.value;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setType(t.value)}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 rounded-lg border p-3 transition-all text-center",
+                        isSelected
+                          ? "border-primary bg-primary/5 text-primary shadow-sm"
+                          : "border-border hover:border-primary/40 text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="text-xs font-medium">{isNb ? t.nb : t.en}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Level pills */}
+              <div className="mb-4">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Nivå" : "Level"}<RequiredMark />
+                </Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {LEVELS.map(l => {
+                    const isSelected = level === l.value;
+                    return (
+                      <button
+                        key={l.value}
+                        type="button"
+                        onClick={() => setLevel(l.value)}
+                        className={cn(
+                          "flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm font-medium transition-all",
+                          isSelected
+                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                            : "border-border hover:border-primary/40 text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <span className={cn("w-1.5 h-1.5 rounded-full", l.dot)} />
+                        {isNb ? l.nb : l.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Theme chips */}
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Tema" : "Theme"}
+                </Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {THEMES.map(t => {
+                    const isSelected = theme === t.value;
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setTheme(t.value)}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-xs transition-all",
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                        )}
+                      >
+                        {isNb ? t.nb : t.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+
+            {/* CONTENT */}
+            <section>
+              <SectionLabel>{isNb ? "Innhold" : "Content"}</SectionLabel>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="reg-activity-title" className="text-xs">
+                    {isNb ? "Tittel" : "Title"}<RequiredMark />
+                  </Label>
+                  <Input
+                    id="reg-activity-title"
+                    aria-required="true"
+                    aria-invalid={titleError}
+                    value={title}
+                    onChange={e => { setTitle(e.target.value); if (titleError) setTitleError(false); }}
+                    placeholder={isNb ? "F.eks. «Klage på responstid»" : "E.g. 'Complaint on response time'"}
+                  />
+                  {titleError && (
+                    <p role="alert" className="text-xs text-destructive">
+                      {isNb ? "Tittel er påkrevd." : "Title is required."}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="reg-activity-desc" className="text-xs">
+                    {isNb ? "Beskrivelse" : "Description"}
+                  </Label>
+                  <Textarea
+                    id="reg-activity-desc"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder={isNb ? "Hva ble diskutert eller avtalt?" : "What was discussed or agreed?"}
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* STATUS & FOLLOW-UP */}
+            <section>
+              <SectionLabel>{isNb ? "Status og oppfølging" : "Status and follow-up"}</SectionLabel>
+
+              <div className="mb-4">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Kritikalitet" : "Criticality"}<RequiredMark />
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {CRITICALITIES.map(c => {
+                    const isSelected = criticality === c.value;
+                    return (
+                      <button
+                        key={c.value}
+                        type="button"
+                        onClick={() => setCriticality(c.value)}
+                        className={cn(
+                          "rounded-full border px-4 py-1.5 text-xs font-medium transition-all",
+                          isSelected
+                            ? c.activeClass
+                            : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                        )}
+                      >
+                        {isNb ? c.nb : c.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="reg-activity-date" className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Dato" : "Date"}
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="reg-activity-date"
+                      variant="outline"
+                      className={cn("w-full sm:w-44 h-10 justify-start text-left font-normal", !date && "text-muted-foreground")}
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {date ? format(date, "dd.MM.yyyy") : (isNb ? "Velg dato" : "Pick date")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={date} onSelect={d => d && setDate(d)} initialFocus className="p-3 pointer-events-auto" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </section>
           </div>
 
-          <Separator />
-
-          {/* Phase, Outcome, Date */}
-          <TooltipProvider>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-phase" className="text-xs flex items-center gap-1">
-                {isNb ? "Fase" : "Phase"}
-                <Tooltip>
-                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hvor i leverandørens livssyklus er denne aktiviteten?" : "Where in the vendor lifecycle is this activity?"}</p></TooltipContent>
-                </Tooltip>
-              </Label>
-              <Select value={phase} onValueChange={v => setPhase(v as Phase)}>
-                <SelectTrigger id="reg-activity-phase" className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PHASES.map(p => (
-                    <SelectItem key={p.value} value={p.value}>{isNb ? p.nb : p.en}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-outcome" className="text-xs flex items-center gap-1">
-                {isNb ? "Status" : "Status"}
-                <Tooltip>
-                  <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                  <TooltipContent side="top"><p className="text-xs max-w-[200px]">{isNb ? "Hva er resultatet av aktiviteten så langt?" : "What is the outcome of the activity so far?"}</p></TooltipContent>
-                </Tooltip>
-              </Label>
-              <Select value={outcome} onValueChange={(v) => setOutcome(v as OutcomeStatus)}>
-                <SelectTrigger id="reg-activity-outcome" className="h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map(o => (
-                    <SelectItem key={o.value} value={o.value}>{isNb ? o.nb : o.en}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="reg-activity-date" className="text-xs">{isNb ? "Dato" : "Date"}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button id="reg-activity-date" variant="outline" className={cn("w-full h-9 justify-start text-left font-normal text-xs", !date && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-                    {date ? format(date, "dd.MM.yyyy") : (isNb ? "Velg" : "Pick")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={date} onSelect={d => d && setDate(d)} initialFocus className="p-3 pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
-            </div>
+          {/* Footer */}
+          <div className="border-t bg-muted/30 px-6 py-4 space-y-2">
+            <Button type="submit" disabled={!isValid} className="w-full h-11">
+              {isNb ? "Lagre aktivitet →" : "Save activity →"}
+            </Button>
+            {!isValid && (
+              <p className="text-xs text-muted-foreground text-center">
+                {isNb ? "Fyll ut type, nivå, kritikalitet og tittel for å lagre" : "Fill in type, level, criticality and title to save"}
+              </p>
+            )}
           </div>
-          </TooltipProvider>
-
-          {/* Attachment note */}
-          <div className="space-y-1.5">
-            <Label htmlFor="reg-activity-attachment" className="text-xs">{isNb ? "Vedleggsnotat" : "Attachment note"}</Label>
-            <Input
-              id="reg-activity-attachment"
-              value={attachmentNote}
-              onChange={e => setAttachmentNote(e.target.value)}
-              placeholder={isNb ? "Referanse til vedlegg, f.eks. filnavn eller lenke" : "Reference to attachment, e.g. filename or link"}
-            />
-          </div>
-
-          <Button type="submit" className="w-full">
-            {isNb ? "Lagre aktivitet" : "Save activity"}
-          </Button>
         </form>
       </DialogContent>
     </Dialog>
