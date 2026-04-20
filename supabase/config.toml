@@ -47,3 +47,9 @@ verify_jwt = false
 
 [functions.check-evidence-freshness]
 verify_jwt = false
+
+[functions.suggest-vendor-data-types]
+verify_jwt = false
+
+[functions.suggest-vendor-processes]
+verify_jwt = false
