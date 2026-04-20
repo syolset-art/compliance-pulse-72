@@ -135,17 +135,40 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {score > 0 ? (
-            <span className={cn("text-sm font-bold tabular-nums", complianceColor)}>
-              {scoreDisplay === "percent" ? `${score}%` : scoreToLabel(score)}
-            </span>
-          ) : (
-            <span className="text-[13px] text-muted-foreground flex items-center gap-1">
-              <MinusCircle className="h-3 w-3" />
-              Ikke vurdert
-            </span>
-          )}
+        <div className="flex items-center gap-2 shrink-0 pr-1">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative flex items-center justify-center" style={{ width: 40, height: 40 }}>
+                  <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
+                    <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                    {hasScore && (
+                      <circle
+                        cx="20" cy="20" r={radius} fill="none"
+                        stroke={ringStroke} strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={`${dash} ${circ}`}
+                        style={{ transition: "stroke-dasharray 0.5s ease" }}
+                      />
+                    )}
+                  </svg>
+                  <div className={cn("absolute inset-0 flex items-center justify-center", ringText)}>
+                    {hasScore ? (
+                      scoreDisplay === "percent" ? (
+                        <span className="text-[11px] font-bold tabular-nums leading-none">{score}</span>
+                      ) : (
+                        <span className="text-[9px] font-semibold leading-none">{scoreToLabel(score)}</span>
+                      )
+                    ) : (
+                      <span className="text-[11px] font-medium leading-none">–</span>
+                    )}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <span className="text-xs">{hasScore ? `${score}% — ${scoreToLabel(score)}` : "Ikke vurdert"}</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {onSetOwner && onArchive && onDelete && (
             <div onClick={(e) => e.stopPropagation()}>
               <AssetRowActionMenu
@@ -163,9 +186,15 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
 
       {/* Row 2: Badges */}
       <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pl-[42px]">
-        {priorityLabel && (
-          <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
-            {priorityLabel}
+        {priorityInfo ? (
+          <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0 gap-1", priorityInfo.cls)}>
+            <Flag className="h-2.5 w-2.5" />
+            {priorityInfo.label}
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 bg-muted/50 text-muted-foreground border-dashed">
+            <Flag className="h-2.5 w-2.5" />
+            Ikke satt prioritet
           </Badge>
         )}
         {!hasDPA && (
