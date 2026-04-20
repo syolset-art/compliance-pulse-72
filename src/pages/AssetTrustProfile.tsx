@@ -118,6 +118,18 @@ const AssetTrustProfile = () => {
   const [activeTab, setActiveTab] = useState(isHardware ? "compliance" : (isVendor ? "overview" : "validation"));
   const [orgSection, setOrgSection] = useState<"trust-profile" | "services">("trust-profile");
   const [trustMetrics, setTrustMetrics] = useState<{ trustScore: number; confidenceScore: number; lastUpdated: string } | null>(null);
+  const [guidanceActivities, setGuidanceActivities] = useState<VendorActivity[]>([]);
+  const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState<string[]>([]);
+
+  const handleGuidanceActivitySaved = useCallback((activity: VendorActivity, fromSuggestion?: SuggestedActivity) => {
+    setGuidanceActivities(prev => [activity, ...prev]);
+    if (fromSuggestion) {
+      setDismissedSuggestionIds(prev => [...prev, fromSuggestion.id]);
+      toast.success(isNb ? "Aktivitet lagret og koblet til gap" : "Activity saved and linked to gap");
+    } else {
+      toast.success(isNb ? "Aktivitet lagret" : "Activity saved");
+    }
+  }, [isNb]);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [activityDialogOpen, setActivityDialogOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
