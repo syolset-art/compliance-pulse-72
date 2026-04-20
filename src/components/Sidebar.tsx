@@ -516,8 +516,6 @@ const SidebarContent = () => {
 
       {/* Company section at bottom */}
       <div className="border-t border-sidebar-border">
-        {/* Organization switcher */}
-        <OrganizationSwitcher />
 
         {companyName ? (
           <div className="px-3 pb-3">
