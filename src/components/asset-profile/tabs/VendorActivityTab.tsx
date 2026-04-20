@@ -250,6 +250,48 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
               ? "Sporbar oversikt over alle endringer, hendelser og oppdateringer knyttet til denne leverandøren."
               : "Traceable overview of all changes, events, and updates related to this vendor."}
           </p>
+          {/* Mynder summary line */}
+          <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
+            <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="text-muted-foreground font-medium">{isNb ? "Mynder ser:" : "Mynder sees:"}</span>
+            <span className="text-destructive font-semibold">
+              {statusCounts.open} {isNb ? (statusCounts.open === 1 ? "åpent gap" : "åpne gap") : (statusCounts.open === 1 ? "open gap" : "open gaps")}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-warning font-semibold">
+              {statusCounts.in_progress} {isNb ? "under oppfølging" : "in progress"}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-success font-semibold">
+              {closedLast30} {isNb ? `lukket siste 30 dg` : `closed last 30 days`}
+            </span>
+            <span className="ml-auto text-muted-foreground">{isNb ? "Oppdatert nå" : "Updated now"}</span>
+          </div>
+
+          {/* Status filters */}
+          <div className="flex items-center gap-1.5 pt-3 flex-wrap">
+            {statusFilters.map(sf => {
+              const isActive = statusFilter === sf.key;
+              return (
+                <button
+                  key={sf.key}
+                  type="button"
+                  onClick={() => setStatusFilter(sf.key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all",
+                    isActive
+                      ? "border-foreground/40 bg-foreground/5 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                  )}
+                >
+                  {sf.dot && <span className={cn("h-1.5 w-1.5 rounded-full", sf.dot)} />}
+                  <span>{isNb ? sf.nb : sf.en}</span>
+                  <span className="text-muted-foreground">· {sf.count}</span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Phase filters */}
           <div className="flex items-center gap-1.5 pt-2 flex-wrap">
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
@@ -278,10 +320,10 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                     const Icon = ACTIVITY_ICONS[act.type];
                     const colorClass = ACTIVITY_COLORS[act.type];
                     const isLast = idx === group.items.length - 1;
-                    const OutcomeIcon = OUTCOME_ICON[act.outcomeStatus];
-                    const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+                    const statusConf = ACTIVITY_STATUS_CONFIG[act.outcomeStatus];
                     const phaseConf = PHASE_CONFIG[act.phase];
                     const isExpanded = expandedId === act.id;
+                    const isStatusEditing = statusEditorId === act.id;
 
                     return (
                       <div key={act.id}>
@@ -316,10 +358,6 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                     </Badge>
                                   )}
                                 </div>
-                                <div className={`flex items-center gap-1 mt-0.5 ${outcomeColor}`}>
-                                  <OutcomeIcon className="h-3 w-3" />
-                                  <span className="text-xs font-medium">{isNb ? act.outcomeNb : act.outcomeEn}</span>
-                                </div>
                                 {act.actor && (
                                   <p className="text-xs text-muted-foreground mt-1">
                                     <span className="font-medium text-foreground/80">{act.actor}</span>
@@ -328,6 +366,19 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                 )}
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); toggleStatusEditor(act.id); }}
+                                  className={cn(
+                                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
+                                    statusConf.pill
+                                  )}
+                                  aria-label={isNb ? "Endre status" : "Change status"}
+                                >
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", statusConf.dot)} />
+                                  {isNb ? statusConf.nb : statusConf.en}
+                                  <ChevronDown className={cn("h-3 w-3 transition-transform", isStatusEditing && "rotate-180")} />
+                                </button>
                                 <Badge variant="outline" className="text-xs whitespace-nowrap">
                                   {formatRelativeDate(act.date, isNb)}
                                 </Badge>
@@ -336,6 +387,13 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                             </div>
                           </div>
                         </div>
+                        {isStatusEditing && (
+                          <InlineStatusEditor
+                            currentStatus={act.outcomeStatus}
+                            onSave={(next, comment) => handleStatusChange(act, next, comment)}
+                            onCancel={() => setStatusEditorId(null)}
+                          />
+                        )}
                         {isExpanded && <ActivityDetailPanel activity={act} onUpdate={(patch) => updateActivity(act.id, patch)} />}
                       </div>
                     );
