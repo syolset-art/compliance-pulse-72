@@ -1,83 +1,85 @@
 
 
-## Plan: "Veiledning fra Mynder"-fane med AI-foreslåtte aktiviteter
+## Plan: Nytt menypunkt "AI Autonomi" i Innstillinger
 
-### Konsept
-En ny fane (eller fornyet eksisterende) som viser AI-genererte handlingsforslag basert på det Mynder vet om leverandøren. Brukeren bekrefter med ett klikk i stedet for å fylle ut alt manuelt. Aktiviteter som lukker en kjent gap markeres tydelig.
+Brukeren skal kunne styre hva Mynders AI-agenter får lov til å gjøre, per oppgavetype, med tydelige forklaringer av konsekvenser. Designet bygger på Mynders eksisterende 3-nivå autonomiskala (Automatisk / Assistert / Manuell — SAE-inspirert), og forankres mot **ISO/IEC 42001 (AIMS)** sine prinsipper for human oversight og **NIST AI RMF (Govern/Manage)** for risikobasert styring.
 
-### Endringer
+### Hva som bygges
 
-**1. Ny datamodell — `src/utils/vendorGuidanceData.ts` (ny fil)**
-```ts
-type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
-type Criticality = "kritisk" | "hoy" | "medium";
+**1. Nytt menypunkt i `PersonalSettings.tsx`**
+- Legg til seksjon `{ id: "ai-autonomy", labelNb: "AI Autonomi", labelEn: "AI Autonomy", icon: Sparkles }` i `sections`-arrayet
+- Plasseres rett etter "Agenter"
 
-interface SuggestedActivity {
-  id: string;
-  titleNb/En, descriptionNb/En;       // f.eks. "Følg opp databehandleravtale"
-  reasonNb/En;                         // "DPA ikke mottatt · påkrevd etter GDPR art. 28"
-  criticality: Criticality;
-  level: GuidanceLevel;
-  themeNb/En;                          // "DPA & personvern"
-  suggestedType: ActivityType;         // email | phone | meeting | manual
-  suggestedPhase: Phase;
-  gapId: string;                       // referanse til hva den lukker
-}
+**2. Ny komponent `src/components/settings/AIAutonomySection.tsx`**
 
-generateGuidanceForVendor(vendorId) → { summaryNb, summaryEn, suggestions[] }
-```
+Layout (top → bottom):
 
-Demo-data: 3 forslag per leverandør (DPA, SLA, risikovurdering) som matcher bildet.
+**A. Intro-banner (lilla, primary/5)**
+- Tittel: "Styr hva Mynders KI får gjøre"
+- Kort tekst: forklarer at brukeren har full kontroll, at standardvalg følger ISO/IEC 42001 anbefaling om "meaningful human oversight", og at høyere autonomi gir hastighet men reduserer kontrollpunkter.
+- Liten chip-rad: "Basert på ISO/IEC 42001" · "NIST AI RMF" · "EU AI Act art. 14"
 
-**2. Ny komponent — `src/components/asset-profile/MynderGuidanceTab.tsx`**
+**B. Globalt autonominivå (Master switch)**
+- Stort kort med 3 valgkort side-om-side (radio-style):
+  - 🟢 **Manuell** — "KI foreslår, du utfører alt"
+  - 🟡 **Assistert** *(anbefalt — default)* — "KI lager utkast, du godkjenner før handling"
+  - 🟣 **Automatisk** — "KI utfører selv innenfor definerte grenser"
+- Hvert kort viser: ikon, navn, kort beskrivelse, "Konsekvens"-linje med 2 punkter (hva du sparer / hva du gir fra deg)
+- Valgt kort får primary border + bg-primary/5
 
-Layout (matcher screenshot):
-- **Lilla synthesis-boks øverst:** "MYNDER SYNTETISERER" badge + statussammendrag. Tekst som "Leverandøren er under aktiv oppfølging. Siste strategiske aktivitet var et revisjonsmøte 15.03.2026. Det er 3 åpne punkter…"
-- **"FORESLÅTTE AKTIVITETER (n)"-overskrift**
-- **Forslagskort** (vertikal liste):
-  - Tittel + kritikalitets-badge høyre (KRITISK rød / HØY oransje / MEDIUM gul)
-  - Begrunnelse i lilla/primary tekst
-  - 3 chips nederst: nivå (Taktisk/Strategisk/Operasjonelt) · tema · forslag-type ("E-post foreslått")
-  - Hele kortet er klikkbart → åpner forhåndsutfylt RegisterActivityDialog
-- **CTA nederst:** "+ Start tom aktivitet" (åpner samme modal uten prefill)
+**C. Konsekvens-panel (dynamisk)**
+Endrer seg basert på valgt globalt nivå. Viser et tydelig "Hva betyr dette?"-panel:
+- ✓ grønne fordeler (hastighet, dekning)
+- ⚠ gule risikoer (mindre kontroll, behov for stikkprøver)
+- 🛡 kontrollpunkter som fortsatt finnes (audit log, rollback, override)
 
-**3. Endringer i `RegisterActivityDialog.tsx`**
-- Nytt prop: `prefillFromGuidance?: SuggestedActivity`
-- Når satt: forhåndsfyll alle felter (type, fase, tittel, beskrivelse, tema)
-- Vis lilla banner øverst i modalen: "🔮 Forhåndsutfylt av Mynder basert på [grunn]" + lenke "Tøm felt"
-- Lagre setter `linkedGapId` på aktiviteten
+**D. Per-oppgave overstyring (Granulær matrise)**
+Tabell-lignende kortliste der hver KI-oppgave kan ha sitt eget nivå (overstyrer global). Kategorier basert på Mynders moduler:
 
-**4. Endringer i `vendorActivityData.ts`**
-- Legg til felt på `VendorActivity`: `linkedGapId?: string`, `criticality?: Criticality`
-- Toast ved lagring av guided aktivitet: "Aktivitet lagret og koblet til gap" (grønn)
-- Vanlig toast ellers: "Aktivitet lagret"
+| Oppgavekategori | Eksempler | Standard | Anbefalt maks |
+|---|---|---|---|
+| **Dokumentanalyse** | Klassifisering, utløpsdato-uthenting | Automatisk | Automatisk |
+| **Funn & gap-deteksjon** | Identifisere mangler i DPA, SLA | Assistert | Assistert |
+| **Risikoscoring** | Beregne leverandørrisiko | Assistert | Automatisk |
+| **Aktivitetsforslag** | Forslag i "Veiledning fra Mynder" | Assistert | Assistert |
+| **Kommunikasjon utad** | Sende e-post til leverandør | Manuell | Assistert |
+| **Endring av kontrollstatus** | Markere kontroll som lukket | Manuell | Assistert |
+| **Publisering** | Publisere Trust Profile | Manuell | Manuell |
 
-**5. Endringer i `VendorActivityTab.tsx` (Aktivitetslogg)**
-- Aktiviteter med `linkedGapId` får grønn venstre-border + "Lukker gap"-badge
-- Sortering: nyeste først (allerede slik)
+Hvert rad-kort har:
+- Ikon + navn + 1-linjes beskrivelse
+- Segmentert kontroll (Manuell/Assistert/Automatisk)
+- Hvis bruker velger over "anbefalt maks" → vis ⚠ inline-advarsel: "Høyere enn anbefalt for denne oppgaven. Mynder vil logge alle handlinger for revisjon."
 
-**6. State-flyt**
-- Bruk lokal state i `AssetTrustProfile` (eller liten zustand store) for `dismissedSuggestionIds`
-- Når en aktivitet lagres med `linkedGapId`, legg gap-id i dismissed → forslaget forsvinner fra listen
-- Synthesis-tekst regnes ut fra `suggestions.length` (3 → 2 åpne punkter)
+**E. Sikkerhetsnett (alltid på, read-only info)**
+Kort med 4 punkter — viser kontrollene som *alltid* gjelder uansett autonominivå:
+- 📋 Full revisjonslogg av alle KI-handlinger
+- ↩ Angre-funksjon (24t)
+- 🚫 Kill-switch (pause all KI umiddelbart)
+- 👥 Eskalering til menneske ved usikkerhet > terskel
 
-**7. Faneintegrasjon i `AssetTrustProfile.tsx`**
-- Bytt navnet på eksisterende guidance-fane til "Veiledning fra Mynder" (allerede sånn iflg. bildet)
-- Sørg for at "Aktivitetslogg"-fanen viser korrekt count som inkluderer nye aktiviteter
+**F. Forankrings-footer**
+Lite info-kort: "Designet etter ISO/IEC 42001 §6.1 (AI risk treatment) og §8.3 (human oversight). EU AI Act art. 14 krever meningsfull menneskelig overvåking for høyrisiko-systemer."
 
-### Visuelle detaljer (Apple-minimal, deep purple #5A3184)
-- Synthesis-boks: `bg-primary/8 border border-primary/20 rounded-xl p-5`
-- "MYNDER SYNTETISERER"-badge: solid primary, hvit tekst, uppercase tracking-wide
-- Forslagskort: hvit bg, `border border-border` → hover `border-primary/40`
-- Kritikalitet-badges: `bg-destructive/15 text-destructive` (kritisk), `bg-amber-500/15 text-amber-700` (høy), `bg-yellow-500/15 text-yellow-700` (medium)
-- Chips: `bg-muted text-muted-foreground text-xs rounded-md px-2 py-0.5`
-- Banner i modal: `bg-primary/10 border-l-4 border-primary p-3 rounded-r-md`
+### Persistering
+- Lagres i `localStorage` under `mynder-ai-autonomy-config` (demo)
+- Struktur: `{ globalLevel: "assisted", overrides: { documentAnalysis: "automatic", ... }, killSwitch: false }`
+- Toast ved hver endring: "Autonominivå oppdatert"
 
-### Lokalisering
-Alle strenger med NB/EN-varianter via `isNb`-mønsteret som ellers i koden.
+### Designtokens (Mynder-manualen)
+- Primary: deep purple `#5A3184` for valgt nivå "Automatisk" og banners
+- Success/grønn: `bg-success/10 text-success` for "Manuell" og fordeler
+- Warning/gul-oransje: `bg-warning/10 text-warning` for "Assistert" og advarsler
+- Cards: `border border-border rounded-xl p-5`, hover `border-primary/40`
+- Konsekvens-panel: `bg-muted/30 border-l-4 border-primary`
+- Apple-minimal — masse whitespace, ingen tunge skygger
+
+### Filer som endres
+- `src/pages/PersonalSettings.tsx` — legg til seksjon + render
+- `src/components/settings/AIAutonomySection.tsx` *(ny)*
 
 ### Ut av scope
-- Ekte AI-generering (kun seedet demo-data)
-- Backend-persistering av dismissed forslag (kun in-memory)
-- Endringer på andre faner enn Veiledning og Aktivitetslogg
+- Faktisk håndheving i AI-agentene (kun UI + lagret config)
+- Backend-tabell for config (kommer når flyt er godkjent)
+- Audit log-visning (egen side senere)
 
