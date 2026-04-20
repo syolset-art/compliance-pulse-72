@@ -164,8 +164,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
           </div>
         )}
 
-          </DialogDescription>
-        </DialogHeader>
+
 
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-5 pt-2">
           {/* Type selector - radio group */}
