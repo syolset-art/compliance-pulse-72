@@ -201,6 +201,7 @@ export default function PersonalSettings() {
     { id: "account", labelNb: "Konto", labelEn: "Account", icon: User },
     { id: "notifications", labelNb: "Varsler", labelEn: "Notifications", icon: Bell },
     { id: "agents", labelNb: "Agenter", labelEn: "Agents", icon: Bot },
+    { id: "ai-autonomy", labelNb: "AI Autonomi", labelEn: "AI Autonomy", icon: Sparkles },
     { id: "membership", labelNb: "Medlemskap", labelEn: "Membership", icon: CreditCard },
     { id: "privacy", labelNb: "Personvern", labelEn: "Privacy", icon: Shield },
   ];
