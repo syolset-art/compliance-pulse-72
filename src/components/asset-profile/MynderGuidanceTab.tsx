@@ -32,42 +32,25 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
 
   const summary = recomputeSummary(visibleSuggestions, isNb);
 
-  const counts = useMemo(() => ({
-    open: visibleSuggestions.filter(s => s.status === "open").length,
-    in_progress: visibleSuggestions.filter(s => s.status === "in_progress").length,
-    closed: 2, // demo: lukket siste 30 dg
-  }), [visibleSuggestions]);
-
   const handleSubmit = (activity: VendorActivity) => {
     onActivitySaved(activity, activePrefill ?? undefined);
     setActivePrefill(null);
     setEmptyOpen(false);
   };
 
-  const statusKpi = (label: string, value: number, color: string) => (
-    <div className="flex-1 rounded-lg border border-border bg-card px-4 py-3">
-      <div className={cn("text-2xl font-semibold leading-none", color)}>{value}</div>
-      <div className="mt-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-    </div>
-  );
 
   return (
     <div className="space-y-5">
-      {/* KPI row */}
-      <div className="flex items-stretch gap-3">
-        {statusKpi(isNb ? "Åpne gap" : "Open gaps", counts.open, "text-destructive")}
-        {statusKpi(isNb ? "Under oppfølging" : "In progress", counts.in_progress, "text-amber-600 dark:text-amber-400")}
-        {statusKpi(isNb ? "Lukket (30 dg)" : "Closed (30 d)", counts.closed, "text-emerald-600 dark:text-emerald-400")}
-      </div>
-
       {/* Synthesis box */}
       <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
-        <div className="flex items-center justify-between gap-3 mb-2.5 pb-2 border-b border-primary/10">
-          <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            {isNb ? "Mynders oppsummering basert på leverandørdata" : "Mynder's summary based on vendor data"}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary shrink-0" />
+            <h2 className="text-lg font-semibold text-foreground leading-tight">
+              {isNb ? "Veiledning fra Mynder" : "Guidance from Mynder"}
+            </h2>
           </div>
-          <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap">
+          <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap mt-1.5">
             {isNb ? "Oppdatert nå" : "Updated just now"}
           </span>
         </div>
