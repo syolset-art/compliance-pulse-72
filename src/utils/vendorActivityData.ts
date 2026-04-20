@@ -85,12 +85,23 @@ export function generateDemoActivities(assetId: string): VendorActivity[] {
   const count = 10 + Math.floor(rand() * 5);
   const activities: VendorActivity[] = [];
 
+  const phaseToLevel: Record<Phase, ActivityLevel> = {
+    pre_assessment: "strategisk",
+    onboarding: "taktisk",
+    ongoing: "operasjonelt",
+    audit: "taktisk",
+    incident: "operasjonelt",
+    termination: "strategisk",
+  };
+
   for (let i = 0; i < count; i++) {
     const tmpl = templates[Math.floor(rand() * templates.length)];
     const daysAgo = Math.floor(rand() * 300) + 1;
     const date = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
     const actor = actors[Math.floor(rand() * actors.length)];
     const status = STATUS_CONFIG[tmpl.outcomeStatus];
+    // createdAt slightly after the date (a few hours)
+    const createdAt = new Date(date.getTime() + Math.floor(rand() * 8) * 60 * 60 * 1000);
 
     activities.push({
       id: `act-${i}`, type: tmpl.type, phase: tmpl.phase,
@@ -99,6 +110,8 @@ export function generateDemoActivities(assetId: string): VendorActivity[] {
       outcomeNb: status.nb, outcomeEn: status.en,
       outcomeStatus: tmpl.outcomeStatus,
       date, actor, actorRole: tmpl.actorRole,
+      level: phaseToLevel[tmpl.phase],
+      createdAt,
     });
   }
 
