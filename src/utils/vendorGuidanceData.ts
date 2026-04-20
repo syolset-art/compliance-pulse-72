@@ -2,7 +2,7 @@ import type { ActivityType, Phase } from "./vendorActivityData";
 
 export type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
 export type Criticality = "kritisk" | "hoy" | "medium";
-export type GapStatus = "open" | "in_progress" | "closed";
+export type GapStatus = "open" | "in_progress" | "closed" | "not_relevant";
 
 export interface SuggestedActivity {
   id: string;
