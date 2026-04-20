@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
+import { ACTIVITY_STATUS_CONFIG } from "@/utils/vendorActivityData";
 
 type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
@@ -66,7 +67,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("ongoing");
-  const [outcome] = useState<OutcomeStatus>("in_progress");
+  const [outcome, setOutcome] = useState<OutcomeStatus>("open");
   const [criticality, setCriticality] = useState<Criticality | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [titleError, setTitleError] = useState(false);
@@ -75,6 +76,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     setType("email"); setTitle(""); setDescription("");
     setPhase("ongoing"); setLevel(null); setTheme("generell");
     setCriticality(null); setDate(new Date()); setTitleError(false);
+    setOutcome("open");
   };
 
   useEffect(() => {
@@ -110,7 +112,8 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       titleNb: title, titleEn: title,
       descriptionNb: description || undefined,
       descriptionEn: description || undefined,
-      outcomeNb: "Pågår", outcomeEn: "In progress",
+      outcomeNb: outcome === "open" ? "Åpent" : outcome === "in_progress" ? "Under oppfølging" : outcome === "closed" ? "Lukket" : "Ikke relevant",
+      outcomeEn: outcome === "open" ? "Open" : outcome === "in_progress" ? "In progress" : outcome === "closed" ? "Closed" : "Not relevant",
       outcomeStatus: outcome,
       date,
       actor: isNb ? "Deg" : "You",
@@ -324,6 +327,32 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
                         )}
                       >
                         {isNb ? c.nb : c.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Status" : "Status"}
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {(["open", "in_progress", "closed", "not_relevant"] as OutcomeStatus[]).map(s => {
+                    const conf = ACTIVITY_STATUS_CONFIG[s];
+                    const isSelected = outcome === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setOutcome(s)}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider transition-all",
+                          isSelected ? conf.pill : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                        )}
+                      >
+                        <span className={cn("h-1.5 w-1.5 rounded-full", conf.dot)} />
+                        {isNb ? conf.nb : conf.en}
                       </button>
                     );
                   })}

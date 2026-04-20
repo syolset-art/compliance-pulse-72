@@ -1,7 +1,56 @@
 export type ActivityType = "document" | "risk" | "incident" | "assignment" | "review" | "delivery" | "maturity" | "setting" | "upload" | "view" | "email" | "phone" | "meeting" | "manual";
 export type Phase = "pre_assessment" | "onboarding" | "ongoing" | "audit" | "incident" | "termination";
-export type OutcomeStatus = "in_progress" | "completed" | "needs_followup";
+// Simplified 4-status model for vendor activity follow-up
+export type ActivityStatus = "open" | "in_progress" | "closed" | "not_relevant";
+// Legacy alias retained for backwards compatibility — same keys as ActivityStatus
+export type OutcomeStatus = ActivityStatus;
 export type ActivityLevel = "operasjonelt" | "taktisk" | "strategisk";
+
+export interface StatusHistoryEntry {
+  from: ActivityStatus;
+  to: ActivityStatus;
+  comment?: string;
+  changedAt: Date;
+  changedBy?: string;
+}
+
+export const ACTIVITY_STATUS_CONFIG: Record<ActivityStatus, {
+  nb: string;
+  en: string;
+  pill: string;       // pill bg + text + border
+  dot: string;        // colored dot bg
+  filterDot: string;  // dot used in filters
+}> = {
+  open: {
+    nb: "Åpent", en: "Open",
+    pill: "bg-destructive/10 text-destructive border-destructive/30",
+    dot: "bg-destructive",
+    filterDot: "bg-destructive",
+  },
+  in_progress: {
+    nb: "Under oppfølging", en: "In progress",
+    pill: "bg-warning/10 text-warning border-warning/30",
+    dot: "bg-warning",
+    filterDot: "bg-warning",
+  },
+  closed: {
+    nb: "Lukket", en: "Closed",
+    pill: "bg-success/10 text-success border-success/30",
+    dot: "bg-success",
+    filterDot: "bg-success",
+  },
+  not_relevant: {
+    nb: "Ikke relevant", en: "Not relevant",
+    pill: "bg-muted text-muted-foreground border-border",
+    dot: "bg-muted-foreground",
+    filterDot: "bg-muted-foreground",
+  },
+};
+
+export type StatusGroup = "all" | "open" | "in_progress" | "closed";
+export function getStatusGroup(s: ActivityStatus): Exclude<StatusGroup, "all"> | "not_relevant" {
+  return s === "open" ? "open" : s === "in_progress" ? "in_progress" : s === "closed" ? "closed" : "not_relevant";
+}
 
 export interface VendorActivity {
   id: string;
@@ -26,6 +75,7 @@ export interface VendorActivity {
   theme?: string;
   level?: ActivityLevel;
   createdAt?: Date;
+  statusHistory?: StatusHistoryEntry[];
 }
 
 export const LEVEL_CONFIG: Record<ActivityLevel, { nb: string; en: string; dot: string }> = {
@@ -43,10 +93,11 @@ export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string
   termination: { nb: "Avslutning", en: "Termination", color: "bg-slate-100 text-slate-800 dark:bg-slate-900/40 dark:text-slate-300" },
 };
 
-export const STATUS_CONFIG: Record<OutcomeStatus, { nb: string; en: string }> = {
-  in_progress: { nb: "Pågår", en: "In progress" },
-  completed: { nb: "Fullført", en: "Completed" },
-  needs_followup: { nb: "Krever oppfølging", en: "Needs follow-up" },
+export const STATUS_CONFIG: Record<ActivityStatus, { nb: string; en: string }> = {
+  open: { nb: "Åpent", en: "Open" },
+  in_progress: { nb: "Under oppfølging", en: "In progress" },
+  closed: { nb: "Lukket", en: "Closed" },
+  not_relevant: { nb: "Ikke relevant", en: "Not relevant" },
 };
 
 interface Template {
@@ -57,23 +108,23 @@ interface Template {
 }
 
 const templates: Template[] = [
-  { type: "document", phase: "onboarding", titleNb: "DPA lastet opp", titleEn: "DPA uploaded", descNb: "Databehandleravtale lastet opp og knyttet til leverandøren", descEn: "Data processing agreement uploaded and linked to the vendor", outcomeStatus: "completed", actorRole: "Compliance-ansvarlig" },
-  { type: "assignment", phase: "onboarding", titleNb: "Leverandøransvarlig tildelt", titleEn: "Vendor manager assigned", descNb: "Ansvarlig person ble satt for oppfølging av leverandøren", descEn: "Responsible person was assigned for vendor follow-up", outcomeStatus: "completed", actorRole: "IT-leder" },
-  { type: "risk", phase: "pre_assessment", titleNb: "Risikovurdering gjennomført", titleEn: "Risk assessment completed", descNb: "Intern risikovurdering ble gjennomført før kontraktsignering", descEn: "Internal risk assessment was completed prior to contract signing", outcomeStatus: "needs_followup", actorRole: "Sikkerhetsrådgiver" },
-  { type: "review", phase: "audit", titleNb: "Årlig gjennomgang fullført", titleEn: "Annual review completed", descNb: "Leverandøren ble gjennomgått og godkjent for videre bruk", descEn: "Vendor was reviewed and approved for continued use", outcomeStatus: "completed", actorRole: "Compliance-ansvarlig" },
+  { type: "document", phase: "onboarding", titleNb: "DPA lastet opp", titleEn: "DPA uploaded", descNb: "Databehandleravtale lastet opp og knyttet til leverandøren", descEn: "Data processing agreement uploaded and linked to the vendor", outcomeStatus: "closed", actorRole: "Compliance-ansvarlig" },
+  { type: "assignment", phase: "onboarding", titleNb: "Leverandøransvarlig tildelt", titleEn: "Vendor manager assigned", descNb: "Ansvarlig person ble satt for oppfølging av leverandøren", descEn: "Responsible person was assigned for vendor follow-up", outcomeStatus: "closed", actorRole: "IT-leder" },
+  { type: "risk", phase: "pre_assessment", titleNb: "Risikovurdering gjennomført", titleEn: "Risk assessment completed", descNb: "Intern risikovurdering ble gjennomført før kontraktsignering", descEn: "Internal risk assessment was completed prior to contract signing", outcomeStatus: "open", actorRole: "Sikkerhetsrådgiver" },
+  { type: "review", phase: "audit", titleNb: "Årlig gjennomgang fullført", titleEn: "Annual review completed", descNb: "Leverandøren ble gjennomgått og godkjent for videre bruk", descEn: "Vendor was reviewed and approved for continued use", outcomeStatus: "closed", actorRole: "Compliance-ansvarlig" },
   { type: "delivery", phase: "ongoing", titleNb: "Ny leveranse registrert", titleEn: "New delivery registered", descNb: "En ny leveranse ble lagt til leverandørprofilen", descEn: "A new delivery was added to the vendor profile", outcomeStatus: "in_progress", actorRole: "Leverandøransvarlig" },
-  { type: "maturity", phase: "ongoing", titleNb: "Modenhetsscore oppdatert", titleEn: "Maturity score updated", descNb: "Trust Score økte fra 32% til 38% etter kontrollgjennomgang", descEn: "Trust Score increased from 32% to 38% after control review", outcomeStatus: "completed", actorRole: "Compliance-ansvarlig" },
-  { type: "document", phase: "onboarding", titleNb: "ISO 27001-sertifikat lastet opp", titleEn: "ISO 27001 certificate uploaded", descNb: "Leverandørens sertifisering ble verifisert og arkivert", descEn: "Vendor's certification was verified and archived", outcomeStatus: "completed", actorRole: "Sikkerhetsrådgiver" },
-  { type: "incident", phase: "incident", titleNb: "Hendelse rapportert", titleEn: "Incident reported", descNb: "En sikkerhetshendelse hos leverandøren ble registrert og fulgt opp", descEn: "A security incident at the vendor was registered and followed up", outcomeStatus: "needs_followup", actorRole: "CISO" },
-  { type: "upload", phase: "ongoing", titleNb: "SLA-dokument oppdatert", titleEn: "SLA document updated", descNb: "Oppdatert tjenestenivåavtale ble lastet opp", descEn: "Updated service level agreement was uploaded", outcomeStatus: "completed", actorRole: "Leverandøransvarlig" },
-  { type: "setting", phase: "ongoing", titleNb: "Kontaktinformasjon endret", titleEn: "Contact information changed", descNb: "E-post og telefonnummer for kontaktperson ble oppdatert", descEn: "Email and phone number for contact person were updated", outcomeStatus: "completed", actorRole: "Administrasjonsansvarlig" },
+  { type: "maturity", phase: "ongoing", titleNb: "Modenhetsscore oppdatert", titleEn: "Maturity score updated", descNb: "Trust Score økte fra 32% til 38% etter kontrollgjennomgang", descEn: "Trust Score increased from 32% to 38% after control review", outcomeStatus: "closed", actorRole: "Compliance-ansvarlig" },
+  { type: "document", phase: "onboarding", titleNb: "ISO 27001-sertifikat lastet opp", titleEn: "ISO 27001 certificate uploaded", descNb: "Leverandørens sertifisering ble verifisert og arkivert", descEn: "Vendor's certification was verified and archived", outcomeStatus: "closed", actorRole: "Sikkerhetsrådgiver" },
+  { type: "incident", phase: "incident", titleNb: "Hendelse rapportert", titleEn: "Incident reported", descNb: "En sikkerhetshendelse hos leverandøren ble registrert og fulgt opp", descEn: "A security incident at the vendor was registered and followed up", outcomeStatus: "open", actorRole: "CISO" },
+  { type: "upload", phase: "ongoing", titleNb: "SLA-dokument oppdatert", titleEn: "SLA document updated", descNb: "Oppdatert tjenestenivåavtale ble lastet opp", descEn: "Updated service level agreement was uploaded", outcomeStatus: "closed", actorRole: "Leverandøransvarlig" },
+  { type: "setting", phase: "ongoing", titleNb: "Kontaktinformasjon endret", titleEn: "Contact information changed", descNb: "E-post og telefonnummer for kontaktperson ble oppdatert", descEn: "Email and phone number for contact person were updated", outcomeStatus: "closed", actorRole: "Administrasjonsansvarlig" },
   { type: "view", phase: "ongoing", titleNb: "Profil vist av kunde", titleEn: "Profile viewed by customer", descNb: "Trust Profilen ble vist 3 ganger av eksterne brukere", descEn: "The Trust Profile was viewed 3 times by external users", outcomeStatus: "in_progress", actorRole: "System" },
-  { type: "maturity", phase: "audit", titleNb: "Kontrollområde forbedret", titleEn: "Control area improved", descNb: "Personvern og datahåndtering gikk fra 45% til 62%", descEn: "Privacy and data handling improved from 45% to 62%", outcomeStatus: "completed", actorRole: "Compliance-ansvarlig" },
-  { type: "assignment", phase: "ongoing", titleNb: "Eier endret", titleEn: "Owner changed", descNb: "Virksomhetsområde ble oppdatert fra IT til Drift", descEn: "Work area was updated from IT to Operations", outcomeStatus: "completed", actorRole: "IT-leder" },
-  { type: "document", phase: "ongoing", titleNb: "Underleverandørliste mottatt", titleEn: "Sub-processor list received", descNb: "Leverandøren sendte oppdatert liste over underleverandører", descEn: "Vendor sent updated list of sub-processors", outcomeStatus: "completed", actorRole: "Leverandøransvarlig" },
+  { type: "maturity", phase: "audit", titleNb: "Kontrollområde forbedret", titleEn: "Control area improved", descNb: "Personvern og datahåndtering gikk fra 45% til 62%", descEn: "Privacy and data handling improved from 45% to 62%", outcomeStatus: "closed", actorRole: "Compliance-ansvarlig" },
+  { type: "assignment", phase: "ongoing", titleNb: "Eier endret", titleEn: "Owner changed", descNb: "Virksomhetsområde ble oppdatert fra IT til Drift", descEn: "Work area was updated from IT to Operations", outcomeStatus: "closed", actorRole: "IT-leder" },
+  { type: "document", phase: "ongoing", titleNb: "Underleverandørliste mottatt", titleEn: "Sub-processor list received", descNb: "Leverandøren sendte oppdatert liste over underleverandører", descEn: "Vendor sent updated list of sub-processors", outcomeStatus: "in_progress", actorRole: "Leverandøransvarlig" },
   { type: "review", phase: "audit", titleNb: "Revisjon planlagt", titleEn: "Audit scheduled", descNb: "Neste revisjon av leverandøren ble satt til Q2 2026", descEn: "Next audit of the vendor was scheduled for Q2 2026", outcomeStatus: "in_progress", actorRole: "Compliance-ansvarlig" },
   { type: "review", phase: "pre_assessment", titleNb: "Due diligence startet", titleEn: "Due diligence started", descNb: "Innledende vurdering av leverandøren før kontraktsignering", descEn: "Initial assessment of vendor prior to contract signing", outcomeStatus: "in_progress", actorRole: "Innkjøpsansvarlig" },
-  { type: "document", phase: "termination", titleNb: "Avtale terminert", titleEn: "Contract terminated", descNb: "Avtalen ble avsluttet og data overført tilbake", descEn: "Contract was terminated and data transferred back", outcomeStatus: "completed", actorRole: "Compliance-ansvarlig" },
+  { type: "document", phase: "termination", titleNb: "Avtale terminert", titleEn: "Contract terminated", descNb: "Avtalen ble avsluttet og data overført tilbake", descEn: "Contract was terminated and data transferred back", outcomeStatus: "not_relevant", actorRole: "Compliance-ansvarlig" },
 ];
 
 export function generateDemoActivities(assetId: string): VendorActivity[] {
@@ -154,8 +205,9 @@ export const ACTIVITY_COLORS: Record<ActivityType, string> = {
   manual: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
 };
 
-export const OUTCOME_COLORS: Record<OutcomeStatus, string> = {
-  in_progress: "text-blue-600 dark:text-blue-400",
-  completed: "text-green-600 dark:text-green-400",
-  needs_followup: "text-orange-600 dark:text-orange-400",
+export const OUTCOME_COLORS: Record<ActivityStatus, string> = {
+  open: "text-destructive",
+  in_progress: "text-warning",
+  closed: "text-success",
+  not_relevant: "text-muted-foreground",
 };
