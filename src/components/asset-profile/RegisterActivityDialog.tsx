@@ -115,6 +115,8 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       isManual: true,
       linkedGapId: prefillFromGuidance?.gapId,
       criticality: prefillFromGuidance?.criticality,
+      level: prefillFromGuidance?.level,
+      createdAt: new Date(),
     };
     onSubmit(activity);
     reset();

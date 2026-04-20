@@ -44,12 +44,19 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
   const [manualActivities, setManualActivities] = useState<VendorActivity[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activityOverrides, setActivityOverrides] = useState<Record<string, Partial<VendorActivity>>>({});
 
   const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
   const activities = useMemo(
-    () => [...demoActivities, ...manualActivities, ...externalActivities].sort((a, b) => b.date.getTime() - a.date.getTime()),
-    [demoActivities, manualActivities, externalActivities]
+    () => [...demoActivities, ...manualActivities, ...externalActivities]
+      .map(a => activityOverrides[a.id] ? { ...a, ...activityOverrides[a.id] } : a)
+      .sort((a, b) => b.date.getTime() - a.date.getTime()),
+    [demoActivities, manualActivities, externalActivities, activityOverrides]
   );
+
+  const updateActivity = (id: string, patch: Partial<VendorActivity>) => {
+    setActivityOverrides(prev => ({ ...prev, [id]: { ...(prev[id] ?? {}), ...patch } }));
+  };
   const { tasks, createTask } = useUserTasks();
   const vendorTasks = useMemo(() => tasks.filter(t => t.asset_id === assetId && t.status !== "done"), [tasks, assetId]);
 
@@ -276,7 +283,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                             </div>
                           </div>
                         </div>
-                        {isExpanded && <ActivityDetailPanel activity={act} />}
+                        {isExpanded && <ActivityDetailPanel activity={act} onUpdate={(patch) => updateActivity(act.id, patch)} />}
                       </div>
                     );
                   })}
