@@ -783,9 +783,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <h3 className="text-base font-semibold text-foreground">Pro Badge</h3>
                             <p className="text-xs text-muted-foreground">{isNb ? "Full tilpasning" : "Full customization"}</p>
                           </div>
-                          <Badge variant="outline" className="text-[13px] gap-1">
-                            <Settings className="h-3 w-3" />
-                            Pro
+                          <Badge variant="outline" className="text-[13px] gap-1 bg-success/10 text-success border-success/20">
+                            <Sparkles className="h-3 w-3" />
+                            {isNb ? "Gratis nå" : "Free now"}
                           </Badge>
                         </div>
                         <div className="flex justify-center py-4">
@@ -821,10 +821,18 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </div>
                           ))}
                         </div>
-                        <Button className="w-full gap-2 bg-primary hover:bg-primary/90" onClick={() => setUpgradeDialogOpen(true)}>
-                          <Sparkles className="h-4 w-4" />
-                          {isNb ? "Oppgrader for å tilpasse badge" : "Upgrade to customize badge"}
-                        </Button>
+                        <div className="space-y-2">
+                          <div className="flex justify-center">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-[11px] font-medium text-success">
+                              <Sparkles className="h-3 w-3" />
+                              {isNb ? "Gratis i lanseringsperioden" : "Free during launch period"}
+                            </span>
+                          </div>
+                          <Button className="w-full gap-2 bg-primary hover:bg-primary/90" onClick={() => setUpgradeDialogOpen(true)}>
+                            <Sparkles className="h-4 w-4" />
+                            {isNb ? "Aktiver Pro Badge — gratis frem til lansering" : "Activate Pro Badge — free until launch"}
+                          </Button>
+                        </div>
                       </Card>
                     </div>
 
