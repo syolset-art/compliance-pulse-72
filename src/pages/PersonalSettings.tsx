@@ -20,6 +20,7 @@ import {
   Bot, Plug, ExternalLink, Sparkles, Zap, Settings2,
   ChevronRight, Copy, Eye, EyeOff, HelpCircle,
 } from "lucide-react";
+import { AIAutonomySection } from "@/components/settings/AIAutonomySection";
 
 const NOTIFICATION_TYPES = [
   { key: "document_expiry", labelNb: "Dokumentutløp", labelEn: "Document expiry", descNb: "Varsling når dokumenter nærmer seg utløpsdato", descEn: "Alerts when documents approach expiry date", icon: FileText },
@@ -201,6 +202,7 @@ export default function PersonalSettings() {
     { id: "account", labelNb: "Konto", labelEn: "Account", icon: User },
     { id: "notifications", labelNb: "Varsler", labelEn: "Notifications", icon: Bell },
     { id: "agents", labelNb: "Agenter", labelEn: "Agents", icon: Bot },
+    { id: "ai-autonomy", labelNb: "AI Autonomi", labelEn: "AI Autonomy", icon: Sparkles },
     { id: "membership", labelNb: "Medlemskap", labelEn: "Membership", icon: CreditCard },
     { id: "privacy", labelNb: "Personvern", labelEn: "Privacy", icon: Shield },
   ];
@@ -567,6 +569,9 @@ export default function PersonalSettings() {
               </Card>
             </div>
           )}
+
+          {/* ── AI Autonomy ── */}
+          {activeSection === "ai-autonomy" && <AIAutonomySection isNb={isNb} />}
 
           {/* ── Privacy ── */}
           {activeSection === "privacy" && (
