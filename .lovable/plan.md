@@ -1,98 +1,71 @@
 
 
-## Plan: Forenklet status-modell + inline status-endring (matcher referansebildene)
+## Plan: Nytt design på "Veiledning fra Mynder" — status-pille + inline editor på gap-kortene
 
-Basert på de to skjermbildene: forenkle statusene fra 7 til 4, vis dem som tydelige "pill"-knapper i raden, og la brukeren endre status inline (uten å åpne hele detaljpanelet) med kommentarfelt.
+I dag vises hvert foreslått gap med et statisk statusmerke (ÅPEN / UNDER OPPFØLGING / LUKKET) i øverste høyre hjørne. Brukeren ber om at disse kortene matcher det nye aktivitets-designet: klikkbar status-pille som åpner en inline-editor (bilde 1) for å endre status og legge til kommentar — uten å åpne hele opprett-aktivitet-dialogen.
 
-### 1. Forenklet statusmodell (4 statuser)
+### 1. Utvid gap-statusmodellen til 4 verdier (matcher aktivitetene)
 
-Erstatt forrige forslag på 7 statuser med disse 4 (matcher bildet):
+**Fil:** `src/utils/vendorGuidanceData.ts`
+- Utvid `GapStatus` fra 3 til 4: `"open" | "in_progress" | "closed" | "not_relevant"`
+- Legg til `not_relevant` i `STATUS_CONFIG` (grå pille, samme stil som i `ACTIVITY_STATUS_CONFIG`)
+- Synkroniser pille-stilene med `ACTIVITY_STATUS_CONFIG` fra `vendorActivityData.ts` slik at gap-kortene og aktivitets-kortene ser identiske ut (samme rosa/gul/grønn/grå pille med farget prikk + UPPERCASE-tekst + chevron)
 
-| Nøkkel | Norsk | Engelsk | Pill-stil |
-|---|---|---|---|
-| `open` | Åpent | Open | Rosa/rød: `bg-destructive/10 text-destructive border-destructive/30` |
-| `in_progress` | Under oppfølging | In progress | Gul/amber: `bg-warning/10 text-warning border-warning/30` |
-| `closed` | Lukket | Closed | Grønn: `bg-success/10 text-success border-success/30` |
-| `not_relevant` | Ikke relevant | Not relevant | Grå: `bg-muted text-muted-foreground border-border` |
+### 2. Gjør status-pillen klikkbar på gap-kortene
 
-Hver status har en farget prikk (`•`) foran tekst i pill, label er UPPERCASE small-caps som i bildet.
+**Fil:** `src/components/asset-profile/MynderGuidanceTab.tsx`
 
-**Fil:** `src/utils/vendorActivityData.ts` — `ActivityStatus`-type + `ACTIVITY_STATUS_CONFIG` med disse 4. Gammel `outcomeStatus`-mapping: `in_progress`→`in_progress`, `completed`→`closed`, `needs_followup`→`open`.
+På hvert suggestion-kort (rundt linje 117–121):
+- Bytt ut det statiske `<span>` med en klikkbar pille (knapp) som matcher pillen i `VendorActivityTab`:
+  - Farget prikk (●), label i UPPERCASE, liten `ChevronDown`-ikon
+  - Stil hentet fra felles config (samme som aktivitetslisten)
+- `e.stopPropagation()` på klikket slik at det ikke åpner opprett-dialogen (`setActivePrefill`)
+- Klikk setter ny lokal state `editingStatusId` → kortet utvides
 
-### 2. Mynder-statuslinje øverst (bilde 1, linje "Mynder ser:")
+### 3. Inline status-editor under gap-kortet (bilde 1)
 
-Over aktivitetslisten i `VendorActivityTab.tsx`, legg til en sammendragslinje:
+Gjenbruk eksisterende `src/components/asset-profile/InlineStatusEditor.tsx` (samme komponent som aktivitetslisten bruker).
 
-```text
-✦ Mynder ser:  1 åpent gap  ·  2 under oppfølging  ·  2 lukket siste 30 dg        Oppdatert nå
-```
+Når `editingStatusId === s.id`:
+- Animert utvidelse under kortet (samme bredde, samme `border-t border-dashed` separator som i bilde 1)
+- 4 status-pille-knapper (Åpent ✓ / Under oppfølging / Lukket / Ikke relevant)
+- Tekstfelt "Legg til kommentar (valgfritt)…"
+- Lagre / Avbryt-knapper, ESC lukker
+- Ved Lagre → kall ny prop `onGapStatusChange(suggestionId, newStatus, comment)` og lukk editoren
 
-- Fargede tall (rød/gul/grønn) som matcher status-pillene
-- Plasseres rett under tab-headeren, før status-filterknappene
-- Tekst genereres fra `activities`-tellinger
+### 4. Status-overrides for gap (in-memory)
 
-### 3. Status-filterrad (bilde 1: "Alle · 5 / Åpne · 1 / Under oppfølging · 2 / Lukket · 2")
+**Fil:** `src/components/asset-profile/MynderGuidanceTab.tsx`
+- Ny lokal state: `gapStatusOverrides: Record<string, { status: GapStatus; comment?: string; changedAt: Date }>`
+- Når status endres lokalt: oppdater `gapStatusOverrides`, og `visibleSuggestions` mapper `s.status = overrides[s.id]?.status ?? s.status`
+- `recomputeSummary` får dermed automatisk oppdatert sammendrag (rød/gul/grønn-tellinger i topp-boksen)
+- Persisteres ikke til DB (samme demo-mønster som aktiviteter)
 
-Erstatt dagens fase-filter-rad med status-filter (eller legg til ny rad under):
-- Pille-knapper med status-prikk + label + count
-- Aktiv pille får mørkere ring/border
-- "Alle" først, så de tre brukte statusene (skjul `not_relevant` hvis ingen har den)
+### 5. Bunntekst-tips (matcher bilde 1)
 
-### 4. Status-pill i hver aktivitetsrad (bilde 1, høyre side)
+Legg til en liten tipslinje nederst i seksjonen (akkurat som i bildet):
+> *"Tips: klikk på statuspillen til høyre på et kort for å endre status"*
 
-I `VendorActivityTab.tsx` (linje ~265 hvor `OutcomeIcon` brukes i dag):
-- Erstatt med en **klikkbar pille** plassert helt til høyre i raden
-- Pille-stil matcher tabellen over (UPPERCASE, prikk, farget border)
-- Liten chevron-ned (`▾`) i pillen indikerer at den er klikkbar
-- Klikk på pillen åpner inline status-editor (se neste punkt) — IKKE hele detaljpanelet
-- Klikk på resten av raden åpner detaljpanelet som før
+Vises kun hvis det er ≥1 synlig forslag og editoren ikke er åpen.
 
-### 5. Inline status-editor (bilde 2)
+### 6. Synkronisering med eksisterende dismiss-logikk
 
-Ny komponent: `src/components/asset-profile/InlineStatusEditor.tsx`
+- Når bruker setter status `closed` eller `not_relevant` i editoren: kortet beholdes synlig (med ny pille) — det er IKKE samme som dismiss. 
+- Gap som settes til `closed` her teller mot "lukket siste 30 dg" i Mynder-sammendragslinjen i `VendorActivityTab` (via samme override-mekanisme — alternativt: eget tellesett internt i Guidance-tab).
+- Den gamle "klikk på kortet → åpne opprett-aktivitet-dialog"-flyten beholdes (klikk på selve kort-bakgrunnen, IKKE på pillen).
 
-Når brukeren klikker pillen utvides en seksjon under raden (samme bredde som raden, animert):
+### Filer som endres
 
-```text
-Endre status til:
-[● Åpent ✓] [● Under oppfølging] [● Lukket] [● Ikke relevant]
+- `src/utils/vendorGuidanceData.ts` — utvid `GapStatus` med `not_relevant`, juster `STATUS_CONFIG` til samme stil som `ACTIVITY_STATUS_CONFIG`
+- `src/components/asset-profile/MynderGuidanceTab.tsx` — klikkbar status-pille, integrasjon med `InlineStatusEditor`, `gapStatusOverrides`-state, tips-linje
 
-[Legg til kommentar (valgfritt)…………]   [Lagre] [Avbryt]
-```
+### Filer som gjenbrukes uendret
 
-- 4 status-pille-knapper, valgt status får hake (`✓`) og lysere bakgrunn
-- Tekstfelt for valgfri kommentar
-- "Lagre" → `onUpdate({ outcomeStatus, statusComment })` og legg post i `statusHistory`
-- "Avbryt" lukker editoren uten endring
-- Lukker seg automatisk etter Lagre, og pillen i raden oppdateres
-- ESC lukker editoren
-
-### 6. Statushistorikk (in-memory)
-
-I `VendorActivityTab.tsx` `updateActivity`-funksjonen: når status endres, push til `act.statusHistory: { from, to, comment?, changedAt, changedBy }[]`.
-
-I detaljpanelet (`ActivityDetailPanel.tsx`) — ny seksjon nederst "Statusendringer" som lister historikken (kun synlig hvis ≥1 endring). Maks 3 vises, "Vis alle"-toggle for resten.
-
-### 7. Default-status og demo-data
-
-**`generateDemoActivities`:** Realistisk fordeling:
-- ~40% `closed`, ~30% `in_progress`, ~25% `open`, ~5% `not_relevant`
-
-**`RegisterActivityDialog.tsx`:** Default `open` for nye aktiviteter, med liten status-velger i dialogen (samme 4-pille-stil).
-
-### Filer som endres / opprettes
-
-**Endres:**
-- `src/utils/vendorActivityData.ts` — ny 4-status-modell + config + mapping + demo-fordeling
-- `src/components/asset-profile/tabs/VendorActivityTab.tsx` — Mynder-sammendragslinje, status-filterrad, klikkbar pille, integrasjon med inline-editor
-- `src/components/asset-profile/ActivityDetailPanel.tsx` — bytt outcome-visning til ny status-pille + statushistorikk-seksjon
-- `src/components/asset-profile/RegisterActivityDialog.tsx` — status-velger med default `open`
-
-**Opprettes:**
-- `src/components/asset-profile/InlineStatusEditor.tsx` — den utvidbare editoren fra bilde 2
+- `src/components/asset-profile/InlineStatusEditor.tsx` — samme komponent som i aktivitetslisten
 
 ### Ut av scope
-- Persistering til database (alt holdes in-memory som resten av aktivitetslogikken)
-- Notifikasjoner ved statusendringer
-- Eksport av statushistorikk
+
+- Persistering til database
+- Synkronisering av gap-status til faktiske kontroll-områder/maturity-data
+- Endring av aktivitetsfanen (allerede oppdatert i forrige runde)
 
