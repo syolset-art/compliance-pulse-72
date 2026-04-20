@@ -81,11 +81,24 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
     low: "bg-success/10 text-success border-success/20",
   }[vendor.risk_level || ""] || "bg-muted text-muted-foreground border-border";
 
+  const hasScore = score > 0;
+  const ringTone = !hasScore ? "muted" : score >= 75 ? "success" : score >= 50 ? "warning" : "destructive";
+  const ringStroke = !hasScore ? "hsl(var(--muted-foreground) / 0.3)" : `hsl(var(--${ringTone}))`;
+  const ringText = !hasScore ? "text-muted-foreground" : `text-${ringTone}`;
+  const ringLabel = !hasScore ? (isNb => isNb ? "Ikke vurdert" : "Not assessed")(t("common.lang") === "nb" || true) : scoreToLabel(score);
+  const radius = 16;
+  const circ = 2 * Math.PI * radius;
+  const dash = hasScore ? (score / 100) * circ : 0;
+
   const complianceColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
 
-  const priorityLabel = vendor.priority
-    ? ({ critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" } as Record<string, string>)[vendor.priority] || vendor.priority
-    : null;
+  const priorityMeta: Record<string, { label: string; cls: string }> = {
+    critical: { label: "Kritisk", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+    high: { label: "Høy", cls: "bg-warning/15 text-warning border-warning/30" },
+    medium: { label: "Medium", cls: "bg-primary/10 text-primary border-primary/20" },
+    low: { label: "Lav", cls: "bg-muted text-muted-foreground border-border" },
+  };
+  const priorityInfo = vendor.priority ? priorityMeta[vendor.priority] : null;
 
   return (
     <Card
