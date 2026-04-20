@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { User, Users, Paperclip, Calendar, Tag, Layers } from "lucide-react";
+import { User, Users, Paperclip, Calendar, Tag, Layers, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { VendorActivity, ActivityLevel } from "@/utils/vendorActivityData";
-import { PHASE_CONFIG, OUTCOME_COLORS, LEVEL_CONFIG } from "@/utils/vendorActivityData";
+import { PHASE_CONFIG, ACTIVITY_STATUS_CONFIG, LEVEL_CONFIG } from "@/utils/vendorActivityData";
 
 interface Props {
   activity: VendorActivity;
@@ -17,7 +18,8 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const phaseConf = PHASE_CONFIG[act.phase];
-  const outcomeColor = OUTCOME_COLORS[act.outcomeStatus];
+  const statusConf = ACTIVITY_STATUS_CONFIG[act.outcomeStatus];
+  const [showAllHistory, setShowAllHistory] = useState(false);
 
   const desc = isNb ? act.descriptionNb : act.descriptionEn;
   const createdAt = act.createdAt ?? act.date;
@@ -125,8 +127,9 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
               {isNb ? phaseConf.nb : phaseConf.en}
             </Badge>
           </div>
-          <div className={`flex items-center gap-1 font-medium ${outcomeColor}`}>
-            {isNb ? act.outcomeNb : act.outcomeEn}
+          <div className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", statusConf.pill)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", statusConf.dot)} />
+            {isNb ? statusConf.nb : statusConf.en}
           </div>
         </div>
 
