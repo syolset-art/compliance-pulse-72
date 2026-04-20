@@ -484,37 +484,6 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
         {/* Owner & Manager — top right for vendor/system profiles */}
         {!isSelf && (
           <div className="hidden md:flex items-center gap-8 shrink-0 ml-auto order-last">
-            {/* Eier (Arbeidsområde) */}
-            <div>
-              <div className="flex items-center gap-1 mb-1.5">
-                <span className="text-[13px] text-muted-foreground font-medium">
-                  {isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}
-                </span>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[220px] text-xs">
-                      {isNb
-                        ? "Arbeidsområdet som eier denne verdien. Arbeidsområdeansvarlig settes som standard leverandøransvarlig."
-                        : "The work area that owns this asset. The area owner is set as default manager."}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Select value={asset.work_area_id || "none"} onValueChange={handleOwnerChange}>
-                <SelectTrigger className="h-9 min-w-[170px] text-sm border border-input bg-background rounded-md px-3 hover:bg-accent/50 transition-colors">
-                  <SelectValue placeholder={isNb ? "Velg arbeidsområde" : "Select work area"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("trustProfile.noOwner")}</SelectItem>
-                  {workAreas.map((area: any) => (
-                    <SelectItem key={area.id} value={area.id}>{area.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             {/* Leverandøransvarlig */}
             <div>
               <div className="flex items-center gap-1 mb-1.5">
