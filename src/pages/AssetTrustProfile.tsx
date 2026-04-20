@@ -554,11 +554,10 @@ const AssetTrustProfile = () => {
                 </nav>
 
                 <TabsContent value="overview" className="mt-6">
-                  <VendorOverviewTab
-                    asset={asset}
-                    tasksCount={tasks?.length || 0}
-                    onTrustMetrics={handleTrustMetrics}
-                    onNavigateToTab={setActiveTab}
+                  <MynderGuidanceTab
+                    assetId={asset.id}
+                    dismissedSuggestionIds={dismissedSuggestionIds}
+                    onActivitySaved={handleGuidanceActivitySaved}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-tasks" className="mt-6">
@@ -593,6 +592,7 @@ const AssetTrustProfile = () => {
                     assetName={asset.name}
                     baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
                     enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    externalActivities={guidanceActivities}
                   />
                 </TabsContent>
                 <TabsContent value="vendor-access" className="mt-6">
