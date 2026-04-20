@@ -153,6 +153,57 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
             </Badge>
           </div>
         )}
+
+        {/* Status history */}
+        {act.statusHistory && act.statusHistory.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                <History className="h-3 w-3" />
+                {isNb ? "Statusendringer" : "Status changes"}
+              </div>
+              <div className="space-y-1.5">
+                {(showAllHistory ? act.statusHistory : act.statusHistory.slice(-3)).slice().reverse().map((h, i) => {
+                  const fromConf = ACTIVITY_STATUS_CONFIG[h.from];
+                  const toConf = ACTIVITY_STATUS_CONFIG[h.to];
+                  return (
+                    <div key={i} className="flex items-start gap-2 text-xs">
+                      <div className="text-muted-foreground shrink-0 w-24">
+                        {h.changedAt.toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "short" })}
+                        {" · "}
+                        {h.changedAt.toLocaleTimeString(isNb ? "nb-NO" : "en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-muted-foreground">{isNb ? fromConf.nb : fromConf.en}</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wider", toConf.pill)}>
+                            <span className={cn("h-1 w-1 rounded-full", toConf.dot)} />
+                            {isNb ? toConf.nb : toConf.en}
+                          </span>
+                          {h.changedBy && <span className="text-muted-foreground">· {h.changedBy}</span>}
+                        </div>
+                        {h.comment && <p className="text-foreground/80 mt-0.5 italic">"{h.comment}"</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {act.statusHistory.length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllHistory(v => !v)}
+                  className="text-xs text-primary hover:underline"
+                >
+                  {showAllHistory
+                    ? (isNb ? "Vis færre" : "Show fewer")
+                    : (isNb ? `Vis alle (${act.statusHistory.length})` : `Show all (${act.statusHistory.length})`)}
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

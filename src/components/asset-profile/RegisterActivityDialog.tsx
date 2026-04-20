@@ -66,7 +66,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("ongoing");
-  const [outcome] = useState<OutcomeStatus>("in_progress");
+  const [outcome, setOutcome] = useState<OutcomeStatus>("open");
   const [criticality, setCriticality] = useState<Criticality | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [titleError, setTitleError] = useState(false);
@@ -75,6 +75,7 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
     setType("email"); setTitle(""); setDescription("");
     setPhase("ongoing"); setLevel(null); setTheme("generell");
     setCriticality(null); setDate(new Date()); setTitleError(false);
+    setOutcome("open");
   };
 
   useEffect(() => {
@@ -110,7 +111,8 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
       titleNb: title, titleEn: title,
       descriptionNb: description || undefined,
       descriptionEn: description || undefined,
-      outcomeNb: "Pågår", outcomeEn: "In progress",
+      outcomeNb: outcome === "open" ? "Åpent" : outcome === "in_progress" ? "Under oppfølging" : outcome === "closed" ? "Lukket" : "Ikke relevant",
+      outcomeEn: outcome === "open" ? "Open" : outcome === "in_progress" ? "In progress" : outcome === "closed" ? "Closed" : "Not relevant",
       outcomeStatus: outcome,
       date,
       actor: isNb ? "Deg" : "You",
