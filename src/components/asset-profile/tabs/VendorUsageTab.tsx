@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Building2, Database, Workflow, Shield, AlertTriangle, Pencil, Info, Sparkles, ArrowRight, Flag } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { AISuggestTextarea } from "@/components/asset-profile/AISuggestTextarea";
 
 interface VendorUsageTabProps {
   assetId: string;
