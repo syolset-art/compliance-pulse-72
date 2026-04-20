@@ -570,6 +570,9 @@ export default function PersonalSettings() {
             </div>
           )}
 
+          {/* ── AI Autonomy ── */}
+          {activeSection === "ai-autonomy" && <AIAutonomySection isNb={isNb} />}
+
           {/* ── Privacy ── */}
           {activeSection === "privacy" && (
             <div className="space-y-4 animate-in fade-in-50 duration-300">
