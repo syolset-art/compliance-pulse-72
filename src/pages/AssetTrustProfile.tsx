@@ -43,8 +43,12 @@ import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
+import type { VendorActivity } from "@/utils/vendorActivityData";
+import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
+import { toast } from "sonner";
 
 const AssetTrustProfile = () => {
   const { id } = useParams<{ id: string }>();
