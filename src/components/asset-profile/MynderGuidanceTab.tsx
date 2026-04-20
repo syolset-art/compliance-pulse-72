@@ -1,28 +1,21 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, Plus, ChevronRight, Mail, Phone, Users, PenLine } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import {
   generateGuidanceForVendor, recomputeSummary,
-  CRITICALITY_CONFIG, LEVEL_CONFIG, TYPE_LABEL,
-  type SuggestedActivity,
+  STATUS_CONFIG, LEVEL_CONFIG, LEVEL_DOT, CRITICALITY_CONFIG,
+  type SuggestedActivity, type GapStatus,
 } from "@/utils/vendorGuidanceData";
-import type { VendorActivity, ActivityType } from "@/utils/vendorActivityData";
+import type { VendorActivity } from "@/utils/vendorActivityData";
 
 interface Props {
   assetId: string;
   dismissedSuggestionIds: string[];
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
 }
-
-const TYPE_ICON: Record<ActivityType, typeof Mail> = {
-  email: Mail, phone: Phone, meeting: Users, manual: PenLine,
-  document: PenLine, risk: PenLine, incident: PenLine, assignment: PenLine,
-  review: PenLine, delivery: PenLine, maturity: PenLine, setting: PenLine,
-  upload: PenLine, view: PenLine,
-};
 
 export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivitySaved }: Props) {
   const { i18n } = useTranslation();
@@ -37,7 +30,13 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
   const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
   const [emptyOpen, setEmptyOpen] = useState(false);
 
-  const summary = recomputeSummary(visibleSuggestions.length, isNb);
+  const summary = recomputeSummary(visibleSuggestions, isNb);
+
+  const counts = useMemo(() => ({
+    open: visibleSuggestions.filter(s => s.status === "open").length,
+    in_progress: visibleSuggestions.filter(s => s.status === "in_progress").length,
+    closed: 2, // demo: lukket siste 30 dg
+  }), [visibleSuggestions]);
 
   const handleSubmit = (activity: VendorActivity) => {
     onActivitySaved(activity, activePrefill ?? undefined);
@@ -45,75 +44,93 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
     setEmptyOpen(false);
   };
 
+  const statusKpi = (label: string, value: number, color: string) => (
+    <div className="flex-1 rounded-lg border border-border bg-card px-4 py-3">
+      <div className={cn("text-2xl font-semibold leading-none", color)}>{value}</div>
+      <div className="mt-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* KPI row */}
+      <div className="flex items-stretch gap-3">
+        {statusKpi(isNb ? "Åpne gap" : "Open gaps", counts.open, "text-destructive")}
+        {statusKpi(isNb ? "Under oppfølging" : "In progress", counts.in_progress, "text-amber-600 dark:text-amber-400")}
+        {statusKpi(isNb ? "Lukket (30 dg)" : "Closed (30 d)", counts.closed, "text-emerald-600 dark:text-emerald-400")}
+      </div>
+
       {/* Synthesis box */}
-      <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
-            <Sparkles className="h-3 w-3" />
-            {isNb ? "Mynder syntetiserer" : "Mynder synthesizes"}
-          </span>
-        </div>
+      <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
+        <span className="inline-flex items-center rounded-md bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground mb-2">
+          {isNb ? "Mynder syntetiserer" : "Mynder synthesizes"}
+        </span>
         <p className="text-sm leading-relaxed text-foreground">{summary}</p>
       </div>
 
-      {/* Suggestions header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {isNb ? `Foreslåtte aktiviteter (${visibleSuggestions.length})` : `Suggested activities (${visibleSuggestions.length})`}
+      {/* Section header + level legend */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {isNb ? "Gap & foreslåtte aktiviteter" : "Gaps & suggested activities"}
         </h3>
+        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-emerald-500" />{isNb ? "Operasjonelt" : "Operational"}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-amber-500" />{isNb ? "Taktisk" : "Tactical"}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-primary" />{isNb ? "Strategisk" : "Strategic"}</span>
+        </div>
       </div>
 
       {/* Suggestion cards */}
       {visibleSuggestions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            {isNb ? "Ingen åpne anbefalinger akkurat nå." : "No open recommendations right now."}
+            {isNb ? "Ingen åpne gap akkurat nå." : "No open gaps right now."}
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {visibleSuggestions.map((s) => {
-            const crit = CRITICALITY_CONFIG[s.criticality];
+            const status = STATUS_CONFIG[s.status];
             const lvl = LEVEL_CONFIG[s.level];
-            const typeLabel = TYPE_LABEL[s.suggestedType];
-            const TypeIcon = TYPE_ICON[s.suggestedType];
+            const crit = CRITICALITY_CONFIG[s.criticality];
+            const showCritInStatus = s.status === "open"; // f.eks. "HØY · ÅPEN"
             return (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => setActivePrefill(s)}
                 className={cn(
-                  "w-full text-left rounded-xl border border-border bg-card p-5 transition-all",
-                  "hover:border-primary/40 hover:shadow-md group"
+                  "relative w-full text-left rounded-lg border border-border bg-card overflow-hidden",
+                  "transition-all hover:border-primary/40 hover:shadow-sm group"
                 )}
               >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <h4 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {isNb ? s.titleNb : s.titleEn}
-                  </h4>
-                  <span className={cn("shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider", crit.badge)}>
-                    {isNb ? crit.nb : crit.en}
-                  </span>
-                </div>
-                <p className="text-sm text-primary/90 mb-3">
-                  {isNb ? s.reasonNb : s.reasonEn}
-                </p>
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      {isNb ? lvl.nb : lvl.en}
-                    </span>
-                    <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      {isNb ? s.themeNb : s.themeEn}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      <TypeIcon className="h-3 w-3" />
-                      {isNb ? typeLabel.nb : typeLabel.en}
+                {/* level color bar */}
+                <span className={cn("absolute left-0 top-0 bottom-0 w-1", LEVEL_DOT[s.level])} aria-hidden />
+                <div className="pl-4 pr-4 py-3.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {isNb ? s.titleNb : s.titleEn}
+                      </h4>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {isNb ? s.statusNoteNb : s.statusNoteEn}
+                      </p>
+                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground/80">
+                          <span className={cn("h-1.5 w-1.5 rounded-full", LEVEL_DOT[s.level])} />
+                          {isNb ? lvl.nb : lvl.en}
+                        </span>
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground/80">
+                          {isNb ? s.themeNb : s.themeEn}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap", status.badge)}>
+                      {showCritInStatus
+                        ? `${isNb ? crit.nb : crit.en} · ${isNb ? status.nb : status.en}`
+                        : (isNb ? status.nb : status.en)}
                     </span>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
               </button>
             );
@@ -122,7 +139,7 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
       )}
 
       {/* Empty activity CTA */}
-      <div className="pt-2">
+      <div className="pt-1">
         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setEmptyOpen(true)}>
           <Plus className="h-3.5 w-3.5" />
           {isNb ? "Start tom aktivitet" : "Start empty activity"}
