@@ -8,6 +8,8 @@ import { NavigationModeProvider } from "@/hooks/useNavigationMode";
 import { ActiveOrganizationProvider } from "@/contexts/ActiveOrganizationContext";
 import { GlobalChatProvider } from "@/components/GlobalChatProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import { DemoSyncProvider } from "@/contexts/DemoSyncContext";
+import { CustomerRequestDemoController } from "@/components/demo/CustomerRequestDemoController";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import SystemTrustProfile from "./pages/SystemTrustProfile";
@@ -93,7 +95,9 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <GlobalChatProvider>
+              <DemoSyncProvider>
+                <CustomerRequestDemoController />
+                <GlobalChatProvider>
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/" element={<Index />} />
@@ -172,6 +176,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
+              </DemoSyncProvider>
             </TooltipProvider>
           </NavigationModeProvider>
           </ActiveOrganizationProvider>
