@@ -2,6 +2,7 @@ import type { ActivityType, Phase } from "./vendorActivityData";
 
 export type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
 export type Criticality = "kritisk" | "hoy" | "medium";
+export type GapStatus = "open" | "in_progress" | "closed";
 
 export interface SuggestedActivity {
   id: string;
@@ -12,6 +13,9 @@ export interface SuggestedActivity {
   descriptionEn: string;
   reasonNb: string;
   reasonEn: string;
+  statusNoteNb: string;
+  statusNoteEn: string;
+  status: GapStatus;
   criticality: Criticality;
   level: GuidanceLevel;
   themeNb: string;
@@ -20,6 +24,33 @@ export interface SuggestedActivity {
   suggestedPhase: Phase;
   contactPerson?: string;
 }
+
+export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: string; bar: string }> = {
+  open: {
+    nb: "Åpen",
+    en: "Open",
+    badge: "bg-destructive/15 text-destructive border border-destructive/25",
+    bar: "bg-destructive",
+  },
+  in_progress: {
+    nb: "Under oppfølging",
+    en: "In progress",
+    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25",
+    bar: "bg-amber-500",
+  },
+  closed: {
+    nb: "Lukket",
+    en: "Closed",
+    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
+    bar: "bg-emerald-500",
+  },
+};
+
+export const LEVEL_DOT: Record<GuidanceLevel, string> = {
+  operasjonelt: "bg-emerald-500",
+  taktisk: "bg-amber-500",
+  strategisk: "bg-primary",
+};
 
 export interface VendorGuidance {
   summaryNb: string;
@@ -65,6 +96,9 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
     descriptionEn: "Send a request to the vendor for a signed data processing agreement (DPA) covering processing purpose, security measures and sub-processors.",
     reasonNb: "DPA ikke mottatt · påkrevd etter GDPR art. 28",
     reasonEn: "DPA not received · required by GDPR art. 28",
+    statusNoteNb: "Under oppfølging siden 20.04.2026 · venter på bevis",
+    statusNoteEn: "In progress since 20/04/2026 · awaiting evidence",
+    status: "in_progress",
     criticality: "kritisk",
     level: "taktisk",
     themeNb: "DPA & personvern",
@@ -74,12 +108,15 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
   },
   {
     gapId: "gap-sla",
-    titleNb: "Be om oppdatert SLA-dokumentasjon",
-    titleEn: "Request updated SLA documentation",
+    titleNb: "Be om SLA-dokumentasjon",
+    titleEn: "Request SLA documentation",
     descriptionNb: "Innhent gjeldende tjenestenivåavtale (SLA) med oppetidsgaranti, responstider og prosedyrer for hendelseshåndtering.",
     descriptionEn: "Obtain the current service level agreement (SLA) with uptime guarantee, response times and incident handling procedures.",
     reasonNb: "SLA er over 12 måneder gammel · krav om årlig revisjon",
     reasonEn: "SLA is over 12 months old · annual review required",
+    statusNoteNb: "Under oppfølging siden 20.04.2026 · venter på bevis",
+    statusNoteEn: "In progress since 20/04/2026 · awaiting evidence",
+    status: "in_progress",
     criticality: "hoy",
     level: "operasjonelt",
     themeNb: "SLA & leveranse",
@@ -89,16 +126,19 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
   },
   {
     gapId: "gap-risk",
-    titleNb: "Planlegg årlig risikovurdering",
-    titleEn: "Schedule annual risk assessment",
+    titleNb: "Gjennomfør risikovurdering",
+    titleEn: "Conduct risk assessment",
     descriptionNb: "Avtal et møte med leverandørens sikkerhetskontakt for å gjennomgå risikobildet, endringer i underleverandørkjeden og kontrollnivå.",
     descriptionEn: "Schedule a meeting with the vendor's security contact to review the risk picture, sub-processor changes and control level.",
-    reasonNb: "Siste risikovurdering var for 11 måneder siden",
-    reasonEn: "Last risk assessment was 11 months ago",
-    criticality: "medium",
+    reasonNb: "Intern vurdering forfalt 23.03.2026",
+    reasonEn: "Internal assessment due 23/03/2026",
+    statusNoteNb: "Intern vurdering forfalt 23.03.2026",
+    statusNoteEn: "Internal assessment overdue since 23/03/2026",
+    status: "open",
+    criticality: "hoy",
     level: "strategisk",
-    themeNb: "Risiko & revisjon",
-    themeEn: "Risk & audit",
+    themeNb: "Revisjon & kontroll",
+    themeEn: "Audit & control",
     suggestedType: "meeting",
     suggestedPhase: "audit",
   },
@@ -112,20 +152,26 @@ export function generateGuidanceForVendor(vendorId: string): VendorGuidance {
     id: `sugg-${Math.abs(seed)}-${idx}`,
   }));
 
+  const open = suggestions.filter((s) => s.status === "open").length;
+  const inProgress = suggestions.filter((s) => s.status === "in_progress").length;
+
   return {
-    summaryNb: `Leverandøren er under aktiv oppfølging. Siste strategiske aktivitet var et revisjonsmøte 15.03.2026. Det er ${suggestions.length} åpne punkter Mynder anbefaler at du adresserer for å lukke kjente gap.`,
-    summaryEn: `The vendor is under active follow-up. The last strategic activity was an audit meeting on 15/03/2026. There are ${suggestions.length} open items Mynder recommends you address to close known gaps.`,
+    summaryNb: `${open} åpne gap, ${inProgress} under oppfølging, 2 lukket siste 30 dager.`,
+    summaryEn: `${open} open gaps, ${inProgress} in progress, 2 closed in the last 30 days.`,
     suggestions,
   };
 }
 
-export function recomputeSummary(remaining: number, isNb: boolean): string {
-  if (remaining === 0) {
+export function recomputeSummary(suggestions: SuggestedActivity[], isNb: boolean): string {
+  const open = suggestions.filter((s) => s.status === "open").length;
+  const inProgress = suggestions.filter((s) => s.status === "in_progress").length;
+  if (open === 0 && inProgress === 0) {
     return isNb
-      ? "Leverandøren er under aktiv oppfølging. Alle Mynders anbefalte handlingspunkter er adressert. Følg med på nye signaler."
-      : "The vendor is under active follow-up. All of Mynder's recommended actions have been addressed. Watch for new signals.";
+      ? "Alle gap er lukket. Følg med på nye signaler fra Mynder."
+      : "All gaps are closed. Watch for new signals from Mynder.";
   }
   return isNb
-    ? `Leverandøren er under aktiv oppfølging. Det er ${remaining} åpne punkter Mynder anbefaler at du adresserer for å lukke kjente gap.`
-    : `The vendor is under active follow-up. There are ${remaining} open items Mynder recommends you address to close known gaps.`;
+    ? `${open} åpne gap, ${inProgress} under oppfølging, 2 lukket siste 30 dager.`
+    : `${open} open gaps, ${inProgress} in progress, 2 closed in the last 30 days.`;
 }
+
