@@ -28,7 +28,7 @@ export function EmailPreviewModal({ open, onClose }: EmailPreviewModalProps) {
           <div className="flex gap-2">
             <span className="text-muted-foreground w-12">{isNb ? "Emne:" : "Subject:"}</span>
             <span className="text-foreground font-semibold">
-              {isNb ? "Forespørsel om leverandøroppdatering 2025" : "Vendor update request 2025"}
+              {isNb ? "Forespørsel om leverandøroppdatering 2026 – fra Ola Normann, Sparebanken Vest" : "Vendor update request 2026 – from Ola Normann, Sparebanken Vest"}
             </span>
           </div>
         </div>
@@ -49,8 +49,8 @@ export function EmailPreviewModal({ open, onClose }: EmailPreviewModalProps) {
 
           <p className="text-[14px] leading-relaxed text-neutral-700 mb-4">
             {isNb
-              ? "Sparebank Vest har bedt om en oppdatert leverandørstatus fra deres organisasjon som ledd i sin årlige risikovurdering av leverandører."
-              : "Sparebank Vest has requested an updated vendor status from your organization as part of their annual vendor risk review."}
+              ? "Ola Normann i Sparebanken Vest har bedt om en oppdatert leverandørstatus fra deres organisasjon som ledd i sin årlige risikovurdering av leverandører for 2026."
+              : "Ola Normann at Sparebanken Vest has requested an updated vendor status from your organization as part of their annual vendor risk review for 2026."}
           </p>
 
           <p className="text-[14px] leading-relaxed text-neutral-700 mb-3">
@@ -89,12 +89,12 @@ export function EmailPreviewModal({ open, onClose }: EmailPreviewModalProps) {
           </p>
 
           {/* Footer */}
-          <div className="border-t border-neutral-200 mt-8 pt-4 text-[11px] text-neutral-400 text-center space-x-3">
-            <span>© 2025 Mynder AS</span>
+          <div className="border-t border-neutral-200 mt-8 pt-4 text-[11px] text-neutral-400 text-center space-x-2">
+            <span>© 2026 Mynder AS</span>
             <span>·</span>
-            <a className="underline">{isNb ? "Personvern" : "Privacy"}</a>
+            <span>{isNb ? "Org.nr" : "Org. no."} 925 478 123</span>
             <span>·</span>
-            <a className="underline">{isNb ? "Avregistrer" : "Unsubscribe"}</a>
+            <a href="https://mynder.no" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-600">mynder.no</a>
           </div>
         </div>
 
