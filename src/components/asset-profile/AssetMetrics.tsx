@@ -112,7 +112,7 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTa
             onClick={() => setRequestDialogOpen(true)}
           >
             <Send className="h-3 w-3" aria-hidden="true" />
-            {isNb ? "Be om oppdatering" : "Request update"}
+            {isNb ? "Meldinger" : "Messages"}
           </Button>
         </div>
       )}
