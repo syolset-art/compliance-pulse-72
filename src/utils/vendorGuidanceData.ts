@@ -25,24 +25,34 @@ export interface SuggestedActivity {
   contactPerson?: string;
 }
 
-export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: string; bar: string }> = {
+export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: string; dot: string; bar: string }> = {
   open: {
-    nb: "Åpen",
+    nb: "Åpent",
     en: "Open",
-    badge: "bg-destructive/15 text-destructive border border-destructive/25",
+    badge: "bg-destructive/10 text-destructive border border-destructive/30",
+    dot: "bg-destructive",
     bar: "bg-destructive",
   },
   in_progress: {
     nb: "Under oppfølging",
     en: "In progress",
-    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25",
-    bar: "bg-amber-500",
+    badge: "bg-warning/10 text-warning border border-warning/30",
+    dot: "bg-warning",
+    bar: "bg-warning",
   },
   closed: {
     nb: "Lukket",
     en: "Closed",
-    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
-    bar: "bg-emerald-500",
+    badge: "bg-success/10 text-success border border-success/30",
+    dot: "bg-success",
+    bar: "bg-success",
+  },
+  not_relevant: {
+    nb: "Ikke relevant",
+    en: "Not relevant",
+    badge: "bg-muted text-muted-foreground border border-border",
+    dot: "bg-muted-foreground",
+    bar: "bg-muted-foreground",
   },
 };
 
