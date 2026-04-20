@@ -32,17 +32,12 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
 
   const summary = recomputeSummary(visibleSuggestions, isNb);
 
-  const counts = useMemo(() => ({
-    open: visibleSuggestions.filter(s => s.status === "open").length,
-    in_progress: visibleSuggestions.filter(s => s.status === "in_progress").length,
-    closed: 2, // demo: lukket siste 30 dg
-  }), [visibleSuggestions]);
-
   const handleSubmit = (activity: VendorActivity) => {
     onActivitySaved(activity, activePrefill ?? undefined);
     setActivePrefill(null);
     setEmptyOpen(false);
   };
+
 
   return (
     <div className="space-y-5">
