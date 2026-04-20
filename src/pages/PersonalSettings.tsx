@@ -20,6 +20,7 @@ import {
   Bot, Plug, ExternalLink, Sparkles, Zap, Settings2,
   ChevronRight, Copy, Eye, EyeOff, HelpCircle,
 } from "lucide-react";
+import { AIAutonomySection } from "@/components/settings/AIAutonomySection";
 
 const NOTIFICATION_TYPES = [
   { key: "document_expiry", labelNb: "Dokumentutløp", labelEn: "Document expiry", descNb: "Varsling når dokumenter nærmer seg utløpsdato", descEn: "Alerts when documents approach expiry date", icon: FileText },
