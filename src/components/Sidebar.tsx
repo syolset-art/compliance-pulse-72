@@ -376,20 +376,60 @@ const SidebarContent = () => {
             {showCoreNormal && <div className="my-2 border-b border-sidebar-border/40" />}
             {showVendorsNormal && (() => {
               const isActive = location.pathname === vendorLink.href;
+              const handleSeed = async () => {
+                try {
+                  const { seedDemoVendorProfiles } = await import("@/lib/demoVendorProfiles");
+                  const count = await seedDemoVendorProfiles();
+                  queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
+                  queryClient.invalidateQueries({ queryKey: ["assets"] });
+                  toast.success(`${count} demo-leverandører ble lastet inn`);
+                } catch (e: any) {
+                  toast.error(e.message || "Kunne ikke laste inn demo-data");
+                }
+              };
+              const handleDelete = async () => {
+                try {
+                  const { deleteDemoVendorProfiles } = await import("@/lib/demoVendorProfiles");
+                  const count = await deleteDemoVendorProfiles();
+                  queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
+                  queryClient.invalidateQueries({ queryKey: ["assets"] });
+                  toast.success(`${count} demo-leverandører ble fjernet`);
+                } catch (e: any) {
+                  toast.error(e.message || "Kunne ikke fjerne demo-data");
+                }
+              };
               return (
-                <Link
-                  to={vendorLink.href}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                    isActive
-                      ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                <div>
+                  <Link
+                    to={vendorLink.href}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
+                      isActive
+                        ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                    )}
+                  >
+                    {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                    <vendorLink.icon className="h-4 w-4" />
+                    {t(vendorLink.name)}
+                  </Link>
+                  {isActive && (
+                    <div className="ml-7 mt-1 space-y-0.5">
+                      <button
+                        onClick={handleSeed}
+                        className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
+                      >
+                        Last inn demo-data
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
+                      >
+                        Fjern demo-data
+                      </button>
+                    </div>
                   )}
-                >
-                  {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                  <vendorLink.icon className="h-4 w-4" />
-                  {t(vendorLink.name)}
-                </Link>
+                </div>
               );
             })()}
             {showAssetsNormal && (() => {

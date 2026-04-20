@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { Database, Trash2, Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AddVendorDialog } from "@/components/dialogs/AddVendorDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -18,8 +18,7 @@ import { VendorMapView } from "@/components/vendor-dashboard/VendorMapView";
 import { SupplyChainTab } from "@/components/vendor-dashboard/SupplyChainTab";
 import { VendorCompareTab } from "@/components/vendor-dashboard/VendorCompareTab";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
-import { seedDemoVendorProfiles, deleteDemoVendorProfiles } from "@/lib/demoVendorProfiles";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+
 import { VendorPremiumBanner } from "@/components/vendor-dashboard/VendorPremiumBanner";
 import { VendorActivateDialog } from "@/components/vendor-dashboard/VendorActivateDialog";
 import { VendorPortfolioActions } from "@/components/vendor-dashboard/VendorPortfolioActions";
@@ -33,39 +32,10 @@ export default function VendorDashboard() {
   const navigate = useNavigate();
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
-
-  const handleSeedDemo = async () => {
-    setIsSeeding(true);
-    try {
-      const count = await seedDemoVendorProfiles();
-      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-      toast.success(`${count} demo-leverandører ble lastet inn`);
-    } catch (e: any) {
-      toast.error(e.message || "Kunne ikke laste inn demo-data");
-    } finally {
-      setIsSeeding(false);
-    }
-  };
-
-  const handleDeleteDemo = async () => {
-    setIsDeleting(true);
-    try {
-      const count = await deleteDemoVendorProfiles();
-      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-      toast.success(`${count} demo-leverandører ble fjernet`);
-    } catch (e: any) {
-      toast.error(e.message || "Kunne ikke fjerne demo-data");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
@@ -136,24 +106,6 @@ export default function VendorDashboard() {
                 <Plus className="h-4 w-4" />
                 {t("vendorDashboard.addVendor", "Legg til leverandør")}
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" disabled={isSeeding || isDeleting}>
-                    {(isSeeding || isDeleting) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
-                    Demo-data
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleSeedDemo} disabled={isSeeding}>
-                    <Database className="h-4 w-4 mr-2" />
-                    Last inn demo-leverandører
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDeleteDemo} disabled={isDeleting} className="text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Fjern demo-leverandører
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
 
