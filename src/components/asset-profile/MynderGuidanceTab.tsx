@@ -160,7 +160,7 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
                       <ChevronDown className={cn("h-3 w-3 transition-transform", isEditing && "rotate-180")} />
                     </button>
                   </div>
-                </button>
+                </div>
 
                 {isEditing && (
                   <div className="border-t border-dashed border-border">
