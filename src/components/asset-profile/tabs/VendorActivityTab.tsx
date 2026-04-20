@@ -283,7 +283,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                             </div>
                           </div>
                         </div>
-                        {isExpanded && <ActivityDetailPanel activity={act} />}
+                        {isExpanded && <ActivityDetailPanel activity={act} onUpdate={(patch) => updateActivity(act.id, patch)} />}
                       </div>
                     );
                   })}
