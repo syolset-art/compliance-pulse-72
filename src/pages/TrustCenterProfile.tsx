@@ -783,9 +783,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <h3 className="text-base font-semibold text-foreground">Pro Badge</h3>
                             <p className="text-xs text-muted-foreground">{isNb ? "Full tilpasning" : "Full customization"}</p>
                           </div>
-                          <Badge variant="outline" className="text-[13px] gap-1">
-                            <Settings className="h-3 w-3" />
-                            Pro
+                          <Badge variant="outline" className="text-[13px] gap-1 bg-success/10 text-success border-success/20">
+                            <Sparkles className="h-3 w-3" />
+                            {isNb ? "Gratis nå" : "Free now"}
                           </Badge>
                         </div>
                         <div className="flex justify-center py-4">
