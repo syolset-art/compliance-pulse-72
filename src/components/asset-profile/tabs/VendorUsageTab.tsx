@@ -172,11 +172,6 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
 
   return (
     <div className="space-y-5">
-      {/* Context badge */}
-      <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
-        <Building2 className="h-3.5 w-3.5" />
-        {isNb ? "Vår organisasjon" : "Our organization"}
-      </Badge>
 
       {/* Info banner */}
       <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
