@@ -1,6 +1,7 @@
 export type ActivityType = "document" | "risk" | "incident" | "assignment" | "review" | "delivery" | "maturity" | "setting" | "upload" | "view" | "email" | "phone" | "meeting" | "manual";
 export type Phase = "pre_assessment" | "onboarding" | "ongoing" | "audit" | "incident" | "termination";
 export type OutcomeStatus = "in_progress" | "completed" | "needs_followup";
+export type ActivityLevel = "operasjonelt" | "taktisk" | "strategisk";
 
 export interface VendorActivity {
   id: string;
@@ -22,7 +23,15 @@ export interface VendorActivity {
   isManual?: boolean;
   linkedGapId?: string;
   criticality?: "kritisk" | "hoy" | "medium";
+  level?: ActivityLevel;
+  createdAt?: Date;
 }
+
+export const LEVEL_CONFIG: Record<ActivityLevel, { nb: string; en: string; dot: string }> = {
+  operasjonelt: { nb: "Operasjonelt", en: "Operational", dot: "bg-emerald-500" },
+  taktisk: { nb: "Taktisk", en: "Tactical", dot: "bg-amber-500" },
+  strategisk: { nb: "Strategisk", en: "Strategic", dot: "bg-primary" },
+};
 
 export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string }> = {
   pre_assessment: { nb: "Vurdering før avtale", en: "Pre-contract assessment", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
