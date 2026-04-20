@@ -198,6 +198,17 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         if (sortColumn === "compliance") { return sortDirection === "asc" ? (a.compliance_score || 0) - (b.compliance_score || 0) : (b.compliance_score || 0) - (a.compliance_score || 0); }
         return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
       });
+    } else {
+      // Default: sort by priority (critical → high → medium → low → unset), then compliance desc, then name
+      const priorityRank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+      result = [...result].sort((a, b) => {
+        const ap = a.priority ? (priorityRank[a.priority] ?? 4) : 4;
+        const bp = b.priority ? (priorityRank[b.priority] ?? 4) : 4;
+        if (ap !== bp) return ap - bp;
+        const sc = (b.compliance_score || 0) - (a.compliance_score || 0);
+        if (sc !== 0) return sc;
+        return a.name.localeCompare(b.name);
+      });
     }
 
     // Always put newly added vendor first
