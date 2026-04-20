@@ -23,6 +23,8 @@ interface VendorActivityTabProps {
   assetName: string;
   baselinePercent?: number;
   enrichmentPercent?: number;
+  externalActivities?: VendorActivity[];
+  onActivityAdded?: (activity: VendorActivity) => void;
 }
 
 const ACTIVITY_ICONS = {
@@ -36,7 +38,7 @@ const OUTCOME_ICON = {
   in_progress: Timer, completed: CheckCircle2, needs_followup: AlertCircle,
 } as const;
 
-export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19 }: VendorActivityTabProps) {
+export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19, externalActivities = [], onActivityAdded }: VendorActivityTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
@@ -45,8 +47,8 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
 
   const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
   const activities = useMemo(
-    () => [...demoActivities, ...manualActivities].sort((a, b) => b.date.getTime() - a.date.getTime()),
-    [demoActivities, manualActivities]
+    () => [...demoActivities, ...manualActivities, ...externalActivities].sort((a, b) => b.date.getTime() - a.date.getTime()),
+    [demoActivities, manualActivities, externalActivities]
   );
   const { tasks, createTask } = useUserTasks();
   const vendorTasks = useMemo(() => tasks.filter(t => t.asset_id === assetId && t.status !== "done"), [tasks, assetId]);
