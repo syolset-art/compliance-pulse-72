@@ -333,6 +333,32 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
                 </div>
               </div>
 
+              <div className="mb-4">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
+                  {isNb ? "Status" : "Status"}
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {(["open", "in_progress", "closed", "not_relevant"] as OutcomeStatus[]).map(s => {
+                    const conf = ACTIVITY_STATUS_CONFIG[s];
+                    const isSelected = outcome === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setOutcome(s)}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider transition-all",
+                          isSelected ? conf.pill : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                        )}
+                      >
+                        <span className={cn("h-1.5 w-1.5 rounded-full", conf.dot)} />
+                        {isNb ? conf.nb : conf.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="reg-activity-date" className="text-xs text-muted-foreground mb-1.5 block">
                   {isNb ? "Dato" : "Date"}
