@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import {
   generateGuidanceForVendor, recomputeSummary,
   STATUS_CONFIG, LEVEL_CONFIG, LEVEL_DOT, CRITICALITY_CONFIG,
   type SuggestedActivity, type GapStatus,
 } from "@/utils/vendorGuidanceData";
-import type { VendorActivity } from "@/utils/vendorActivityData";
+import type { ActivityStatus, VendorActivity } from "@/utils/vendorActivityData";
 
 interface Props {
   assetId: string;
@@ -17,14 +18,25 @@ interface Props {
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
 }
 
+interface GapOverride {
+  status: GapStatus;
+  comment?: string;
+  changedAt: Date;
+}
+
 export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivitySaved }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
 
   const guidance = useMemo(() => generateGuidanceForVendor(assetId), [assetId]);
+  const [gapStatusOverrides, setGapStatusOverrides] = useState<Record<string, GapOverride>>({});
+  const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
+
   const visibleSuggestions = useMemo(
-    () => guidance.suggestions.filter(s => !dismissedSuggestionIds.includes(s.id)),
-    [guidance.suggestions, dismissedSuggestionIds]
+    () => guidance.suggestions
+      .filter(s => !dismissedSuggestionIds.includes(s.id))
+      .map(s => gapStatusOverrides[s.id] ? { ...s, status: gapStatusOverrides[s.id].status } : s),
+    [guidance.suggestions, dismissedSuggestionIds, gapStatusOverrides]
   );
 
   const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
@@ -36,6 +48,14 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
     onActivitySaved(activity, activePrefill ?? undefined);
     setActivePrefill(null);
     setEmptyOpen(false);
+  };
+
+  const handleStatusSave = (suggestionId: string, next: ActivityStatus, comment?: string) => {
+    setGapStatusOverrides(prev => ({
+      ...prev,
+      [suggestionId]: { status: next as GapStatus, comment, changedAt: new Date() },
+    }));
+    setEditingStatusId(null);
   };
 
 
@@ -82,20 +102,22 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
             const status = STATUS_CONFIG[s.status];
             const lvl = LEVEL_CONFIG[s.level];
             const crit = CRITICALITY_CONFIG[s.criticality];
-            const showCritInStatus = s.status === "open"; // f.eks. "HØY · ÅPEN"
+            const isEditing = editingStatusId === s.id;
             return (
-              <button
+              <div
                 key={s.id}
-                type="button"
-                onClick={() => setActivePrefill(s)}
                 className={cn(
-                  "relative w-full text-left rounded-lg border border-border bg-card overflow-hidden",
+                  "relative rounded-lg border border-border bg-card overflow-hidden",
                   "transition-all hover:border-primary/40 hover:shadow-sm group"
                 )}
               >
                 {/* level color bar */}
-                <span className={cn("absolute left-0 top-0 bottom-0 w-1", LEVEL_DOT[s.level])} aria-hidden />
-                <div className="pl-4 pr-4 py-3.5">
+                <span className={cn("absolute left-0 top-0 bottom-0 w-1 z-[1]", LEVEL_DOT[s.level])} aria-hidden />
+                <button
+                  type="button"
+                  onClick={() => setActivePrefill(s)}
+                  className="w-full text-left pl-4 pr-4 py-3.5"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -112,19 +134,54 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
                         <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground/80">
                           {isNb ? s.themeNb : s.themeEn}
                         </span>
+                        {s.status === "open" && (
+                          <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", CRITICALITY_CONFIG[s.criticality].badge)}>
+                            {isNb ? crit.nb : crit.en}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap", status.badge)}>
-                      {showCritInStatus
-                        ? `${isNb ? crit.nb : crit.en} · ${isNb ? status.nb : status.en}`
-                        : (isNb ? status.nb : status.en)}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingStatusId(isEditing ? null : s.id);
+                      }}
+                      className={cn(
+                        "shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all hover:ring-2 hover:ring-current/20 hover:ring-offset-1 hover:ring-offset-background",
+                        status.badge
+                      )}
+                      aria-label={isNb ? "Endre status" : "Change status"}
+                    >
+                      <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
+                      {isNb ? status.nb : status.en}
+                      <ChevronDown className={cn("h-3 w-3 transition-transform", isEditing && "rotate-180")} />
+                    </button>
                   </div>
-                </div>
-              </button>
+                </button>
+
+                {isEditing && (
+                  <div className="border-t border-dashed border-border">
+                    <InlineStatusEditor
+                      currentStatus={s.status as ActivityStatus}
+                      onSave={(next, comment) => handleStatusSave(s.id, next, comment)}
+                      onCancel={() => setEditingStatusId(null)}
+                    />
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
+      )}
+
+      {/* Tip line */}
+      {visibleSuggestions.length > 0 && !editingStatusId && (
+        <p className="text-[11px] text-muted-foreground italic px-1">
+          {isNb
+            ? "Tips: klikk på statuspillen til høyre på et kort for å endre status."
+            : "Tip: click the status pill on the right of a card to change its status."}
+        </p>
       )}
 
       {/* Empty activity CTA */}
