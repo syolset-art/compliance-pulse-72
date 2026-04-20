@@ -33,39 +33,10 @@ export default function VendorDashboard() {
   const navigate = useNavigate();
   const [isVendorDialogOpen, setIsVendorDialogOpen] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
-
-  const handleSeedDemo = async () => {
-    setIsSeeding(true);
-    try {
-      const count = await seedDemoVendorProfiles();
-      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-      toast.success(`${count} demo-leverandører ble lastet inn`);
-    } catch (e: any) {
-      toast.error(e.message || "Kunne ikke laste inn demo-data");
-    } finally {
-      setIsSeeding(false);
-    }
-  };
-
-  const handleDeleteDemo = async () => {
-    setIsDeleting(true);
-    try {
-      const count = await deleteDemoVendorProfiles();
-      queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
-      toast.success(`${count} demo-leverandører ble fjernet`);
-    } catch (e: any) {
-      toast.error(e.message || "Kunne ikke fjerne demo-data");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
