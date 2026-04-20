@@ -10,6 +10,23 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Inbox, Clock, Send, AlertCircle, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useDemoSync } from "@/contexts/DemoSyncContext";
+
+const SPAREBANK_DEMO_REQUEST = {
+  id: "demo-sparebank-vest",
+  customer_name: "Sparebank Vest",
+  customer_email: "compliance@sparebankvest.no",
+  request_type: "vendor_assessment",
+  title: "Årlig leverandøroppdatering 2025",
+  description: "Etterspør oppdatert ISO 27001-sertifikat, gjeldende DPA og lenke til Trust Profile.",
+  status: "new",
+  progress_percent: 0,
+  due_date: new Date(Date.now() + 14 * 86400000).toISOString(),
+  created_at: new Date().toISOString(),
+  shared_mode: null as string | null,
+  shared_with_customers: [] as string[],
+  __isDemoHighlight: true,
+};
 
 const INITIAL_DEMO_REQUESTS = [
   {
@@ -106,6 +123,7 @@ export function InboundRequestsContent() {
   const [activeTab, setActiveTab] = useState("open");
   const [demoRequests, setDemoRequests] = useState(INITIAL_DEMO_REQUESTS);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { customerRequestDemo } = useDemoSync();
 
   const { data: dbRequests = [] } = useQuery({
     queryKey: ["customer-compliance-requests"],
@@ -119,7 +137,10 @@ export function InboundRequestsContent() {
     },
   });
 
-  const requests = dbRequests.length > 0 ? dbRequests : demoRequests;
+  const baseRequests = dbRequests.length > 0 ? dbRequests : demoRequests;
+  const requests = customerRequestDemo
+    ? [SPAREBANK_DEMO_REQUEST, ...baseRequests.filter((r: any) => r.id !== SPAREBANK_DEMO_REQUEST.id)]
+    : baseRequests;
 
   const filtered = requests.filter((r: any) =>
     !search || r.customer_name.toLowerCase().includes(search.toLowerCase()) || r.title.toLowerCase().includes(search.toLowerCase())
@@ -216,7 +237,12 @@ export function InboundRequestsContent() {
               </div>
             ) : (
               (tabData[tab] || []).map((req: any) => (
-                <CustomerRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
+                <div
+                  key={req.id}
+                  className={req.__isDemoHighlight ? "rounded-xl ring-2 ring-primary/40 animate-pulse" : ""}
+                >
+                  <CustomerRequestCard request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
+                </div>
               ))
             )}
           </TabsContent>

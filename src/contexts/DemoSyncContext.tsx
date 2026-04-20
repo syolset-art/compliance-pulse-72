@@ -45,6 +45,11 @@ interface DemoSyncState {
   // Callback when action is completed in conversational mode
   onActionComplete?: (action: string, data: any) => void;
   setOnActionComplete: (callback: ((action: string, data: any) => void) | undefined) => void;
+
+  // Customer request demo flag
+  customerRequestDemo: boolean;
+  startCustomerRequestDemo: () => void;
+  endCustomerRequestDemo: () => void;
 }
 
 const DemoSyncContext = createContext<DemoSyncState | null>(null);
@@ -57,6 +62,10 @@ export function DemoSyncProvider({ children }: { children: ReactNode }) {
   const [animatingField, setAnimatingField] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [onActionComplete, setOnActionComplete] = useState<((action: string, data: any) => void) | undefined>();
+  const [customerRequestDemo, setCustomerRequestDemo] = useState(false);
+
+  const startCustomerRequestDemo = useCallback(() => setCustomerRequestDemo(true), []);
+  const endCustomerRequestDemo = useCallback(() => setCustomerRequestDemo(false), []);
 
   const setFieldValue = useCallback((field: keyof AssetData, value: string) => {
     setAssetData(prev => ({ ...prev, [field]: value }));
@@ -87,6 +96,9 @@ export function DemoSyncProvider({ children }: { children: ReactNode }) {
     skipSave: demoMode === "auto-demo",
     onActionComplete,
     setOnActionComplete,
+    customerRequestDemo,
+    startCustomerRequestDemo,
+    endCustomerRequestDemo,
   };
 
   return (

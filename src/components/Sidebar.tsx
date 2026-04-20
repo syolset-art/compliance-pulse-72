@@ -504,6 +504,16 @@ const SidebarContent = () => {
 
       </nav>
 
+      {/* Subtle demo trigger */}
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent("start-customer-request-demo"))}
+        title={isNb ? "Spill av demonstrasjon: motta og besvar leverandøroppdatering" : "Play demo: receive and respond to vendor update"}
+        className="mx-3 mb-2 px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
+      >
+        <Sparkles className="h-3 w-3" />
+        {isNb ? "Demo: Kundemelding" : "Demo: Customer message"}
+      </button>
+
       {/* Company section at bottom */}
       <div className="border-t border-sidebar-border">
         {/* Organization switcher */}

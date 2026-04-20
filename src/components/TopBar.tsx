@@ -5,8 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import {
-  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User,
+  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User, Bell,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -38,6 +40,8 @@ export function TopBar() {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
   const isNb = i18n.language === "nb";
+  const demoSync = useDemoSyncOptional();
+  const demoActive = demoSync?.customerRequestDemo ?? false;
 
   // Mapping from TopBar role keys to AppRole keys used by sidebar/dashboard
   const TOPBAR_TO_APP_ROLE: Record<string, string> = {
@@ -102,6 +106,18 @@ export function TopBar() {
           <p className="text-xs">{isNb ? "Hjelp og handlinger" : "Help & actions"}</p>
         </TooltipContent>
       </Tooltip>
+
+      {/* Notifications bell (pulses during demo) */}
+      <button
+        onClick={() => navigate("/customer-requests")}
+        className={cn("relative p-2 rounded-lg hover:bg-muted transition-colors", demoActive && "animate-pulse")}
+        title={isNb ? "Varsler" : "Notifications"}
+      >
+        <Bell className={cn("h-4 w-4", demoActive ? "text-primary" : "text-muted-foreground")} />
+        {demoActive && (
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+        )}
+      </button>
 
       {/* Inbox */}
       <button
