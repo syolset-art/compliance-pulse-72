@@ -62,9 +62,15 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
 
       {/* Synthesis box */}
       <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
-        <span className="inline-flex items-center rounded-md bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground mb-2">
-          {isNb ? "Mynder syntetiserer" : "Mynder synthesizes"}
-        </span>
+        <div className="flex items-center justify-between gap-3 mb-2.5 pb-2 border-b border-primary/10">
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            {isNb ? "Mynders oppsummering basert på leverandørdata" : "Mynder's summary based on vendor data"}
+          </div>
+          <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap">
+            {isNb ? "Oppdatert nå" : "Updated just now"}
+          </span>
+        </div>
         <p className="text-sm leading-relaxed text-foreground">{summary}</p>
       </div>
 
