@@ -74,12 +74,15 @@ export function EmailPreviewModal({ open, onClose }: EmailPreviewModalProps) {
 
           {/* CTA */}
           <div className="text-center my-8">
-            <button
+            <a
+              href="https://mynder-trust-engine.lovable.app/leverandor"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block px-7 py-3 rounded-lg text-white font-semibold text-[14px] shadow-sm"
               style={{ backgroundColor: "#5A3184" }}
             >
               {isNb ? "Åpne forespørselen i Mynder" : "Open request in Mynder"}
-            </button>
+            </a>
           </div>
 
           <p className="text-[13px] text-neutral-500 leading-relaxed mb-2">
