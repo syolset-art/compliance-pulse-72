@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Copy, Send, AlertTriangle, ArrowRight, Sparkles } from "lucide-react";
+import { Bell, Copy, Send, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { deriveVendorStatus, type VendorStatusMeta } from "@/lib/vendorStatus";
+import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
 
 interface VendorStatusBannerProps {
   asset: {
@@ -23,12 +23,6 @@ interface VendorStatusBannerProps {
   };
 }
 
-const CRITICALITY: Record<string, { label: string; dot: string; text: string; pill: string }> = {
-  high: { label: "Høy kritikalitet", dot: "bg-destructive", text: "text-destructive", pill: "bg-destructive/10 border-destructive/20" },
-  medium: { label: "Middels kritikalitet", dot: "bg-warning", text: "text-warning", pill: "bg-warning/10 border-warning/20" },
-  low: { label: "Lav kritikalitet", dot: "bg-success", text: "text-success", pill: "bg-success/10 border-success/20" },
-};
-
 function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] }) {
   const has = score > 0;
   const radius = 26;
@@ -36,7 +30,6 @@ function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] 
   const dash = has ? (score / 100) * circ : 0;
   const strokeColor =
     tone === "success" ? "hsl(var(--success))" :
-    tone === "destructive" ? "hsl(var(--destructive))" :
     tone === "warning" ? "hsl(var(--warning))" :
     tone === "primary" ? "hsl(var(--primary))" :
     "hsl(var(--muted-foreground) / 0.3)";
@@ -56,7 +49,6 @@ function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] 
         className={cn(
           "absolute text-[13px] font-semibold tabular-nums leading-none",
           tone === "success" && "text-success",
-          tone === "destructive" && "text-destructive",
           tone === "warning" && "text-warning",
           tone === "primary" && "text-primary",
           !has && "text-muted-foreground",
@@ -69,7 +61,6 @@ function Donut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] 
 }
 
 export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
-  // Hent utløpte dokumenter (matcher logikken i listevisningen)
   const { data: expiredDocsCount = 0 } = useQuery({
     queryKey: ["vendor-banner-expired-docs", asset.id],
     queryFn: async () => {
@@ -107,36 +98,9 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
 
   const score = asset.compliance_score || 0;
   const md = asset.metadata || {};
-  const criticality = CRITICALITY[(asset.risk_level || "medium").toLowerCase()] || CRITICALITY.medium;
+  const criticality = deriveCriticality({ risk_level: asset.risk_level });
 
-  const stripeBg =
-    status.tone === "success" ? "bg-success" :
-    status.tone === "destructive" ? "bg-destructive" :
-    status.tone === "warning" ? "bg-warning" :
-    status.tone === "primary" ? "bg-primary" : "bg-muted";
-
-  const stripeLabelText =
-    status.key === "draft" ? "LEVERANDØR · UTKAST" :
-    status.key === "invited" ? "LEVERANDØR · INVITERT" :
-    status.key === "approved" ? "LEVERANDØR · GODKJENT" :
-    status.key === "needs_action" ? "LEVERANDØR · KREVER TILTAK" :
-    "LEVERANDØR · OPPFØLGING";
-
-  // Kontekstbanner basert på status
   const renderContext = () => {
-    if (status.key === "needs_action") {
-      const parts: string[] = [];
-      const openGaps = md.open_gaps ?? 2;
-      if (openGaps > 0) parts.push(`${openGaps} åpne gap`);
-      if (md.dpa_expired_on) parts.push(`DPA utløpt ${md.dpa_expired_on}`);
-      if (parts.length === 0 && expiredDocsCount > 0) parts.push(`${expiredDocsCount} utløpte dokument`);
-      return (
-        <div className="flex items-center gap-1.5 text-[13px] text-destructive">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          <span>{parts.join(" · ") || "Manglende dokumentasjon"}</span>
-        </div>
-      );
-    }
     if (status.key === "invited") {
       const days = typeof md.invitation_days_left === "number" ? md.invitation_days_left : 7;
       return (
@@ -156,10 +120,10 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       }
       return <p className="text-[13px] text-muted-foreground">Utkast – ikke krevd inn fra leverandøren ennå.</p>;
     }
-    if (status.key === "approved") {
+    if (status.key === "claimed") {
       return <p className="text-[13px] text-muted-foreground">Profil eid og oppdatert av leverandør.</p>;
     }
-    return <p className="text-[13px] text-muted-foreground">Under oppfølging – pågående arbeid med gap.</p>;
+    return <p className="text-[13px] text-muted-foreground">Arkivert leverandør – data fryst.</p>;
   };
 
   const renderActions = () => {
@@ -185,43 +149,36 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
         </Button>
       );
     }
-    if (status.key === "needs_action") {
-      return (
-        <Button size="sm" variant="destructive" className="gap-1.5">
-          Åpne gap <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
-      );
-    }
     return null;
   };
 
   return (
     <Card variant="flat" className="relative overflow-hidden p-0">
       <div className="flex items-stretch">
-        {/* Vertikal stripe med rotert label */}
-        <div className={cn("relative w-9 shrink-0", stripeBg)}>
+        <div className={cn("relative w-9 shrink-0", status.stripeBg)}>
           <span
-            className="absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.18em] text-white whitespace-nowrap"
+            className={cn(
+              "absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap",
+              status.stripeText,
+            )}
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
           >
-            {stripeLabelText}
+            {status.stripeLabel}
           </span>
         </div>
 
         <div className="flex-1 px-5 py-4 flex items-start gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge
-                variant="outline"
-                className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", status.pillClass, status.textClass)}
-              >
-                <span className={cn("h-1.5 w-1.5 rounded-full", status.dotClass)} />
+              <Badge variant="outline" className="text-[12px] gap-1 px-2 py-0.5 font-medium">
                 {status.label}
               </Badge>
-              <Badge variant="outline" className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", criticality.pill, criticality.text)}>
-                <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dot)} />
-                {criticality.label}
-              </Badge>
+              {criticality && (
+                <Badge variant="outline" className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
+                  <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
+                  {criticality.label}
+                </Badge>
+              )}
             </div>
             <div className="mt-2">{renderContext()}</div>
           </div>
