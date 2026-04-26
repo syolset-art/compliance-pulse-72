@@ -433,16 +433,33 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               <Type className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <div className="flex border border-border rounded-lg">
-            <Button variant={viewMode === "card" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("card")}>
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("list")}>
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </div>
+
+
+      {/* Status row list */}
+      {filtered.length === 0 ? (
+        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
+          {t("assets.noAssets", "Ingen leverandører funnet")}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(v => {
+            const md = (v as any).metadata || {};
+            const frameworks: string[] = Array.isArray(md.frameworks) ? md.frameworks : [];
+            return (
+              <VendorStatusRow
+                key={v.id}
+                vendor={v as any}
+                expiredDocsCount={expiredCounts[v.id] || 0}
+                inboxCount={inboxCounts[v.id] || 0}
+                ownerName={getOwnerName(v)}
+                frameworks={frameworks}
+              />
+            );
+          })}
+        </div>
+      )}
 
 
       {/* Card View */}
