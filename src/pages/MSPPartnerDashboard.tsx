@@ -239,6 +239,18 @@ function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }
   );
 }
 
+// Mock target customers for the NIS2 campaign preview
+const CAMPAIGN_TARGETS = [
+  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ingen claim" },
+  { name: "Sognefjord Helse AS", industry: "Helse", risk: "Høy", reason: "Særlige kategorier" },
+  { name: "Vestland Logistikk", industry: "Transport", risk: "Medium", reason: "Ny CEO + DORA" },
+  { name: "Nordic Cargo AS", industry: "Transport", risk: "Medium", reason: "NIS2-eksponert" },
+  { name: "Stavanger Logistikk", industry: "Transport", risk: "Medium", reason: "Sky-avhengig" },
+  { name: "Kystbygg Entreprenør", industry: "Bygg", risk: "Lav", reason: "200+ ansatte" },
+];
+
+type FlowStep = "review" | "audience" | "preview" | "schedule" | "activated";
+
 function LaraSuggestionDialog({
   suggestion,
   onClose,
@@ -247,21 +259,56 @@ function LaraSuggestionDialog({
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const [step, setStep] = useState<FlowStep>("review");
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  const [schedule, setSchedule] = useState<"now" | "tomorrow" | "monday">("now");
+
+  // Reset when dialog opens for a new suggestion
+  const handleOpenChange = (o: boolean) => {
+    if (!o) {
+      onClose();
+      setTimeout(() => {
+        setStep("review");
+        setExcluded(new Set());
+        setSchedule("now");
+      }, 200);
+    }
+  };
+
   if (!suggestion) return null;
   const Icon = suggestion.icon;
   const CtaIcon = suggestion.cta.icon;
+  const includedCount = CAMPAIGN_TARGETS.length - excluded.size;
 
-  const handlePrimary = () => {
-    toast({
-      title: "Lara er i gang",
-      description: `${suggestion.cta.primary} — du får oppdatering i innboksen.`,
+  const toggleExclude = (name: string) => {
+    setExcluded((prev) => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
     });
-    onClose();
   };
 
+  const handleActivate = () => {
+    setStep("activated");
+    toast({
+      title: "Kampanje aktivert",
+      description: `Lara kjører «${suggestion.title}» mot ${includedCount} kunder.`,
+    });
+  };
+
+  // Step indicator labels
+  const STEPS: { key: FlowStep; label: string }[] = [
+    { key: "review", label: "Gjennomgå" },
+    { key: "audience", label: "Målgruppe" },
+    { key: "preview", label: "E-post" },
+    { key: "schedule", label: "Tidsplan" },
+    { key: "activated", label: "Aktiv" },
+  ];
+  const stepIndex = STEPS.findIndex((s) => s.key === step);
+
   return (
-    <Dialog open={!!suggestion} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={!!suggestion} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
@@ -280,53 +327,321 @@ function LaraSuggestionDialog({
           </div>
         </DialogHeader>
 
-        {/* Impact */}
-        <div className="grid grid-cols-3 gap-3 py-2">
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
-            <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
-            <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.reach}</div>
-          </div>
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
-            <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
-            <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
-          </div>
-          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <div className="text-[10px] tracking-wider text-primary font-semibold">POTENSIAL</div>
-            <div className="text-sm font-semibold text-primary mt-1">{suggestion.impact.revenue}</div>
-          </div>
-        </div>
-
-        {/* Steps */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
-          </div>
-          <ol className="space-y-2">
-            {suggestion.steps.map((step, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm">
-                <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
-                  {i + 1}
-                </span>
-                <span className="text-foreground/90">{step}</span>
-              </li>
+        {/* Progress indicator */}
+        {step !== "activated" && (
+          <div className="flex items-center gap-1 py-2">
+            {STEPS.slice(0, 4).map((s, i) => (
+              <div key={s.key} className="flex-1 flex items-center gap-1">
+                <div className="flex-1">
+                  <div
+                    className={
+                      "h-1 rounded-full transition-colors " +
+                      (i <= stepIndex ? "bg-primary" : "bg-muted")
+                    }
+                  />
+                  <div
+                    className={
+                      "text-[10px] mt-1 font-semibold tracking-wider " +
+                      (i <= stepIndex ? "text-primary" : "text-muted-foreground")
+                    }
+                  >
+                    {i + 1}. {s.label.toUpperCase()}
+                  </div>
+                </div>
+              </div>
             ))}
-          </ol>
-        </div>
+          </div>
+        )}
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-          Du kan stoppe eller justere kampanjen når som helst. Lara handler kun innenfor reglene du har satt.
-        </div>
+        {/* STEP 1: Review */}
+        {step === "review" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
+                <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.reach}</div>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
+                <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
+              </div>
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="text-[10px] tracking-wider text-primary font-semibold">POTENSIAL</div>
+                <div className="text-sm font-semibold text-primary mt-1">{suggestion.impact.revenue}</div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
+              </div>
+              <ol className="space-y-2">
+                {suggestion.steps.map((s, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm">
+                    <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-foreground/90">{s}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: Audience */}
+        {step === "audience" && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-foreground">
+                Lara har valgt {CAMPAIGN_TARGETS.length} kunder
+              </h4>
+              <Badge variant="outline" className="text-xs">
+                {includedCount} inkludert · {excluded.size} ekskludert
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Klikk på en kunde for å ekskludere fra kampanjen. Lara har rangert etter risiko og signalstyrke.
+            </p>
+            <div className="border border-border rounded-lg divide-y divide-border max-h-[280px] overflow-y-auto">
+              {CAMPAIGN_TARGETS.map((c) => {
+                const isExcluded = excluded.has(c.name);
+                return (
+                  <button
+                    key={c.name}
+                    onClick={() => toggleExclude(c.name)}
+                    className={
+                      "w-full flex items-center gap-3 p-3 text-left transition-colors " +
+                      (isExcluded ? "bg-muted/40 opacity-60" : "hover:bg-accent/40")
+                    }
+                  >
+                    <div
+                      className={
+                        "h-5 w-5 rounded border-2 flex items-center justify-center flex-shrink-0 " +
+                        (isExcluded
+                          ? "border-muted-foreground bg-transparent"
+                          : "border-primary bg-primary")
+                      }
+                    >
+                      {!isExcluded && <CheckCircle2 className="h-3 w-3 text-primary-foreground" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className={"text-sm font-semibold truncate " + (isExcluded ? "line-through text-muted-foreground" : "text-foreground")}>
+                        {c.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {c.industry} · {c.reason}
+                      </div>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={
+                        "text-[10px] " +
+                        (c.risk === "Høy"
+                          ? "border-destructive/40 text-destructive"
+                          : c.risk === "Medium"
+                          ? "border-status-followup/40 text-status-followup"
+                          : "border-border text-muted-foreground")
+                      }
+                    >
+                      {c.risk}
+                    </Badge>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: Email Preview */}
+        {step === "preview" && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">Forhåndsvis e-posten</h4>
+            <p className="text-xs text-muted-foreground">
+              Lara har generert personalisert innhold per kunde. Eksempel for Bergen Energi AS:
+            </p>
+            <div className="border border-border rounded-lg overflow-hidden bg-card">
+              <div className="bg-muted/40 px-4 py-2.5 border-b border-border space-y-1">
+                <div className="text-xs">
+                  <span className="text-muted-foreground">Fra:</span>{" "}
+                  <span className="text-foreground font-medium">Beate · Mynder Partner</span>
+                </div>
+                <div className="text-xs">
+                  <span className="text-muted-foreground">Til:</span>{" "}
+                  <span className="text-foreground font-medium">erik@bergenenergi.no</span>
+                </div>
+                <div className="text-xs">
+                  <span className="text-muted-foreground">Emne:</span>{" "}
+                  <span className="text-foreground font-medium">Bergen Energi er NIS2-eksponert — vi har klargjort en plan</span>
+                </div>
+              </div>
+              <div className="p-4 text-sm text-foreground/90 leading-relaxed space-y-3">
+                <p>Hei Erik,</p>
+                <p>
+                  Bergen Energi AS er identifisert som NIS2-eksponert (Energi, 51–200 ansatte). Mynder har klargjort en
+                  Trust Profile-mal tilpasset deres bransje — du trenger kun å validere før den publiseres.
+                </p>
+                <p>
+                  <span className="text-primary font-semibold">→ Vis min profil (1 klikk)</span>
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  Mvh, Beate · Mynder Partner
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Hver e-post tilpasses kundens bransje, størrelse og risikoprofil automatisk.
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: Schedule */}
+        {step === "schedule" && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">Når skal kampanjen starte?</h4>
+            <div className="space-y-2">
+              {[
+                { key: "now" as const, label: "Send nå", sub: "Første e-post går ut innen 5 min" },
+                { key: "tomorrow" as const, label: "I morgen kl. 09:00", sub: "Best åpningsrate ifølge Lara" },
+                { key: "monday" as const, label: "Mandag kl. 08:30", sub: "Anbefalt for B2B-segmentet" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setSchedule(opt.key)}
+                  className={
+                    "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors " +
+                    (schedule === opt.key
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-accent/40")
+                  }
+                >
+                  <div
+                    className={
+                      "h-4 w-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 " +
+                      (schedule === opt.key ? "border-primary" : "border-muted-foreground")
+                    }
+                  >
+                    {schedule === opt.key && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-foreground">{opt.label}</div>
+                    <div className="text-xs text-muted-foreground">{opt.sub}</div>
+                  </div>
+                  {opt.key === "tomorrow" && (
+                    <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px]">
+                      ANBEFALT
+                    </Badge>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <span>
+                Du kan pause eller stoppe kampanjen når som helst fra dashbordet. Lara sender automatisk
+                oppfølging etter 3 dager til de som ikke åpner.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5: Activated */}
+        {step === "activated" && (
+          <div className="space-y-4 py-2">
+            <div className="flex flex-col items-center text-center py-4">
+              <div className="h-16 w-16 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-3">
+                <CheckCircle2 className="h-8 w-8" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Kampanje aktivert</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                Lara kjører «{suggestion.title}» mot {includedCount} kunder.
+                Du får statusrapport i innboksen daglig.
+              </p>
+            </div>
+
+            <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/20">
+              <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">
+                LARAS NESTE STEG
+              </div>
+              {[
+                { time: "Nå", text: `${schedule === "now" ? "Sender" : "Planlegger"} ${includedCount} personaliserte e-poster`, done: schedule === "now" },
+                { time: "+3 dager", text: "Automatisk oppfølging til ikke-åpnere" },
+                { time: "Løpende", text: "Booker intro-møte ved klikk på «Vis min profil»" },
+                { time: "Daglig", text: "Statusrapport i din innboks 07:00" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div
+                    className={
+                      "h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 " +
+                      (item.done ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary")
+                    }
+                  >
+                    {item.done ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                  </div>
+                  <div className="flex-1 text-sm">
+                    <span className="text-foreground/90">{item.text}</span>
+                    <span className="text-xs text-muted-foreground ml-2">· {item.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={onClose}>
-            {suggestion.cta.secondary}
-          </Button>
-          <Button onClick={handlePrimary} className="gap-2">
-            <CtaIcon className="h-4 w-4" />
-            {suggestion.cta.primary}
-          </Button>
+          {step === "review" && (
+            <>
+              <Button variant="outline" onClick={onClose}>
+                Avbryt
+              </Button>
+              <Button onClick={() => setStep("audience")} className="gap-2">
+                Sett opp kampanje
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          {step === "audience" && (
+            <>
+              <Button variant="outline" onClick={() => setStep("review")}>
+                Tilbake
+              </Button>
+              <Button
+                onClick={() => setStep("preview")}
+                disabled={includedCount === 0}
+                className="gap-2"
+              >
+                Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          {step === "preview" && (
+            <>
+              <Button variant="outline" onClick={() => setStep("audience")}>
+                Tilbake
+              </Button>
+              <Button onClick={() => setStep("schedule")} className="gap-2">
+                Velg tidspunkt <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          {step === "schedule" && (
+            <>
+              <Button variant="outline" onClick={() => setStep("preview")}>
+                Tilbake
+              </Button>
+              <Button onClick={handleActivate} className="gap-2">
+                <CtaIcon className="h-4 w-4" />
+                Aktiver kampanje
+              </Button>
+            </>
+          )}
+          {step === "activated" && (
+            <Button onClick={() => handleOpenChange(false)} className="w-full sm:w-auto">
+              Ferdig
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
