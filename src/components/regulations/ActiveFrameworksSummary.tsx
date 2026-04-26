@@ -85,25 +85,47 @@ export function ActiveFrameworksSummary({ frameworks, getStats, expanded, onTogg
     };
   }, [frameworks, getStats]);
 
-  // Donut: ring rendered with conic-gradient using HSL token
-  const donutStyle = {
-    background: `conic-gradient(hsl(var(--status-followup)) ${overallPct * 3.6}deg, hsl(var(--muted)) 0deg)`,
-  };
-
   // Segmented bar: each segment width proportional to its share of total reqs
   const totalForBar = categories.reduce((acc, c) => acc + c.total, 0);
+
+  // Donut: SVG ring
+  const donutSize = 64;
+  const donutStroke = 6;
+  const donutRadius = (donutSize - donutStroke) / 2;
+  const donutCirc = 2 * Math.PI * donutRadius;
+  const donutOffset = donutCirc - (overallPct / 100) * donutCirc;
+  const ringColor =
+    overallPct >= 70 ? "hsl(var(--success))" : overallPct >= 30 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       <div className="flex items-center gap-4">
         {/* Donut */}
-        <div className="relative shrink-0">
-          <div
-            className="h-16 w-16 rounded-full"
-            style={donutStyle}
-            aria-hidden
-          />
-          <div className="absolute inset-1.5 rounded-full bg-card flex items-center justify-center">
+        <div className="relative shrink-0" style={{ width: donutSize, height: donutSize }}>
+          <svg width={donutSize} height={donutSize}>
+            <circle
+              cx={donutSize / 2}
+              cy={donutSize / 2}
+              r={donutRadius}
+              fill="none"
+              stroke="hsl(var(--muted))"
+              strokeWidth={donutStroke}
+            />
+            <circle
+              cx={donutSize / 2}
+              cy={donutSize / 2}
+              r={donutRadius}
+              fill="none"
+              stroke={ringColor}
+              strokeWidth={donutStroke}
+              strokeDasharray={donutCirc}
+              strokeDashoffset={donutOffset}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${donutSize / 2} ${donutSize / 2})`}
+              className="transition-all duration-500"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-sm font-bold text-foreground">{overallPct}%</span>
           </div>
         </div>

@@ -8,6 +8,7 @@ interface FrameworkChipSelectorProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   getStats: (frameworkId: string) => { met: number; total: number };
+  hideSummary?: boolean;
 }
 
 const ProgressRing = ({ pct, size = 36 }: { pct: number; size?: number }) => {
@@ -96,7 +97,7 @@ const CategorySection = ({
   );
 };
 
-export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats }: FrameworkChipSelectorProps) => {
+export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats, hideSummary = false }: FrameworkChipSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
 
   const enriched = useMemo(
@@ -127,6 +128,22 @@ export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getSta
   const overallMet = enriched.reduce((s, e) => s + e.met, 0);
   const overallTotal = enriched.reduce((s, e) => s + e.total, 0);
   const overallPct = overallTotal > 0 ? Math.round((overallMet / overallTotal) * 100) : 0;
+
+  if (hideSummary) {
+    return (
+      <div className="space-y-5 px-1">
+        {grouped.map(({ categoryId, items }) => (
+          <CategorySection
+            key={categoryId}
+            categoryId={categoryId}
+            frameworkItems={items}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
