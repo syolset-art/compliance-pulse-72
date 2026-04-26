@@ -8,6 +8,7 @@ interface FrameworkChipSelectorProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   getStats: (frameworkId: string) => { met: number; total: number };
+  hideSummary?: boolean;
 }
 
 const ProgressRing = ({ pct, size = 36 }: { pct: number; size?: number }) => {
