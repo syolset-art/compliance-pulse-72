@@ -35,6 +35,7 @@ import { OrganizationServicesPanel } from "@/components/asset-profile/Organizati
 import { ControlsTab } from "@/components/asset-profile/tabs/ControlsTab";
 import { DeviceTrustProfile } from "@/components/device-profile/DeviceTrustProfile";
 import { VendorOverviewTab } from "@/components/asset-profile/tabs/VendorOverviewTab";
+import { VendorStatusBanner } from "@/components/asset-profile/VendorStatusBanner";
 
 import { VendorUsageTab } from "@/components/asset-profile/tabs/VendorUsageTab";
 import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenceTab";
