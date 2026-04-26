@@ -129,6 +129,22 @@ export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getSta
   const overallTotal = enriched.reduce((s, e) => s + e.total, 0);
   const overallPct = overallTotal > 0 ? Math.round((overallMet / overallTotal) * 100) : 0;
 
+  if (hideSummary) {
+    return (
+      <div className="space-y-5 px-1">
+        {grouped.map(({ categoryId, items }) => (
+          <CategorySection
+            key={categoryId}
+            categoryId={categoryId}
+            frameworkItems={items}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Summary bar — always visible */}
