@@ -33,11 +33,17 @@ const KPIS = [
   { key: "won", label: "VUNNET I MND", value: "340k", sub: "12 oppdrag", tone: "success" as const },
 ];
 
-const LARA_SUGGESTIONS = [
-  { id: 1, dot: "bg-status-followup", text: "Kjør NIS2-claim-kampanje mot 28 kunder" },
-  { id: 2, dot: "bg-status-followup", text: "Følg opp Bergen Maskin — sertifikat utløpt" },
-  { id: 3, dot: "bg-primary", text: "Book intro med Vestland Logistikk — ny CEO" },
-];
+type LaraSuggestion = {
+  id: number;
+  dot: string;
+  text: string;
+  icon: typeof Target;
+  title: string;
+  summary: string;
+  impact: { reach: string; expectedClaims: string; revenue: string };
+  steps: string[];
+  cta: { primary: string; secondary: string; icon: typeof Mail };
+};
 
 const LARA_SUGGESTIONS: LaraSuggestion[] = [
   {
