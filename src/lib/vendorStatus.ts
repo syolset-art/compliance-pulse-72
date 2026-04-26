@@ -1,25 +1,20 @@
-// Avleder visuell status for en leverandør basert på eksisterende felter
-// (compliance_score, risk_level, lifecycle_status, dokumenter, inbox).
-// Returnerer både farge-tokens og kontekstuell handlings-CTA.
+// Avleder eierskaps-tilstand for en leverandør (utkast, invitert, claimet, arkivert)
+// + sekundære signaler (kritikalitet, modenhetslabel).
 
-export type VendorStatusKey =
-  | "approved"          // Godkjent (grønn)
-  | "needs_action"      // Krever tiltak (rød)
-  | "in_followup"       // Under oppfølging (oransje)
-  | "invited"           // Invitert (blå/lilla)
-  | "draft";            // Utkast (oransje prikk, ingen score)
+export type VendorStatusKey = "draft" | "invited" | "claimed" | "archived";
 
 export interface VendorStatusMeta {
   key: VendorStatusKey;
+  /** Kort label brukt i pille (f.eks. «Utkast») */
   label: string;
-  /** Tailwind className for prikk-bakgrunn */
-  dotClass: string;
-  /** Tailwind className for tekst-farge */
-  textClass: string;
-  /** Tailwind className for chip-bakgrunn (pille) */
-  pillClass: string;
-  /** Tone-navn brukt til donut/CTA */
-  tone: "success" | "destructive" | "warning" | "primary" | "muted";
+  /** Tekst på vertikal stripe (f.eks. «LEVERANDØR · UTKAST») */
+  stripeLabel: string;
+  /** Tailwind bg-class for vertikal stripe */
+  stripeBg: string;
+  /** Tailwind text-class for stripe-label */
+  stripeText: string;
+  /** Tone-navn brukt til donut/banner */
+  tone: "warning" | "primary" | "success" | "muted";
 }
 
 interface DeriveInput {
@@ -32,74 +27,83 @@ interface DeriveInput {
 }
 
 const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
-  approved: {
-    key: "approved",
-    label: "Godkjent",
-    dotClass: "bg-success",
-    textClass: "text-success",
-    pillClass: "bg-success/10 border-success/20",
-    tone: "success",
-  },
-  needs_action: {
-    key: "needs_action",
-    label: "Krever tiltak",
-    dotClass: "bg-destructive",
-    textClass: "text-destructive",
-    pillClass: "bg-destructive/10 border-destructive/20",
-    tone: "destructive",
-  },
-  in_followup: {
-    key: "in_followup",
-    label: "Under oppfølging",
-    dotClass: "bg-warning",
-    textClass: "text-warning",
-    pillClass: "bg-warning/10 border-warning/20",
+  draft: {
+    key: "draft",
+    label: "Utkast",
+    stripeLabel: "LEVERANDØR · UTKAST",
+    stripeBg: "bg-warning",
+    stripeText: "text-warning-foreground",
     tone: "warning",
   },
   invited: {
     key: "invited",
     label: "Invitert",
-    dotClass: "bg-primary",
-    textClass: "text-primary",
-    pillClass: "bg-primary/10 border-primary/20",
+    stripeLabel: "LEVERANDØR · INVITERT",
+    stripeBg: "bg-primary",
+    stripeText: "text-primary-foreground",
     tone: "primary",
   },
-  draft: {
-    key: "draft",
-    label: "Utkast",
-    dotClass: "bg-warning",
-    textClass: "text-warning",
-    pillClass: "bg-warning/10 border-warning/20",
-    tone: "warning",
+  claimed: {
+    key: "claimed",
+    label: "Claimet",
+    stripeLabel: "LEVERANDØR · CLAIMET",
+    stripeBg: "bg-success",
+    stripeText: "text-success-foreground",
+    tone: "success",
+  },
+  archived: {
+    key: "archived",
+    label: "Arkivert",
+    stripeLabel: "LEVERANDØR · ARKIVERT",
+    stripeBg: "bg-muted-foreground/60",
+    stripeText: "text-background",
+    tone: "muted",
   },
 };
 
 export function deriveVendorStatus(input: DeriveInput): VendorStatusMeta {
-  const score = input.compliance_score || 0;
   const lc = (input.lifecycle_status || "").toLowerCase();
   const md = input.metadata || {};
-  const expired = input.expiredDocsCount || 0;
+  const ownership = md.ownership_model || md.ownership; // 'mynder' | 'supplier'
+  const profileStatus = md.profile_status || md.status; // 'draft' | 'invitation_sent' | 'claimed' | 'archived'
 
-  // 1. Eksplisitte livssyklus-stater
-  if (lc === "draft" || md.status === "draft") return STATUS_META.draft;
-  if (lc === "invited" || md.status === "invited" || md.invited_at) return STATUS_META.invited;
+  if (lc === "archived" || profileStatus === "archived") return STATUS_META.archived;
+  if (ownership === "supplier" || profileStatus === "claimed" || md.claimed_at) return STATUS_META.claimed;
+  if (profileStatus === "invitation_sent" || profileStatus === "invited" || lc === "invited" || md.invited_at) return STATUS_META.invited;
+  if (lc === "draft" || profileStatus === "draft") return STATUS_META.draft;
 
-  // 2. Avledet fra score / risiko / dokumenter
-  if (expired > 0) return STATUS_META.needs_action;
-  if (input.risk_level === "high" || score < 40) {
-    if (score === 0) return STATUS_META.draft;
-    return STATUS_META.needs_action;
-  }
-  if (score >= 75) return STATUS_META.approved;
-  if (score >= 40) return STATUS_META.in_followup;
-
+  // Fallback: hvis ingen ownership-data – bruk score for å avlede
+  const score = input.compliance_score || 0;
+  if (score >= 75) return STATUS_META.claimed; // antatt verifisert
   return STATUS_META.draft;
 }
 
+// Sekundært signal: kritikalitet (vises som pille ved navn)
+export type CriticalityKey = "high" | "medium" | "low";
+export interface CriticalityMeta {
+  key: CriticalityKey;
+  label: string;
+  dotClass: string;
+  pillClass: string;
+}
+
+const CRITICALITY_META: Record<CriticalityKey, CriticalityMeta> = {
+  high:   { key: "high",   label: "Høy kritikalitet",     dotClass: "bg-destructive", pillClass: "bg-destructive/10 text-destructive border-destructive/20" },
+  medium: { key: "medium", label: "Middels kritikalitet", dotClass: "bg-warning",     pillClass: "bg-warning/10 text-warning border-warning/20" },
+  low:    { key: "low",    label: "Lav kritikalitet",     dotClass: "bg-success",     pillClass: "bg-success/10 text-success border-success/20" },
+};
+
+export function deriveCriticality(input: { criticality?: string | null; risk_level?: string | null }): CriticalityMeta | null {
+  const c = (input.criticality || input.risk_level || "").toLowerCase();
+  if (c === "high" || c === "critical") return CRITICALITY_META.high;
+  if (c === "medium") return CRITICALITY_META.medium;
+  if (c === "low") return CRITICALITY_META.low;
+  return null;
+}
+
 export const ALL_VENDOR_STATUSES: VendorStatusMeta[] = [
-  STATUS_META.approved,
-  STATUS_META.in_followup,
-  STATUS_META.needs_action,
-  STATUS_META.invited,
   STATUS_META.draft,
+  STATUS_META.invited,
+  STATUS_META.claimed,
+  STATUS_META.archived,
 ];
