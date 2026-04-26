@@ -390,13 +390,19 @@ const AssetTrustProfile = () => {
               </div>
             )}
 
-            {/* Vendor status banner — matcher leverandørkortets nye design */}
-            {isVendor && <VendorStatusBanner asset={asset as any} />}
+            {/* Vendor: unified status card (stripe + name + donut + context + kontakt-footer) */}
+            {isVendor && (
+              <div ref={headerRef}>
+                <VendorStatusBanner asset={asset as any} />
+              </div>
+            )}
 
-            {/* Entity Header */}
-            <div ref={headerRef}>
-              <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} requestDialogOpen={requestDialogOpen} onRequestDialogChange={setRequestDialogOpen} />
-            </div>
+            {/* Entity Header — only for non-vendor assets (self/system/etc.) */}
+            {!isVendor && (
+              <div ref={headerRef}>
+                <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} requestDialogOpen={requestDialogOpen} onRequestDialogChange={setRequestDialogOpen} />
+              </div>
+            )}
 
             {/* Security Areas + Scope — only for non-vendor assets */}
             {!isVendor && (
