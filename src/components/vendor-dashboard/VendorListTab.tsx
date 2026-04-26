@@ -298,6 +298,17 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               )}
             </div>
             <div className="space-y-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle statuser</SelectItem>
+                  {ALL_VENDOR_STATUSES.map(s => (
+                    <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={riskFilter} onValueChange={setRiskFilter}>
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Risiko" />
