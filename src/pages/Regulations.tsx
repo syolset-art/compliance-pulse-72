@@ -344,8 +344,9 @@ const Regulations = () => {
                   <FrameworkChipSelector
                     frameworks={activeFrameworks}
                     selectedId={selectedId}
-                    onSelect={setSelectedId}
+                    onSelect={(id) => { setSelectedId(id); setSummaryExpanded(false); }}
                     getStats={getChipStats}
+                    hideSummary
                   />
                 </>
               )}
