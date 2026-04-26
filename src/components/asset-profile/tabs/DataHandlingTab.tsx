@@ -277,7 +277,7 @@ export const DataHandlingTab = ({ assetId }: DataHandlingTabProps) => {
                     <TableCell>{p.purpose || "-"}</TableCell>
                     <TableCell>
                       {p.eu_eos_compliant ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-status-closed" />
                       ) : (
                         <XCircle className="h-4 w-4 text-destructive" />
                       )}

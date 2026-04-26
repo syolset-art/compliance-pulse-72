@@ -98,21 +98,21 @@ export function NetworkTab() {
     switch (status) {
       case "accepted":
         return (
-          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] gap-1">
+          <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] gap-1">
             <Check className="h-3 w-3" />
             {isNb ? "Godtatt" : "Accepted"}
           </Badge>
         );
       case "pending":
         return (
-          <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px] gap-1">
+          <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] gap-1">
             <Clock className="h-3 w-3" />
             {isNb ? "Avventer" : "Pending"}
           </Badge>
         );
       case "declined":
         return (
-          <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[13px] gap-1">
+          <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[13px] gap-1">
             <X className="h-3 w-3" />
             {isNb ? "Avslått" : "Declined"}
           </Badge>
@@ -128,8 +128,8 @@ export function NetworkTab() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <Check className="h-4 w-4 text-emerald-600" />
+            <div className="h-9 w-9 rounded-full bg-status-closed/10 flex items-center justify-center">
+              <Check className="h-4 w-4 text-status-closed" />
             </div>
             <div>
               <p className="text-lg font-semibold">{acceptedCount}</p>
@@ -139,8 +139,8 @@ export function NetworkTab() {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <Clock className="h-4 w-4 text-amber-600" />
+            <div className="h-9 w-9 rounded-full bg-warning/10 flex items-center justify-center">
+              <Clock className="h-4 w-4 text-warning" />
             </div>
             <div>
               <p className="text-lg font-semibold">{pendingCount}</p>
@@ -162,9 +162,9 @@ export function NetworkTab() {
       </div>
 
       {/* Info banner */}
-      <div className="flex items-start gap-2 p-3 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-        <Users className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-        <p className="text-xs text-blue-700 dark:text-blue-300">
+      <div className="flex items-start gap-2 p-3 rounded-md bg-primary/10 dark:bg-blue-950/30 border border-primary/20 dark:border-primary">
+        <Users className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-xs text-primary dark:text-primary">
           {isNb
             ? "Nettverket fungerer som LinkedIn — du kan bare dele dokumenter og sende forespørsler til kontakter som har godtatt invitasjonen din."
             : "The network works like LinkedIn — you can only share documents and send requests to contacts who have accepted your invitation."}

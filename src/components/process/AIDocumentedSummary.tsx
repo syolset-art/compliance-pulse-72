@@ -33,30 +33,30 @@ const RISK_CONFIG: Record<string, {
 }> = {
   unacceptable: {
     label: "Uakseptabel",
-    color: "text-red-700 dark:text-red-300",
-    bgColor: "bg-red-50 dark:bg-red-950/50",
-    borderColor: "border-red-200 dark:border-red-800",
+    color: "text-destructive dark:text-destructive",
+    bgColor: "bg-destructive/10 dark:bg-red-950/50",
+    borderColor: "border-destructive/20 dark:border-destructive",
     icon: <ShieldAlert className="h-4 w-4" />,
   },
   high: {
     label: "Høy risiko",
-    color: "text-orange-700 dark:text-orange-300",
-    bgColor: "bg-orange-50 dark:bg-orange-950/50",
-    borderColor: "border-orange-200 dark:border-orange-800",
+    color: "text-warning dark:text-warning",
+    bgColor: "bg-warning/10 dark:bg-orange-950/50",
+    borderColor: "border-warning/20 dark:border-warning",
     icon: <AlertTriangle className="h-4 w-4" />,
   },
   limited: {
     label: "Begrenset",
-    color: "text-amber-700 dark:text-amber-300",
-    bgColor: "bg-amber-50 dark:bg-amber-950/50",
-    borderColor: "border-amber-200 dark:border-amber-800",
+    color: "text-warning dark:text-warning",
+    bgColor: "bg-warning/10 dark:bg-amber-950/50",
+    borderColor: "border-warning/20 dark:border-warning",
     icon: <Eye className="h-4 w-4" />,
   },
   minimal: {
     label: "Minimal",
-    color: "text-emerald-700 dark:text-emerald-300",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
-    borderColor: "border-emerald-200 dark:border-emerald-800",
+    color: "text-status-closed dark:text-status-closed",
+    bgColor: "bg-status-closed/10 dark:bg-emerald-950/50",
+    borderColor: "border-status-closed/20 dark:border-status-closed",
     icon: <CheckCircle2 className="h-4 w-4" />,
   },
 };
@@ -102,10 +102,10 @@ export const AIDocumentedSummary = ({
   return (
     <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
       {/* Success header */}
-      <div className="px-5 py-3 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-100 dark:border-emerald-900 flex items-center justify-between">
+      <div className="px-5 py-3 bg-status-closed/10 dark:bg-emerald-950/30 border-b border-status-closed/20 dark:border-status-closed flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+          <CheckCircle2 className="h-4 w-4 text-status-closed dark:text-status-closed" />
+          <span className="text-sm font-medium text-status-closed dark:text-status-closed">
             KI-bruk dokumentert
           </span>
         </div>
@@ -158,7 +158,7 @@ export const AIDocumentedSummary = ({
           )}
 
           {complianceStatus === "not_assessed" && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warning/10 dark:bg-warning/30 text-warning dark:text-warning text-xs font-medium">
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               Trenger gjennomgang
             </div>

@@ -76,21 +76,21 @@ export function AssetSummaryDashboard({ assets }: AssetSummaryDashboardProps) {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
-              <Server className="h-3.5 w-3.5 text-blue-500" />
+              <Server className="h-3.5 w-3.5 text-primary" />
               <span>{t("myWorkAreas.assetTypes.system")}</span>
             </div>
             <span className="font-medium">{stats.systems}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5 text-green-500" />
+              <Building2 className="h-3.5 w-3.5 text-status-closed" />
               <span>{t("myWorkAreas.assetTypes.location")}</span>
             </div>
             <span className="font-medium">{stats.locations}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
-              <Network className="h-3.5 w-3.5 text-orange-500" />
+              <Network className="h-3.5 w-3.5 text-warning" />
               <span>{t("myWorkAreas.assetTypes.network")}</span>
             </div>
             <span className="font-medium">{stats.networks}</span>
@@ -106,14 +106,14 @@ export function AssetSummaryDashboard({ assets }: AssetSummaryDashboardProps) {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-status-closed" />
               <span>{t("myWorkAreas.roleOwner")}</span>
             </div>
             <span className="font-medium">{stats.owners}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
               <span>{t("myWorkAreas.roleUser")}</span>
             </div>
             <span className="font-medium">{stats.users}</span>

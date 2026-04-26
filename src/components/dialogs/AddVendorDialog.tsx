@@ -133,13 +133,13 @@ function TrustProfileBadge({ result }: { result: VendorSearchResult }) {
   const verified = isVerifiedTrustProfile(result);
   if (verified) {
     return (
-      <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+      <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed">
         <Shield className="h-3 w-3" /> Verifisert Trust Profile
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+    <span className="inline-flex items-center gap-1 text-[13px] font-medium px-2 py-0.5 rounded-full bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent">
       <Sparkles className="h-3 w-3" /> AI-generert profil
     </span>
   );
@@ -222,9 +222,9 @@ function ScanLimitBanner({ used, limit }: { used: number; limit: number }) {
 // --- Existing vendor warning card ---
 function ExistingVendorCard({ vendor, onOpenProfile, onClose }: { vendor: VendorSearchResult; onOpenProfile: () => void; onClose: () => void }) {
   return (
-    <div className="rounded-lg border-2 border-yellow-500/40 bg-yellow-50/50 dark:bg-yellow-900/10 p-4 space-y-3">
+    <div className="rounded-lg border-2 border-warning/40 bg-warning/10/50 dark:bg-warning/10 p-4 space-y-3">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+        <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <h4 className="text-sm font-semibold text-foreground">Denne leverandøren finnes allerede</h4>
           <p className="text-xs text-muted-foreground mt-1">
@@ -761,7 +761,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                     <p className="text-xs text-muted-foreground">eller klikk for å velge</p>
                   </div>
                   <p className="text-xs text-muted-foreground">Støttede formater: CSV, TXT, JSON</p>
-                  <p className="text-[13px] text-yellow-600 mt-1">⚠ PDF, Excel og Word kan ikke leses av AI direkte</p>
+                  <p className="text-[13px] text-warning mt-1">⚠ PDF, Excel og Word kan ikke leses av AI direkte</p>
                 </>
               )}
               <input
@@ -874,9 +874,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
             )}
 
             {(!classification.extractedVendors || classification.extractedVendors.length === 0) && (
-              <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-2">
+              <div className="rounded-lg border border-warning/30 bg-warning/5 p-4 space-y-2">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-sm font-semibold text-foreground">Ingen leverandører funnet</h4>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -918,9 +918,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         {/* Step: Scan Limit Reached */}
         {step === "scan-limit" && (
           <div className="space-y-4 pt-2">
-            <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-3">
+            <div className="rounded-lg border border-warning/30 bg-warning/5 p-4 space-y-3">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="h-6 w-6 text-yellow-600 shrink-0" />
+                <AlertTriangle className="h-6 w-6 text-warning shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground">Du har brukt alle AI-skanninger</h3>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -1032,7 +1032,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
                       className={cn(
                         "w-full text-left p-3 rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         r.existingId
-                          ? "border-yellow-500/40 bg-yellow-50/30 dark:bg-yellow-900/10 hover:border-yellow-500/60"
+                          ? "border-warning/40 bg-warning/10/30 dark:bg-warning/10 hover:border-warning/60"
                           : "border-border hover:border-primary"
                       )}
                       role="option"

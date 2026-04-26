@@ -21,8 +21,8 @@ export function EmployeeActivitySection() {
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-              <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div className="h-10 w-10 rounded-lg bg-status-closed/10 dark:bg-status-closed/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-5 w-5 text-status-closed dark:text-status-closed" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -41,9 +41,9 @@ export function EmployeeActivitySection() {
             </div>
             <Progress value={100} className="h-2.5" />
           </div>
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-            <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
-            <p className="text-sm text-green-700 dark:text-green-300">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-status-closed/20 border border-status-closed/20 dark:border-status-closed">
+            <TrendingUp className="h-4 w-4 text-status-closed dark:text-status-closed shrink-0" />
+            <p className="text-sm text-status-closed dark:text-status-closed">
               <span className="font-semibold">Spart ca. 4 timer</span> sammenlignet med manuell prosess (12 ansatte × 20 min manuelt → 5 min med Mynder Me)
             </p>
           </div>
@@ -58,13 +58,13 @@ export function EmployeeActivitySection() {
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-              <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="h-10 w-10 rounded-lg bg-warning/10 dark:bg-warning/30 flex items-center justify-center shrink-0">
+              <BookOpen className="h-5 w-5 text-warning dark:text-warning" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-foreground">Sikkerhetskurs Q1 2026</h3>
-                <Badge variant="outline" className="text-xs border-amber-300 text-amber-600 dark:text-amber-400">Pågår</Badge>
+                <Badge variant="outline" className="text-xs border-warning/20 text-warning dark:text-warning">Pågår</Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Obligatorisk e-læringskurs om phishing og informasjonssikkerhet sendt til alle ansatte.
@@ -79,7 +79,7 @@ export function EmployeeActivitySection() {
             <Progress value={75} className="h-2.5" />
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+            <AlertTriangle className="h-3.5 w-3.5 text-warning" />
             <span>3 ansatte har ikke fullført ennå — påminnelse sendes automatisk om 2 dager</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -93,8 +93,8 @@ export function EmployeeActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-              <FileSignature className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 dark:bg-primary/30 flex items-center justify-center shrink-0">
+              <FileSignature className="h-5 w-5 text-primary dark:text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -117,8 +117,8 @@ export function EmployeeActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
-              <Laptop className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 dark:bg-primary/30 flex items-center justify-center shrink-0">
+              <Laptop className="h-5 w-5 text-primary dark:text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -141,13 +141,13 @@ export function EmployeeActivitySection() {
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center shrink-0">
-              <KeyRound className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+            <div className="h-10 w-10 rounded-lg bg-destructive/10 dark:bg-destructive/30 flex items-center justify-center shrink-0">
+              <KeyRound className="h-5 w-5 text-destructive dark:text-destructive" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-foreground">Tilgangsgjennomgang</h3>
-                <Badge variant="outline" className="text-xs border-rose-300 text-rose-600 dark:text-rose-400">Venter</Badge>
+                <Badge variant="outline" className="text-xs border-destructive/20 text-destructive dark:text-destructive">Venter</Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Kvartalsvis gjennomgang av systemtilganger sendt til alle avdelingsledere.
@@ -177,8 +177,8 @@ export function CustomerActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-              <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div className="h-10 w-10 rounded-lg bg-accent/10 dark:bg-foreground/30 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-accent dark:text-accent" />
             </div>
             <div className="flex-1 min-w-0 space-y-3">
               <div>
@@ -195,11 +195,11 @@ export function CustomerActivitySection() {
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <span className="text-sm text-foreground">Terms & Conditions godkjent</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <span className="text-sm text-foreground">Personvernerklæring godkjent</span>
                 </div>
               </div>
@@ -216,8 +216,8 @@ export function CustomerActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-              <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 dark:bg-primary/30 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-primary dark:text-primary" />
             </div>
             <div className="flex-1 min-w-0 space-y-3">
               <div>
@@ -234,11 +234,11 @@ export function CustomerActivitySection() {
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <span className="text-sm text-foreground">Databehandleravtale godkjent</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <span className="text-sm text-foreground">Terms & Conditions godkjent</span>
                 </div>
               </div>
@@ -255,14 +255,14 @@ export function CustomerActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-              <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="h-10 w-10 rounded-lg bg-warning/10 dark:bg-warning/30 flex items-center justify-center shrink-0">
+              <Mail className="h-5 w-5 text-warning dark:text-warning" />
             </div>
             <div className="flex-1 min-w-0 space-y-3">
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-foreground">Venter på Fjordtech Solutions AS</h3>
-                  <Badge variant="outline" className="text-xs border-amber-300 text-amber-600 dark:text-amber-400">Sendt</Badge>
+                  <Badge variant="outline" className="text-xs border-warning/20 text-warning dark:text-warning">Sendt</Badge>
                 </div>
                 <div className="flex items-center gap-2 mt-1.5">
                   <User className="h-4 w-4 text-muted-foreground" />
@@ -273,16 +273,16 @@ export function CustomerActivitySection() {
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-500" />
+                  <Clock className="h-4 w-4 text-warning" />
                   <span className="text-sm text-muted-foreground">Terms & Conditions — venter på godkjenning</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-500" />
+                  <Clock className="h-4 w-4 text-warning" />
                   <span className="text-sm text-muted-foreground">Personvernerklæring — venter på godkjenning</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                <AlertTriangle className="h-3.5 w-3.5 text-warning" />
                 <span>Påminnelse sendes automatisk om 3 dager</span>
               </div>
             </div>
@@ -294,8 +294,8 @@ export function CustomerActivitySection() {
       <Card>
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center shrink-0">
-              <Building2 className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+            <div className="h-10 w-10 rounded-lg bg-destructive/10 dark:bg-destructive/30 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-destructive dark:text-destructive" />
             </div>
             <div className="flex-1 min-w-0 space-y-3">
               <div>
@@ -312,7 +312,7 @@ export function CustomerActivitySection() {
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <span className="text-sm text-foreground">Terms & Conditions godkjent</span>
                 </div>
                 <div className="flex items-center gap-2">

@@ -89,16 +89,16 @@ const categoryLabels: Record<string, string> = Object.fromEntries(
 categoryLabels["annet"] = "Annet";
 
 const criticalityConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  critical: { label: "KRITISK", color: "text-red-400", bgColor: "bg-red-500/20" },
-  high: { label: "HØY", color: "text-orange-400", bgColor: "bg-orange-500/20" },
-  medium: { label: "MIDDELS", color: "text-yellow-400", bgColor: "bg-yellow-500/20" },
-  low: { label: "LAV", color: "text-green-400", bgColor: "bg-green-500/20" },
+  critical: { label: "KRITISK", color: "text-destructive", bgColor: "bg-destructive/20" },
+  high: { label: "HØY", color: "text-warning", bgColor: "bg-warning/20" },
+  medium: { label: "MIDDELS", color: "text-warning", bgColor: "bg-warning/20" },
+  low: { label: "LAV", color: "text-status-closed", bgColor: "bg-status-closed/20" },
 };
 
 const statusConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  open: { label: "NY", color: "text-blue-400", bgColor: "bg-blue-500/20" },
-  in_progress: { label: "UNDER BEHANDLING", color: "text-purple-400", bgColor: "bg-purple-500/20" },
-  resolved: { label: "LØST", color: "text-green-400", bgColor: "bg-green-500/20" },
+  open: { label: "NY", color: "text-primary", bgColor: "bg-primary/20" },
+  in_progress: { label: "UNDER BEHANDLING", color: "text-accent", bgColor: "bg-accent/20" },
+  resolved: { label: "LØST", color: "text-status-closed", bgColor: "bg-status-closed/20" },
 };
 
 export default function Deviations() {
@@ -257,17 +257,17 @@ export default function Deviations() {
               {status.label}
             </Badge>
             {deviation.source === "7security" && (
-              <Badge className="text-[13px] bg-orange-500/15 text-orange-700 border-orange-500/30">
+              <Badge className="text-[13px] bg-warning/15 text-warning border-warning/30">
                 7 Security
               </Badge>
             )}
             {deviation.source === "employee" && (
-              <Badge className="text-[13px] bg-blue-500/15 text-blue-700 border-blue-500/30">
+              <Badge className="text-[13px] bg-primary/15 text-primary border-primary/30">
                 Ansattmelding
               </Badge>
             )}
             {deviation.source === "notification" && (
-              <Badge className="text-[13px] bg-purple-500/15 text-purple-700 border-purple-500/30">
+              <Badge className="text-[13px] bg-accent/15 text-foreground border-accent/30">
                 Varsel
               </Badge>
             )}
@@ -524,7 +524,7 @@ export default function Deviations() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card className="bg-card border-border">
             <CardContent className="p-4 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.critical}</p>
                 <p className="text-xs text-muted-foreground">Kritiske</p>
@@ -533,7 +533,7 @@ export default function Deviations() {
           </Card>
           <Card className="bg-card border-border">
             <CardContent className="p-4 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <AlertTriangle className="h-5 w-5 text-warning" />
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.high}</p>
                 <p className="text-xs text-muted-foreground">Høye</p>
@@ -542,7 +542,7 @@ export default function Deviations() {
           </Card>
           <Card className="bg-card border-border">
             <CardContent className="p-4 flex items-center gap-3">
-              <Clock className="h-5 w-5 text-purple-500" />
+              <Clock className="h-5 w-5 text-accent" />
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.inProgress}</p>
                 <p className="text-xs text-muted-foreground">Under behandling</p>
@@ -551,7 +551,7 @@ export default function Deviations() {
           </Card>
           <Card className="bg-card border-border">
             <CardContent className="p-4 flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-status-closed" />
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.resolved}</p>
                 <p className="text-xs text-muted-foreground">Løste</p>
@@ -674,13 +674,13 @@ export default function Deviations() {
                       {status.label}
                     </Badge>
                     {selectedDeviation.source === "employee" && (
-                      <Badge className="text-[13px] bg-blue-500/15 text-blue-700 border-blue-500/30">Ansattmelding</Badge>
+                      <Badge className="text-[13px] bg-primary/15 text-primary border-primary/30">Ansattmelding</Badge>
                     )}
                     {selectedDeviation.source === "notification" && (
-                      <Badge className="text-[13px] bg-purple-500/15 text-purple-700 border-purple-500/30">Varsel</Badge>
+                      <Badge className="text-[13px] bg-accent/15 text-foreground border-accent/30">Varsel</Badge>
                     )}
                     {selectedDeviation.source === "7security" && (
-                      <Badge className="text-[13px] bg-orange-500/15 text-orange-700 border-orange-500/30">7 Security</Badge>
+                      <Badge className="text-[13px] bg-warning/15 text-warning border-warning/30">7 Security</Badge>
                     )}
                   </div>
 

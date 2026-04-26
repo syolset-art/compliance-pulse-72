@@ -154,8 +154,8 @@ export default function MSPCustomerROI() {
           {/* Results top row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="p-5 text-center space-y-1">
-              <TrendingDown className="h-6 w-6 mx-auto text-green-600" />
-              <p className="text-2xl font-bold text-green-600">{formatKr(calc.savingYear)}</p>
+              <TrendingDown className="h-6 w-6 mx-auto text-status-closed" />
+              <p className="text-2xl font-bold text-status-closed">{formatKr(calc.savingYear)}</p>
               <p className="text-sm text-muted-foreground">Årlig besparelse</p>
             </Card>
             <Card className="p-5 text-center space-y-1">
@@ -169,8 +169,8 @@ export default function MSPCustomerROI() {
               <p className="text-sm text-muted-foreground">Tilbakebetalt etter</p>
             </Card>
             <Card className="p-5 text-center space-y-1">
-              <Sparkles className="h-6 w-6 mx-auto text-green-600" />
-              <p className="text-2xl font-bold text-green-600">{formatKr(calc.saving3Year)}</p>
+              <Sparkles className="h-6 w-6 mx-auto text-status-closed" />
+              <p className="text-2xl font-bold text-status-closed">{formatKr(calc.saving3Year)}</p>
               <p className="text-sm text-muted-foreground">Besparelse over 3 år</p>
             </Card>
           </div>
@@ -187,9 +187,9 @@ export default function MSPCustomerROI() {
                 <li>• Ingen automatisk varsling</li>
               </ul>
             </Card>
-            <Card className="p-6 border-green-500/30 bg-green-500/5">
+            <Card className="p-6 border-status-closed/30 bg-status-closed/5">
               <h3 className="font-semibold text-foreground mb-3">Med Mynder</h3>
-              <p className="text-3xl font-bold text-green-600">{formatKr(calc.mynderCostYear)}</p>
+              <p className="text-3xl font-bold text-status-closed">{formatKr(calc.mynderCostYear)}</p>
               <p className="text-sm text-muted-foreground mt-1">per år ({calc.tier.name})</p>
               <ul className="mt-4 text-sm text-muted-foreground space-y-1">
                 <li>• 80 % av manuelt arbeid automatisert</li>
@@ -202,7 +202,7 @@ export default function MSPCustomerROI() {
           {/* Percentage badge */}
           {calc.savingPercent > 0 && (
             <div className="text-center">
-              <span className="inline-block bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-4 py-2 rounded-full text-lg font-semibold">
+              <span className="inline-block bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed px-4 py-2 rounded-full text-lg font-semibold">
                 Du sparer {Math.round(calc.savingPercent)} % sammenlignet med manuell håndtering
               </span>
             </div>

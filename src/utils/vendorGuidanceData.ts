@@ -57,8 +57,8 @@ export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: s
 };
 
 export const LEVEL_DOT: Record<GuidanceLevel, string> = {
-  operasjonelt: "bg-emerald-500",
-  taktisk: "bg-amber-500",
+  operasjonelt: "bg-status-closed",
+  taktisk: "bg-warning",
   strategisk: "bg-primary",
 };
 
@@ -70,8 +70,8 @@ export interface VendorGuidance {
 
 export const CRITICALITY_CONFIG: Record<Criticality, { nb: string; en: string; badge: string }> = {
   kritisk: { nb: "Kritisk", en: "Critical", badge: "bg-destructive/15 text-destructive border border-destructive/20" },
-  hoy: { nb: "Høy", en: "High", badge: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20" },
-  medium: { nb: "Medium", en: "Medium", badge: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-300 border border-yellow-500/20" },
+  hoy: { nb: "Høy", en: "High", badge: "bg-warning/15 text-warning dark:text-warning border border-warning/20" },
+  medium: { nb: "Medium", en: "Medium", badge: "bg-warning/15 text-warning dark:text-warning border border-warning/20" },
 };
 
 export const LEVEL_CONFIG: Record<GuidanceLevel, { nb: string; en: string }> = {

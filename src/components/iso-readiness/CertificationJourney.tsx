@@ -122,7 +122,7 @@ function PhaseItem({ phase, status, name, isExpanded, isNorwegian, onToggle, com
           {/* Status icon */}
           <div className={cn(
             "w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors",
-            status === 'completed' && "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
+            status === 'completed' && "bg-status-closed/10 text-status-closed dark:bg-status-closed/40 dark:text-status-closed",
             status === 'in_progress' && "bg-primary/10 text-primary ring-2 ring-primary/30",
             status === 'not_started' && "bg-muted text-muted-foreground"
           )}>
@@ -138,7 +138,7 @@ function PhaseItem({ phase, status, name, isExpanded, isNorwegian, onToggle, com
             <div className="flex items-center gap-2">
               <span className={cn(
                 "text-sm font-medium",
-                status === 'completed' && "text-emerald-600 dark:text-emerald-400",
+                status === 'completed' && "text-status-closed dark:text-status-closed",
                 status === 'in_progress' && "text-primary",
                 status === 'not_started' && "text-muted-foreground"
               )}>
@@ -195,7 +195,7 @@ function PhaseItem({ phase, status, name, isExpanded, isNorwegian, onToggle, com
                   <CheckCircle2 className={cn(
                     "w-3.5 h-3.5 shrink-0",
                     idx < completedActivities
-                      ? "text-emerald-500 dark:text-emerald-400"
+                      ? "text-status-closed dark:text-status-closed"
                       : "text-muted-foreground/40"
                   )} />
                   <span className={cn(

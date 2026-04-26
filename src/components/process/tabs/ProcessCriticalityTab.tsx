@@ -48,9 +48,9 @@ export const ProcessCriticalityTab = ({ processId }: ProcessCriticalityTabProps)
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case "high": return "bg-red-100 text-red-700 border-red-200";
-      case "medium": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "low": return "bg-green-100 text-green-700 border-green-200";
+      case "high": return "bg-destructive/10 text-destructive border-destructive/20";
+      case "medium": return "bg-warning/10 text-warning border-warning/20";
+      case "low": return "bg-status-closed/10 text-status-closed border-status-closed/20";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -58,9 +58,9 @@ export const ProcessCriticalityTab = ({ processId }: ProcessCriticalityTabProps)
   const getProgressColors = (level: string) => {
     // Create a gradient from green to yellow to orange to red
     switch (level) {
-      case "high": return "bg-gradient-to-r from-green-500 via-yellow-500 via-orange-500 to-red-500";
-      case "medium": return "bg-gradient-to-r from-green-500 via-yellow-500 to-orange-400";
-      case "low": return "bg-gradient-to-r from-green-500 to-yellow-400";
+      case "high": return "bg-gradient-to-r from-status-closed via-warning via-warning to-destructive";
+      case "medium": return "bg-gradient-to-r from-status-closed via-warning to-warning";
+      case "low": return "bg-gradient-to-r from-status-closed to-warning";
       default: return "bg-muted";
     }
   };

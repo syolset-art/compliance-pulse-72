@@ -226,7 +226,7 @@ export default function MSPROICalculator() {
                     <TrendingUp className="h-5 w-5 text-primary" />
                     <span className="text-sm font-medium text-muted-foreground">Fortjeneste år 1</span>
                   </div>
-                  <p className={`text-2xl font-bold ${profitYear1 >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
+                  <p className={`text-2xl font-bold ${profitYear1 >= 0 ? "text-status-closed dark:text-status-closed" : "text-destructive"}`}>
                     {fmtKr(profitYear1)}
                   </p>
                 </Card>
@@ -294,7 +294,7 @@ function Row({ label, value, bold, positive, muted }: { label: string; value: st
   return (
     <div className="flex items-center justify-between">
       <span className={`${muted ? "text-muted-foreground" : "text-foreground"} ${bold ? "font-semibold" : ""}`}>{label}</span>
-      <span className={`${bold ? "font-bold text-lg" : "font-medium"} ${positive ? "text-green-600 dark:text-green-400" : muted ? "text-muted-foreground" : "text-foreground"}`}>
+      <span className={`${bold ? "font-bold text-lg" : "font-medium"} ${positive ? "text-status-closed dark:text-status-closed" : muted ? "text-muted-foreground" : "text-foreground"}`}>
         {value}
       </span>
     </div>

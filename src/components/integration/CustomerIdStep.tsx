@@ -96,18 +96,18 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
             placeholder="E.g. 7SEC-CUSTOMER-12345"
             className={cn(
               "pr-10",
-              verificationState === "success" && "border-green-500 focus-visible:ring-green-500",
-              verificationState === "error" && "border-red-500 focus-visible:ring-red-500"
+              verificationState === "success" && "border-status-closed focus-visible:ring-status-closed",
+              verificationState === "error" && "border-destructive focus-visible:ring-destructive"
             )}
           />
           {verificationState === "verifying" && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground animate-spin" />
           )}
           {verificationState === "success" && (
-            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-status-closed" />
           )}
           {verificationState === "error" && (
-            <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
+            <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
           )}
         </div>
       </div>
@@ -115,11 +115,11 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
       {/* Success state */}
       {verificationState === "success" && customerName && (
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-status-closed/10 border border-status-closed/30">
+            <CheckCircle2 className="h-5 w-5 text-status-closed mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium text-green-400">Customer verified</p>
-              <p className="text-sm text-green-400/80 mt-1">{customerName}</p>
+              <p className="font-medium text-status-closed">Customer verified</p>
+              <p className="text-sm text-status-closed/80 mt-1">{customerName}</p>
             </div>
           </div>
           
@@ -136,13 +136,13 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
 
       {/* Error state */}
       {verificationState === "error" && (
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/30">
-          <XCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/30">
+          <XCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-red-400">Customer ID not found</p>
-            <p className="text-sm text-red-400/80 mt-1">{errorMessage}</p>
+            <p className="font-medium text-destructive">Customer ID not found</p>
+            <p className="text-sm text-destructive/80 mt-1">{errorMessage}</p>
             <button 
-              className="px-0 h-auto text-red-400 mt-2 underline hover:no-underline text-sm"
+              className="px-0 h-auto text-destructive mt-2 underline hover:no-underline text-sm"
               onClick={onNeedAccess}
             >
               Request access instead →
@@ -152,12 +152,12 @@ export function CustomerIdStep({ integration, onVerified, onNeedAccess }: Custom
       )}
 
       {/* Help section */}
-      <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 space-y-2">
+      <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-2">
         <div className="flex items-start gap-2">
-          <HelpCircle className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+          <HelpCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-300">Where do I find my customer ID?</p>
-            <ul className="text-xs text-blue-300/80 mt-2 space-y-1 list-disc list-inside">
+            <p className="text-sm font-medium text-primary">Where do I find my customer ID?</p>
+            <ul className="text-xs text-primary/80 mt-2 space-y-1 list-disc list-inside">
               <li>Check email from {partnerName}</li>
               <li>Check invoices or contracts</li>
               <li>Contact {partnerName} at support@7security.no</li>

@@ -204,9 +204,9 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   }
 
   const tprmIndicator: Record<TPRMLevel, { emoji: string; label: string; className: string }> = {
-    approved: { emoji: "🟢", label: isNb ? "Godkjent" : "Approved", className: "text-emerald-600 dark:text-emerald-400" },
-    under_review: { emoji: "🟡", label: isNb ? "Under oppfølging" : "Under review", className: "text-amber-600 dark:text-amber-400" },
-    action_required: { emoji: "🔴", label: isNb ? "Krever tiltak" : "Action required", className: "text-red-600 dark:text-red-400" },
+    approved: { emoji: "🟢", label: isNb ? "Godkjent" : "Approved", className: "text-status-closed dark:text-status-closed" },
+    under_review: { emoji: "🟡", label: isNb ? "Under oppfølging" : "Under review", className: "text-warning dark:text-warning" },
+    action_required: { emoji: "🔴", label: isNb ? "Krever tiltak" : "Action required", className: "text-destructive dark:text-destructive" },
     not_assessed: { emoji: "⚪", label: isNb ? "Ikke vurdert" : "Not assessed", className: "text-muted-foreground" },
   };
 
@@ -228,18 +228,18 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
   // Standards/certifications vs regulatory frameworks
   const STANDARDS_KEYWORDS = ["iso27001", "iso27701", "soc2", "soc", "iso", "nist", "cobit"];
   const REGULATION_COLORS: Record<string, string> = {
-    dora: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
-    nis2: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
-    gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
-    personopplysningsloven: "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700",
-    "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
-    aiact: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
+    dora: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning dark:border-warning",
+    nis2: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning dark:border-warning",
+    gdpr: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary",
+    personopplysningsloven: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary",
+    "ai-act": "bg-accent/10 text-foreground border-accent/20 dark:bg-foreground/30 dark:text-accent dark:border-accent",
+    aiact: "bg-accent/10 text-foreground border-accent/20 dark:bg-foreground/30 dark:text-accent dark:border-accent",
   };
 
   const STANDARD_COLORS: Record<string, string> = {
-    iso: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700",
-    soc: "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700",
-    nist: "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-700",
+    iso: "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed",
+    soc: "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed",
+    nist: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary",
   };
 
   const isStandard = (id: string) => {
@@ -252,7 +252,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     for (const [key, cls] of Object.entries(REGULATION_COLORS)) {
       if (lower.includes(key.replace("-", ""))) return cls;
     }
-    return "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700";
+    return "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/30 dark:text-destructive dark:border-destructive";
   };
 
   const getStandardColor = (id: string) => {
@@ -260,7 +260,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     for (const [key, cls] of Object.entries(STANDARD_COLORS)) {
       if (lower.includes(key)) return cls;
     }
-    return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700";
+    return "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed";
   };
 
   const GREY_FALLBACK = "bg-muted text-muted-foreground border-border";
@@ -422,11 +422,11 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
   // Asset type ribbon config
   const ASSET_TYPE_RIBBON: Record<string, { label_nb: string; label_en: string; bg: string; text: string }> = {
-    vendor: { label_nb: "Leverandør", label_en: "Vendor", bg: "bg-blue-600 dark:bg-blue-700", text: "text-white" },
-    system: { label_nb: "System", label_en: "System", bg: "bg-emerald-600 dark:bg-emerald-700", text: "text-white" },
-    location: { label_nb: "Lokasjon", label_en: "Location", bg: "bg-amber-600 dark:bg-amber-700", text: "text-white" },
-    network: { label_nb: "Nettverk", label_en: "Network", bg: "bg-purple-600 dark:bg-purple-700", text: "text-white" },
-    device: { label_nb: "Enhet", label_en: "Device", bg: "bg-rose-600 dark:bg-rose-700", text: "text-white" },
+    vendor: { label_nb: "Leverandør", label_en: "Vendor", bg: "bg-primary dark:bg-primary", text: "text-white" },
+    system: { label_nb: "System", label_en: "System", bg: "bg-status-closed dark:bg-status-closed", text: "text-white" },
+    location: { label_nb: "Lokasjon", label_en: "Location", bg: "bg-warning dark:bg-warning", text: "text-white" },
+    network: { label_nb: "Nettverk", label_en: "Network", bg: "bg-accent dark:bg-foreground", text: "text-white" },
+    device: { label_nb: "Enhet", label_en: "Device", bg: "bg-destructive dark:bg-destructive", text: "text-white" },
     self: { label_nb: "Organisasjon", label_en: "Organization", bg: "bg-primary", text: "text-primary-foreground" },
   };
 
@@ -435,9 +435,9 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
   const PRIORITY_CONFIG_RIBBON: Record<string, { label: string; dot: string }> = {
     critical: { label: "Kritisk", dot: "bg-destructive" },
-    high: { label: "Høy", dot: "bg-orange-500" },
-    medium: { label: "Medium", dot: "bg-yellow-500" },
-    low: { label: "Lav", dot: "bg-emerald-500" },
+    high: { label: "Høy", dot: "bg-warning" },
+    medium: { label: "Medium", dot: "bg-warning" },
+    low: { label: "Lav", dot: "bg-status-closed" },
   };
   const currentPriorityVal = (asset as any).priority as string | null;
   const isActive = asset.lifecycle_status === "active" || !asset.lifecycle_status;
@@ -577,7 +577,7 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg md:text-xl font-bold text-foreground">{asset.name}</h1>
             {isMspPartner && (
-              <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[13px] shrink-0 gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
+              <Badge className="bg-warning/10 text-warning border-warning text-[13px] shrink-0 gap-1 dark:bg-warning/30 dark:text-warning dark:border-warning">
                 <Award className="h-3 w-3" />
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>

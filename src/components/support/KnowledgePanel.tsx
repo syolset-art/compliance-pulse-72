@@ -20,10 +20,10 @@ const gdprArticles: KnowledgeArticle[] = [
 ];
 
 const categories = [
-  { id: "gdpr", icon: Shield, title: "GDPR", descKey: "resources.knowledge.gdprDesc", articles: gdprArticles, color: "text-blue-500" },
-  { id: "nis2", icon: Scale, title: "NIS2", descKey: "resources.knowledge.nis2Desc", articles: [] as KnowledgeArticle[], color: "text-emerald-500" },
-  { id: "iso27001", icon: FileText, title: "ISO 27001", descKey: "resources.knowledge.isoDesc", articles: [] as KnowledgeArticle[], color: "text-amber-500" },
-  { id: "aiact", icon: Bot, title: "AI Act", descKey: "resources.knowledge.aiActDesc", articles: [] as KnowledgeArticle[], color: "text-purple-500" },
+  { id: "gdpr", icon: Shield, title: "GDPR", descKey: "resources.knowledge.gdprDesc", articles: gdprArticles, color: "text-primary" },
+  { id: "nis2", icon: Scale, title: "NIS2", descKey: "resources.knowledge.nis2Desc", articles: [] as KnowledgeArticle[], color: "text-status-closed" },
+  { id: "iso27001", icon: FileText, title: "ISO 27001", descKey: "resources.knowledge.isoDesc", articles: [] as KnowledgeArticle[], color: "text-warning" },
+  { id: "aiact", icon: Bot, title: "AI Act", descKey: "resources.knowledge.aiActDesc", articles: [] as KnowledgeArticle[], color: "text-accent" },
 ];
 
 export const KnowledgePanel = () => {

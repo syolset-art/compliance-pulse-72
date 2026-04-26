@@ -53,7 +53,7 @@ export const FrameworkMaturityGrid = ({ frameworks }: FrameworkMaturityGridProps
           const icon = FRAMEWORK_ICONS[fw.framework_id] || <Shield className="h-4 w-4 text-muted-foreground" />;
 
           const maturityLabel = pct >= 75 ? (isNb ? "HØY" : "HIGH") : pct >= 50 ? (isNb ? "MIDDELS" : "MEDIUM") : (isNb ? "LAV" : "LOW");
-          const maturityColor = pct >= 75 ? "bg-emerald-100 text-emerald-700 border-emerald-200" : pct >= 50 ? "bg-amber-100 text-amber-700 border-amber-200" : "bg-red-100 text-red-700 border-red-200";
+          const maturityColor = pct >= 75 ? "bg-status-closed/10 text-status-closed border-status-closed/20" : pct >= 50 ? "bg-warning/10 text-warning border-warning/20" : "bg-destructive/10 text-destructive border-destructive/20";
           const strokeColor = pct >= 75 ? "stroke-emerald-500" : pct >= 50 ? "stroke-amber-500" : "stroke-destructive";
 
           return (

@@ -51,10 +51,10 @@ export function DeviceTechnicalStatus({ meta }: DeviceTechnicalStatusProps) {
           <Circle className={cn(
             "h-3 w-3 shrink-0",
             allOk
-              ? "fill-green-500 text-green-500"
+              ? "fill-green-500 text-status-closed"
               : hasWarningsOnly
-                ? "fill-amber-500 text-amber-500"
-                : "fill-red-500 text-red-500"
+                ? "fill-amber-500 text-warning"
+                : "fill-red-500 text-destructive"
           )} />
           <Monitor className="h-5 w-5 text-primary" />
           {isNb ? "Teknisk status" : "Technical Status"}

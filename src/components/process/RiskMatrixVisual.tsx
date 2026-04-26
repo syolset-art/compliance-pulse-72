@@ -40,15 +40,15 @@ export const calculateRiskLevel = (likelihood: string, consequence: string): str
 const getCellColor = (riskLevel: string) => {
   switch (riskLevel) {
     case "acceptable":
-      return "bg-green-100 hover:bg-green-200 border-green-300";
+      return "bg-status-closed/10 hover:bg-status-closed/20 border-status-closed/20";
     case "low":
-      return "bg-green-200 hover:bg-green-300 border-green-400";
+      return "bg-status-closed/20 hover:bg-status-closed/20 border-status-closed";
     case "medium":
-      return "bg-yellow-100 hover:bg-yellow-200 border-yellow-300";
+      return "bg-warning/10 hover:bg-warning/20 border-warning/20";
     case "high":
-      return "bg-orange-100 hover:bg-orange-200 border-orange-300";
+      return "bg-warning/10 hover:bg-warning/20 border-warning/20";
     case "critical":
-      return "bg-red-100 hover:bg-red-200 border-red-300";
+      return "bg-destructive/10 hover:bg-destructive/20 border-destructive/20";
     default:
       return "bg-muted hover:bg-muted/80 border-border";
   }
@@ -57,15 +57,15 @@ const getCellColor = (riskLevel: string) => {
 const getSelectedCellColor = (riskLevel: string) => {
   switch (riskLevel) {
     case "acceptable":
-      return "bg-green-500 text-white border-green-600";
+      return "bg-status-closed text-white border-status-closed";
     case "low":
-      return "bg-green-600 text-white border-green-700";
+      return "bg-status-closed text-white border-status-closed";
     case "medium":
-      return "bg-yellow-500 text-white border-yellow-600";
+      return "bg-warning text-white border-warning";
     case "high":
-      return "bg-orange-500 text-white border-orange-600";
+      return "bg-warning text-white border-warning";
     case "critical":
-      return "bg-red-500 text-white border-red-600";
+      return "bg-destructive text-white border-destructive";
     default:
       return "bg-primary text-primary-foreground border-primary";
   }
@@ -155,19 +155,19 @@ export const RiskMatrixVisual = ({
       {/* Legend */}
       <div className="flex flex-wrap gap-2 mt-2 justify-center">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-green-200 border border-green-400" />
+          <div className="w-3 h-3 rounded-sm bg-status-closed/20 border border-status-closed" />
           <span className={cn("text-muted-foreground", labelSize)}>Akseptabel/Lav</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-yellow-200 border border-yellow-400" />
+          <div className="w-3 h-3 rounded-sm bg-warning/20 border border-warning" />
           <span className={cn("text-muted-foreground", labelSize)}>Moderat</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-orange-200 border border-orange-400" />
+          <div className="w-3 h-3 rounded-sm bg-warning/20 border border-warning" />
           <span className={cn("text-muted-foreground", labelSize)}>Høy</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-400" />
+          <div className="w-3 h-3 rounded-sm bg-destructive/20 border border-destructive" />
           <span className={cn("text-muted-foreground", labelSize)}>Kritisk</span>
         </div>
       </div>
@@ -188,11 +188,11 @@ export const getRiskLevelLabel = (level: string) => {
 
 export const getRiskLevelColor = (level: string) => {
   switch (level) {
-    case "critical": return "bg-red-100 text-red-700 border-red-300";
-    case "high": return "bg-orange-100 text-orange-700 border-orange-300";
-    case "medium": return "bg-yellow-100 text-yellow-700 border-yellow-300";
-    case "low": return "bg-green-100 text-green-700 border-green-300";
-    case "acceptable": return "bg-green-50 text-green-600 border-green-200";
+    case "critical": return "bg-destructive/10 text-destructive border-destructive/20";
+    case "high": return "bg-warning/10 text-warning border-warning/20";
+    case "medium": return "bg-warning/10 text-warning border-warning/20";
+    case "low": return "bg-status-closed/10 text-status-closed border-status-closed/20";
+    case "acceptable": return "bg-status-closed/10 text-status-closed border-status-closed/20";
     default: return "bg-muted text-muted-foreground border-border";
   }
 };

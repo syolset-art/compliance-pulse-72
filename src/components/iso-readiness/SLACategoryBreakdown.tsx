@@ -35,11 +35,11 @@ const CATEGORY_ICONS: Record<SLACategory, React.ReactNode> = {
 };
 
 const CATEGORY_COLORS: Record<SLACategory, string> = {
-  governance: "text-blue-600 dark:text-blue-400",
-  operations: "text-emerald-600 dark:text-emerald-400",
-  identity_access: "text-amber-600 dark:text-amber-400",
-  supplier_ecosystem: "text-purple-600 dark:text-purple-400",
-  privacy_data: "text-rose-600 dark:text-rose-400",
+  governance: "text-primary dark:text-primary",
+  operations: "text-status-closed dark:text-status-closed",
+  identity_access: "text-warning dark:text-warning",
+  supplier_ecosystem: "text-accent dark:text-accent",
+  privacy_data: "text-destructive dark:text-destructive",
 };
 
 export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps) {
@@ -81,7 +81,7 @@ export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps
             </div>
             <Progress value={item.percentage} className="h-1.5 mb-3" />
             <div className={`flex items-center gap-1 text-sm ${
-              item.trend > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+              item.trend > 0 ? "text-status-closed dark:text-status-closed" : "text-destructive"
             }`}>
               {item.trend > 0 ? (
                 <TrendingUp className="h-3.5 w-3.5" />

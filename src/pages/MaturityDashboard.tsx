@@ -231,7 +231,7 @@ export default function MaturityDashboard() {
                               </span>
                             )}
                             {req.priority === "high" && (
-                              <span className="ml-1.5 text-orange-500 font-medium">
+                              <span className="ml-1.5 text-warning font-medium">
                                 · {t("Høy", "High")}
                               </span>
                             )}

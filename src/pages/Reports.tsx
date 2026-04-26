@@ -53,13 +53,13 @@ const ReportCard = ({ title, description, icon, status, lastGenerated, nextDue, 
   const getStatusBadge = () => {
     switch (status) {
       case 'ready':
-        return <Badge className="bg-green-500/10 text-green-600 border-green-500/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>;
+        return <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>;
       case 'draft':
-        return <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20"><Clock className="h-3 w-3 mr-1" /> Utkast</Badge>;
+        return <Badge className="bg-warning/10 text-warning border-warning/20"><Clock className="h-3 w-3 mr-1" /> Utkast</Badge>;
       case 'pending':
-        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20"><Clock className="h-3 w-3 mr-1" /> Venter</Badge>;
+        return <Badge className="bg-primary/10 text-primary border-primary/20"><Clock className="h-3 w-3 mr-1" /> Venter</Badge>;
       case 'overdue':
-        return <Badge className="bg-red-500/10 text-red-600 border-red-500/20"><AlertCircle className="h-3 w-3 mr-1" /> Forfalt</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive border-destructive/20"><AlertCircle className="h-3 w-3 mr-1" /> Forfalt</Badge>;
     }
   };
 
@@ -332,10 +332,10 @@ const Reports = () => {
           {/* Compact Summary */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm px-1">
             <span className="text-muted-foreground">Totalt <span className="font-semibold text-foreground">{allReports.length}</span></span>
-            <span className="text-muted-foreground">Klare <span className="font-semibold text-green-600">{readyCount}</span></span>
-            <span className="text-muted-foreground">Utkast <span className="font-semibold text-yellow-600">{draftCount}</span></span>
-            <span className="text-muted-foreground">Venter <span className="font-semibold text-blue-600">{pendingCount}</span></span>
-            <span className="text-muted-foreground">Forfalt <span className="font-semibold text-red-600">{overdueCount}</span></span>
+            <span className="text-muted-foreground">Klare <span className="font-semibold text-status-closed">{readyCount}</span></span>
+            <span className="text-muted-foreground">Utkast <span className="font-semibold text-warning">{draftCount}</span></span>
+            <span className="text-muted-foreground">Venter <span className="font-semibold text-primary">{pendingCount}</span></span>
+            <span className="text-muted-foreground">Forfalt <span className="font-semibold text-destructive">{overdueCount}</span></span>
           </div>
 
           {/* Report Tabs */}
@@ -405,7 +405,7 @@ const Reports = () => {
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge className="bg-green-500/10 text-green-600 border-green-500/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>
+                    <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20"><CheckCircle className="h-3 w-3 mr-1" /> Klar</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="pb-4">
@@ -470,23 +470,23 @@ const Reports = () => {
                       <h4 className="font-medium text-sm">Rapporten inkluderer:</h4>
                       <ul className="space-y-2 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-status-closed" />
                           Oversikt over alle AI-systemer og prosesser
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-status-closed" />
                           Risikoklassifisering iht. AI Act
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-status-closed" />
                           Transparens- og tilsynskrav
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-status-closed" />
                           Berørte persongrupper
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <CheckCircle className="h-4 w-4 text-status-closed" />
                           Compliance-anbefalinger
                         </li>
                       </ul>

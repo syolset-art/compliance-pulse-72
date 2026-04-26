@@ -90,7 +90,7 @@ export function IntegrationAuditLog({ entries, integrationName }: IntegrationAud
                       entry.action === "revoked"
                         ? "bg-destructive/20"
                         : entry.action === "api_key_added" || entry.action === "synced"
-                        ? "bg-green-500/20"
+                        ? "bg-status-closed/20"
                         : "bg-primary/20"
                     )}
                   >
@@ -100,7 +100,7 @@ export function IntegrationAuditLog({ entries, integrationName }: IntegrationAud
                         entry.action === "revoked"
                           ? "text-destructive"
                           : entry.action === "api_key_added" || entry.action === "synced"
-                          ? "text-green-500"
+                          ? "text-status-closed"
                           : "text-primary"
                       )}
                     />

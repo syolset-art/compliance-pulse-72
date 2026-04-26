@@ -193,21 +193,21 @@ function getComplianceImpact(controls: DeviceControl[], isNb: boolean) {
     impacts.push({
       framework: "NIS2",
       status: isNb ? "påvirket" : "affected",
-      color: "border-orange-300 text-orange-700 dark:text-orange-400",
+      color: "border-warning/20 text-warning dark:text-warning",
     });
   }
   if (hasEdrFail || hasEncryptionFail) {
     impacts.push({
       framework: "ISO 27001",
       status: isNb ? "avvik" : "non-compliant",
-      color: "border-green-300 text-green-700 dark:text-green-400",
+      color: "border-status-closed/20 text-status-closed dark:text-status-closed",
     });
   }
   if (hasEncryptionFail || hasBackupFail) {
     impacts.push({
       framework: "GDPR",
       status: isNb ? "risiko ved datatap" : "data loss risk",
-      color: "border-blue-300 text-blue-700 dark:text-blue-400",
+      color: "border-primary/20 text-primary dark:text-primary",
     });
   }
 

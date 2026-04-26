@@ -239,7 +239,7 @@ export const ProcessAITab = ({
                 <div className="flex flex-wrap gap-1.5">
                   {aiDraft.suggestedFeatures.map((feature, idx) => (
                     <Badge key={idx} variant="secondary" className="text-xs">
-                      <CheckCircle2 className="h-3 w-3 mr-1 text-green-600" />
+                      <CheckCircle2 className="h-3 w-3 mr-1 text-status-closed" />
                       {feature}
                     </Badge>
                   ))}
@@ -256,7 +256,7 @@ export const ProcessAITab = ({
                 <div className="space-y-1">
                   {aiDraft.sources.map((source, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="h-3 w-3 text-green-600" />
+                      <CheckCircle2 className="h-3 w-3 text-status-closed" />
                       <span>{source.name}:</span>
                       <span className="text-foreground/80">{source.contribution}</span>
                     </div>
@@ -267,8 +267,8 @@ export const ProcessAITab = ({
 
             {/* KI-forordningen note */}
             {aiDraft.aiActNote && (
-              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                <p className="text-sm text-amber-700 dark:text-amber-300">
+              <div className="p-3 bg-warning/10 dark:bg-warning/20 rounded-lg border border-warning/20 dark:border-warning">
+                <p className="text-sm text-warning dark:text-warning">
                   💡 {aiDraft.aiActNote}
                 </p>
               </div>

@@ -514,7 +514,7 @@ export function AIUsageWizard({
                       <p className="text-xs text-muted-foreground mt-1">Eksempler: {desc.examples}</p>
                     </div>
                     {key === 'unacceptable' && <AlertTriangle className="h-5 w-5 text-destructive" />}
-                    {key === 'high' && <AlertTriangle className="h-5 w-5 text-orange-500" />}
+                    {key === 'high' && <AlertTriangle className="h-5 w-5 text-warning" />}
                   </div>
                 ))}
               </RadioGroup>

@@ -113,14 +113,14 @@ const ISO_CHECKS: CheckItem[] = [
 ];
 
 const statusIcon = (s: "pass" | "fail" | "warn") => {
-  if (s === "pass") return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
-  if (s === "warn") return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+  if (s === "pass") return <CheckCircle2 className="h-5 w-5 text-status-closed" />;
+  if (s === "warn") return <AlertTriangle className="h-5 w-5 text-warning" />;
   return <XCircle className="h-5 w-5 text-destructive" />;
 };
 
 const accessLevelConfig: Record<string, { label: string; color: string; icon: typeof ShieldCheck }> = {
-  managed: { label: "Administrert (DLP)", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300", icon: ShieldCheck },
-  unrestricted: { label: "Ubegrenset", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300", icon: ShieldAlert },
+  managed: { label: "Administrert (DLP)", color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed", icon: ShieldCheck },
+  unrestricted: { label: "Ubegrenset", color: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive", icon: ShieldAlert },
   blocked: { label: "Blokkert", color: "bg-muted text-muted-foreground", icon: Shield },
 };
 
@@ -165,7 +165,7 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
   const score = Math.round((passCount / results.length) * 100);
 
   const scoreColor =
-    score >= 80 ? "text-emerald-600" : score >= 50 ? "text-amber-600" : "text-destructive";
+    score >= 80 ? "text-status-closed" : score >= 50 ? "text-warning" : "text-destructive";
 
   return (
     <div className="space-y-6">
@@ -200,13 +200,13 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <BrainCircuit className="h-5 w-5 text-fuchsia-500" />
+              <BrainCircuit className="h-5 w-5 text-accent" />
               Språkmodeller i bruk
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {dlpActive && (
-              <div className="flex items-start gap-2 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg px-3 py-2">
+              <div className="flex items-start gap-2 text-xs text-status-closed dark:text-status-closed bg-status-closed/10 dark:bg-emerald-950/30 rounded-lg px-3 py-2">
                 <ShieldPlus className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>
                   <strong>Acronis Advanced DLP for AI</strong> er aktivert — all LLM-trafikk overvåkes og sensitiv informasjon blokkeres automatisk.
@@ -242,7 +242,7 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
               );
             })}
             {!dlpActive && llmUsage.some((l) => l.accessLevel === "unrestricted") && (
-              <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+              <div className="flex items-start gap-2 text-xs text-warning dark:text-warning bg-warning/10 dark:bg-amber-950/30 rounded-lg px-3 py-2">
                 <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>
                   Enheten har ubegrenset tilgang til språkmodeller uten DLP-beskyttelse.
@@ -275,7 +275,7 @@ export function DeviceComplianceTab({ metadata, asset }: Props) {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
                 {item.result !== "pass" && (
-                  <div className="flex items-start gap-1.5 mt-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded px-2 py-1">
+                  <div className="flex items-start gap-1.5 mt-1.5 text-xs text-warning dark:text-warning bg-warning/10 dark:bg-amber-950/30 rounded px-2 py-1">
                     <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                     <span>{item.recommendation}</span>
                   </div>

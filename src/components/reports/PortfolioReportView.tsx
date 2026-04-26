@@ -53,9 +53,9 @@ const riskBadge = (level?: string | null) => {
   if (!level) return <Badge variant="outline" className="text-[13px]">–</Badge>;
   const map: Record<string, { label: string; cls: string }> = {
     critical: { label: "Kritisk", cls: "bg-destructive/10 text-destructive border-destructive/20" },
-    high: { label: "Høy", cls: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
-    medium: { label: "Middels", cls: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20" },
-    low: { label: "Lav", cls: "bg-green-500/10 text-green-700 border-green-500/20" },
+    high: { label: "Høy", cls: "bg-warning/10 text-warning border-warning/20" },
+    medium: { label: "Middels", cls: "bg-warning/10 text-warning border-warning/20" },
+    low: { label: "Lav", cls: "bg-status-closed/10 text-status-closed border-status-closed/20" },
   };
   const m = map[level];
   return m ? <Badge className={`text-[13px] ${m.cls}`}>{m.label}</Badge> : <Badge variant="outline" className="text-[13px]">{level}</Badge>;
@@ -63,7 +63,7 @@ const riskBadge = (level?: string | null) => {
 
 function ScoreDisplay({ score }: { score?: number | null }) {
   if (!score || score === 0) return <span className="text-xs text-muted-foreground">Ikke vurdert</span>;
-  const color = score >= 70 ? "text-green-600" : score >= 40 ? "text-yellow-600" : "text-destructive";
+  const color = score >= 70 ? "text-status-closed" : score >= 40 ? "text-warning" : "text-destructive";
   return <span className={`text-xs font-semibold ${color}`}>{score}%</span>;
 }
 
@@ -216,8 +216,8 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
               </span>
               <span className={`text-3xl font-bold ${
                 overallAvg === null ? "text-muted-foreground" :
-                overallAvg >= 70 ? "text-green-600" :
-                overallAvg >= 40 ? "text-yellow-600" : "text-destructive"
+                overallAvg >= 70 ? "text-status-closed" :
+                overallAvg >= 40 ? "text-warning" : "text-destructive"
               }`}>
                 {overallAvg !== null ? `${overallAvg}%` : "–"}
               </span>
@@ -231,8 +231,8 @@ export function PortfolioReportView({ vendors, systems, allAssets }: PortfolioRe
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1"><AlertOctagon className="h-3 w-3 text-destructive" /> {vendorRisk.critical + vendorRisk.high + systemRisk.critical + systemRisk.high} {isNb ? "høy/kritisk" : "high/critical"}</span>
-              <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-yellow-600" /> {vendorRisk.medium + systemRisk.medium} {isNb ? "middels" : "medium"}</span>
-              <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-green-600" /> {vendorRisk.low + systemRisk.low} {isNb ? "lav" : "low"}</span>
+              <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" /> {vendorRisk.medium + systemRisk.medium} {isNb ? "middels" : "medium"}</span>
+              <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-status-closed" /> {vendorRisk.low + systemRisk.low} {isNb ? "lav" : "low"}</span>
               <span className="flex items-center gap-1"><Minus className="h-3 w-3 text-muted-foreground" /> {vendorRisk.unset + systemRisk.unset} {isNb ? "ikke vurdert" : "not assessed"}</span>
             </div>
           </div>
@@ -332,7 +332,7 @@ function SummaryCard({ icon, label, value, avg, risk }: {
       <div className="flex items-baseline gap-2">
         <span className="text-2xl font-bold">{value}</span>
         {avg !== null && (
-          <span className={`text-xs font-medium ${avg >= 70 ? "text-green-600" : avg >= 40 ? "text-yellow-600" : "text-destructive"}`}>
+          <span className={`text-xs font-medium ${avg >= 70 ? "text-status-closed" : avg >= 40 ? "text-warning" : "text-destructive"}`}>
             snitt {avg}%
           </span>
         )}
@@ -342,10 +342,10 @@ function SummaryCard({ icon, label, value, avg, risk }: {
           <span className="text-destructive font-medium">{risk.critical + risk.high} høy</span>
         )}
         {risk.medium > 0 && (
-          <span className="text-yellow-600 font-medium">{risk.medium} middels</span>
+          <span className="text-warning font-medium">{risk.medium} middels</span>
         )}
         {risk.low > 0 && (
-          <span className="text-green-600 font-medium">{risk.low} lav</span>
+          <span className="text-status-closed font-medium">{risk.low} lav</span>
         )}
       </div>
     </div>

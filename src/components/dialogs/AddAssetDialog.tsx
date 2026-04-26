@@ -980,9 +980,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       </div>
 
       {companyProfile && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
-          <p className="text-xs text-blue-300">
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
+          <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-primary">
             AI suggestions are customized for <span className="font-medium">{companyProfile.name}</span> in 
             {" "}the <span className="font-medium">{companyProfile.industry}</span> industry
           </p>
@@ -1065,7 +1065,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                         <span className="text-xs text-muted-foreground">({suggestion.vendor})</span>
                       )}
                       {suggestion.industryRelevant && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-warning/20 text-warning">
                           Industry relevant
                         </span>
                       )}
@@ -1079,9 +1079,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                       </span>
                       <span className={cn(
                         "text-xs px-2 py-0.5 rounded-full",
-                        suggestion.risk_level === "high" ? "bg-red-500/20 text-red-400" :
-                        suggestion.risk_level === "medium" ? "bg-orange-500/20 text-orange-400" :
-                        "bg-green-500/20 text-green-400"
+                        suggestion.risk_level === "high" ? "bg-destructive/20 text-destructive" :
+                        suggestion.risk_level === "medium" ? "bg-warning/20 text-warning" :
+                        "bg-status-closed/20 text-status-closed"
                       )}>
                         {suggestion.risk_level === "high" ? "High risk" : 
                          suggestion.risk_level === "medium" ? "Medium risk" : "Low risk"}
@@ -1558,7 +1558,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   {integration.category}
                 </span>
                 {!integration.available && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-warning/20 text-warning">
                     Coming soon
                   </span>
                 )}
@@ -1715,12 +1715,12 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
           </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 space-y-2">
+        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-2">
           <div className="flex items-start gap-2">
-            <Key className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+            <Key className="h-4 w-4 text-primary mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-blue-300">Where do I find the API key?</p>
-              <ol className="text-xs text-blue-300/80 mt-2 space-y-1 list-decimal list-inside">
+              <p className="text-sm font-medium text-primary">Where do I find the API key?</p>
+              <ol className="text-xs text-primary/80 mt-2 space-y-1 list-decimal list-inside">
                 <li>Log in to {integration?.name} Management Console</li>
                 <li>Go to Settings → API Access</li>
                 <li>Click "Generate new key"</li>
@@ -1768,7 +1768,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
 
         <div className="w-full max-w-xs space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <CheckCircle2 className="h-4 w-4 text-status-closed" />
             <span className="text-muted-foreground">Connection verified</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
@@ -1794,7 +1794,7 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <CheckCircle2 className="h-5 w-5 text-status-closed" />
             <span className="font-medium">{fetchedAssets.length} assets found</span>
           </div>
           <span className="text-sm text-muted-foreground">{integration?.name}</span>
@@ -1877,9 +1877,9 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                   {asset.complianceScore !== undefined && (
                     <div className={cn(
                       "text-xs font-medium px-2 py-0.5 rounded",
-                      asset.complianceScore >= 90 ? "bg-green-500/20 text-green-400" :
-                      asset.complianceScore >= 75 ? "bg-orange-500/20 text-orange-400" : 
-                      "bg-red-500/20 text-red-400"
+                      asset.complianceScore >= 90 ? "bg-status-closed/20 text-status-closed" :
+                      asset.complianceScore >= 75 ? "bg-warning/20 text-warning" : 
+                      "bg-destructive/20 text-destructive"
                     )}>
                       {asset.complianceScore}%
                     </div>
@@ -1888,8 +1888,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
                     <span className="text-xs text-muted-foreground">{asset.lastSeen}</span>
                     <div className={cn(
                       "h-2 w-2 rounded-full",
-                      asset.status === "protected" ? "bg-green-500" :
-                      asset.status === "warning" ? "bg-orange-500" : "bg-red-500"
+                      asset.status === "protected" ? "bg-status-closed" :
+                      asset.status === "warning" ? "bg-warning" : "bg-destructive"
                     )} />
                   </div>
                 </div>
@@ -1959,8 +1959,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
             {aiMessages.map((msg, i) => (
               <p key={i} className={cn(
                 "text-muted-foreground",
-                msg.startsWith("✓") && "text-green-400",
-                msg.startsWith("  →") && "text-blue-400 pl-4"
+                msg.startsWith("✓") && "text-status-closed",
+                msg.startsWith("  →") && "text-primary pl-4"
               )}>
                 {msg}
               </p>
@@ -1980,8 +1980,8 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
   const renderConnectComplete = () => (
     <div className="flex flex-col items-center justify-center py-8 gap-6">
       <div className="relative">
-        <div className="h-20 w-20 rounded-full bg-green-500/20 flex items-center justify-center">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
+        <div className="h-20 w-20 rounded-full bg-status-closed/20 flex items-center justify-center">
+          <CheckCircle2 className="h-10 w-10 text-status-closed" />
         </div>
       </div>
 

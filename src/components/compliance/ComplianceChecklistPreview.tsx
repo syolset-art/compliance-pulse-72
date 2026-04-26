@@ -169,7 +169,7 @@ export function ComplianceChecklistPreview({
           {incompleteManual.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 <h4 className="text-sm font-medium">
                   Requires Your Attention ({incompleteManual.length})
                 </h4>
@@ -202,7 +202,7 @@ export function ComplianceChecklistPreview({
           {aiWorkingOn.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-emerald-500" />
+                <Bot className="h-4 w-4 text-status-closed" />
                 <h4 className="text-sm font-medium">
                   AI Working On ({aiWorkingOn.length})
                 </h4>
@@ -229,7 +229,7 @@ export function ComplianceChecklistPreview({
           {completed.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <CheckCircle2 className="h-4 w-4 text-status-closed" />
                 <h4 className="text-sm font-medium">
                   Completed ({completed.length})
                 </h4>

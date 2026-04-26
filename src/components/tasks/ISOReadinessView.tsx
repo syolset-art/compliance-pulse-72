@@ -30,28 +30,28 @@ const domainConfigs: DomainConfig[] = [
     id: "privacy",
     icon: <Shield className="w-5 h-5" />,
     iconComponent: Shield,
-    colorClass: "text-blue-600 dark:text-blue-400",
-    bgClass: "bg-blue-50 dark:bg-blue-950/30",
-    borderClass: "border-blue-200 dark:border-blue-800",
-    selectedBorderClass: "border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20"
+    colorClass: "text-primary dark:text-primary",
+    bgClass: "bg-primary/10 dark:bg-blue-950/30",
+    borderClass: "border-primary/20 dark:border-primary",
+    selectedBorderClass: "border-primary dark:border-primary ring-2 ring-primary/20"
   },
   {
     id: "security",
     icon: <Lock className="w-5 h-5" />,
     iconComponent: Lock,
-    colorClass: "text-emerald-600 dark:text-emerald-400",
-    bgClass: "bg-emerald-50 dark:bg-emerald-950/30",
-    borderClass: "border-emerald-200 dark:border-emerald-800",
-    selectedBorderClass: "border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-500/20"
+    colorClass: "text-status-closed dark:text-status-closed",
+    bgClass: "bg-status-closed/10 dark:bg-emerald-950/30",
+    borderClass: "border-status-closed/20 dark:border-status-closed",
+    selectedBorderClass: "border-status-closed dark:border-status-closed ring-2 ring-status-closed/20"
   },
   {
     id: "ai",
     icon: <Brain className="w-5 h-5" />,
     iconComponent: Brain,
-    colorClass: "text-purple-600 dark:text-purple-400",
-    bgClass: "bg-purple-50 dark:bg-purple-950/30",
-    borderClass: "border-purple-200 dark:border-purple-800",
-    selectedBorderClass: "border-purple-500 dark:border-purple-400 ring-2 ring-purple-500/20"
+    colorClass: "text-accent dark:text-accent",
+    bgClass: "bg-accent/10 dark:bg-purple-950/30",
+    borderClass: "border-accent/20 dark:border-accent",
+    selectedBorderClass: "border-accent dark:border-accent ring-2 ring-accent/20"
   }
 ];
 

@@ -114,9 +114,9 @@ export function VendorActionCards({
         label: "Forfalt gjennomgang",
         description: "Gjennomgangsdatoen for disse leverandørene har passert.",
         icon: Clock,
-        iconColor: "text-orange-500",
-        borderColor: "border-orange-500/30",
-        bgColor: "bg-orange-500/5",
+        iconColor: "text-warning",
+        borderColor: "border-warning/30",
+        bgColor: "bg-warning/5",
         vendors: overdueReview,
         requestType: "vendor_assessment",
       },
@@ -206,10 +206,10 @@ export function VendorActionCards({
 
               <div className="flex gap-2">
                 {sentCategories.includes(cat.key) ? (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-xs font-medium text-emerald-700">Forespørsel sendt</span>
-                    <Badge variant="outline" className="text-[13px] border-emerald-500/30 text-emerald-600 gap-1">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-status-closed/10 border border-status-closed/20">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-status-closed" />
+                    <span className="text-xs font-medium text-status-closed">Forespørsel sendt</span>
+                    <Badge variant="outline" className="text-[13px] border-status-closed/30 text-status-closed gap-1">
                       <Bell className="h-2.5 w-2.5" />
                       Lara purrer automatisk
                     </Badge>

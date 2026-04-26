@@ -85,9 +85,9 @@ export function FrameworkPurchaseDialog({
 
           {/* Pricing */}
           {isFree ? (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-              <Shield className="h-5 w-5 text-green-500 flex-shrink-0" />
-              <p className="text-sm font-medium text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/20">
+              <Shield className="h-5 w-5 text-status-closed flex-shrink-0" />
+              <p className="text-sm font-medium text-status-closed dark:text-status-closed">
                 Inkludert i ditt abonnement — ingen ekstra kostnad
               </p>
             </div>
@@ -106,11 +106,11 @@ export function FrameworkPurchaseDialog({
           )}
 
           {/* Score impact warning */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-            <TrendingDown className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-orange-700 dark:text-orange-400">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
+            <TrendingDown className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-warning dark:text-warning">
               <p className="font-medium mb-0.5">Compliance-skåren beregnes på nytt</p>
-              <p className="text-xs text-orange-600 dark:text-orange-400/80">
+              <p className="text-xs text-warning dark:text-warning/80">
                 Nye krav legges til i beregningen. Skåren stiger etter hvert som du dokumenterer status.
               </p>
             </div>

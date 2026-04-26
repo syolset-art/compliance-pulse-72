@@ -185,7 +185,7 @@ export const ProcessSuggestionsDialog = ({
             <span className="font-medium">{editableSuggestions.length}</span> forslag
           </div>
           {aiProcessCount > 0 && (
-            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-amber-600 dark:text-amber-500">
+            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-warning dark:text-warning">
               <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="font-medium">{aiProcessCount}</span> AI
             </div>
@@ -208,7 +208,7 @@ export const ProcessSuggestionsDialog = ({
                 className={cn(
                   "border rounded-lg p-3 sm:p-4 transition-colors",
                   selectedIndices.has(index) ? "border-primary bg-primary/5" : "border-border",
-                  suggestion.likely_has_ai && "ring-1 ring-amber-200 dark:ring-amber-800"
+                  suggestion.likely_has_ai && "ring-1 ring-warning dark:ring-warning"
                 )}
               >
                 {suggestion.isEditing ? (
@@ -251,7 +251,7 @@ export const ProcessSuggestionsDialog = ({
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                             <h4 className="font-medium text-xs sm:text-sm break-words">{suggestion.name}</h4>
                             {suggestion.likely_has_ai && (
-                              <Badge variant="outline" className="text-[13px] sm:text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800 shrink-0">
+                              <Badge variant="outline" className="text-[13px] sm:text-xs bg-warning/10 text-warning border-warning/20 dark:bg-amber-950 dark:text-warning dark:border-warning shrink-0">
                                 <Bot className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                                 AI
                               </Badge>
@@ -290,15 +290,15 @@ export const ProcessSuggestionsDialog = ({
                         {suggestion.isExpanded && (
                           <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t space-y-2 sm:space-y-3">
                             {suggestion.likely_has_ai && suggestion.ai_use_description && (
-                              <div className="bg-amber-50 dark:bg-amber-950/50 rounded-md p-2 sm:p-3 space-y-1">
-                                <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-300">
+                              <div className="bg-warning/10 dark:bg-amber-950/50 rounded-md p-2 sm:p-3 space-y-1">
+                                <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium text-warning dark:text-warning">
                                   <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                   AI-bruk identifisert
                                 </div>
-                                <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400">
+                                <p className="text-xs sm:text-sm text-warning dark:text-warning">
                                   {suggestion.ai_use_description}
                                 </p>
-                                <div className="flex items-start gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 text-[13px] sm:text-xs text-amber-600 dark:text-amber-500">
+                                <div className="flex items-start gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 text-[13px] sm:text-xs text-warning dark:text-warning">
                                   <AlertTriangle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mt-0.5 shrink-0" />
                                   <span>
                                     AI-bruk registreres automatisk og krever risikovurdering.
@@ -358,7 +358,7 @@ export const ProcessSuggestionsDialog = ({
           <div className="text-xs sm:text-sm text-muted-foreground w-full space-y-0.5 sm:space-y-1">
             <div>{selectedCount} av {editableSuggestions.length} prosesser valgt</div>
             {selectedAICount > 0 && (
-              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-500">
+              <div className="flex items-center gap-1 text-warning dark:text-warning">
                 <Bot className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {selectedAICount} med AI-bruk vil bli registrert
               </div>

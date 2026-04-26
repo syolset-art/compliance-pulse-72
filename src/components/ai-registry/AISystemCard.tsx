@@ -11,9 +11,9 @@ interface AISystemCardProps {
 
 const RISK_COLORS: Record<string, string> = {
   unacceptable: "bg-destructive text-destructive-foreground",
-  high: "bg-orange-500 text-white",
-  limited: "bg-yellow-500 text-black",
-  minimal: "bg-green-500 text-white",
+  high: "bg-warning text-white",
+  limited: "bg-warning text-black",
+  minimal: "bg-status-closed text-white",
   not_assessed: "bg-muted text-muted-foreground",
 };
 
@@ -46,7 +46,7 @@ export function AISystemCard({ system, onClick }: AISystemCardProps) {
   return (
     <Card 
       className={`cursor-pointer transition-all hover:shadow-md ${
-        isHighRisk ? "border-orange-200 dark:border-orange-900/50" : ""
+        isHighRisk ? "border-warning/20 dark:border-warning/50" : ""
       }`}
       onClick={onClick}
     >
@@ -107,7 +107,7 @@ export function AISystemCard({ system, onClick }: AISystemCardProps) {
           <div className="flex items-center gap-2">
             <Badge variant={complianceConfig.variant}>{complianceConfig.label}</Badge>
             {hasMissingInfo && (
-              <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+              <div className="flex items-center gap-1 text-xs text-warning dark:text-warning">
                 <AlertTriangle className="h-3 w-3" />
                 <span>Mangler info</span>
               </div>

@@ -19,10 +19,10 @@ const RISK_LABELS: Record<string, string> = {
 };
 
 const RISK_COLORS: Record<string, string> = {
-  unacceptable: 'bg-red-500',
-  high: 'bg-orange-500',
-  limited: 'bg-yellow-500',
-  minimal: 'bg-green-500',
+  unacceptable: 'bg-destructive',
+  high: 'bg-warning',
+  limited: 'bg-warning',
+  minimal: 'bg-status-closed',
   unknown: 'bg-gray-400',
 };
 

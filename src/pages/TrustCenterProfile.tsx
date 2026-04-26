@@ -243,14 +243,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
   const frameworkBadgeClass = (name: string) => {
     const n = name.toLowerCase();
-    if (n.includes("gdpr")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
-    if (n.includes("nis2")) return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300";
-    if (n.includes("iso")) return "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300";
-    if (n.includes("soc")) return "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300";
-    if (n.includes("personopp")) return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300";
-    if (n.includes("dora")) return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300";
-    if (n.includes("ai") || n.includes("ki-forordning")) return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
-    if (n.includes("cra")) return "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300";
+    if (n.includes("gdpr")) return "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary";
+    if (n.includes("nis2")) return "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning";
+    if (n.includes("iso")) return "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed";
+    if (n.includes("soc")) return "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary";
+    if (n.includes("personopp")) return "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary";
+    if (n.includes("dora")) return "bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/30 dark:text-destructive";
+    if (n.includes("ai") || n.includes("ki-forordning")) return "bg-accent/10 text-foreground border-accent/20 dark:bg-foreground/30 dark:text-accent";
+    if (n.includes("cra")) return "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed";
     return null; // unrecognized — will be filtered out
   };
 
@@ -285,7 +285,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Powered by Mynder Trust Center</span>
             </div>
-            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-1">
+            <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-1">
               <CheckCircle2 className="h-3 w-3" />
               Verified
             </Badge>
@@ -483,7 +483,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="space-y-2.5">
                 {[
                   { key: "policies", icon: FileText, label: "Policies", count: docsCount, color: "text-primary", items: policies },
-                  { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500", items: certs },
+                  { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
                   { key: "datahandling", icon: Eye, label: isNb ? "Datahåndtering" : "Data handling", count: 0, color: "text-primary", items: [] as any[] },
                   { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: 0, color: "text-primary", items: [] as any[] },
                 ].map(item => (
@@ -903,7 +903,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <Shield className="h-3.5 w-3.5 text-primary" />
                     <span className="font-medium">Powered by Mynder Trust Center</span>
                   </div>
-                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-1">
+                  <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     Verified
                   </Badge>
@@ -1174,7 +1174,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="space-y-2.5">
                       {[
                         { key: "policies", icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount, color: "text-primary", items: policies },
-                        { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-purple-500", items: certs },
+                        { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
                         { key: "datahandling", icon: Eye, label: isNb ? "Datahåndtering" : "Data handling", count: 0, color: "text-primary", items: [] as any[] },
                         { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: 0, color: "text-primary", items: [] as any[] },
                       ].map(item => (

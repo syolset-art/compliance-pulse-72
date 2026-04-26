@@ -38,10 +38,10 @@ function RequirementRow({
   const hasDbId = !!requirement.db_id;
 
   const priorityColors: Record<string, string> = {
-    critical: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-    high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    critical: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive",
+    high: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+    medium: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+    low: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
   };
 
   return (
@@ -183,9 +183,9 @@ export function PhaseChecklist({ requirements, updateStatus, isUpdating }: Phase
               <Button variant="ghost" className="w-full justify-between p-3 h-auto border border-border rounded-lg hover:bg-muted/50">
                 <div className="flex items-center gap-2">
                   {allDone ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <CheckCircle2 className="w-4 h-4 text-status-closed" />
                   ) : hasProgress ? (
-                    <Clock className="w-4 h-4 text-amber-500" />
+                    <Clock className="w-4 h-4 text-warning" />
                   ) : (
                     <Circle className="w-4 h-4 text-muted-foreground" />
                   )}
@@ -196,7 +196,7 @@ export function PhaseChecklist({ requirements, updateStatus, isUpdating }: Phase
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     "text-xs font-medium",
-                    allDone ? "text-emerald-600 dark:text-emerald-400" : hasProgress ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    allDone ? "text-status-closed dark:text-status-closed" : hasProgress ? "text-warning dark:text-warning" : "text-muted-foreground"
                   )}>
                     {allDone ? `✓ ${t("isoReadiness.phaseComplete")}` : `${completed}/${total}`}
                   </span>

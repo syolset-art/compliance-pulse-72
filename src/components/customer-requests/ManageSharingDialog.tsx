@@ -207,9 +207,9 @@ export function ManageSharingDialog({
         {/* Step 1 */}
         {step === 1 && (
           <div className="space-y-4 flex-1 overflow-auto">
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-              <Info className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[13px] text-blue-700 dark:text-blue-300">
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-primary/10 dark:bg-blue-950/30 border border-primary/20 dark:border-primary">
+              <Info className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <p className="text-[13px] text-primary dark:text-primary">
                 {isNb
                   ? "Steg 1 av 2: Velg hvem som skal få tilgang. Ingenting sendes ennå."
                   : "Step 1 of 2: Choose who should have access. Nothing is sent yet."}
@@ -283,9 +283,9 @@ export function ManageSharingDialog({
         {/* Step 2 */}
         {step === 2 && (
           <div className="space-y-3 flex-1 overflow-auto">
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-              <Info className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[13px] text-blue-700 dark:text-blue-300">
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-primary/10 dark:bg-blue-950/30 border border-primary/20 dark:border-primary">
+              <Info className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <p className="text-[13px] text-primary dark:text-primary">
                 {isNb
                   ? "Steg 2 av 2: Velg kunder og legg til kontaktperson med e-post."
                   : "Step 2 of 2: Select customers and add contact person with email."}
@@ -383,18 +383,18 @@ export function ManageSharingDialog({
                             </span>
                           )}
                           {isPending && (
-                            <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px] px-1.5 py-0 gap-0.5">
+                            <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px] px-1.5 py-0 gap-0.5">
                               <Clock className="h-2.5 w-2.5" />
                               {isNb ? "Avventer godkjenning" : "Awaiting approval"}
                             </Badge>
                           )}
                           {isDeclined && (
-                            <Badge className="bg-red-500/15 text-red-700 border-red-500/30 text-[13px] px-1.5 py-0">
+                            <Badge className="bg-destructive/15 text-destructive border-destructive/30 text-[13px] px-1.5 py-0">
                               {isNb ? "Avslått" : "Declined"}
                             </Badge>
                           )}
                           {customer.status === "accepted" && customer.isShared && (
-                            <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] px-1.5 py-0">
+                            <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] px-1.5 py-0">
                               {isNb ? "Delt" : "Shared"}
                             </Badge>
                           )}

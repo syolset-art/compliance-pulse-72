@@ -311,8 +311,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "text-green-600";
-      case "in_progress": return "text-yellow-600";
+      case "completed": return "text-status-closed";
+      case "in_progress": return "text-warning";
       default: return "text-muted-foreground";
     }
   };
@@ -413,52 +413,52 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Kritisk</span>
-              <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
+              <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10">
                 {riskSummary.critical}
               </Badge>
             </div>
-            <div className="mt-1 h-1 bg-red-200 rounded" />
+            <div className="mt-1 h-1 bg-destructive/20 rounded" />
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-orange-500">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Høy</span>
-              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">
+              <Badge className="bg-warning/10 text-warning hover:bg-warning/10">
                 {riskSummary.high}
               </Badge>
             </div>
-            <div className="mt-1 h-1 bg-orange-200 rounded" />
+            <div className="mt-1 h-1 bg-warning/20 rounded" />
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-yellow-500">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Moderat</span>
-              <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
+              <Badge className="bg-warning/10 text-warning hover:bg-warning/10">
                 {riskSummary.medium}
               </Badge>
             </div>
-            <div className="mt-1 h-1 bg-yellow-200 rounded" />
+            <div className="mt-1 h-1 bg-warning/20 rounded" />
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Akseptabel</span>
-              <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+              <Badge className="bg-status-closed/10 text-status-closed hover:bg-status-closed/10">
                 {(riskSummary.acceptable || 0) + (riskSummary.low || 0)}
               </Badge>
             </div>
-            <div className="mt-1 h-1 bg-green-200 rounded" />
+            <div className="mt-1 h-1 bg-status-closed/20 rounded" />
           </CardContent>
         </Card>
       </div>
 
       {/* Warning Alert */}
-      <Alert className="bg-yellow-50 border-yellow-200">
-        <Info className="h-4 w-4 text-yellow-600" />
-        <AlertDescription className="text-yellow-800">
+      <Alert className="bg-warning/10 border-warning/20">
+        <Info className="h-4 w-4 text-warning" />
+        <AlertDescription className="text-warning">
           <strong>Loggfør tiltak og ansvar.</strong> Krav fra ISO 27001 og NIS2 innebærer dokumentasjon på ansvar og implementeringstidspunkt for sikkerhetstiltak.
         </AlertDescription>
       </Alert>
@@ -490,10 +490,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
                 <div className="flex items-start gap-3">
                   <div className="mt-1">
                     <Shield className={`h-5 w-5 ${
-                      scenario.risk_level === "critical" ? "text-red-500" :
-                      scenario.risk_level === "high" ? "text-orange-500" :
-                      scenario.risk_level === "medium" ? "text-yellow-500" :
-                      "text-green-500"
+                      scenario.risk_level === "critical" ? "text-destructive" :
+                      scenario.risk_level === "high" ? "text-warning" :
+                      scenario.risk_level === "medium" ? "text-warning" :
+                      "text-status-closed"
                     }`} />
                   </div>
                   <div className="flex-1">

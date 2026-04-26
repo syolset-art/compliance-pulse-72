@@ -115,13 +115,13 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
 // ── Framework badge colours ──────────────────────────────────────────
 
 const FRAMEWORK_COLORS: Record<string, string> = {
-  gdpr: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
-  personopplysningsloven: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
-  nis2: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700",
-  iso27001: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
-  iso27701: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
-  "ai-act": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700",
-  nsmicf: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700",
+  gdpr: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary",
+  personopplysningsloven: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary",
+  nis2: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning dark:border-warning",
+  iso27001: "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed",
+  iso27701: "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed",
+  "ai-act": "bg-accent/10 text-foreground border-accent/20 dark:bg-foreground/30 dark:text-accent dark:border-accent",
+  nsmicf: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning dark:border-warning",
 };
 
 function frameworkBadgeClass(id: string): string {
@@ -223,8 +223,8 @@ export function TrustControlsPanel({
   ];
 
   const getScoreColor = (score: number) => {
-    if (score >= 75) return "text-green-600 dark:text-green-400";
-    if (score >= 50) return "text-orange-500 dark:text-orange-400";
+    if (score >= 75) return "text-status-closed dark:text-status-closed";
+    if (score >= 50) return "text-warning dark:text-warning";
     return "text-destructive";
   };
 
@@ -235,8 +235,8 @@ export function TrustControlsPanel({
   };
 
   const getStatusIcon = (status: TrustControlStatus) => {
-    if (status === "implemented") return <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />;
-    if (status === "partial") return <MinusCircle className="h-3.5 w-3.5 text-orange-500 dark:text-orange-400" />;
+    if (status === "implemented") return <CheckCircle2 className="h-3.5 w-3.5 text-status-closed dark:text-status-closed" />;
+    if (status === "partial") return <MinusCircle className="h-3.5 w-3.5 text-warning dark:text-warning" />;
     return <AlertCircle className="h-3.5 w-3.5 text-destructive" />;
   };
 
@@ -301,10 +301,10 @@ export function TrustControlsPanel({
   const remaining = totalPartial + totalMissing;
 
   const coverageLabel = trustScore >= 75
-    ? { en: "GOOD COVERAGE", nb: "GOD DEKNING", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" }
+    ? { en: "GOOD COVERAGE", nb: "GOD DEKNING", color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed" }
     : trustScore >= 50
-    ? { en: "PARTIAL COVERAGE", nb: "DELVIS DEKNING", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" }
-    : { en: "LOW COVERAGE", nb: "LAV DEKNING", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" };
+    ? { en: "PARTIAL COVERAGE", nb: "DELVIS DEKNING", color: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" }
+    : { en: "LOW COVERAGE", nb: "LAV DEKNING", color: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive" };
 
   const assetName = (asset as any).name || (asset as any).vendor || "";
 
@@ -400,9 +400,9 @@ export function TrustControlsPanel({
             const implemented = controls.filter(c => c.status === "implemented").length;
             const remaining = controls.length - implemented;
             const areaCoverage = score >= 75
-              ? { nb: "GOD DEKNING", en: "GOOD COVERAGE", color: "text-green-600 dark:text-green-400" }
+              ? { nb: "GOD DEKNING", en: "GOOD COVERAGE", color: "text-status-closed dark:text-status-closed" }
               : score >= 50
-              ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-orange-500 dark:text-orange-400" }
+              ? { nb: "DELVIS DEKNING", en: "PARTIAL COVERAGE", color: "text-warning dark:text-warning" }
               : { nb: "LAV DEKNING", en: "LOW COVERAGE", color: "text-destructive" };
 
             const isLastOdd = index === securityAreas.length - 1 && securityAreas.length % 2 === 1;
@@ -476,8 +476,8 @@ export function TrustControlsPanel({
                             </button>
                           ) : (
                             <span className={`text-[13px] font-medium ${
-                              control.status === "implemented" ? "text-green-600 dark:text-green-400" :
-                              control.status === "partial" ? "text-orange-500 dark:text-orange-400" :
+                              control.status === "implemented" ? "text-status-closed dark:text-status-closed" :
+                              control.status === "partial" ? "text-warning dark:text-warning" :
                               "text-destructive"
                             }`}>
                               {control.status === "implemented" ? "OK" :

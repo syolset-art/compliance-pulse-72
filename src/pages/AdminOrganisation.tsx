@@ -45,7 +45,7 @@ function MetricCard({ icon, label, value, subtitle, detail, warning, accentColor
           <span className="text-sm text-muted-foreground">{subtitle}</span>
         </div>
         {detail && <p className="text-xs text-muted-foreground mt-1.5">{detail}</p>}
-        {warning && <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">• {warning}</p>}
+        {warning && <p className="text-xs text-warning dark:text-warning mt-1">• {warning}</p>}
       </CardContent>
     </Card>
   );
@@ -191,7 +191,7 @@ export default function AdminOrganisation() {
             <Shield className="h-3.5 w-3.5 text-primary" />
             <span className="font-medium">Powered by Mynder Trust Center</span>
           </div>
-          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-1">
+          <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-1">
             <CheckCircle2 className="h-3 w-3" />
             Verified
           </Badge>
@@ -254,7 +254,7 @@ export default function AdminOrganisation() {
                                 </p>
                                 <div className="flex flex-wrap gap-1.5">
                                   {regulations.map(fw => (
-                                    <Badge key={fw} variant="outline" className="text-[13px] font-medium border-orange-300 text-orange-700 dark:text-orange-400">{fw}</Badge>
+                                    <Badge key={fw} variant="outline" className="text-[13px] font-medium border-warning/20 text-warning dark:text-warning">{fw}</Badge>
                                   ))}
                                 </div>
                               </div>
@@ -337,7 +337,7 @@ export default function AdminOrganisation() {
           value={stats.activeWorkAreas}
           subtitle={isNb ? "aktive" : "active"}
           detail={stats.inactiveWorkAreas > 0 ? `${stats.inactiveWorkAreas} ${isNb ? "inaktive arbeidsområder" : "inactive work areas"}` : undefined}
-          accentColor="bg-emerald-500"
+          accentColor="bg-status-closed"
         />
         <MetricCard
           icon={<Monitor className="h-4 w-4" />}
@@ -346,7 +346,7 @@ export default function AdminOrganisation() {
           subtitle={isNb ? "ansvarlige" : "owners"}
           detail={`${stats.systemsWithOwner} ${isNb ? "av" : "of"} ${stats.systems} ${isNb ? "systemer har ansvarlig" : "systems have owner"}`}
           warning={stats.systemsWithoutOwner > 0 ? `${stats.systemsWithoutOwner} ${isNb ? "mangler" : "missing"}` : undefined}
-          accentColor="bg-violet-500"
+          accentColor="bg-accent"
         />
         <MetricCard
           icon={<UserCheck className="h-4 w-4" />}
@@ -355,7 +355,7 @@ export default function AdminOrganisation() {
           subtitle={isNb ? "ansvarlige" : "managers"}
           detail={`${stats.workAreasWithManager} ${isNb ? "av" : "of"} ${stats.totalWorkAreaSlots} ${isNb ? "områder har ansvarlig" : "areas have manager"}`}
           warning={stats.workAreasWithoutManager > 0 ? `${stats.workAreasWithoutManager} ${isNb ? "mangler" : "missing"}` : undefined}
-          accentColor="bg-amber-500"
+          accentColor="bg-warning"
         />
       </div>
 

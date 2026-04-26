@@ -52,10 +52,10 @@ export function VendorPrivacyAssessment({
     : (isNb ? "Trenger tiltak" : "Needs action");
 
   const statusColor = complianceScore >= 80
-    ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+    ? "bg-status-closed/10 text-status-closed border-status-closed/20"
     : complianceScore >= 40
-    ? "bg-amber-100 text-amber-700 border-amber-200"
-    : "bg-red-100 text-red-700 border-red-200";
+    ? "bg-warning/10 text-warning border-warning/20"
+    : "bg-destructive/10 text-destructive border-destructive/20";
 
   // Generate radar data (placeholder scores for now)
   const radarData = PRIVACY_DIMENSIONS.map((dim) => ({
@@ -71,7 +71,7 @@ export function VendorPrivacyAssessment({
     : "No documentation available to assess privacy and data security.";
 
   return (
-    <Card className="border-red-200/50 bg-red-50/30">
+    <Card className="border-destructive/20/50 bg-destructive/10/30">
       <CardContent className="p-5 space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -174,7 +174,7 @@ export function VendorPrivacyAssessment({
             {/* Styrker */}
             <div className="border rounded-lg p-3 bg-card">
               <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-status-closed" />
                 <span className="text-xs font-semibold text-foreground">
                   {isNb ? "Styrker" : "Strengths"}
                 </span>
@@ -187,7 +187,7 @@ export function VendorPrivacyAssessment({
             {/* Hovedbekymring */}
             <div className="border rounded-lg p-3 bg-card">
               <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-destructive" />
                 <span className="text-xs font-semibold text-foreground">
                   {isNb ? "Hovedbekymring" : "Main concern"}
                 </span>

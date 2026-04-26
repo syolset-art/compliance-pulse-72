@@ -20,10 +20,10 @@ interface VendorMapViewProps {
 }
 
 const regionConfig = {
-  norway: { labelKey: "vendorDashboard.regions.norway", color: "border-l-blue-500", bgColor: "bg-blue-500/5", icon: "🇳🇴", gdprSafe: true },
-  eu_eea: { labelKey: "vendorDashboard.regions.euEea", color: "border-l-green-500", bgColor: "bg-green-500/5", icon: "🇪🇺", gdprSafe: true },
-  usa: { labelKey: "vendorDashboard.regions.usa", color: "border-l-orange-500", bgColor: "bg-orange-500/5", icon: "🇺🇸", gdprSafe: false },
-  other: { labelKey: "vendorDashboard.regions.other", color: "border-l-red-500", bgColor: "bg-red-500/5", icon: "🌍", gdprSafe: false },
+  norway: { labelKey: "vendorDashboard.regions.norway", color: "border-l-blue-500", bgColor: "bg-primary/5", icon: "🇳🇴", gdprSafe: true },
+  eu_eea: { labelKey: "vendorDashboard.regions.euEea", color: "border-l-green-500", bgColor: "bg-status-closed/5", icon: "🇪🇺", gdprSafe: true },
+  usa: { labelKey: "vendorDashboard.regions.usa", color: "border-l-orange-500", bgColor: "bg-warning/5", icon: "🇺🇸", gdprSafe: false },
+  other: { labelKey: "vendorDashboard.regions.other", color: "border-l-red-500", bgColor: "bg-destructive/5", icon: "🌍", gdprSafe: false },
 };
 
 export function VendorMapView({ vendors }: VendorMapViewProps) {

@@ -44,9 +44,9 @@ interface SecurityServicesSectionProps {
 
 function PartnerBanner({ partner, isOverride, onReset, isNb }: { partner: MSPPartnerInfo; isOverride?: boolean; onReset?: () => void; isNb: boolean }) {
   return (
-    <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
-      <div className="h-9 w-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
-        <Award className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+    <div className="rounded-lg border border-warning/20 dark:border-warning bg-warning/10/50 dark:bg-amber-950/20 p-3 flex items-start gap-3">
+      <div className="h-9 w-9 rounded-full bg-warning/10 dark:bg-warning/50 flex items-center justify-center shrink-0">
+        <Award className="h-5 w-5 text-warning dark:text-warning" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground">{partner.name}</p>
@@ -72,7 +72,7 @@ function PartnerBanner({ partner, isOverride, onReset, isNb }: { partner: MSPPar
           )}
         </div>
       </div>
-      <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] shrink-0">
+      <Badge className="bg-warning/10 dark:bg-warning/50 text-warning dark:text-warning border-warning/20 dark:border-warning text-[13px] shrink-0">
         {isOverride ? (isNb ? "Valgt for tjeneste" : "Selected for service") : (isNb ? "MSP-partner" : "MSP partner")}
       </Badge>
     </div>
@@ -108,26 +108,26 @@ function AcronisModuleCard({
     <div className={cn(
       "rounded-md border px-3 py-2 transition-all",
       active
-        ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
+        ? "border-status-closed/20 dark:border-status-closed bg-status-closed/10/50 dark:bg-green-950/20"
         : isQuoteRequested
-        ? "border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20"
+        ? "border-warning/20 dark:border-warning bg-warning/10/50 dark:bg-amber-950/20"
         : "border-border bg-background/50 hover:border-primary/30"
     )}>
       <div className="flex items-center gap-3">
-        <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : isQuoteRequested ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")} />
+        <CloudCog className={cn("h-4 w-4 shrink-0", active ? "text-status-closed dark:text-status-closed" : isQuoteRequested ? "text-warning dark:text-warning" : "text-muted-foreground")} />
         <div className="flex-1 min-w-0 flex items-center gap-2">
           <p className="text-xs font-medium text-foreground truncate">{module.name}</p>
           <Badge variant="outline" className="text-[13px] px-1.5 py-0 shrink-0">{module.acronisPackage}</Badge>
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
           {active ? (
-            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[13px] gap-1">
+            <Badge className="bg-status-closed/10 dark:bg-status-closed/50 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed text-[13px] gap-1">
               <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
-                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] gap-1">
+                <Badge className="bg-warning/10 dark:bg-warning/50 text-warning dark:text-warning border-warning/20 dark:border-warning text-[13px] gap-1">
                   <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
@@ -171,9 +171,9 @@ function MSPProductCard({
     <div className={cn(
       "rounded-md border px-3 py-2 transition-all",
       isActivated
-        ? "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20"
+        ? "border-status-closed/20 dark:border-status-closed bg-status-closed/10/50 dark:bg-green-950/20"
         : isQuoteRequested
-        ? "border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20"
+        ? "border-warning/20 dark:border-warning bg-warning/10/50 dark:bg-amber-950/20"
         : "border-border/60 bg-background/50 hover:border-primary/30"
     )}>
       <div className="flex items-center gap-3">
@@ -183,13 +183,13 @@ function MSPProductCard({
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
           {isActivated ? (
-            <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 text-[13px] gap-1">
+            <Badge className="bg-status-closed/10 dark:bg-status-closed/50 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed text-[13px] gap-1">
               <CheckCircle className="h-3 w-3" /> {isNb ? "Aktiv" : "Active"}
             </Badge>
           ) : (
             <>
               {isQuoteRequested && (
-                <Badge className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 text-[13px] gap-1">
+                <Badge className="bg-warning/10 dark:bg-warning/50 text-warning dark:text-warning border-warning/20 dark:border-warning text-[13px] gap-1">
                   <Clock className="h-3 w-3" /> {isNb ? "Tilbud forespurt" : "Quote requested"}
                 </Badge>
               )}
@@ -262,8 +262,8 @@ function ServiceDetailCard({
     <div
       className={cn(
         "rounded-lg border transition-all",
-        status === "covered" && "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/30",
-        status === "missing" && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/30",
+        status === "covered" && "border-status-closed/20 dark:border-status-closed bg-status-closed/10 dark:bg-green-950/30",
+        status === "missing" && "border-destructive/20 dark:border-destructive bg-destructive/10 dark:bg-red-950/30",
         status === "unknown" && "border-muted bg-muted/30"
       )}
     >
@@ -280,7 +280,7 @@ function ServiceDetailCard({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {totalActivated > 0 && (
-            <Badge variant="outline" className="text-[13px] gap-1 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+            <Badge variant="outline" className="text-[13px] gap-1 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed">
               <CheckCircle className="h-3 w-3" />
               {totalActivated} {isNb ? "aktive" : "active"}
             </Badge>
@@ -293,8 +293,8 @@ function ServiceDetailCard({
           </Badge>
           <StatusIcon className={cn(
             "h-5 w-5",
-            status === "covered" && "text-green-600 dark:text-green-400",
-            status === "missing" && "text-red-600 dark:text-red-400",
+            status === "covered" && "text-status-closed dark:text-status-closed",
+            status === "missing" && "text-destructive dark:text-destructive",
             status === "unknown" && "text-muted-foreground"
           )} />
           {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -403,7 +403,7 @@ function ServiceDetailCard({
             <CollapsibleContent className="space-y-3 pt-3">
               {/* MSP Recommendation */}
               <div className="flex gap-3">
-                <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <Lightbulb className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-medium text-foreground mb-0.5">{isNb ? "Anbefaling fra MSP" : "MSP recommendation"}</p>
                   <p className="text-xs text-muted-foreground">{isNb ? service.mspRecommendation : service.mspRecommendationEn}</p>
@@ -430,7 +430,7 @@ function ServiceDetailCard({
                       <span className={cn(
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] font-bold",
                         status === "covered"
-                          ? "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
+                          ? "bg-status-closed/10 dark:bg-status-closed/50 text-status-closed dark:text-status-closed"
                           : "bg-muted text-muted-foreground"
                       )}>
                         {status === "covered" ? "✓" : i + 1}
@@ -568,7 +568,7 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
             {isSelfProfile && (
               <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <Award className="h-4 w-4 text-warning dark:text-warning" />
                   <span className="text-sm font-medium text-foreground">{isNb ? "MSP-partner" : "MSP partner"}</span>
                 </div>
                 <Select
@@ -599,11 +599,11 @@ export function SecurityServicesSection({ isSelfProfile, assessmentResponses }: 
             </div>
             <div className="flex gap-4 text-xs flex-wrap">
               <div className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                <CheckCircle className="h-3.5 w-3.5 text-status-closed dark:text-status-closed" />
                 <span className="text-muted-foreground">{covered} {isNb ? "implementert" : "implemented"}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                <XCircle className="h-3.5 w-3.5 text-destructive dark:text-destructive" />
                 <span className="text-muted-foreground">{missing} {isNb ? "mangler" : "missing"}</span>
               </div>
               <div className="flex items-center gap-1.5">

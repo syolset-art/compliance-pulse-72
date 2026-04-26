@@ -38,8 +38,8 @@ interface Notification {
 }
 
 const severityConfig: Record<string, { icon: typeof Info; color: string; label: string }> = {
-  info: { icon: Info, label: "Info", color: "text-blue-500" },
-  warning: { icon: AlertTriangle, label: "Advarsel", color: "text-amber-500" },
+  info: { icon: Info, label: "Info", color: "text-primary" },
+  warning: { icon: AlertTriangle, label: "Advarsel", color: "text-warning" },
   critical: { icon: ShieldAlert, label: "Kritisk", color: "text-destructive" },
 };
 

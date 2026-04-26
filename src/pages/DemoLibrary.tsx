@@ -111,9 +111,9 @@ const DEMO_ITEMS: DemoItem[] = [
 ];
 
 const difficultyColors: Record<string, string> = {
-  enkel: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  middels: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  avansert: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  enkel: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
+  middels: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+  avansert: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive",
 };
 
 export default function DemoLibrary() {

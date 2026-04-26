@@ -152,7 +152,7 @@ const FrameworkDetailPage = () => {
             <h2 className="text-lg font-bold text-foreground">Krav og evaluatorer</h2>
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">{counts.total} krav totalt</span>
-              <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-200 dark:border-emerald-800">
+              <Badge variant="outline" className="gap-1 text-status-closed border-status-closed/20 dark:border-status-closed">
                 <Bot className="h-3 w-3" />
                 {counts.auto} Auto
               </Badge>
@@ -199,9 +199,9 @@ const FrameworkDetailPage = () => {
                     {/* Status icon */}
                     <div className="mt-0.5 shrink-0">
                       {state.status === "met" ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                        <CheckCircle2 className="h-5 w-5 text-status-closed" />
                       ) : state.status === "partial" ? (
-                        <CircleAlert className="h-5 w-5 text-amber-500" />
+                        <CircleAlert className="h-5 w-5 text-warning" />
                       ) : (
                         <Circle className="h-5 w-5 text-destructive/60" />
                       )}
@@ -226,9 +226,9 @@ const FrameworkDetailPage = () => {
                       <span
                         className={`text-sm font-semibold w-10 text-right ${
                           state.progress === 100
-                            ? "text-emerald-600"
+                            ? "text-status-closed"
                             : state.progress > 0
-                            ? "text-amber-600"
+                            ? "text-warning"
                             : "text-muted-foreground"
                         }`}
                       >
@@ -252,9 +252,9 @@ const FrameworkDetailPage = () => {
                           <span
                             className={`text-base font-medium ${
                               state.status === "met"
-                                ? "text-emerald-600"
+                                ? "text-status-closed"
                                 : state.status === "partial"
-                                ? "text-amber-600"
+                                ? "text-warning"
                                 : "text-destructive"
                             }`}
                           >
@@ -299,9 +299,9 @@ const FrameworkDetailPage = () => {
                         )}
 
                         {state.status === "met" && (
-                          <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                            <span className="text-sm text-emerald-700 dark:text-emerald-400">
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed">
+                            <CheckCircle2 className="h-4 w-4 text-status-closed" />
+                            <span className="text-sm text-status-closed dark:text-status-closed">
                               Dette kravet er dokumentert og verifisert.
                             </span>
                           </div>

@@ -57,7 +57,7 @@ export function VendorActivateDialog({ open, onOpenChange, onActivated }: Vendor
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {FREE_INCLUSIONS.map((item) => (
               <div key={item} className="flex items-center gap-1.5 text-xs text-foreground">
-                <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                <CheckCircle2 className="h-3 w-3 text-status-closed shrink-0" />
                 {item}
               </div>
             ))}

@@ -77,7 +77,7 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               <span className="text-sm font-semibold text-foreground">
                 {counts.met} av {counts.total} krav oppfylt
               </span>
-              <span className={`text-sm font-semibold ${pct >= 75 ? "text-emerald-600 dark:text-emerald-400" : pct >= 50 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
+              <span className={`text-sm font-semibold ${pct >= 75 ? "text-status-closed dark:text-status-closed" : pct >= 50 ? "text-warning dark:text-warning" : "text-muted-foreground"}`}>
                 {pct}%
               </span>
             </div>
@@ -92,17 +92,17 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
               <span className="font-semibold text-foreground">{counts.notMet}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs">
-              <CircleAlert className="h-3.5 w-3.5 text-amber-500" />
+              <CircleAlert className="h-3.5 w-3.5 text-warning" />
               <span className="text-muted-foreground">Delvis</span>
               <span className="font-semibold text-foreground">{counts.partial}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-status-closed" />
               <span className="text-muted-foreground">Oppfylt</span>
               <span className="font-semibold text-foreground">{counts.met}</span>
             </div>
             <div className="border-l border-border pl-4 flex items-center gap-1.5 text-xs">
-              <Bot className="h-3.5 w-3.5 text-emerald-500" />
+              <Bot className="h-3.5 w-3.5 text-status-closed" />
               <span className="text-muted-foreground">Automatisk</span>
               <span className="font-semibold text-foreground">{counts.auto}</span>
             </div>

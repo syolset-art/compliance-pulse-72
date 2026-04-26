@@ -381,7 +381,7 @@ export default function TrustCenterRegulations() {
                   <div className="space-y-1">
                     {FREE_INCLUSIONS.map((item) => (
                       <div key={item} className="flex items-center gap-1.5 text-xs text-foreground">
-                        <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                        <CheckCircle2 className="h-3 w-3 text-status-closed shrink-0" />
                         {item}
                       </div>
                     ))}
@@ -497,7 +497,7 @@ export default function TrustCenterRegulations() {
                           }`}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${isActive ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+                            <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${isActive ? "bg-status-closed" : "bg-muted-foreground/30"}`} />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`font-medium text-sm ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
@@ -523,7 +523,7 @@ export default function TrustCenterRegulations() {
                                 )}
                                 {/* Pricing badge */}
                                 {isFrameworkFree(framework.id) ? (
-                                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 border-green-500/30 text-green-600 dark:text-green-400">
+                                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 border-status-closed/30 text-status-closed dark:text-status-closed">
                                     <CheckCircle2 className="h-2.5 w-2.5" />
                                     Gratis
                                   </Badge>

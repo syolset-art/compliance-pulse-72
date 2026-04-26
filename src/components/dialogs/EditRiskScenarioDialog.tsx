@@ -227,7 +227,7 @@ export const EditRiskScenarioDialog = ({
                       <Badge className={getRiskLevelColor(originalRiskLevel)}>
                         {getRiskLevelLabel(originalRiskLevel)}
                       </Badge>
-                      <ArrowRight className="h-4 w-4 text-green-600" />
+                      <ArrowRight className="h-4 w-4 text-status-closed" />
                       <Badge className={getRiskLevelColor(currentRiskLevel)}>
                         {getRiskLevelLabel(currentRiskLevel)}
                       </Badge>

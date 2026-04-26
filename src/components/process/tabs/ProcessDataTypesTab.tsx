@@ -51,11 +51,11 @@ export const ProcessDataTypesTab = ({ processId, systemId }: ProcessDataTypesTab
   const getCategoryColor = (category: string) => {
     switch (category.toUpperCase()) {
       case "SENSITIV":
-        return "bg-red-100 text-red-700 border-red-200";
+        return "bg-destructive/10 text-destructive border-destructive/20";
       case "SÆRLIG":
-        return "bg-orange-100 text-orange-700 border-orange-200";
+        return "bg-warning/10 text-warning border-warning/20";
       default:
-        return "bg-blue-100 text-blue-700 border-blue-200";
+        return "bg-primary/10 text-primary border-primary/20";
     }
   };
 

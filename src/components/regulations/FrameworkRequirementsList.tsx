@@ -144,7 +144,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         <h3 className="text-lg font-bold text-foreground">Krav og evaluatorer</h3>
         <div className="flex items-center gap-3 text-xs">
           <span className="text-muted-foreground">{counts.total} krav totalt</span>
-          <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-200 dark:border-emerald-800">
+          <Badge variant="outline" className="gap-1 text-status-closed border-status-closed/20 dark:border-status-closed">
             <Bot className="h-3 w-3" />
             {counts.auto} AUTOMATISK
           </Badge>
@@ -184,9 +184,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               >
                 <div className="mt-1 shrink-0">
                   {state.status === "met" ? (
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                    <CheckCircle2 className="h-5 w-5 text-status-closed" />
                   ) : state.status === "partial" ? (
-                    <CircleAlert className="h-5 w-5 text-amber-500" />
+                    <CircleAlert className="h-5 w-5 text-warning" />
                   ) : (
                     <Circle className="h-5 w-5 text-destructive/60" />
                   )}
@@ -210,7 +210,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     </TooltipContent>
                   </Tooltip>
                   <span className={`text-sm font-semibold tabular-nums ${
-                    state.progress === 100 ? "text-emerald-600" : state.progress > 0 ? "text-amber-600" : "text-muted-foreground"
+                    state.progress === 100 ? "text-status-closed" : state.progress > 0 ? "text-warning" : "text-muted-foreground"
                   }`}>
                     {state.progress}%
                   </span>
@@ -225,7 +225,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
                     <p className={`text-base font-semibold ${
-                      state.status === "met" ? "text-emerald-600" : state.status === "partial" ? "text-amber-600" : "text-destructive"
+                      state.status === "met" ? "text-status-closed" : state.status === "partial" ? "text-warning" : "text-destructive"
                     }`}>
                       Status: {state.status === "met" ? "Oppfylt" : state.status === "partial" ? "Delvis oppfylt" : "Ikke oppfylt"}
                     </p>
@@ -307,9 +307,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </Button>
                     )}
                     {state.status === "met" && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                        <span className="text-sm text-emerald-700 dark:text-emerald-400">
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed">
+                        <CheckCircle2 className="h-4 w-4 text-status-closed" />
+                        <span className="text-sm text-status-closed dark:text-status-closed">
                           Dette kravet er dokumentert og verifisert.
                         </span>
                       </div>

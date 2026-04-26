@@ -17,10 +17,10 @@ interface IncidentManagementTabProps {
 }
 
 const SEVERITY_CONFIG: Record<string, { labelNb: string; labelEn: string; className: string }> = {
-  critical: { labelNb: "Kritisk", labelEn: "Critical", className: "bg-red-500/15 text-red-700 border-red-500/30" },
-  high: { labelNb: "Høy", labelEn: "High", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
-  medium: { labelNb: "Middels", labelEn: "Medium", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
-  low: { labelNb: "Lav", labelEn: "Low", className: "bg-green-500/15 text-green-700 border-green-500/30" },
+  critical: { labelNb: "Kritisk", labelEn: "Critical", className: "bg-destructive/15 text-destructive border-destructive/30" },
+  high: { labelNb: "Høy", labelEn: "High", className: "bg-warning/15 text-warning border-warning/30" },
+  medium: { labelNb: "Middels", labelEn: "Medium", className: "bg-warning/15 text-warning border-warning/30" },
+  low: { labelNb: "Lav", labelEn: "Low", className: "bg-status-closed/15 text-status-closed border-status-closed/30" },
 };
 
 function getSeverityFromFileName(fileName?: string | null): string | null {
@@ -148,7 +148,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
         return <Badge variant="destructive">{t("trustProfile.riskHigh")}</Badge>;
       case "medium":
       case "middels":
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t("trustProfile.riskMedium")}</Badge>;
+        return <Badge className="bg-warning hover:bg-warning">{t("trustProfile.riskMedium")}</Badge>;
       default:
         return <Badge variant="secondary">{t("trustProfile.riskLow")}</Badge>;
     }
@@ -158,10 +158,10 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
     switch (status?.toLowerCase()) {
       case "resolved":
       case "løst":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-status-closed" />;
       case "in_progress":
       case "pågår":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       default:
         return <AlertCircle className="h-4 w-4 text-destructive" />;
     }
@@ -173,13 +173,13 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
   return (
     <div className="space-y-6">
       {/* Status Banner */}
-      <Card className={openIncidents > 0 ? "border-yellow-500/50 bg-yellow-500/5" : "border-green-500/50 bg-green-500/5"}>
+      <Card className={openIncidents > 0 ? "border-warning/50 bg-warning/5" : "border-status-closed/50 bg-status-closed/5"}>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             {openIncidents > 0 ? (
-              <AlertTriangle className="h-6 w-6 text-yellow-600" />
+              <AlertTriangle className="h-6 w-6 text-warning" />
             ) : (
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-6 w-6 text-status-closed" />
             )}
             <div>
               <p className="font-medium">
@@ -196,13 +196,13 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
       </Card>
 
       {/* Live Feed from 7 Security */}
-      <Card className="border-orange-500/30">
+      <Card className="border-warning/30">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-orange-600" />
+            <ShieldAlert className="h-5 w-5 text-warning" />
             {isNb ? "Live hendelser fra 7 Security" : "Live incidents from 7 Security"}
             {pendingIncidents.length > 0 && (
-              <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-xs">
+              <Badge className="bg-warning/15 text-warning border-warning/30 text-xs">
                 {pendingIncidents.length} {isNb ? "nye" : "new"}
               </Badge>
             )}
@@ -227,7 +227,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
               const severity = getSeverityFromFileName(item.file_name);
               const sevConfig = severity ? SEVERITY_CONFIG[severity] : null;
               return (
-                <div key={item.id} className="p-3 rounded-lg border border-orange-500/20 bg-orange-500/5">
+                <div key={item.id} className="p-3 rounded-lg border border-warning/20 bg-warning/5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -246,7 +246,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <Button
                         size="sm"
-                        className="h-7 text-xs bg-orange-600 hover:bg-orange-700"
+                        className="h-7 text-xs bg-warning hover:bg-warning"
                         onClick={() => approveIncidentMutation.mutate(item)}
                       >
                         <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -294,7 +294,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">{t("trustProfile.systemOutageProcedure")}</TableCell>
-                <TableCell><Badge className="bg-yellow-500 hover:bg-yellow-600">{t("trustProfile.riskMedium")}</Badge></TableCell>
+                <TableCell><Badge className="bg-warning hover:bg-warning">{t("trustProfile.riskMedium")}</Badge></TableCell>
                 <TableCell>24</TableCell>
                 <TableCell>IT</TableCell>
                 <TableCell><Badge variant="outline">{t("trustProfile.approved")}</Badge></TableCell>
@@ -346,7 +346,7 @@ export const IncidentManagementTab = ({ assetId }: IncidentManagementTabProps) =
                     </TableCell>
                     <TableCell>
                       {incident.source === "7security" ? (
-                        <Badge className="bg-orange-500/15 text-orange-700 border-orange-500/30 text-[13px]">
+                        <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">
                           7 Security
                         </Badge>
                       ) : (

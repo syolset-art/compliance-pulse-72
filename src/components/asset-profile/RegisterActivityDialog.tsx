@@ -32,8 +32,8 @@ const ACTIVITY_TYPES: { value: ActivityType; nb: string; en: string; icon: typeo
 ];
 
 const LEVELS: { value: ActivityLevel; nb: string; en: string; dot: string }[] = [
-  { value: "operasjonelt", nb: "Operasjonelt", en: "Operational", dot: "bg-emerald-500" },
-  { value: "taktisk", nb: "Taktisk", en: "Tactical", dot: "bg-amber-500" },
+  { value: "operasjonelt", nb: "Operasjonelt", en: "Operational", dot: "bg-status-closed" },
+  { value: "taktisk", nb: "Taktisk", en: "Tactical", dot: "bg-warning" },
   { value: "strategisk", nb: "Strategisk", en: "Strategic", dot: "bg-primary" },
 ];
 
@@ -48,9 +48,9 @@ const THEMES: { value: string; nb: string; en: string }[] = [
 ];
 
 const CRITICALITIES: { value: Criticality; nb: string; en: string; activeClass: string }[] = [
-  { value: "lav", nb: "Lav", en: "Low", activeClass: "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
-  { value: "medium", nb: "Middels", en: "Medium", activeClass: "border-yellow-500 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300" },
-  { value: "hoy", nb: "Høy", en: "High", activeClass: "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300" },
+  { value: "lav", nb: "Lav", en: "Low", activeClass: "border-status-closed bg-status-closed/10 text-status-closed dark:text-status-closed" },
+  { value: "medium", nb: "Middels", en: "Medium", activeClass: "border-warning bg-warning/10 text-warning dark:text-warning" },
+  { value: "hoy", nb: "Høy", en: "High", activeClass: "border-warning bg-warning/10 text-warning dark:text-warning" },
   { value: "kritisk", nb: "Kritisk", en: "Critical", activeClass: "border-destructive bg-destructive/10 text-destructive" },
 ];
 

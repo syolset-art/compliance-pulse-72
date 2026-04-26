@@ -21,11 +21,11 @@ const ACTIVE_FRAMEWORK_IDS = [
 
 // Pillar definitions
 const PILLARS = [
-  { id: 'governance', name: 'Styring', score: 94, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 4 },
-  { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 5 },
-  { id: 'identity_access', name: 'Personvern og datahåndtering', score: 92, color: 'bg-emerald-500', badgeColor: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40', level: 'HØY', measures: 5 },
-  { id: 'privacy_data', name: 'Personvern og datahåndtering', score: 68, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 4 },
-  { id: 'supplier', name: 'Tredjepartstyring og verdikjede', score: 61, color: 'bg-amber-500', badgeColor: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40', level: 'MIDDELS', measures: 3 },
+  { id: 'governance', name: 'Styring', score: 94, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 4 },
+  { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 5 },
+  { id: 'identity_access', name: 'Personvern og datahåndtering', score: 92, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 5 },
+  { id: 'privacy_data', name: 'Personvern og datahåndtering', score: 68, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 4 },
+  { id: 'supplier', name: 'Tredjepartstyring og verdikjede', score: 61, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 3 },
 ];
 
 interface FrameworkScore {
@@ -48,9 +48,9 @@ function getRequirementsCount(frameworkId: string): number {
 }
 
 function getLevelInfo(score: number): { level: string; color: string } {
-  if (score >= 80) return { level: 'HØY', color: 'text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/40' };
-  if (score >= 40) return { level: 'MIDDELS', color: 'text-amber-700 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/40' };
-  return { level: 'LAV', color: 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/40' };
+  if (score >= 80) return { level: 'HØY', color: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40' };
+  if (score >= 40) return { level: 'MIDDELS', color: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40' };
+  return { level: 'LAV', color: 'text-destructive bg-destructive/10 dark:text-destructive dark:bg-destructive/40' };
 }
 
 // Improvement point demo data
@@ -96,10 +96,10 @@ const ComplianceOverview = () => {
       const fulfilled = Math.round((score / 100) * total);
       const { level, color } = getLevelInfo(score);
       const progressColors: Record<string, string> = {
-        privacy: 'bg-blue-500',
-        security: 'bg-blue-500',
-        ai: 'bg-purple-500',
-        other: 'bg-amber-500',
+        privacy: 'bg-primary',
+        security: 'bg-primary',
+        ai: 'bg-accent',
+        other: 'bg-warning',
       };
 
       return {
@@ -201,7 +201,7 @@ const ComplianceOverview = () => {
                 <Card key={i} className="hover:border-primary/30 transition-colors cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-4">
                     <AlertTriangle className={`h-5 w-5 shrink-0 ${
-                      item.severity === 'high' ? 'text-destructive' : item.severity === 'medium' ? 'text-amber-500' : 'text-muted-foreground'
+                      item.severity === 'high' ? 'text-destructive' : item.severity === 'medium' ? 'text-warning' : 'text-muted-foreground'
                     }`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
@@ -222,9 +222,9 @@ const ComplianceOverview = () => {
                 <Card key={i}>
                   <CardContent className="p-4 flex items-center gap-4">
                     {item.status === 'ok' ? (
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 text-status-closed shrink-0" />
                     ) : item.status === 'partial' ? (
-                      <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                      <AlertTriangle className="h-5 w-5 text-warning shrink-0" />
                     ) : (
                       <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
                     )}

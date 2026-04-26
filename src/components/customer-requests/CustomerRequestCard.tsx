@@ -90,8 +90,8 @@ function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) 
     return {
       label: isNb ? `${diffDays} ${diffDays === 1 ? "dag" : "dager"} igjen` : `${diffDays} ${diffDays === 1 ? "day" : "days"} left`,
       icon: Hourglass,
-      className: "text-orange-600 dark:text-orange-400",
-      badgeClass: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+      className: "text-warning dark:text-warning",
+      badgeClass: "bg-warning/10 text-warning dark:text-warning border-warning/20",
     };
   }
 
@@ -99,8 +99,8 @@ function getDeadlineInfo(dueDate: string | null, status: string, isNb: boolean) 
     return {
       label: isNb ? `${diffDays} dager igjen` : `${diffDays} days left`,
       icon: Clock,
-      className: "text-amber-600 dark:text-amber-400",
-      badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      className: "text-warning dark:text-warning",
+      badgeClass: "bg-warning/10 text-warning dark:text-warning border-warning/20",
     };
   }
 
@@ -116,7 +116,7 @@ function getStatusConfig(status: string, isNb: boolean) {
   const configs: Record<string, { label: string; className: string }> = {
     new: {
       label: isNb ? "Ny" : "New",
-      className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+      className: "bg-warning/10 text-warning border-warning/20",
     },
     read: {
       label: isNb ? "Lest" : "Read",
@@ -168,7 +168,7 @@ export function CustomerRequestCard({ request, onDelete, onArchive, onToggleVisi
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-7 w-7 ${isPublic ? "text-emerald-600" : "text-muted-foreground"}`}
+                      className={`h-7 w-7 ${isPublic ? "text-status-closed" : "text-muted-foreground"}`}
                       onClick={() => onToggleVisibility?.(request.id, !isPublic)}
                     >
                       {isPublic ? <Globe className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}

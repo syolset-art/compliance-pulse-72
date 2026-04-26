@@ -175,7 +175,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                           <Badge variant="secondary" className="text-[13px] mx-0.5">{DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}</Badge>
                         </p>
                         {item.confidence_score && (
-                          <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] ml-auto flex-shrink-0">
+                          <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] ml-auto flex-shrink-0">
                             {Math.round(item.confidence_score * 100)}% sikker
                           </Badge>
                         )}

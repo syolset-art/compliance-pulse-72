@@ -102,7 +102,7 @@ export function CertificationGoalBanner({ onActivateDomain }: CertificationGoalB
                   {t(`tasks.readiness.domains.${rec.domain}`)}
                 </span>
                 {rec.included ? (
-                  <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                  <span className="text-xs text-status-closed dark:text-status-closed flex items-center gap-1">
                     <Check className="w-3 h-3" />
                     {t("isoReadiness.recommendation.included")}
                   </span>

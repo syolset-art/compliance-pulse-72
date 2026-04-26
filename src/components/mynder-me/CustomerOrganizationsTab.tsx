@@ -39,8 +39,8 @@ export function CustomerOrganizationsTab() {
         <Card key={org.name}>
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="h-10 w-10 rounded-lg bg-accent/10 dark:bg-foreground/30 flex items-center justify-center shrink-0">
+                <Building2 className="h-5 w-5 text-accent dark:text-accent" />
               </div>
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -59,7 +59,7 @@ export function CustomerOrganizationsTab() {
                 {org.acceptedPolicies.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {org.acceptedPolicies.map((p) => (
-                      <span key={p} className="flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+                      <span key={p} className="flex items-center gap-1 text-xs text-status-closed dark:text-status-closed">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         {p}
                       </span>

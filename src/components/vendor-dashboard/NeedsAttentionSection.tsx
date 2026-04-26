@@ -20,7 +20,7 @@ const iconMap = {
 
 const colorMap = {
   missing_dpa: "text-warning",
-  overdue_review: "text-orange-500",
+  overdue_review: "text-warning",
   high_risk_unaudited: "text-destructive",
 };
 

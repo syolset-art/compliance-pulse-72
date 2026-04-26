@@ -47,19 +47,19 @@ const riskCategoryConfig = {
   },
   high: {
     label: "Høy risiko",
-    color: "bg-orange-500 text-white",
+    color: "bg-warning text-white",
     icon: AlertTriangle,
     description: "Krever full conformity assessment"
   },
   limited: {
     label: "Begrenset risiko",
-    color: "bg-yellow-500 text-white",
+    color: "bg-warning text-white",
     icon: Eye,
     description: "Krever transparenstiltak"
   },
   minimal: {
     label: "Minimal risiko",
-    color: "bg-green-500 text-white",
+    color: "bg-status-closed text-white",
     icon: CheckCircle2,
     description: "Ingen spesifikke krav"
   }
@@ -74,8 +74,8 @@ const humanOversightLabels = {
 
 const complianceStatusConfig = {
   not_assessed: { label: "Ikke vurdert", color: "bg-muted text-muted-foreground" },
-  compliant: { label: "I samsvar", color: "bg-green-500 text-white" },
-  partial: { label: "Delvis i samsvar", color: "bg-yellow-500 text-white" },
+  compliant: { label: "I samsvar", color: "bg-status-closed text-white" },
+  partial: { label: "Delvis i samsvar", color: "bg-warning text-white" },
   non_compliant: { label: "Ikke i samsvar", color: "bg-destructive text-destructive-foreground" }
 };
 
@@ -200,7 +200,7 @@ export function AIUsageTab({ assetId, assetCategory, assetVendor, assetName }: A
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">AI-status</p>
-                <p className="font-semibold text-green-600">Aktiv</p>
+                <p className="font-semibold text-status-closed">Aktiv</p>
               </div>
             </div>
           </CardContent>

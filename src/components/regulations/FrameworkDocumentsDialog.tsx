@@ -357,7 +357,7 @@ export function FrameworkDocumentsDialog({
                 </div>
                 <p className="text-xs text-muted-foreground">{aiSuggestion.documentDescription}</p>
                 <div className="flex items-start gap-1.5 mt-1">
-                  <Lightbulb className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
+                  <Lightbulb className="h-3 w-3 text-warning mt-0.5 shrink-0" />
                   <p className="text-[13px] text-muted-foreground">{aiSuggestion.metadataTip}</p>
                 </div>
               </div>
@@ -419,7 +419,7 @@ export function FrameworkDocumentsDialog({
 
                 {aiSuggestion && (
                   <p className="text-[13px] text-muted-foreground flex items-start gap-1">
-                    <Lightbulb className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
+                    <Lightbulb className="h-3 w-3 text-warning mt-0.5 shrink-0" />
                     {aiSuggestion.workAreaTip}
                   </p>
                 )}

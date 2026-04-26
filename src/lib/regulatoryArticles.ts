@@ -29,8 +29,8 @@ export const REGULATORY_TOPICS: RegulatoryTopic[] = [
     id: 'gdpr',
     title: 'GDPR',
     icon: Shield,
-    color: 'text-blue-500',
-    bg: 'bg-blue-500/10',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
     summary_no: 'General Data Protection Regulation (GDPR) er EUs personvernforordning som gir enkeltpersoner kontroll over egne personopplysninger. Den gjelder alle virksomheter som behandler personopplysninger om personer i EØS-området.',
     summary_en: 'The General Data Protection Regulation (GDPR) is the EU\'s privacy regulation that gives individuals control over their personal data. It applies to all organizations that process personal data about individuals in the EEA.',
     keyPoints_no: [
@@ -52,8 +52,8 @@ export const REGULATORY_TOPICS: RegulatoryTopic[] = [
     id: 'nis2',
     title: 'NIS2',
     icon: Scale,
-    color: 'text-emerald-500',
-    bg: 'bg-emerald-500/10',
+    color: 'text-status-closed',
+    bg: 'bg-status-closed/10',
     summary_no: 'NIS2-direktivet (Network and Information Security) er EUs regelverk for cybersikkerhet som stiller krav til risikostyring, hendelsesrapportering og ledelsesansvar for virksomheter i kritisk og viktig infrastruktur.',
     summary_en: 'The NIS2 Directive (Network and Information Security) is the EU\'s cybersecurity regulation requiring risk management, incident reporting and management accountability for organizations in critical and important infrastructure.',
     keyPoints_no: [
@@ -73,8 +73,8 @@ export const REGULATORY_TOPICS: RegulatoryTopic[] = [
     id: 'iso27001',
     title: 'ISO 27001',
     icon: FileText,
-    color: 'text-amber-500',
-    bg: 'bg-amber-500/10',
+    color: 'text-warning',
+    bg: 'bg-warning/10',
     summary_no: 'ISO/IEC 27001 er den internasjonale standarden for informasjonssikkerhetsstyring (ISMS). Den gir et systematisk rammeverk for å beskytte informasjonsverdier gjennom risikobaserte kontroller.',
     summary_en: 'ISO/IEC 27001 is the international standard for information security management systems (ISMS). It provides a systematic framework for protecting information assets through risk-based controls.',
     keyPoints_no: [
@@ -95,8 +95,8 @@ export const REGULATORY_TOPICS: RegulatoryTopic[] = [
     id: 'aiact',
     title: 'AI Act',
     icon: Bot,
-    color: 'text-purple-500',
-    bg: 'bg-purple-500/10',
+    color: 'text-accent',
+    bg: 'bg-accent/10',
     summary_no: 'EU AI Act er verdens første helhetlige regulering av kunstig intelligens. Den klassifiserer AI-systemer etter risiko og stiller krav til transparens, menneskelig tilsyn og dokumentasjon.',
     summary_en: 'The EU AI Act is the world\'s first comprehensive regulation of artificial intelligence. It classifies AI systems by risk level and sets requirements for transparency, human oversight and documentation.',
     keyPoints_no: [

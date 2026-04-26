@@ -15,9 +15,9 @@ interface MSPAssessmentStepProps {
 }
 
 const ANSWER_OPTIONS: { value: AssessmentAnswer; label: string; icon: React.ElementType; color: string }[] = [
-  { value: "yes", label: "Ja", icon: CheckCircle2, color: "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400" },
-  { value: "no", label: "Nei", icon: XCircle, color: "border-red-500 bg-red-500/10 text-red-700 dark:text-red-400" },
-  { value: "unsure", label: "Usikker", icon: HelpCircle, color: "border-yellow-500 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" },
+  { value: "yes", label: "Ja", icon: CheckCircle2, color: "border-status-closed bg-status-closed/10 text-status-closed dark:text-status-closed" },
+  { value: "no", label: "Nei", icon: XCircle, color: "border-destructive bg-destructive/10 text-destructive dark:text-destructive" },
+  { value: "unsure", label: "Usikker", icon: HelpCircle, color: "border-warning bg-warning/10 text-warning dark:text-warning" },
 ];
 
 const categoryOrder: Array<keyof typeof ASSESSMENT_CATEGORIES> = [

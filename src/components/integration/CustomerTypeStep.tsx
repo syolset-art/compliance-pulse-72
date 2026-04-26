@@ -72,7 +72,7 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
             <p className="text-sm text-muted-foreground mt-1">
               I want to get access via the Mynder agreement
             </p>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 mt-2 inline-block">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-status-closed/20 text-status-closed mt-2 inline-block">
               No additional cost
             </span>
           </div>
@@ -83,8 +83,8 @@ export function CustomerTypeStep({ integration, onSelect }: CustomerTypeStepProp
           onClick={() => onSelect("demo")}
           className="w-full flex items-start gap-4 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/30 hover:bg-muted/20 transition-all text-left"
         >
-          <div className="p-3 rounded-lg bg-amber-500/20">
-            <Sparkles className="h-6 w-6 text-amber-500" />
+          <div className="p-3 rounded-lg bg-warning/20">
+            <Sparkles className="h-6 w-6 text-warning" />
           </div>
           <div className="flex-1">
             <p className="font-semibold">Explore with demo data</p>

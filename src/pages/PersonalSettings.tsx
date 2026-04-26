@@ -38,7 +38,7 @@ const AGENT_SERVICES = [
     descNb: "Automatiserer kravoppfølging, lager rapporter og oppdaterer kontrollstatus basert på regelverksendringer.",
     descEn: "Automates requirement tracking, generates reports and updates control status based on regulatory changes.",
     icon: Shield,
-    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400",
+    color: "text-status-closed bg-status-closed/10 dark:bg-status-closed/30 dark:text-status-closed",
   },
   {
     id: "risk-agent",
@@ -47,7 +47,7 @@ const AGENT_SERVICES = [
     descNb: "Overvåker leverandører, analyserer trusler og gir kontinuerlige risikovurderinger med handlingsforslag.",
     descEn: "Monitors vendors, analyzes threats and provides continuous risk assessments with action proposals.",
     icon: Zap,
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400",
+    color: "text-warning bg-warning/10 dark:bg-warning/30 dark:text-warning",
   },
   {
     id: "document-agent",
@@ -56,7 +56,7 @@ const AGENT_SERVICES = [
     descNb: "Klassifiserer og behandler innkommende dokumenter, oppdaterer utløpsdatoer og varsler om manglende dokumentasjon.",
     descEn: "Classifies and processes incoming documents, updates expiry dates and alerts about missing documentation.",
     icon: FileText,
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400",
+    color: "text-primary bg-primary/10 dark:bg-primary/30 dark:text-primary",
   },
 ];
 
@@ -455,7 +455,7 @@ export default function PersonalSettings() {
                                   {isNb ? agent.nameNb : agent.nameEn}
                                 </h4>
                                 {isConnected && (
-                                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 text-[13px] gap-0.5">
+                                  <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-0.5">
                                     <CheckCircle2 className="h-3 w-3" />
                                     {isNb ? "Aktiv" : "Active"}
                                   </Badge>

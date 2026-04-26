@@ -16,9 +16,9 @@ import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
 
 function getScoreColor(score: number) {
-  if (score >= 80) return "text-green-600 dark:text-green-400";
-  if (score >= 50) return "text-yellow-600 dark:text-yellow-400";
-  return "text-red-600 dark:text-red-400";
+  if (score >= 80) return "text-status-closed dark:text-status-closed";
+  if (score >= 50) return "text-warning dark:text-warning";
+  return "text-destructive dark:text-destructive";
 }
 
 export default function MSPCustomerDetail() {
@@ -153,7 +153,7 @@ export default function MSPCustomerDetail() {
               {customer.has_acronis_integration ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Wifi className="h-4 w-4 text-green-500" />
+                    <Wifi className="h-4 w-4 text-status-closed" />
                     <span className="text-sm text-foreground">Tilkoblet</span>
                   </div>
                   <p className="text-2xl font-bold text-foreground">

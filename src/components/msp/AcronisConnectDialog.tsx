@@ -237,8 +237,8 @@ export function AcronisConnectDialog({ open, onOpenChange, customerId, customerN
 
         {step === 4 && selectedTenant && (
           <div className="text-center space-y-4 py-4">
-            <div className="mx-auto h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div className="mx-auto h-16 w-16 rounded-full bg-status-closed/10 dark:bg-status-closed/30 flex items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-status-closed dark:text-status-closed" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">Acronis tilkoblet!</h3>
@@ -247,7 +247,7 @@ export function AcronisConnectDialog({ open, onOpenChange, customerId, customerN
               </p>
             </div>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Wifi className="h-4 w-4 text-green-500" />
+              <Wifi className="h-4 w-4 text-status-closed" />
               Synkronisering aktiv
             </div>
             <Button onClick={handleClose} className="w-full">

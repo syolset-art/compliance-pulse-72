@@ -79,17 +79,17 @@ export interface VendorActivity {
 }
 
 export const LEVEL_CONFIG: Record<ActivityLevel, { nb: string; en: string; dot: string }> = {
-  operasjonelt: { nb: "Operasjonelt", en: "Operational", dot: "bg-emerald-500" },
-  taktisk: { nb: "Taktisk", en: "Tactical", dot: "bg-amber-500" },
+  operasjonelt: { nb: "Operasjonelt", en: "Operational", dot: "bg-status-closed" },
+  taktisk: { nb: "Taktisk", en: "Tactical", dot: "bg-warning" },
   strategisk: { nb: "Strategisk", en: "Strategic", dot: "bg-primary" },
 };
 
 export const PHASE_CONFIG: Record<Phase, { nb: string; en: string; color: string }> = {
-  pre_assessment: { nb: "Vurdering før avtale", en: "Pre-contract assessment", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
-  onboarding: { nb: "Onboarding", en: "Onboarding", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
-  ongoing: { nb: "Løpende oppfølging", en: "Ongoing follow-up", color: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
-  audit: { nb: "Revisjon og kontroll", en: "Audit and control", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300" },
-  incident: { nb: "Hendelse og avvik", en: "Incident and deviation", color: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" },
+  pre_assessment: { nb: "Vurdering før avtale", en: "Pre-contract assessment", color: "bg-warning/10 text-warning dark:bg-warning/40 dark:text-warning" },
+  onboarding: { nb: "Onboarding", en: "Onboarding", color: "bg-primary/10 text-primary dark:bg-primary/40 dark:text-primary" },
+  ongoing: { nb: "Løpende oppfølging", en: "Ongoing follow-up", color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/40 dark:text-status-closed" },
+  audit: { nb: "Revisjon og kontroll", en: "Audit and control", color: "bg-accent/10 text-foreground dark:bg-foreground/40 dark:text-accent" },
+  incident: { nb: "Hendelse og avvik", en: "Incident and deviation", color: "bg-destructive/10 text-destructive dark:bg-destructive/40 dark:text-destructive" },
   termination: { nb: "Avslutning", en: "Termination", color: "bg-slate-100 text-slate-800 dark:bg-slate-900/40 dark:text-slate-300" },
 };
 
@@ -189,20 +189,20 @@ export const ACTIVITY_ICONS_MAP: Record<ActivityType, string> = {
 };
 
 export const ACTIVITY_COLORS: Record<ActivityType, string> = {
-  document: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  risk: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-  incident: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
-  assignment: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-  review: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  delivery: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
-  maturity: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  document: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+  risk: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+  incident: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive",
+  assignment: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
+  review: "bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent",
+  delivery: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+  maturity: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
   setting: "bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300",
-  upload: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-  view: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  email: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
-  phone: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
-  meeting: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
-  manual: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
+  upload: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+  view: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+  email: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+  phone: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
+  meeting: "bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent",
+  manual: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive",
 };
 
 export const OUTCOME_COLORS: Record<ActivityStatus, string> = {

@@ -52,8 +52,8 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
     return (
       <div className="space-y-6">
         <div className="flex flex-col items-center justify-center py-8 gap-4">
-          <div className="h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center">
-            <CheckCircle2 className="h-8 w-8 text-green-500" />
+          <div className="h-16 w-16 rounded-full bg-status-closed/20 flex items-center justify-center">
+            <CheckCircle2 className="h-8 w-8 text-status-closed" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-lg">Request sent!</p>
@@ -105,8 +105,8 @@ export function RequestAccessStep({ integration, onRequestSent, onHaveCustomerId
         </div>
       </div>
 
-      <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-        <p className="text-sm text-green-400">
+      <div className="p-4 rounded-lg bg-status-closed/10 border border-status-closed/30">
+        <p className="text-sm text-status-closed">
           As a Mynder customer, you get access to {partnerName}'s data fetching from {integration.name.replace(" via 7 Security", "")} at no additional cost.
         </p>
       </div>

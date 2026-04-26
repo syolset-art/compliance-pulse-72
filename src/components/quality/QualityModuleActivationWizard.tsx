@@ -411,13 +411,13 @@ export const QualityModuleActivationWizard = ({
         {linkedFrameworks.length > 0 ? (
           linkedFrameworks.map((fwId) => (
             <div key={fwId} className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-status-closed" />
               <span className="text-sm capitalize">{fwId.replace(/-/g, ' ')}</span>
             </div>
           ))
         ) : (
           <div className="p-4 text-center text-muted-foreground">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
+            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-warning" />
             <p className="text-sm">
               {isNorwegian 
                 ? "Ingen regelverk er aktivert ennå" 
@@ -449,7 +449,7 @@ export const QualityModuleActivationWizard = ({
   const renderStep4 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <Sparkles className="h-12 w-12 mx-auto text-green-500 mb-3" />
+        <Sparkles className="h-12 w-12 mx-auto text-status-closed mb-3" />
         <h3 className="text-lg font-semibold">
           {isNorwegian ? "Oppsummering og aktivering" : "Summary and Activation"}
         </h3>
@@ -499,7 +499,7 @@ export const QualityModuleActivationWizard = ({
           </span>
           <span className="text-xl font-bold">
             {totalPrice === 0 ? (
-              <span className="text-green-600">
+              <span className="text-status-closed">
                 {isNorwegian ? "Gratis" : "Free"}
               </span>
             ) : (

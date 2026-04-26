@@ -26,10 +26,10 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 };
 
 const SEVERITY_CONFIG: Record<string, { label: string; className: string }> = {
-  critical: { label: "Kritisk", className: "bg-red-500/15 text-red-700 border-red-500/30" },
-  high: { label: "Høy", className: "bg-orange-500/15 text-orange-700 border-orange-500/30" },
-  medium: { label: "Middels", className: "bg-yellow-500/15 text-yellow-700 border-yellow-500/30" },
-  low: { label: "Lav", className: "bg-green-500/15 text-green-700 border-green-500/30" },
+  critical: { label: "Kritisk", className: "bg-destructive/15 text-destructive border-destructive/30" },
+  high: { label: "Høy", className: "bg-warning/15 text-warning border-warning/30" },
+  medium: { label: "Middels", className: "bg-warning/15 text-warning border-warning/30" },
+  low: { label: "Lav", className: "bg-status-closed/15 text-status-closed border-status-closed/30" },
 };
 
 function getSeverityFromFileName(fileName?: string | null): string | null {
@@ -268,12 +268,12 @@ const LaraInbox = () => {
                     const sevConfig = severity ? SEVERITY_CONFIG[severity] : null;
 
                     return (
-                      <div key={item.id} className={`p-4 rounded-lg border bg-card hover:shadow-sm transition-all ${incident ? "border-orange-500/30" : "border-border"}`}>
+                      <div key={item.id} className={`p-4 rounded-lg border bg-card hover:shadow-sm transition-all ${incident ? "border-warning/30" : "border-border"}`}>
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-start gap-3 min-w-0">
-                            <div className={`p-2 rounded-lg ${incident ? "bg-orange-500/10" : "bg-primary/10"}`}>
+                            <div className={`p-2 rounded-lg ${incident ? "bg-warning/10" : "bg-primary/10"}`}>
                               {incident ? (
-                                <ShieldAlert className="h-4 w-4 text-orange-600" />
+                                <ShieldAlert className="h-4 w-4 text-warning" />
                               ) : (
                                 <FileText className="h-4 w-4 text-primary" />
                               )}
@@ -314,7 +314,7 @@ const LaraInbox = () => {
                                   )}
                                 </p>
                                 {item.confidence_score && (
-                                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px] ml-auto flex-shrink-0">
+                                  <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] ml-auto flex-shrink-0">
                                     {Math.round(item.confidence_score * 100)}% sikker
                                   </Badge>
                                 )}
@@ -325,7 +325,7 @@ const LaraInbox = () => {
                           <div className="flex items-center gap-1.5 flex-shrink-0">
                             <Button
                               size="sm"
-                              className={`h-8 text-xs ${incident ? "bg-orange-600 hover:bg-orange-700" : ""}`}
+                              className={`h-8 text-xs ${incident ? "bg-warning hover:bg-warning" : ""}`}
                               onClick={() => incident ? approveIncidentMutation.mutate(item) : approveMutation.mutate(item)}
                             >
                               <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
@@ -357,7 +357,7 @@ const LaraInbox = () => {
                     return (
                       <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border opacity-60">
                         {incident ? (
-                          <ShieldAlert className="h-4 w-4 text-orange-500" />
+                          <ShieldAlert className="h-4 w-4 text-warning" />
                         ) : (
                           <FileText className="h-4 w-4 text-muted-foreground" />
                         )}
