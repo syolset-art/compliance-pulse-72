@@ -96,18 +96,6 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
   },
 ];
 
-type LaraSuggestion = {
-  id: number;
-  dot: string;
-  text: string;
-  icon: typeof Target;
-  title: string;
-  summary: string;
-  impact: { reach: string; expectedClaims: string; revenue: string };
-  steps: string[];
-  cta: { primary: string; secondary: string; icon: typeof Mail };
-};
-
 const CLAIM_TREND = [
   { month: "nov", value: 6 },
   { month: "des", value: 9 },
