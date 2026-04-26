@@ -97,7 +97,7 @@ const CategorySection = ({
   );
 };
 
-export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats }: FrameworkChipSelectorProps) => {
+export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats, hideSummary = false }: FrameworkChipSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
 
   const enriched = useMemo(
