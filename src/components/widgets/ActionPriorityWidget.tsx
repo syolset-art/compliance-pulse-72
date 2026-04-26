@@ -123,7 +123,7 @@ export function ActionPriorityWidget() {
 
   const priorityColor = {
     critical: "bg-destructive/10 text-destructive border-destructive/20",
-    high: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    high: "bg-warning/10 text-warning dark:text-warning border-warning/20",
     medium: "bg-muted text-muted-foreground border-border",
   };
 

@@ -25,7 +25,7 @@ export function InherentRiskWidget() {
       id: "privacy",
       name: t("widgets.privacy", "Personvern"),
       icon: <Shield className="h-4 w-4" />,
-      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      iconBg: "bg-primary/10 text-primary dark:text-primary",
       risks: { critical: 2, high: 1, medium: 4, low: 8 },
       previousCriticalHigh: 5,
     },
@@ -33,7 +33,7 @@ export function InherentRiskWidget() {
       id: "security",
       name: t("widgets.infoSecurity", "Informasjonssikkerhet"),
       icon: <Lock className="h-4 w-4" />,
-      iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      iconBg: "bg-warning/10 text-warning dark:text-warning",
       risks: { critical: 1, high: 3, medium: 5, low: 4 },
       previousCriticalHigh: 6,
     },
@@ -41,7 +41,7 @@ export function InherentRiskWidget() {
       id: "ai",
       name: t("widgets.aiGovernance", "AI Governance"),
       icon: <Brain className="h-4 w-4" />,
-      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+      iconBg: "bg-accent/10 text-accent dark:text-accent",
       risks: { critical: 0, high: 1, medium: 4, low: 3 },
       previousCriticalHigh: 2,
     },
@@ -122,7 +122,7 @@ export function InherentRiskWidget() {
                     <span className="font-semibold text-foreground ml-auto">{domain.risks.high}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-yellow-500">🟡</span>
+                    <span className="text-warning">🟡</span>
                     <span className="text-muted-foreground">{t("widgets.medium", "Medium")}</span>
                     <span className="font-semibold text-foreground ml-auto">{domain.risks.medium}</span>
                   </div>

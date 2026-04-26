@@ -65,12 +65,12 @@ export function ThirdPartyManagementWidget() {
           </div>
           
           {/* Critical */}
-          <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+          <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
+              <AlertTriangle className="h-4 w-4 text-warning" />
               <span className="text-xs text-muted-foreground">Kritiske</span>
             </div>
-            <p className="text-2xl font-bold text-orange-500">{critical}</p>
+            <p className="text-2xl font-bold text-warning">{critical}</p>
           </div>
         </div>
       </CardContent>

@@ -17,10 +17,10 @@ interface QuarterActivity {
 }
 
 const FREQ_CONFIG: Record<Frequency, { label_no: string; label_en: string; color: string }> = {
-  annual: { label_no: "Årlig", label_en: "Annual", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
-  biannual: { label_no: "Halvårlig", label_en: "Biannual", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" },
-  quarterly: { label_no: "Kvartalsvis", label_en: "Quarterly", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" },
-  ongoing: { label_no: "Løpende", label_en: "Ongoing", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
+  annual: { label_no: "Årlig", label_en: "Annual", color: "bg-primary/10 text-primary dark:text-primary border-primary/20" },
+  biannual: { label_no: "Halvårlig", label_en: "Biannual", color: "bg-accent/10 text-accent dark:text-accent border-accent/20" },
+  quarterly: { label_no: "Kvartalsvis", label_en: "Quarterly", color: "bg-warning/10 text-warning dark:text-warning border-warning/20" },
+  ongoing: { label_no: "Løpende", label_en: "Ongoing", color: "bg-status-closed/10 text-status-closed dark:text-status-closed border-status-closed/20" },
 };
 
 const QUARTERS: { key: string; label_no: string; label_en: string; phase_no: string; phase_en: string; activities: QuarterActivity[] }[] = [
@@ -80,10 +80,10 @@ const QUARTERS: { key: string; label_no: string; label_en: string; phase_no: str
 
 function ActivityIcon({ status }: { status: ActivityStatus }) {
   if (status === "completed") {
-    return <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-emerald-500" />;
+    return <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-status-closed" />;
   }
   if (status === "in_progress") {
-    return <Circle className="h-3 w-3 flex-shrink-0 text-amber-500 opacity-70" />;
+    return <Circle className="h-3 w-3 flex-shrink-0 text-warning opacity-70" />;
   }
   return <CheckCircle2 className="h-3 w-3 flex-shrink-0 opacity-30" />;
 }
@@ -125,7 +125,7 @@ export function ComplianceCalendarSection() {
                   </span>
                   <div className="flex items-center gap-1.5">
                     {completedCount > 0 && (
-                      <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[13px] font-semibold text-status-closed dark:text-status-closed">
                         {completedCount}/{q.activities.length}
                       </span>
                     )}
@@ -156,7 +156,7 @@ export function ComplianceCalendarSection() {
                           <span className={cn(
                             "text-xs transition-colors leading-tight",
                             status === "completed"
-                              ? "text-emerald-600 dark:text-emerald-400"
+                              ? "text-status-closed dark:text-status-closed"
                               : "text-muted-foreground group-hover:text-primary"
                           )}>
                             {isNorwegian ? a.label_no : a.label_en}

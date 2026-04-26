@@ -28,8 +28,8 @@ const severityFromTitle = (title: string): "critical" | "high" | "medium" => {
 
 const severityConfig = {
   critical: { label_no: "Kritisk", label_en: "Critical", className: "bg-destructive/10 text-destructive border-destructive/20" },
-  high: { label_no: "Høy", label_en: "High", className: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
-  medium: { label_no: "Middels", label_en: "Medium", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  high: { label_no: "Høy", label_en: "High", className: "bg-warning/10 text-warning border-warning/20" },
+  medium: { label_no: "Middels", label_en: "Medium", className: "bg-warning/10 text-warning border-warning/20" },
 };
 
 export function SecurityBreachWidget() {
@@ -124,7 +124,7 @@ export function SecurityBreachWidget() {
       <CardContent>
         {incidents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <ShieldCheck className="h-10 w-10 text-emerald-500 mb-2" />
+            <ShieldCheck className="h-10 w-10 text-status-closed mb-2" />
             <p className="text-sm font-medium text-foreground">
               {isNb ? "Ingen aktive sikkerhetshendelser" : "No active security incidents"}
             </p>
@@ -148,7 +148,7 @@ export function SecurityBreachWidget() {
                   }`}
                 >
                   <AlertTriangle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                    sev === "critical" ? "text-destructive" : sev === "high" ? "text-orange-500" : "text-amber-500"
+                    sev === "critical" ? "text-destructive" : sev === "high" ? "text-warning" : "text-warning"
                   }`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

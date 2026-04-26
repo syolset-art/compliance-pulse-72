@@ -66,7 +66,7 @@ export function GDPRHealthWidget() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-primary" />
               GDPR-helse
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -82,7 +82,7 @@ export function GDPRHealthWidget() {
         {/* Main KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-blue-600">{score}%</p>
+            <p className="text-3xl font-bold text-primary">{score}%</p>
             <p className="text-sm text-muted-foreground">GDPR Score</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
@@ -90,13 +90,13 @@ export function GDPRHealthWidget() {
             <p className="text-sm text-muted-foreground">Behandlinger dok.</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(gdprMetrics?.vendorsWithoutDPA || 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(gdprMetrics?.vendorsWithoutDPA || 0) > 0 ? 'text-warning' : 'text-status-closed'}`}>
               {gdprMetrics?.vendorsWithoutDPA || 0}
             </p>
             <p className="text-sm text-muted-foreground">Mangler DPA</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(gdprMetrics?.privacyIncidents || 0) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(gdprMetrics?.privacyIncidents || 0) > 0 ? 'text-destructive' : 'text-status-closed'}`}>
               {gdprMetrics?.privacyIncidents || 0}
             </p>
             <p className="text-sm text-muted-foreground">Aktive avvik</p>
@@ -120,9 +120,9 @@ export function GDPRHealthWidget() {
         {/* Alerts */}
         <div className="space-y-3">
           {(gdprMetrics?.vendorsWithoutDPA || 0) > 0 && (
-            <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-warning/10 dark:bg-amber-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 <span className="text-sm">
                   {gdprMetrics?.vendorsWithoutDPA} leverandører mangler databehandleravtale
                 </span>
@@ -134,9 +134,9 @@ export function GDPRHealthWidget() {
           )}
           
           {(gdprMetrics?.privacyIncidents || 0) > 0 && (
-            <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-destructive/10 dark:bg-red-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertTriangle className="h-4 w-4 text-destructive" />
                 <span className="text-sm">
                   {gdprMetrics?.privacyIncidents} personvernavvik krever handling
                 </span>
@@ -148,9 +148,9 @@ export function GDPRHealthWidget() {
           )}
 
           {(gdprMetrics?.pendingGdprTasks || 0) > 0 && (
-            <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-primary/10 dark:bg-blue-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-blue-600" />
+                <Clock className="h-4 w-4 text-primary" />
                 <span className="text-sm">
                   {gdprMetrics?.pendingGdprTasks} GDPR-oppgaver venter
                 </span>
@@ -162,9 +162,9 @@ export function GDPRHealthWidget() {
           )}
 
           {score >= 80 && (gdprMetrics?.vendorsWithoutDPA || 0) === 0 && (gdprMetrics?.privacyIncidents || 0) === 0 && (
-            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-2 bg-status-closed/10 dark:bg-green-950/20 rounded-lg p-3">
+              <CheckCircle2 className="h-4 w-4 text-status-closed" />
+              <span className="text-sm text-status-closed dark:text-status-closed">
                 God GDPR-helse! Ingen kritiske mangler.
               </span>
             </div>

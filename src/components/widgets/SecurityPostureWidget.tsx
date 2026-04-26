@@ -82,7 +82,7 @@ export function SecurityPostureWidget() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Lock className="h-5 w-5 text-red-600" />
+              <Lock className="h-5 w-5 text-destructive" />
               Sikkerhetsstatus
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -98,25 +98,25 @@ export function SecurityPostureWidget() {
         {/* Main KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${score >= 70 ? 'text-green-600' : score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+            <p className={`text-3xl font-bold ${score >= 70 ? 'text-status-closed' : score >= 50 ? 'text-warning' : 'text-destructive'}`}>
               {score}%
             </p>
             <p className="text-sm text-muted-foreground">Sikkerhetsscore</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(securityMetrics?.activeIncidents || 0) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(securityMetrics?.activeIncidents || 0) > 0 ? 'text-destructive' : 'text-status-closed'}`}>
               {securityMetrics?.activeIncidents || 0}
             </p>
             <p className="text-sm text-muted-foreground">Aktive hendelser</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(securityMetrics?.systemsNeedingReview || 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(securityMetrics?.systemsNeedingReview || 0) > 0 ? 'text-warning' : 'text-status-closed'}`}>
               {securityMetrics?.systemsNeedingReview || 0}
             </p>
             <p className="text-sm text-muted-foreground">Trenger review</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(securityMetrics?.highRiskSystems || 0) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(securityMetrics?.highRiskSystems || 0) > 0 ? 'text-destructive' : 'text-status-closed'}`}>
               {securityMetrics?.highRiskSystems || 0}
             </p>
             <p className="text-sm text-muted-foreground">Høyrisiko systemer</p>
@@ -147,15 +147,15 @@ export function SecurityPostureWidget() {
             </h4>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-xl font-bold text-red-600">{securityMetrics?.criticalIncidents || 0}</p>
+                <p className="text-xl font-bold text-destructive">{securityMetrics?.criticalIncidents || 0}</p>
                 <p className="text-xs text-muted-foreground">Kritiske</p>
               </div>
               <div>
-                <p className="text-xl font-bold text-amber-600">{securityMetrics?.highIncidents || 0}</p>
+                <p className="text-xl font-bold text-warning">{securityMetrics?.highIncidents || 0}</p>
                 <p className="text-xs text-muted-foreground">Høy</p>
               </div>
               <div>
-                <p className="text-xl font-bold text-blue-600">
+                <p className="text-xl font-bold text-primary">
                   {(securityMetrics?.activeIncidents || 0) - (securityMetrics?.criticalIncidents || 0) - (securityMetrics?.highIncidents || 0)}
                 </p>
                 <p className="text-xs text-muted-foreground">Andre</p>
@@ -167,9 +167,9 @@ export function SecurityPostureWidget() {
         {/* Alerts */}
         <div className="space-y-3">
           {(securityMetrics?.criticalIncidents || 0) > 0 && (
-            <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-destructive/10 dark:bg-red-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertTriangle className="h-4 w-4 text-destructive" />
                 <span className="text-sm">
                   {securityMetrics?.criticalIncidents} kritiske hendelser krever umiddelbar handling
                 </span>
@@ -181,9 +181,9 @@ export function SecurityPostureWidget() {
           )}
 
           {(securityMetrics?.systemsNeedingReview || 0) > 0 && (
-            <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-warning/10 dark:bg-amber-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <Server className="h-4 w-4 text-amber-600" />
+                <Server className="h-4 w-4 text-warning" />
                 <span className="text-sm">
                   {securityMetrics?.systemsNeedingReview} systemer trenger sikkerhetsgjennomgang
                 </span>
@@ -195,9 +195,9 @@ export function SecurityPostureWidget() {
           )}
 
           {score >= 80 && (securityMetrics?.activeIncidents || 0) === 0 && (
-            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-2 bg-status-closed/10 dark:bg-green-950/20 rounded-lg p-3">
+              <CheckCircle2 className="h-4 w-4 text-status-closed" />
+              <span className="text-sm text-status-closed dark:text-status-closed">
                 Sterk sikkerhetsposisjon. Ingen aktive hendelser.
               </span>
             </div>

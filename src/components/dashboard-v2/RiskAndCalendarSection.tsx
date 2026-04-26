@@ -49,10 +49,10 @@ const QUARTERS = [
 
 function SmallActivityIcon({ status }: { status: ActivityStatus }) {
   if (status === "completed") {
-    return <CheckCircle2 className="h-2.5 w-2.5 flex-shrink-0 text-emerald-500" />;
+    return <CheckCircle2 className="h-2.5 w-2.5 flex-shrink-0 text-status-closed" />;
   }
   if (status === "in_progress") {
-    return <Circle className="h-2.5 w-2.5 flex-shrink-0 text-amber-500 opacity-70" />;
+    return <Circle className="h-2.5 w-2.5 flex-shrink-0 text-warning opacity-70" />;
   }
   return <CheckCircle2 className="h-2.5 w-2.5 flex-shrink-0 opacity-30" />;
 }
@@ -83,8 +83,8 @@ export function RiskAndCalendarSection({ requirements }: RiskAndCalendarSectionP
         <div className="grid grid-cols-2 gap-3">
           {[
             { key: "critical", label_no: "Kritisk", label_en: "Critical", color: "bg-destructive/10 text-destructive border-destructive/20" },
-            { key: "high", label_no: "Høy", label_en: "High", color: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20" },
-            { key: "medium", label_no: "Middels", label_en: "Medium", color: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20" },
+            { key: "high", label_no: "Høy", label_en: "High", color: "bg-warning/10 text-warning dark:text-warning border-warning/20" },
+            { key: "medium", label_no: "Middels", label_en: "Medium", color: "bg-warning/10 text-warning dark:text-warning border-warning/20" },
             { key: "low", label_no: "Lav", label_en: "Low", color: "bg-muted text-muted-foreground border-border" },
           ].map((level) => (
             <div
@@ -124,7 +124,7 @@ export function RiskAndCalendarSection({ requirements }: RiskAndCalendarSectionP
                   <span className="text-xs font-bold uppercase">{q.key.toUpperCase()}</span>
                   <div className="flex items-center gap-1.5">
                     {completedCount > 0 && (
-                      <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[13px] font-semibold text-status-closed dark:text-status-closed">
                         {completedCount}/{q.activities.length}
                       </span>
                     )}
@@ -142,7 +142,7 @@ export function RiskAndCalendarSection({ requirements }: RiskAndCalendarSectionP
                       <li key={i} className={cn(
                         "text-[13px] flex items-center gap-1",
                         status === "completed"
-                          ? "text-emerald-600 dark:text-emerald-400"
+                          ? "text-status-closed dark:text-status-closed"
                           : "text-muted-foreground"
                       )}>
                         <SmallActivityIcon status={status} />

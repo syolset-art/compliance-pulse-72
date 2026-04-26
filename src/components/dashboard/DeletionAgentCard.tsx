@@ -84,7 +84,7 @@ const LOG_EN: { week: LogEntry[]; month: LogEntry[]; year: LogEntry[] } = {
 function StatusIcon({ status }: { status: DeletionStatus }) {
   switch (status) {
     case "completed":
-      return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />;
+      return <CheckCircle2 className="h-3.5 w-3.5 text-status-closed" />;
     case "overdue":
       return <AlertTriangle className="h-3.5 w-3.5 text-destructive" />;
     case "snoozed":
@@ -134,7 +134,7 @@ export function DeletionAgentCard() {
         <div className="space-y-2">
           {entries.map((e, i) => (
             <div key={i} className="flex items-center gap-2 text-xs">
-              <CheckCircle2 className="h-3 w-3 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="h-3 w-3 text-status-closed shrink-0" />
               <span className="text-muted-foreground w-14 shrink-0">{e.date}</span>
               <span className="font-medium text-foreground truncate">{e.activity}</span>
               <span className="text-muted-foreground">— {e.system}</span>
@@ -168,7 +168,7 @@ export function DeletionAgentCard() {
         <div className="flex items-center gap-3 mb-3 text-xs text-muted-foreground">
           <span className="font-medium text-foreground">{scheduled} {isNb ? "planlagte" : "scheduled"}</span>
           <span>·</span>
-          <span className="text-emerald-600">{completedCount} {isNb ? "utført" : "completed"}</span>
+          <span className="text-status-closed">{completedCount} {isNb ? "utført" : "completed"}</span>
           {overdue > 0 && (
             <>
               <span>·</span>
@@ -229,13 +229,13 @@ export function DeletionAgentCard() {
                 className={cn(
                   "text-[13px] font-medium tabular-nums whitespace-nowrap mt-0.5",
                   task.status === "completed"
-                    ? "text-emerald-600"
+                    ? "text-status-closed"
                     : task.status === "overdue"
                     ? "text-destructive"
                     : task.status === "snoozed"
                     ? "text-muted-foreground"
                     : task.daysLeft !== null && task.daysLeft <= 7
-                    ? "text-orange-500"
+                    ? "text-warning"
                     : "text-muted-foreground"
                 )}
               >

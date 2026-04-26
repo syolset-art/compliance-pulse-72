@@ -173,18 +173,18 @@ export const AIUsageOverviewWidget = () => {
                 {
                   key: "minimal",
                   label: t("aiOverview.minimal", "Minimal"),
-                  color: "bg-green-500",
+                  color: "bg-status-closed",
                 },
                 {
                   key: "limited",
                   label: t("aiOverview.limited", "Begrenset"),
-                  color: "bg-yellow-500",
+                  color: "bg-warning",
                 },
-                { key: "high", label: t("aiOverview.high", "Høy"), color: "bg-orange-500" },
+                { key: "high", label: t("aiOverview.high", "Høy"), color: "bg-warning" },
                 {
                   key: "unacceptable",
                   label: t("aiOverview.unacceptable", "Uakseptabel"),
-                  color: "bg-red-500",
+                  color: "bg-destructive",
                 },
               ].map(({ key, label, color }) => {
                 const count = combinedRisk[key as keyof typeof combinedRisk];
@@ -206,9 +206,9 @@ export const AIUsageOverviewWidget = () => {
 
         {/* Warnings */}
         {totalPending > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-900">
-            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm text-yellow-800 dark:text-yellow-200">
+          <div className="flex items-center gap-2 p-3 bg-warning/10 dark:bg-yellow-950/20 rounded-lg border border-warning/20 dark:border-warning">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <span className="text-sm text-warning dark:text-warning">
               {t("aiOverview.pendingAssessments", "{{count}} venter på vurdering", {
                 count: totalPending,
               })}
@@ -218,9 +218,9 @@ export const AIUsageOverviewWidget = () => {
 
         {/* High risk warning */}
         {(combinedRisk.high > 0 || combinedRisk.unacceptable > 0) && (
-          <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-            <span className="text-sm text-red-800 dark:text-red-200">
+          <div className="flex items-center gap-2 p-3 bg-destructive/10 dark:bg-red-950/20 rounded-lg border border-destructive/20 dark:border-destructive">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <span className="text-sm text-destructive dark:text-destructive">
               {t("aiOverview.highRiskWarning", "{{count}} høy-risiko AI krever ekstra dokumentasjon", {
                 count: combinedRisk.high + combinedRisk.unacceptable,
               })}

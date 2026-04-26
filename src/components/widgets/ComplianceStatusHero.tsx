@@ -193,8 +193,8 @@ export function ComplianceStatusHero({ companyName }: Props) {
                 </span>
               </button>
             ) : (
-              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="rounded-lg border border-status-closed/20 bg-status-closed/5 p-3">
+                <p className="text-sm font-medium text-status-closed dark:text-status-closed">
                   🎉 Ready for certification
                 </p>
               </div>

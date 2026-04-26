@@ -12,9 +12,9 @@ interface ComplianceShieldProps {
 }
 
 function getShieldColor(score: number) {
-  if (score >= 80) return { ring: "hsl(var(--success))", bg: "hsl(var(--success) / 0.1)", text: "text-green-600 dark:text-green-400" };
+  if (score >= 80) return { ring: "hsl(var(--success))", bg: "hsl(var(--success) / 0.1)", text: "text-status-closed dark:text-status-closed" };
   if (score >= 60) return { ring: "hsl(var(--primary))", bg: "hsl(var(--primary) / 0.1)", text: "text-primary" };
-  if (score >= 40) return { ring: "hsl(var(--warning))", bg: "hsl(var(--warning) / 0.1)", text: "text-yellow-600 dark:text-yellow-400" };
+  if (score >= 40) return { ring: "hsl(var(--warning))", bg: "hsl(var(--warning) / 0.1)", text: "text-warning dark:text-warning" };
   return { ring: "hsl(var(--destructive))", bg: "hsl(var(--destructive) / 0.1)", text: "text-destructive" };
 }
 

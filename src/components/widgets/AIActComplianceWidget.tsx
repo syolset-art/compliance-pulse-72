@@ -16,10 +16,10 @@ const RISK_LABELS: Record<string, string> = {
 };
 
 const RISK_COLORS: Record<string, string> = {
-  unacceptable: 'bg-red-500',
-  high: 'bg-orange-500',
-  limited: 'bg-yellow-500',
-  minimal: 'bg-green-500',
+  unacceptable: 'bg-destructive',
+  high: 'bg-warning',
+  limited: 'bg-warning',
+  minimal: 'bg-status-closed',
   unknown: 'bg-gray-400',
 };
 
@@ -36,9 +36,9 @@ export function AIActComplianceWidget() {
   const hasUnacceptable = reportData?.summary.riskDistribution.unacceptable || 0;
 
   const getComplianceColor = () => {
-    if (hasUnacceptable > 0) return 'text-red-500';
-    if (hasHighRisk > 0) return 'text-orange-500';
-    if (reportData?.summary.complianceRate === 100) return 'text-green-500';
+    if (hasUnacceptable > 0) return 'text-destructive';
+    if (hasHighRisk > 0) return 'text-warning';
+    if (reportData?.summary.complianceRate === 100) return 'text-status-closed';
     return 'text-primary';
   };
 
@@ -53,7 +53,7 @@ export function AIActComplianceWidget() {
     }
     if (hasHighRisk > 0) {
       return (
-        <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20 gap-1">
+        <Badge className="bg-warning/10 text-warning border-warning/20 gap-1">
           <AlertTriangle className="h-3 w-3" />
           Høyrisiko
         </Badge>
@@ -61,7 +61,7 @@ export function AIActComplianceWidget() {
     }
     if (reportData?.summary.complianceRate === 100) {
       return (
-        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1">
+        <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 gap-1">
           <CheckCircle className="h-3 w-3" />
           Compliant
         </Badge>
@@ -153,8 +153,8 @@ export function AIActComplianceWidget() {
 
             {/* Warning Messages */}
             {hasUnacceptable > 0 && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-xs text-red-600 font-medium flex items-center gap-1">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-xs text-destructive font-medium flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
                   {hasUnacceptable} system(er) har uakseptabel risiko
                 </p>
@@ -162,8 +162,8 @@ export function AIActComplianceWidget() {
             )}
 
             {hasHighRisk > 0 && !hasUnacceptable && (
-              <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                <p className="text-xs text-orange-600 font-medium flex items-center gap-1">
+              <div className="p-3 rounded-lg bg-warning/10 border border-warning/20">
+                <p className="text-xs text-warning font-medium flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
                   {hasHighRisk} høyrisiko-system(er) krever conformity assessment
                 </p>

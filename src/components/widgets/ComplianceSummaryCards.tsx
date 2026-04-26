@@ -83,8 +83,8 @@ export function ComplianceSummaryCards() {
           : null,
       ].filter(Boolean) as string[],
       route: "/assets",
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-blue-500/10 border-blue-500/20",
+      color: "text-primary dark:text-primary",
+      bg: "bg-primary/10 border-primary/20",
     },
     {
       key: "protocols",
@@ -94,8 +94,8 @@ export function ComplianceSummaryCards() {
       metricLabel: isNorwegian ? "tredjepartsstyring" : "third party mgmt",
       alerts: [],
       route: "/processing-records",
-      color: "text-purple-600 dark:text-purple-400",
-      bg: "bg-purple-500/10 border-purple-500/20",
+      color: "text-accent dark:text-accent",
+      bg: "bg-accent/10 border-accent/20",
     },
     {
       key: "systems",
@@ -107,8 +107,8 @@ export function ComplianceSummaryCards() {
         `SLA: ${slaByCat("operations")}%`
       ],
       route: "/systems",
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/20",
+      color: "text-status-closed dark:text-status-closed",
+      bg: "bg-status-closed/10 border-status-closed/20",
     },
     {
       key: "org",
@@ -120,8 +120,8 @@ export function ComplianceSummaryCards() {
         `SLA: ${slaByCat("governance")}%`
       ],
       route: "/work-areas",
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-500/10 border-amber-500/20",
+      color: "text-warning dark:text-warning",
+      bg: "bg-warning/10 border-warning/20",
     },
   ];
 

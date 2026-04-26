@@ -25,7 +25,7 @@ function KPICard({ title, value, change, icon, trend, subtitle }: KPICardProps) 
         </div>
         {change !== undefined && (
           <div className={`flex items-center gap-1 text-xs ${
-            trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-muted-foreground'
+            trend === 'up' ? 'text-status-closed' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
           }`}>
             {trend === 'up' ? <TrendingUp className="h-3 w-3" /> : trend === 'down' ? <TrendingDown className="h-3 w-3" /> : null}
             {change > 0 ? '+' : ''}{change}%
@@ -184,14 +184,14 @@ export function ExecutiveSummaryWidget() {
         {decisionPoints.length > 0 && (
           <div className="bg-muted/50 rounded-lg p-4">
             <h4 className="font-medium mb-3 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertTriangle className="h-4 w-4 text-warning" />
               Krever beslutning
             </h4>
             <div className="space-y-2">
               {decisionPoints.map((point, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                   <span className={`w-2 h-2 rounded-full ${
-                    point.type === 'error' ? 'bg-red-500' : 'bg-amber-500'
+                    point.type === 'error' ? 'bg-destructive' : 'bg-warning'
                   }`} />
                   {point.text}
                 </div>
@@ -201,8 +201,8 @@ export function ExecutiveSummaryWidget() {
         )}
 
         {decisionPoints.length === 0 && (
-          <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+          <div className="bg-status-closed/10 dark:bg-green-950/20 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-status-closed dark:text-status-closed">
               <CheckCircle2 className="h-4 w-4" />
               <span className="text-sm font-medium">Ingen kritiske beslutningspunkter</span>
             </div>

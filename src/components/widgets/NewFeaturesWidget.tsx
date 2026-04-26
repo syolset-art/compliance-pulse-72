@@ -25,8 +25,8 @@ export function NewFeaturesWidget() {
       title: "Bærekraftsrapport",
       description: "Lag omfattende bærekraftsrapporter i henhold til CSRD og andre rammeverk. Automatisk datainnsamling og analyse.",
       icon: Leaf,
-      color: "text-green-600",
-      bgColor: "bg-green-50 dark:bg-green-950/20",
+      color: "text-status-closed",
+      bgColor: "bg-status-closed/10 dark:bg-green-950/20",
       badge: "Nytt",
       link: "/sustainability"
     },
@@ -35,8 +35,8 @@ export function NewFeaturesWidget() {
       title: "Åpenhetsloven",
       description: "Rapporter på åpenhetsloven med våre verktøy for aktsomhetsvurderinger og menneskerettigheter i leverandørkjeden.",
       icon: FileText,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      color: "text-primary",
+      bgColor: "bg-primary/10 dark:bg-blue-950/20",
       badge: "Nytt",
       link: "/transparency"
     },
@@ -45,8 +45,8 @@ export function NewFeaturesWidget() {
       title: "HMS Rapportering",
       description: "Systematisk HMS-arbeid med hendelsesrapportering, risikovurdering og oppfølging av tiltak.",
       icon: HardHat,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50 dark:bg-orange-950/20",
+      color: "text-warning",
+      bgColor: "bg-warning/10 dark:bg-orange-950/20",
       badge: "Beta"
     }
   ];

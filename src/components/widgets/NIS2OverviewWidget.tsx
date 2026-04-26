@@ -94,12 +94,12 @@ export function NIS2OverviewWidget() {
       <CardContent className="space-y-4">
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-lg bg-emerald-500/10">
-            <div className="text-2xl font-bold text-emerald-600">{assessed.length}</div>
+          <div className="text-center p-3 rounded-lg bg-status-closed/10">
+            <div className="text-2xl font-bold text-status-closed">{assessed.length}</div>
             <div className="text-xs text-muted-foreground">Vurdert</div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-amber-500/10">
-            <div className="text-2xl font-bold text-amber-600">{notAssessed.length}</div>
+          <div className="text-center p-3 rounded-lg bg-warning/10">
+            <div className="text-2xl font-bold text-warning">{notAssessed.length}</div>
             <div className="text-xs text-muted-foreground">Mangler</div>
           </div>
           <div className="text-center p-3 rounded-lg bg-primary/10">
@@ -118,9 +118,9 @@ export function NIS2OverviewWidget() {
             >
               {d.hasAssessment ? (
                 d.percent >= 70 ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed shrink-0" />
                 ) : (
-                  <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+                  <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
                 )
               ) : (
                 <HelpCircle className="h-4 w-4 text-muted-foreground shrink-0" />

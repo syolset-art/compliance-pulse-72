@@ -36,7 +36,7 @@ export function RecentActivityFeed() {
           title: t.title,
           time: t.updated_at,
           icon: t.status === "done" ? CheckCircle : ClipboardList,
-          iconColor: t.status === "done" ? "text-green-500" : "text-yellow-500",
+          iconColor: t.status === "done" ? "text-status-closed" : "text-warning",
         })
       );
 
@@ -47,7 +47,7 @@ export function RecentActivityFeed() {
           title: d.title,
           time: d.created_at,
           icon: AlertTriangle,
-          iconColor: d.severity === "critical" ? "text-destructive" : "text-yellow-500",
+          iconColor: d.severity === "critical" ? "text-destructive" : "text-warning",
         })
       );
 
@@ -58,7 +58,7 @@ export function RecentActivityFeed() {
           title: i.subject || (isNorwegian ? "Ny hendelse" : "New event"),
           time: i.received_at || "",
           icon: Mail,
-          iconColor: "text-blue-500",
+          iconColor: "text-primary",
         })
       );
 

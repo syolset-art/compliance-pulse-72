@@ -28,9 +28,9 @@ const SLA_TO_PILLAR: Record<string, string> = {
 };
 
 function maturityLabel(percent: number, isNb: boolean) {
-  if (percent >= 67) return { label: isNb ? "Høy" : "High", className: "text-emerald-600 dark:text-emerald-400" };
-  if (percent >= 34) return { label: isNb ? "Middels" : "Medium", className: "text-amber-600 dark:text-amber-400" };
-  return { label: isNb ? "Lav" : "Low", className: "text-orange-600 dark:text-orange-400" };
+  if (percent >= 67) return { label: isNb ? "Høy" : "High", className: "text-status-closed dark:text-status-closed" };
+  if (percent >= 34) return { label: isNb ? "Middels" : "Medium", className: "text-warning dark:text-warning" };
+  return { label: isNb ? "Lav" : "Low", className: "text-warning dark:text-warning" };
 }
 
 // Generate mock history data based on current scores
@@ -278,9 +278,9 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
         const StatusIcon = STATUS_ICON[ctrl.status as keyof typeof STATUS_ICON] || Circle;
         const statusColor =
           ctrl.status === "completed"
-            ? "text-emerald-500"
+            ? "text-status-closed"
             : ctrl.status === "in_progress"
-              ? "text-amber-500"
+              ? "text-warning"
               : "text-muted-foreground/40";
 
         return (
@@ -293,8 +293,8 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
               variant="outline"
               className={cn(
                 "text-[13px] h-4 px-1.5 shrink-0",
-                ctrl.status === "completed" && "border-emerald-300 text-emerald-600 dark:text-emerald-400",
-                ctrl.status === "in_progress" && "border-amber-300 text-amber-600 dark:text-amber-400",
+                ctrl.status === "completed" && "border-status-closed/20 text-status-closed dark:text-status-closed",
+                ctrl.status === "in_progress" && "border-warning/20 text-warning dark:text-warning",
                 ctrl.status === "not_started" && "border-border text-muted-foreground"
               )}
             >
