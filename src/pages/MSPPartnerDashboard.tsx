@@ -457,15 +457,22 @@ function LaraSuggestionDialog({
         {/* STEP 3: Email Preview */}
         {step === "preview" && (
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Forhåndsvis e-posten</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-foreground">Forhåndsvis e-posten</h4>
+              <Badge variant="outline" className="text-[10px] gap-1">
+                <Sparkles className="h-3 w-3 text-primary" />
+                Generert av Lara
+              </Badge>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Lara har generert personalisert innhold per kunde. Eksempel for Bergen Energi AS:
+              Tydelig pristilbud og verdiforslag — kunden forstår hva som er gratis, hva som koster, og hva de får.
+              Eksempel for Bergen Energi AS:
             </p>
             <div className="border border-border rounded-lg overflow-hidden bg-card">
               <div className="bg-muted/40 px-4 py-2.5 border-b border-border space-y-1">
                 <div className="text-xs">
                   <span className="text-muted-foreground">Fra:</span>{" "}
-                  <span className="text-foreground font-medium">Beate · Mynder Partner</span>
+                  <span className="text-foreground font-medium">Beate Solberg · Mynder Partner</span>
                 </div>
                 <div className="text-xs">
                   <span className="text-muted-foreground">Til:</span>{" "}
@@ -473,26 +480,71 @@ function LaraSuggestionDialog({
                 </div>
                 <div className="text-xs">
                   <span className="text-muted-foreground">Emne:</span>{" "}
-                  <span className="text-foreground font-medium">Bergen Energi er NIS2-eksponert — vi har klargjort en plan</span>
+                  <span className="text-foreground font-medium">
+                    Bergen Energi omfattes av NIS2 — slik kommer dere i gang (gratis kartlegging)
+                  </span>
                 </div>
               </div>
               <div className="p-4 text-sm text-foreground/90 leading-relaxed space-y-3">
                 <p>Hei Erik,</p>
                 <p>
-                  Bergen Energi AS er identifisert som NIS2-eksponert (Energi, 51–200 ansatte). Mynder har klargjort en
-                  Trust Profile-mal tilpasset deres bransje — du trenger kun å validere før den publiseres.
+                  Bergen Energi AS er omfattet av <strong>NIS2-direktivet</strong> (Energi, 51–200 ansatte).
+                  Direktivet ble en del av norsk lov i 2025 og krever bl.a. risikostyring,
+                  hendelseshåndtering og dokumentert sikkerhetsstyring — med personlig ansvar for ledelsen.
+                </p>
+
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1">
+                  <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tracking-wider">
+                    GRATIS — INGEN BINDING
+                  </div>
+                  <p className="text-sm">
+                    <strong>Trust Profile + NIS2 selv-vurdering.</strong> Dere får oversikt over hvor
+                    dere står i dag og hvilke krav som gjelder for nettopp deres virksomhet.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-semibold text-primary tracking-wider">
+                      NIS2-MODUL — 2 490 KR / MND
+                    </div>
+                    <Badge className="bg-primary text-primary-foreground text-[10px] hover:bg-primary">
+                      ANBEFALT
+                    </Badge>
+                  </div>
+                  <p className="text-sm">Aktivering inkluderer:</p>
+                  <ul className="text-sm space-y-1 ml-4 list-disc">
+                    <li><strong>Full gap-analyse</strong> mot alle NIS2-krav (24 kontrollområder)</li>
+                    <li>Konkret tiltaksplan med prioritering og tidslinje</li>
+                    <li>Hendelsesrapportering til myndighetene (24-timers frist)</li>
+                    <li>Løpende overvåking av leverandørkjede og endringer</li>
+                    <li>Dokumentasjon klar for tilsyn og styrebehandling</li>
+                  </ul>
+                </div>
+
+                <p>
+                  Vil du se hva som gjelder for Bergen Energi? Det tar 2 minutter og koster ingenting.
                 </p>
                 <p>
-                  <span className="text-primary font-semibold">→ Vis min profil (1 klikk)</span>
+                  <span className="inline-block bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm font-semibold">
+                    → Start gratis NIS2-kartlegging
+                  </span>
                 </p>
-                <p className="text-muted-foreground text-xs">
-                  Mvh, Beate · Mynder Partner
+
+                <p className="text-xs text-muted-foreground border-t border-border pt-3">
+                  Mvh,<br />
+                  Beate Solberg · Mynder Partner<br />
+                  Sertifisert NIS2-rådgiver · 90 12 34 56
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Hver e-post tilpasses kundens bransje, størrelse og risikoprofil automatisk.
+            <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
+              <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0 mt-0.5" />
+              <span>
+                Lara tilpasser bransje, eksempler og kontaktperson per kunde.
+                Konverteringsrate: <strong className="text-foreground">~14 %</strong> velger NIS2-modulen
+                etter gratis kartlegging.
+              </span>
             </div>
           </div>
         )}
