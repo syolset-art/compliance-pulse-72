@@ -1,10 +1,19 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -24,10 +33,67 @@ const KPIS = [
   { key: "won", label: "VUNNET I MND", value: "340k", sub: "12 oppdrag", tone: "success" as const },
 ];
 
-const LARA_SUGGESTIONS = [
-  { id: 1, dot: "bg-status-followup", text: "Kjør NIS2-claim-kampanje mot 28 kunder" },
-  { id: 2, dot: "bg-status-followup", text: "Følg opp Bergen Maskin — sertifikat utløpt" },
-  { id: 3, dot: "bg-primary", text: "Book intro med Vestland Logistikk — ny CEO" },
+type LaraSuggestion = {
+  id: number;
+  dot: string;
+  text: string;
+  icon: typeof Target;
+  title: string;
+  summary: string;
+  impact: { reach: string; expectedClaims: string; revenue: string };
+  steps: string[];
+  cta: { primary: string; secondary: string; icon: typeof Mail };
+};
+
+const LARA_SUGGESTIONS: LaraSuggestion[] = [
+  {
+    id: 1,
+    dot: "bg-status-followup",
+    text: "Kjør NIS2-claim-kampanje mot 28 kunder",
+    icon: Target,
+    title: "NIS2-claim-kampanje",
+    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke claimet sin Trust Profile. Lara har klargjort en målrettet kampanje.",
+    impact: { reach: "28 kunder", expectedClaims: "9–12 nye claims", revenue: "~210 000 kr ARR" },
+    steps: [
+      "Send personalisert e-post med NIS2-eksponering og frister",
+      "Automatisk oppfølging etter 3 dager til de som ikke åpnet",
+      "Lara booker intro-møte for de som klikker «Vis min profil»",
+      "Du får daglig statusrapport i innboksen",
+    ],
+    cta: { primary: "Start kampanje nå", secondary: "Tilpass mal", icon: Mail },
+  },
+  {
+    id: 2,
+    dot: "bg-status-followup",
+    text: "Følg opp Bergen Maskin — sertifikat utløpt",
+    icon: Clock,
+    title: "Bergen Maskin AS — ISO 27001 utløpt",
+    summary: "ISO 27001-sertifikatet utløp for 14 dager siden. Kunden har ikke lastet opp nytt bevis. Risiko for at de mister sertifisering — og at du mister rådgivningsmulighet.",
+    impact: { reach: "1 kunde", expectedClaims: "Beholde kunde + resertifisering", revenue: "~85 000 kr i prosjekt" },
+    steps: [
+      "Ring kontaktperson Erik Solheim (CISO)",
+      "Send forhåndsskrevet e-post med tilbud om resertifiseringsløp",
+      "Book oppfølging i kalender om 7 dager",
+      "Lara overvåker Brreg + datatilsyn for nye signaler",
+    ],
+    cta: { primary: "Ring nå", secondary: "Send e-post", icon: Phone },
+  },
+  {
+    id: 3,
+    dot: "bg-primary",
+    text: "Book intro med Vestland Logistikk — ny CEO",
+    icon: Users,
+    title: "Vestland Logistikk — ny CEO",
+    summary: "Brreg-signal: ny CEO registrert i går. Statistisk topp-tidspunkt for å introdusere compliance-rådgivning. Selskapet er DORA-eksponert (transport + finansielle tjenester).",
+    impact: { reach: "1 kunde", expectedClaims: "Ny rådgivningskontrakt", revenue: "~150 000 kr ARR" },
+    steps: [
+      "Lara har funnet CEO på LinkedIn — godkjenn introtekst",
+      "Send connect-forespørsel med personlig melding",
+      "Foreslå 20-min intromøte neste uke",
+      "Forbered briefing-pakke om DORA + transportbransjen",
+    ],
+    cta: { primary: "Book møte", secondary: "Se briefing", icon: Calendar },
+  },
 ];
 
 const CLAIM_TREND = [
@@ -144,7 +210,7 @@ function KpiCards() {
   );
 }
 
-function LaraSuggestions() {
+function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
   return (
     <Card className="p-4 bg-primary/5 border-primary/20">
       <div className="flex items-center justify-between mb-3">
@@ -160,15 +226,110 @@ function LaraSuggestions() {
         {LARA_SUGGESTIONS.map((s) => (
           <button
             key={s.id}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-card hover:bg-accent/50 border border-border transition-colors text-left"
+            onClick={() => onSelect(s)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-card hover:bg-accent/50 hover:border-primary/40 border border-border transition-colors text-left group"
           >
             <span className={"h-2 w-2 rounded-full flex-shrink-0 " + s.dot} />
             <span className="text-sm text-foreground flex-1">{s.text}</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
           </button>
         ))}
       </div>
     </Card>
+  );
+}
+
+function LaraSuggestionDialog({
+  suggestion,
+  onClose,
+}: {
+  suggestion: LaraSuggestion | null;
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  if (!suggestion) return null;
+  const Icon = suggestion.icon;
+  const CtaIcon = suggestion.cta.icon;
+
+  const handlePrimary = () => {
+    toast({
+      title: "Lara er i gang",
+      description: `${suggestion.cta.primary} — du får oppdatering i innboksen.`,
+    });
+    onClose();
+  };
+
+  return (
+    <Dialog open={!!suggestion} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px] tracking-wider">
+                <Sparkles className="h-3 w-3 mr-1" />
+                LARA-FORSLAG
+              </Badge>
+              <DialogTitle className="text-xl">{suggestion.title}</DialogTitle>
+              <DialogDescription className="mt-2 text-sm leading-relaxed">
+                {suggestion.summary}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {/* Impact */}
+        <div className="grid grid-cols-3 gap-3 py-2">
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
+            <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.reach}</div>
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
+            <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
+          </div>
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="text-[10px] tracking-wider text-primary font-semibold">POTENSIAL</div>
+            <div className="text-sm font-semibold text-primary mt-1">{suggestion.impact.revenue}</div>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
+          </div>
+          <ol className="space-y-2">
+            {suggestion.steps.map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm">
+                <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
+                  {i + 1}
+                </span>
+                <span className="text-foreground/90">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3 border border-border">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+          Du kan stoppe eller justere kampanjen når som helst. Lara handler kun innenfor reglene du har satt.
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>
+            {suggestion.cta.secondary}
+          </Button>
+          <Button onClick={handlePrimary} className="gap-2">
+            <CtaIcon className="h-4 w-4" />
+            {suggestion.cta.primary}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -317,6 +478,7 @@ function LiveSignals() {
 // ---------- Page ----------
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
+  const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -327,7 +489,7 @@ export default function MSPPartnerDashboard() {
           <KpiCards />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <LaraSuggestions />
+            <LaraSuggestions onSelect={setActiveSuggestion} />
             <ClaimDevelopmentChart />
           </div>
 
@@ -343,6 +505,11 @@ export default function MSPPartnerDashboard() {
           </div>
         </div>
       </main>
+
+      <LaraSuggestionDialog
+        suggestion={activeSuggestion}
+        onClose={() => setActiveSuggestion(null)}
+      />
     </div>
   );
 }
