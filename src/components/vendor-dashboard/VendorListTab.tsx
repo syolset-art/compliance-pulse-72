@@ -231,7 +231,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     }
 
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection, newlyAddedId]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -255,7 +255,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     return null;
   };
 
-  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter]
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter]
     .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
 
   const clearAllFilters = () => {
@@ -264,6 +264,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     setVendorCategoryFilter("");
     setGdprRoleFilter("");
     setPriorityFilter("");
+    setStatusFilter("");
     setShowAll(false);
   };
 
