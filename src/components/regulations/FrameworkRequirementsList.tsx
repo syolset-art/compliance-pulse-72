@@ -298,16 +298,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {state.status !== "met" && (
-                      <Button
-                        className="w-full gap-2"
-                        variant="outline"
-                        onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
-                      >
-                        <Users className="h-4 w-4" />
-                        Dokumenter dette kravet
-                      </Button>
-                    )}
+                    {/* Dokumenter-knapp er nå integrert i LaraDataSourceExplainer */}
                     {state.status === "met" && (
                       <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed">
                         <CheckCircle2 className="h-4 w-4 text-status-closed" />
