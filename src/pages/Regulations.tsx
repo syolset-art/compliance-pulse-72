@@ -72,6 +72,7 @@ const Regulations = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
   usePageHelpListener(setHelpOpen);
 
   // Fetch frameworks
