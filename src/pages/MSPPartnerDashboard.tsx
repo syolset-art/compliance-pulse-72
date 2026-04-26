@@ -478,6 +478,7 @@ function LiveSignals() {
 // ---------- Page ----------
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
+  const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -488,7 +489,7 @@ export default function MSPPartnerDashboard() {
           <KpiCards />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <LaraSuggestions />
+            <LaraSuggestions onSelect={setActiveSuggestion} />
             <ClaimDevelopmentChart />
           </div>
 
@@ -504,6 +505,11 @@ export default function MSPPartnerDashboard() {
           </div>
         </div>
       </main>
+
+      <LaraSuggestionDialog
+        suggestion={activeSuggestion}
+        onClose={() => setActiveSuggestion(null)}
+      />
     </div>
   );
 }
