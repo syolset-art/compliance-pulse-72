@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VendorCard } from "./VendorCard";
+import { VendorStatusRow } from "./VendorStatusRow";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { ALL_VENDOR_STATUSES, deriveVendorStatus } from "@/lib/vendorStatus";
 import {
   Select,
   SelectContent,
@@ -169,6 +171,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -188,7 +191,14 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
       const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
       const matchesPriority = !priorityFilter || priorityFilter === "all" || a.priority === priorityFilter;
-      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority;
+      const matchesStatus = !statusFilter || statusFilter === "all" || deriveVendorStatus({
+        compliance_score: a.compliance_score,
+        risk_level: a.risk_level,
+        lifecycle_status: a.lifecycle_status,
+        expiredDocsCount: expiredCounts[a.id] || 0,
+        inboxCount: inboxCounts[a.id] || 0,
+      }).key === statusFilter;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority && matchesStatus;
     });
 
     if (sortColumn) {
@@ -221,7 +231,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     }
 
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, sortColumn, sortDirection, newlyAddedId]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
@@ -245,7 +255,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     return null;
   };
 
-  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter]
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter]
     .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
 
   const clearAllFilters = () => {
@@ -254,6 +264,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     setVendorCategoryFilter("");
     setGdprRoleFilter("");
     setPriorityFilter("");
+    setStatusFilter("");
     setShowAll(false);
   };
 
@@ -287,6 +298,17 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               )}
             </div>
             <div className="space-y-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle statuser</SelectItem>
+                  {ALL_VENDOR_STATUSES.map(s => (
+                    <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={riskFilter} onValueChange={setRiskFilter}>
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="Risiko" />
@@ -411,108 +433,34 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               <Type className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <div className="flex border border-border rounded-lg">
-            <Button variant={viewMode === "card" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("card")}>
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("list")}>
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </div>
 
 
-      {/* Card View */}
-      {viewMode === "card" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {filtered.map(v => (
-            <VendorCard
-              key={v.id}
-              vendor={v}
-              scoreDisplay={scoreDisplay}
-              isNew={v.id === newlyAddedId}
-              connectedSystemsCount={getConnectedCount(v.id)}
-              hasDPA={(v.compliance_score || 0) >= 30}
-              inboxCount={inboxCounts[v.id] || 0}
-              expiredDocsCount={expiredCounts[v.id] || 0}
-              onClick={() => navigate(`/assets/${v.id}`)}
-              workAreas={workAreas}
-              onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
-              onArchive={(itemId) => archiveAsset.mutate(itemId)}
-              onDelete={onDelete}
-            />
-          ))}
+      {/* Status row list */}
+      {filtered.length === 0 ? (
+        <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
+          {t("assets.noAssets", "Ingen leverandører funnet")}
         </div>
       ) : (
-        /* List View */
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 bg-muted/30 text-sm font-medium text-muted-foreground">
-            <button onClick={() => handleSort("name")} className="flex items-center hover:text-foreground text-left">
-              {t("assets.name")} <SortIcon column="name" />
-            </button>
-            <div>{t("assets.category")}</div>
-            <div>{t("systems.owner", "Eier")}</div>
-            <button onClick={() => handleSort("compliance")} className="flex items-center hover:text-foreground text-left">
-              {t("assets.compliance")} <SortIcon column="compliance" />
-            </button>
-            <div>{t("assets.risk")}</div>
-            <div></div>
-          </div>
-          {filtered.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">{t("assets.noAssets")}</div>
-          ) : (
-            filtered.map(asset => {
-              const score = asset.compliance_score || 0;
-              const scoreColor = score > 0 ? (score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive") : "text-muted-foreground";
-              const riskColor = { high: "bg-destructive", medium: "bg-warning", low: "bg-success" }[asset.risk_level || ""] || "bg-muted-foreground";
-              const ownerName = getOwnerName(asset);
-              const isNewRow = asset.id === newlyAddedId;
-              return (
-                <div
-                  key={asset.id}
-                  onClick={() => navigate(`/assets/${asset.id}`)}
-                  className={cn(
-                    "grid grid-cols-[2fr_1fr_1fr_1fr_80px_60px] gap-4 px-4 py-3 border-t border-border items-center hover:bg-muted/30 transition-all cursor-pointer",
-                    isNewRow && "bg-primary/5 ring-1 ring-primary/30 animate-fade-in"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Building2 className="h-4 w-4 text-primary" />
-                    </div>
-                    <span className="font-medium text-foreground truncate">{asset.name}</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground truncate">{asset.category || "—"}</div>
-                  <div className="text-sm">
-                    {ownerName ? (
-                      <span className="text-foreground">{ownerName}</span>
-                    ) : (
-                      <span className="text-muted-foreground/50 italic text-xs">Ikke satt</span>
-                    )}
-                  </div>
-                  <div className={`font-semibold ${scoreColor}`}>
-                    {score > 0
-                      ? scoreDisplay === "percent" ? `${score}%` : scoreToLabel(score)
-                      : "Ikke vurdert"}
-                  </div>
-                  <div className="flex justify-center"><div className={`h-3 w-3 rounded-full ${riskColor}`} /></div>
-                  <div className="flex justify-end" onClick={e => e.stopPropagation()}>
-                    <AssetRowActionMenu
-                      itemId={asset.id}
-                      currentWorkAreaId={asset.work_area_id}
-                      workAreas={workAreas}
-                      onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
-                      onArchive={(itemId) => archiveAsset.mutate(itemId)}
-                      onDelete={onDelete}
-                    />
-                  </div>
-                </div>
-              );
-            })
-          )}
+        <div className="space-y-2">
+          {filtered.map(v => {
+            const md = (v as any).metadata || {};
+            const frameworks: string[] = Array.isArray(md.frameworks) ? md.frameworks : [];
+            return (
+              <VendorStatusRow
+                key={v.id}
+                vendor={v as any}
+                expiredDocsCount={expiredCounts[v.id] || 0}
+                inboxCount={inboxCounts[v.id] || 0}
+                ownerName={getOwnerName(v)}
+                frameworks={frameworks}
+              />
+            );
+          })}
         </div>
       )}
+
     </div>
   );
 }
