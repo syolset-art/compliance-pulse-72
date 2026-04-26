@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { FrameworkChipSelector } from "@/components/regulations/FrameworkChipSelector";
+import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFrameworksSummary";
 import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
@@ -71,6 +72,7 @@ const Regulations = () => {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
   usePageHelpListener(setHelpOpen);
 
   // Fetch frameworks
@@ -270,11 +272,8 @@ const Regulations = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-foreground">
                 {t("nav.regulations")}
-                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-base font-bold min-w-[2rem] h-8 px-2.5">
-                  {allActiveFrameworks.length}
-                </span>
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Velg et regelverk eller en standard for å se status
@@ -286,57 +285,71 @@ const Regulations = () => {
             </Button>
           </div>
 
-          {/* Category filter */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Button
-              variant={categoryFilter === null ? "default" : "outline"}
-              size="sm"
-              className="text-xs h-8"
-              onClick={() => setCategoryFilter(null)}
-            >
-              Alle ({allActiveFrameworks.length})
-            </Button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs h-8 gap-1.5">
-                  <Filter className="h-3.5 w-3.5" />
-                  Kategori
-                  {categoryFilter && (
-                    <Badge variant="default" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[13px]">1</Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-auto p-2">
-                <div className="flex flex-col gap-1">
-                  {categories.filter(c => allActiveFrameworks.some(fw => fw.category === c.id)).map((cat) => {
-                    const count = allActiveFrameworks.filter(fw => fw.category === cat.id).length;
-                    const CatIcon = cat.icon;
-                    return (
-                      <Button
-                        key={cat.id}
-                        variant={categoryFilter === cat.id ? "default" : "ghost"}
-                        size="sm"
-                        className="text-xs h-8 gap-1.5 justify-start"
-                        onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
-                      >
-                        <CatIcon className="h-3.5 w-3.5" />
-                        {cat.name} ({count})
-                      </Button>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+          {/* Active frameworks summary */}
+          {allActiveFrameworks.length > 0 ? (
+            <div className="space-y-4">
+              <ActiveFrameworksSummary
+                frameworks={allActiveFrameworks}
+                getStats={getChipStats}
+                expanded={summaryExpanded}
+                onToggle={() => setSummaryExpanded((v) => !v)}
+              />
 
-          {/* Framework chip selector */}
-          {activeFrameworks.length > 0 ? (
-            <FrameworkChipSelector
-              frameworks={activeFrameworks}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              getStats={getChipStats}
-            />
+              {summaryExpanded && (
+                <>
+                  {/* Category filter */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant={categoryFilter === null ? "default" : "outline"}
+                      size="sm"
+                      className="text-xs h-8"
+                      onClick={() => setCategoryFilter(null)}
+                    >
+                      Alle ({allActiveFrameworks.length})
+                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-xs h-8 gap-1.5">
+                          <Filter className="h-3.5 w-3.5" />
+                          Kategori
+                          {categoryFilter && (
+                            <Badge variant="default" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[13px]">1</Badge>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-auto p-2">
+                        <div className="flex flex-col gap-1">
+                          {categories.filter(c => allActiveFrameworks.some(fw => fw.category === c.id)).map((cat) => {
+                            const count = allActiveFrameworks.filter(fw => fw.category === cat.id).length;
+                            const CatIcon = cat.icon;
+                            return (
+                              <Button
+                                key={cat.id}
+                                variant={categoryFilter === cat.id ? "default" : "ghost"}
+                                size="sm"
+                                className="text-xs h-8 gap-1.5 justify-start"
+                                onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
+                              >
+                                <CatIcon className="h-3.5 w-3.5" />
+                                {cat.name} ({count})
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Framework chip selector */}
+                  <FrameworkChipSelector
+                    frameworks={activeFrameworks}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                    getStats={getChipStats}
+                  />
+                </>
+              )}
+            </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg">
               <p>Ingen krav eller standarder er aktivert ennå.</p>
