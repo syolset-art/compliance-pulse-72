@@ -171,6 +171,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
