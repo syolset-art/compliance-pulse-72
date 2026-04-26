@@ -74,11 +74,10 @@ export const EditActiveFrameworksDialog = ({
                               <Tooltip>
                                 <TooltipTrigger>
                                   <Badge
-                                    variant={isMandatoryButOff ? "destructive" : "secondary"}
-                                    className="text-[13px] px-1.5 py-0 gap-1"
+                                    className="text-[13px] px-2 py-0.5 gap-1 bg-status-followup text-white hover:bg-status-followup/90 uppercase tracking-wider rounded-pill border-transparent font-semibold"
                                   >
                                     <Lock className="h-2.5 w-2.5" />
-                                    Obligatorisk
+                                    Påkrevd ved lov
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>

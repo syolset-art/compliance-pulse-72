@@ -83,7 +83,7 @@ export function DomainUpgradeDialog({
                   key={framework.id}
                   className="flex items-start gap-2 text-sm"
                 >
-                  <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-status-closed mt-0.5 flex-shrink-0" />
                   <div>
                     <span className="font-medium text-foreground">{framework.name}</span>
                     <span className="text-muted-foreground"> - {framework.description}</span>
