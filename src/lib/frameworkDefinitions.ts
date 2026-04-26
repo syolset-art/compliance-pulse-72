@@ -222,10 +222,10 @@ export const frameworks: Framework[] = [
 ];
 
 export const categories: FrameworkCategory[] = [
-  { id: 'privacy', name: 'Personvern', nameEn: 'Privacy', icon: Shield, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  { id: 'security', name: 'Informasjonssikkerhet', nameEn: 'Information Security', icon: Lock, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-  { id: 'ai', name: 'AI Governance', nameEn: 'AI Governance', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-  { id: 'other', name: 'Øvrige regelverk', nameEn: 'Other Regulations', icon: Scale, color: 'text-orange-500', bgColor: 'bg-orange-500/10' }
+  { id: 'privacy', name: 'Personvern', nameEn: 'Privacy', icon: Shield, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
+  { id: 'security', name: 'Informasjonssikkerhet', nameEn: 'Information Security', icon: Lock, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
+  { id: 'ai', name: 'AI Governance', nameEn: 'AI Governance', icon: Brain, color: 'text-purple-accent', bgColor: 'bg-purple-accent/10' },
+  { id: 'other', name: 'Øvrige regelverk', nameEn: 'Other Regulations', icon: Scale, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' }
 ];
 
 export const getCategoryById = (categoryId: string) => {

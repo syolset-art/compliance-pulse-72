@@ -22,7 +22,7 @@ const ProgressRing = ({ pct, size = 36 }: { pct: number; size?: number }) => {
       <circle
         cx={center} cy={center} r={radius}
         fill="none"
-        stroke={pct >= 70 ? "hsl(var(--primary))" : pct >= 30 ? "hsl(45 93% 47%)" : "hsl(var(--destructive))"}
+        stroke={pct >= 70 ? "hsl(var(--success))" : pct >= 30 ? "hsl(var(--warning))" : "hsl(var(--destructive))"}
         strokeWidth="3"
         strokeDasharray={circumference}
         strokeDashoffset={offset}
@@ -86,7 +86,7 @@ const CategorySection = ({
                 </p>
               </div>
               {fw.isMandatory && (
-                <span className="text-[13px] font-medium text-destructive/70 uppercase tracking-wider shrink-0">Påkrevd</span>
+                <span className="text-[13px] font-semibold text-white bg-status-followup uppercase tracking-wider shrink-0 rounded-pill px-2 py-0.5">Påkrevd</span>
               )}
             </button>
           );

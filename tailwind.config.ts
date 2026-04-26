@@ -24,7 +24,20 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Mulish', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        'mynder-blue': '#4F51B6',
+        'purple-900': '#1F1B5A',
+        'purple-100': '#F0EEFB',
+        'purple-accent': '#7F77DD',
+        status: {
+          open: '#E24B4A',
+          followup: '#EF9F27',
+          closed: '#1D9E75',
+          strategic: '#7F77DD',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -84,6 +97,7 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        pill: "999px",
       },
       keyframes: {
         "accordion-down": {

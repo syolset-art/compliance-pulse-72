@@ -9,39 +9,40 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
 @layer base {
   :root {
+    /* Mynder palette mapped to shadcn HSL tokens */
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
+    --foreground: 240 53% 23%;        /* purple-900 #1F1B5A */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 240 53% 23%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 240 53% 23%;
 
-    --primary: 270 45% 35%;
+    --primary: 239 41% 51%;           /* mynder-blue #4F51B6 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 93%;
-    --secondary-foreground: 220 16% 14%;
+    --secondary: 247 71% 96%;         /* purple-100 #F0EEFB */
+    --secondary-foreground: 240 53% 23%;
 
-    --muted: 220 14% 93%;
-    --muted-foreground: 220 9% 38%;
+    --muted: 247 71% 96%;
+    --muted-foreground: 240 30% 40%;
 
-    --accent: 220 12% 90%;
-    --accent-foreground: 220 16% 14%;
+    --accent: 247 60% 67%;            /* purple-accent #7F77DD */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 46%;
+    --destructive: 1 73% 59%;         /* status-open #E24B4A */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 38%;
+    --success: 161 70% 37%;           /* status-closed #1D9E75 */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 44%;
+    --warning: 33 87% 55%;            /* status-followup #EF9F27 */
     --warning-foreground: 0 0% 100%;
 
-    --border: 220 13% 82%;
-    --input: 220 13% 82%;
-    --ring: 270 45% 35%;
+    --border: 240 20% 90%;
+    --input: 240 20% 90%;
+    --ring: 239 41% 51%;              /* mynder-blue */
 
     --radius: 0.75rem;
 
@@ -58,39 +59,39 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --background: 240 53% 23%;        /* purple-900 */
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 45% 18%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 45% 18%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 270 40% 70%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 239 41% 51%;           /* mynder-blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 30% 30%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 64%;
+    --muted: 240 30% 30%;
+    --muted-foreground: 240 15% 75%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 90%;
+    --accent: 247 60% 67%;            /* purple-accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 1 73% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 50%;
+    --success: 161 70% 37%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 55%;
+    --warning: 33 87% 55%;
     --warning-foreground: 0 0% 0%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: 270 40% 70%;
+    --border: 240 30% 35%;
+    --input: 240 30% 35%;
+    --ring: 239 41% 51%;
     
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 100%;
