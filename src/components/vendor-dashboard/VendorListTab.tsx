@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VendorCard } from "./VendorCard";
+import { VendorStatusRow } from "./VendorStatusRow";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
+import { ALL_VENDOR_STATUSES, deriveVendorStatus } from "@/lib/vendorStatus";
 import {
   Select,
   SelectContent,
