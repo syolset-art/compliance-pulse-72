@@ -39,6 +39,69 @@ const LARA_SUGGESTIONS = [
   { id: 3, dot: "bg-primary", text: "Book intro med Vestland Logistikk — ny CEO" },
 ];
 
+const LARA_SUGGESTIONS: LaraSuggestion[] = [
+  {
+    id: 1,
+    dot: "bg-status-followup",
+    text: "Kjør NIS2-claim-kampanje mot 28 kunder",
+    icon: Target,
+    title: "NIS2-claim-kampanje",
+    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke claimet sin Trust Profile. Lara har klargjort en målrettet kampanje.",
+    impact: { reach: "28 kunder", expectedClaims: "9–12 nye claims", revenue: "~210 000 kr ARR" },
+    steps: [
+      "Send personalisert e-post med NIS2-eksponering og frister",
+      "Automatisk oppfølging etter 3 dager til de som ikke åpnet",
+      "Lara booker intro-møte for de som klikker «Vis min profil»",
+      "Du får daglig statusrapport i innboksen",
+    ],
+    cta: { primary: "Start kampanje nå", secondary: "Tilpass mal", icon: Mail },
+  },
+  {
+    id: 2,
+    dot: "bg-status-followup",
+    text: "Følg opp Bergen Maskin — sertifikat utløpt",
+    icon: Clock,
+    title: "Bergen Maskin AS — ISO 27001 utløpt",
+    summary: "ISO 27001-sertifikatet utløp for 14 dager siden. Kunden har ikke lastet opp nytt bevis. Risiko for at de mister sertifisering — og at du mister rådgivningsmulighet.",
+    impact: { reach: "1 kunde", expectedClaims: "Beholde kunde + resertifisering", revenue: "~85 000 kr i prosjekt" },
+    steps: [
+      "Ring kontaktperson Erik Solheim (CISO)",
+      "Send forhåndsskrevet e-post med tilbud om resertifiseringsløp",
+      "Book oppfølging i kalender om 7 dager",
+      "Lara overvåker Brreg + datatilsyn for nye signaler",
+    ],
+    cta: { primary: "Ring nå", secondary: "Send e-post", icon: Phone },
+  },
+  {
+    id: 3,
+    dot: "bg-primary",
+    text: "Book intro med Vestland Logistikk — ny CEO",
+    icon: Users,
+    title: "Vestland Logistikk — ny CEO",
+    summary: "Brreg-signal: ny CEO registrert i går. Statistisk topp-tidspunkt for å introdusere compliance-rådgivning. Selskapet er DORA-eksponert (transport + finansielle tjenester).",
+    impact: { reach: "1 kunde", expectedClaims: "Ny rådgivningskontrakt", revenue: "~150 000 kr ARR" },
+    steps: [
+      "Lara har funnet CEO på LinkedIn — godkjenn introtekst",
+      "Send connect-forespørsel med personlig melding",
+      "Foreslå 20-min intromøte neste uke",
+      "Forbered briefing-pakke om DORA + transportbransjen",
+    ],
+    cta: { primary: "Book møte", secondary: "Se briefing", icon: Calendar },
+  },
+];
+
+type LaraSuggestion = {
+  id: number;
+  dot: string;
+  text: string;
+  icon: typeof Target;
+  title: string;
+  summary: string;
+  impact: { reach: string; expectedClaims: string; revenue: string };
+  steps: string[];
+  cta: { primary: string; secondary: string; icon: typeof Mail };
+};
+
 const CLAIM_TREND = [
   { month: "nov", value: 6 },
   { month: "des", value: 9 },
