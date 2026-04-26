@@ -64,10 +64,10 @@ export function AIWorkingWidget({ frameworkId, className }: AIWorkingWidgetProps
             <Bot className="h-5 w-5 text-primary" />
             {isNorwegian ? "Lara jobber nå" : "Lara is working now"}
           </CardTitle>
-          <Badge variant="outline" className="text-xs gap-1.5 bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+          <Badge variant="outline" className="text-xs gap-1.5 bg-status-closed/10 text-status-closed border-status-closed/30">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-closed opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-status-closed"></span>
             </span>
             Live
           </Badge>

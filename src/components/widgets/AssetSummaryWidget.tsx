@@ -80,9 +80,9 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
   }, [assets]);
 
   const getComplianceColor = (score: number) => {
-    if (score >= 85) return "text-green-500";
-    if (score >= 50) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 85) return "text-status-closed";
+    if (score >= 50) return "text-warning";
+    return "text-destructive";
   };
 
   return (
@@ -108,8 +108,8 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-500" />
+              <div className="h-10 w-10 rounded-lg bg-status-closed/20 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-status-closed" />
               </div>
               <div>
                 <p className={`text-2xl font-bold ${getComplianceColor(stats.avgCompliance)}`}>
@@ -125,11 +125,11 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-red-500/20 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
+              <div className="h-10 w-10 rounded-lg bg-destructive/20 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-500">{stats.highRisk}</p>
+                <p className="text-2xl font-bold text-destructive">{stats.highRisk}</p>
                 <p className="text-xs text-muted-foreground">High Risk</p>
               </div>
             </div>
@@ -140,11 +140,11 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-500" />
+              <div className="h-10 w-10 rounded-lg bg-warning/20 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-500">{stats.upcomingReviews}</p>
+                <p className="text-2xl font-bold text-warning">{stats.upcomingReviews}</p>
                 <p className="text-xs text-muted-foreground">Reviews (30d)</p>
               </div>
             </div>
@@ -161,21 +161,21 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-status-closed" />
                   <span className="text-sm text-foreground">Compliant (≥85%)</span>
                 </div>
                 <span className="text-sm font-medium text-foreground">{stats.compliant}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-warning" />
                   <span className="text-sm text-foreground">Needs Attention (50-84%)</span>
                 </div>
                 <span className="text-sm font-medium text-foreground">{stats.needsAttention}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-destructive" />
                   <span className="text-sm text-foreground">Non-compliant (&lt;50%)</span>
                 </div>
                 <span className="text-sm font-medium text-foreground">{stats.nonCompliant}</span>
@@ -186,15 +186,15 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
               {stats.total > 0 && (
                 <>
                   <div 
-                    className="h-full bg-green-500" 
+                    className="h-full bg-status-closed" 
                     style={{ width: `${(stats.compliant / stats.total) * 100}%` }} 
                   />
                   <div 
-                    className="h-full bg-yellow-500" 
+                    className="h-full bg-warning" 
                     style={{ width: `${(stats.needsAttention / stats.total) * 100}%` }} 
                   />
                   <div 
-                    className="h-full bg-red-500" 
+                    className="h-full bg-destructive" 
                     style={{ width: `${(stats.nonCompliant / stats.total) * 100}%` }} 
                   />
                 </>
@@ -209,8 +209,8 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Assets by Type</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Server className="h-4 w-4 text-blue-500" />
+                <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Server className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.system}</p>
@@ -218,8 +218,8 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Building2 className="h-4 w-4 text-purple-500" />
+                <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                  <Building2 className="h-4 w-4 text-accent" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.vendor}</p>
@@ -227,8 +227,8 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                  <Network className="h-4 w-4 text-orange-500" />
+                <div className="h-8 w-8 rounded-lg bg-warning/20 flex items-center justify-center">
+                  <Network className="h-4 w-4 text-warning" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.network}</p>
@@ -236,8 +236,8 @@ export function AssetSummaryWidget({ assets }: AssetSummaryWidgetProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-green-500" />
+                <div className="h-8 w-8 rounded-lg bg-status-closed/20 flex items-center justify-center">
+                  <MapPin className="h-4 w-4 text-status-closed" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{stats.byType.location}</p>

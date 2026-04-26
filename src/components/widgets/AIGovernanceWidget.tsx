@@ -17,10 +17,10 @@ const RISK_LABELS: Record<string, string> = {
 };
 
 const RISK_COLORS: Record<string, string> = {
-  unacceptable: 'bg-red-500',
-  high: 'bg-orange-500',
-  limited: 'bg-yellow-500',
-  minimal: 'bg-green-500',
+  unacceptable: 'bg-destructive',
+  high: 'bg-warning',
+  limited: 'bg-warning',
+  minimal: 'bg-status-closed',
   not_assessed: 'bg-gray-400'
 };
 
@@ -98,7 +98,7 @@ export function AIGovernanceWidget() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Bot className="h-5 w-5 text-purple-600" />
+              <Bot className="h-5 w-5 text-accent" />
               AI Governance
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -114,11 +114,11 @@ export function AIGovernanceWidget() {
         {/* Main KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className="text-3xl font-bold text-purple-600">{aiMetrics?.totalSystems || 0}</p>
+            <p className="text-3xl font-bold text-accent">{aiMetrics?.totalSystems || 0}</p>
             <p className="text-sm text-muted-foreground">AI-systemer</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(aiMetrics?.riskDistribution?.high || 0) + (aiMetrics?.riskDistribution?.unacceptable || 0) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(aiMetrics?.riskDistribution?.high || 0) + (aiMetrics?.riskDistribution?.unacceptable || 0) > 0 ? 'text-destructive' : 'text-status-closed'}`}>
               {(aiMetrics?.riskDistribution?.high || 0) + (aiMetrics?.riskDistribution?.unacceptable || 0)}
             </p>
             <p className="text-sm text-muted-foreground">Høyrisiko</p>
@@ -128,7 +128,7 @@ export function AIGovernanceWidget() {
             <p className="text-sm text-muted-foreground">AI-beslutninger</p>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
-            <p className={`text-3xl font-bold ${(aiMetrics?.pendingAssessments || 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+            <p className={`text-3xl font-bold ${(aiMetrics?.pendingAssessments || 0) > 0 ? 'text-warning' : 'text-status-closed'}`}>
               {aiMetrics?.pendingAssessments || 0}
             </p>
             <p className="text-sm text-muted-foreground">Venter vurdering</p>
@@ -198,9 +198,9 @@ export function AIGovernanceWidget() {
         {/* Alerts */}
         <div className="space-y-3">
           {(aiMetrics?.riskDistribution?.unacceptable || 0) > 0 && (
-            <div className="flex items-center justify-between bg-red-50 dark:bg-red-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-destructive/10 dark:bg-red-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertTriangle className="h-4 w-4 text-destructive" />
                 <span className="text-sm">
                   {aiMetrics?.riskDistribution?.unacceptable} AI-systemer med uakseptabel risiko må stoppes
                 </span>
@@ -212,9 +212,9 @@ export function AIGovernanceWidget() {
           )}
 
           {(aiMetrics?.riskDistribution?.high || 0) > 0 && (
-            <div className="flex items-center justify-between bg-orange-50 dark:bg-orange-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-warning/10 dark:bg-orange-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 <span className="text-sm">
                   {aiMetrics?.riskDistribution?.high} høyrisiko AI-systemer krever ekstra dokumentasjon
                 </span>
@@ -226,9 +226,9 @@ export function AIGovernanceWidget() {
           )}
 
           {(aiMetrics?.pendingAssessments || 0) > 0 && (
-            <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-950/20 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-warning/10 dark:bg-amber-950/20 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-amber-600" />
+                <FileText className="h-4 w-4 text-warning" />
                 <span className="text-sm">
                   {aiMetrics?.pendingAssessments} AI-systemer mangler risikovurdering
                 </span>
@@ -240,9 +240,9 @@ export function AIGovernanceWidget() {
           )}
 
           {score >= 80 && (aiMetrics?.riskDistribution?.unacceptable || 0) === 0 && (aiMetrics?.pendingAssessments || 0) === 0 && (
-            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 rounded-lg p-3">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-2 bg-status-closed/10 dark:bg-green-950/20 rounded-lg p-3">
+              <CheckCircle2 className="h-4 w-4 text-status-closed" />
+              <span className="text-sm text-status-closed dark:text-status-closed">
                 God AI-governance. Alle systemer er vurdert og dokumentert.
               </span>
             </div>

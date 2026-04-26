@@ -192,7 +192,7 @@ export const DownloadReportDialog = ({
 
         {done ? (
           <div className="flex flex-col items-center py-8 gap-3">
-            <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+            <CheckCircle2 className="h-12 w-12 text-status-closed" />
             <p className="font-medium text-foreground">PDF generert!</p>
           </div>
         ) : (

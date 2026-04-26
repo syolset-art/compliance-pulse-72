@@ -70,12 +70,12 @@ export function ActivateServiceDialog({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center text-center py-6 space-y-4">
-            <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div className="h-16 w-16 rounded-full bg-status-closed/10 dark:bg-status-closed/40 flex items-center justify-center">
+              <CheckCircle className="h-8 w-8 text-status-closed dark:text-status-closed" />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground flex items-center justify-center gap-2">
-                {isNb ? "Tjenesten er aktivert!" : "Service activated!"} <PartyPopper className="h-5 w-5 text-amber-500" />
+                {isNb ? "Tjenesten er aktivert!" : "Service activated!"} <PartyPopper className="h-5 w-5 text-warning" />
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                 {isNb

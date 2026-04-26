@@ -24,9 +24,9 @@ const PLATFORM_UPDATES = [
 ];
 
 const UPDATE_TYPE_STYLES = {
-  ny: { label: "Ny", className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
+  ny: { label: "Ny", className: "bg-status-closed/15 text-status-closed dark:text-status-closed border-status-closed/20" },
   oppdatert: { label: "Oppdatert", className: "bg-primary/15 text-primary border-primary/20" },
-  beta: { label: "Beta", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20" },
+  beta: { label: "Beta", className: "bg-warning/15 text-warning dark:text-warning border-warning/20" },
 };
 
 const Resources = () => {
@@ -239,8 +239,8 @@ const Resources = () => {
               className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-3">
-                  <BookOpenText className="h-5 w-5 text-blue-500" />
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <BookOpenText className="h-5 w-5 text-primary" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
@@ -254,8 +254,8 @@ const Resources = () => {
               className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-3">
-                  <Layers className="h-5 w-5 text-emerald-500" />
+                <div className="h-10 w-10 rounded-xl bg-status-closed/10 flex items-center justify-center mb-3">
+                  <Layers className="h-5 w-5 text-status-closed" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
@@ -269,8 +269,8 @@ const Resources = () => {
               className="group text-left rounded-2xl border border-border/50 bg-card p-5 hover:border-primary/20 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3">
-                  <BookOpen className="h-5 w-5 text-amber-500" />
+                <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center mb-3">
+                  <BookOpen className="h-5 w-5 text-warning" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>

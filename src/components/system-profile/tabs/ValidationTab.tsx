@@ -119,17 +119,17 @@ export const ValidationTab = ({ systemId, systemAsAsset, tasksCount, onTrustMetr
   const getStatusIcon = (status?: string) => {
     switch (status) {
       case "compliant":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-status-closed" />;
       case "non_compliant":
         return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
     }
   };
 
   const getStatusColor = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 50) return "bg-yellow-500";
+    if (score >= 80) return "bg-status-closed";
+    if (score >= 50) return "bg-warning";
     return "bg-destructive";
   };
 

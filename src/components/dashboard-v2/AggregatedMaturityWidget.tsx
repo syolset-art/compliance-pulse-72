@@ -36,9 +36,9 @@ const SLA_TO_PILLAR: Record<string, string> = {
 type ViewMode = "status" | "history" | "frameworks";
 
 function coverageLabel(score: number, isNb: boolean) {
-  if (score >= 67) return { label: isNb ? "GOD DEKNING" : "GOOD COVERAGE", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" };
-  if (score >= 34) return { label: isNb ? "MIDDELS DEKNING" : "MEDIUM COVERAGE", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" };
-  return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" };
+  if (score >= 67) return { label: isNb ? "GOD DEKNING" : "GOOD COVERAGE", className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed" };
+  if (score >= 34) return { label: isNb ? "MIDDELS DEKNING" : "MEDIUM COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
+  return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
 }
 
 function generateFrameworkHistory(currentScore: number) {
@@ -176,9 +176,9 @@ export function AggregatedMaturityWidget() {
             </div>
             <span className={cn(
               "text-xl font-bold tabular-nums",
-              overall.score >= 67 ? "text-emerald-600 dark:text-emerald-400" :
-              overall.score >= 34 ? "text-amber-600 dark:text-amber-400" :
-              "text-orange-600 dark:text-orange-400"
+              overall.score >= 67 ? "text-status-closed dark:text-status-closed" :
+              overall.score >= 34 ? "text-warning dark:text-warning" :
+              "text-warning dark:text-warning"
             )}>
               {Math.round(overall.score)}%
             </span>
@@ -192,7 +192,7 @@ export function AggregatedMaturityWidget() {
           </Badge>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+              <CheckCircle2 className="h-3 w-3 text-status-closed" />
               <span className="font-medium text-foreground">{totalAssessed}</span> {isNb ? "oppfylt" : "fulfilled"}
             </span>
             <span className="text-border">•</span>
@@ -284,7 +284,7 @@ export function AggregatedMaturityWidget() {
                     <span className="text-[13px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
                     <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>{cov.label}</Badge>
                     <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
-                      <CheckCircle2 className="h-2.5 w-2.5 text-emerald-500" />
+                      <CheckCircle2 className="h-2.5 w-2.5 text-status-closed" />
                       {fw.data.assessed}/{fw.data.total}
                     </span>
                   </div>
@@ -424,8 +424,8 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
       {sorted.slice(0, 10).map((ctrl) => {
         const StatusIcon = STATUS_ICON[ctrl.status as keyof typeof STATUS_ICON] || Circle;
         const statusColor =
-          ctrl.status === "completed" ? "text-emerald-500"
-            : ctrl.status === "in_progress" ? "text-amber-500"
+          ctrl.status === "completed" ? "text-status-closed"
+            : ctrl.status === "in_progress" ? "text-warning"
               : "text-muted-foreground/40";
         return (
           <div key={ctrl.requirement_id} className="flex items-center gap-2 py-1 px-1 rounded hover:bg-muted/30 text-xs">
@@ -435,8 +435,8 @@ function ControlList({ controls, isNb }: { controls: any[]; isNb: boolean }) {
               variant="outline"
               className={cn(
                 "text-[13px] h-4 px-1.5 shrink-0",
-                ctrl.status === "completed" && "border-emerald-300 text-emerald-600 dark:text-emerald-400",
-                ctrl.status === "in_progress" && "border-amber-300 text-amber-600 dark:text-amber-400",
+                ctrl.status === "completed" && "border-status-closed/20 text-status-closed dark:text-status-closed",
+                ctrl.status === "in_progress" && "border-warning/20 text-warning dark:text-warning",
                 ctrl.status === "not_started" && "border-border text-muted-foreground"
               )}
             >

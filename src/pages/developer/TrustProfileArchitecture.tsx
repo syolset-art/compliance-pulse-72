@@ -6,10 +6,10 @@ import { ArrowRight, Database, Mail, Shield, User, Bot, UserCheck, Building2 } f
 
 const roles = [
   {
-    color: "bg-green-500",
-    borderColor: "border-green-500",
-    textColor: "text-green-700 dark:text-green-400",
-    bgLight: "bg-green-50 dark:bg-green-950/30",
+    color: "bg-status-closed",
+    borderColor: "border-status-closed",
+    textColor: "text-status-closed dark:text-status-closed",
+    bgLight: "bg-status-closed/10 dark:bg-green-950/30",
     name: "Karl / Virksomheten",
     icon: User,
     tag: "Grønn",
@@ -28,10 +28,10 @@ const roles = [
     dataExamples: ["Automatisk vendor-kategori (SaaS, konsulent, etc.)", "Foreslåtte regelverk (GDPR, ISO 27001)", "Risikoklassifisering og compliance-score"],
   },
   {
-    color: "bg-blue-500",
-    borderColor: "border-blue-500",
-    textColor: "text-blue-700 dark:text-blue-400",
-    bgLight: "bg-blue-50 dark:bg-blue-950/30",
+    color: "bg-primary",
+    borderColor: "border-primary",
+    textColor: "text-primary dark:text-primary",
+    bgLight: "bg-primary/10 dark:bg-blue-950/30",
     name: "Tobby / Kontakt opprettet",
     icon: UserCheck,
     tag: "Blå",
@@ -39,10 +39,10 @@ const roles = [
     dataExamples: ["Kontakt-e-post og navn", "Org.nummer (fra Brreg)", "Ingen dokumenter eller svar ennå"],
   },
   {
-    color: "bg-red-500",
-    borderColor: "border-red-500",
-    textColor: "text-red-700 dark:text-red-400",
-    bgLight: "bg-red-50 dark:bg-red-950/30",
+    color: "bg-destructive",
+    borderColor: "border-destructive",
+    textColor: "text-destructive dark:text-destructive",
+    bgLight: "bg-destructive/10 dark:bg-red-950/30",
     name: "Underleverandør / Eier av TP",
     icon: Building2,
     tag: "Rød",
@@ -60,12 +60,12 @@ const dataModelTables = [
 ];
 
 const lifecycleSteps = [
-  { step: 1, title: "Opprettelse", color: "bg-blue-500", desc: "Karl oppretter en ny leverandør i Mynder. Lara beriker automatisk med data fra Brreg og foreslår kategori." },
+  { step: 1, title: "Opprettelse", color: "bg-primary", desc: "Karl oppretter en ny leverandør i Mynder. Lara beriker automatisk med data fra Brreg og foreslår kategori." },
   { step: 2, title: "AI-berikning", color: "bg-gray-900 dark:bg-gray-300", desc: "Lara klassifiserer leverandøren, foreslår relevante regelverk, og beregner en initial risikoscore." },
-  { step: 3, title: "Forespørsel sendt", color: "bg-green-500", desc: "Karl sender en compliance-forespørsel (f.eks. DPA) til leverandørens kontakt-e-post." },
-  { step: 4, title: "E-post mottatt", color: "bg-blue-500", desc: "Tobby mottar e-post med info om at Karl i Grønt Selskap ønsker dokumentasjon." },
-  { step: 5, title: "Valg: E-post eller TP", color: "bg-red-500", desc: "Tobby kan svare via e-post (dokumentet havner i Lara Inbox) eller overta sin Trust Profil og registrere direkte." },
-  { step: 6, title: "Aktiv samhandling", color: "bg-red-500", desc: "Underleverandøren administrerer sin TP aktivt – laster opp dokumenter, oppdaterer sertifikater, svarer på forespørsler." },
+  { step: 3, title: "Forespørsel sendt", color: "bg-status-closed", desc: "Karl sender en compliance-forespørsel (f.eks. DPA) til leverandørens kontakt-e-post." },
+  { step: 4, title: "E-post mottatt", color: "bg-primary", desc: "Tobby mottar e-post med info om at Karl i Grønt Selskap ønsker dokumentasjon." },
+  { step: 5, title: "Valg: E-post eller TP", color: "bg-destructive", desc: "Tobby kan svare via e-post (dokumentet havner i Lara Inbox) eller overta sin Trust Profil og registrere direkte." },
+  { step: 6, title: "Aktiv samhandling", color: "bg-destructive", desc: "Underleverandøren administrerer sin TP aktivt – laster opp dokumenter, oppdaterer sertifikater, svarer på forespørsler." },
 ];
 
 export default function TrustProfileArchitecture() {
@@ -157,10 +157,10 @@ export default function TrustProfileArchitecture() {
             <Card variant="flat">
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3">
-                    <User className="h-5 w-5 text-green-600" />
+                  <div className="flex items-center gap-2 bg-status-closed/10 dark:bg-green-950/30 border border-status-closed/20 dark:border-status-closed rounded-lg px-4 py-3">
+                    <User className="h-5 w-5 text-status-closed" />
                     <div>
-                      <p className="font-medium text-green-700 dark:text-green-400">Karl</p>
+                      <p className="font-medium text-status-closed dark:text-status-closed">Karl</p>
                       <p className="text-xs text-muted-foreground">Sender forespørsel om DPA</p>
                     </div>
                   </div>
@@ -173,10 +173,10 @@ export default function TrustProfileArchitecture() {
                     </div>
                   </div>
                   <ArrowRight className="h-5 w-5 text-muted-foreground hidden md:block" />
-                  <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3">
-                    <UserCheck className="h-5 w-5 text-blue-600" />
+                  <div className="flex items-center gap-2 bg-primary/10 dark:bg-blue-950/30 border border-primary/20 dark:border-primary rounded-lg px-4 py-3">
+                    <UserCheck className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="font-medium text-blue-700 dark:text-blue-400">Tobby</p>
+                      <p className="font-medium text-primary dark:text-primary">Tobby</p>
                       <p className="text-xs text-muted-foreground">Mottar e-post</p>
                     </div>
                   </div>
@@ -194,9 +194,9 @@ export default function TrustProfileArchitecture() {
                       </p>
                     </CardContent>
                   </Card>
-                  <Card variant="flat" className="bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+                  <Card variant="flat" className="bg-destructive/10/50 dark:bg-red-950/20 border-destructive/20 dark:border-destructive">
                     <CardContent className="pt-4">
-                      <h4 className="font-medium mb-1 flex items-center gap-2 text-red-700 dark:text-red-400">
+                      <h4 className="font-medium mb-1 flex items-center gap-2 text-destructive dark:text-destructive">
                         <Shield className="h-4 w-4" /> Alternativ B: Overta Trust Profilen
                       </h4>
                       <p className="text-sm text-muted-foreground">
@@ -246,7 +246,7 @@ export default function TrustProfileArchitecture() {
               <Building2 className="h-5 w-5 text-primary" />
               Virksomhetens egen profil (Self)
             </h2>
-            <Card variant="flat" className="bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
+            <Card variant="flat" className="bg-status-closed/10/50 dark:bg-green-950/20 border-status-closed/20 dark:border-status-closed">
               <CardContent className="pt-6 space-y-3">
                 <p className="text-sm text-muted-foreground">
                   <code className="text-xs bg-muted px-1.5 py-0.5 rounded">asset_type = 'self'</code> representerer 
@@ -254,19 +254,19 @@ export default function TrustProfileArchitecture() {
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-1.5">
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-status-closed shrink-0" />
                     Skjuler leverandør-spesifikke handlinger som «Be om oppdatering»
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-status-closed shrink-0" />
                     Har en «Forhåndsvisning»-knapp for å se profilen slik kunder ser den
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-status-closed shrink-0" />
                     Inkluderer publiseringsinnstillinger og kundeforespørsels-håndtering
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-status-closed shrink-0" />
                     Automatisk «Mynder Partner»-merking for verifiserte forhandlere
                   </li>
                 </ul>

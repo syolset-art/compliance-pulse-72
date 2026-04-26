@@ -77,9 +77,9 @@ export function FrameworkActivationDialog({
 
         <div className="space-y-4 py-2">
           {/* Success */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-            <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-            <p className="text-sm text-green-700 dark:text-green-400">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/20">
+            <CheckCircle2 className="h-5 w-5 text-status-closed flex-shrink-0" />
+            <p className="text-sm text-status-closed dark:text-status-closed">
               {framework.name} er nå aktivt i din compliance-portefølje.
             </p>
           </div>
@@ -98,11 +98,11 @@ export function FrameworkActivationDialog({
           </div>
 
           {/* Score impact warning */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-            <TrendingDown className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-orange-700 dark:text-orange-400">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
+            <TrendingDown className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-warning dark:text-warning">
               <p className="font-medium mb-1">Compliance-skåren din vil gå ned</p>
-              <p className="text-xs text-orange-600 dark:text-orange-400/80">
+              <p className="text-xs text-warning dark:text-warning/80">
                 Når du legger til et nytt regelverk, beregnes skåren på nytt med de nye kravene inkludert. 
                 Skåren vil stige igjen etter hvert som du dokumenterer status på kravene.
               </p>

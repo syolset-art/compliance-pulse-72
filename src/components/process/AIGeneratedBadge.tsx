@@ -23,31 +23,31 @@ const variantConfig: Record<BadgeVariant, {
     icon: <Sparkles className="h-3 w-3" />,
     label: "AI-generert",
     tooltipText: "Dette feltet er automatisk utfylt basert på systemdata",
-    className: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800"
+    className: "bg-accent/10 text-foreground border-accent/20 dark:bg-foreground/30 dark:text-accent dark:border-accent"
   },
   "suggested": {
     icon: <Bot className="h-3 w-3" />,
     label: "Foreslått",
     tooltipText: "AI har foreslått denne verdien basert på analyse",
-    className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
+    className: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary"
   },
   "from-system": {
     icon: <Server className="h-3 w-3" />,
     label: "Fra system",
     tooltipText: "Hentet fra tilknyttet system",
-    className: "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800"
+    className: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/30 dark:text-primary dark:border-primary"
   },
   "requires-input": {
     icon: <AlertCircle className="h-3 w-3" />,
     label: "Krever input",
     tooltipText: "Dette feltet må fylles ut manuelt",
-    className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800"
+    className: "bg-warning/10 text-warning border-warning/20 dark:bg-warning/30 dark:text-warning dark:border-warning"
   },
   "confirmed": {
     icon: <Check className="h-3 w-3" />,
     label: "Bekreftet",
     tooltipText: "Denne verdien er bekreftet av bruker",
-    className: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
+    className: "bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed"
   }
 };
 
@@ -116,7 +116,7 @@ export function AIFieldWrapper({
   return (
     <div className={cn(
       "relative transition-all duration-200",
-      isAIGenerated && "pl-3 border-l-2 border-purple-400 dark:border-purple-600 bg-gradient-to-r from-purple-50/50 to-transparent dark:from-purple-900/10 rounded-r-md",
+      isAIGenerated && "pl-3 border-l-2 border-accent dark:border-accent bg-gradient-to-r from-accent/50 to-transparent dark:from-accent/10 rounded-r-md",
       className
     )}>
       {label && (

@@ -237,7 +237,7 @@ const Transparency = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-primary flex items-center justify-center">
             <Shield className="h-10 w-10 text-white" />
           </div>
         </div>
@@ -420,9 +420,9 @@ const Transparency = () => {
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-4">
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.mapped ? 'bg-blue-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.mapped ? 'bg-primary/10' : 'bg-muted'}`}>
               {suppliersAnalyzed.mapped ? (
-                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -432,9 +432,9 @@ const Transparency = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.assessed ? 'bg-blue-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.assessed ? 'bg-primary/10' : 'bg-muted'}`}>
               {suppliersAnalyzed.assessed ? (
-                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -444,9 +444,9 @@ const Transparency = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.categorized ? 'bg-blue-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.categorized ? 'bg-primary/10' : 'bg-muted'}`}>
               {suppliersAnalyzed.categorized ? (
-                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -456,9 +456,9 @@ const Transparency = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.documented ? 'bg-blue-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${suppliersAnalyzed.documented ? 'bg-primary/10' : 'bg-muted'}`}>
               {suppliersAnalyzed.documented ? (
-                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -491,15 +491,15 @@ const Transparency = () => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <Card className={risksIdentified.humanRights ? 'border-yellow-500' : ''}>
+        <Card className={risksIdentified.humanRights ? 'border-warning' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-yellow-500" />
+                <Users className="h-5 w-5 text-warning" />
                 <CardTitle className="text-lg">Menneskerettigheter</CardTitle>
               </div>
               {risksIdentified.humanRights && (
-                <Badge className="bg-yellow-500">Vurdert</Badge>
+                <Badge className="bg-warning">Vurdert</Badge>
               )}
             </div>
           </CardHeader>
@@ -508,7 +508,7 @@ const Transparency = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Høyrisiko leverandører</span>
-                  <span className="font-semibold text-yellow-600">8</span>
+                  <span className="font-semibold text-warning">8</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Hovedland</span>
@@ -521,15 +521,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={risksIdentified.laborRights ? 'border-orange-500' : ''}>
+        <Card className={risksIdentified.laborRights ? 'border-warning' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-orange-500" />
+                <Building2 className="h-5 w-5 text-warning" />
                 <CardTitle className="text-lg">Arbeidsrettigheter</CardTitle>
               </div>
               {risksIdentified.laborRights && (
-                <Badge className="bg-orange-500">Vurdert</Badge>
+                <Badge className="bg-warning">Vurdert</Badge>
               )}
             </div>
           </CardHeader>
@@ -538,7 +538,7 @@ const Transparency = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Risikoområder</span>
-                  <span className="font-semibold text-orange-600">5</span>
+                  <span className="font-semibold text-warning">5</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Arbeidstid/lønn</span>
@@ -551,15 +551,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={risksIdentified.environment ? 'border-green-500' : ''}>
+        <Card className={risksIdentified.environment ? 'border-status-closed' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Globe className="h-5 w-5 text-green-500" />
+                <Globe className="h-5 w-5 text-status-closed" />
                 <CardTitle className="text-lg">Miljørisiko</CardTitle>
               </div>
               {risksIdentified.environment && (
-                <Badge className="bg-green-500">Vurdert</Badge>
+                <Badge className="bg-status-closed">Vurdert</Badge>
               )}
             </div>
           </CardHeader>
@@ -568,7 +568,7 @@ const Transparency = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Høyrisiko</span>
-                  <span className="font-semibold text-green-600">3</span>
+                  <span className="font-semibold text-status-closed">3</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Utslipp/kjemi</span>
@@ -581,15 +581,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={risksIdentified.corruption ? 'border-red-500' : ''}>
+        <Card className={risksIdentified.corruption ? 'border-destructive' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
+                <AlertTriangle className="h-5 w-5 text-destructive" />
                 <CardTitle className="text-lg">Korrupsjon</CardTitle>
               </div>
               {risksIdentified.corruption && (
-                <Badge className="bg-red-500">Vurdert</Badge>
+                <Badge className="bg-destructive">Vurdert</Badge>
               )}
             </div>
           </CardHeader>
@@ -598,7 +598,7 @@ const Transparency = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Høyrisiko land</span>
-                  <span className="font-semibold text-red-600">2</span>
+                  <span className="font-semibold text-destructive">2</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">TI-score</span>
@@ -618,26 +618,26 @@ const Transparency = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/10">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-red-500" />
+                <MapPin className="h-4 w-4 text-destructive" />
                 <span className="font-medium text-foreground">Bangladesh</span>
               </div>
               <Badge variant="destructive">Høy risiko</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-warning/10">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-yellow-500" />
+                <MapPin className="h-4 w-4 text-warning" />
                 <span className="font-medium text-foreground">Kina</span>
               </div>
-              <Badge className="bg-yellow-500">Medium risiko</Badge>
+              <Badge className="bg-warning">Medium risiko</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-status-closed/10">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-green-500" />
+                <MapPin className="h-4 w-4 text-status-closed" />
                 <span className="font-medium text-foreground">Norge</span>
               </div>
-              <Badge className="bg-green-500">Lav risiko</Badge>
+              <Badge className="bg-status-closed">Lav risiko</Badge>
             </div>
           </div>
         </CardContent>
@@ -661,15 +661,15 @@ const Transparency = () => {
       </div>
 
       <div className="grid gap-4">
-        <Card className={actionsPlanned.policies ? 'border-blue-500' : ''}>
+        <Card className={actionsPlanned.policies ? 'border-primary' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-blue-500" />
+                <FileText className="h-5 w-5 text-primary" />
                 <CardTitle className="text-lg">Policyer og retningslinjer</CardTitle>
               </div>
               {actionsPlanned.policies && (
-                <Badge className="bg-blue-500">Opprettet</Badge>
+                <Badge className="bg-primary">Opprettet</Badge>
               )}
             </div>
             <CardDescription>Menneskerettighets- og leverandørpolicy</CardDescription>
@@ -694,15 +694,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={actionsPlanned.dueDiligence ? 'border-purple-500' : ''}>
+        <Card className={actionsPlanned.dueDiligence ? 'border-accent' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Search className="h-5 w-5 text-purple-500" />
+                <Search className="h-5 w-5 text-accent" />
                 <CardTitle className="text-lg">Aktsomhetsvurdering</CardTitle>
               </div>
               {actionsPlanned.dueDiligence && (
-                <Badge className="bg-purple-500">Planlagt</Badge>
+                <Badge className="bg-accent">Planlagt</Badge>
               )}
             </div>
             <CardDescription>Due diligence-prosesser for høyrisiko</CardDescription>
@@ -726,15 +726,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={actionsPlanned.monitoring ? 'border-green-500' : ''}>
+        <Card className={actionsPlanned.monitoring ? 'border-status-closed' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <TrendingUp className="h-5 w-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-status-closed" />
                 <CardTitle className="text-lg">Overvåking og oppfølging</CardTitle>
               </div>
               {actionsPlanned.monitoring && (
-                <Badge className="bg-green-500">Konfigurert</Badge>
+                <Badge className="bg-status-closed">Konfigurert</Badge>
               )}
             </div>
             <CardDescription>Kontinuerlig overvåking av leverandørkjede</CardDescription>
@@ -755,15 +755,15 @@ const Transparency = () => {
           </CardContent>
         </Card>
 
-        <Card className={actionsPlanned.reporting ? 'border-orange-500' : ''}>
+        <Card className={actionsPlanned.reporting ? 'border-warning' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-orange-500" />
+                <FileText className="h-5 w-5 text-warning" />
                 <CardTitle className="text-lg">Rapporteringsrutiner</CardTitle>
               </div>
               {actionsPlanned.reporting && (
-                <Badge className="bg-orange-500">Satt opp</Badge>
+                <Badge className="bg-warning">Satt opp</Badge>
               )}
             </div>
             <CardDescription>Årlig redegjørelse og intern rapportering</CardDescription>
@@ -808,7 +808,7 @@ const Transparency = () => {
             {isLaraWorking ? (
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 className="h-5 w-5 text-status-closed" />
             )}
             <p className="font-medium text-foreground">Genererer redegjørelse etter § 5...</p>
           </div>
@@ -828,7 +828,7 @@ const Transparency = () => {
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-primary flex items-center justify-center">
             <CheckCircle2 className="h-12 w-12 text-white" />
           </div>
         </div>
@@ -871,11 +871,11 @@ const Transparency = () => {
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
               <span className="font-medium text-foreground">Høyrisiko leverandører</span>
-              <span className="text-2xl font-bold text-yellow-600">8</span>
+              <span className="text-2xl font-bold text-warning">8</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
               <span className="font-medium text-foreground">Tiltak planlagt</span>
-              <span className="text-2xl font-bold text-green-600">12</span>
+              <span className="text-2xl font-bold text-status-closed">12</span>
             </div>
           </div>
         </CardContent>

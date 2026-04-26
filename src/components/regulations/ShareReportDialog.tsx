@@ -69,7 +69,7 @@ export const ShareReportDialog = ({
 
         {sent ? (
           <div className="flex flex-col items-center py-8 gap-3">
-            <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+            <CheckCircle2 className="h-12 w-12 text-status-closed" />
             <p className="font-medium text-foreground">Invitasjon sendt!</p>
             <p className="text-sm text-muted-foreground text-center">
               {email} vil motta en e-post med lenke til rapporten.

@@ -23,36 +23,36 @@ const REGION_CONFIG: Record<string, Omit<RegionData, "assets">> = {
     id: "norway",
     label: "Norge",
     labelEn: "Norway",
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-500",
-    borderColor: "border-blue-400",
+    color: "text-primary dark:text-primary",
+    bgColor: "bg-primary",
+    borderColor: "border-primary",
     gdprSafe: true,
   },
   eu: {
     id: "eu",
     label: "EU / EØS",
     labelEn: "EU / EEA",
-    color: "text-emerald-600 dark:text-emerald-400",
-    bgColor: "bg-emerald-500",
-    borderColor: "border-emerald-400",
+    color: "text-status-closed dark:text-status-closed",
+    bgColor: "bg-status-closed",
+    borderColor: "border-status-closed",
     gdprSafe: true,
   },
   usa: {
     id: "usa",
     label: "USA",
     labelEn: "USA",
-    color: "text-amber-600 dark:text-amber-400",
-    bgColor: "bg-amber-500",
-    borderColor: "border-amber-400",
+    color: "text-warning dark:text-warning",
+    bgColor: "bg-warning",
+    borderColor: "border-warning",
     gdprSafe: false,
   },
   other: {
     id: "other",
     label: "Andre",
     labelEn: "Other",
-    color: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-500",
-    borderColor: "border-red-400",
+    color: "text-destructive dark:text-destructive",
+    bgColor: "bg-destructive",
+    borderColor: "border-destructive",
     gdprSafe: false,
   },
 };
@@ -221,9 +221,9 @@ export function DataGeographyWidget() {
                     </p>
                     <div className="flex items-center gap-1 justify-center mt-0.5">
                       {region.gdprSafe ? (
-                        <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                        <ShieldCheck className="h-3 w-3 text-status-closed" />
                       ) : (
-                        <ShieldAlert className="h-3 w-3 text-amber-500" />
+                        <ShieldAlert className="h-3 w-3 text-warning" />
                       )}
                       <span className="text-[13px] text-muted-foreground">
                         {region.gdprSafe ? "GDPR OK" : isNb ? "Krever vurdering" : "Needs review"}
@@ -263,11 +263,11 @@ export function DataGeographyWidget() {
           ))}
           <div className="ml-auto flex items-center gap-3">
             <Badge variant="outline" className="text-[13px] gap-1 h-5">
-              <ShieldCheck className="h-3 w-3 text-emerald-500" />
+              <ShieldCheck className="h-3 w-3 text-status-closed" />
               GDPR OK
             </Badge>
             <Badge variant="outline" className="text-[13px] gap-1 h-5">
-              <ShieldAlert className="h-3 w-3 text-amber-500" />
+              <ShieldAlert className="h-3 w-3 text-warning" />
               {isNb ? "Krever vurdering" : "Needs review"}
             </Badge>
           </div>

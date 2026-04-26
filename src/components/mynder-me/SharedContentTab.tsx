@@ -38,12 +38,12 @@ interface ContentCounts {
 }
 
 const CONTENT_META: Record<string, { icon: typeof FileText; color: string }> = {
-  processing_records: { icon: FileText, color: "text-blue-600" },
-  ai_systems: { icon: Bot, color: "text-purple-600" },
-  data_systems: { icon: Server, color: "text-emerald-600" },
-  vendors: { icon: Building2, color: "text-orange-600" },
-  incidents: { icon: AlertTriangle, color: "text-red-600" },
-  frameworks: { icon: ShieldCheck, color: "text-teal-600" },
+  processing_records: { icon: FileText, color: "text-primary" },
+  ai_systems: { icon: Bot, color: "text-accent" },
+  data_systems: { icon: Server, color: "text-status-closed" },
+  vendors: { icon: Building2, color: "text-warning" },
+  incidents: { icon: AlertTriangle, color: "text-destructive" },
+  frameworks: { icon: ShieldCheck, color: "text-status-closed" },
 };
 
 export function SharedContentTab() {
@@ -142,13 +142,13 @@ export function SharedContentTab() {
                 {count} elementer
               </Badge>
               {row.is_mandatory && (
-                <Badge variant="outline" className="text-xs gap-1 border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
+                <Badge variant="outline" className="text-xs gap-1 border-warning/20 text-warning dark:border-warning dark:text-warning">
                   <Lock className="h-3 w-3" />
                   Lovpålagt
                 </Badge>
               )}
               {row.is_premium && (
-                <Badge variant="outline" className="text-xs gap-1 border-purple-300 text-purple-700 dark:border-purple-700 dark:text-purple-400">
+                <Badge variant="outline" className="text-xs gap-1 border-accent/20 text-foreground dark:border-accent dark:text-accent">
                   <Crown className="h-3 w-3" />
                   Premium
                 </Badge>
@@ -208,7 +208,7 @@ export function SharedContentTab() {
       {mandatoryRows.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <Lock className="h-4 w-4 text-warning dark:text-warning" />
             <h3 className="text-sm font-semibold text-foreground">Lovpålagt deling</h3>
           </div>
           <p className="text-xs text-muted-foreground -mt-1">
@@ -231,11 +231,11 @@ export function SharedContentTab() {
       )}
 
       {/* Info card */}
-      <Card variant="flat" className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30">
+      <Card variant="flat" className="border-primary/20 bg-primary/10/50 dark:border-primary dark:bg-blue-950/30">
         <CardContent className="pt-5 pb-5">
           <div className="flex gap-3">
             <div className="shrink-0 mt-0.5">
-              <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <Eye className="h-4 w-4 text-primary dark:text-primary" />
             </div>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>

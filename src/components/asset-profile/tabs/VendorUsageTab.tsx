@@ -47,7 +47,7 @@ const priorityColor = (value: string | null | undefined) => {
   switch (value) {
     case "critical": return "text-destructive bg-destructive/10 border-destructive/20";
     case "high": return "text-warning bg-warning/10 border-warning/20";
-    case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800";
+    case "medium": return "text-warning bg-warning/10 border-warning/20 dark:text-warning dark:bg-warning/20 dark:border-warning";
     case "low": return "text-success bg-success/10 border-success/20";
     default: return "text-muted-foreground bg-muted border-border";
   }

@@ -125,22 +125,22 @@ export const ProactiveInputSection = ({
   return (
     <div className="space-y-4">
       {/* Header with progress */}
-      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-warning to-warning dark:from-warning/20 dark:to-warning/20 border border-warning/20 dark:border-warning rounded-lg">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-amber-100 dark:bg-amber-800 rounded-full">
-            <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <div className="p-1.5 bg-warning/10 dark:bg-warning rounded-full">
+            <Lightbulb className="h-4 w-4 text-warning dark:text-warning" />
           </div>
           <div>
-            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+            <p className="text-sm font-medium text-warning dark:text-warning">
               {t("processAI.proactive.nextSteps", "Neste steg: Legg til manglende informasjon")}
             </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400">
+            <p className="text-xs text-warning dark:text-warning">
               {getCompletedCount()}/{requiresUserInput.length} {t("processAI.proactive.fieldsComplete", "felt fullført")}
             </p>
           </div>
         </div>
         {allFieldsComplete && (
-          <Badge className="bg-green-100 text-green-700 border-green-200">
+          <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             {t("processAI.proactive.ready", "Klar!")}
           </Badge>
@@ -161,7 +161,7 @@ export const ProactiveInputSection = ({
                 isExpanded 
                   ? "border-primary bg-primary/5 shadow-sm" 
                   : isComplete
-                  ? "border-green-200 bg-green-50/50 dark:bg-green-900/10"
+                  ? "border-status-closed/20 bg-status-closed/10/50 dark:bg-status-closed/10"
                   : "border-border hover:border-primary/50 hover:bg-muted/30"
               }`}
             >
@@ -172,13 +172,13 @@ export const ProactiveInputSection = ({
                 <div className="flex items-center gap-3">
                   <div className={`p-1.5 rounded-full ${
                     isComplete 
-                      ? "bg-green-100 text-green-600" 
+                      ? "bg-status-closed/10 text-status-closed" 
                       : "bg-muted text-muted-foreground"
                   }`}>
                     {isComplete ? <CheckCircle2 className="h-4 w-4" /> : getFieldIcon(input.field)}
                   </div>
                   <div>
-                    <span className={`text-sm font-medium ${isComplete ? "text-green-700 dark:text-green-400" : ""}`}>
+                    <span className={`text-sm font-medium ${isComplete ? "text-status-closed dark:text-status-closed" : ""}`}>
                       {guidance.title}
                     </span>
                     {isComplete && input.field === "affectedPersons" && (

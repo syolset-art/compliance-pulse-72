@@ -156,7 +156,7 @@ export default function ProcessingRecords() {
       case "low": return "bg-success/10 text-success border-success/20";
       case "medium": return "bg-warning/10 text-warning border-warning/20";
       case "high": return "bg-destructive/10 text-destructive border-destructive/20";
-      case "critical": return "bg-purple-500/10 text-purple-500 border-purple-500/20";
+      case "critical": return "bg-accent/10 text-accent border-accent/20";
       default: return "bg-muted text-muted-foreground border-border";
     }
   };

@@ -37,33 +37,33 @@ const frameworkConfig = {
     name: "ISO 27001:2022",
     fullName: "ISO/IEC 27001:2022 Information Security",
     icon: Lock,
-    color: "text-emerald-600 dark:text-emerald-400",
-    bgColor: "bg-emerald-500/10",
+    color: "text-status-closed dark:text-status-closed",
+    bgColor: "bg-status-closed/10",
     iconComponent: Lock,
-    domainColorClass: "text-emerald-600 dark:text-emerald-400",
-    domainBgClass: "bg-emerald-50 dark:bg-emerald-950/30",
+    domainColorClass: "text-status-closed dark:text-status-closed",
+    domainBgClass: "bg-status-closed/10 dark:bg-emerald-950/30",
   },
   "gdpr": {
     id: "gdpr",
     name: "GDPR",
     fullName: "General Data Protection Regulation",
     icon: Shield,
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-500/10",
+    color: "text-primary dark:text-primary",
+    bgColor: "bg-primary/10",
     iconComponent: Shield,
-    domainColorClass: "text-blue-600 dark:text-blue-400",
-    domainBgClass: "bg-blue-50 dark:bg-blue-950/30",
+    domainColorClass: "text-primary dark:text-primary",
+    domainBgClass: "bg-primary/10 dark:bg-blue-950/30",
   },
   "ai-act": {
     id: "ai-act",
     name: "EU AI Act",
     fullName: "EU Artificial Intelligence Act",
     icon: Brain,
-    color: "text-purple-600 dark:text-purple-400",
-    bgColor: "bg-purple-500/10",
+    color: "text-accent dark:text-accent",
+    bgColor: "bg-accent/10",
     iconComponent: Brain,
-    domainColorClass: "text-purple-600 dark:text-purple-400",
-    domainBgClass: "bg-purple-50 dark:bg-purple-950/30",
+    domainColorClass: "text-accent dark:text-accent",
+    domainBgClass: "bg-accent/10 dark:bg-purple-950/30",
   }
 };
 
@@ -131,7 +131,7 @@ export default function ComplianceChecklist() {
                   <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                     {isNorwegian ? "ISO Readiness" : "ISO Readiness"}
                   </h1>
-                  <Badge className="gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20">
+                  <Badge className="gap-1 bg-warning/10 text-warning dark:text-warning border-warning/30 hover:bg-warning/20">
                     <Gem className="h-3 w-3" />
                     Premium
                   </Badge>
@@ -152,19 +152,19 @@ export default function ComplianceChecklist() {
               <SelectContent>
                 <SelectItem value="iso27001">
                   <div className="flex items-center gap-2">
-                    <Lock className="h-4 w-4 text-emerald-500" />
+                    <Lock className="h-4 w-4 text-status-closed" />
                     ISO 27001:2022
                   </div>
                 </SelectItem>
                 <SelectItem value="gdpr">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-blue-500" />
+                    <Shield className="h-4 w-4 text-primary" />
                     GDPR
                   </div>
                 </SelectItem>
                 <SelectItem value="ai-act">
                   <div className="flex items-center gap-2">
-                    <Brain className="h-4 w-4 text-purple-500" />
+                    <Brain className="h-4 w-4 text-accent" />
                     EU AI Act
                   </div>
                 </SelectItem>

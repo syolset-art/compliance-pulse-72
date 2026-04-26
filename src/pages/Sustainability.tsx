@@ -214,7 +214,7 @@ const Sustainability = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
+          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-status-closed to-primary flex items-center justify-center">
             <Leaf className="h-10 w-10 text-white" />
           </div>
         </div>
@@ -402,9 +402,9 @@ const Sustainability = () => {
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-4">
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.energy ? 'bg-green-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.energy ? 'bg-status-closed/10' : 'bg-muted'}`}>
               {dataCollected.energy ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-status-closed" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -414,9 +414,9 @@ const Sustainability = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.documents ? 'bg-green-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.documents ? 'bg-status-closed/10' : 'bg-muted'}`}>
               {dataCollected.documents ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-status-closed" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -426,9 +426,9 @@ const Sustainability = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.suppliers ? 'bg-green-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.suppliers ? 'bg-status-closed/10' : 'bg-muted'}`}>
               {dataCollected.suppliers ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-status-closed" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -438,9 +438,9 @@ const Sustainability = () => {
               </div>
             </div>
 
-            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.public ? 'bg-green-500/10' : 'bg-muted'}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${dataCollected.public ? 'bg-status-closed/10' : 'bg-muted'}`}>
               {dataCollected.public ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-status-closed" />
               ) : (
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               )}
@@ -473,15 +473,15 @@ const Sustainability = () => {
       </div>
 
       <div className="grid gap-4">
-        <Card className={policiesGenerated.environment ? 'border-green-500' : ''}>
+        <Card className={policiesGenerated.environment ? 'border-status-closed' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Leaf className="h-5 w-5 text-green-500" />
+                <Leaf className="h-5 w-5 text-status-closed" />
                 <CardTitle className="text-lg">Miljøpolicy</CardTitle>
               </div>
               {policiesGenerated.environment && (
-                <Badge className="bg-green-500">Generert</Badge>
+                <Badge className="bg-status-closed">Generert</Badge>
               )}
             </div>
             <CardDescription>Energi, avfall, transport</CardDescription>
@@ -506,15 +506,15 @@ const Sustainability = () => {
           </CardContent>
         </Card>
 
-        <Card className={policiesGenerated.social ? 'border-green-500' : ''}>
+        <Card className={policiesGenerated.social ? 'border-status-closed' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-blue-500" />
+                <Users className="h-5 w-5 text-primary" />
                 <CardTitle className="text-lg">Sosial policy</CardTitle>
               </div>
               {policiesGenerated.social && (
-                <Badge className="bg-green-500">Generert</Badge>
+                <Badge className="bg-status-closed">Generert</Badge>
               )}
             </div>
             <CardDescription>Likestilling, HMS, arbeidsvilkår</CardDescription>
@@ -539,15 +539,15 @@ const Sustainability = () => {
           </CardContent>
         </Card>
 
-        <Card className={policiesGenerated.governance ? 'border-green-500' : ''}>
+        <Card className={policiesGenerated.governance ? 'border-status-closed' : ''}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-purple-500" />
+                <Building2 className="h-5 w-5 text-accent" />
                 <CardTitle className="text-lg">Styringspolicy</CardTitle>
               </div>
               {policiesGenerated.governance && (
-                <Badge className="bg-green-500">Generert</Badge>
+                <Badge className="bg-status-closed">Generert</Badge>
               )}
             </div>
             <CardDescription>Anti-korrupsjon, etisk innkjøp</CardDescription>
@@ -588,7 +588,7 @@ const Sustainability = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Target className="h-5 w-5 text-green-500" />
+              <Target className="h-5 w-5 text-status-closed" />
               CO₂-utslipp
             </CardTitle>
           </CardHeader>
@@ -613,7 +613,7 @@ const Sustainability = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-500" />
+              <TrendingUp className="h-5 w-5 text-primary" />
               Nøkkeltall
             </CardTitle>
           </CardHeader>
@@ -642,17 +642,17 @@ const Sustainability = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/10">
               <span className="font-medium text-foreground">Transport og logistikk</span>
               <Badge variant="destructive">Høy risiko</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-warning/10">
               <span className="font-medium text-foreground">Leverandørkjede</span>
-              <Badge className="bg-yellow-500">Medium risiko</Badge>
+              <Badge className="bg-warning">Medium risiko</Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-status-closed/10">
               <span className="font-medium text-foreground">Energiforbruk</span>
-              <Badge className="bg-green-500">Lav risiko</Badge>
+              <Badge className="bg-status-closed">Lav risiko</Badge>
             </div>
           </div>
           
@@ -690,7 +690,7 @@ const Sustainability = () => {
             {isLaraWorking ? (
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 className="h-5 w-5 text-status-closed" />
             )}
             <p className="font-medium text-foreground">Genererer CSRD/ESRS-rapport...</p>
           </div>
@@ -710,7 +710,7 @@ const Sustainability = () => {
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
+          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-status-closed to-primary flex items-center justify-center">
             <CheckCircle2 className="h-12 w-12 text-white" />
           </div>
         </div>

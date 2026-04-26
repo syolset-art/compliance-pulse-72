@@ -166,8 +166,8 @@ export function DomainComplianceWidget() {
         id: "privacy",
         name: t("statusOverview.privacy"),
         icon: <Shield className="h-5 w-5" />,
-        color: "text-blue-500",
-        bgColor: "bg-blue-500/10",
+        color: "text-primary",
+        bgColor: "bg-primary/10",
         frameworks: domainMap.privacy,
         overallProgress: calculateDomainProgress(domainMap.privacy),
       },
@@ -175,8 +175,8 @@ export function DomainComplianceWidget() {
         id: "security",
         name: t("statusOverview.infoSec"),
         icon: <Lock className="h-5 w-5" />,
-        color: "text-green-500",
-        bgColor: "bg-green-500/10",
+        color: "text-status-closed",
+        bgColor: "bg-status-closed/10",
         frameworks: domainMap.security,
         overallProgress: calculateDomainProgress(domainMap.security),
       },
@@ -184,8 +184,8 @@ export function DomainComplianceWidget() {
         id: "ai",
         name: t("statusOverview.aiGovernance"),
         icon: <Brain className="h-5 w-5" />,
-        color: "text-purple-500",
-        bgColor: "bg-purple-500/10",
+        color: "text-accent",
+        bgColor: "bg-accent/10",
         frameworks: domainMap.ai,
         overallProgress: calculateDomainProgress(domainMap.ai),
       },
@@ -272,12 +272,12 @@ export function DomainComplianceWidget() {
         {/* Manual required */}
         {manualRequired.length > 0 && (
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
+            <p className="text-xs font-medium text-warning dark:text-warning flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
               {t("domainCompliance.requiresAction", { count: stats.byCapability.manual })}
             </p>
             {manualRequired.map(req => (
-              <div key={req.requirement_id} className="flex items-center justify-between text-xs p-1.5 bg-orange-50 dark:bg-orange-950/30 rounded">
+              <div key={req.requirement_id} className="flex items-center justify-between text-xs p-1.5 bg-warning/10 dark:bg-orange-950/30 rounded">
                 <span className="font-medium text-foreground truncate flex-1">
                   {req.requirement_id}: {req.name}
                 </span>
@@ -297,13 +297,13 @@ export function DomainComplianceWidget() {
         {/* AI working */}
         {aiWorking.length > 0 && (
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <p className="text-xs font-medium text-status-closed dark:text-status-closed flex items-center gap-1">
               <Bot className="h-3 w-3" />
               {t("domainCompliance.aiWorkingWith", { count: aiWorking.length })}
             </p>
             {aiWorking.map(req => (
-              <div key={req.requirement_id} className="flex items-center gap-2 text-xs p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded">
-                <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+              <div key={req.requirement_id} className="flex items-center gap-2 text-xs p-1.5 bg-status-closed/10 dark:bg-emerald-950/30 rounded">
+                <Loader2 className="h-3 w-3 animate-spin text-status-closed" />
                 <span className="text-foreground truncate">{req.requirement_id}: {req.name}</span>
               </div>
             ))}

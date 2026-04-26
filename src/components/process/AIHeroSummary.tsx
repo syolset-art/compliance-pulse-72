@@ -40,32 +40,32 @@ const RISK_CONFIG: Record<string, {
 }> = {
   unacceptable: {
     label: "Uakseptabel",
-    color: "text-red-600 dark:text-red-400",
-    iconBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800",
+    color: "text-destructive dark:text-destructive",
+    iconBg: "bg-destructive/10 dark:bg-red-950/50 border-destructive/20 dark:border-destructive",
     glowClass: "",
     isHighRisk: true,
     icon: <ShieldAlert className="h-10 w-10" />,
   },
   high: {
     label: "Høy risiko",
-    color: "text-red-600 dark:text-red-400",
-    iconBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800",
+    color: "text-destructive dark:text-destructive",
+    iconBg: "bg-destructive/10 dark:bg-red-950/50 border-destructive/20 dark:border-destructive",
     glowClass: "",
     isHighRisk: true,
     icon: <AlertTriangle className="h-10 w-10" />,
   },
   limited: {
     label: "Begrenset",
-    color: "text-amber-600 dark:text-amber-400",
-    iconBg: "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800",
+    color: "text-warning dark:text-warning",
+    iconBg: "bg-warning/10 dark:bg-amber-950/50 border-warning/20 dark:border-warning",
     glowClass: "animate-glow-pulse",
     isHighRisk: false,
     icon: <Eye className="h-10 w-10" />,
   },
   minimal: {
     label: "Minimal",
-    color: "text-emerald-600 dark:text-emerald-400",
-    iconBg: "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800",
+    color: "text-status-closed dark:text-status-closed",
+    iconBg: "bg-status-closed/10 dark:bg-emerald-950/50 border-status-closed/20 dark:border-status-closed",
     glowClass: "animate-glow-pulse",
     isHighRisk: false,
     icon: <CheckCircle2 className="h-10 w-10" />,
@@ -89,7 +89,7 @@ export const AIHeroSummary = ({
   return (
     <div className={cn(
       "rounded-2xl border bg-card shadow-luxury overflow-hidden animate-float-in",
-      riskConfig.isHighRisk && "border-red-200 dark:border-red-800"
+      riskConfig.isHighRisk && "border-destructive/20 dark:border-destructive"
     )}>
       {/* Main content - asymmetric layout */}
       <div className="p-8">
@@ -97,10 +97,10 @@ export const AIHeroSummary = ({
         <div className="flex items-center gap-2 mb-6">
           <div className={cn(
             "h-2 w-2 rounded-full animate-pulse",
-            riskConfig.isHighRisk ? "bg-red-500" : "bg-primary"
+            riskConfig.isHighRisk ? "bg-destructive" : "bg-primary"
           )} />
           {riskConfig.isHighRisk ? (
-            <span className="text-sm font-medium text-red-600 dark:text-red-400">
+            <span className="text-sm font-medium text-destructive dark:text-destructive">
               Viktig vurdering kreves
             </span>
           ) : (

@@ -42,9 +42,9 @@ interface Props {
 const statusIcon = (s: NIS2Status) => {
   switch (s) {
     case "pass":
-      return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
+      return <CheckCircle2 className="h-5 w-5 text-status-closed" />;
     case "partial":
-      return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+      return <AlertTriangle className="h-5 w-5 text-warning" />;
     case "fail":
       return <XCircle className="h-5 w-5 text-destructive" />;
     default:
@@ -65,19 +65,19 @@ const capabilityBadge = (cap: NIS2AgentCapability) => {
   switch (cap) {
     case "ai_ready":
       return (
-        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-status-closed/10 dark:bg-emerald-950/30 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed">
           <Bot className="h-3 w-3" /> Lara håndterer
         </Badge>
       );
     case "activatable":
       return (
-        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-primary/10 dark:bg-blue-950/30 text-primary dark:text-primary border-primary/20 dark:border-primary">
           <Zap className="h-3 w-3" /> Kan aktiveres
         </Badge>
       );
     case "assisted":
       return (
-        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+        <Badge variant="outline" className="text-[13px] h-5 gap-1 bg-warning/10 dark:bg-amber-950/30 text-warning dark:text-warning border-warning/20 dark:border-warning">
           <Sparkles className="h-3 w-3" /> Assistert
         </Badge>
       );
@@ -291,12 +291,12 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1">
-              <div className="text-center p-2 rounded-lg bg-emerald-500/10">
-                <div className="text-2xl font-bold text-emerald-600">{summary.pass}</div>
+              <div className="text-center p-2 rounded-lg bg-status-closed/10">
+                <div className="text-2xl font-bold text-status-closed">{summary.pass}</div>
                 <div className="text-xs text-muted-foreground">Oppfylt</div>
               </div>
-              <div className="text-center p-2 rounded-lg bg-amber-500/10">
-                <div className="text-2xl font-bold text-amber-600">{summary.partial}</div>
+              <div className="text-center p-2 rounded-lg bg-warning/10">
+                <div className="text-2xl font-bold text-warning">{summary.partial}</div>
                 <div className="text-xs text-muted-foreground">Delvis</div>
               </div>
               <div className="text-center p-2 rounded-lg bg-destructive/10">
@@ -315,15 +315,15 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
           {/* Agent capability breakdown */}
           <div className="flex flex-wrap items-center gap-4 pt-2 border-t text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
-              <Bot className="h-3.5 w-3.5 text-emerald-500" />
+              <Bot className="h-3.5 w-3.5 text-status-closed" />
               <span><strong className="text-foreground">{agentBreakdown.aiReady}</strong> Lara håndterer</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-blue-500" />
+              <Zap className="h-3.5 w-3.5 text-primary" />
               <span><strong className="text-foreground">{agentBreakdown.activatable}</strong> kan aktiveres</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <Sparkles className="h-3.5 w-3.5 text-warning" />
               <span><strong className="text-foreground">{agentBreakdown.assisted}</strong> assistert</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -391,16 +391,16 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                   <div className="border-t px-4 py-4 space-y-4 bg-muted/10">
                     {/* Agent action panel */}
                     {(req.agentCapability === "ai_ready" || req.agentCapability === "assisted") && (
-                      <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/50">
-                        <Bot className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-status-closed/10/50 dark:bg-emerald-950/20 border border-status-closed/20/50 dark:border-status-closed/50">
+                        <Bot className="h-5 w-5 text-status-closed dark:text-status-closed mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Lara AI-agent</p>
-                          <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">{req.agentAction}</p>
+                          <p className="text-sm font-medium text-status-closed dark:text-status-closed">Lara AI-agent</p>
+                          <p className="text-xs text-status-closed/80 dark:text-status-closed/80 mt-0.5">{req.agentAction}</p>
                           {req.agentCapability === "assisted" && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="mt-2 text-xs gap-1.5 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                              className="mt-2 text-xs gap-1.5 border-status-closed/20 dark:border-status-closed text-status-closed dark:text-status-closed hover:bg-status-closed/10 dark:hover:bg-status-closed/30"
                               onClick={(e) => { e.stopPropagation(); handleLaraDraft(req); }}
                             >
                               <Sparkles className="h-3 w-3" />
@@ -409,7 +409,7 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
                           )}
                         </div>
                         {entry?.autoChecked && (
-                          <Badge variant="outline" className="text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 shrink-0">
+                          <Badge variant="outline" className="text-[13px] gap-1 bg-status-closed/10 dark:bg-status-closed/40 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed shrink-0">
                             <ShieldCheck className="h-3 w-3" />
                             Verifisert
                           </Badge>
@@ -419,13 +419,13 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
 
                     {/* Activatable service panel */}
                     {req.agentCapability === "activatable" && req.activatableServiceId && (
-                      <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/50">
-                        <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/10/50 dark:bg-blue-950/20 border border-primary/20/50 dark:border-primary/50">
+                        <Zap className="h-5 w-5 text-primary dark:text-primary mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{req.activatableServiceLabel}</p>
-                          <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">{req.agentAction}</p>
+                          <p className="text-sm font-medium text-primary dark:text-primary">{req.activatableServiceLabel}</p>
+                          <p className="text-xs text-primary/80 dark:text-primary/80 mt-0.5">{req.agentAction}</p>
                           {serviceActivated ? (
-                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-status-closed/10 dark:bg-status-closed/40 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed">
                               <CheckCircle2 className="h-3 w-3" />
                               Aktivert {activatedServices[req.activatableServiceId]?.activatedAt
                                 ? new Date(activatedServices[req.activatableServiceId].activatedAt).toLocaleDateString("nb-NO")
@@ -448,13 +448,13 @@ export function NIS2AssessmentTab({ assetId, metadata }: Props) {
 
                     {/* Also show activatable for ai_ready items that have a service */}
                     {req.agentCapability === "ai_ready" && req.activatableServiceId && (
-                      <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-800/50">
-                        <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/10/50 dark:bg-blue-950/20 border border-primary/20/50 dark:border-primary/50">
+                        <Zap className="h-5 w-5 text-primary dark:text-primary mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{req.activatableServiceLabel}</p>
-                          <p className="text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">Kan også aktiveres som tjeneste for ekstra dekning.</p>
+                          <p className="text-sm font-medium text-primary dark:text-primary">{req.activatableServiceLabel}</p>
+                          <p className="text-xs text-primary/80 dark:text-primary/80 mt-0.5">Kan også aktiveres som tjeneste for ekstra dekning.</p>
                           {serviceActivated ? (
-                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                            <Badge variant="outline" className="mt-2 text-[13px] gap-1 bg-status-closed/10 dark:bg-status-closed/40 text-status-closed dark:text-status-closed border-status-closed/20 dark:border-status-closed">
                               <CheckCircle2 className="h-3 w-3" />
                               Aktivert
                             </Badge>

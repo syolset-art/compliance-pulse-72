@@ -58,15 +58,15 @@ export function MSPGapAnalysisStep({
   };
 
   const getScoreColor = () => {
-    if (score >= 70) return "text-green-600";
-    if (score >= 40) return "text-yellow-600";
-    return "text-red-600";
+    if (score >= 70) return "text-status-closed";
+    if (score >= 40) return "text-warning";
+    return "text-destructive";
   };
 
   const getProgressColor = () => {
-    if (score >= 70) return "bg-green-500";
-    if (score >= 40) return "bg-yellow-500";
-    return "bg-red-500";
+    if (score >= 70) return "bg-status-closed";
+    if (score >= 40) return "bg-warning";
+    return "bg-destructive";
   };
 
   return (
@@ -158,7 +158,7 @@ export function MSPGapAnalysisStep({
                       {fw.isMandatory && (
                         <Badge
                           variant="outline"
-                          className="text-[13px] border-green-500/40 text-green-700 dark:text-green-400"
+                          className="text-[13px] border-status-closed/40 text-status-closed dark:text-status-closed"
                         >
                           Obligatorisk
                         </Badge>

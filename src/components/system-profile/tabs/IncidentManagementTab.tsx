@@ -48,7 +48,7 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
         return <Badge variant="destructive">{t("trustProfile.riskHigh")}</Badge>;
       case "medium":
       case "middels":
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t("trustProfile.riskMedium")}</Badge>;
+        return <Badge className="bg-warning hover:bg-warning">{t("trustProfile.riskMedium")}</Badge>;
       default:
         return <Badge variant="secondary">{t("trustProfile.riskLow")}</Badge>;
     }
@@ -58,10 +58,10 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
     switch (status?.toLowerCase()) {
       case "resolved":
       case "løst":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-status-closed" />;
       case "in_progress":
       case "pågår":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       default:
         return <AlertCircle className="h-4 w-4 text-destructive" />;
     }
@@ -73,13 +73,13 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
   return (
     <div className="space-y-6">
       {/* Status Banner */}
-      <Card className={openIncidents > 0 ? "border-yellow-500/50 bg-yellow-500/5" : "border-green-500/50 bg-green-500/5"}>
+      <Card className={openIncidents > 0 ? "border-warning/50 bg-warning/5" : "border-status-closed/50 bg-status-closed/5"}>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             {openIncidents > 0 ? (
-              <AlertTriangle className="h-6 w-6 text-yellow-600" />
+              <AlertTriangle className="h-6 w-6 text-warning" />
             ) : (
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-6 w-6 text-status-closed" />
             )}
             <div>
               <p className="font-medium">
@@ -125,7 +125,7 @@ export const IncidentManagementTab = ({ systemId }: IncidentManagementTabProps) 
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">{t("trustProfile.systemOutageProcedure")}</TableCell>
-                <TableCell><Badge className="bg-yellow-500 hover:bg-yellow-600">{t("trustProfile.riskMedium")}</Badge></TableCell>
+                <TableCell><Badge className="bg-warning hover:bg-warning">{t("trustProfile.riskMedium")}</Badge></TableCell>
                 <TableCell>24</TableCell>
                 <TableCell>IT</TableCell>
                 <TableCell><Badge variant="outline">{t("trustProfile.approved")}</Badge></TableCell>

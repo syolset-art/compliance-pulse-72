@@ -82,12 +82,12 @@ export function NIS2ReadinessWidget() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-lg bg-emerald-500/10">
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{assessed.length}</div>
+          <div className="text-center p-3 rounded-lg bg-status-closed/10">
+            <div className="text-2xl font-bold text-status-closed dark:text-status-closed">{assessed.length}</div>
             <div className="text-xs text-muted-foreground">Evaluated</div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-amber-500/10">
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{notAssessed.length}</div>
+          <div className="text-center p-3 rounded-lg bg-warning/10">
+            <div className="text-2xl font-bold text-warning dark:text-warning">{notAssessed.length}</div>
             <div className="text-xs text-muted-foreground">Missing</div>
           </div>
           <div className="text-center p-3 rounded-lg bg-primary/10">

@@ -171,7 +171,7 @@ const priorityConfig: Record<TaskPriority, { label: string; className: string }>
 const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
   åpen: { label: "Åpen", className: "bg-muted text-foreground" },
   pågår: { label: "Pågår", className: "bg-primary/15 text-primary" },
-  fullført: { label: "Fullført", className: "bg-green-500/15 text-green-700 dark:text-green-400" },
+  fullført: { label: "Fullført", className: "bg-status-closed/15 text-status-closed dark:text-status-closed" },
 };
 
 const categoryConfig: Record<TaskCategory, { label: string; icon: typeof Cpu }> = {
@@ -465,7 +465,7 @@ export default function Tasks() {
                               <p className="text-sm font-medium text-foreground mb-1">Lara kan gjøre dette for deg</p>
                               <p className="text-xs text-muted-foreground">{task.aiAction}</p>
                               {isHighRisk(task.priority) && (
-                                <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                <div className="flex items-center gap-1.5 mt-2 text-xs text-warning dark:text-warning">
                                   <ShieldCheck className="h-3.5 w-3.5" />
                                   Høy prioritet — krever din godkjenning før Lara utfører
                                 </div>
@@ -540,7 +540,7 @@ export default function Tasks() {
 
             {filteredTasks.length === 0 && (
               <div className="text-center py-12 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-8 w-8 mx-auto mb-3 text-green-500" />
+                <CheckCircle2 className="h-8 w-8 mx-auto mb-3 text-status-closed" />
                 <p className="font-medium text-foreground">Ingen oppgaver matcher filteret</p>
                 <p className="mt-1">Prøv å endre filtrene, eller bra jobba — alt er i orden!</p>
               </div>
@@ -552,7 +552,7 @@ export default function Tasks() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle className="flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-amber-500" />
+                  <ShieldCheck className="h-5 w-5 text-warning" />
                   Godkjenning kreves
                 </AlertDialogTitle>
                 <AlertDialogDescription asChild>

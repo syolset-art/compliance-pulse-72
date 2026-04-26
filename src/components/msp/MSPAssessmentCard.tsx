@@ -81,10 +81,10 @@ export function MSPAssessmentCard({ customerId, assessmentScore }: MSPAssessment
             variant="outline"
             className={cn(
               score >= 80
-                ? "border-green-500/40 text-green-600"
+                ? "border-status-closed/40 text-status-closed"
                 : score >= 50
-                ? "border-yellow-500/40 text-yellow-600"
-                : "border-red-500/40 text-red-600"
+                ? "border-warning/40 text-warning"
+                : "border-destructive/40 text-destructive"
             )}
           >
             {score}% dekket
@@ -94,13 +94,13 @@ export function MSPAssessmentCard({ customerId, assessmentScore }: MSPAssessment
         <Progress value={score} className="h-2" />
 
         <div className="flex gap-4 text-sm">
-          <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+          <span className="flex items-center gap-1 text-status-closed dark:text-status-closed">
             <CheckCircle2 className="h-3.5 w-3.5" /> {yesCount} Ja
           </span>
-          <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
+          <span className="flex items-center gap-1 text-destructive dark:text-destructive">
             <XCircle className="h-3.5 w-3.5" /> {noCount} Nei
           </span>
-          <span className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
+          <span className="flex items-center gap-1 text-warning dark:text-warning">
             <HelpCircle className="h-3.5 w-3.5" /> {unsureCount} Usikker
           </span>
         </div>

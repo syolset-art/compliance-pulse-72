@@ -65,15 +65,15 @@ const getActionIcon = (type: string) => {
   switch (type) {
     case "completed":
     case "approved":
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      return <CheckCircle2 className="h-4 w-4 text-status-closed" />;
     case "created":
-      return <Plus className="h-4 w-4 text-blue-500" />;
+      return <Plus className="h-4 w-4 text-primary" />;
     case "updated":
-      return <FileEdit className="h-4 w-4 text-amber-500" />;
+      return <FileEdit className="h-4 w-4 text-warning" />;
     case "started":
-      return <Clock className="h-4 w-4 text-purple-500" />;
+      return <Clock className="h-4 w-4 text-accent" />;
     case "deleted":
-      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      return <AlertTriangle className="h-4 w-4 text-destructive" />;
     case "submitted":
       return <Shield className="h-4 w-4 text-primary" />;
     default:
@@ -127,15 +127,15 @@ export function ActivityReportWidget({ className }: ActivityReportWidgetProps) {
                 <div className="text-xs text-muted-foreground">Oppgaver fullført</div>
               </div>
               <div className="bg-muted/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-green-600">{stats.systemsAdded}</div>
+                <div className="text-2xl font-bold text-status-closed">{stats.systemsAdded}</div>
                 <div className="text-xs text-muted-foreground">Systemer lagt til</div>
               </div>
               <div className="bg-muted/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-amber-600">{stats.risksAssessed}</div>
+                <div className="text-2xl font-bold text-warning">{stats.risksAssessed}</div>
                 <div className="text-xs text-muted-foreground">Risikoer vurdert</div>
               </div>
               <div className="bg-muted/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-blue-600">{stats.documentsUpdated}</div>
+                <div className="text-2xl font-bold text-primary">{stats.documentsUpdated}</div>
                 <div className="text-xs text-muted-foreground">Dokumenter oppdatert</div>
               </div>
             </div>

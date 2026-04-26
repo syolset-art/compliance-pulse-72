@@ -45,16 +45,16 @@ const TYPE_ICONS: Record<string, typeof FileText> = {
 function getStatusConfig(status: string, isNb: boolean) {
   switch (status) {
     case "received":
-      return { label: isNb ? "Mottatt" : "Received", className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30", icon: CheckCircle2 };
+      return { label: isNb ? "Mottatt" : "Received", className: "bg-status-closed/15 text-status-closed border-status-closed/30", icon: CheckCircle2 };
     case "awaiting":
-      return { label: isNb ? "Venter på svar" : "Awaiting reply", className: "bg-amber-500/15 text-amber-700 border-amber-500/30", icon: Clock };
+      return { label: isNb ? "Venter på svar" : "Awaiting reply", className: "bg-warning/15 text-warning border-warning/30", icon: Clock };
     case "overdue":
       return { label: isNb ? "Forfalt" : "Overdue", className: "bg-destructive/15 text-destructive border-destructive/30", icon: AlertTriangle };
     case "archived":
       return { label: isNb ? "Arkivert" : "Archived", className: "bg-muted text-muted-foreground border-muted", icon: Archive };
     case "sent":
     default:
-      return { label: isNb ? "Sendt" : "Sent", className: "bg-blue-500/15 text-blue-700 border-blue-500/30", icon: Send };
+      return { label: isNb ? "Sendt" : "Sent", className: "bg-primary/15 text-primary border-primary/30", icon: Send };
   }
 }
 
@@ -106,7 +106,7 @@ export function OutboundRequestCard({ request, onDelete, onArchive, onToggleVisi
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-7 w-7 ${isPublic ? "text-emerald-600" : "text-muted-foreground"}`}
+                      className={`h-7 w-7 ${isPublic ? "text-status-closed" : "text-muted-foreground"}`}
                       onClick={() => onToggleVisibility?.(request.id, !isPublic)}
                     >
                       {isPublic ? <Globe className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
@@ -151,7 +151,7 @@ export function OutboundRequestCard({ request, onDelete, onArchive, onToggleVisi
               {isNb ? "Frist" : "Due"}: {new Date(request.due_date).toLocaleDateString(locale)}
             </span>
             {request.response_date && (
-              <span className="flex items-center gap-1 text-emerald-600">
+              <span className="flex items-center gap-1 text-status-closed">
                 <CheckCircle2 className="h-3 w-3" />
                 {isNb ? "Mottatt" : "Received"}: {new Date(request.response_date).toLocaleDateString(locale)}
               </span>

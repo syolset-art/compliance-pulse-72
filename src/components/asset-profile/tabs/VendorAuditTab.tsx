@@ -178,8 +178,8 @@ export function VendorAuditTab({ assetId }: VendorAuditTabProps) {
                       count={highCount}
                       label={isNb ? "HØY RISIKO" : "HIGH RISK"}
                       sublabel={isNb ? "Kritiske områder" : "Critical areas"}
-                      color="border-orange-300/50 bg-orange-50 dark:bg-orange-900/10"
-                      textColor="text-orange-600 dark:text-orange-400"
+                      color="border-warning/20/50 bg-warning/10 dark:bg-warning/10"
+                      textColor="text-warning dark:text-warning"
                     />
                     <RiskCard
                       count={mediumCount}

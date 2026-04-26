@@ -64,8 +64,8 @@ export function ImmediateAttentionWidget() {
 
   const severityConfig = {
     critical: { bg: "bg-destructive/10 border-destructive/20", text: "text-destructive", label: "Critical" },
-    high: { bg: "bg-orange-500/10 border-orange-500/20", text: "text-orange-600 dark:text-orange-400", label: "High" },
-    medium: { bg: "bg-amber-500/10 border-amber-500/20", text: "text-amber-600 dark:text-amber-400", label: "Medium" },
+    high: { bg: "bg-warning/10 border-warning/20", text: "text-warning dark:text-warning", label: "High" },
+    medium: { bg: "bg-warning/10 border-warning/20", text: "text-warning dark:text-warning", label: "Medium" },
   };
 
   const typeIcon = {

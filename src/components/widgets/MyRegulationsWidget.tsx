@@ -36,10 +36,10 @@ interface FrameworkWithProgress extends SelectedFramework {
 }
 
 const categoryConfig: Record<string, { icon: typeof Shield; color: string; bgColor: string }> = {
-  privacy: { icon: Shield, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  security: { icon: Lock, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-  ai: { icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-  other: { icon: Scale, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
+  privacy: { icon: Shield, color: 'text-primary', bgColor: 'bg-primary/10' },
+  security: { icon: Lock, color: 'text-status-closed', bgColor: 'bg-status-closed/10' },
+  ai: { icon: Brain, color: 'text-accent', bgColor: 'bg-accent/10' },
+  other: { icon: Scale, color: 'text-warning', bgColor: 'bg-warning/10' },
 };
 
 const ITEMS_PER_PAGE = 3;
@@ -203,14 +203,14 @@ export function MyRegulationsWidget() {
     switch (status) {
       case 'on_track':
         return (
-          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-green-600 border-green-300 bg-green-50 dark:bg-green-950/30">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-status-closed border-status-closed/20 bg-status-closed/10 dark:bg-green-950/30">
             <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
             På god vei
           </Badge>
         );
       case 'needs_attention':
         return (
-          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-orange-600 border-orange-300 bg-orange-50 dark:bg-orange-950/30">
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 text-warning border-warning/20 bg-warning/10 dark:bg-orange-950/30">
             <AlertTriangle className="h-2.5 w-2.5 mr-1" />
             Trenger oppmerksomhet
           </Badge>
@@ -226,8 +226,8 @@ export function MyRegulationsWidget() {
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 70) return 'bg-green-500';
-    if (progress >= 40) return 'bg-orange-500';
+    if (progress >= 70) return 'bg-status-closed';
+    if (progress >= 40) return 'bg-warning';
     return 'bg-muted-foreground/30';
   };
 

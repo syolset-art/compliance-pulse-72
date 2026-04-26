@@ -71,7 +71,7 @@ export default function BusinessRiskDetail() {
             value={formatNOK(totalSavings)}
             subtitle={isNb ? "Årlig redusert risiko" : "Annual reduced risk"}
             icon={Sparkles}
-            className="border-emerald-500/20"
+            className="border-status-closed/20"
           />
           <MetricCard
             title={isNb ? "Snitt ROI" : "Avg ROI"}
@@ -120,7 +120,7 @@ function RiskMatrix({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
         <div className="relative w-full" style={{ paddingBottom: "60%" }}>
           {/* Background zones */}
           <div className="absolute inset-0 rounded-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-yellow-500/10 to-destructive/15 rounded-lg" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-status-closed/10 via-warning/10 to-destructive/15 rounded-lg" />
             {/* Grid lines */}
             {[25, 50, 75].map(v => (
               <div key={`h-${v}`} className="absolute left-0 right-0 border-t border-border/30" style={{ bottom: `${v}%` }} />
@@ -167,9 +167,9 @@ function RiskMatrix({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
                   className={cn(
                     "rounded-full border-2 border-background shadow-md flex items-center justify-center transition-transform hover:scale-125",
                     r.category === "datatap" ? "bg-destructive/80" :
-                    r.category === "nedetid" ? "bg-orange-500/80" :
-                    r.category === "regelverksbrudd" ? "bg-yellow-500/80" :
-                    "bg-purple-500/80"
+                    r.category === "nedetid" ? "bg-warning/80" :
+                    r.category === "regelverksbrudd" ? "bg-warning/80" :
+                    "bg-accent/80"
                   )}
                   style={{ width: size, height: size }}
                 />
@@ -195,9 +195,9 @@ function RiskMatrix({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
             <div key={key} className="flex items-center gap-1.5">
               <div className={cn("w-3 h-3 rounded-full",
                 key === "datatap" ? "bg-destructive/80" :
-                key === "nedetid" ? "bg-orange-500/80" :
-                key === "regelverksbrudd" ? "bg-yellow-500/80" :
-                "bg-purple-500/80"
+                key === "nedetid" ? "bg-warning/80" :
+                key === "regelverksbrudd" ? "bg-warning/80" :
+                "bg-accent/80"
               )} />
               <span className="text-[13px] text-muted-foreground">{isNb ? cat.label_no : cat.label_en}</span>
             </div>
@@ -244,15 +244,15 @@ function RoiTable({ risks, isNb }: { risks: RiskItem[]; isNb: boolean }) {
                     </td>
                     <td className="py-2.5 pr-2 text-muted-foreground">{r.system}</td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">{formatNOK(r.mitigation_cost)}</td>
-                    <td className="py-2.5 pr-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <td className="py-2.5 pr-2 text-right tabular-nums text-status-closed dark:text-status-closed">
                       {formatNOK(Math.max(0, savings))}
                     </td>
                     <td className="py-2.5 text-right">
                       <span className={cn(
                         "px-1.5 py-0.5 rounded font-semibold tabular-nums",
-                        roi >= 8 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
-                        roi >= 4 ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" :
-                        "bg-orange-500/15 text-orange-700 dark:text-orange-400"
+                        roi >= 8 ? "bg-status-closed/15 text-status-closed dark:text-status-closed" :
+                        roi >= 4 ? "bg-warning/15 text-warning dark:text-warning" :
+                        "bg-warning/15 text-warning dark:text-warning"
                       )}>
                         {roi.toFixed(1)}×
                       </span>
@@ -298,9 +298,9 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                     </span>
                     <span className={cn(
                       "px-1.5 py-0.5 rounded text-[13px] font-semibold tabular-nums",
-                      roi >= 8 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
-                      roi >= 4 ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" :
-                      "bg-orange-500/15 text-orange-700 dark:text-orange-400"
+                      roi >= 8 ? "bg-status-closed/15 text-status-closed dark:text-status-closed" :
+                      roi >= 4 ? "bg-warning/15 text-warning dark:text-warning" :
+                      "bg-warning/15 text-warning dark:text-warning"
                     )}>
                       ROI {roi.toFixed(1)}×
                     </span>
@@ -310,7 +310,7 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                       </span>
                     )}
                     {risk.trend === "down" && (
-                      <span className="flex items-center gap-0.5 text-[13px] text-emerald-600 dark:text-emerald-400">
+                      <span className="flex items-center gap-0.5 text-[13px] text-status-closed dark:text-status-closed">
                         <TrendingDown className="h-3 w-3" /> {isNb ? "Synkende" : "Declining"}
                       </span>
                     )}
@@ -321,7 +321,7 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                 <div className="text-right">
                   <p className="text-sm font-bold text-destructive">{formatNOK(risk.exposure)}</p>
                   {savings > 0 && (
-                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    <p className="text-xs font-medium text-status-closed dark:text-status-closed">
                       {isNb ? "Spar" : "Save"} {formatNOK(savings)}
                     </p>
                   )}
@@ -336,8 +336,8 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
             <div className="pt-4 space-y-2">
               <div className="flex h-4 rounded-full overflow-hidden bg-muted">
                 <div className="bg-destructive/70 transition-all" style={{ width: `${(risk.residual_exposure / maxVal) * 100}%` }} />
-                <div className="bg-amber-500/70 transition-all" style={{ width: `${(risk.mitigation_cost / maxVal) * 100}%` }} />
-                <div className="bg-emerald-500/70 transition-all" style={{ width: `${Math.max(0, savings) / maxVal * 100}%` }} />
+                <div className="bg-warning/70 transition-all" style={{ width: `${(risk.mitigation_cost / maxVal) * 100}%` }} />
+                <div className="bg-status-closed/70 transition-all" style={{ width: `${Math.max(0, savings) / maxVal * 100}%` }} />
               </div>
               <div className="flex flex-wrap gap-3 text-[13px]">
                 <span className="flex items-center gap-1">
@@ -345,11 +345,11 @@ function RiskCard({ risk, rank, isNb }: { risk: RiskItem; rank: number; isNb: bo
                   {isNb ? "Restrisiko" : "Residual"}: {formatNOK(risk.residual_exposure)}
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-warning/70" />
                   {isNb ? "Tiltak" : "Mitigation"}: {formatNOK(risk.mitigation_cost)}
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-status-closed/70" />
                   {isNb ? "Besparelse" : "Savings"}: {formatNOK(Math.max(0, savings))}
                 </span>
               </div>

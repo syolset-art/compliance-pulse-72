@@ -362,7 +362,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-medium truncate">{doc.file_name}</p>
                             {doc.generated && (
-                              <Badge className="text-[11px] bg-violet-500/10 text-violet-600 border-violet-500/30 shrink-0">
+                              <Badge className="text-[11px] bg-accent/10 text-accent border-accent/30 shrink-0">
                                 <Sparkles className="h-2.5 w-2.5 mr-0.5" />
                                 AI
                               </Badge>
@@ -479,7 +479,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
         <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-violet-500" />
+              <Sparkles className="h-5 w-5 text-accent" />
               {generatedTitle} — Utkast
             </DialogTitle>
             <DialogDescription>

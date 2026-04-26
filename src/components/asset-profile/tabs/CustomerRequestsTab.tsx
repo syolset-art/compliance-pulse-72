@@ -43,11 +43,11 @@ const DEMO_REQUESTS = [
 function getStatusBadge(status: string, isNb: boolean) {
   switch (status) {
     case "responded":
-      return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px]">{isNb ? "Besvart" : "Responded"}</Badge>;
+      return <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px]">{isNb ? "Besvart" : "Responded"}</Badge>;
     case "read":
-      return <Badge className="bg-blue-500/15 text-blue-700 border-blue-500/30 text-[13px]">{isNb ? "Lest" : "Read"}</Badge>;
+      return <Badge className="bg-primary/15 text-primary border-primary/30 text-[13px]">{isNb ? "Lest" : "Read"}</Badge>;
     default:
-      return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 text-[13px]">{isNb ? "Ny" : "New"}</Badge>;
+      return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">{isNb ? "Ny" : "New"}</Badge>;
   }
 }
 
@@ -164,7 +164,7 @@ export function CustomerRequestsTab() {
                         {isNb ? "Les" : "View"}
                       </Button>
                       {isAdded ? (
-                        <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-xs h-7 flex items-center gap-1">
+                        <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-xs h-7 flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
                           {isNb ? "Lagt til" : "Added"}
                         </Badge>

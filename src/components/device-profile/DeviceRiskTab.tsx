@@ -33,8 +33,8 @@ export function DeviceRiskTab({ controls, meta, asset }: DeviceRiskTabProps) {
 
   const getRiskLevel = (score: number) => {
     if (score >= 60) return { label: isNb ? "Høy" : "High", labelEn: "High", color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/20" };
-    if (score >= 30) return { label: isNb ? "Middels" : "Medium", labelEn: "Medium", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" };
-    return { label: isNb ? "Lav" : "Low", labelEn: "Low", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" };
+    if (score >= 30) return { label: isNb ? "Middels" : "Medium", labelEn: "Medium", color: "text-warning dark:text-warning", bg: "bg-warning/10", border: "border-warning/20" };
+    return { label: isNb ? "Lav" : "Low", labelEn: "Low", color: "text-status-closed dark:text-status-closed", bg: "bg-status-closed/10", border: "border-status-closed/20" };
   };
 
   const level = getRiskLevel(overallRisk);
@@ -209,7 +209,7 @@ export function DeviceRiskTab({ controls, meta, asset }: DeviceRiskTabProps) {
                 <div key={idx} className="flex items-center gap-4">
                   <div className="flex items-center gap-2 min-w-[100px]">
                     <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${
-                      entry.score >= 60 ? "bg-destructive" : entry.score >= 30 ? "bg-amber-500" : "bg-green-500"
+                      entry.score >= 60 ? "bg-destructive" : entry.score >= 30 ? "bg-warning" : "bg-status-closed"
                     }`} />
                     <span className="text-xs text-muted-foreground">{entry.date}</span>
                   </div>

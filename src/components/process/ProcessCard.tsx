@@ -86,18 +86,18 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
 
   const getCriticalityColor = (score: string) => {
     switch (score) {
-      case "high": return "text-red-600 bg-red-50 border-red-200";
-      case "medium": return "text-orange-600 bg-orange-50 border-orange-200";
-      case "low": return "text-green-600 bg-green-50 border-green-200";
+      case "high": return "text-destructive bg-destructive/10 border-destructive/20";
+      case "medium": return "text-warning bg-warning/10 border-warning/20";
+      case "low": return "text-status-closed bg-status-closed/10 border-status-closed/20";
       default: return "text-muted-foreground bg-muted border-border";
     }
   };
 
   const getProgressColor = (score: string) => {
     switch (score) {
-      case "high": return "bg-red-500";
-      case "medium": return "bg-orange-500";
-      case "low": return "bg-green-500";
+      case "high": return "bg-destructive";
+      case "medium": return "bg-warning";
+      case "low": return "bg-status-closed";
       default: return "bg-muted";
     }
   };
@@ -147,15 +147,15 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
           {/* Metadata dots */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm mb-2 sm:mb-3">
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500" />
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary" />
               <span>{metrics.dataTypes} datatyper</span>
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500" />
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-status-closed" />
               <span>{metrics.systems} systemer</span>
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500" />
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-warning" />
               <span>{metrics.riskScenarios} risikoscenarioer</span>
             </div>
           </div>
@@ -231,7 +231,7 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+              <Badge variant="outline" className="bg-status-closed/10 text-status-closed border-status-closed/20">
                 {Math.round((metrics.criticalSystems / metrics.totalSystems) * 100)}%
               </Badge>
             </div>
@@ -263,13 +263,13 @@ export const ProcessCard = ({ processId, workAreaId, onEdit }: ProcessCardProps)
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
+              <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
                 {Math.round((metrics.criticalScenarios / metrics.riskScenarios) * 100)}%
               </Badge>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div 
-                className="h-full bg-orange-500 transition-all"
+                className="h-full bg-warning transition-all"
                 style={{ width: `${(metrics.criticalScenarios / metrics.riskScenarios) * 100}%` }}
               />
             </div>

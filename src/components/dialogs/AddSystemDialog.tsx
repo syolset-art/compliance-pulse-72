@@ -420,9 +420,9 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">Resultat fra nett-oppslag</span>
-                  {webResult.confidence === "high" && <Badge className="text-xs bg-green-500/20 text-green-600 border-green-500/30">Høy sikkerhet</Badge>}
-                  {webResult.confidence === "medium" && <Badge className="text-xs bg-yellow-500/20 text-yellow-600 border-yellow-500/30">Middels sikkerhet</Badge>}
-                  {webResult.confidence === "low" && <Badge className="text-xs bg-red-500/20 text-red-600 border-red-500/30">Lav sikkerhet</Badge>}
+                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">Høy sikkerhet</Badge>}
+                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">Middels sikkerhet</Badge>}
+                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">Lav sikkerhet</Badge>}
                 </div>
                 <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
                   <div>
@@ -438,7 +438,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                       </Badge>
                     )}
                     {webResult.is_data_processor && (
-                      <Badge variant="outline" className="border-orange-500/30 text-orange-600">
+                      <Badge variant="outline" className="border-warning/30 text-warning">
                         Databehandler
                       </Badge>
                     )}
@@ -636,25 +636,25 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <SelectContent>
                   <SelectItem value="low">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-status-closed" />
                       Lav
                     </span>
                   </SelectItem>
                   <SelectItem value="medium">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
                       Middels
                     </span>
                   </SelectItem>
                   <SelectItem value="high">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
                       Høy
                     </span>
                   </SelectItem>
                   <SelectItem value="critical">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
                       Kritisk
                     </span>
                   </SelectItem>

@@ -55,11 +55,11 @@ export function VendorPremiumBanner({ vendorCount, maxFreeVendors, isActivated, 
       </Card>
 
       {/* Activation bar */}
-      <Card className="p-4 bg-gradient-to-r from-amber-50 to-purple-50 dark:from-amber-950/20 dark:to-purple-950/20 border-amber-200/50 dark:border-amber-800/30">
+      <Card className="p-4 bg-gradient-to-r from-warning to-accent dark:from-warning/20 dark:to-accent/20 border-warning/20/50 dark:border-warning/30">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-              <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-warning/10 dark:bg-warning/30">
+              <Lock className="h-4 w-4 text-warning dark:text-warning" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">
@@ -76,7 +76,7 @@ export function VendorPremiumBanner({ vendorCount, maxFreeVendors, isActivated, 
           </div>
           <Button
             onClick={onActivate}
-            className="gap-2 bg-gradient-to-r from-purple-600 to-primary hover:from-purple-700 hover:to-primary/90 text-white shrink-0"
+            className="gap-2 bg-gradient-to-r from-accent to-primary hover:from-accent hover:to-primary/90 text-white shrink-0"
           >
             <Sparkles className="h-4 w-4" />
             Aktiver for 990 kr/mnd

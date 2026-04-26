@@ -195,7 +195,7 @@ export function AddOrganizationDialog({ open, onOpenChange }: AddOrganizationDia
               )}
               {step === "done" && (
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 text-status-closed" />
                   <p><strong>{selectedOrg?.name}</strong> er lagt til{isPartner ? " som partnerkunde i ditt dashbord" : " som virksomhet"}.</p>
                 </div>
               )}

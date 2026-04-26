@@ -34,11 +34,11 @@ const RELATIONSHIP_ICONS: Record<string, React.ElementType> = {
 };
 
 const RELATIONSHIP_COLORS: Record<string, string> = {
-  uses: "text-blue-500 bg-blue-500/20",
-  hosts: "text-green-500 bg-green-500/20",
-  connects_to: "text-orange-500 bg-orange-500/20",
-  integrates_with: "text-cyan-500 bg-cyan-500/20",
-  governed_by: "text-yellow-500 bg-yellow-500/20",
+  uses: "text-primary bg-primary/20",
+  hosts: "text-status-closed bg-status-closed/20",
+  connects_to: "text-warning bg-warning/20",
+  integrates_with: "text-primary bg-primary/20",
+  governed_by: "text-warning bg-warning/20",
 };
 
 export const RelationsTab = ({ assetId }: RelationsTabProps) => {
@@ -117,14 +117,14 @@ export const RelationsTab = ({ assetId }: RelationsTabProps) => {
 
   const getAssetTypeBadgeColor = (type: string) => {
     const colors: Record<string, string> = {
-      system: "bg-blue-500/20 text-blue-500 border-blue-500/30",
-      vendor: "bg-purple-500/20 text-purple-500 border-purple-500/30",
-      location: "bg-green-500/20 text-green-500 border-green-500/30",
-      network: "bg-orange-500/20 text-orange-500 border-orange-500/30",
-      integration: "bg-cyan-500/20 text-cyan-500 border-cyan-500/30",
+      system: "bg-primary/20 text-primary border-primary/30",
+      vendor: "bg-accent/20 text-accent border-accent/30",
+      location: "bg-status-closed/20 text-status-closed border-status-closed/30",
+      network: "bg-warning/20 text-warning border-warning/30",
+      integration: "bg-primary/20 text-primary border-primary/30",
       hardware: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-      data: "bg-red-500/20 text-red-500 border-red-500/30",
-      contract: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+      data: "bg-destructive/20 text-destructive border-destructive/30",
+      contract: "bg-warning/20 text-warning border-warning/30",
     };
     return colors[type] || "bg-muted text-muted-foreground";
   };

@@ -135,12 +135,12 @@ Thank you for your help!`;
         />
       </div>
 
-      <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 space-y-3">
+      <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-3">
         <div className="flex items-start gap-2">
-          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+          <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-300">What happens next?</p>
-            <ol className="text-xs text-blue-300/80 mt-2 space-y-1 list-decimal list-inside">
+            <p className="text-sm font-medium text-primary">What happens next?</p>
+            <ol className="text-xs text-primary/80 mt-2 space-y-1 list-decimal list-inside">
               <li>We send an email with invitation link</li>
               <li>{roleLabel} logs in and adds API key</li>
               <li>You get notified when integration is ready</li>

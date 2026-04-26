@@ -74,8 +74,8 @@ export const qualityModules: QualityModule[] = [
     targetAudienceEn: 'All businesses',
     price: null,
     icon: Shield,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
     features: [
       'Avviksregistrering og håndtering',
       'Grunnleggende risikovurdering',
@@ -100,8 +100,8 @@ export const qualityModules: QualityModule[] = [
     targetAudienceEn: 'Construction, industry, energy',
     price: 490,
     icon: HardHat,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
     features: [
       'SJA-register (Sikker Jobb Analyse)',
       'Stoffkartotek med HMS-datablad',
@@ -130,8 +130,8 @@ export const qualityModules: QualityModule[] = [
     targetAudienceEn: 'Certified companies',
     price: 790,
     icon: FileCheck,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
+    color: 'text-status-closed',
+    bgColor: 'bg-status-closed/10',
     features: [
       'Prosessbasert kvalitetsstyring',
       'Internrevisjonsmodul',
@@ -160,8 +160,8 @@ export const qualityModules: QualityModule[] = [
     targetAudienceEn: 'Large enterprises',
     price: 1290,
     icon: Building2,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
     features: [
       'Alt fra HMS-utvidet',
       'Alt fra Kvalitetsledelse',
@@ -190,7 +190,7 @@ export const industryAdaptations: IndustryAdaptation[] = [
     name: 'Helse og omsorg',
     nameEn: 'Health and Care',
     icon: Heart,
-    color: 'text-red-500',
+    color: 'text-destructive',
     modules: [
       {
         id: 'patient-safety',
@@ -235,7 +235,7 @@ export const industryAdaptations: IndustryAdaptation[] = [
     name: 'Bygg og anlegg',
     nameEn: 'Construction',
     icon: HardHat,
-    color: 'text-orange-500',
+    color: 'text-warning',
     modules: [
       {
         id: 'sha-plan',
@@ -325,7 +325,7 @@ export const industryAdaptations: IndustryAdaptation[] = [
     name: 'Tech og SaaS',
     nameEn: 'Tech and SaaS',
     icon: Laptop,
-    color: 'text-blue-500',
+    color: 'text-primary',
     modules: [
       {
         id: 'information-security',

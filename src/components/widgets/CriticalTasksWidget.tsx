@@ -77,7 +77,7 @@ export function CriticalTasksWidget() {
     { 
       label: t("widgets.pendingApprovals", "risikovurderinger venter godkjenning"), 
       count: pendingApprovals, 
-      color: "text-yellow-500", 
+      color: "text-warning", 
       bgColor: "hsl(48, 96%, 53%)",
       icon: <Shield className="h-3.5 w-3.5" />,
       navigateTo: "/tasks?filter=pending_approvals"

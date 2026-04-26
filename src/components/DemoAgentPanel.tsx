@@ -390,7 +390,7 @@ export function DemoAgentPanel({
         {/* Quick Questions Section */}
         <section>
           <div className="flex items-center gap-2 mb-3">
-            <Lightbulb className="w-4 h-4 text-amber-500" />
+            <Lightbulb className="w-4 h-4 text-warning" />
             <h4 className="text-sm font-medium text-foreground">Vanlige spørsmål</h4>
           </div>
           <div className="space-y-1.5">

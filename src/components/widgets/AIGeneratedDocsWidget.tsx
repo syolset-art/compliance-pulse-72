@@ -43,7 +43,7 @@ export function AIGeneratedDocsWidget() {
         <div className="pt-2 border-t border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600 dark:text-amber-400">
+              <Badge variant="outline" className="text-xs border-warning/30 text-warning dark:text-warning">
                 Pending review: 3 documents
               </Badge>
             </div>

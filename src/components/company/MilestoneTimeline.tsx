@@ -93,7 +93,7 @@ export function MilestoneTimeline() {
                       <span className="text-sm font-medium text-foreground truncate">
                         {milestone.description || label}
                       </span>
-                      <span className="text-xs text-green-600 flex-shrink-0">
+                      <span className="text-xs text-status-closed flex-shrink-0">
                         +{milestone.points}
                       </span>
                     </div>

@@ -174,7 +174,7 @@ export function PurchaseLicensesDialog({ open, onOpenChange, onSuccess }: Props)
               <span className="text-muted-foreground">Listepris ({quantity}×{tier.priceKr.toLocaleString("nb-NO")} kr)</span>
               <span>{formatKr(listTotal)}</span>
             </div>
-            <div className="flex justify-between text-green-600">
+            <div className="flex justify-between text-status-closed">
               <span>Rabatt ({discount}%)</span>
               <span>-{formatKr(discountAmount)}</span>
             </div>

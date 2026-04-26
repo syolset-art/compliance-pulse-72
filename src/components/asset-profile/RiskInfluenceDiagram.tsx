@@ -67,12 +67,12 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
 
   const riskScore = 100 - trustScore;
   const riskLevel = riskScore >= 60 ? "high" : riskScore >= 30 ? "medium" : "low";
-  const riskColor = riskLevel === "high" ? "text-destructive" : riskLevel === "medium" ? "text-warning" : "text-green-600 dark:text-green-400";
-  const riskBg = riskLevel === "high" ? "bg-destructive/10" : riskLevel === "medium" ? "bg-warning/10" : "bg-green-500/10";
+  const riskColor = riskLevel === "high" ? "text-destructive" : riskLevel === "medium" ? "text-warning" : "text-status-closed dark:text-status-closed";
+  const riskBg = riskLevel === "high" ? "bg-destructive/10" : riskLevel === "medium" ? "bg-warning/10" : "bg-status-closed/10";
 
   const DirectionIcon = ({ dir }: { dir: "up" | "down" | "neutral" }) => {
     if (dir === "up") return <TrendingUp className="h-3.5 w-3.5 text-destructive" />;
-    if (dir === "down") return <TrendingDown className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />;
+    if (dir === "down") return <TrendingDown className="h-3.5 w-3.5 text-status-closed dark:text-status-closed" />;
     return <Minus className="h-3.5 w-3.5 text-warning" />;
   };
 
@@ -161,11 +161,11 @@ export function RiskInfluenceDiagram({ assetId }: RiskInfluenceDiagramProps) {
           {/* Risk decreasing */}
           <div>
             <div className="flex items-center gap-2 mb-2.5">
-              <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">
+              <ShieldCheck className="h-4 w-4 text-status-closed dark:text-status-closed" />
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-status-closed dark:text-status-closed">
                 {isNb ? "Reduserer risiko" : "Reduces risk"}
               </h4>
-              <Badge variant="outline" className="text-[13px] px-1.5 py-0 ml-auto text-green-600 dark:text-green-400">{decreasing.length}</Badge>
+              <Badge variant="outline" className="text-[13px] px-1.5 py-0 ml-auto text-status-closed dark:text-status-closed">{decreasing.length}</Badge>
             </div>
             <FactorList
               items={decreasing}

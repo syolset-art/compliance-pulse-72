@@ -62,10 +62,10 @@ export const RiskReductionSuccessDialog = ({
         <div className="flex flex-col items-center gap-4 py-4">
           {/* Success icon */}
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            <div className="w-20 h-20 rounded-full bg-status-closed/10 flex items-center justify-center">
+              <CheckCircle2 className="w-12 h-12 text-status-closed" />
             </div>
-            <Sparkles className="absolute -top-1 -right-1 w-6 h-6 text-yellow-500" />
+            <Sparkles className="absolute -top-1 -right-1 w-6 h-6 text-warning" />
           </div>
 
           {/* Title */}
@@ -81,7 +81,7 @@ export const RiskReductionSuccessDialog = ({
             <Badge className={`${getRiskLevelColor(previousLevel)} text-sm px-3 py-1.5`}>
               {getRiskLevelLabel(previousLevel)}
             </Badge>
-            <ArrowRight className="h-5 w-5 text-green-600" />
+            <ArrowRight className="h-5 w-5 text-status-closed" />
             <Badge className={`${getRiskLevelColor(newLevel)} text-sm px-3 py-1.5`}>
               {getRiskLevelLabel(newLevel)}
             </Badge>
@@ -103,7 +103,7 @@ export const RiskReductionSuccessDialog = ({
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {frameworks.map((fw) => (
-                  <Badge key={fw} variant="outline" className="bg-green-50 border-green-200 text-green-700">
+                  <Badge key={fw} variant="outline" className="bg-status-closed/10 border-status-closed/20 text-status-closed">
                     {fw}
                   </Badge>
                 ))}

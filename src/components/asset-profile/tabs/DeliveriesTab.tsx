@@ -160,14 +160,14 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
 
   const getCategoryColor = (value: string) => {
     const colors: Record<string, string> = {
-      software: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-      consulting: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-      infrastructure: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-      support: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-      data_processing: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-      hosting: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
-      security: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-      training: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+      software: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+      consulting: "bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent",
+      infrastructure: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+      support: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed",
+      data_processing: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive",
+      hosting: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary",
+      security: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning",
+      training: "bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent",
       hardware: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
     };
     return colors[value] || "bg-muted text-muted-foreground";
@@ -263,7 +263,7 @@ export function DeliveriesTab({ assetId }: DeliveriesTabProps) {
                     <TableCell className="hidden lg:table-cell">
                       {d.sla_uptime || d.sla_response_time || d.sla_support_hours ? (
                         <Badge variant="outline" className="text-xs gap-1">
-                          <ShieldCheck className="h-3.5 w-3.5 text-green-600" />
+                          <ShieldCheck className="h-3.5 w-3.5 text-status-closed" />
                           SLA
                         </Badge>
                       ) : (

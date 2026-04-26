@@ -35,8 +35,8 @@ export function VendorRequestsWidget() {
       id: "vr-1",
       icon: ShieldCheck,
       title: "2 vendors asked to update security documentation",
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-500/10",
+      color: "text-warning dark:text-warning",
+      bg: "bg-warning/10",
     },
     {
       id: "vr-2",

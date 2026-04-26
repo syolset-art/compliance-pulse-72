@@ -129,11 +129,11 @@ interface AssetWithOwnership extends Asset {
 
 const workAreaColors = [
   "bg-primary",
-  "bg-orange-500",
-  "bg-pink-500",
-  "bg-cyan-500",
-  "bg-emerald-500",
-  "bg-violet-500",
+  "bg-warning",
+  "bg-accent",
+  "bg-primary",
+  "bg-status-closed",
+  "bg-accent",
 ];
 
 export default function WorkAreas() {
@@ -303,11 +303,11 @@ export default function WorkAreas() {
   const getAssetTypeIcon = (assetType: string) => {
     switch (assetType) {
       case "system":
-        return <Server className="h-4 w-4 text-blue-500" />;
+        return <Server className="h-4 w-4 text-primary" />;
       case "location":
-        return <Building2 className="h-4 w-4 text-green-500" />;
+        return <Building2 className="h-4 w-4 text-status-closed" />;
       case "network":
-        return <Network className="h-4 w-4 text-orange-500" />;
+        return <Network className="h-4 w-4 text-warning" />;
       default:
         return <Package className="h-4 w-4 text-muted-foreground" />;
     }
@@ -531,7 +531,7 @@ export default function WorkAreas() {
     switch (risk) {
       case "low": return "text-success";
       case "medium": return "text-warning";
-      case "high": return "text-orange-500";
+      case "high": return "text-warning";
       case "critical": return "text-destructive";
       default: return "text-muted-foreground";
     }
@@ -999,8 +999,8 @@ export default function WorkAreas() {
                                 className={cn(
                                   "text-xs",
                                   asset.ownership === "owner" 
-                                    ? "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30" 
-                                    : "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                                    ? "bg-status-closed/20 text-status-closed dark:text-status-closed border-status-closed/30" 
+                                    : "bg-primary/20 text-primary dark:text-primary border-primary/30"
                                 )}
                               >
                                 {asset.ownership === "owner" 
@@ -1014,7 +1014,7 @@ export default function WorkAreas() {
                                   "w-2 h-2 rounded-full",
                                   asset.risk_level === "low" && "bg-success",
                                   asset.risk_level === "medium" && "bg-warning",
-                                  asset.risk_level === "high" && "bg-orange-500",
+                                  asset.risk_level === "high" && "bg-warning",
                                   asset.risk_level === "critical" && "bg-destructive"
                                 )} />
                                 <span className={getRiskColor(asset.risk_level || "medium")}>

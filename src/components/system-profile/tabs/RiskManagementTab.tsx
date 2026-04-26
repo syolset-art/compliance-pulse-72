@@ -41,8 +41,8 @@ export const RiskManagementTab = ({ systemId }: RiskManagementTabProps) => {
 
   const getRiskScoreColor = (score: number) => {
     if (score >= 70) return "text-destructive";
-    if (score >= 40) return "text-yellow-600";
-    return "text-green-600";
+    if (score >= 40) return "text-warning";
+    return "text-status-closed";
   };
 
   const getRiskScoreLabel = (score: number) => {
@@ -172,7 +172,7 @@ export const RiskManagementTab = ({ systemId }: RiskManagementTabProps) => {
                   <div className="flex items-center gap-3">
                     <div className={`h-3 w-3 rounded-full ${
                       assessment.risk_score >= 70 ? "bg-destructive" : 
-                      assessment.risk_score >= 40 ? "bg-yellow-500" : "bg-green-500"
+                      assessment.risk_score >= 40 ? "bg-warning" : "bg-status-closed"
                     }`} />
                     <span className="text-sm">{formatDate(assessment.created_at)}</span>
                   </div>

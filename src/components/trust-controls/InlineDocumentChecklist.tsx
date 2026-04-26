@@ -153,11 +153,11 @@ export function InlineDocumentChecklist({
             <div
               key={idx}
               className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs ${
-                hasDoc ? "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800" : "bg-muted/50 border border-border"
+                hasDoc ? "bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed" : "bg-muted/50 border border-border"
               }`}
             >
               {hasDoc ? (
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-status-closed dark:text-status-closed shrink-0" />
               ) : (
                 <AlertCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               )}
@@ -172,7 +172,7 @@ export function InlineDocumentChecklist({
                 )}
               </div>
               {hasDoc ? (
-                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200 text-[13px] shrink-0">
+                <Badge className="bg-status-closed/10 text-status-closed dark:bg-status-closed dark:text-status-closed border-status-closed/20 text-[13px] shrink-0">
                   {isNb ? "Lastet opp" : "Uploaded"}
                 </Badge>
               ) : (

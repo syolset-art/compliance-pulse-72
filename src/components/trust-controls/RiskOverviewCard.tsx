@@ -37,7 +37,7 @@ export function RiskOverviewCard({ assetId }: RiskOverviewCardProps) {
   const getRiskLevel = (score: number) => {
     if (score >= 60) return { label: isNb ? "Høy" : "High", color: "text-destructive" };
     if (score >= 30) return { label: isNb ? "Middels" : "Medium", color: "text-warning" };
-    return { label: isNb ? "Lav" : "Low", color: "text-green-600 dark:text-green-400" };
+    return { label: isNb ? "Lav" : "Low", color: "text-status-closed dark:text-status-closed" };
   };
 
   const level = getRiskLevel(riskScore);

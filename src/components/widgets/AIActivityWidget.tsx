@@ -4,8 +4,8 @@ import { Bot, Cpu, ShieldCheck, AlertTriangle, FileSearch } from "lucide-react";
 
 const DEMO_STATS = [
   { icon: Cpu, label: "Systems analyzed", value: 28, color: "text-primary" },
-  { icon: FileSearch, label: "Baseline attributes collected", value: 96, color: "text-emerald-600 dark:text-emerald-400" },
-  { icon: AlertTriangle, label: "Potential risk indicators detected", value: 3, color: "text-amber-600 dark:text-amber-400" },
+  { icon: FileSearch, label: "Baseline attributes collected", value: 96, color: "text-status-closed dark:text-status-closed" },
+  { icon: AlertTriangle, label: "Potential risk indicators detected", value: 3, color: "text-warning dark:text-warning" },
   { icon: ShieldCheck, label: "Compliance gaps identified", value: 6, color: "text-destructive" },
 ];
 

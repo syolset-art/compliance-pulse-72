@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 const RISK_DATA = [
   { level: "High", count: 2, color: "bg-destructive", textColor: "text-destructive" },
-  { level: "Medium", count: 5, color: "bg-orange-500", textColor: "text-orange-500" },
-  { level: "Low", count: 9, color: "bg-emerald-500", textColor: "text-emerald-500" },
+  { level: "Medium", count: 5, color: "bg-warning", textColor: "text-warning" },
+  { level: "Low", count: 9, color: "bg-status-closed", textColor: "text-status-closed" },
 ];
 
 const TOP_RISK = "Recruitment process – unauthorized access to candidate data";

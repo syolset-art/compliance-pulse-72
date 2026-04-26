@@ -56,8 +56,8 @@ export function IntegrationPendingStatus({
     <div className="space-y-4">
       <div className="flex flex-col items-center justify-center py-6 gap-4">
         <div className="relative">
-          <div className="h-16 w-16 rounded-full bg-amber-500/20 flex items-center justify-center">
-            <Clock className="h-8 w-8 text-amber-500" />
+          <div className="h-16 w-16 rounded-full bg-warning/20 flex items-center justify-center">
+            <Clock className="h-8 w-8 text-warning" />
           </div>
         </div>
         <div className="text-center">
@@ -118,7 +118,7 @@ export function IntegrationPendingStatus({
         >
           {reminderSent ? (
             <>
-              <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 mr-2 text-status-closed" />
               Sent!
             </>
           ) : (

@@ -39,10 +39,10 @@ export function DeviceAutomation({ meta }: DeviceAutomationProps) {
           <Circle className={cn(
             "h-3 w-3 shrink-0",
             allOk
-              ? "fill-green-500 text-green-500"
+              ? "fill-green-500 text-status-closed"
               : inactiveCount > 0
-                ? "fill-amber-500 text-amber-500"
-                : "fill-green-500 text-green-500"
+                ? "fill-amber-500 text-warning"
+                : "fill-green-500 text-status-closed"
           )} />
           <Bot className="h-5 w-5 text-primary" />
           {isNb ? "Automatisering" : "Automation"}

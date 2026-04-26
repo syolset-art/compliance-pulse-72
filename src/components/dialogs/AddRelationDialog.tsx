@@ -39,9 +39,9 @@ interface AddRelationDialogProps {
 type TargetCategory = "vendor" | "system" | "other" | null;
 
 const CATEGORY_CONFIG = [
-  { value: "vendor" as const, label: "Leverandør", icon: Building2, color: "text-purple-500", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", activeBg: "bg-purple-500/20" },
-  { value: "system" as const, label: "System", icon: Server, color: "text-blue-500", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", activeBg: "bg-blue-500/20" },
-  { value: "other" as const, label: "Annen eiendel", icon: Box, color: "text-orange-500", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", activeBg: "bg-orange-500/20" },
+  { value: "vendor" as const, label: "Leverandør", icon: Building2, color: "text-accent", bgColor: "bg-accent/10", borderColor: "border-accent/30", activeBg: "bg-accent/20" },
+  { value: "system" as const, label: "System", icon: Server, color: "text-primary", bgColor: "bg-primary/10", borderColor: "border-primary/30", activeBg: "bg-primary/20" },
+  { value: "other" as const, label: "Annen eiendel", icon: Box, color: "text-warning", bgColor: "bg-warning/10", borderColor: "border-warning/30", activeBg: "bg-warning/20" },
 ];
 
 const RELATIONSHIP_TYPES_BY_CATEGORY: Record<string, { value: string; label: string; description: string }[]> = {
@@ -64,14 +64,14 @@ const RELATIONSHIP_TYPES_BY_CATEGORY: Record<string, { value: string; label: str
 
 const getAssetTypeBadgeColor = (type: string) => {
   const colors: Record<string, string> = {
-    system: "bg-blue-500/20 text-blue-500 border-blue-500/30",
-    vendor: "bg-purple-500/20 text-purple-500 border-purple-500/30",
-    location: "bg-green-500/20 text-green-500 border-green-500/30",
-    network: "bg-orange-500/20 text-orange-500 border-orange-500/30",
-    integration: "bg-cyan-500/20 text-cyan-500 border-cyan-500/30",
+    system: "bg-primary/20 text-primary border-primary/30",
+    vendor: "bg-accent/20 text-accent border-accent/30",
+    location: "bg-status-closed/20 text-status-closed border-status-closed/30",
+    network: "bg-warning/20 text-warning border-warning/30",
+    integration: "bg-primary/20 text-primary border-primary/30",
     hardware: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-    data: "bg-red-500/20 text-red-500 border-red-500/30",
-    contract: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+    data: "bg-destructive/20 text-destructive border-destructive/30",
+    contract: "bg-warning/20 text-warning border-warning/30",
   };
   return colors[type] || "bg-muted text-muted-foreground";
 };

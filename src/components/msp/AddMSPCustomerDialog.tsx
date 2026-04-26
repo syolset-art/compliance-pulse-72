@@ -588,10 +588,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   variant="outline"
                   className={
                     complianceScore >= 70
-                      ? "border-green-500/40 text-green-700 dark:text-green-400"
+                      ? "border-status-closed/40 text-status-closed dark:text-status-closed"
                       : complianceScore >= 40
-                        ? "border-yellow-500/40 text-yellow-700 dark:text-yellow-400"
-                        : "border-red-500/40 text-red-700 dark:text-red-400"
+                        ? "border-warning/40 text-warning dark:text-warning"
+                        : "border-destructive/40 text-destructive dark:text-destructive"
                   }
                 >
                   {complianceScore}%

@@ -288,9 +288,9 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
         {/* Step 2: Select vendors */}
         {step === 2 && (
           <div className="space-y-3 py-2">
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 mb-2">
-              <Network className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
-              <p className="text-[13px] text-blue-700 dark:text-blue-300">
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-primary/10 dark:bg-blue-950/30 border border-primary/20 dark:border-primary mb-2">
+              <Network className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+              <p className="text-[13px] text-primary dark:text-primary">
                 {isNb
                   ? "Du kan bare sende forespørsler til leverandører som er registrert i systemet ditt."
                   : "You can only send requests to vendors registered in your system."}

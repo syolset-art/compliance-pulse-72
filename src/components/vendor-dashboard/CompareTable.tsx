@@ -38,10 +38,10 @@ function ScoreCell({ value }: { value: number | null }) {
   if (value == null) return <span className="text-muted-foreground">—</span>;
   const color =
     value >= 70
-      ? "text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-950"
+      ? "text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-green-950"
       : value >= 40
-        ? "text-yellow-700 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950"
-        : "text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-950";
+        ? "text-warning bg-warning/10 dark:text-warning dark:bg-yellow-950"
+        : "text-destructive bg-destructive/10 dark:text-destructive dark:bg-red-950";
   return (
     <span className={cn("px-2 py-0.5 rounded-md text-sm font-medium", color)}>
       {value}%

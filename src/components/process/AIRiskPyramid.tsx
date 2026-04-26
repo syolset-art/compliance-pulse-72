@@ -22,8 +22,8 @@ export const RISK_LEVELS: RiskLevel[] = [
     description: "Forbudt bruk av AI som truer grunnleggende rettigheter",
     examples: ["Sosial scoring av borgere", "Manipulerende AI-systemer", "Biometrisk masseovervåking"],
     color: "text-white",
-    bgColor: "bg-red-600",
-    borderColor: "border-red-700",
+    bgColor: "bg-destructive",
+    borderColor: "border-destructive",
     icon: <ShieldAlert className="h-4 w-4" />
   },
   {
@@ -32,8 +32,8 @@ export const RISK_LEVELS: RiskLevel[] = [
     description: "Krever streng regulering og samsvarsvurdering",
     examples: ["Rekruttering og HR-beslutninger", "Kredittscoring", "Medisinsk diagnostikk", "Kritisk infrastruktur"],
     color: "text-white",
-    bgColor: "bg-orange-500",
-    borderColor: "border-orange-600",
+    bgColor: "bg-warning",
+    borderColor: "border-warning",
     icon: <AlertTriangle className="h-4 w-4" />
   },
   {
@@ -41,9 +41,9 @@ export const RISK_LEVELS: RiskLevel[] = [
     label: "Begrenset risiko",
     description: "Krever transparens og informasjonsplikt",
     examples: ["Chatboter", "Emosjonsgenkjenning", "AI-generert innhold", "Deepfakes"],
-    color: "text-yellow-900",
-    bgColor: "bg-yellow-400",
-    borderColor: "border-yellow-500",
+    color: "text-warning",
+    bgColor: "bg-warning",
+    borderColor: "border-warning",
     icon: <Eye className="h-4 w-4" />
   },
   {
@@ -51,9 +51,9 @@ export const RISK_LEVELS: RiskLevel[] = [
     label: "Minimal risiko",
     description: "Ingen spesifikke krav, frivillige retningslinjer",
     examples: ["Spamfiltre", "Spillbasert AI", "Inventarstyring", "Anbefalingssystemer"],
-    color: "text-green-900",
-    bgColor: "bg-green-400",
-    borderColor: "border-green-500",
+    color: "text-status-closed",
+    bgColor: "bg-status-closed",
+    borderColor: "border-status-closed",
     icon: <CheckCircle2 className="h-4 w-4" />
   }
 ];

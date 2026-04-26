@@ -59,7 +59,7 @@ export function LockedDomainCard({
             {t("isoReadiness.locked.notActivated")}
           </p>
           {isFree ? (
-            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+            <p className="text-sm font-semibold text-status-closed dark:text-status-closed">
               Inkludert gratis
             </p>
           ) : (

@@ -204,7 +204,7 @@ export const SupportChat = ({ activeContext, onSelectContext, showContextChips =
     if (!source) return null;
     const config: Record<string, { label: string; className: string }> = {
       mynder: { label: t("resources.chat.sourceMynder"), className: "bg-primary/10 text-primary border-primary/20" },
-      ai: { label: t("resources.chat.sourceAI"), className: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" },
+      ai: { label: t("resources.chat.sourceAI"), className: "bg-accent/10 text-accent dark:text-accent border-accent/20" },
       article: { label: t("resources.chat.sourceArticle"), className: "bg-muted text-muted-foreground border-border" },
     };
     const c = config[source];

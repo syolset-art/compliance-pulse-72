@@ -434,15 +434,15 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
   );
 
   const expiryStatusConfig = {
-    valid: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800", label: isNb ? "Gyldig" : "Valid" },
+    valid: { icon: CheckCircle2, color: "text-status-closed", bg: "bg-status-closed/10 dark:bg-emerald-950/30 border-status-closed/20 dark:border-status-closed", label: isNb ? "Gyldig" : "Valid" },
     expired: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10 border-destructive/20", label: isNb ? "Utgått" : "Expired" },
-    expiring_soon: { icon: AlertTriangle, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800", label: isNb ? "Utløper snart" : "Expiring soon" },
+    expiring_soon: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10 dark:bg-yellow-950/30 border-warning/20 dark:border-warning", label: isNb ? "Utløper snart" : "Expiring soon" },
     unknown: { icon: Clock, color: "text-muted-foreground", bg: "bg-muted/30 border-border", label: isNb ? "Ukjent" : "Unknown" },
   };
 
   const confidencePercent = classification ? Math.round((classification.confidence || 0) * 100) : 0;
-  const confidenceColor = confidencePercent >= 80 ? "bg-emerald-500" : confidencePercent >= 50 ? "bg-yellow-500" : "bg-destructive";
-  const confidenceTextColor = confidencePercent >= 80 ? "text-emerald-600" : confidencePercent >= 50 ? "text-yellow-600" : "text-destructive";
+  const confidenceColor = confidencePercent >= 80 ? "bg-status-closed" : confidencePercent >= 50 ? "bg-warning" : "bg-destructive";
+  const confidenceTextColor = confidencePercent >= 80 ? "text-status-closed" : confidencePercent >= 50 ? "text-warning" : "text-destructive";
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -554,7 +554,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10"
+                              className="h-6 w-6 text-muted-foreground hover:text-status-closed hover:bg-status-closed/10"
                               onClick={() => handleFeedback("positive")}
                               disabled={feedbackSaving}
                               title={isNb ? "Riktig klassifisering" : "Correct classification"}
@@ -574,7 +574,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                           </div>
                         )}
                         {feedbackGiven === "positive" && (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          <CheckCircle2 className="h-4 w-4 text-status-closed" />
                         )}
                         {feedbackGiven === "negative" && (
                           <span className="text-xs text-muted-foreground">{isNb ? "Takk!" : "Thanks!"}</span>
@@ -711,7 +711,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig fra" : "Valid from"}
                   {datesAreDefaults && !classification?.validFrom && (
-                    <Badge variant="outline" className="text-[13px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validFrom && (
                     <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
@@ -724,7 +724,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <Calendar className="h-3 w-3" />
                   {isNb ? "Gyldig til" : "Valid to"}
                   {datesAreDefaults && !classification?.validTo && (
-                    <Badge variant="outline" className="text-[13px] ml-1 border-yellow-500/40 text-yellow-600">{isNb ? "Standard" : "Default"}</Badge>
+                    <Badge variant="outline" className="text-[13px] ml-1 border-warning/40 text-warning">{isNb ? "Standard" : "Default"}</Badge>
                   )}
                   {classification?.validTo && (
                     <Badge variant="outline" className="text-[13px] ml-1">AI</Badge>
@@ -773,8 +773,8 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           <div className="space-y-5 py-2">
             {/* Success header */}
             <div className="flex flex-col items-center gap-3">
-              <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              <div className="h-14 w-14 rounded-full bg-status-closed/10 dark:bg-emerald-950/40 flex items-center justify-center">
+                <CheckCircle2 className="h-8 w-8 text-status-closed" />
               </div>
               <div className="text-center">
                 <p className="font-semibold">{isNb ? "Dokument lagret!" : "Document saved!"}</p>
@@ -796,7 +796,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground" />
                 <div className="text-center">
-                  <p className={`text-3xl font-bold transition-all duration-700 ${animatedScore > complianceImpact.scoreBefore ? "text-emerald-600" : "text-foreground"}`}>
+                  <p className={`text-3xl font-bold transition-all duration-700 ${animatedScore > complianceImpact.scoreBefore ? "text-status-closed" : "text-foreground"}`}>
                     {animatedScore}%
                   </p>
                   <p className="text-[13px] text-muted-foreground uppercase">{isNb ? "Etter" : "After"}</p>
@@ -805,7 +805,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
 
               {complianceImpact.scoreAfter > complianceImpact.scoreBefore && (
                 <div className="flex items-center justify-center">
-                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-xs">
+                  <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-xs">
                     +{complianceImpact.scoreAfter - complianceImpact.scoreBefore}% {isNb ? "økning" : "increase"}
                   </Badge>
                 </div>
@@ -829,7 +829,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   <span className="font-medium">
                     {tprmImpact.controlsBefore}/{tprmImpact.controlsTotal}
                     <ArrowRight className="inline h-3 w-3 mx-1 text-muted-foreground" />
-                    <span className="text-emerald-700 font-bold">
+                    <span className="text-status-closed font-bold">
                       {tprmImpact.controlsAfter}/{tprmImpact.controlsTotal}
                     </span>
                     <span className="text-muted-foreground ml-1">{isNb ? "krav oppfylt" : "met"}</span>
@@ -838,7 +838,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                 {tprmImpact.tprmLevelBefore !== tprmImpact.tprmLevelAfter && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{isNb ? "Status" : "Status"}</span>
-                    <span className="text-xs font-medium text-emerald-700">
+                    <span className="text-xs font-medium text-status-closed">
                       {isNb ? "Oppgradert" : "Upgraded"} ✓
                     </span>
                   </div>
@@ -855,16 +855,16 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
                   const isNew = type === docType;
                   const typeLabel = DOC_TYPES.find((d) => d.value === type);
                   return (
-                    <div key={type} className={`flex items-center gap-2 text-xs p-1.5 rounded ${isNew ? "bg-emerald-50 dark:bg-emerald-950/20" : ""}`}>
+                    <div key={type} className={`flex items-center gap-2 text-xs p-1.5 rounded ${isNew ? "bg-status-closed/10 dark:bg-emerald-950/20" : ""}`}>
                       {covered ? (
-                        <CheckCircle2 className={`h-3.5 w-3.5 ${isNew ? "text-emerald-600" : "text-emerald-500"}`} />
+                        <CheckCircle2 className={`h-3.5 w-3.5 ${isNew ? "text-status-closed" : "text-status-closed"}`} />
                       ) : (
                         <XCircle className="h-3.5 w-3.5 text-muted-foreground/40" />
                       )}
                       <span className={covered ? "font-medium" : "text-muted-foreground"}>
                         {isNb ? typeLabel?.labelNb : typeLabel?.label || type}
                       </span>
-                      {isNew && <Badge className="text-[13px] bg-emerald-500/15 text-emerald-700 border-emerald-500/30">{isNb ? "Ny" : "New"}</Badge>}
+                      {isNew && <Badge className="text-[13px] bg-status-closed/15 text-status-closed border-status-closed/30">{isNb ? "Ny" : "New"}</Badge>}
                     </div>
                   );
                 })}

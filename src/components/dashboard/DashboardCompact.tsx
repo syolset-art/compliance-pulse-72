@@ -46,7 +46,7 @@ function KPIRow({ isNb }: { isNb: boolean }) {
     const assessed = completed + inProgress;
     const highRisk = requirements.filter(r => r.priority === "critical" && r.status !== "completed").length;
     const riskLevel = highRisk > 5 ? (isNb ? "Høy" : "High") : highRisk > 2 ? (isNb ? "Middels" : "Medium") : (isNb ? "Lav" : "Low");
-    const riskColor = highRisk > 5 ? "text-destructive" : highRisk > 2 ? "text-orange-500" : "text-emerald-600";
+    const riskColor = highRisk > 5 ? "text-destructive" : highRisk > 2 ? "text-warning" : "text-status-closed";
     return { compliancePct, riskLevel, riskColor, assessed, total, highRisk, completed, inProgress };
   }, [requirements, isNb]);
 
@@ -171,7 +171,7 @@ function PartnerCustomerOverview({ isNb }: { isNb: boolean }) {
 
   const metrics = [
     { icon: Users, label: isNb ? "Kunder" : "Customers", value: total, color: "text-primary" },
-    { icon: TrendingUp, label: isNb ? "Gj.snitt" : "Avg. score", value: `${avgScore}%`, color: "text-emerald-600" },
+    { icon: TrendingUp, label: isNb ? "Gj.snitt" : "Avg. score", value: `${avgScore}%`, color: "text-status-closed" },
     { icon: Loader2, label: isNb ? "Onboarding" : "Onboarding", value: onboarding, color: "text-chart-2" },
     { icon: AlertTriangle, label: isNb ? "Lav score" : "Low score", value: lowScore, color: lowScore > 0 ? "text-destructive" : "text-muted-foreground" },
   ];

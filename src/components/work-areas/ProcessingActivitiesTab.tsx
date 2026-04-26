@@ -129,9 +129,9 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
   // Simulated risk for demo purposes
   const getRiskInfo = (record: ProcessRecord) => {
     const hash = record.id.charCodeAt(0) % 3;
-    if (hash === 0) return { label: "Lav risiko", dotClass: "bg-emerald-500", textClass: "text-emerald-600" };
-    if (hash === 1) return { label: "Moderat risiko", dotClass: "bg-blue-500", textClass: "text-blue-600" };
-    return { label: "Høy risiko", dotClass: "bg-red-500", textClass: "text-red-600" };
+    if (hash === 0) return { label: "Lav risiko", dotClass: "bg-status-closed", textClass: "text-status-closed" };
+    if (hash === 1) return { label: "Moderat risiko", dotClass: "bg-primary", textClass: "text-primary" };
+    return { label: "Høy risiko", dotClass: "bg-destructive", textClass: "text-destructive" };
   };
 
   const getReviewInfo = (record: ProcessRecord) => {
@@ -141,7 +141,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
       if (daysSince < 90) {
         return {
           label: `REVIDERT - ${format(updated, "dd.MM.yyyy", { locale: nb })}`,
-          className: "text-emerald-600",
+          className: "text-status-closed",
         };
       }
     }
@@ -288,7 +288,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
                       <span>Ansvarlig arbeidsområde</span>
                     </div>
                     <div className="flex items-center gap-2 ml-6">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      <CheckCircle2 className="h-4 w-4 text-status-closed" />
                       <span className="text-foreground">{workAreaName}</span>
                     </div>
                   </div>
@@ -326,7 +326,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
                         <AlertTriangle className="h-3.5 w-3.5 text-warning" />
                         <span className="font-medium text-foreground text-xs">DPIA påkrevd</span>
                       </div>
-                      <Badge variant="outline" className="text-[13px] h-5 bg-emerald-500/10 text-emerald-600 border-emerald-200">
+                      <Badge variant="outline" className="text-[13px] h-5 bg-status-closed/10 text-status-closed border-status-closed/20">
                         GODKJENT
                       </Badge>
                     </div>
@@ -405,7 +405,7 @@ export function ProcessingActivitiesTab({ workAreaId, workAreaName }: Processing
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-status-closed" />
                         <span className="text-sm">{workAreaName}</span>
                       </div>
                     </TableCell>

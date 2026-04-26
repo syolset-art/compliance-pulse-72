@@ -16,7 +16,7 @@ import { UserTask } from "@/hooks/useUserTasks";
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   ny: { label: "Ny", color: "bg-muted text-muted-foreground", icon: <CircleDot className="h-3 w-3" /> },
   pågår: { label: "Pågår", color: "bg-primary/15 text-primary", icon: <Clock className="h-3 w-3" /> },
-  fullført: { label: "Fullført", color: "bg-green-500/15 text-green-700", icon: <CheckCircle2 className="h-3 w-3" /> },
+  fullført: { label: "Fullført", color: "bg-status-closed/15 text-status-closed", icon: <CheckCircle2 className="h-3 w-3" /> },
 };
 
 interface UserTasksListProps {

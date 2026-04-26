@@ -99,20 +99,20 @@ const AREA_CONFIG: { area: ControlArea; icon: any; labelNb: string; labelEn: str
 ];
 
 function StatusIcon({ status }: { status: TrustControlStatus }) {
-  if (status === "implemented") return <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />;
-  if (status === "partial") return <MinusCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />;
+  if (status === "implemented") return <CheckCircle2 className="h-4 w-4 text-status-closed dark:text-status-closed" />;
+  if (status === "partial") return <MinusCircle className="h-4 w-4 text-warning dark:text-warning" />;
   return <AlertCircle className="h-4 w-4 text-destructive" />;
 }
 
 function ScoreBar({ score, compact }: { score: number | null; compact?: boolean }) {
   if (score === null) return <span className="text-xs text-muted-foreground">–</span>;
-  const color = score >= 75 ? "bg-green-500" : score >= 50 ? "bg-orange-500" : "bg-destructive";
+  const color = score >= 75 ? "bg-status-closed" : score >= 50 ? "bg-warning" : "bg-destructive";
   return (
     <div className={cn("flex items-center gap-2", compact ? "w-full" : "w-full")}>
       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
         <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${score}%` }} />
       </div>
-      <span className={cn("text-xs font-semibold tabular-nums", score >= 75 ? "text-green-600 dark:text-green-400" : score >= 50 ? "text-orange-500" : "text-destructive")}>
+      <span className={cn("text-xs font-semibold tabular-nums", score >= 75 ? "text-status-closed dark:text-status-closed" : score >= 50 ? "text-warning" : "text-destructive")}>
         {score}%
       </span>
     </div>

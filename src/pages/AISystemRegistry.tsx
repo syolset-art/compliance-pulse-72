@@ -31,9 +31,9 @@ import { LaraAgent } from "@/components/LaraAgent";
 
 const RISK_COLORS: Record<string, string> = {
   unacceptable: "bg-destructive",
-  high: "bg-orange-500",
-  limited: "bg-yellow-500",
-  minimal: "bg-green-500",
+  high: "bg-warning",
+  limited: "bg-warning",
+  minimal: "bg-status-closed",
   not_assessed: "bg-muted",
 };
 
@@ -122,8 +122,8 @@ export default function AISystemRegistry() {
                         {metrics?.totalDecisionsPerMonth.toLocaleString() || 0}
                       </p>
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <BarChart3 className="h-6 w-6 text-blue-500" />
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <BarChart3 className="h-6 w-6 text-primary" />
                     </div>
                   </div>
                 </CardContent>
@@ -138,8 +138,8 @@ export default function AISystemRegistry() {
                         {metrics?.totalAffectedPersons.toLocaleString() || 0}
                       </p>
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                      <Users className="h-6 w-6 text-purple-500" />
+                    <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                      <Users className="h-6 w-6 text-accent" />
                     </div>
                   </div>
                 </CardContent>
@@ -152,8 +152,8 @@ export default function AISystemRegistry() {
                       <p className="text-sm text-muted-foreground">Override-rate</p>
                       <p className="text-3xl font-bold">{metrics?.averageOverrideRate || 0}%</p>
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-amber-500" />
+                    <div className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
+                      <TrendingUp className="h-6 w-6 text-warning" />
                     </div>
                   </div>
                 </CardContent>
@@ -185,9 +185,9 @@ export default function AISystemRegistry() {
 
             {/* High Risk Systems Warning */}
             {metrics && metrics.systemsWithHighRisk.length > 0 && (
-              <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20 dark:border-orange-900/50">
+              <Card className="border-warning/20 bg-warning/10/50 dark:bg-orange-950/20 dark:border-warning/50">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                  <CardTitle className="text-lg flex items-center gap-2 text-warning dark:text-warning">
                     <AlertTriangle className="h-5 w-5" />
                     Høyrisiko AI-systemer
                   </CardTitle>

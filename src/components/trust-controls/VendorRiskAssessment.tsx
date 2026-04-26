@@ -50,14 +50,14 @@ export function VendorRiskAssessment({ vendorName = "" }: VendorRiskAssessmentPr
   ];
 
   const getBarColor = (score: number) => {
-    if (score >= 70) return "bg-green-500";
-    if (score >= 40) return "bg-amber-500";
+    if (score >= 70) return "bg-status-closed";
+    if (score >= 40) return "bg-warning";
     return "bg-destructive";
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "text-green-600 dark:text-green-400";
-    if (score >= 40) return "text-amber-600 dark:text-amber-400";
+    if (score >= 70) return "text-status-closed dark:text-status-closed";
+    if (score >= 40) return "text-warning dark:text-warning";
     return "text-destructive";
   };
 
@@ -116,7 +116,7 @@ export function VendorRiskAssessment({ vendorName = "" }: VendorRiskAssessmentPr
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <CheckCircle2 className="h-4 w-4 text-status-closed dark:text-status-closed" />
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {isNb ? "Styrker" : "Strengths"}
               </span>
@@ -128,7 +128,7 @@ export function VendorRiskAssessment({ vendorName = "" }: VendorRiskAssessmentPr
 
           <div className="border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertTriangle className="h-4 w-4 text-warning" />
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {isNb ? "Bekymringer" : "Concerns"}
               </span>
@@ -140,7 +140,7 @@ export function VendorRiskAssessment({ vendorName = "" }: VendorRiskAssessmentPr
 
           <div className="border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 text-amber-500" />
+              <Lightbulb className="h-4 w-4 text-warning" />
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {isNb ? "Anbefaling" : "Recommendation"}
               </span>

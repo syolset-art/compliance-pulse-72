@@ -24,16 +24,16 @@ const capabilityConfig: Record<AgentCapability, {
     label: 'AI Ready',
     labelNo: 'AI-klar',
     description: 'Agent can complete this requirement autonomously',
-    colorClass: 'text-emerald-600 dark:text-emerald-400',
-    bgClass: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800'
+    colorClass: 'text-status-closed dark:text-status-closed',
+    bgClass: 'bg-status-closed/10 dark:bg-emerald-950/30 border-status-closed/20 dark:border-status-closed'
   },
   assisted: {
     icon: Sparkles,
     label: 'Assisted',
     labelNo: 'Assistert',
     description: 'AI prepares and suggests, human reviews and approves',
-    colorClass: 'text-amber-600 dark:text-amber-400',
-    bgClass: 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+    colorClass: 'text-warning dark:text-warning',
+    bgClass: 'bg-warning/10 dark:bg-amber-950/30 border-warning/20 dark:border-warning'
   },
   manual: {
     icon: User,
@@ -128,7 +128,7 @@ export function AgentCapabilitySummary({ counts, size = 'sm', className }: Agent
     <div className={cn("flex items-center gap-3", className)}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center gap-1 text-status-closed dark:text-status-closed">
             <Bot className={size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
             <span className={cn("font-medium", size === 'sm' ? 'text-xs' : 'text-sm')}>{counts.full}</span>
           </div>
@@ -140,7 +140,7 @@ export function AgentCapabilitySummary({ counts, size = 'sm', className }: Agent
       
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-1 text-warning dark:text-warning">
             <Sparkles className={size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
             <span className={cn("font-medium", size === 'sm' ? 'text-xs' : 'text-sm')}>{counts.assisted}</span>
           </div>

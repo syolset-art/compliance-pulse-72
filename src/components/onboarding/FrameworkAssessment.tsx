@@ -48,10 +48,10 @@ const frameworkDefs: Framework[] = [
 ];
 
 const categoryDefs = [
-  { id: 'privacy', icon: Shield, color: 'text-blue-500' },
-  { id: 'security', icon: Lock, color: 'text-green-500' },
-  { id: 'ai', icon: Brain, color: 'text-purple-500' },
-  { id: 'other', icon: Scale, color: 'text-orange-500' }
+  { id: 'privacy', icon: Shield, color: 'text-primary' },
+  { id: 'security', icon: Lock, color: 'text-status-closed' },
+  { id: 'ai', icon: Brain, color: 'text-accent' },
+  { id: 'other', icon: Scale, color: 'text-warning' }
 ] as const;
 
 type Step = 'intro' | 'questions' | 'review';

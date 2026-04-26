@@ -289,8 +289,8 @@ export default function Assets() {
                         <div>
                           <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                             asset.risk_level === "high" ? "bg-destructive/20 text-destructive" :
-                            asset.risk_level === "medium" ? "bg-yellow-500/20 text-yellow-600" :
-                            "bg-green-500/20 text-green-600"
+                            asset.risk_level === "medium" ? "bg-warning/20 text-warning" :
+                            "bg-status-closed/20 text-status-closed"
                           }`}>
                             {asset.risk_level || "medium"}
                           </span>

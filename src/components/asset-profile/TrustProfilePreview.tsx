@@ -59,15 +59,15 @@ function evaluateTypeControl(key: string, assetType: string, asset: any): TrustC
 }
 
 const FRAMEWORK_META: Record<string, { color: string; type: "standard" | "regulation" }> = {
-  gdpr: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
-  personopplysningsloven: { color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300", type: "regulation" },
-  nis2: { color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300", type: "regulation" },
-  iso27001: { color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300", type: "standard" },
-  "ai-act": { color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300", type: "regulation" },
-  dora: { color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300", type: "regulation" },
-  cra: { color: "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300", type: "regulation" },
-  soc2: { color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300", type: "standard" },
-  iso9001: { color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300", type: "standard" },
+  gdpr: { color: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary", type: "regulation" },
+  personopplysningsloven: { color: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary", type: "regulation" },
+  nis2: { color: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning", type: "regulation" },
+  iso27001: { color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed", type: "standard" },
+  "ai-act": { color: "bg-accent/10 text-foreground dark:bg-foreground/30 dark:text-accent", type: "regulation" },
+  dora: { color: "bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive", type: "regulation" },
+  cra: { color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed", type: "regulation" },
+  soc2: { color: "bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary", type: "standard" },
+  iso9001: { color: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed", type: "standard" },
 };
 
 function getFrameworkMeta(id: string): { color: string; type: "standard" | "regulation" } | null {
@@ -272,7 +272,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                   <div className="flex flex-wrap items-center gap-2 mb-0.5">
                     <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{asset.name}</h1>
                     {isMspPartner && (
-                      <Badge className="bg-amber-100 text-amber-800 border-amber-400 text-[13px] gap-1 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600">
+                      <Badge className="bg-warning/10 text-warning border-warning text-[13px] gap-1 dark:bg-warning/30 dark:text-warning dark:border-warning">
                         <Award className="h-3 w-3" /> Mynder Partner
                       </Badge>
                     )}
@@ -284,7 +284,7 @@ export function TrustProfilePreview({ open, onOpenChange, assetId }: TrustProfil
                     <p className="text-sm text-muted-foreground/70 mt-1.5 leading-relaxed max-w-xl line-clamp-2">{asset.description}</p>
                   )}
                   <div className="flex items-center gap-1.5 mt-3">
-                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700 text-[13px] gap-1">
+                    <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed dark:border-status-closed text-[13px] gap-1">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       {isNb ? "Verifisert av organisasjon" : "Verified by organisation"}
                     </Badge>

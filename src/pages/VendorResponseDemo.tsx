@@ -329,8 +329,8 @@ export default function VendorResponseDemo() {
         {/* ===================== STEP 3A DONE ===================== */}
         {step === "upload-done" && (
           <div className="max-w-lg mx-auto text-center space-y-6 py-12">
-            <div className="mx-auto h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+            <div className="mx-auto h-20 w-20 rounded-full bg-status-closed/10 dark:bg-status-closed/30 flex items-center justify-center">
+              <CheckCircle2 className="h-10 w-10 text-status-closed dark:text-status-closed" />
             </div>
             <h2 className="text-2xl font-bold">Dokumentet er sendt!</h2>
             <p className="text-muted-foreground">
@@ -340,7 +340,7 @@ export default function VendorResponseDemo() {
               <CardContent className="p-4 space-y-2">
                 <p className="text-sm"><strong>Dokument:</strong> {uploadedFile?.name}</p>
                 <p className="text-sm"><strong>Sendt til:</strong> {senderCompanyName}</p>
-                <p className="text-sm"><strong>Status:</strong> <span className="text-green-600">Mottatt</span></p>
+                <p className="text-sm"><strong>Status:</strong> <span className="text-status-closed">Mottatt</span></p>
               </CardContent>
             </Card>
             <div className="space-y-3">
@@ -528,20 +528,20 @@ export default function VendorResponseDemo() {
                 const email = roleEmails[`${role.rolletype}-${idx}`];
                 const hasSent = !!email && email.includes("@");
                 return (
-                  <Card key={idx} className={cn("border", verificationConfirmed && hasSent && "border-green-500/50 bg-green-50 dark:bg-green-900/10")}>
+                  <Card key={idx} className={cn("border", verificationConfirmed && hasSent && "border-status-closed/50 bg-status-closed/10 dark:bg-status-closed/10")}>
                     <CardContent className="p-4 flex items-center gap-4">
                       <div className={cn(
                         "h-10 w-10 rounded-full flex items-center justify-center",
                         verificationConfirmed && hasSent
-                          ? "bg-green-100 dark:bg-green-900/30"
+                          ? "bg-status-closed/10 dark:bg-status-closed/30"
                           : hasSent
-                            ? "bg-yellow-100 dark:bg-yellow-900/30"
+                            ? "bg-warning/10 dark:bg-warning/30"
                             : "bg-muted"
                       )}>
                         {verificationConfirmed && hasSent ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                          <CheckCircle2 className="h-5 w-5 text-status-closed dark:text-status-closed" />
                         ) : hasSent ? (
-                          <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                          <Clock className="h-5 w-5 text-warning dark:text-warning" />
                         ) : (
                           <User className="h-5 w-5 text-muted-foreground" />
                         )}
@@ -574,9 +574,9 @@ export default function VendorResponseDemo() {
             )}
 
             {verificationConfirmed && (
-              <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-green-700 dark:text-green-300">
+              <div className="bg-status-closed/10 dark:bg-status-closed/10 border border-status-closed/20 dark:border-status-closed rounded-lg p-4 flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-status-closed dark:text-status-closed flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-status-closed dark:text-status-closed">
                   Bekreftelse mottatt! Du kan nå opprette Trust Profilen din.
                 </p>
               </div>
@@ -605,8 +605,8 @@ export default function VendorResponseDemo() {
         {step === "trust-profile" && (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="text-center space-y-3 py-4">
-              <div className="mx-auto h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center animate-fade-in">
-                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+              <div className="mx-auto h-16 w-16 rounded-full bg-status-closed/10 dark:bg-status-closed/30 flex items-center justify-center animate-fade-in">
+                <CheckCircle2 className="h-8 w-8 text-status-closed dark:text-status-closed" />
               </div>
               <h2 className="text-2xl font-bold">Trust Profilen din er opprettet!</h2>
               <p className="text-muted-foreground">Velkommen til {companyDisplayName} sin compliance-profil.</p>
@@ -626,7 +626,7 @@ export default function VendorResponseDemo() {
                       <p className="text-sm text-muted-foreground">{(selectedCompany?.naeringskode1 || rawData?.naeringskode1)?.beskrivelse}</p>
                     )}
                     <div className="mt-2 flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs bg-status-closed/10 dark:bg-status-closed/30 text-status-closed dark:text-status-closed px-2 py-0.5 rounded-full">
                         <CheckCircle2 className="h-3 w-3" /> Verifisert
                       </span>
                       <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -647,14 +647,14 @@ export default function VendorResponseDemo() {
               </CardHeader>
               <CardContent>
                 <div className="border rounded-lg p-4 flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  <div className="h-10 w-10 rounded-full bg-warning/10 dark:bg-warning/30 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-warning dark:text-warning" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">Databehandleravtale (DPA)</p>
                     <p className="text-xs text-muted-foreground">Fra {senderCompanyName} · Frist: 15. mars 2026</p>
                     <div className="mt-2">
-                      <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-warning/10 dark:bg-warning/30 text-warning dark:text-warning px-2 py-0.5 rounded-full">
                         Venter på svar
                       </span>
                     </div>

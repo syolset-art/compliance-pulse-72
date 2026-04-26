@@ -15,7 +15,7 @@ const DOMAINS = [
   {
     key: "governance",
     icon: Landmark,
-    color: "bg-indigo-500", iconColor: "text-indigo-600 dark:text-indigo-400", bgColor: "bg-indigo-500/5", borderColor: "border-l-indigo-500",
+    color: "bg-primary", iconColor: "text-primary dark:text-primary", bgColor: "bg-primary/5", borderColor: "border-l-indigo-500",
     title_no: "Governance", title_en: "Governance",
     desc_no: "Ledelse, policyer, samsvar og risikostyring", desc_en: "Leadership, policies, compliance and risk management",
     controls_no: [
@@ -34,7 +34,7 @@ const DOMAINS = [
   {
     key: "operations",
     icon: Server,
-    color: "bg-blue-500", iconColor: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-500/5", borderColor: "border-l-blue-500",
+    color: "bg-primary", iconColor: "text-primary dark:text-primary", bgColor: "bg-primary/5", borderColor: "border-l-blue-500",
     title_no: "Operations", title_en: "Operations",
     desc_no: "Sikkerhet i systemer og daglig drift", desc_en: "Security of systems and daily operations",
     controls_no: [
@@ -53,7 +53,7 @@ const DOMAINS = [
   {
     key: "identity",
     icon: Fingerprint,
-    color: "bg-cyan-500", iconColor: "text-cyan-600 dark:text-cyan-400", bgColor: "bg-cyan-500/5", borderColor: "border-l-cyan-500",
+    color: "bg-primary", iconColor: "text-primary dark:text-primary", bgColor: "bg-primary/5", borderColor: "border-l-cyan-500",
     title_no: "Personvern og datahåndtering", title_en: "Privacy & Data Handling",
     desc_no: "Personvern, behandlingsoversikt og registrertes rettigheter", desc_en: "Privacy, processing records and data subject rights",
     controls_no: [
@@ -72,7 +72,7 @@ const DOMAINS = [
   {
     key: "supplier",
     icon: Users,
-    color: "bg-amber-500", iconColor: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-500/5", borderColor: "border-l-amber-500",
+    color: "bg-warning", iconColor: "text-warning dark:text-warning", bgColor: "bg-warning/5", borderColor: "border-l-amber-500",
     title_no: "Tredjepartstyring og verdikjede", title_en: "Third-Party & Value Chain",
     desc_no: "Leverandørstyring og tredjeparts-risiko", desc_en: "Vendor management and third-party risk",
     controls_no: [
@@ -91,18 +91,18 @@ const DOMAINS = [
 ];
 
 const PIPELINE_STEPS = [
-  { icon: Building2, nodeColor: "bg-indigo-500", borderColor: "border-l-indigo-500", bgColor: "bg-indigo-500/5", iconColor: "text-indigo-600 dark:text-indigo-400", title_no: "Arbeidsområder", title_en: "Workspaces", desc_no: "Deler av organisasjonen som eier systemer og prosesser.", desc_en: "Parts of the organization that own systems and processes." },
-  { icon: Workflow, nodeColor: "bg-blue-500", borderColor: "border-l-blue-500", bgColor: "bg-blue-500/5", iconColor: "text-blue-600 dark:text-blue-400", title_no: "Prosesser", title_en: "Processes", desc_no: "Hvordan systemer og leverandører brukes i praksis.", desc_en: "How systems and vendors are used in practice." },
-  { icon: Monitor, nodeColor: "bg-cyan-500", borderColor: "border-l-cyan-500", bgColor: "bg-cyan-500/5", iconColor: "text-cyan-600 dark:text-cyan-400", title_no: "Systemer / Leverandører / Assets", title_en: "Systems / Vendors / Assets", desc_no: "Alle ressurser med Trust Profile for samsvar og risiko.", desc_en: "All resources with Trust Profile for compliance and risk." },
-  { icon: AlertTriangle, nodeColor: "bg-amber-500", borderColor: "border-l-amber-500", bgColor: "bg-amber-500/5", iconColor: "text-amber-600 dark:text-amber-400", title_no: "Risikoscenarioer", title_en: "Risk scenarios", desc_no: "Risikovurdering gjøres på prosessnivå.", desc_en: "Risk assessments happen at the process level." },
-  { icon: Shield, nodeColor: "bg-orange-500", borderColor: "border-l-orange-500", bgColor: "bg-orange-500/5", iconColor: "text-orange-600 dark:text-orange-400", title_no: "Kontroller", title_en: "Controls", desc_no: "Tiltak som reduserer identifiserte risikoer.", desc_en: "Measures that reduce identified risks." },
-  { icon: BarChart3, nodeColor: "bg-emerald-500", borderColor: "border-l-emerald-500", bgColor: "bg-emerald-500/5", iconColor: "text-emerald-600 dark:text-emerald-400", title_no: "Modenhetsscore", title_en: "Maturity score", desc_no: "Viser hvor godt kontrollene er implementert.", desc_en: "Shows how well controls are implemented." },
+  { icon: Building2, nodeColor: "bg-primary", borderColor: "border-l-indigo-500", bgColor: "bg-primary/5", iconColor: "text-primary dark:text-primary", title_no: "Arbeidsområder", title_en: "Workspaces", desc_no: "Deler av organisasjonen som eier systemer og prosesser.", desc_en: "Parts of the organization that own systems and processes." },
+  { icon: Workflow, nodeColor: "bg-primary", borderColor: "border-l-blue-500", bgColor: "bg-primary/5", iconColor: "text-primary dark:text-primary", title_no: "Prosesser", title_en: "Processes", desc_no: "Hvordan systemer og leverandører brukes i praksis.", desc_en: "How systems and vendors are used in practice." },
+  { icon: Monitor, nodeColor: "bg-primary", borderColor: "border-l-cyan-500", bgColor: "bg-primary/5", iconColor: "text-primary dark:text-primary", title_no: "Systemer / Leverandører / Assets", title_en: "Systems / Vendors / Assets", desc_no: "Alle ressurser med Trust Profile for samsvar og risiko.", desc_en: "All resources with Trust Profile for compliance and risk." },
+  { icon: AlertTriangle, nodeColor: "bg-warning", borderColor: "border-l-amber-500", bgColor: "bg-warning/5", iconColor: "text-warning dark:text-warning", title_no: "Risikoscenarioer", title_en: "Risk scenarios", desc_no: "Risikovurdering gjøres på prosessnivå.", desc_en: "Risk assessments happen at the process level." },
+  { icon: Shield, nodeColor: "bg-warning", borderColor: "border-l-orange-500", bgColor: "bg-warning/5", iconColor: "text-warning dark:text-warning", title_no: "Kontroller", title_en: "Controls", desc_no: "Tiltak som reduserer identifiserte risikoer.", desc_en: "Measures that reduce identified risks." },
+  { icon: BarChart3, nodeColor: "bg-status-closed", borderColor: "border-l-emerald-500", bgColor: "bg-status-closed/5", iconColor: "text-status-closed dark:text-status-closed", title_no: "Modenhetsscore", title_en: "Maturity score", desc_no: "Viser hvor godt kontrollene er implementert.", desc_en: "Shows how well controls are implemented." },
 ];
 
 const FRAMEWORKS = [
-  { name: "ISO 27001", color: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20" },
-  { name: "GDPR", color: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20" },
-  { name: "EU AI Act", color: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20" },
+  { name: "ISO 27001", color: "bg-primary/10 text-primary dark:text-primary border-primary/20" },
+  { name: "GDPR", color: "bg-primary/10 text-primary dark:text-primary border-primary/20" },
+  { name: "EU AI Act", color: "bg-warning/10 text-warning dark:text-warning border-warning/20" },
 ];
 
 const FUTURE_ITEMS = [
@@ -211,7 +211,7 @@ const MynderControls = () => {
                       <ul className="grid gap-1">
                         {controls.map((c, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-status-closed flex-shrink-0" />
                             {c}
                           </li>
                         ))}
@@ -222,7 +222,7 @@ const MynderControls = () => {
               })}
             </div>
 
-            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+            <div className="rounded-lg border border-status-closed/20 bg-status-closed/5 px-4 py-3">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 <span className="font-semibold text-foreground">{t("Foundation Status", "Foundation Status")}</span>{" "}
                 {t(
@@ -245,7 +245,7 @@ const MynderControls = () => {
               )}
             </p>
             <div className="relative ml-1">
-              <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gradient-to-b from-indigo-500 via-cyan-500 to-emerald-500 rounded-full" />
+              <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gradient-to-b from-primary via-primary to-status-closed rounded-full" />
               {PIPELINE_STEPS.map((item, idx) => {
                 const Icon = item.icon;
                 return (
@@ -343,7 +343,7 @@ const MynderControls = () => {
           </div>
 
           {/* G. Key principle */}
-          <Card variant="flat" className="border-primary/20 bg-gradient-to-r from-primary/5 to-indigo-500/5">
+          <Card variant="flat" className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/5">
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
                 <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />

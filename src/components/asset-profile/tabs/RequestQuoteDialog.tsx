@@ -50,12 +50,12 @@ export function RequestQuoteDialog({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center text-center py-6 space-y-4">
-            <div className="h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-              <Send className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+            <div className="h-16 w-16 rounded-full bg-warning/10 dark:bg-warning/40 flex items-center justify-center">
+              <Send className="h-8 w-8 text-warning dark:text-warning" />
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground flex items-center justify-center gap-2">
-                {isNb ? "Tilbudsforespørsel sendt!" : "Quote request sent!"} <PartyPopper className="h-5 w-5 text-amber-500" />
+                {isNb ? "Tilbudsforespørsel sendt!" : "Quote request sent!"} <PartyPopper className="h-5 w-5 text-warning" />
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                 {isNb ? (
@@ -68,7 +68,7 @@ export function RequestQuoteDialog({
 
             <div className="rounded-lg border border-border bg-muted/30 p-4 w-full text-left space-y-3">
               <div className="flex items-start gap-3">
-                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <Clock className="h-4 w-4 text-warning dark:text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-medium text-foreground">{isNb ? "Hva skjer nå?" : "What happens next?"}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">

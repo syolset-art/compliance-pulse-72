@@ -32,9 +32,9 @@ export function ComplianceIntroHeader({ stats, frameworkName = "ISO 27001" }: Co
       label: "AI Ready",
       count: stats.byCapability.full,
       completed: stats.completedByCapability.full,
-      color: "text-emerald-500",
-      bgColor: "bg-emerald-500/10",
-      borderColor: "border-emerald-500/20",
+      color: "text-status-closed",
+      bgColor: "bg-status-closed/10",
+      borderColor: "border-status-closed/20",
       desc: isNorwegian ? "Lara håndterer automatisk" : "Lara handles automatically",
     },
     {
@@ -42,9 +42,9 @@ export function ComplianceIntroHeader({ stats, frameworkName = "ISO 27001" }: Co
       label: "Hybrid",
       count: stats.byCapability.assisted,
       completed: stats.completedByCapability.assisted,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
-      borderColor: "border-blue-500/20",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      borderColor: "border-primary/20",
       desc: isNorwegian ? "Lara forbereder, du godkjenner" : "Lara prepares, you approve",
     },
     {
@@ -52,9 +52,9 @@ export function ComplianceIntroHeader({ stats, frameworkName = "ISO 27001" }: Co
       label: isNorwegian ? "Manuell" : "Manual",
       count: stats.byCapability.manual,
       completed: stats.completedByCapability.manual,
-      color: "text-orange-500",
-      bgColor: "bg-orange-500/10",
-      borderColor: "border-orange-500/20",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
+      borderColor: "border-warning/20",
       desc: isNorwegian ? "Krever din handling" : "Requires your action",
     }
   ];

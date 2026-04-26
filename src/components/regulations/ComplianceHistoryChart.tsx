@@ -81,14 +81,14 @@ const eventTypeLabel = {
 };
 
 const eventTypeColor = {
-  met: "text-emerald-600 dark:text-emerald-400",
-  partial: "text-amber-600 dark:text-amber-400",
+  met: "text-status-closed dark:text-status-closed",
+  partial: "text-warning dark:text-warning",
   lost: "text-destructive",
 };
 
 const EventIcon = ({ type, className = "h-3.5 w-3.5" }: { type: ComplianceEvent["type"]; className?: string }) => {
-  if (type === "met") return <CheckCircle2 className={`${className} text-emerald-500`} />;
-  if (type === "partial") return <CircleAlert className={`${className} text-amber-500`} />;
+  if (type === "met") return <CheckCircle2 className={`${className} text-status-closed`} />;
+  if (type === "partial") return <CircleAlert className={`${className} text-warning`} />;
   return <Circle className={`${className} text-destructive/60`} />;
 };
 

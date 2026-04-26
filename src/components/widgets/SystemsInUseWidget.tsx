@@ -49,8 +49,8 @@ export function SystemsInUseWidget() {
       label: isNb ? "Mangler eier" : "Missing owner",
       count: missingOwner,
       icon: UserX,
-      color: "text-orange-600 dark:text-orange-400",
-      bgColor: "bg-orange-500/10",
+      color: "text-warning dark:text-warning",
+      bgColor: "bg-warning/10",
     },
   ];
 
@@ -96,7 +96,7 @@ export function SystemsInUseWidget() {
             </Badge>
           )}
           {missingOwner > 0 && (
-            <Badge variant="outline" className="text-[13px] border-orange-300 text-orange-600 dark:text-orange-400">
+            <Badge variant="outline" className="text-[13px] border-warning/20 text-warning dark:text-warning">
               {missingOwner} {isNb ? "uten eier" : "without owner"}
             </Badge>
           )}

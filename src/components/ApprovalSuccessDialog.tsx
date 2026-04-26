@@ -65,8 +65,8 @@ interface ApprovalSuccessDialogProps {
 }
 
 const TPRM_LEVEL_CONFIG: Record<string, { label: string; emoji: string; color: string }> = {
-  approved: { label: "Godkjent", emoji: "🟢", color: "text-emerald-700" },
-  under_review: { label: "Under oppfølging", emoji: "🟡", color: "text-yellow-700" },
+  approved: { label: "Godkjent", emoji: "🟢", color: "text-status-closed" },
+  under_review: { label: "Under oppfølging", emoji: "🟡", color: "text-warning" },
   action_required: { label: "Krever tiltak", emoji: "🔴", color: "text-destructive" },
   not_assessed: { label: "Ikke vurdert", emoji: "⚪", color: "text-muted-foreground" },
 };
@@ -102,14 +102,14 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
         <div className="flex flex-col items-center gap-4 py-4 text-center">
           {/* Success icon */}
           <div className="relative">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${data.isIncident ? "bg-orange-100" : "bg-emerald-100"}`}>
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${data.isIncident ? "bg-warning/10" : "bg-status-closed/10"}`}>
               {data.isIncident ? (
-                <ShieldAlert className="w-9 h-9 text-orange-600" />
+                <ShieldAlert className="w-9 h-9 text-warning" />
               ) : (
-                <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+                <CheckCircle2 className="w-9 h-9 text-status-closed" />
               )}
             </div>
-            <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-amber-500" />
+            <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-warning" />
           </div>
 
           {/* Title */}
@@ -156,7 +156,7 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
                 <span className="font-medium">
                   {impact.controlsBefore}/{impact.controlsTotal}
                   <ArrowRight className="inline h-3 w-3 mx-1 text-muted-foreground" />
-                  <span className={controlChanged ? "text-emerald-700 font-bold" : ""}>
+                  <span className={controlChanged ? "text-status-closed font-bold" : ""}>
                     {impact.controlsAfter}/{impact.controlsTotal}
                   </span>
                   <span className="text-muted-foreground ml-1">krav oppfylt</span>
@@ -203,13 +203,13 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
             </div>
           ) : (
             /* Fallback: simple maturity impact when no TPRM control match */
-            <div className="w-full flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
-              <Sparkles className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+            <div className="w-full flex items-center gap-3 p-3 rounded-lg border border-status-closed/20 bg-status-closed/10/50">
+              <Sparkles className="h-5 w-5 text-status-closed flex-shrink-0" />
               <div className="text-left">
-                <p className="text-sm font-medium text-emerald-800">
+                <p className="text-sm font-medium text-status-closed">
                   +{scoreImpact} modenhet estimert
                 </p>
-                <p className="text-xs text-emerald-600">
+                <p className="text-xs text-status-closed">
                   {data.isIncident
                     ? "Compliance-score oppdateres basert på avvikshåndtering."
                     : "Compliance-score forbedres med gyldig dokumentasjon."}

@@ -32,14 +32,14 @@ const statusConfig: Record<RequirementStatus, {
   completed: {
     icon: CheckCircle2,
     label: 'Completed',
-    colorClass: 'text-emerald-600 dark:text-emerald-400',
-    bgClass: 'bg-emerald-50 dark:bg-emerald-950/30'
+    colorClass: 'text-status-closed dark:text-status-closed',
+    bgClass: 'bg-status-closed/10 dark:bg-emerald-950/30'
   },
   in_progress: {
     icon: Clock,
     label: 'In Progress',
-    colorClass: 'text-amber-600 dark:text-amber-400',
-    bgClass: 'bg-amber-50 dark:bg-amber-950/30'
+    colorClass: 'text-warning dark:text-warning',
+    bgClass: 'bg-warning/10 dark:bg-amber-950/30'
   },
   not_started: {
     icon: Circle,
@@ -88,7 +88,7 @@ export function RequirementCard({
       <div
         className={cn(
           "flex items-center justify-between py-2 px-3 rounded-lg border transition-colors",
-          status === 'completed' ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900' : 'bg-card border-border hover:bg-muted/50',
+          status === 'completed' ? 'bg-status-closed/10/50 dark:bg-emerald-950/20 border-status-closed/20 dark:border-status-closed' : 'bg-card border-border hover:bg-muted/50',
           className
         )}
       >
@@ -113,7 +113,7 @@ export function RequirementCard({
       className={cn(
         "flex items-start justify-between p-4 rounded-lg border transition-all group",
         status === 'completed' 
-          ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900' 
+          ? 'bg-status-closed/10/50 dark:bg-emerald-950/20 border-status-closed/20 dark:border-status-closed' 
           : 'bg-card border-border hover:border-primary/30 hover:shadow-sm',
         className
       )}
@@ -154,7 +154,7 @@ export function RequirementCard({
           )}
           
           {isAiHandling && status === 'in_progress' && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+            <p className="text-xs text-warning dark:text-warning flex items-center gap-1">
               <Loader2 className="h-3 w-3 animate-spin" />
               Agent is working on this...
             </p>

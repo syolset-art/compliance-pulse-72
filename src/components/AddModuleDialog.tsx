@@ -127,7 +127,7 @@ export const AddModuleDialog = ({ open, onOpenChange, onModuleCreated }: AddModu
                     moduleType === "quality-system" ? "border-primary bg-primary/5" : "border-border"
                   }`}
                 >
-                  <Shield className="h-8 w-8 mb-2 text-green-500" />
+                  <Shield className="h-8 w-8 mb-2 text-status-closed" />
                   <div className="font-medium">{t("addModule.types.qualitySystem")}</div>
                   <div className="text-xs text-muted-foreground mt-1">{t("addModule.types.qualitySystemDesc")}</div>
                 </button>

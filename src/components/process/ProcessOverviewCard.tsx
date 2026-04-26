@@ -32,40 +32,40 @@ const getAIRiskConfig = (riskCategory?: string | null, complianceStatus?: string
     return {
       label: "Uakseptabel",
       icon: ShieldAlert,
-      bgClass: "bg-red-500/15",
-      textClass: "text-red-600 dark:text-red-400",
-      borderClass: "border-red-500/30",
-      dotClass: "bg-red-500",
+      bgClass: "bg-destructive/15",
+      textClass: "text-destructive dark:text-destructive",
+      borderClass: "border-destructive/30",
+      dotClass: "bg-destructive",
     };
   }
   if (riskCategory === "high") {
     return {
       label: "Høy risiko",
       icon: ShieldAlert,
-      bgClass: "bg-orange-500/15",
-      textClass: "text-orange-600 dark:text-orange-400",
-      borderClass: "border-orange-500/30",
-      dotClass: "bg-orange-500",
+      bgClass: "bg-warning/15",
+      textClass: "text-warning dark:text-warning",
+      borderClass: "border-warning/30",
+      dotClass: "bg-warning",
     };
   }
   if (riskCategory === "limited") {
     return {
       label: "Begrenset",
       icon: ShieldCheck,
-      bgClass: "bg-yellow-500/15",
-      textClass: "text-yellow-600 dark:text-yellow-500",
-      borderClass: "border-yellow-500/30",
-      dotClass: "bg-yellow-500",
+      bgClass: "bg-warning/15",
+      textClass: "text-warning dark:text-warning",
+      borderClass: "border-warning/30",
+      dotClass: "bg-warning",
     };
   }
   if (riskCategory === "minimal") {
     return {
       label: "Minimal",
       icon: ShieldCheck,
-      bgClass: "bg-green-500/15",
-      textClass: "text-green-600 dark:text-green-400",
-      borderClass: "border-green-500/30",
-      dotClass: "bg-green-500",
+      bgClass: "bg-status-closed/15",
+      textClass: "text-status-closed dark:text-status-closed",
+      borderClass: "border-status-closed/30",
+      dotClass: "bg-status-closed",
     };
   }
   // Not assessed yet
@@ -92,30 +92,30 @@ export const ProcessOverviewCard = ({
       case "critical":
         return {
           label: "Kritisk",
-          bgClass: "bg-red-500/20",
-          textClass: "text-red-400",
-          borderClass: "border-red-500/30",
+          bgClass: "bg-destructive/20",
+          textClass: "text-destructive",
+          borderClass: "border-destructive/30",
         };
       case "high":
         return {
           label: "Høy",
-          bgClass: "bg-orange-500/20",
-          textClass: "text-orange-400",
-          borderClass: "border-orange-500/30",
+          bgClass: "bg-warning/20",
+          textClass: "text-warning",
+          borderClass: "border-warning/30",
         };
       case "medium":
         return {
           label: "Moderat",
-          bgClass: "bg-yellow-500/20",
-          textClass: "text-yellow-400",
-          borderClass: "border-yellow-500/30",
+          bgClass: "bg-warning/20",
+          textClass: "text-warning",
+          borderClass: "border-warning/30",
         };
       default:
         return {
           label: "Lav",
-          bgClass: "bg-green-500/20",
-          textClass: "text-green-400",
-          borderClass: "border-green-500/30",
+          bgClass: "bg-status-closed/20",
+          textClass: "text-status-closed",
+          borderClass: "border-status-closed/30",
         };
     }
   };
@@ -123,9 +123,9 @@ export const ProcessOverviewCard = ({
   const critConfig = getCriticalityConfig(criticality);
 
   const getStatDotColor = (value: number, isWarning?: boolean) => {
-    if (isWarning) return "bg-orange-400";
-    if (value === 0) return "bg-blue-400";
-    return "bg-green-400";
+    if (isWarning) return "bg-warning";
+    if (value === 0) return "bg-primary";
+    return "bg-status-closed";
   };
 
   return (
@@ -235,7 +235,7 @@ export const ProcessOverviewCard = ({
             </div>
             <div className="flex items-center justify-between text-[13px] sm:text-xs bg-muted/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${stats.riskScenarios > 0 ? "bg-orange-400" : "bg-blue-400"}`} />
+                <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${stats.riskScenarios > 0 ? "bg-warning" : "bg-primary"}`} />
                 <span className="text-muted-foreground">Risikoer</span>
               </div>
               <Badge variant="secondary" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs">
@@ -243,12 +243,12 @@ export const ProcessOverviewCard = ({
               </Badge>
             </div>
             {stats.pendingMitigations > 0 && (
-              <div className="flex items-center justify-between text-[13px] sm:text-xs bg-orange-50 dark:bg-orange-950/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
+              <div className="flex items-center justify-between text-[13px] sm:text-xs bg-warning/10 dark:bg-orange-950/30 sm:bg-transparent rounded px-1.5 py-1 sm:p-0">
                 <div className="flex items-center gap-1 sm:gap-2">
-                  <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-orange-400" />
-                  <span className="text-orange-400 truncate">Tiltak mangler</span>
+                  <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-warning" />
+                  <span className="text-warning truncate">Tiltak mangler</span>
                 </div>
-                <Badge variant="outline" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs text-orange-400 border-orange-400/50">
+                <Badge variant="outline" className="h-4 sm:h-5 min-w-4 sm:min-w-5 justify-center text-[13px] sm:text-xs text-warning border-warning/50">
                   {stats.pendingMitigations}
                 </Badge>
               </div>
@@ -263,7 +263,7 @@ export const ProcessOverviewCard = ({
             <span className="font-medium">Ansvarlig</span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 pl-4 sm:pl-5 text-[13px] sm:text-xs">
-            <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-400" />
+            <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-status-closed" />
             <span className="truncate">{processOwner}</span>
           </div>
         </div>

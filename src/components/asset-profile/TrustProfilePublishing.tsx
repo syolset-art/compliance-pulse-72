@@ -121,7 +121,7 @@ export const TrustProfilePublishing = ({
       {/* Top bar: status + actions */}
       <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full shrink-0 ${isPublished ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+          <span className={`h-2 w-2 rounded-full shrink-0 ${isPublished ? "bg-status-closed" : "bg-muted-foreground/40"}`} />
           <span className="text-xs font-medium text-foreground">
             {isPublished ? (isNb ? "Publisert" : "Published") : (isNb ? "Privat" : "Private")}
           </span>
@@ -175,7 +175,7 @@ export const TrustProfilePublishing = ({
                   <code className="text-xs text-foreground font-mono">{publicUrl}</code>
                 </div>
                 <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 text-xs shrink-0" onClick={handleCopyLink}>
-                  {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copiedLink ? <Check className="h-3.5 w-3.5 text-status-closed" /> : <Copy className="h-3.5 w-3.5" />}
                   {copiedLink ? (isNb ? "Kopiert" : "Copied") : (isNb ? "Kopier" : "Copy")}
                 </Button>
               </div>
@@ -253,7 +253,7 @@ export const TrustProfilePublishing = ({
                     onClick={() => handleCopyBadge(selectedBadge)}
                   >
                     {copiedBadge === selectedBadge ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <Check className="h-3.5 w-3.5 text-status-closed" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}

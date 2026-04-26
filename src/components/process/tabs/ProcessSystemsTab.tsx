@@ -40,11 +40,11 @@ export const ProcessSystemsTab = ({ processId, systemId }: ProcessSystemsTabProp
 
   const getRiskColor = (risk: string | null) => {
     switch (risk) {
-      case "critical": return "bg-red-100 text-red-700 border-red-200";
-      case "high": return "bg-orange-100 text-orange-700 border-orange-200";
-      case "medium": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "low": return "bg-green-100 text-green-700 border-green-200";
-      default: return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "critical": return "bg-destructive/10 text-destructive border-destructive/20";
+      case "high": return "bg-warning/10 text-warning border-warning/20";
+      case "medium": return "bg-warning/10 text-warning border-warning/20";
+      case "low": return "bg-status-closed/10 text-status-closed border-status-closed/20";
+      default: return "bg-warning/10 text-warning border-warning/20";
     }
   };
 

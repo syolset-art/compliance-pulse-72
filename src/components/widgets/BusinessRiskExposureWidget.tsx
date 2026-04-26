@@ -32,9 +32,9 @@ export const RISK_DATA: RiskItem[] = [
 
 export const CATEGORY_STYLES: Record<RiskCategory, { label_no: string; label_en: string; className: string }> = {
   datatap: { label_no: "Datatap", label_en: "Data loss", className: "bg-destructive/15 text-destructive" },
-  nedetid: { label_no: "Nedetid", label_en: "Downtime", className: "bg-orange-500/15 text-orange-600 dark:text-orange-400" },
-  regelverksbrudd: { label_no: "Regelverksbrudd", label_en: "Regulatory breach", className: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" },
-  leverandorsvikt: { label_no: "Leverandørsvikt", label_en: "Vendor failure", className: "bg-purple-500/15 text-purple-600 dark:text-purple-400" },
+  nedetid: { label_no: "Nedetid", label_en: "Downtime", className: "bg-warning/15 text-warning dark:text-warning" },
+  regelverksbrudd: { label_no: "Regelverksbrudd", label_en: "Regulatory breach", className: "bg-warning/15 text-warning dark:text-warning" },
+  leverandorsvikt: { label_no: "Leverandørsvikt", label_en: "Vendor failure", className: "bg-accent/15 text-accent dark:text-accent" },
 };
 
 export function formatNOK(n: number) {
@@ -85,7 +85,7 @@ export function BusinessRiskExposureWidget() {
                     {isNb ? cat.label_no : cat.label_en}
                   </span>
                   {r.trend === "up" && <TrendingUp className="h-3 w-3 text-destructive" />}
-                  {r.trend === "down" && <TrendingDown className="h-3 w-3 text-emerald-500" />}
+                  {r.trend === "down" && <TrendingDown className="h-3 w-3 text-status-closed" />}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ export function BusinessRiskExposureWidget() {
                   {formatNOK(r.exposure)}
                 </span>
                 {savings > 0 && (
-                  <span className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400 tabular-nums w-20 text-right">
+                  <span className="text-[13px] font-medium text-status-closed dark:text-status-closed tabular-nums w-20 text-right">
                     +{formatNOK(savings)}
                   </span>
                 )}

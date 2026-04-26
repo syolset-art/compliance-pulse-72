@@ -93,8 +93,8 @@ export function EnvironmentOverviewWidget() {
       alert: systemsWithRisk > 0 ? `${systemsWithRisk} high risk` : undefined,
       route: "/systems",
       ringColor: "hsl(160, 84%, 39%)",
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-500/10",
+      color: "text-status-closed dark:text-status-closed",
+      bg: "bg-status-closed/10",
     },
     {
       key: "vendors",
@@ -103,8 +103,8 @@ export function EnvironmentOverviewWidget() {
       count: vendorsCount,
       route: "/assets",
       ringColor: "hsl(217, 91%, 60%)",
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-blue-500/10",
+      color: "text-primary dark:text-primary",
+      bg: "bg-primary/10",
     },
     {
       key: "processes",
@@ -114,8 +114,8 @@ export function EnvironmentOverviewWidget() {
       displayCount: "—",
       route: "/processing-records",
       ringColor: "hsl(271, 91%, 65%)",
-      color: "text-purple-600 dark:text-purple-400",
-      bg: "bg-purple-500/10",
+      color: "text-accent dark:text-accent",
+      bg: "bg-accent/10",
     },
     {
       key: "work-areas",
@@ -124,8 +124,8 @@ export function EnvironmentOverviewWidget() {
       count: workAreasCount,
       route: "/work-areas",
       ringColor: "hsl(38, 92%, 50%)",
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-500/10",
+      color: "text-warning dark:text-warning",
+      bg: "bg-warning/10",
     },
   ];
 
@@ -156,8 +156,8 @@ export function EnvironmentOverviewWidget() {
                   <p className="text-xs text-muted-foreground">{card.title}</p>
                   {card.alert && (
                     <div className="flex items-center gap-1 mt-0.5 justify-center">
-                      <AlertTriangle className="h-3 w-3 text-amber-500" />
-                      <span className="text-[13px] text-amber-600 dark:text-amber-400">{card.alert}</span>
+                      <AlertTriangle className="h-3 w-3 text-warning" />
+                      <span className="text-[13px] text-warning dark:text-warning">{card.alert}</span>
                     </div>
                   )}
                 </div>

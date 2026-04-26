@@ -35,9 +35,9 @@ export function DocumentRequestsSection({ assetId }: Props) {
     const due = new Date(dueDate);
     const daysLeft = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (status === "received") return { icon: CheckCircle2, color: "text-emerald-600", badge: <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[13px]">Mottatt</Badge> };
+    if (status === "received") return { icon: CheckCircle2, color: "text-status-closed", badge: <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px]">Mottatt</Badge> };
     if (daysLeft < 0 || status === "overdue") return { icon: AlertTriangle, color: "text-destructive", badge: <Badge variant="destructive" className="text-[13px]">{Math.abs(daysLeft)} dager over frist</Badge> };
-    return { icon: Clock, color: "text-yellow-600", badge: <Badge className="bg-yellow-500/15 text-yellow-700 border-yellow-500/30 text-[13px]">{daysLeft} dager igjen</Badge> };
+    return { icon: Clock, color: "text-warning", badge: <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">{daysLeft} dager igjen</Badge> };
   };
 
   const handleSendReminder = (requestId: string) => {

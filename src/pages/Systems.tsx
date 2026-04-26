@@ -90,42 +90,42 @@ const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon;
   const lowerVendor = (vendor || "").toLowerCase();
 
   if (lowerName.includes("microsoft") || lowerName.includes("365") || lowerVendor.includes("microsoft"))
-    return { icon: Mail, color: "bg-orange-500/20 text-orange-500" };
+    return { icon: Mail, color: "bg-warning/20 text-warning" };
   if (lowerName.includes("salesforce") || lowerVendor.includes("salesforce"))
-    return { icon: Users, color: "bg-blue-500/20 text-blue-500" };
+    return { icon: Users, color: "bg-primary/20 text-primary" };
   if (lowerName.includes("sap") || lowerVendor.includes("sap"))
-    return { icon: DollarSign, color: "bg-yellow-500/20 text-yellow-500" };
+    return { icon: DollarSign, color: "bg-warning/20 text-warning" };
   if (lowerName.includes("slack") || lowerVendor.includes("slack"))
-    return { icon: MessageSquare, color: "bg-purple-500/20 text-purple-500" };
+    return { icon: MessageSquare, color: "bg-accent/20 text-accent" };
   if (lowerName.includes("zoom") || lowerVendor.includes("zoom"))
-    return { icon: Video, color: "bg-blue-400/20 text-blue-400" };
+    return { icon: Video, color: "bg-primary/20 text-primary" };
   if (lowerName.includes("visma") || lowerVendor.includes("visma"))
-    return { icon: Briefcase, color: "bg-green-600/20 text-green-600" };
+    return { icon: Briefcase, color: "bg-status-closed/20 text-status-closed" };
   if (lowerName.includes("tripletex") || lowerVendor.includes("tripletex"))
-    return { icon: Calculator, color: "bg-indigo-500/20 text-indigo-500" };
+    return { icon: Calculator, color: "bg-primary/20 text-primary" };
   if (lowerName.includes("jira") || lowerVendor.includes("atlassian"))
-    return { icon: KanbanSquare, color: "bg-blue-600/20 text-blue-600" };
+    return { icon: KanbanSquare, color: "bg-primary/20 text-primary" };
   if (lowerName.includes("github") || lowerVendor.includes("github"))
     return { icon: Github, color: "bg-gray-500/20 text-gray-400" };
   if (lowerName.includes("aws") || lowerVendor.includes("amazon"))
-    return { icon: Cloud, color: "bg-orange-400/20 text-orange-400" };
+    return { icon: Cloud, color: "bg-warning/20 text-warning" };
   if (lowerName.includes("hubspot") || lowerVendor.includes("hubspot"))
-    return { icon: Megaphone, color: "bg-orange-600/20 text-orange-600" };
+    return { icon: Megaphone, color: "bg-warning/20 text-warning" };
   if (lowerName.includes("zendesk") || lowerVendor.includes("zendesk"))
-    return { icon: Headphones, color: "bg-teal-500/20 text-teal-500" };
+    return { icon: Headphones, color: "bg-status-closed/20 text-status-closed" };
   if (lowerName.includes("linkedin") || lowerVendor.includes("linkedin"))
-    return { icon: Users, color: "bg-blue-700/20 text-blue-700" };
+    return { icon: Users, color: "bg-primary/20 text-primary" };
 
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
 };
 
 const SYSTEM_STATUSES = [
-  { value: "in_use", label: "I bruk", badgeClass: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" },
-  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400" },
-  { value: "quarantined", label: "Karantene", badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400" },
-  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" },
+  { value: "in_use", label: "I bruk", badgeClass: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" },
+  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" },
+  { value: "quarantined", label: "Karantene", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
+  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
   { value: "archived", label: "Arkivert", badgeClass: "bg-muted text-muted-foreground" },
-  { value: "rejected", label: "Avvist", badgeClass: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" },
+  { value: "rejected", label: "Avvist", badgeClass: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" },
 ];
 
 const getStatusBadge = (status: string | null) => {
@@ -133,16 +133,16 @@ const getStatusBadge = (status: string | null) => {
 };
 
 const getMaturityBadge = (score: number) => {
-  if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" };
-  if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400" };
-  return { label: `${score}% - Lav dekning`, className: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" };
+  if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" };
+  if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" };
+  return { label: `${score}% - Lav dekning`, className: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" };
 };
 
 const getRiskLabel = (risk: string | null) => {
   switch (risk) {
-    case "high": return { label: "Høy risiko", dotClass: "bg-red-500" };
-    case "medium": return { label: "Moderat risiko", dotClass: "bg-blue-500" };
-    case "low": return { label: "Lav risiko", dotClass: "bg-green-500" };
+    case "high": return { label: "Høy risiko", dotClass: "bg-destructive" };
+    case "medium": return { label: "Moderat risiko", dotClass: "bg-primary" };
+    case "low": return { label: "Lav risiko", dotClass: "bg-status-closed" };
     default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
   }
 };
@@ -428,7 +428,7 @@ export default function Systems() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-3.5 w-3.5 text-blue-500 cursor-help" />
+                    <HelpCircle className="h-3.5 w-3.5 text-primary cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Arbeidsområdet som eier og er ansvarlig for dette systemet</p>

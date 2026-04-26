@@ -357,11 +357,11 @@ export function AssignAssetDialog({
   const getAssetIcon = (assetType: string) => {
     switch (assetType) {
       case "system":
-        return <Server className="h-4 w-4 text-blue-500" />;
+        return <Server className="h-4 w-4 text-primary" />;
       case "location":
-        return <Building2 className="h-4 w-4 text-green-500" />;
+        return <Building2 className="h-4 w-4 text-status-closed" />;
       case "network":
-        return <Network className="h-4 w-4 text-orange-500" />;
+        return <Network className="h-4 w-4 text-warning" />;
       default:
         return <Package className="h-4 w-4 text-muted-foreground" />;
     }

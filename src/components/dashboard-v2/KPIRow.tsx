@@ -38,9 +38,9 @@ export function KPIRow() {
   }, []);
 
   const kpis: KPI[] = [
-    { label_no: "Leverandører", label_en: "Vendors", value: counts.vendors, icon: Building2, route: "/vendors", accent: "text-blue-600 dark:text-blue-400" },
-    { label_no: "Systemer", label_en: "Systems", value: counts.systems, icon: Cloud, route: "/systems", accent: "text-emerald-600 dark:text-emerald-400" },
-    { label_no: "Åpne oppgaver", label_en: "Open tasks", value: counts.openTasks, icon: ClipboardList, route: "/tasks", accent: "text-yellow-600 dark:text-yellow-400" },
+    { label_no: "Leverandører", label_en: "Vendors", value: counts.vendors, icon: Building2, route: "/vendors", accent: "text-primary dark:text-primary" },
+    { label_no: "Systemer", label_en: "Systems", value: counts.systems, icon: Cloud, route: "/systems", accent: "text-status-closed dark:text-status-closed" },
+    { label_no: "Åpne oppgaver", label_en: "Open tasks", value: counts.openTasks, icon: ClipboardList, route: "/tasks", accent: "text-warning dark:text-warning" },
     { label_no: "Avvik", label_en: "Deviations", value: counts.deviations, icon: AlertTriangle, route: "/deviations", accent: "text-destructive" },
   ];
 

@@ -806,7 +806,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                   htmlFor="ai-yes"
                   className={`relative flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
                     hasAI === true ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                  } ${isFieldAutoFilled('has_ai', true) ? 'ring-2 ring-purple-300 dark:ring-purple-700' : ''}`}
+                  } ${isFieldAutoFilled('has_ai', true) ? 'ring-2 ring-accent dark:ring-accent' : ''}`}
                 >
                   <RadioGroupItem value="yes" id="ai-yes" />
                   <div className="flex-1">
@@ -842,7 +842,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                     onChange={(e) => setAiPurpose(e.target.value)}
                     placeholder="Beskriv hva KI brukes til i denne prosessen..."
                     rows={3}
-                    className={isFieldAutoFilled('ai_purpose') ? 'border-purple-300 dark:border-purple-700' : ''}
+                    className={isFieldAutoFilled('ai_purpose') ? 'border-accent/20 dark:border-accent' : ''}
                   />
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-muted-foreground">
@@ -873,7 +873,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
               )}
 
               {hasAI && !isFieldAutoFilled('ai_purpose') && !aiPurpose && (
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm">
+                <div className="flex items-center gap-2 text-warning dark:text-warning text-sm">
                   <AlertCircle className="h-4 w-4" />
                   <span>Beskriv formålet med KI-bruk i denne prosessen</span>
                 </div>
@@ -966,7 +966,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
 
               {checklist.length === 0 ? (
                 <div className="text-center py-8">
-                  <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <CheckCircle2 className="h-8 w-8 text-status-closed mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">Ingen spesifikke sjekkpunkter for valgte funksjoner.</p>
                   <p className="text-sm text-muted-foreground mt-1">Du kan legge til egne sjekkpunkter nedenfor.</p>
                 </div>
@@ -978,9 +978,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                       <div key={item.id} className="space-y-0">
                         <div
                           className={`p-3 border rounded-lg transition-all ${
-                            item.answer === 'yes' ? 'border-emerald-500/50 bg-emerald-50/50 dark:bg-emerald-950/20' :
-                            item.answer === 'no' ? 'border-red-500/50 bg-red-50/50 dark:bg-red-950/20' :
-                            item.answer === 'unsure' ? 'border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20' :
+                            item.answer === 'yes' ? 'border-status-closed/50 bg-status-closed/10/50 dark:bg-emerald-950/20' :
+                            item.answer === 'no' ? 'border-destructive/50 bg-destructive/10/50 dark:bg-red-950/20' :
+                            item.answer === 'unsure' ? 'border-warning/50 bg-warning/10/50 dark:bg-amber-950/20' :
                             'hover:bg-muted/50'
                           } ${isAISuggested ? 'border-l-4 border-l-purple-400 dark:border-l-purple-600' : ''}
                           ${item.answer === 'yes' && linkedSystems && linkedSystems.length > 0 ? 'rounded-b-none' : ''}`}
@@ -1015,9 +1015,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                                 variant={item.answer === opt.value ? 'default' : 'outline'}
                                 className={`h-7 text-xs px-3 ${
                                   item.answer === opt.value
-                                    ? opt.variant === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                                    : opt.variant === 'red' ? 'bg-red-600 hover:bg-red-700 text-white'
-                                    : 'bg-amber-500 hover:bg-amber-600 text-white'
+                                    ? opt.variant === 'emerald' ? 'bg-status-closed hover:bg-status-closed text-white'
+                                    : opt.variant === 'red' ? 'bg-destructive hover:bg-destructive text-white'
+                                    : 'bg-warning hover:bg-warning text-white'
                                     : ''
                                 }`}
                                 onClick={() => setChecklistAnswer(item.id, item.answer === opt.value ? null : opt.value)}
@@ -1028,28 +1028,28 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                           </div>
                           {/* Consequence block for "Nei" */}
                           {item.answer === 'no' && item.consequence && (
-                            <div className="mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 space-y-2">
+                            <div className="mt-2 p-3 rounded-lg bg-destructive/10 dark:bg-red-950/30 border border-destructive/20 dark:border-destructive space-y-2">
                               <div className="flex items-start gap-2">
-                                <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                                <ShieldAlert className="h-4 w-4 text-destructive dark:text-destructive mt-0.5 shrink-0" />
                                 <div className="space-y-1.5">
-                                  <p className="text-xs font-semibold text-red-700 dark:text-red-300">Mulig konsekvens</p>
-                                  <p className="text-xs text-red-700 dark:text-red-300">{item.consequence}</p>
+                                  <p className="text-xs font-semibold text-destructive dark:text-destructive">Mulig konsekvens</p>
+                                  <p className="text-xs text-destructive dark:text-destructive">{item.consequence}</p>
                                 </div>
                               </div>
                               <div className="pl-6 space-y-1.5 text-xs">
-                                <p className="text-red-600 dark:text-red-400">
+                                <p className="text-destructive dark:text-destructive">
                                   <span className="font-medium">📋 Ansvar:</span>{' '}
                                   {item.responsibility === 'tilbyder' ? 'Tilbyder (provider) av KI-systemet' :
                                    item.responsibility === 'bruker' ? 'Bruker (deployer) av KI-systemet' :
                                    'Delt ansvar mellom tilbyder og bruker'}
                                 </p>
                                 {item.aiActReference && (
-                                  <p className="text-red-600 dark:text-red-400">
+                                  <p className="text-destructive dark:text-destructive">
                                     <span className="font-medium">📖 Referanse:</span> {item.aiActReference}
                                   </p>
                                 )}
                                 {item.suggestedAction && (
-                                  <p className="text-red-600 dark:text-red-400">
+                                  <p className="text-destructive dark:text-destructive">
                                     <span className="font-medium">🔧 Foreslått tiltak:</span> {item.suggestedAction}
                                   </p>
                                 )}
@@ -1063,14 +1063,14 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                           )}
                           {/* Guidance block for "Vet ikke" */}
                           {item.answer === 'unsure' && (
-                            <div className="mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 space-y-2">
+                            <div className="mt-2 p-3 rounded-lg bg-warning/10 dark:bg-amber-950/30 border border-warning/20 dark:border-warning space-y-2">
                               {item.helpText && (
-                                <p className="text-xs text-amber-700 dark:text-amber-300">💡 {item.helpText}</p>
+                                <p className="text-xs text-warning dark:text-warning">💡 {item.helpText}</p>
                               )}
                               {item.consequence && (
-                                <div className="flex items-start gap-2 pt-1 border-t border-amber-200 dark:border-amber-700">
-                                  <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                                  <div className="space-y-1 text-xs text-amber-700 dark:text-amber-300">
+                                <div className="flex items-start gap-2 pt-1 border-t border-warning/20 dark:border-warning">
+                                  <AlertTriangle className="h-3.5 w-3.5 text-warning dark:text-warning mt-0.5 shrink-0" />
+                                  <div className="space-y-1 text-xs text-warning dark:text-warning">
                                     <p className="font-medium">Dersom svaret viser seg å være «Nei»:</p>
                                     <p>{item.consequence}</p>
                                     {item.suggestedAction && (
@@ -1087,7 +1087,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                                 </div>
                               )}
                               <div className="flex items-center gap-1.5 pt-1">
-                                <Badge variant="outline" className="text-xs px-1.5 py-0 border-amber-400 text-amber-700 dark:text-amber-300">
+                                <Badge variant="outline" className="text-xs px-1.5 py-0 border-warning text-warning dark:text-warning">
                                   Må avklares — synlig i rapport
                                 </Badge>
                               </div>
@@ -1096,8 +1096,8 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
                         </div>
                         {/* Comment field for "Ja" on documentation-related questions */}
                         {item.answer === 'yes' && /dokumentert|dokumentasjon|dokumenter|loggføring|registrert/i.test(item.question) && (
-                          <div className="px-3 py-2.5 border border-t-0 bg-green-50/50 dark:bg-green-950/10 space-y-1.5">
-                            <Label className="text-xs font-medium flex items-center gap-1.5 text-green-800 dark:text-green-300">
+                          <div className="px-3 py-2.5 border border-t-0 bg-status-closed/10/50 dark:bg-green-950/10 space-y-1.5">
+                            <Label className="text-xs font-medium flex items-center gap-1.5 text-status-closed dark:text-status-closed">
                               <FileText className="h-3.5 w-3.5" />
                               Beskriv dokumentasjonen (hva og hvor)
                             </Label>
@@ -1180,9 +1180,9 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
               {/* Summary */}
               {checklist.length > 0 && (
                 <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
-                  <span className="text-emerald-600">{checklist.filter(c => c.answer === 'yes').length} Ja</span>
-                  <span className="text-red-600">{checklist.filter(c => c.answer === 'no').length} Nei</span>
-                  <span className="text-amber-600">{checklist.filter(c => c.answer === 'unsure').length} Vet ikke</span>
+                  <span className="text-status-closed">{checklist.filter(c => c.answer === 'yes').length} Ja</span>
+                  <span className="text-destructive">{checklist.filter(c => c.answer === 'no').length} Nei</span>
+                  <span className="text-warning">{checklist.filter(c => c.answer === 'unsure').length} Vet ikke</span>
                   <span>{checklist.filter(c => c.answer === null).length} ubesvart</span>
                 </div>
               )}
@@ -1215,10 +1215,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
               {/* ── Result card: prominent risk classification ── */}
               {!isGeneratingRisk && riskCategory && selectedRiskLevel ? (
                 <div className={`p-4 rounded-lg border-2 ${
-                  riskCategory === 'unacceptable' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' :
-                  riskCategory === 'high' ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/20' :
-                  riskCategory === 'limited' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' :
-                  'border-green-500 bg-green-50 dark:bg-green-950/20'
+                  riskCategory === 'unacceptable' ? 'border-destructive bg-destructive/10 dark:bg-red-950/20' :
+                  riskCategory === 'high' ? 'border-warning bg-warning/10 dark:bg-orange-950/20' :
+                  riskCategory === 'limited' ? 'border-warning bg-warning/10 dark:bg-yellow-950/20' :
+                  'border-status-closed bg-status-closed/10 dark:bg-green-950/20'
                 }`}>
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${selectedRiskLevel.bgColor} ${selectedRiskLevel.color}`}>
@@ -1369,7 +1369,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
 
               {riskCategory === 'minimal' && (
                 <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-status-closed shrink-0" />
                   <p className="text-sm text-muted-foreground">
                     Ingen obligatoriske transparenskrav for minimal risiko. Anbefales likevel som god praksis.
                   </p>
@@ -1573,7 +1573,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i K
           {/* No AI selected */}
           {currentStep > 0 && !hasAI && (
             <div className="flex flex-col items-center justify-center py-12">
-              <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
+              <CheckCircle2 className="h-12 w-12 text-status-closed mb-4" />
               <p className="text-lg font-medium">Ingen KI-bruk registrert</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Denne prosessen bruker ikke KI og krever ingen KI-forordningen-dokumentasjon

@@ -54,8 +54,8 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
               key={service.id}
               className={cn(
                 "rounded-lg border p-3 flex flex-col gap-2 transition-shadow hover:shadow-md",
-                status === "covered" && "border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/30",
-                status === "missing" && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/30",
+                status === "covered" && "border-status-closed/20 dark:border-status-closed bg-status-closed/10 dark:bg-green-950/30",
+                status === "missing" && "border-destructive/20 dark:border-destructive bg-destructive/10 dark:bg-red-950/30",
                 status === "unknown" && "border-muted bg-muted/30"
               )}
             >
@@ -66,8 +66,8 @@ export function SecurityServiceGapCard({ assessmentResponses }: SecurityServiceG
                 <span className="text-sm font-medium text-foreground flex-1">{isNb ? service.name : service.nameEn}</span>
                 <StatusIcon className={cn(
                   "h-4 w-4",
-                  status === "covered" && "text-green-600 dark:text-green-400",
-                  status === "missing" && "text-red-600 dark:text-red-400",
+                  status === "covered" && "text-status-closed dark:text-status-closed",
+                  status === "missing" && "text-destructive dark:text-destructive",
                   status === "unknown" && "text-muted-foreground"
                 )} />
               </div>

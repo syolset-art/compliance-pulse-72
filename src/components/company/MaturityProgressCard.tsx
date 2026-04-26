@@ -7,17 +7,17 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const levelColors: Record<MaturityLevel, string> = {
-  beginner: "text-orange-500",
-  developing: "text-yellow-500",
-  established: "text-blue-500",
-  mature: "text-green-500",
+  beginner: "text-warning",
+  developing: "text-warning",
+  established: "text-primary",
+  mature: "text-status-closed",
 };
 
 const levelBgColors: Record<MaturityLevel, string> = {
-  beginner: "bg-orange-500",
-  developing: "bg-yellow-500",
-  established: "bg-blue-500",
-  mature: "bg-green-500",
+  beginner: "bg-warning",
+  developing: "bg-warning",
+  established: "bg-primary",
+  mature: "bg-status-closed",
 };
 
 export function MaturityProgressCard() {
@@ -58,7 +58,7 @@ export function MaturityProgressCard() {
             Din compliance-modenhet
           </CardTitle>
           {pointsGained > 0 && (
-            <span className="text-sm text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
+            <span className="text-sm text-status-closed font-medium bg-status-closed/10 dark:bg-status-closed/20 px-2 py-1 rounded-full">
               +{pointsGained} poeng siden oppstart
             </span>
           )}
@@ -132,13 +132,13 @@ export function MaturityProgressCard() {
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-2 text-sm">
               {item.points > 0 ? (
-                <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-status-closed flex-shrink-0" />
               ) : (
                 <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               )}
               <span className="text-muted-foreground">{item.count} {item.label.toLowerCase()}</span>
               {item.points > 0 && (
-                <span className="text-green-600 text-xs ml-auto">+{item.points}</span>
+                <span className="text-status-closed text-xs ml-auto">+{item.points}</span>
               )}
             </div>
           ))}

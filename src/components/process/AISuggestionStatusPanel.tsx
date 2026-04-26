@@ -69,7 +69,7 @@ export const AISuggestionStatusPanel = ({
             <>
               <Badge 
                 variant="outline" 
-                className="bg-amber-500/20 text-amber-600 border-amber-500/30 shrink-0"
+                className="bg-warning/20 text-warning border-warning/30 shrink-0"
               >
                 PÅGÅR
               </Badge>
@@ -89,7 +89,7 @@ export const AISuggestionStatusPanel = ({
             <>
               <Badge 
                 variant="outline" 
-                className="bg-green-500/20 text-green-600 border-green-500/30 shrink-0 flex items-center gap-1"
+                className="bg-status-closed/20 text-status-closed border-status-closed/30 shrink-0 flex items-center gap-1"
               >
                 <Check className="h-3 w-3" />
                 FERDIG

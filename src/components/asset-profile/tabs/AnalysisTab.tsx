@@ -88,14 +88,14 @@ export function AnalysisTab({ assetId, assetName }: AnalysisTabProps) {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
+    if (score >= 80) return "text-status-closed";
+    if (score >= 60) return "text-warning";
     return "text-destructive";
   };
 
   const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-yellow-500";
+    if (score >= 80) return "bg-status-closed";
+    if (score >= 60) return "bg-warning";
     return "bg-destructive";
   };
 

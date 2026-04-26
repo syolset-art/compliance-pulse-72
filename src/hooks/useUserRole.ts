@@ -63,21 +63,21 @@ export const ROLE_ICONS: Record<AppRole, string> = {
 };
 
 export const ROLE_COLORS: Record<AppRole, string> = {
-  super_admin: "text-yellow-500",
-  daglig_leder: "text-amber-600",
-  personvernombud: "text-blue-600",
-  sikkerhetsansvarlig: "text-red-600",
-  compliance_ansvarlig: "text-green-600",
-  ai_governance: "text-purple-600",
+  super_admin: "text-warning",
+  daglig_leder: "text-warning",
+  personvernombud: "text-primary",
+  sikkerhetsansvarlig: "text-destructive",
+  compliance_ansvarlig: "text-status-closed",
+  ai_governance: "text-accent",
   operativ_bruker: "text-gray-600",
-  risk_owner: "text-orange-600",
-  internal_auditor: "text-indigo-600",
-  esg_officer: "text-emerald-600",
-  incident_manager: "text-rose-600",
-  system_owner: "text-cyan-600",
-  training_officer: "text-teal-600",
-  vendor_manager: "text-violet-600",
-  it_manager: "text-sky-600",
+  risk_owner: "text-warning",
+  internal_auditor: "text-primary",
+  esg_officer: "text-status-closed",
+  incident_manager: "text-destructive",
+  system_owner: "text-primary",
+  training_officer: "text-status-closed",
+  vendor_manager: "text-accent",
+  it_manager: "text-primary",
 };
 
 // Demo mode: Store selected role in localStorage when not authenticated

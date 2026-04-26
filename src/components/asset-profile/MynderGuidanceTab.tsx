@@ -83,8 +83,8 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
           {isNb ? "Gap & foreslåtte aktiviteter" : "Gaps & suggested activities"}
         </h3>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-emerald-500" />{isNb ? "Operasjonelt" : "Operational"}</span>
-          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-amber-500" />{isNb ? "Taktisk" : "Tactical"}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-status-closed" />{isNb ? "Operasjonelt" : "Operational"}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-warning" />{isNb ? "Taktisk" : "Tactical"}</span>
           <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-primary" />{isNb ? "Strategisk" : "Strategic"}</span>
         </div>
       </div>
