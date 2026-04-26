@@ -1,10 +1,19 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
   AreaChart,
