@@ -104,6 +104,7 @@ export const EditActiveFrameworksDialog = ({
                           checked={isActive}
                           onCheckedChange={() => onToggle(fw.id, isActive)}
                           disabled={updatingId === fw.id}
+                          className="data-[state=checked]:bg-primary"
                         />
                       </div>
                     );
