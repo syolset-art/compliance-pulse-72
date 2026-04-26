@@ -390,6 +390,9 @@ const AssetTrustProfile = () => {
               </div>
             )}
 
+            {/* Vendor status banner — matcher leverandørkortets nye design */}
+            {isVendor && <VendorStatusBanner asset={asset as any} />}
+
             {/* Entity Header */}
             <div ref={headerRef}>
               <AssetHeader asset={asset} template={template} trustMetrics={trustMetrics} requestDialogOpen={requestDialogOpen} onRequestDialogChange={setRequestDialogOpen} />
