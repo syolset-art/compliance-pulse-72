@@ -19,6 +19,7 @@ import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
+import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 
 type DemoStatus = "not_met" | "partial" | "met";
@@ -231,10 +232,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     </p>
 
                     {state.status !== "met" && (
-                      <div className="p-3 rounded-lg bg-muted/40 border">
-                        <p className="text-sm font-semibold text-foreground mb-1">Hva må gjøres?</p>
-                        <p className="text-sm text-muted-foreground">{cap.instruction}</p>
-                      </div>
+                      <LaraDataSourceExplainer
+                        requirement={req}
+                        status={state.status}
+                        onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                      />
                     )}
 
                     {/* Inline note for partial status */}
@@ -296,16 +298,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {state.status !== "met" && (
-                      <Button
-                        className="w-full gap-2"
-                        variant="outline"
-                        onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
-                      >
-                        <Users className="h-4 w-4" />
-                        Dokumenter dette kravet
-                      </Button>
-                    )}
+                    {/* Dokumenter-knapp er nå integrert i LaraDataSourceExplainer */}
                     {state.status === "met" && (
                       <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed">
                         <CheckCircle2 className="h-4 w-4 text-status-closed" />
