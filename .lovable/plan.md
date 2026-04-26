@@ -1,98 +1,73 @@
-## Plan: Mynder Color Audit & Fix
+## Plan: Mynder-farger på resten av plattformen
 
-Innfør Mynder-paletten som offisielle tokens, fiks alle observerte avvik på Regelverk-siden, og rydd opp i resten av kodebasen i en kontrollert pass.
+Etter forrige opprydning ble tokens og Regelverk-siden fikset, men **214 filer** bruker fortsatt rå Tailwind-farger (`green-500`, `blue-600`, `orange-500`, `cyan-*`, `purple-500`, hardkodede HEX). Disse vises ikke i Mynder-paletten og bryter visuell konsistens på dashboard, leverandør-, system- og prosesssider.
 
-### 1) Design-tokens (grunnlaget)
+### Mapping (fast regelsett)
 
-**`tailwind.config.ts`** — legg til Mynder-tokens (i tillegg til eksisterende HSL-tokens, så vi ikke bryter noe):
-- `mynder-blue: #4F51B6`
-- `purple-900: #1F1B5A`, `purple-100: #F0EEFB`, `purple-accent: #7F77DD`
-- `status: { open: #E24B4A, followup: #EF9F27, closed: #1D9E75, strategic: #7F77DD }`
-- `borderRadius.pill: 999px`
-- `fontFamily.sans: ['Mulish', 'system-ui', 'sans-serif']`
+| Rå klasse | → Mynder-token |
+|---|---|
+| `green-{500-700}`, `emerald-*`, `lime-*`, `teal-*` | `status-closed` (success) |
+| `green-{50,100,200}` | `status-closed/10` |
+| `red-{500-700}`, `rose-*` | `status-open` / `destructive` |
+| `orange-{400-600}`, `amber-*`, `yellow-{400-500}` | `status-followup` / `warning` |
+| `blue-{500-700}`, `cyan-*`, `sky-*`, `indigo-*` | `mynder-blue` / `primary` |
+| `purple-{400-500}`, `violet-*`, `fuchsia-*`, `pink-*` | `purple-accent` / `accent` |
+| `purple-{700-900}` | `purple-900` / `foreground` |
+| Hardkodede HEX (#22C55E, #3B82F6 osv.) | tilsvarende token |
 
-**`src/index.css`** — oppdater `:root` og `.dark` HSL-variabler så `--primary`, `--foreground`, `--secondary`, `--accent`, `--destructive`, `--ring` matcher Mynder-paletten (eksakt mapping fra spec §1.4). Beholder eksisterende variabel-navn så ingen komponenter brekker — bare verdiene endres. Dette gir umiddelbar effekt for alle komponenter som allerede bruker `bg-primary`, `text-foreground` osv.
+Bakgrunner (`bg-*-50/100`) → `/10`-varianter. Borders (`border-*-200/300`) → `/20`. Tekst på farget bakgrunn beholdes med `*-foreground` token.
 
-**`index.html`** — last inn Mulish fra Google Fonts.
+### Bolker (gjøres i rekkefølge, kan godkjennes løpende)
 
-### 2) Konkrete fikser på Regelverk-siden
+**Bolk 1 — Dashboard & widgets** (~35 filer)
+Mest synlige flatene. Inkluderer:
+- `dashboard-v2/*` (KPIRow, ComplianceShield, NextActionCards, RiskAndCalendarSection, RecentActivityFeed, AggregatedMaturityWidget)
+- `dashboard/*` (DashboardCompact, DashboardCriticalTasks, DeletionAgentCard)
+- `widgets/*` (alle ~30 widget-filer: Compliance, Risk, AI, Vendor, NIS2, GDPR osv.)
 
-Ut fra grep-resultatene:
+**Bolk 2 — Leverandør (Vendors)** (~15 filer)
+- `vendor-dashboard/*` (CompareTable, VendorCompareTab, VendorMapView, NeedsAttentionSection, VendorActionCards, VendorActivateDialog, VendorPremiumBanner)
+- `trust-controls/*` (VendorTrustScoreCard, VendorRiskAssessment, VendorPrivacyAssessment, RiskOverviewCard, TrustControlsPanel, InlineDocumentChecklist)
+- `asset-profile/*` (AssetHeader, alle tabs: VendorUsage, VendorControls, VendorAudit, AIUsage, DataHandling, IncidentManagement, Analysis, Deliveries, Documents, Relations, RiskManagement, CustomerRequests, LaraInbox, SecurityServices, MynderGuidance, TrustProfilePreview, TrustProfilePublishing, RiskInfluenceDiagram, RegisterActivityDialog, UploadDocumentDialog)
 
-**`src/lib/frameworkDefinitions.ts`** (kategori-config — kilden til 2.4 og 2.5):
-- privacy: `text-blue-500/bg-blue-500/10` → `text-mynder-blue/bg-mynder-blue/10` (cyan/blå-avvik)
-- security: `text-green-500/bg-green-500/10` → `text-mynder-blue/bg-mynder-blue/10`
-- ai: `text-purple-500/bg-purple-500/10` → `text-purple-accent/bg-purple-accent/10`
-- other: `text-orange-500/bg-orange-500/10` → `text-mynder-blue/bg-mynder-blue/10`
+**Bolk 3 — System & Enheter** (~10 filer)
+- `system-profile/*` (FrameworkMaturityGrid, tabs: Validation, DataHandling, IncidentManagement, RiskManagement)
+- `device-profile/*` (DeviceHeader, DeviceTechnicalStatus, DeviceRiskTab, DeviceAutomation)
+- `devices/*` (DeviceComplianceTab, NIS2AssessmentTab)
 
-**`src/components/regulations/EditActiveFrameworksDialog.tsx`** (2.3 «Påkrevd ved lov»-pille):
-- Bytt `Badge variant="secondary"`/`destructive` for «Obligatorisk»-badgen til konsekvent `bg-status-followup text-white uppercase tracking-wider rounded-pill` — alltid samme farge uavhengig av rad.
+**Bolk 4 — Prosess & Arbeidsområder** (~15 filer)
+- `process/*` (ProcessCard, ProcessOverviewCard, ProcessAITab, ProcessAIDialog, ProactiveInputSection, AIRiskPyramid, RiskMatrixVisual, AIHeroSummary, AIDocumentedSummary, AISuggestionStatusPanel, AIGeneratedBadge, alle tabs)
+- `work-areas/*` (WorkAreaMembersCard, WorkAreaDocumentsTab, ProcessingActivitiesTab, AssetSummaryDashboard)
 
-**`src/components/regulations/FrameworkChipSelector.tsx`** (2.1 aktiv pille / kategori-headere):
-- Selected-state bruker allerede `border-primary bg-primary/5` → blir riktig automatisk via `--primary` mapping.
-- Linje 89 «Påkrevd» badge: bruk `text-status-followup` istedenfor `text-destructive/70` for konsistens med 2.3.
-- Linje 25 progress-ring mellomtilstand: `hsl(45 93% 47%)` (gul) → `hsl(var(--warning))` som mappes til `status-followup`.
+**Bolk 5 — MSP & Kundeforespørsler** (~15 filer)
+- `msp/*` (MSPAssessmentStep, MSPAssessmentCard, MSPGapAnalysisStep, SecurityServiceGapCard, AddMSPCustomerDialog, AcronisConnectDialog, PurchaseLicensesDialog)
+- `customer-requests/*` (CustomerRequestCard, OutboundRequestCard, NetworkTab, SendRequestWizard, ManageSharingDialog)
+- `iso-readiness/*` (CertificationJourney, CertificationGoalBanner, LockedDomainCard, PhaseChecklist, SLACategoryBreakdown)
 
-**`src/components/regulations/DomainActivationWizard.tsx`, `DomainSummaryCard.tsx`, `DomainSummarySection.tsx`, `DomainActionDialog.tsx`, `DomainUpgradeDialog.tsx`**:
-- Erstatt alle `text-green-*/bg-green-*` (suksess) → `text-status-closed/bg-status-closed/10`
-- Alle `text-orange-*/bg-orange-*` (advarsel) → `text-status-followup/bg-status-followup/10`
-- Alle `text-blue-500` (info) → `text-mynder-blue`
-- Alle `text-purple-500` (AI) → `text-purple-accent`
+**Bolk 6 — Sider & Dialoger** (~30 filer)
+- `pages/*` (Dashboard-sider, Trust Center-sider, MaturityDashboard, BusinessRiskDetail, Tasks, Assets, Systems, Reports, Sustainability, Transparency, Deviations, FrameworkDetail, ComplianceOverview, ComplianceChecklist, MSPCustomerDetail/ROI, MSPInvoices, MSPROICalculator, AISystemRegistry, AdminOrganisation, PersonalSettings, ProcessingRecords, Resources, MaturityMethodology, LaraInbox, WorkAreas, VendorResponseDemo, DemoLibrary)
+- `dialogs/*` (FrameworkPurchaseDialog, FrameworkActivationDialog, RiskReductionSuccessDialog, AddVendorDialog, AddSystemDialog, AddAssetDialog, AddRelationDialog, AssignAssetDialog, EditRiskScenarioDialog, ProcessSuggestionsDialog)
 
-**Switches (2.2)** — oppdater `src/components/ui/switch.tsx`:
-- `data-[state=checked]:bg-primary` → `data-[state=checked]:bg-status-closed`
-- `data-[state=unchecked]:bg-input` → `data-[state=unchecked]:bg-[hsl(var(--muted))]`
+### Fremgangsmåte per bolk
 
-**Lara FAB (2.6)** — finn og verifiser i `LaraAgent.tsx` / `ChatPanel.tsx` at FAB-sirkelen bruker `bg-mynder-blue` (eller `bg-primary` som nå mapper til samme).
+1. Skript-basert sweep med `sed`-erstatninger på mapping-tabellen.
+2. Manuell verifisering av kontekst-sensitive treff:
+   - Charts med distinkte serie-farger → beholdes
+   - Logoer/brand-spesifikke ikoner → beholdes
+   - Diff-visninger som med vilje bruker rødt/grønt → bruker `status-open`/`status-closed` direkte
+3. Visuell spot-sjekk av nøkkelflater før neste bolk.
 
-### 3) Global opprydding (resten av kodebasen)
+### Hardkodede HEX
 
-191 filer bruker raw Tailwind-farger (`green-*`, `red-*`, `orange-*`, `blue-*`, `purple-*`, `cyan-*`, `yellow-*`). Fremgangsmåte:
-
-- Skript-basert sweep med `rg` + `sed` etter mapping-tabell:
-  - `green-{500,600,700}` → `status-closed`
-  - `green-{50,100}` → `status-closed/10`
-  - `red-{500,600,700}` → `status-open` (eller `destructive` der semantikk er «feil»)
-  - `orange-{500,600}` / `yellow-{400,500}` → `status-followup` / `warning`
-  - `blue-{500,600}` / `cyan-*` → `mynder-blue`
-  - `purple-{400,500}` → `purple-accent`; `purple-{700,800,900}` → `purple-900`
-- Hardkodede HEX (`#22C55E`, `#3B82F6` osv.) → tilsvarende token
-- Manuell verifisering av kontekst-sensitive treff (logo-spesifikke ikoner, illustrasjoner, charts som med vilje skal være forskjellige)
-
-### 4) Verifisering
-
-- Kjør app, sjekk at `/regulations` viser:
-  - Aktiv pille i `mynder-blue`
-  - Toggle ON i grønn `status-closed`
-  - «Påkrevd ved lov»-pille i oransje `status-followup` på alle rader
-  - Kategori-piller i `mynder-blue` (ikke cyan)
-  - Lara FAB i `mynder-blue`
-- Spot-sjekk Dashboard, Trust Profile-headere, Vendors-lister så ikke noe ser brutt ut.
-
-### Filer som endres
-
-**Tokens & globalt:**
-- `tailwind.config.ts`
-- `src/index.css`
-- `index.html`
-
-**Regelverk-spesifikt:**
-- `src/lib/frameworkDefinitions.ts`
-- `src/components/regulations/EditActiveFrameworksDialog.tsx`
-- `src/components/regulations/FrameworkChipSelector.tsx`
-- `src/components/regulations/DomainActivationWizard.tsx`
-- `src/components/regulations/DomainSummaryCard.tsx`
-- `src/components/regulations/DomainSummarySection.tsx`
-- `src/components/regulations/DomainActionDialog.tsx`
-- `src/components/regulations/DomainUpgradeDialog.tsx`
-- `src/components/ui/switch.tsx`
-
-**Global sweep:**
-- ~190 komponentfiler får farge-erstatninger via mapping-tabellen (verifiseres kontekstuelt)
+Søker etter `#[0-9A-Fa-f]{6}` på tvers av alle filer og erstatter med tokens der det er semantisk åpenbart. Resterende treff (charts, gradients, illustrasjoner) flagges for vurdering.
 
 ### Out of scope
 
-- Endring av layout, spacing, font-størrelser eller funksjonalitet — kun farger.
-- Ny ikonografi eller nye komponenter.
-- Endring av charts/datavisualiseringer der distinkte farger er nødvendig for serie-skille.
-- Bytte ut `--primary` -baserte komponenter (de oppdateres automatisk via CSS-variabel-mapping).
+- Layout-, spacing-, font-endringer — kun farger.
+- Charts/datavisualiseringer der distinkte farger er nødvendige.
+- Egendefinerte gradients i illustrasjoner.
+- Komponenter som allerede bruker semantiske tokens (de fungerer automatisk).
+
+### Anbefaling
+
+Start med **Bolk 1 (Dashboard & widgets)** siden det er det første brukerne ser. Resten kan tas i etterfølgende runder slik at du kan QA visuelt mellom hver bolk.
