@@ -191,7 +191,14 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
       const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
       const matchesPriority = !priorityFilter || priorityFilter === "all" || a.priority === priorityFilter;
-      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority;
+      const matchesStatus = !statusFilter || statusFilter === "all" || deriveVendorStatus({
+        compliance_score: a.compliance_score,
+        risk_level: a.risk_level,
+        lifecycle_status: a.lifecycle_status,
+        expiredDocsCount: expiredCounts[a.id] || 0,
+        inboxCount: inboxCounts[a.id] || 0,
+      }).key === statusFilter;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority && matchesStatus;
     });
 
     if (sortColumn) {
