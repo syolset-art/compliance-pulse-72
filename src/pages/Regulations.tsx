@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { FrameworkChipSelector } from "@/components/regulations/FrameworkChipSelector";
+import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFrameworksSummary";
 import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
