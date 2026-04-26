@@ -43,15 +43,15 @@ export function DomainSummaryCard({
         return {
           label: 'På god vei',
           icon: CheckCircle2,
-          textClass: 'text-green-600 dark:text-green-400',
-          bgClass: 'bg-green-50 dark:bg-green-950/30'
+          textClass: 'text-status-closed dark:text-status-closed',
+          bgClass: 'bg-status-closed/10 dark:bg-status-closed/20'
         };
       case 'attention':
         return {
           label: 'Trenger oppmerksomhet',
           icon: AlertTriangle,
-          textClass: 'text-orange-600 dark:text-orange-400',
-          bgClass: 'bg-orange-50 dark:bg-orange-950/30'
+          textClass: 'text-status-followup dark:text-status-followup',
+          bgClass: 'bg-status-followup/10 dark:bg-status-followup/20'
         };
       case 'notStarted':
       default:
@@ -227,7 +227,7 @@ export function DomainSummaryCard({
 
         {/* Included badge - moved below header */}
         {isIncludedInPlan && (
-          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400 mb-3">
+          <Badge variant="secondary" className="text-xs bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed mb-3">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Inkludert
           </Badge>

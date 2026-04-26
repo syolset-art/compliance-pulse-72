@@ -111,17 +111,17 @@ export function DomainActivationWizard({
       description: `Relevante compliance-oppgaver for ${domainName} vil automatisk opprettes i oppgavelisten din.`,
     },
     {
-      icon: <Server className="h-5 w-5 text-blue-500" />,
+      icon: <Server className="h-5 w-5 text-mynder-blue" />,
       title: "Systemer vurderes",
       description: "Dine registrerte systemer vil bli evaluert mot kravene i dette kontrollområdet.",
     },
     {
-      icon: <FileText className="h-5 w-5 text-green-500" />,
+      icon: <FileText className="h-5 w-5 text-status-closed" />,
       title: "Rapporter oppdateres",
       description: "Compliance-rapporter vil nå inkludere status for dette domenet.",
     },
     {
-      icon: <Sparkles className="h-5 w-5 text-purple-500" />,
+      icon: <Sparkles className="h-5 w-5 text-purple-accent" />,
       title: "AI-assistert veiledning",
       description: "Lara vil gi deg skreddersydde anbefalinger basert på dette regelverket.",
     },
@@ -166,7 +166,7 @@ export function DomainActivationWizard({
                 key={framework.id}
                 className="flex items-start gap-2 text-sm"
               >
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-status-closed mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-medium text-foreground">{framework.name}</span>
                   <span className="text-muted-foreground"> - {framework.description}</span>
@@ -213,7 +213,7 @@ export function DomainActivationWizard({
 
         {/* Cancellation info */}
         <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-          <ShieldCheck className="h-4 w-4 flex-shrink-0 mt-0.5 text-green-500" />
+          <ShieldCheck className="h-4 w-4 flex-shrink-0 mt-0.5 text-status-closed" />
           <p>
             Du kan når som helst deaktivere dette kontrollområdet fra innstillingene. Endringen trer i kraft ved neste faktureringsperiode, og du beholder tilgang ut perioden.
           </p>
@@ -259,7 +259,7 @@ export function DomainActivationWizard({
       <div className="py-4 space-y-5">
         {/* Step indicator */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="flex items-center justify-center h-5 w-5 rounded-full bg-green-500 text-white text-xs">
+          <span className="flex items-center justify-center h-5 w-5 rounded-full bg-status-closed text-white text-xs">
             <Check className="h-3 w-3" />
           </span>
           <span className="text-muted-foreground">Pris og vilkår</span>
@@ -340,7 +340,7 @@ export function DomainActivationWizard({
             <div className={cn("p-4 rounded-2xl", domainBgColor)}>
               <Icon className={cn("h-8 w-8", domainColor)} />
             </div>
-            <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-green-500 flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-status-closed flex items-center justify-center">
               <Check className="h-4 w-4 text-white" />
             </div>
           </div>
@@ -353,9 +353,9 @@ export function DomainActivationWizard({
 
       <div className="py-6 space-y-4">
         {/* Success indicator */}
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-          <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-          <p className="text-sm text-green-700 dark:text-green-400">
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/20">
+          <CheckCircle2 className="h-5 w-5 text-status-closed flex-shrink-0" />
+          <p className="text-sm text-status-closed dark:text-status-closed">
             {domainName} er nå aktivt og vil bli inkludert i alle relevante vurderinger.
           </p>
         </div>
@@ -382,7 +382,7 @@ export function DomainActivationWizard({
             onClick={() => handleNavigate("/systems")}
             className="w-full flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors text-left"
           >
-            <Server className="h-5 w-5 text-blue-500" />
+            <Server className="h-5 w-5 text-mynder-blue" />
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">Gå til systemer</p>
               <p className="text-xs text-muted-foreground">Se vurderinger av dine systemer</p>

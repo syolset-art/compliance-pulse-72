@@ -25,9 +25,9 @@ interface DomainConfig {
 }
 
 const domainConfigs: DomainConfig[] = [
-  { id: 'privacy', name: 'Personvern', nameEn: 'Privacy', icon: Shield, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  { id: 'security', name: 'Informasjonssikkerhet', nameEn: 'Information Security', icon: Lock, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-  { id: 'ai', name: 'AI Management', nameEn: 'AI Management', icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
+  { id: 'privacy', name: 'Personvern', nameEn: 'Privacy', icon: Shield, color: 'text-mynder-blue', bgColor: 'bg-mynder-blue/10' },
+  { id: 'security', name: 'Informasjonssikkerhet', nameEn: 'Information Security', icon: Lock, color: 'text-status-closed', bgColor: 'bg-status-closed/10' },
+  { id: 'ai', name: 'AI Management', nameEn: 'AI Management', icon: Brain, color: 'text-purple-accent', bgColor: 'bg-purple-accent/10' },
 ];
 
 // Mapping from framework IDs to task keywords for progress calculation
@@ -145,8 +145,8 @@ export function DomainSummarySection({ onDomainClick, onOpenChat }: DomainSummar
         name: 'Øvrige regelverk',
         nameEn: 'Other Regulations',
         icon: Scale,
-        color: 'text-orange-500',
-        bgColor: 'bg-orange-500/10',
+        color: 'text-status-followup',
+        bgColor: 'bg-status-followup/10',
         activeCount: activeOther.length,
         totalCount: otherFrameworks.length,
         progress: 0,

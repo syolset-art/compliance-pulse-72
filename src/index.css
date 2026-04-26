@@ -117,6 +117,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
   body {
     @apply bg-background text-foreground text-base;
+    font-family: 'Mulish', system-ui, sans-serif;
   }
 
   /* Prevent text-xs from being too small — bump to 13px minimum */

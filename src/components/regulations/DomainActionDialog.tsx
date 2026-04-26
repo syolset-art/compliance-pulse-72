@@ -87,7 +87,7 @@ export function DomainActionDialog({
             <div>
               <DialogTitle className="text-lg">{domainName}</DialogTitle>
               <DialogDescription className="flex items-center gap-1.5 mt-0.5">
-                <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
+                <AlertTriangle className="h-3.5 w-3.5 text-status-followup" />
                 Trenger oppmerksomhet
               </DialogDescription>
             </div>
@@ -111,7 +111,7 @@ export function DomainActionDialog({
               >
                 <div className="flex-1 min-w-0 mr-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <AlertTriangle className="h-3.5 w-3.5 text-orange-500 flex-shrink-0" />
+                    <AlertTriangle className="h-3.5 w-3.5 text-status-followup flex-shrink-0" />
                     <span className="font-medium text-sm text-foreground truncate">
                       {task.title}
                     </span>
@@ -143,7 +143,7 @@ export function DomainActionDialog({
             )}
 
             {incompleteTasks.length === 0 && (
-              <div className="flex items-center gap-2 p-4 rounded-lg bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400">
+              <div className="flex items-center gap-2 p-4 rounded-lg bg-status-closed/10 dark:bg-status-closed/20 text-status-closed dark:text-status-closed">
                 <CheckCircle2 className="h-5 w-5" />
                 <span className="text-sm font-medium">Alle oppgaver er fullført!</span>
               </div>
