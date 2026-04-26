@@ -454,7 +454,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
                 expiredDocsCount={expiredCounts[v.id] || 0}
                 inboxCount={inboxCounts[v.id] || 0}
                 ownerName={getOwnerName(v)}
-                frameworks={frameworks}
+                segments={frameworks}
               />
             );
           })}

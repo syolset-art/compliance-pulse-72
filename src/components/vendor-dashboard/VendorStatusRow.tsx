@@ -2,10 +2,16 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, AlertTriangle, Copy, Bell, Send } from "lucide-react";
+import {
+  Sparkles, ArrowRight, Copy, Bell, Send, MessageSquare,
+  Clock, Archive, ShieldCheck, LayoutGrid, RotateCcw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { deriveVendorStatus, type VendorStatusMeta } from "@/lib/vendorStatus";
+import {
+  deriveVendorStatus, deriveCriticality,
+  type VendorStatusMeta,
+} from "@/lib/vendorStatus";
 
 const CATEGORY_LABELS: Record<string, string> = {
   saas: "SaaS",
@@ -23,6 +29,7 @@ interface VendorRowAsset {
   vendor_category?: string | null;
   compliance_score?: number | null;
   risk_level?: string | null;
+  criticality?: string | null;
   lifecycle_status?: string | null;
   org_number?: string | null;
   url?: string | null;
@@ -31,6 +38,7 @@ interface VendorRowAsset {
   work_area_id?: string | null;
   metadata?: any;
   updated_at?: string | null;
+  created_at?: string | null;
 }
 
 interface Props {
@@ -38,64 +46,60 @@ interface Props {
   expiredDocsCount?: number;
   inboxCount?: number;
   ownerName?: string | null;
-  /** Frameworks som denne leverandøren omfattes av (visningsstrenger) */
-  frameworks?: string[];
+  /** Frameworks/kategorier vist i meta-linja (f.eks. ["Drift", "IT-tjenester"]) */
+  segments?: string[];
 }
 
+function formatLongDate(d?: string | null): string | null {
+  if (!d) return null;
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+  } catch { return null; }
+}
 function formatShortDate(d?: string | null): string | null {
   if (!d) return null;
   try {
     const dt = new Date(d);
     return `${String(dt.getDate()).padStart(2, "0")}.${String(dt.getMonth() + 1).padStart(2, "0")}`;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-function VendorDonut({ score, tone }: { score: number; tone: VendorStatusMeta["tone"] }) {
+function VendorDonut({ score, tone, frozen }: { score: number; tone: VendorStatusMeta["tone"]; frozen?: boolean }) {
   const has = score > 0;
-  const radius = 22;
+  const radius = 26;
   const circ = 2 * Math.PI * radius;
   const dash = has ? (score / 100) * circ : 0;
-  const strokeColor =
+  const stroke =
+    frozen ? "hsl(var(--muted-foreground) / 0.4)" :
     tone === "success" ? "hsl(var(--success))" :
-    tone === "destructive" ? "hsl(var(--destructive))" :
     tone === "warning" ? "hsl(var(--warning))" :
     tone === "primary" ? "hsl(var(--primary))" :
-    "hsl(var(--muted-foreground) / 0.3)";
-
-  if (!has) {
-    return (
-      <div className="relative flex items-center justify-center" style={{ width: 56, height: 56 }}>
-        <svg width="56" height="56" viewBox="0 0 56 56">
-          <circle cx="28" cy="28" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-        </svg>
-        <span className="absolute text-muted-foreground text-sm leading-none">—</span>
-      </div>
-    );
-  }
+    "hsl(var(--muted-foreground) / 0.5)";
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 56, height: 56 }}>
-      <svg width="56" height="56" viewBox="0 0 56 56" className="-rotate-90">
-        <circle cx="28" cy="28" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-        <circle
-          cx="28" cy="28" r={radius} fill="none"
-          stroke={strokeColor} strokeWidth="3" strokeLinecap="round"
-          strokeDasharray={`${dash} ${circ}`}
-          style={{ transition: "stroke-dasharray 0.5s ease" }}
-        />
+    <div className="relative flex items-center justify-center" style={{ width: 64, height: 64 }}>
+      <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+        <circle cx="32" cy="32" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3.5" />
+        {has && (
+          <circle
+            cx="32" cy="32" r={radius} fill="none"
+            stroke={stroke} strokeWidth="3.5" strokeLinecap="round"
+            strokeDasharray={`${dash} ${circ}`}
+          />
+        )}
       </svg>
       <span
         className={cn(
-          "absolute text-[12px] font-semibold tabular-nums leading-none",
-          tone === "success" && "text-success",
-          tone === "destructive" && "text-destructive",
-          tone === "warning" && "text-warning",
-          tone === "primary" && "text-primary",
+          "absolute text-[13px] font-semibold tabular-nums leading-none",
+          frozen ? "text-muted-foreground line-through" :
+          tone === "success" ? "text-success" :
+          tone === "warning" ? "text-warning" :
+          tone === "primary" ? "text-primary" :
+          "text-muted-foreground"
         )}
       >
-        {score}%
+        {has ? `${score}%` : "—"}
       </span>
     </div>
   );
@@ -106,7 +110,7 @@ export function VendorStatusRow({
   expiredDocsCount = 0,
   inboxCount = 0,
   ownerName,
-  frameworks = [],
+  segments,
 }: Props) {
   const navigate = useNavigate();
   const status = deriveVendorStatus({
@@ -117,181 +121,254 @@ export function VendorStatusRow({
     expiredDocsCount,
     inboxCount,
   });
+  const criticality = deriveCriticality({ criticality: vendor.criticality, risk_level: vendor.risk_level });
 
   const score = vendor.compliance_score || 0;
-  const categoryLabel = vendor.vendor_category
-    ? (CATEGORY_LABELS[vendor.vendor_category] || vendor.vendor_category)
-    : (vendor.category || null);
-
-  // Avledede informasjonsbiter for tredje linje
   const md = vendor.metadata || {};
-  const openGaps: number = md.open_gaps ?? (status.key === "needs_action" ? 2 : status.key === "in_followup" ? 1 : 0);
-  const dpaExpiredOn: string | null = md.dpa_expired_on || null;
-  const invitationSentOn = formatShortDate(md.invited_at);
-  const invitationDaysLeft: number | null = typeof md.invitation_days_left === "number" ? md.invitation_days_left : null;
-  const lastActivity = formatShortDate(vendor.updated_at);
   const isLaraMapping = inboxCount > 0 && status.key === "draft";
+
+  // Modenhet-label (under prosent)
+  const maturityLabel =
+    status.key === "draft"    ? "estimert av Lara" :
+    status.key === "invited"  ? "delvis vurdert" :
+    status.key === "claimed"  ? "oppdatert av leverandør" :
+    status.key === "archived" ? `fryst ${formatShortDate(md.archived_at || vendor.updated_at) || ""}` :
+    "";
+
+  // Meta-linje segmenter
+  const fallbackSegments = [
+    vendor.vendor_category ? (CATEGORY_LABELS[vendor.vendor_category] || vendor.vendor_category) : null,
+    vendor.category,
+  ].filter(Boolean) as string[];
+  const segmentChips = (segments && segments.length > 0) ? segments : fallbackSegments;
 
   const handleOpen = () => navigate(`/assets/${vendor.id}`);
 
-  // Linje 3 — kontekstuell tekst
-  const renderContextLine = () => {
-    if (status.key === "needs_action") {
-      const parts: string[] = [];
-      if (openGaps > 0) parts.push(`${openGaps} åpne gap`);
-      if (dpaExpiredOn) parts.push(`DPA utløpt ${dpaExpiredOn}`);
-      if (parts.length === 0 && expiredDocsCount > 0) parts.push(`${expiredDocsCount} utløpte dokument`);
-      if (parts.length === 0) parts.push("Manglende dokumentasjon");
-      return (
-        <div className="flex items-center gap-1.5 text-[13px] text-destructive">
-          <AlertTriangle className="h-3 w-3" />
-          <span>{parts.join(" · ")}</span>
-        </div>
-      );
-    }
-    if (status.key === "in_followup") {
-      const parts: string[] = [];
-      if (openGaps > 0) parts.push(`${openGaps} gap under oppfølging`);
-      if (vendor.contact_person) parts.push(`Kontakt: ${vendor.contact_person}`);
-      return <p className="text-[13px] text-muted-foreground">{parts.join(" · ")}</p>;
-    }
-    if (status.key === "invited") {
-      const parts: string[] = [];
-      if (invitationSentOn) parts.push(`Invitasjon sendt ${invitationSentOn}`);
-      if (invitationDaysLeft !== null) parts.push(`utløper om ${invitationDaysLeft} dager`);
-      if (parts.length === 0) parts.push("Venter på respons fra leverandør");
-      return <p className="text-[13px] text-muted-foreground">{parts.join(" · ")}</p>;
-    }
+  // ---- Tilstandsbanner ----
+  const renderBanner = () => {
     if (status.key === "draft") {
-      if (isLaraMapping) {
-        return (
-          <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary text-[13px] gap-1 px-2 py-0.5">
-            <Sparkles className="h-3 w-3 animate-pulse" />
-            Lara kartlegger…
-          </Badge>
-        );
-      }
-      return <p className="text-[13px] text-muted-foreground">Utkast – mangler kjernedata</p>;
-    }
-    // approved
-    const parts: string[] = [];
-    if (vendor.contact_person) parts.push(`Kontakt: ${vendor.contact_person}`);
-    if (ownerName) parts.push(`Ansvarlig hos oss: ${ownerName}`);
-    return parts.length > 0 ? <p className="text-[13px] text-muted-foreground">{parts.join(" · ")}</p> : null;
-  };
-
-  // Høyre side — handlinger
-  const renderActions = () => {
-    if (status.key === "needs_action") {
       return (
-        <Button size="sm" variant="destructive" onClick={handleOpen} className="gap-1.5">
-          Åpne gap <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
-      );
-    }
-    if (status.key === "invited") {
-      return (
-        <div className="flex flex-col gap-1.5 items-stretch">
-          <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs"
-            onClick={(e) => { e.stopPropagation(); toast.success("Påminnelse sendt"); }}>
-            <Bell className="h-3 w-3" /> Påminnelse
-          </Button>
-          <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs"
-            onClick={(e) => { e.stopPropagation(); toast.success("Lenke kopiert"); }}>
-            <Copy className="h-3 w-3" /> Kopier lenke
+        <div className="mt-3 rounded-lg bg-warning/10 border border-warning/25 px-3 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <MessageSquare className="h-4 w-4 text-warning shrink-0" />
+            <span className="text-[13px] text-foreground truncate">
+              {isLaraMapping
+                ? <span className="inline-flex items-center gap-1.5"><Sparkles className="h-3 w-3 text-primary animate-pulse" />Lara kartlegger profilen…</span>
+                : <>Profilen er ikke claimet av leverandøren. Du redigerer på vegne av <strong>{vendor.name}</strong>.</>}
+            </span>
+          </div>
+          <Button size="sm" onClick={(e) => { e.stopPropagation(); handleOpen(); }} className="gap-1.5 shrink-0">
+            <Send className="h-3.5 w-3.5" /> Inviter leverandøren
           </Button>
         </div>
       );
     }
-    if (status.key === "draft") {
+    if (status.key === "invited") {
+      const sent = formatLongDate(md.invited_at) || formatLongDate(vendor.updated_at);
+      const days = typeof md.invitation_days_left === "number" ? md.invitation_days_left : 5;
       return (
-        <Button size="sm" onClick={handleOpen} className="gap-1.5">
-          <Send className="h-3.5 w-3.5" /> Inviter leverandør
-        </Button>
+        <div className="mt-3 rounded-lg bg-primary/10 border border-primary/20 px-3 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Clock className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-[13px] text-foreground truncate">
+              Invitasjon sendt {sent ? sent : "—"}. Lenken utløper om {days} dager.
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="sm" variant="outline" className="gap-1.5"
+              onClick={(e) => { e.stopPropagation(); toast.success("Påminnelse sendt"); }}>
+              <Bell className="h-3.5 w-3.5" /> Påminnelse
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1.5"
+              onClick={(e) => { e.stopPropagation(); toast.success("Lenke kopiert"); }}>
+              <Copy className="h-3.5 w-3.5" /> Kopier lenke
+            </Button>
+          </div>
+        </div>
       );
     }
+    if (status.key === "claimed") {
+      const claimedOn = formatLongDate(md.claimed_at) || "—";
+      return (
+        <div className="mt-3 rounded-lg bg-success/10 border border-success/25 px-3 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <ShieldCheck className="h-4 w-4 text-success shrink-0" />
+            <span className="text-[13px] text-foreground truncate">
+              Leverandøren eier profilen · claimet {claimedOn}. Dere har lese-tilgang som kunde.
+            </span>
+          </div>
+          <Button size="sm" variant="outline" className="gap-1.5 shrink-0"
+            onClick={(e) => { e.stopPropagation(); handleOpen(); }}>
+            <MessageSquare className="h-3.5 w-3.5" /> Send melding
+          </Button>
+        </div>
+      );
+    }
+    // archived
+    const archivedOn = formatLongDate(md.archived_at) || "—";
+    const archivedBy = md.archived_by || "Mynder";
+    const reason = md.archive_reason || md.notes;
     return (
-      <Button size="sm" variant="outline" onClick={handleOpen} className="gap-1.5">
-        Åpne <ArrowRight className="h-3.5 w-3.5" />
-      </Button>
+      <div className="mt-3 rounded-lg bg-muted/60 border border-border px-3 py-2.5 flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2 min-w-0">
+          <Archive className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-[13px] text-foreground">
+              <strong>Samarbeidet er avsluttet.</strong> Arkivert {archivedOn} av {archivedBy}.
+            </p>
+            {reason && <p className="text-[12px] italic text-muted-foreground mt-0.5">"{reason}"</p>}
+          </div>
+        </div>
+        <Button size="sm" variant="ghost" className="gap-1.5 shrink-0 text-primary hover:text-primary"
+          onClick={(e) => { e.stopPropagation(); toast.success("Samarbeid kan gjenåpnes via leverandørprofilen"); }}>
+          <RotateCcw className="h-3.5 w-3.5" /> Gjenåpne samarbeid
+        </Button>
+      </div>
     );
   };
 
-  // Datolabel øverst til høyre
-  const topRightLabel = () => {
-    if (status.key === "approved") {
-      const md = vendor.metadata || {};
-      const agreements = md.agreements_count;
-      const gapsClosed = md.gaps_closed;
+  // ---- Footer-rad ----
+  const renderFooter = () => {
+    if (status.key === "claimed" || status.key === "draft") {
+      const contact = vendor.contact_person;
       return (
-        <div className="text-[13px] text-muted-foreground text-right">
-          {(agreements || gapsClosed) && (
-            <div>{agreements ? `${agreements} avtaler` : ""}{agreements && gapsClosed ? " · " : ""}{gapsClosed ? `${gapsClosed} gap lukket` : ""}</div>
-          )}
-          {lastActivity && <div>Sist oppdatert {lastActivity}</div>}
+        <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Kontakt hos leverandør</p>
+            {contact ? (
+              <p className="text-[13px] text-foreground mt-1">{contact}</p>
+            ) : (
+              <p className="text-[13px] italic text-muted-foreground mt-1">Legg til kontaktperson</p>
+            )}
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Ansvarlig hos oss</p>
+            {ownerName ? (
+              <p className="text-[13px] text-foreground mt-1">{ownerName}</p>
+            ) : (
+              <p className="text-[13px] italic text-muted-foreground mt-1">Ikke tildelt</p>
+            )}
+          </div>
         </div>
       );
     }
-    if (status.key === "invited") return null; // vises på linje 3
-    if (lastActivity) return <p className="text-[13px] text-muted-foreground">Sist aktivitet {lastActivity}</p>;
-    return null;
+    if (status.key === "invited") {
+      const created = formatShortDate(vendor.created_at);
+      const sent = formatShortDate(md.invited_at) || formatShortDate(vendor.updated_at);
+      return (
+        <div className="mt-3 pt-3 border-t border-border/60 flex items-center gap-3 text-[12px] text-muted-foreground">
+          {created && (<><span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-success" /> Opprettet {created}</span><span>→</span></>)}
+          <span className="inline-flex items-center gap-1.5 text-primary font-medium"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> Invitasjon sendt {sent || "—"}</span>
+          <span>→</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" /> Claim venter</span>
+        </div>
+      );
+    }
+    // archived
+    const period = md.partnership_period || `— `;
+    const events = md.activity_count;
+    const agreements = md.agreements_count;
+    const retentionUntil = formatShortDate(md.retention_until);
+    return (
+      <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Periode</p>
+          <p className="text-[13px] text-foreground mt-1">{period}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Aktivitetslogg</p>
+          <p className="text-[13px] text-foreground mt-1">{events ? `${events} hendelser` : "—"} · bevart</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Avtaler</p>
+          <p className="text-[13px] text-foreground mt-1">{agreements ?? "—"} · i Dokumentoversikt</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Oppbevaringsplikt</p>
+          <p className="text-[13px] text-foreground mt-1">{retentionUntil ? `Til ${retentionUntil}` : "5 år fra arkivering"}</p>
+        </div>
+      </div>
+    );
   };
+
+  const isArchived = status.key === "archived";
 
   return (
     <Card
       variant="flat"
       onClick={handleOpen}
-      className="relative cursor-pointer hover:shadow-md transition-all hover:border-primary/30 px-5 py-4"
+      className={cn(
+        "relative cursor-pointer hover:shadow-md transition-all hover:border-primary/30 overflow-hidden p-0",
+        isArchived && "opacity-90"
+      )}
     >
-      {/* Statusprikk i venstre marg */}
-      <span
-        className={cn("absolute left-2 top-5 h-1.5 w-1.5 rounded-full", status.dotClass)}
-        aria-hidden
-      />
+      <div className="flex">
+        {/* Vertikal tilstandsstripe */}
+        <div className={cn("relative w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
+          <span
+            className={cn("absolute text-[10px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            style={{ transform: "rotate(-90deg)" }}
+          >
+            {status.stripeLabel}
+          </span>
+        </div>
 
-      <div className="flex items-start gap-4">
         {/* Hovedinnhold */}
-        <div className="flex-1 min-w-0">
-          {/* Linje 1 */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[15px] font-semibold text-foreground truncate">{vendor.name}</h3>
-            <Badge
-              variant="outline"
-              className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", status.pillClass, status.textClass)}
-            >
-              <span className={cn("h-1.5 w-1.5 rounded-full", status.dotClass)} />
-              {status.label}
-            </Badge>
-            {categoryLabel && (
-              <Badge variant="outline" className="text-[12px] px-2 py-0.5 bg-primary/5 border-primary/15 text-primary font-medium">
-                {categoryLabel}
-              </Badge>
-            )}
+        <div className="flex-1 min-w-0 p-4">
+          {/* Topp-rad: ikon + tittel + kritikalitet  ||  donut + label */}
+          <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="h-10 w-10 rounded-md bg-muted/60 border border-border flex items-center justify-center shrink-0">
+                <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className={cn("text-[16px] font-semibold text-foreground truncate", isArchived && "line-through text-muted-foreground")}>
+                    {vendor.name}
+                  </h3>
+                  {isArchived ? (
+                    <Badge variant="outline" className="text-[12px] gap-1 px-2 py-0.5 bg-muted/60 text-muted-foreground border-border font-medium">
+                      <Archive className="h-3 w-3" /> Arkivert
+                    </Badge>
+                  ) : criticality && (
+                    <Badge variant="outline" className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
+                      <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
+                      {criticality.label}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[13px] text-muted-foreground mt-1 truncate">
+                  {[
+                    vendor.org_number ? `Org.nr ${vendor.org_number}` : null,
+                    vendor.url ? vendor.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : null,
+                    segmentChips.length > 0 ? segmentChips.join(" · ") : null,
+                  ].filter(Boolean).join("  ·  ")}
+                </p>
+              </div>
+            </div>
+
+            {/* Donut + maturity label */}
+            <div className="hidden md:flex items-center gap-3 shrink-0 pl-3 border-l border-border/60">
+              <VendorDonut score={score} tone={status.tone} frozen={isArchived} />
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  {isArchived ? "Siste modenhet" : "Modenhet"}
+                </p>
+                <p className={cn(
+                  "text-[12px] mt-0.5",
+                  isArchived ? "italic text-muted-foreground" : "text-muted-foreground"
+                )}>
+                  {maturityLabel || "—"}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Linje 2 — meta */}
-          <p className="text-[13px] text-muted-foreground mt-1.5 truncate">
-            {[
-              vendor.org_number ? `Org. ${vendor.org_number}` : null,
-              vendor.url ? vendor.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : null,
-              frameworks.length > 0 ? frameworks.join(" + ") : null,
-            ].filter(Boolean).join(" · ")}
-          </p>
+          {/* Tilstandsbanner */}
+          {renderBanner()}
 
-          {/* Linje 3 — kontekst */}
-          <div className="mt-1.5">{renderContextLine()}</div>
-        </div>
-
-        {/* Donut */}
-        <div className="hidden md:flex flex-col items-center justify-center gap-1 shrink-0 pt-0.5">
-          <VendorDonut score={score} tone={status.tone} />
-          <span className="text-[11px] text-muted-foreground">Modenhet</span>
-        </div>
-
-        {/* Handlinger og datolabel */}
-        <div className="flex flex-col items-end gap-2 shrink-0 min-w-[140px]" onClick={(e) => e.stopPropagation()}>
-          {topRightLabel()}
-          {renderActions()}
+          {/* Footer */}
+          {renderFooter()}
         </div>
       </div>
     </Card>
