@@ -41,18 +41,18 @@ export function DashboardOverallMaturity() {
         {overall}%
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
         {FOCUS_AREAS.map((area) => {
           const score = Math.round(byDomain[area.key]?.score || 0);
           return (
-            <div key={area.key} className="space-y-1">
-              <p className="text-xs text-muted-foreground">
+            <div key={area.key} className="space-y-1.5">
+              <p className="text-sm text-muted-foreground">
                 {isNb ? area.label_no : area.label_en}
               </p>
-              <p className={cn("text-base font-bold tabular-nums", scoreColor(score))}>
+              <p className={cn("text-lg font-bold tabular-nums", scoreColor(score))}>
                 {score}%
               </p>
-              <Progress value={score} className="h-1 [&>div]:bg-primary" />
+              <Progress value={score} className="h-2 [&>div]:bg-primary" />
             </div>
           );
         })}
