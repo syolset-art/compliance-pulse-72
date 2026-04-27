@@ -84,7 +84,7 @@ export function DashboardLaraRecommendation() {
       insight: isNb
         ? "Behandler personopplysninger om 47 ansatte. Ingen DPA registrert. Hovedkontakt: Ola Nordmann."
         : "Processes personal data for 47 employees. No DPA registered. Main contact: Ola Nordmann.",
-      vendorPath: "/vendors",
+      vendorPath: "/assets/987b8be1-3387-4491-9312-57e32eca9483",
     },
     {
       severity: "critical",
