@@ -219,6 +219,12 @@ export function DashboardLaraRecommendation() {
             className="rounded-full px-5"
             onClick={() => {
               setLaraConfirmed(false);
+              setDraftView("intro");
+              setDraftBody(
+                isNb
+                  ? `Hei,\n\nPå vegne av vår organisasjon trenger vi å oppdatere dokumentasjonen knyttet til vår behandling av personopplysninger gjennom ${current.vendor}.\n\nKan dere sende oss:\n• Gjeldende databehandleravtale (DPA)\n• Oversikt over underleverandører\n• Beskrivelse av tekniske og organisatoriske sikkerhetstiltak\n\nVi setter pris på svar innen 14 dager.\n\nVennlig hilsen,\nLara — på vegne av Vendor Manager`
+                  : `Hello,\n\nOn behalf of our organization, we need to update the documentation related to our processing of personal data through ${current.vendor}.\n\nCould you please send us:\n• Current Data Processing Agreement (DPA)\n• Overview of sub-processors\n• Description of technical and organizational security measures\n\nWe appreciate a response within 14 days.\n\nKind regards,\nLara — on behalf of the Vendor Manager`
+              );
               setLaraModalOpen(true);
             }}
           >
