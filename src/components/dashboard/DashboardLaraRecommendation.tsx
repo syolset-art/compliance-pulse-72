@@ -421,11 +421,11 @@ export function DashboardLaraRecommendation() {
 
           {/* Footer */}
           {phase === "draft" && (
-            <div className="border-t border-border bg-muted/20 px-5 py-3 flex items-center justify-between gap-3">
+            <div className="border-t border-border bg-muted/20 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-xs text-muted-foreground">
                 {isNb ? "Ingenting sendes før du godkjenner" : "Nothing is sent until you approve"}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-end">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -447,14 +447,14 @@ export function DashboardLaraRecommendation() {
           )}
 
           {phase === "sent" && (
-            <div className="border-t border-border px-5 py-3 flex items-center justify-end gap-2">
+            <div className="border-t border-border px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setLaraModalOpen(false);
                   navigate("/lara-inbox");
                 }}
-                className="rounded-full"
+                className="rounded-full w-full sm:w-auto"
               >
                 {isNb ? "Åpne Lara Inbox" : "Open Lara Inbox"}
               </Button>
@@ -463,7 +463,7 @@ export function DashboardLaraRecommendation() {
                   setLaraModalOpen(false);
                   if (step < total - 1) setStep(step + 1);
                 }}
-                className="rounded-full"
+                className="rounded-full w-full sm:w-auto"
               >
                 {isNb ? "Neste oppgave" : "Next task"}
               </Button>
