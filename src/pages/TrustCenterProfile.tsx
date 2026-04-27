@@ -592,13 +592,13 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </div>
 
             {/* Tab bar */}
-            <div className="flex border-b border-border">
+            <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted border border-border">
               <button
                 onClick={() => setActiveTab("preview")}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   activeTab === "preview"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                    ? "bg-background text-foreground shadow-sm border border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
               >
                 <Eye className="h-4 w-4" />
@@ -606,10 +606,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </button>
               <button
                 onClick={() => setActiveTab("publish")}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   activeTab === "publish"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                    ? "bg-background text-foreground shadow-sm border border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
               >
                 <Share2 className="h-4 w-4" />
