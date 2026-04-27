@@ -1,32 +1,35 @@
-## Endring av dashboard-layout
+## Mål
 
-Flytte "Rammeverks-status" ned under "Modenhet over tid", og plassere de to side om side i et 2-kolonne grid (på desktop).
+Vise samme Lara-anbefalingskomponent på leverandør-dashbordet (Oversikt-fanen på `/vendors`) som vi har på hoved-dashbordet, slik at brukeren ser de viktigste vendor-aktivitetene som krever oppmerksomhet — med "Vis plan"-flyten og de 3 mest kritiske oppgavene Lara har laget plan for.
 
-### Ny rekkefølge på dashbordet (`src/pages/Index.tsx`)
+## Hvor
 
-1. Personlig hilsen
-2. `DashboardLaraRecommendation` (Lara-anbefaling)
-3. `DashboardOverallMaturity` (Samlet modenhetsscore)
-4. **Ny rad – 2 kolonner side om side:**
-   - Venstre: `DashboardMaturityOverTime` (Modenhet over tid)
-   - Høyre: `DashboardFrameworkStatus` (Rammeverks-status)
+`src/components/vendor-dashboard/VendorOverviewTab.tsx` — øverst i Oversikt-fanen, før eksisterende widgets (metrics-rad, action cards, kart osv).
 
-### Teknisk
+## Endring
 
-I `Index.tsx` erstattes de tre separate komponentkallene nederst med:
+1. Importer `DashboardLaraRecommendation` fra `@/components/dashboard/DashboardLaraRecommendation`.
+2. Render komponenten øverst i tab-innholdet, slik at den er det første brukeren ser når de åpner `/vendors` (Oversikt).
 
 ```tsx
-<DashboardOverallMaturity />
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-  <DashboardMaturityOverTime />
-  <DashboardFrameworkStatus />
+import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
+
+// I render-treet, helt øverst i Oversikt-fanen:
+<div className="space-y-6">
+  <DashboardLaraRecommendation />
+  {/* eksisterende widgets (VendorMetricsRow, VendorActionCards, osv) */}
 </div>
 ```
 
-- På mobil/tablet (<lg) stables kortene under hverandre.
-- På desktop (≥1024px) vises de side om side med samme `gap-5` som resten av dashboardet.
-- Begge komponenter har allerede `rounded-2xl border bg-card` og fyller bredden – ingen interne endringer nødvendig.
+## Hvorfor dette fungerer rett ut av boksen
 
-### Filer som endres
+- Komponenten er selvstendig (henter selv data, har egen state for "Vis plan"/step/dismiss).
+- Demo-oppgavene i komponenten er allerede vendor-fokuserte (Visma, Microsoft Azure, Slack — DPA, SCC, risikovurdering), så de passer naturlig på vendor-dashbordet.
+- Den telleren som vises ("X oppgaver totalt") henter fra `assets` med `asset_type = vendor` og krysser mot `vendor_documents` for manglende DPA — relevant kontekst for vendor-siden.
+- Samme komponent gir konsistent UX mellom hoved-dashbordet og vendor-dashbordet (én kilde å vedlikeholde).
 
-- `src/pages/Index.tsx` – kun layout-endring i `dashboardContent`.
+## Filer som endres
+
+- `src/components/vendor-dashboard/VendorOverviewTab.tsx` — legg til import + plasser `<DashboardLaraRecommendation />` øverst.
+
+Ingen endringer i `DashboardLaraRecommendation.tsx` selv.

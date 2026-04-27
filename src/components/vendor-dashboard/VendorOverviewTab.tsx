@@ -30,6 +30,7 @@ import {
   Tooltip,
 } from "recharts";
 import { VendorActionCards } from "./VendorActionCards";
+import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
 import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
 import { toast } from "sonner";
 
@@ -216,6 +217,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
   return (
     <div className="space-y-6">
+
+      {/* Lara recommendation — same component as main dashboard */}
+      <DashboardLaraRecommendation />
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
