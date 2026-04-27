@@ -418,37 +418,28 @@ export function DashboardLaraRecommendation() {
 
           {/* Footer */}
           {phase === "draft" && (
-            <div className="border-t border-border px-5 py-3 flex items-center gap-3">
-              <p className="text-xs text-muted-foreground flex-1">
+            <div className="border-t border-border bg-muted/20 px-5 py-3 flex items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
                 {isNb ? "Ingenting sendes før du godkjenner" : "Nothing is sent until you approve"}
               </p>
-              <Button
-                variant="ghost"
-                onClick={() => setLaraModalOpen(false)}
-                className="rounded-full"
-              >
-                {isNb ? "Avbryt" : "Cancel"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Focus textarea — already editable inline
-                  const ta = document.querySelector<HTMLTextAreaElement>(
-                    'textarea'
-                  );
-                  ta?.focus();
-                }}
-                className="rounded-full"
-              >
-                {isNb ? "Tilpass utkast" : "Customize draft"}
-              </Button>
-              <Button
-                onClick={() => setPhase("sent")}
-                className="rounded-full gap-2"
-              >
-                <Send className="h-4 w-4" />
-                {isNb ? "Godkjenn og send" : "Approve and send"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLaraModalOpen(false)}
+                  className="rounded-full"
+                >
+                  {isNb ? "Avbryt" : "Cancel"}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setPhase("sent")}
+                  className="rounded-full gap-2"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  {isNb ? "Godkjenn og send" : "Approve and send"}
+                </Button>
+              </div>
             </div>
           )}
 
