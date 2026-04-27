@@ -1,8 +1,11 @@
+import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Lock, AlertTriangle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Lock, AlertTriangle, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import {
   Tooltip,
