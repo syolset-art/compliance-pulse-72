@@ -265,6 +265,144 @@ export function DashboardLaraRecommendation() {
           </span>
         </button>
       </div>
+
+      {/* Lara handle-it modal */}
+      <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          {!laraConfirmed ? (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                    <Diamond className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <DialogTitle>
+                      {isNb ? "Lara tar over" : "Lara takes over"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-0.5">
+                      {current.vendor}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {isNb
+                    ? "Lara vil utføre følgende steg automatisk:"
+                    : "Lara will perform the following steps automatically:"}
+                </p>
+                <div className="space-y-2.5">
+                  {[
+                    {
+                      icon: FileSearch,
+                      text: isNb
+                        ? "Søke opp leverandørens DPA og personvernvilkår"
+                        : "Look up the vendor's DPA and privacy terms",
+                    },
+                    {
+                      icon: Mail,
+                      text: isNb
+                        ? "Sende forespørsel til hovedkontakt på vegne av deg"
+                        : "Send a request to the main contact on your behalf",
+                    },
+                    {
+                      icon: Sparkles,
+                      text: isNb
+                        ? "Analysere svar og oppdatere risikovurderingen"
+                        : "Analyze the response and update the risk assessment",
+                    },
+                  ].map((s, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <s.icon className="h-4 w-4" />
+                      </div>
+                      <p className="text-sm text-foreground leading-relaxed pt-1">
+                        {s.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                  <p className="text-xs text-foreground">
+                    {isNb
+                      ? "Du får varsel når Lara er ferdig — vanligvis innen 24 timer."
+                      : "You'll be notified when Lara is done — usually within 24 hours."}
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setLaraModalOpen(false)}
+                >
+                  {isNb ? "Avbryt" : "Cancel"}
+                </Button>
+                <Button
+                  onClick={() => setLaraConfirmed(true)}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isNb ? "Start Lara" : "Start Lara"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <DialogTitle>
+                      {isNb ? "Lara er i gang" : "Lara is on it"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-0.5">
+                      {isNb
+                        ? `Oppgaven for ${current.vendor} er flyttet til Lara.`
+                        : `The task for ${current.vendor} has been handed to Lara.`}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <p className="text-sm text-muted-foreground">
+                {isNb
+                  ? "Du kan følge fremdriften under «Aktivitet» eller i Lara Inbox."
+                  : "You can track progress under \"Activity\" or in the Lara Inbox."}
+              </p>
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setLaraModalOpen(false);
+                    navigate("/lara-inbox");
+                  }}
+                >
+                  {isNb ? "Åpne Lara Inbox" : "Open Lara Inbox"}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLaraModalOpen(false);
+                    if (step < total - 1) setStep(step + 1);
+                  }}
+                >
+                  {isNb ? "Neste oppgave" : "Next task"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
