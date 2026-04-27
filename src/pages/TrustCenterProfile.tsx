@@ -620,7 +620,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             {activeTab === "publish" ? (
               <div className="space-y-5">
                 {/* Sub-tabs */}
-                <div className="flex border-b border-border">
+                <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted border border-border">
                   {([
                     { key: "link" as const, icon: Link2, label: isNb ? "Del lenke" : "Share Link" },
                     { key: "vendor" as const, icon: Building2, label: "Vendor Hub" },
@@ -629,10 +629,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <button
                       key={tab.key}
                       onClick={() => setPublishSubTab(tab.key)}
-                      className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                         publishSubTab === tab.key
-                          ? "border-primary text-foreground"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
+                          ? "bg-background text-foreground shadow-sm border border-border"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                       }`}
                     >
                       <tab.icon className="h-3.5 w-3.5" />
