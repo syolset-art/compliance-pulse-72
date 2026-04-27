@@ -232,12 +232,11 @@ export function DashboardLaraRecommendation() {
           <Button
             className="rounded-full px-5"
             onClick={() => {
-              setLaraConfirmed(false);
-              setDraftView("intro");
+              setPhase("working");
               setDraftBody(
                 isNb
-                  ? `Hei,\n\nPå vegne av vår organisasjon trenger vi å oppdatere dokumentasjonen knyttet til vår behandling av personopplysninger gjennom ${current.vendor}.\n\nKan dere sende oss:\n• Gjeldende databehandleravtale (DPA)\n• Oversikt over underleverandører\n• Beskrivelse av tekniske og organisatoriske sikkerhetstiltak\n\nVi setter pris på svar innen 14 dager.\n\nVennlig hilsen,\nLara — på vegne av Vendor Manager`
-                  : `Hello,\n\nOn behalf of our organization, we need to update the documentation related to our processing of personal data through ${current.vendor}.\n\nCould you please send us:\n• Current Data Processing Agreement (DPA)\n• Overview of sub-processors\n• Description of technical and organizational security measures\n\nWe appreciate a response within 14 days.\n\nKind regards,\nLara — on behalf of the Vendor Manager`
+                  ? `Hei Ola,\n\nI forbindelse med vår løpende kartlegging av databehandlere etter GDPR art. 28, ber vi om at det inngås databehandleravtale mellom Mynder AS og ${current.vendor}.\n\nVedlagt finner du vår standard databehandleravtale (Mynder Standard DPA v2.3). Den dekker formål, sikkerhetstiltak, underleverandører og tredjelandsoverføringer.\n\nVi setter pris på om du kan signere og returnere innen 14 dager. Hvis dere allerede har en gjeldende DPA dere ønsker å bruke, send den gjerne tilbake så vurderer vi den.\n\nTa kontakt om noe er uklart.\n\nVennlig hilsen,\nSynnøve Olset\nMynder AS`
+                  : `Hi,\n\nAs part of our ongoing data processor mapping under GDPR art. 28, we request a Data Processing Agreement between Mynder AS and ${current.vendor}.\n\nAttached is our standard DPA (Mynder Standard DPA v2.3), covering purpose, security measures, sub-processors and third-country transfers.\n\nWe'd appreciate it if you could sign and return within 14 days. If you have an existing DPA you'd prefer to use, please send it back for our review.\n\nLet us know if anything is unclear.\n\nKind regards,\nSynnøve Olset\nMynder AS`
               );
               setLaraModalOpen(true);
             }}
