@@ -225,7 +225,7 @@ export function DashboardMaturityOverTime() {
           {ACTIVITIES.map((a, i) => {
             const isLara = a.type !== "person";
             return (
-              <div key={i} className="flex items-center gap-3 py-3">
+              <div key={i} className="flex items-start sm:items-center gap-3 py-3">
                 <div
                   className={cn(
                     "h-9 w-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0",
@@ -235,10 +235,10 @@ export function DashboardMaturityOverTime() {
                   {isLara ? <Diamond className="h-4 w-4" /> : a.who_initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="text-sm font-medium text-foreground line-clamp-2 sm:truncate">
                     {isNb ? a.title_no : a.title_en}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
+                  <div className="flex items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mt-1 flex-wrap">
                     {isLara ? (
                       <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                         Lara · {a.type === "lara-approved"
@@ -250,7 +250,7 @@ export function DashboardMaturityOverTime() {
                     )}
                     <span>· {a.date}</span>
                     {a.domain_no && (
-                      <span>· {isNb ? a.domain_no : a.domain_en}</span>
+                      <span className="hidden sm:inline">· {isNb ? a.domain_no : a.domain_en}</span>
                     )}
                     {a.hasReport && (
                       <button className="text-primary hover:text-primary/80 font-medium">
