@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2 } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Eye, Send, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
