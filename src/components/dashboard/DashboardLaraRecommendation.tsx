@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Eye, Send, Pencil } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -27,9 +27,23 @@ export function DashboardLaraRecommendation() {
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
   const [laraModalOpen, setLaraModalOpen] = useState(false);
-  const [laraConfirmed, setLaraConfirmed] = useState(false);
-  const [draftView, setDraftView] = useState<"intro" | "draft">("intro");
+  const [phase, setPhase] = useState<"working" | "draft" | "sent">("working");
   const [draftBody, setDraftBody] = useState("");
+  const [workingStep, setWorkingStep] = useState(0);
+
+  // Animate Lara's "thinking" steps then reveal the draft
+  useEffect(() => {
+    if (!laraModalOpen || phase !== "working") return;
+    setWorkingStep(0);
+    const t1 = setTimeout(() => setWorkingStep(1), 900);
+    const t2 = setTimeout(() => setWorkingStep(2), 1800);
+    const t3 = setTimeout(() => setPhase("draft"), 2700);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [laraModalOpen, phase]);
 
   // Find vendors missing DPA documentation
   const { data: missingDpaCount = 0 } = useQuery({
@@ -218,12 +232,11 @@ export function DashboardLaraRecommendation() {
           <Button
             className="rounded-full px-5"
             onClick={() => {
-              setLaraConfirmed(false);
-              setDraftView("intro");
+              setPhase("working");
               setDraftBody(
                 isNb
-                  ? `Hei,\n\nPå vegne av vår organisasjon trenger vi å oppdatere dokumentasjonen knyttet til vår behandling av personopplysninger gjennom ${current.vendor}.\n\nKan dere sende oss:\n• Gjeldende databehandleravtale (DPA)\n• Oversikt over underleverandører\n• Beskrivelse av tekniske og organisatoriske sikkerhetstiltak\n\nVi setter pris på svar innen 14 dager.\n\nVennlig hilsen,\nLara — på vegne av Vendor Manager`
-                  : `Hello,\n\nOn behalf of our organization, we need to update the documentation related to our processing of personal data through ${current.vendor}.\n\nCould you please send us:\n• Current Data Processing Agreement (DPA)\n• Overview of sub-processors\n• Description of technical and organizational security measures\n\nWe appreciate a response within 14 days.\n\nKind regards,\nLara — on behalf of the Vendor Manager`
+                  ? `Hei Ola,\n\nI forbindelse med vår løpende kartlegging av databehandlere etter GDPR art. 28, ber vi om at det inngås databehandleravtale mellom Mynder AS og ${current.vendor}.\n\nVedlagt finner du vår standard databehandleravtale (Mynder Standard DPA v2.3). Den dekker formål, sikkerhetstiltak, underleverandører og tredjelandsoverføringer.\n\nVi setter pris på om du kan signere og returnere innen 14 dager. Hvis dere allerede har en gjeldende DPA dere ønsker å bruke, send den gjerne tilbake så vurderer vi den.\n\nTa kontakt om noe er uklart.\n\nVennlig hilsen,\nSynnøve Olset\nMynder AS`
+                  : `Hi,\n\nAs part of our ongoing data processor mapping under GDPR art. 28, we request a Data Processing Agreement between Mynder AS and ${current.vendor}.\n\nAttached is our standard DPA (Mynder Standard DPA v2.3), covering purpose, security measures, sub-processors and third-country transfers.\n\nWe'd appreciate it if you could sign and return within 14 days. If you have an existing DPA you'd prefer to use, please send it back for our review.\n\nLet us know if anything is unclear.\n\nKind regards,\nSynnøve Olset\nMynder AS`
               );
               setLaraModalOpen(true);
             }}
@@ -277,221 +290,205 @@ export function DashboardLaraRecommendation() {
 
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          {!laraConfirmed && draftView === "intro" ? (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-                    <Diamond className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <DialogTitle>
-                      {isNb ? "Lara tar over" : "Lara takes over"}
-                    </DialogTitle>
-                    <DialogDescription className="mt-0.5">
-                      {current.vendor}
-                    </DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0">
+          {/* Header */}
+          <div className="bg-primary/5 border-b border-primary/10 px-5 py-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              <Diamond className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                {phase === "sent"
+                  ? isNb ? `E-post sendt til ${current.vendor}` : `Email sent to ${current.vendor}`
+                  : isNb ? `Send DPA-forespørsel til ${current.vendor.split(" ")[0]}` : `Send DPA request to ${current.vendor.split(" ")[0]}`}
+              </p>
+              <p className="text-xs text-primary mt-0.5">
+                {phase === "working"
+                  ? isNb ? "Jeg klargjør utkastet…" : "Preparing your draft…"
+                  : phase === "draft"
+                  ? isNb ? "Jeg har laget et utkast — godkjenn så sender jeg det." : "I've drafted this — approve and I'll send it."
+                  : isNb ? "Jeg følger opp og varsler deg ved svar." : "I'll follow up and notify you on reply."}
+              </p>
+            </div>
+            <button
+              onClick={() => setLaraModalOpen(false)}
+              className="h-8 w-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              aria-label={isNb ? "Lukk" : "Close"}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {isNb
-                    ? "Lara vil utføre følgende steg automatisk:"
-                    : "Lara will perform the following steps automatically:"}
-                </p>
-                <div className="space-y-2.5">
-                  {[
-                    {
-                      icon: FileSearch,
-                      text: isNb
-                        ? "Søke opp leverandørens DPA og personvernvilkår"
-                        : "Look up the vendor's DPA and privacy terms",
-                    },
-                    {
-                      icon: Mail,
-                      text: isNb
-                        ? "Sende forespørsel til hovedkontakt på vegne av deg"
-                        : "Send a request to the main contact on your behalf",
-                    },
-                    {
-                      icon: Sparkles,
-                      text: isNb
-                        ? "Analysere svar og oppdatere risikovurderingen"
-                        : "Analyze the response and update the risk assessment",
-                    },
-                  ].map((s, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3"
-                    >
-                      <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                        <s.icon className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm text-foreground leading-relaxed pt-1">
-                        {s.text}
-                      </p>
-                    </div>
-                  ))}
+          {/* Body */}
+          {phase === "working" ? (
+            <div className="px-5 py-10 flex flex-col items-center justify-center min-h-[280px] gap-5">
+              <div className="relative">
+                <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Diamond className="h-6 w-6 text-primary" />
                 </div>
-
-                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary shrink-0" />
-                  <p className="text-xs text-foreground">
-                    {isNb
-                      ? "Du får varsel når Lara er ferdig — vanligvis innen 24 timer."
-                      : "You'll be notified when Lara is done — usually within 24 hours."}
+                <Loader2 className="h-14 w-14 absolute inset-0 text-primary animate-spin opacity-60" />
+              </div>
+              <div className="w-full max-w-xs space-y-2">
+                {[
+                  isNb ? "Henter leverandørprofil og kontakt…" : "Fetching vendor profile and contact…",
+                  isNb ? "Velger riktig DPA-mal (Mynder Standard v2.3)…" : "Selecting the right DPA template (Mynder Standard v2.3)…",
+                  isNb ? "Skriver utkast på vegne av deg…" : "Drafting the message on your behalf…",
+                ].map((label, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-center gap-2 text-sm transition-opacity",
+                      i <= workingStep ? "opacity-100" : "opacity-40"
+                    )}
+                  >
+                    {i < workingStep ? (
+                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                    ) : i === workingStep ? (
+                      <Loader2 className="h-4 w-4 text-primary animate-spin shrink-0" />
+                    ) : (
+                      <div className="h-4 w-4 rounded-full border border-border shrink-0" />
+                    )}
+                    <span className="text-foreground">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : phase === "draft" ? (
+            <div className="px-5 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
+              {/* Meta grid */}
+              <div className="grid grid-cols-2 gap-3 rounded-lg bg-muted/40 p-3 text-sm">
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
+                    {isNb ? "MAL" : "TEMPLATE"}
+                  </p>
+                  <p className="text-foreground mt-0.5">Mynder Standard DPA v2.3</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
+                    {isNb ? "AVSENDER" : "SENDER"}
+                  </p>
+                  <p className="text-foreground mt-0.5">synnove@mynder.no</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
+                    {isNb ? "MOTTAKER" : "RECIPIENT"}
+                  </p>
+                  <p className="text-foreground mt-0.5">ola.nordmann@visma.no</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
+                    {isNb ? "SCORE-EFFEKT" : "SCORE IMPACT"}
+                  </p>
+                  <p className="text-primary font-medium mt-0.5">
+                    {isNb ? "+3 ved retur" : "+3 on response"}
                   </p>
                 </div>
               </div>
 
-              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => setDraftView("draft")}
-                  className="gap-2 sm:mr-auto"
-                >
-                  <Eye className="h-4 w-4" />
-                  {isNb ? "Vis utkast" : "Preview draft"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setLaraModalOpen(false)}
-                >
-                  {isNb ? "Avbryt" : "Cancel"}
-                </Button>
-                <Button
-                  onClick={() => setLaraConfirmed(true)}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {isNb ? "Start Lara" : "Start Lara"}
-                </Button>
-              </DialogFooter>
-            </>
-          ) : !laraConfirmed && draftView === "draft" ? (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <DialogTitle>
-                      {isNb ? "Utkast til leverandøren" : "Draft to vendor"}
-                    </DialogTitle>
-                    <DialogDescription className="mt-0.5">
-                      {isNb
-                        ? `Lara har skrevet dette på vegne av deg. Du kan redigere før det sendes.`
-                        : `Lara has written this on your behalf. You can edit before sending.`}
-                    </DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
-
-              <div className="space-y-3">
-                <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-sm">
+              {/* Email preview */}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/20 space-y-1 text-sm">
                   <div className="flex gap-2">
-                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                    <span className="font-semibold text-muted-foreground w-12 shrink-0">
                       {isNb ? "Til:" : "To:"}
                     </span>
-                    <span className="text-foreground">
-                      {isNb ? "Hovedkontakt" : "Main contact"} · {current.vendor}
-                    </span>
+                    <span className="text-foreground">Ola Nordmann &lt;ola.nordmann@visma.no&gt;</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                    <span className="font-semibold text-muted-foreground w-12 shrink-0">
                       {isNb ? "Emne:" : "Subject:"}
                     </span>
                     <span className="text-foreground">
                       {isNb
-                        ? `Forespørsel om DPA og personvernsdokumentasjon — ${current.vendor}`
-                        : `Request for DPA and privacy documentation — ${current.vendor}`}
+                        ? `Forespørsel om databehandleravtale (DPA) — Mynder AS`
+                        : `Request for Data Processing Agreement (DPA) — Mynder AS`}
                     </span>
                   </div>
                 </div>
-
                 <Textarea
                   value={draftBody}
                   onChange={(e) => setDraftBody(e.target.value)}
-                  rows={11}
-                  className="text-sm font-normal leading-relaxed resize-none"
+                  rows={14}
+                  className="text-sm leading-relaxed resize-none border-0 rounded-none focus-visible:ring-0"
                 />
-
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Pencil className="h-3 w-3" />
-                  {isNb
-                    ? "Rediger fritt — endringene lagres i denne sendingen."
-                    : "Edit freely — changes apply to this send."}
-                </div>
               </div>
-
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  variant="outline"
-                  onClick={() => setDraftView("intro")}
-                  className="gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  {isNb ? "Tilbake" : "Back"}
-                </Button>
-                <Button
-                  onClick={() => setLaraConfirmed(true)}
-                  className="gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  {isNb ? "Godkjenn og send" : "Approve and send"}
-                </Button>
-              </DialogFooter>
-            </>
+            </div>
           ) : (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <DialogTitle>
-                      {isNb ? "Lara er i gang" : "Lara is on it"}
-                    </DialogTitle>
-                    <DialogDescription className="mt-0.5">
-                      {isNb
-                        ? `Oppgaven for ${current.vendor} er flyttet til Lara.`
-                        : `The task for ${current.vendor} has been handed to Lara.`}
-                    </DialogDescription>
-                  </div>
-                </div>
-              </DialogHeader>
+            <div className="px-5 py-8 flex flex-col items-center text-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-success/15 text-success flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-foreground">
+                  {isNb ? "E-post sendt" : "Email sent"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isNb
+                    ? "Lara venter på svar og oppdaterer leverandørprofilen automatisk."
+                    : "Lara is awaiting a response and will update the vendor profile automatically."}
+                </p>
+              </div>
+            </div>
+          )}
 
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Du kan følge fremdriften under «Aktivitet» eller i Lara Inbox."
-                  : "You can track progress under \"Activity\" or in the Lara Inbox."}
+          {/* Footer */}
+          {phase === "draft" && (
+            <div className="border-t border-border px-5 py-3 flex items-center gap-3">
+              <p className="text-xs text-muted-foreground flex-1">
+                {isNb ? "Ingenting sendes før du godkjenner" : "Nothing is sent until you approve"}
               </p>
+              <Button
+                variant="ghost"
+                onClick={() => setLaraModalOpen(false)}
+                className="rounded-full"
+              >
+                {isNb ? "Avbryt" : "Cancel"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Focus textarea — already editable inline
+                  const ta = document.querySelector<HTMLTextAreaElement>(
+                    'textarea'
+                  );
+                  ta?.focus();
+                }}
+                className="rounded-full"
+              >
+                {isNb ? "Tilpass utkast" : "Customize draft"}
+              </Button>
+              <Button
+                onClick={() => setPhase("sent")}
+                className="rounded-full gap-2"
+              >
+                <Send className="h-4 w-4" />
+                {isNb ? "Godkjenn og send" : "Approve and send"}
+              </Button>
+            </div>
+          )}
 
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setLaraModalOpen(false);
-                    navigate("/lara-inbox");
-                  }}
-                >
-                  {isNb ? "Åpne Lara Inbox" : "Open Lara Inbox"}
-                </Button>
-                <Button
-                  onClick={() => {
-                    setLaraModalOpen(false);
-                    if (step < total - 1) setStep(step + 1);
-                  }}
-                >
-                  {isNb ? "Neste oppgave" : "Next task"}
-                </Button>
-              </DialogFooter>
-            </>
+          {phase === "sent" && (
+            <div className="border-t border-border px-5 py-3 flex items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setLaraModalOpen(false);
+                  navigate("/lara-inbox");
+                }}
+                className="rounded-full"
+              >
+                {isNb ? "Åpne Lara Inbox" : "Open Lara Inbox"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setLaraModalOpen(false);
+                  if (step < total - 1) setStep(step + 1);
+                }}
+                className="rounded-full"
+              >
+                {isNb ? "Neste oppgave" : "Next task"}
+              </Button>
+            </div>
           )}
         </DialogContent>
       </Dialog>
