@@ -28,6 +28,28 @@ export const EditActiveFrameworksDialog = ({
   onToggle,
   updatingId,
 }: EditActiveFrameworksDialogProps) => {
+  const [search, setSearch] = useState("");
+
+  const q = search.trim().toLowerCase();
+  const matches = (fw: Framework) =>
+    !q ||
+    fw.name.toLowerCase().includes(q) ||
+    (fw.description || "").toLowerCase().includes(q) ||
+    (fw.id || "").toLowerCase().includes(q);
+
+  const visibleCategories = useMemo(
+    () =>
+      categories
+        .map((cat) => ({
+          cat,
+          items: frameworks.filter((f) => f.category === cat.id && matches(f)),
+        }))
+        .filter((c) => c.items.length > 0),
+    [q]
+  );
+
+  const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto w-full sm:max-w-lg">
@@ -38,9 +60,40 @@ export const EditActiveFrameworksDialog = ({
           </SheetDescription>
         </SheetHeader>
 
+        {/* Search */}
+        <div className="mt-5 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Søk regelverk eller standard…"
+            className="pl-9 pr-9 h-10 rounded-full"
+          />
+          {search && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setSearch("")}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        {q && (
+          <p className="text-xs text-muted-foreground mt-2">
+            {totalMatches} treff for «{search}»
+          </p>
+        )}
+
         <div className="mt-6 space-y-6">
-          {categories.map((category) => {
-            const categoryFrameworks = frameworks.filter((f) => f.category === category.id);
+          {visibleCategories.length === 0 && (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              Ingen regelverk matcher søket.
+            </p>
+          )}
+          {visibleCategories.map(({ cat: category, items: categoryFrameworks }) => {
             const CategoryIcon = category.icon;
 
             return (
