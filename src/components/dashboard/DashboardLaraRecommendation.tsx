@@ -354,62 +354,47 @@ export function DashboardLaraRecommendation() {
               </div>
             </div>
           ) : phase === "draft" ? (
-            <div className="px-5 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
-              {/* Meta grid */}
-              <div className="grid grid-cols-2 gap-3 rounded-lg bg-muted/40 p-3 text-sm">
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
-                    {isNb ? "MAL" : "TEMPLATE"}
-                  </p>
-                  <p className="text-foreground mt-0.5">Mynder Standard DPA v2.3</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
-                    {isNb ? "AVSENDER" : "SENDER"}
-                  </p>
-                  <p className="text-foreground mt-0.5">synnove@mynder.no</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
-                    {isNb ? "MOTTAKER" : "RECIPIENT"}
-                  </p>
-                  <p className="text-foreground mt-0.5">ola.nordmann@visma.no</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground tracking-wider">
-                    {isNb ? "SCORE-EFFEKT" : "SCORE IMPACT"}
-                  </p>
-                  <p className="text-primary font-medium mt-0.5">
-                    {isNb ? "+3 ved retur" : "+3 on response"}
-                  </p>
-                </div>
+            <div className="px-5 py-5 space-y-4 max-h-[65vh] overflow-y-auto">
+              {/* Meta strip */}
+              <div className="rounded-lg border border-border bg-muted/30 divide-y divide-border/60 text-sm">
+                {[
+                  { label: isNb ? "Mal" : "Template", value: "Mynder Standard DPA v2.3" },
+                  { label: isNb ? "Fra" : "From", value: "synnove@mynder.no" },
+                  { label: isNb ? "Til" : "To", value: "ola.nordmann@visma.no" },
+                  {
+                    label: isNb ? "Score-effekt" : "Score impact",
+                    value: isNb ? "+3 ved retur" : "+3 on response",
+                    accent: true,
+                  },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between px-4 py-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      {row.label}
+                    </span>
+                    <span className={cn("text-sm", row.accent ? "text-primary font-semibold" : "text-foreground")}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               {/* Email preview */}
-              <div className="rounded-lg border border-border overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-muted/20 space-y-1 text-sm">
-                  <div className="flex gap-2">
-                    <span className="font-semibold text-muted-foreground w-12 shrink-0">
-                      {isNb ? "Til:" : "To:"}
-                    </span>
-                    <span className="text-foreground">Ola Nordmann &lt;ola.nordmann@visma.no&gt;</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="font-semibold text-muted-foreground w-12 shrink-0">
-                      {isNb ? "Emne:" : "Subject:"}
-                    </span>
-                    <span className="text-foreground">
-                      {isNb
-                        ? `Forespørsel om databehandleravtale (DPA) — Mynder AS`
-                        : `Request for Data Processing Agreement (DPA) — Mynder AS`}
-                    </span>
-                  </div>
+              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+                <div className="px-4 py-3 border-b border-border bg-muted/30">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {isNb ? "Emne" : "Subject"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5 leading-snug">
+                    {isNb
+                      ? "Forespørsel om databehandleravtale (DPA) — Mynder AS"
+                      : "Request for Data Processing Agreement (DPA) — Mynder AS"}
+                  </p>
                 </div>
                 <Textarea
                   value={draftBody}
                   onChange={(e) => setDraftBody(e.target.value)}
                   rows={14}
-                  className="text-sm leading-relaxed resize-none border-0 rounded-none focus-visible:ring-0"
+                  className="text-sm leading-relaxed resize-none border-0 rounded-none focus-visible:ring-0 bg-card font-[450] px-4 py-3"
                 />
               </div>
             </div>
