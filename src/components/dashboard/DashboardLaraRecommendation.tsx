@@ -27,9 +27,23 @@ export function DashboardLaraRecommendation() {
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
   const [laraModalOpen, setLaraModalOpen] = useState(false);
-  const [laraConfirmed, setLaraConfirmed] = useState(false);
-  const [draftView, setDraftView] = useState<"intro" | "draft">("intro");
+  const [phase, setPhase] = useState<"working" | "draft" | "sent">("working");
   const [draftBody, setDraftBody] = useState("");
+  const [workingStep, setWorkingStep] = useState(0);
+
+  // Animate Lara's "thinking" steps then reveal the draft
+  useEffect(() => {
+    if (!laraModalOpen || phase !== "working") return;
+    setWorkingStep(0);
+    const t1 = setTimeout(() => setWorkingStep(1), 900);
+    const t2 = setTimeout(() => setWorkingStep(2), 1800);
+    const t3 = setTimeout(() => setPhase("draft"), 2700);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [laraModalOpen, phase]);
 
   // Find vendors missing DPA documentation
   const { data: missingDpaCount = 0 } = useQuery({
