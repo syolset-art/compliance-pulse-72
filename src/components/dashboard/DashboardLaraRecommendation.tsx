@@ -27,6 +27,8 @@ export function DashboardLaraRecommendation() {
   const [step, setStep] = useState(0);
   const [laraModalOpen, setLaraModalOpen] = useState(false);
   const [laraConfirmed, setLaraConfirmed] = useState(false);
+  const [draftView, setDraftView] = useState<"intro" | "draft">("intro");
+  const [draftBody, setDraftBody] = useState("");
 
   // Find vendors missing DPA documentation
   const { data: missingDpaCount = 0 } = useQuery({
