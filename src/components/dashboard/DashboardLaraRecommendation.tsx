@@ -218,11 +218,11 @@ export function DashboardLaraRecommendation() {
             </span>
           </div>
           <h4 className="text-xl font-bold text-foreground">{current.vendor}</h4>
-          <p className="text-sm text-muted-foreground">{current.category}</p>
+          <p className="text-sm text-foreground/70">{current.category}</p>
         </div>
 
-        <div className="rounded-lg bg-muted/40 p-4 space-y-1.5">
-          <p className="text-xs font-semibold text-muted-foreground tracking-wider">
+        <div className="rounded-lg bg-muted/60 p-4 space-y-1.5 border border-border/50">
+          <p className="text-xs font-bold text-foreground/60 tracking-wider">
             {isNb ? "LARA SER" : "LARA SEES"}
           </p>
           <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
