@@ -215,8 +215,8 @@ export function DashboardLaraRecommendation() {
           <Button
             className="rounded-full px-5"
             onClick={() => {
-              // Move forward after assigning to Lara
-              if (step < total - 1) setStep(step + 1);
+              setLaraConfirmed(false);
+              setLaraModalOpen(true);
             }}
           >
             {isNb ? "Be Lara håndtere det" : "Ask Lara to handle it"}
