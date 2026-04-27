@@ -1,65 +1,79 @@
 ## Mål
 
-Erstatte dagens kort-/listevisning på `/vendors` (fanen «Alle») med en ny radbasert oversikt som matcher det opplastede bildet. Hver leverandør vises som én bred rad med en tydelig **statuspille** (farget prikk + tekst), kategori-chip, nøkkelinformasjon, modenhets-donut og kontekstuell handlingsknapp – slik at brukeren med et øyekast ser om en leverandør er Godkjent, Krever tiltak, Under oppfølging, Invitert eller Utkast.
+Den øverste delen av dashbordet (`/` – `src/pages/Index.tsx`) skal matche de to referansebildene:
 
-## Statusmodell
+1. **Personlig hilsen** ("God morgen, Synnøve" + dato)
+2. **Lara-anbefaling** (lilla banner med "Vis plan" / "Ikke nå")
+3. **Samlet modenhetsscore** (stort %, 5 fokusområder med fargekodede tall + progress)
+4. **Rammeverks-status** (GDPR, ISO 27001, NIS2, EU AI Act med fargechips Grønn/Gul/Rød)
+5. **Modenhet over tid** (linjegraf 7d/30d/90d/12m + "aktiviteter som påvirket score")
 
-Vi avleder status fra eksisterende felter (ingen DB-endringer). Mapping:
+Alt over og duplikater i mellom skal bort.
 
-| Status | Farge (prikk + tekst) | Avledet fra |
-|---|---|---|
-| Godkjent | success (grønn) | `compliance_score ≥ 75` og ingen utløpte dokumenter |
-| Krever tiltak | destructive (rød) | utløpte dokumenter ELLER `risk_level=high` ELLER `compliance_score < 40` |
-| Under oppfølging | warning (oransje/amber) | `compliance_score 40–74` med åpne gap |
-| Invitert | primary (blå/lilla) | `lifecycle_status='invited'` (ny verdi, settes når invitasjon sendes – fallback: tag i `metadata`) |
-| Utkast | warning-dot (oransje) | `lifecycle_status='draft'` eller nylig opprettet uten data |
-| Lara kartlegger… | accent-chip med spinner | `inboxCount > 0` på en utkast-rad |
+## Hva som fjernes fra `Index.tsx`
 
-For demo-formål mapper vi også eksisterende vendors til disse statene basert på score/risk slik at oversikten ser realistisk ut umiddelbart.
+Disse blokkene er overflødige og tas ut:
 
-## Rad-layout (matcher bildet)
+- `<DashboardCompact />` – inneholder gammel KPI-rad (Samsvar/Risikonivå/Kontroller), `ControlAreasChart` (bar chart) og deletion-agent-kort. Erstattes av nye widgets.
+- `<DashboardCriticalTasks />` – oransje "viktigste oppgaver"-banner. Erstattes av Lara-anbefaling.
+- `<DashboardHeroCards />` – to store donut-kort (Risikooversikt + Samsvarsstatus). Overflødig.
+- `<DashboardGrid ... />` – hele widget-griden (security-foundations, business-risk, vulnerability-map, critical-processes, ai-dependencies, ai-activity, vendor-requests, environment).
+- Tilhørende imports og `WIDGET_DEFS`/`WIDGET_COMPONENTS`/widget-toggle-state ryddes ut.
 
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ • Navn  [• Status]  [Kategori]               ◯ 86%  Modenhet    Sist 22.04 │
-│   Org. 987 654 321 · acme.no · GDPR + ISO 27001 + DORA           [Åpne →] │
-│   Kontakt: Maya Berg · Ansvarlig hos oss: Synnøve Olset                   │
-└─────────────────────────────────────────────────────────────────────────────┘
+Den eksisterende headeren ("Hei, {firma}" + rolle-label + "Her er det som trenger din oppmerksomhet") byttes til en mer personlig hilsen ("God morgen/dag/kveld, {fornavn}" + dato på norsk).
+
+## Hva som bygges
+
+Tre nye komponenter under `src/components/dashboard/`:
+
+### 1. `DashboardLaraRecommendation.tsx`
+Lilla banner med:
+- Lara-ikon (rund mørk sirkel med diamant)
+- Tittel: "Lara har en anbefaling til deg"
+- Dynamisk tekst (eks: "Du har 3 leverandører som mangler DPA-dokumentasjon. Vil du starte en gjennomgang?")
+- Primær CTA "Vis plan" + sekundær link "Ikke nå"
+- Kobles til faktisk data fra `useComplianceRequirements` / vendor docs (med fallback-tekst hvis ingen aktuelle anbefalinger)
+
+### 2. `DashboardOverallMaturity.tsx`
+Hvitt kort med:
+- Liten header "↗ Samlet modenhetsscore"
+- Stort tall (eks. "82%") basert på `stats.overallScore.score`
+- 2-kolonne grid med 5 fokusområder fra `stats.byDomainArea`:
+  - Styring, Drift og bruk, Identitet og tilgang, Leverandører og økosystem, Personvern og datahåndtering
+  - Hver: label + farget % (grønn ≥75, oransje 50-74, rød <50) + tynn lilla progress bar
+- "Se detaljer per område →" link nederst (navigerer til `/reports/compliance`)
+
+### 3. `DashboardFrameworkStatus.tsx`
+Hvitt kort med:
+- Header "Rammeverks-status" + undertittel "Modenhetsscore per regelverk basert på dokumenterte kontroller"
+- Liste over aktive rammeverk fra `stats.byFramework` (GDPR, ISO 27001, NIS2, EU AI Act):
+  - Navn til venstre, farget % til høyre, tynn lilla progress under, fargechip (Grønn/Gul/Rød) ytterst til høyre
+- Terskler: ≥75 Grønn, 50-74 Gul, <50 Rød
+
+### 4. `DashboardMaturityOverTime.tsx`
+Hvitt kort med:
+- Header "Modenhet over tid" + segmentert kontroll (7d / 30d / 90d / 12m, default 30d)
+- Stort tall + endrings-chip (eks. "82%  +4  siste 30 dager")
+- Linjegraf (recharts `LineChart`) med datapunkter farget grønne/røde for positive/negative aktiviteter
+- Seksjon "AKTIVITETER SOM PÅVIRKET SCORE":
+  - Hver rad: avatar (Lara-ikon eller initialer), tittel, kilde-chip ("Lara · godkjent av X" / "Lara · automatisk" eller person), dato + valgfri lenke "Se rapport →", og ±poeng-chip (grønn/rød)
+- Mock-data først (siden vi ikke har et faktisk score-historikk-endepunkt), strukturert slik at vi senere kan koble til `audit_logs` eller en egen `score_history`-tabell
+
+## Ny struktur i `Index.tsx`
+
+```tsx
+<DashboardLaraRecommendation />
+<DashboardOverallMaturity />
+<DashboardFrameworkStatus />
+<DashboardMaturityOverTime />
 ```
 
-- **Venstre kant**: 3 px farget stripe i statusfargen (subtil, kun synlig på hover for ren look – eller alltid synlig som i bildet via en liten prikk i venstre marg).
-- **Linje 1**: Navn (bold) + statuspille (prikk + tekst i farge) + kategori-chip (lilla, soft).
-- **Linje 2**: `Org.nr · domene · regelverk-liste` (muted).
-- **Linje 3 (kontekstuell)**:
-  - Godkjent → `Kontakt: X · Ansvarlig hos oss: Y`
-  - Krever tiltak → rød tekst med konkret årsak: `⚠ 2 åpne gap · DPA utløpt 18.04.2026`
-  - Under oppfølging → `1 gap under oppfølging · Kontakt: X`
-  - Invitert → `Invitasjon sendt 21.04.2026 · utløper om 5 dager`
-  - Utkast → Lara-kartlegger-chip når aktiv
-- **Høyre side**: SVG-donut (gjenbrukes fra `VendorCard`) med modenhets-prosent, label «Modenhet», dato for siste aktivitet over knapp.
-- **Handlingsknapp** (kontekstuell, varierer per status):
-  - Godkjent / Under oppfølging → `Åpne →` (outline)
-  - Krever tiltak → `Åpne gap →` (destructive solid)
-  - Invitert → `Påminnelse` + `Kopier lenke` (to outline-knapper stablet)
-  - Utkast → `Inviter leverandør` (primary solid)
-
-## Filtere og toolbar
-
-Beholder eksisterende toolbar (søk, filter-popover, antall, donut/label-toggle). Legger til **status-filter** i popoveren (multi-select: Godkjent, Krever tiltak, Under oppfølging, Invitert, Utkast). Fjerner kort/liste-veksleren – den nye raden er den primære (og eneste) visningen for fanen «Alle». Listevisning beholdes ikke siden den nye raden allerede er kompakt og informativ.
-
-## Filer som endres / opprettes
-
-- **Ny**: `src/components/vendor-dashboard/VendorStatusRow.tsx` – komponenten for én rad med all status-logikk og kontekstuelle handlinger.
-- **Ny**: `src/lib/vendorStatus.ts` – ren funksjon `deriveVendorStatus(vendor, { expiredDocsCount, inboxCount })` som returnerer `{ key, label, dotClass, textClass }`. Brukes også av andre widgets senere.
-- **Endres**: `src/components/vendor-dashboard/VendorListTab.tsx` – erstatter både kort- og listerendring med `<VendorStatusRow />`-mapping; fjerner view-mode-toggle; legger til status-filter.
-- **Endres (lite)**: `src/components/vendor-dashboard/VendorCard.tsx` – ingen endring; brukes fortsatt i Oversikt-fanen.
+Resten av siden (dialoger, help-panel, mobile/desktop wrappers) beholdes uendret.
 
 ## Tekniske detaljer
 
-- Bruker eksisterende design tokens: `success`, `warning`, `destructive`, `primary`, `accent` – ingen nye farger i `index.css`.
-- SVG-donut gjenbrukes fra `VendorCard` (samme stroke-logikk og farge basert på score-tone). Tom donut for invitert/utkast viser grå sirkel med en strek (–) som i bildet.
-- Statuspille = `<Badge variant="outline">` med farget prikk (`<span className="h-1.5 w-1.5 rounded-full bg-{tone}" />`) + tekst i samme tone, lett bakgrunn (`bg-{tone}/10`).
-- «Lara kartlegger…»-chip bruker `Sparkles`-ikon med subtil pulse og lilla `bg-primary/10`.
-- Kontaktnavn og «Ansvarlig hos oss» hentes fra `vendor.contact_name` (fallback skjul linjen) og work-area-eier (`asset_owner` / `work_area.responsible_person`).
-- Utløpte dokumenter og inbox-counts hentes fra eksisterende queries i `VendorListTab`.
-- Ingen DB-migrasjon nødvendig – all status er avledet i frontend.
+- All farge-logikk bruker `bg-success` / `bg-warning` / `bg-destructive` per memory-regelen om risikofarger.
+- Progress bars overstyres til primær lilla via `[&>div]:bg-primary` (matcher referansebildene).
+- i18n: norsk default med engelsk fallback via `i18n.language === "nb"`-pattern allerede brukt i prosjektet.
+- Ingen DB-migrasjoner – alt baserer seg på eksisterende `useComplianceRequirements` + mock for tidsserie/aktivitetsfeed.
+- Filer som blir foreldreløse (`DashboardCompact`, `DashboardHeroCards`, `DashboardCriticalTasks`, `DashboardGrid`, gamle widget-imports) **slettes ikke** i denne runden – vi fjerner kun bruken fra `Index.tsx` for å unngå å bryte andre sider som evt. importerer dem. Kan ryddes opp i en senere runde hvis ønskelig.
