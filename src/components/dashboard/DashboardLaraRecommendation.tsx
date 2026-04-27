@@ -347,7 +347,15 @@ export function DashboardLaraRecommendation() {
                 </div>
               </div>
 
-              <DialogFooter className="gap-2 sm:gap-0">
+              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setDraftView("draft")}
+                  className="gap-2 sm:mr-auto"
+                >
+                  <Eye className="h-4 w-4" />
+                  {isNb ? "Vis utkast" : "Preview draft"}
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => setLaraModalOpen(false)}
@@ -360,6 +368,81 @@ export function DashboardLaraRecommendation() {
                 >
                   <Sparkles className="h-4 w-4" />
                   {isNb ? "Start Lara" : "Start Lara"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : !laraConfirmed && draftView === "draft" ? (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <DialogTitle>
+                      {isNb ? "Utkast til leverandøren" : "Draft to vendor"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-0.5">
+                      {isNb
+                        ? `Lara har skrevet dette på vegne av deg. Du kan redigere før det sendes.`
+                        : `Lara has written this on your behalf. You can edit before sending.`}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-sm">
+                  <div className="flex gap-2">
+                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                      {isNb ? "Til:" : "To:"}
+                    </span>
+                    <span className="text-foreground">
+                      {isNb ? "Hovedkontakt" : "Main contact"} · {current.vendor}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                      {isNb ? "Emne:" : "Subject:"}
+                    </span>
+                    <span className="text-foreground">
+                      {isNb
+                        ? `Forespørsel om DPA og personvernsdokumentasjon — ${current.vendor}`
+                        : `Request for DPA and privacy documentation — ${current.vendor}`}
+                    </span>
+                  </div>
+                </div>
+
+                <Textarea
+                  value={draftBody}
+                  onChange={(e) => setDraftBody(e.target.value)}
+                  rows={11}
+                  className="text-sm font-normal leading-relaxed resize-none"
+                />
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Pencil className="h-3 w-3" />
+                  {isNb
+                    ? "Rediger fritt — endringene lagres i denne sendingen."
+                    : "Edit freely — changes apply to this send."}
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setDraftView("intro")}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  {isNb ? "Tilbake" : "Back"}
+                </Button>
+                <Button
+                  onClick={() => setLaraConfirmed(true)}
+                  className="gap-2"
+                >
+                  <Send className="h-4 w-4" />
+                  {isNb ? "Godkjenn og send" : "Approve and send"}
                 </Button>
               </DialogFooter>
             </>
