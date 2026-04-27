@@ -119,9 +119,9 @@ export function DashboardMaturityOverTime() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-1">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-1">
         <div>
           <h3 className="text-sm font-semibold text-foreground">
             {isNb ? "Modenhet over tid" : "Maturity over time"}
@@ -132,7 +132,7 @@ export function DashboardMaturityOverTime() {
               : "Overall score with activities that moved it"}
           </p>
         </div>
-        <div className="flex items-center rounded-full border border-border bg-muted/30 p-0.5">
+        <div className="flex items-center rounded-full border border-border bg-muted/30 p-0.5 self-start">
           {RANGES.map((r) => {
             const active = range === r.key;
             return (
