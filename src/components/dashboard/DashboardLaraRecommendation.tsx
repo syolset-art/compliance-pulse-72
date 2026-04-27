@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2 } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Eye, Send, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,8 @@ export function DashboardLaraRecommendation() {
   const [step, setStep] = useState(0);
   const [laraModalOpen, setLaraModalOpen] = useState(false);
   const [laraConfirmed, setLaraConfirmed] = useState(false);
+  const [draftView, setDraftView] = useState<"intro" | "draft">("intro");
+  const [draftBody, setDraftBody] = useState("");
 
   // Find vendors missing DPA documentation
   const { data: missingDpaCount = 0 } = useQuery({
@@ -216,6 +219,12 @@ export function DashboardLaraRecommendation() {
             className="rounded-full px-5"
             onClick={() => {
               setLaraConfirmed(false);
+              setDraftView("intro");
+              setDraftBody(
+                isNb
+                  ? `Hei,\n\nPå vegne av vår organisasjon trenger vi å oppdatere dokumentasjonen knyttet til vår behandling av personopplysninger gjennom ${current.vendor}.\n\nKan dere sende oss:\n• Gjeldende databehandleravtale (DPA)\n• Oversikt over underleverandører\n• Beskrivelse av tekniske og organisatoriske sikkerhetstiltak\n\nVi setter pris på svar innen 14 dager.\n\nVennlig hilsen,\nLara — på vegne av Vendor Manager`
+                  : `Hello,\n\nOn behalf of our organization, we need to update the documentation related to our processing of personal data through ${current.vendor}.\n\nCould you please send us:\n• Current Data Processing Agreement (DPA)\n• Overview of sub-processors\n• Description of technical and organizational security measures\n\nWe appreciate a response within 14 days.\n\nKind regards,\nLara — on behalf of the Vendor Manager`
+              );
               setLaraModalOpen(true);
             }}
           >
@@ -269,7 +278,7 @@ export function DashboardLaraRecommendation() {
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
         <DialogContent className="sm:max-w-md">
-          {!laraConfirmed ? (
+          {!laraConfirmed && draftView === "intro" ? (
             <>
               <DialogHeader>
                 <div className="flex items-center gap-3">
@@ -338,7 +347,15 @@ export function DashboardLaraRecommendation() {
                 </div>
               </div>
 
-              <DialogFooter className="gap-2 sm:gap-0">
+              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setDraftView("draft")}
+                  className="gap-2 sm:mr-auto"
+                >
+                  <Eye className="h-4 w-4" />
+                  {isNb ? "Vis utkast" : "Preview draft"}
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => setLaraModalOpen(false)}
@@ -351,6 +368,81 @@ export function DashboardLaraRecommendation() {
                 >
                   <Sparkles className="h-4 w-4" />
                   {isNb ? "Start Lara" : "Start Lara"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : !laraConfirmed && draftView === "draft" ? (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <DialogTitle>
+                      {isNb ? "Utkast til leverandøren" : "Draft to vendor"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-0.5">
+                      {isNb
+                        ? `Lara har skrevet dette på vegne av deg. Du kan redigere før det sendes.`
+                        : `Lara has written this on your behalf. You can edit before sending.`}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5 text-sm">
+                  <div className="flex gap-2">
+                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                      {isNb ? "Til:" : "To:"}
+                    </span>
+                    <span className="text-foreground">
+                      {isNb ? "Hovedkontakt" : "Main contact"} · {current.vendor}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-semibold text-muted-foreground w-14 shrink-0">
+                      {isNb ? "Emne:" : "Subject:"}
+                    </span>
+                    <span className="text-foreground">
+                      {isNb
+                        ? `Forespørsel om DPA og personvernsdokumentasjon — ${current.vendor}`
+                        : `Request for DPA and privacy documentation — ${current.vendor}`}
+                    </span>
+                  </div>
+                </div>
+
+                <Textarea
+                  value={draftBody}
+                  onChange={(e) => setDraftBody(e.target.value)}
+                  rows={11}
+                  className="text-sm font-normal leading-relaxed resize-none"
+                />
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Pencil className="h-3 w-3" />
+                  {isNb
+                    ? "Rediger fritt — endringene lagres i denne sendingen."
+                    : "Edit freely — changes apply to this send."}
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setDraftView("intro")}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  {isNb ? "Tilbake" : "Back"}
+                </Button>
+                <Button
+                  onClick={() => setLaraConfirmed(true)}
+                  className="gap-2"
+                >
+                  <Send className="h-4 w-4" />
+                  {isNb ? "Godkjenn og send" : "Approve and send"}
                 </Button>
               </DialogFooter>
             </>
