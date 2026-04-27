@@ -278,7 +278,7 @@ export function DashboardLaraRecommendation() {
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
         <DialogContent className="sm:max-w-md">
-          {!laraConfirmed ? (
+          {!laraConfirmed && draftView === "intro" ? (
             <>
               <DialogHeader>
                 <div className="flex items-center gap-3">
