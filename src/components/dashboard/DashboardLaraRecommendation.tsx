@@ -293,7 +293,7 @@ export function DashboardLaraRecommendation() {
 
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
-        <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0">
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0 max-h-[92vh] w-[calc(100vw-1.5rem)] sm:w-full">
           {/* Header */}
           <div className="bg-primary/5 border-b border-primary/10 px-5 py-4 flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
