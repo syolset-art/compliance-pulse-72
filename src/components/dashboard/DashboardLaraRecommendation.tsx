@@ -247,7 +247,7 @@ export function DashboardLaraRecommendation() {
           </Button>
           <Button
             variant="outline"
-            className="rounded-full px-5"
+            className="rounded-full px-5 w-full sm:w-auto"
             onClick={() => navigate(current.vendorPath)}
           >
             {isNb ? "Åpne leverandøren" : "Open vendor"}
@@ -256,8 +256,8 @@ export function DashboardLaraRecommendation() {
       </div>
 
       {/* Footer navigation */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setStep(Math.max(0, step - 1))}
             disabled={step === 0}
@@ -283,7 +283,8 @@ export function DashboardLaraRecommendation() {
           onClick={() => navigate("/tasks")}
           className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
-          {isNb ? "Vis alle oppgaver" : "Show all tasks"}
+          <span className="hidden sm:inline">{isNb ? "Vis alle oppgaver" : "Show all tasks"}</span>
+          <span className="sm:hidden">{isNb ? "Alle" : "All"}</span>
           <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
             {count}
           </span>
