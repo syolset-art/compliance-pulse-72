@@ -137,18 +137,20 @@ export function DashboardLaraRecommendation() {
       : `You have ${count} tasks that need attention, ${criticalCount} of them critical. Would you like to start a review?`;
 
     return (
-      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-4">
-        <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-          <Diamond className="h-4 w-4" />
+      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex items-start gap-3 sm:contents">
+          <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+            <Diamond className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">{title}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{message}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">{title}</p>
-          <p className="text-sm text-muted-foreground mt-0.5">{message}</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 sm:shrink-0">
           <Button
             size="sm"
-            className="rounded-full px-4"
+            className="rounded-full px-4 flex-1 sm:flex-none"
             onClick={() => {
               setShowPlan(true);
               setStep(0);
@@ -158,7 +160,7 @@ export function DashboardLaraRecommendation() {
           </Button>
           <button
             onClick={() => setDismissed(true)}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
           >
             {isNb ? "Ikke nå" : "Not now"}
           </button>
@@ -171,9 +173,9 @@ export function DashboardLaraRecommendation() {
   const sev = severityChip(current.severity);
 
   return (
-    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 space-y-4">
+    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-5 space-y-4">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
           <Diamond className="h-4 w-4" />
         </div>
@@ -209,7 +211,7 @@ export function DashboardLaraRecommendation() {
       </div>
 
       {/* Task card */}
-      <div className="rounded-xl bg-card border border-border p-5 space-y-4">
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-5 space-y-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
@@ -217,20 +219,20 @@ export function DashboardLaraRecommendation() {
               {sev.label}
             </span>
           </div>
-          <h4 className="text-xl font-bold text-foreground">{current.vendor}</h4>
+          <h4 className="text-lg sm:text-xl font-bold text-foreground break-words">{current.vendor}</h4>
           <p className="text-sm text-foreground/70">{current.category}</p>
         </div>
 
-        <div className="rounded-lg bg-muted/60 p-4 space-y-1.5 border border-border/50">
+        <div className="rounded-lg bg-muted/60 p-3 sm:p-4 space-y-1.5 border border-border/50">
           <p className="text-xs font-bold text-foreground/60 tracking-wider">
             {isNb ? "LARA SER" : "LARA SEES"}
           </p>
           <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pt-1">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-1">
           <Button
-            className="rounded-full px-5"
+            className="rounded-full px-5 w-full sm:w-auto"
             onClick={() => {
               setPhase("working");
               setDraftBody(
@@ -245,7 +247,7 @@ export function DashboardLaraRecommendation() {
           </Button>
           <Button
             variant="outline"
-            className="rounded-full px-5"
+            className="rounded-full px-5 w-full sm:w-auto"
             onClick={() => navigate(current.vendorPath)}
           >
             {isNb ? "Åpne leverandøren" : "Open vendor"}
@@ -254,8 +256,8 @@ export function DashboardLaraRecommendation() {
       </div>
 
       {/* Footer navigation */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setStep(Math.max(0, step - 1))}
             disabled={step === 0}
@@ -281,7 +283,8 @@ export function DashboardLaraRecommendation() {
           onClick={() => navigate("/tasks")}
           className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
-          {isNb ? "Vis alle oppgaver" : "Show all tasks"}
+          <span className="hidden sm:inline">{isNb ? "Vis alle oppgaver" : "Show all tasks"}</span>
+          <span className="sm:hidden">{isNb ? "Alle" : "All"}</span>
           <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
             {count}
           </span>
@@ -290,7 +293,7 @@ export function DashboardLaraRecommendation() {
 
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
-        <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0">
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0 max-h-[92vh] w-[calc(100vw-1.5rem)] sm:w-full">
           {/* Header */}
           <div className="bg-primary/5 border-b border-primary/10 px-5 py-4 flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
@@ -418,11 +421,11 @@ export function DashboardLaraRecommendation() {
 
           {/* Footer */}
           {phase === "draft" && (
-            <div className="border-t border-border bg-muted/20 px-5 py-3 flex items-center justify-between gap-3">
+            <div className="border-t border-border bg-muted/20 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-xs text-muted-foreground">
                 {isNb ? "Ingenting sendes før du godkjenner" : "Nothing is sent until you approve"}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-end">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -444,14 +447,14 @@ export function DashboardLaraRecommendation() {
           )}
 
           {phase === "sent" && (
-            <div className="border-t border-border px-5 py-3 flex items-center justify-end gap-2">
+            <div className="border-t border-border px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setLaraModalOpen(false);
                   navigate("/lara-inbox");
                 }}
-                className="rounded-full"
+                className="rounded-full w-full sm:w-auto"
               >
                 {isNb ? "Åpne Lara Inbox" : "Open Lara Inbox"}
               </Button>
@@ -460,7 +463,7 @@ export function DashboardLaraRecommendation() {
                   setLaraModalOpen(false);
                   if (step < total - 1) setStep(step + 1);
                 }}
-                className="rounded-full"
+                className="rounded-full w-full sm:w-auto"
               >
                 {isNb ? "Neste oppgave" : "Next task"}
               </Button>

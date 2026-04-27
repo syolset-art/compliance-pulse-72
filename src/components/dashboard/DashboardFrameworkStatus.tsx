@@ -46,7 +46,7 @@ export function DashboardFrameworkStatus() {
   }, [stats.byFramework]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       <h3 className="text-sm font-semibold text-foreground">
         {isNb ? "Rammeverks-status" : "Framework status"}
       </h3>
