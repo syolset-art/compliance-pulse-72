@@ -181,7 +181,7 @@ export function DashboardLaraRecommendation() {
           <p className="text-sm font-semibold text-foreground">
             {isNb ? "Lara har lagt en plan" : "Lara has prepared a plan"}
           </p>
-          <p className="text-sm text-primary mt-0.5">
+          <p className="text-sm text-foreground/80 mt-0.5">
             {isNb
               ? `${count} oppgaver totalt — starter med de ${total} mest kritiske · ca. ${total * 3} min`
               : `${count} tasks total — starting with the ${total} most critical · ~${total * 3} min`}
