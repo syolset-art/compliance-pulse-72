@@ -173,9 +173,9 @@ export function DashboardLaraRecommendation() {
   const sev = severityChip(current.severity);
 
   return (
-    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 space-y-4">
+    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 sm:p-5 space-y-4">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
           <Diamond className="h-4 w-4" />
         </div>
