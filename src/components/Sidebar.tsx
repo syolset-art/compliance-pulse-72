@@ -15,6 +15,10 @@ import {
   Scale,
   CreditCard,
   FileBarChart,
+  GitCompare,
+  BarChart3,
+  FileCheck,
+  Archive,
   HelpCircle,
   LogOut,
   
@@ -56,6 +60,14 @@ const dashboardNav = [
 const globalNav = [
   { name: "nav.regulations", href: "/regulations", icon: Scale },
   { name: "nav.messages", href: "/customer-requests", icon: MessageSquare },
+];
+
+// Submenu shown under Regelverk when active
+const regulationsSubmenu = [
+  { name: "Gapanalyse", href: "/regulations/gap-analysis", icon: GitCompare },
+  { name: "Målinger", href: "/regulations/measurements", icon: BarChart3 },
+  { name: "Evidens", href: "/regulations/evidence", icon: FileCheck },
+  { name: "Arkiv", href: "/regulations/archive", icon: Archive },
 ];
 
 // Mynder Core (contextual management tools)
