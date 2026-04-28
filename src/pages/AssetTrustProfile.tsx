@@ -497,27 +497,6 @@ const AssetTrustProfile = () => {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent align="end" className="w-72 p-0">
-                        {vendorOverflowTabDefs.length > 0 && (
-                          <div className="p-2 border-b border-border">
-                            <p className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                              {isNb ? "Flere faner" : "More tabs"}
-                            </p>
-                            <div className="space-y-0.5">
-                              {vendorOverflowTabDefs.map((tab) => (
-                                <button
-                                  key={tab.value}
-                                  onClick={() => setActiveTab(tab.value)}
-                                  className={cn(
-                                    "w-full text-left rounded-md px-2 py-1.5 text-sm hover:bg-muted/50 transition-colors",
-                                    activeTab === tab.value && "bg-accent font-medium"
-                                  )}
-                                >
-                                  {tab.labelFull}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                         <div className="p-2">
                           <div className="flex items-center gap-2 px-2 py-1">
                             <Settings2 className="h-3.5 w-3.5 text-muted-foreground" />
