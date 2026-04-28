@@ -34,6 +34,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
   const queryClient = useQueryClient();
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
 
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox", assetId],
