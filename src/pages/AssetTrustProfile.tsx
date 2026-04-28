@@ -27,6 +27,7 @@ import { RiskManagementTab } from "@/components/asset-profile/tabs/RiskManagemen
 import { IncidentManagementTab } from "@/components/asset-profile/tabs/IncidentManagementTab";
 import { RelationsTab } from "@/components/asset-profile/tabs/RelationsTab";
 import { DocumentsTab } from "@/components/asset-profile/tabs/DocumentsTab";
+import { VendorDocumentsTab } from "@/components/asset-profile/tabs/VendorDocumentsTab";
 import { LaraInboxTab } from "@/components/asset-profile/tabs/LaraInboxTab";
 import { CustomerRequestsTab } from "@/components/asset-profile/tabs/CustomerRequestsTab";
 import { SecurityServicesSection } from "@/components/asset-profile/tabs/SecurityServicesSection";
@@ -666,7 +667,11 @@ const AssetTrustProfile = () => {
                   <RelationsTab assetId={asset.id} />
                 </TabsContent>
                 <TabsContent value="documents" className="mt-6">
-                  <DocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                  {asset.asset_type === "vendor" ? (
+                    <VendorDocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                  ) : (
+                    <DocumentsTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                  )}
                 </TabsContent>
                 <TabsContent value="inbox" className="mt-6">
                   <LaraInboxTab assetId={asset.id} assetName={asset.name} />
