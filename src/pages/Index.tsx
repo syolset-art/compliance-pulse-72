@@ -48,12 +48,7 @@ const Index = () => {
   const { user } = useAuth();
   const { activeOrg } = useActiveOrganization();
 
-  const firstName =
-    (user?.user_metadata?.first_name as string) ||
-    (user?.user_metadata?.full_name as string)?.split(" ")[0] ||
-    user?.email?.split("@")[0] ||
-    activeOrg?.name ||
-    (isNb ? "der" : "there");
+  const displayName = "Synnøve Olset";
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
