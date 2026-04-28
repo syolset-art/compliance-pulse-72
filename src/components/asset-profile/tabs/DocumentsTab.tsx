@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle } from "lucide-react";
+import { Upload, FileText, Trash2, FileCheck, Lock, Send, Mail, Globe, EyeOff, HelpCircle, MoreHorizontal, CheckCircle2, Clock, Archive } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DocumentSharingPopover } from "../DocumentSharingPopover";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -46,7 +47,8 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
   }
   if (status === "pending_review") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
   if (status === "superseded") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
-  return <Badge className="bg-status-closed/15 text-status-closed dark:text-status-closed border-status-closed/30 text-[13px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
+  // "Gyldig" vises ikke — det er standardtilstand
+  return null;
 }
 
 export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton, onUploadTriggerReady }: DocumentsTabProps) {
@@ -91,6 +93,17 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
       toast.success(isNb ? "Dokument slettet" : "Document deleted");
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("vendor_documents").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
+      toast.success(isNb ? "Status oppdatert" : "Status updated");
     },
   });
 
@@ -173,14 +186,49 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                       />
                     </TableCell>
                     <TableCell className="py-3">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                            aria-label={isNb ? "Endre dokument" : "Edit document"}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                          <DropdownMenuLabel className="text-xs">
+                            {isNb ? "Sett status" : "Set status"}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "approved" })}
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-status-closed" />
+                            {isNb ? "Godkjent" : "Approved"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "pending_review" })}
+                          >
+                            <Clock className="h-3.5 w-3.5 mr-2 text-warning" />
+                            {isNb ? "Til vurdering" : "Pending review"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "superseded" })}
+                          >
+                            <Archive className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                            {isNb ? "Erstattet" : "Superseded"}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-2" />
+                            {isNb ? "Slett dokument" : "Delete document"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
