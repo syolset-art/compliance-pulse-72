@@ -63,12 +63,9 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
           </div>
         </div>
 
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+        <AlertDialogFooter>
+          <Button onClick={onClose} className="w-full sm:w-auto sm:ml-auto">
             Lukk vinduet
-          </Button>
-          <Button onClick={handleGoToProfile} className="flex-1">
-            Gå til profilen
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
