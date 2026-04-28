@@ -29,6 +29,52 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   other: "Dokument",
 };
 
+function buildAnalysisSummary(docType: string) {
+  const presets: Record<string, any> = {
+    iso27001: {
+      confirms: ["Gyldig ISO 27001-sertifikat", "Dekker hele tjenesten", "Audit utført"],
+      affects: ["Informasjonssikkerhet", "Styring og kontroll"],
+      score_impact: 10,
+      valid_until: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString(),
+      note: "Bekrefter etablert ISMS hos leverandør.",
+    },
+    soc2: {
+      confirms: ["Ren SOC 2-rapport", "Ingen kritiske avvik"],
+      affects: ["Driftssikkerhet", "Tredjepartsstyring"],
+      score_impact: 9,
+      valid_until: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString(),
+      note: "Erstatter forrige rapport.",
+    },
+    dpa: {
+      confirms: ["Behandlingsgrunnlag", "Lagringstid", "Registrertes rettigheter"],
+      affects: ["Personvern", "Datahåndtering"],
+      score_impact: 7,
+      note: "GDPR art. 28-krav er dekket.",
+    },
+    dpia: {
+      confirms: ["Risikovurdering for behandling utført", "Tiltak identifisert"],
+      affects: ["Personvern"],
+      score_impact: 6,
+    },
+    penetration_test: {
+      confirms: ["Pentest gjennomført", "Funn lukket"],
+      affects: ["Teknisk sikkerhet"],
+      score_impact: 8,
+    },
+    nda: {
+      confirms: ["Signert konfidensialitetsavtale"],
+      affects: ["Juridisk"],
+      score_impact: 3,
+    },
+  };
+  return presets[docType] || {
+    confirms: ["Dokument mottatt og lest"],
+    affects: ["Generell etterlevelse"],
+    score_impact: 4,
+  };
+}
+
+
 export function LaraInboxTab({ assetId, assetName }: Props) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
