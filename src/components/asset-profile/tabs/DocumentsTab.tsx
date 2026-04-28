@@ -221,31 +221,51 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
-      ) : documents.length === 0 ? null : (
+      ) : documents.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-muted/20 px-6 py-10 flex flex-col items-center justify-center text-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              {isNb ? "Ingen dokumenter ennå" : "No documents yet"}
+            </p>
+            <p className="text-xs text-muted-foreground max-w-xs">
+              {isNb
+                ? "Last opp avtaler, sertifiseringer og rapporter for å bygge opp dokumentasjonen."
+                : "Upload agreements, certifications and reports to build the documentation."}
+            </p>
+          </div>
+          {uploadButton}
+        </div>
+      ) : (
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="h-auto bg-transparent p-0 gap-5 border-b border-border w-full justify-start rounded-none">
-            <TabsTrigger
-              value="all"
-              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-            >
-              {isNb ? "Alle" : "All"}
-              <span className="text-muted-foreground/70">{documents.length}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="internal"
-              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-            >
-              {isNb ? "Interne" : "Internal"}
-              <span className="text-muted-foreground/70">{internalDocs.length}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="vendor"
-              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
-            >
-              {isNb ? "Fra leverandør" : "From vendor"}
-              <span className="text-muted-foreground/70">{vendorDocs.length}</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-end justify-between gap-3 border-b border-border">
+            <TabsList className="h-auto bg-transparent p-0 gap-5 justify-start rounded-none border-0">
+              <TabsTrigger
+                value="all"
+                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+              >
+                {isNb ? "Alle" : "All"}
+                <span className="text-muted-foreground/70">{documents.length}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="internal"
+                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+              >
+                {isNb ? "Interne" : "Internal"}
+                <span className="text-muted-foreground/70">{internalDocs.length}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="vendor"
+                className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+              >
+                {isNb ? "Fra leverandør" : "From vendor"}
+                <span className="text-muted-foreground/70">{vendorDocs.length}</span>
+              </TabsTrigger>
+            </TabsList>
+            <div className="pb-2">{uploadButton}</div>
+          </div>
 
           <TabsContent value="all" className="mt-4">
             {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
