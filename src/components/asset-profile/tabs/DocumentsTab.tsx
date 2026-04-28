@@ -185,16 +185,20 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     );
   };
 
+  const uploadButton = (
+    <Button
+      size="sm"
+      onClick={() => setShowUploadDialog(true)}
+      disabled={atLimit}
+      className="h-8 gap-1.5 text-xs"
+    >
+      <Upload className="h-3.5 w-3.5" />
+      {isNb ? "Last opp" : "Upload"}
+    </Button>
+  );
+
   return (
     <div className="space-y-5">
-      {/* Header row */}
-      <div className="flex items-center justify-end gap-3">
-        <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="h-8 gap-1.5 text-xs">
-          <Upload className="h-3.5 w-3.5" />
-          {isNb ? "Last opp" : "Upload"}
-        </Button>
-      </div>
-
       {/* Expired alert */}
       {expiredCount > 0 && (
         <div className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-destructive/5 border border-destructive/15">
