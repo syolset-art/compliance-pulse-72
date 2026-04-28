@@ -56,6 +56,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
