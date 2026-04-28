@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Share2, Download, Loader2 } from "lucide-react";
+import { Share2, Download, Loader2, ScanSearch } from "lucide-react";
 import { ShareReportDialog } from "@/components/regulations/ShareReportDialog";
 import { generateVendorPortfolioReport } from "./generateVendorPortfolioReport";
+import { BulkGapAnalysisDialog } from "./BulkGapAnalysisDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +14,7 @@ interface VendorPortfolioActionsProps {
 export function VendorPortfolioActions({ vendors }: VendorPortfolioActionsProps) {
   const { toast } = useToast();
   const [shareOpen, setShareOpen] = useState(false);
+  const [gapOpen, setGapOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [companyName, setCompanyName] = useState("");
 
@@ -36,6 +38,10 @@ export function VendorPortfolioActions({ vendors }: VendorPortfolioActionsProps)
 
   return (
     <>
+      <Button variant="outline" size="sm" className="gap-2" onClick={() => setGapOpen(true)}>
+        <ScanSearch className="h-4 w-4" />
+        Gap-analyse
+      </Button>
       <Button variant="outline" size="sm" className="gap-2" onClick={() => setShareOpen(true)}>
         <Share2 className="h-4 w-4" />
         Del
@@ -50,6 +56,11 @@ export function VendorPortfolioActions({ vendors }: VendorPortfolioActionsProps)
         onOpenChange={setShareOpen}
         frameworkName="Leverandørportefølje"
         frameworkId="vendor-portfolio"
+      />
+      <BulkGapAnalysisDialog
+        open={gapOpen}
+        onOpenChange={setGapOpen}
+        vendors={vendors}
       />
     </>
   );
