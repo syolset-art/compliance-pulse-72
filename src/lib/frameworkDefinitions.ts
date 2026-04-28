@@ -67,6 +67,14 @@ export const frameworks: Framework[] = [
     estimatedCredits: 15
   },
   {
+    id: 'normen',
+    name: 'Normen for informasjonssikkerhet og personvern (helsesektoren)',
+    description: 'Bransjenorm for informasjonssikkerhet og personvern i helse- og omsorgssektoren',
+    category: 'security',
+    triggerQuestion: 'Behandler virksomheten helse- eller pasientopplysninger?',
+    estimatedCredits: 12
+  },
+  {
     id: 'nsm',
     name: 'NSMs grunnprinsipper',
     description: 'Nasjonal sikkerhetsmyndighets anbefalinger for IKT-sikkerhet',
