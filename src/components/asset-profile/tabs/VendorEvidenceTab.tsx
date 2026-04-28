@@ -22,14 +22,14 @@ export const VendorEvidenceTab = ({ assetId, assetName, vendorName }: VendorEvid
       <section className="rounded-2xl border border-border/60 bg-card/40 p-5 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FolderLock className="h-4 w-4 text-primary" />
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FolderLock className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground tracking-tight">
+              <h3 className="text-base font-semibold text-foreground tracking-tight">
                 {isNb ? "Interne dokumenter" : "Internal documents"}
               </h3>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isNb ? "Dokumenter du har lastet opp selv" : "Documents you have uploaded"}
               </p>
             </div>
@@ -55,14 +55,14 @@ export const VendorEvidenceTab = ({ assetId, assetName, vendorName }: VendorEvid
       {/* Eksterne dokumenter — mottatt og klar for godkjenning */}
       <section className="rounded-2xl border border-warning/25 bg-gradient-to-br from-warning/[0.04] via-card/40 to-transparent p-5 space-y-4">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-warning/15 flex items-center justify-center">
-            <Inbox className="h-4 w-4 text-warning" />
+          <div className="h-9 w-9 rounded-lg bg-warning/15 flex items-center justify-center">
+            <Inbox className="h-5 w-5 text-warning" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground tracking-tight">
+            <h3 className="text-base font-semibold text-foreground tracking-tight">
               {isNb ? "Eksterne dokumenter" : "External documents"}
             </h3>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {isNb
                 ? "Godkjenn for å berike leverandørprofilen og styrke modenheten"
                 : "Approve to enrich the vendor profile and strengthen maturity"}
