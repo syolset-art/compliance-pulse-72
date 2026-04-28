@@ -248,8 +248,8 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                             Avvis
                           </Button>
                           <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => approveMutation.mutate(item)}>
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Godkjenn
+                            <Sparkles className="h-3.5 w-3.5" />
+                            Start analyse
                           </Button>
                         </div>
                       </div>
@@ -411,14 +411,14 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               {/* Footer actions */}
               <div className="px-6 py-3 border-t bg-background flex items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground">
-                  Godkjenn for å koble dokumentet til {assetName}
+                  Start analyse for å la Lara vurdere hvordan dokumentet påvirker leverandørprofilen til {assetName}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => { rejectMutation.mutate(previewItem.id); setPreviewItem(null); }}>
                     <X className="h-3.5 w-3.5 mr-1" /> Avvis
                   </Button>
                   <Button size="sm" onClick={() => { approveMutation.mutate(previewItem); setPreviewItem(null); }}>
-                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Godkjenn og koble til
+                    <Sparkles className="h-3.5 w-3.5 mr-1" /> Start analyse
                   </Button>
                 </div>
               </div>
