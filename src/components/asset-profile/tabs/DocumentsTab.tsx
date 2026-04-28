@@ -229,28 +229,37 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? null : (
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="w-full justify-start h-9 bg-muted/50 p-0.5">
-            <TabsTrigger value="all" className="text-xs gap-1.5 data-[state=active]:bg-background">
+          <TabsList className="h-auto bg-transparent p-0 gap-5 border-b border-border w-full justify-start rounded-none">
+            <TabsTrigger
+              value="all"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Alle" : "All"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{documents.length}</Badge>
+              <span className="text-muted-foreground/70">{documents.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="internal" className="text-xs gap-1.5 data-[state=active]:bg-background">
+            <TabsTrigger
+              value="internal"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Interne" : "Internal"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{internalDocs.length}</Badge>
+              <span className="text-muted-foreground/70">{internalDocs.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="vendor" className="text-xs gap-1.5 data-[state=active]:bg-background">
+            <TabsTrigger
+              value="vendor"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Fra leverandør" : "From vendor"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{vendorDocs.length}</Badge>
+              <span className="text-muted-foreground/70">{vendorDocs.length}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="mt-3">
+          <TabsContent value="all" className="mt-4">
             {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
           </TabsContent>
-          <TabsContent value="internal" className="mt-3">
+          <TabsContent value="internal" className="mt-4">
             {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
           </TabsContent>
-          <TabsContent value="vendor" className="mt-3">
+          <TabsContent value="vendor" className="mt-4">
             {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
           </TabsContent>
         </Tabs>
