@@ -228,15 +228,11 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
               <p className="text-sm font-medium text-foreground mb-1">
                 {isNb ? "Ingen dokumenter ennå" : "No documents yet"}
               </p>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-xs text-muted-foreground">
                 {isNb
                   ? "Last opp avtaler, sertifikater og annen dokumentasjon for denne leverandøren"
                   : "Upload agreements, certificates and other documentation for this vendor"}
               </p>
-              <Button size="sm" variant="outline" onClick={() => setShowUploadDialog(true)} className="gap-1.5">
-                <Upload className="h-3.5 w-3.5" />
-                {isNb ? "Last opp dokument" : "Upload document"}
-              </Button>
             </div>
           </CardContent>
         </Card>
