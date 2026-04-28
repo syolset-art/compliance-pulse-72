@@ -124,6 +124,24 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
 
   const dataProcessors = vendors.filter((v: any) => v.gdpr_role === "databehandler");
 
+  // Lara: detect non-Norwegian vendors among selected and auto-suggest English
+  const NORWEGIAN_HINTS = ["norge", "norway", "no", "nor"];
+  const selectedVendorObjs = vendors.filter((v: any) => selectedVendors.includes(v.id));
+  const nonNorwegianVendors = selectedVendorObjs.filter((v: any) => {
+    const c = (v.country || "").toString().trim().toLowerCase();
+    return c && !NORWEGIAN_HINTS.includes(c);
+  });
+  const suggestEnglish = nonNorwegianVendors.length > 0;
+
+  // Auto-apply suggestion once when vendors change (unless user manually overrode)
+  if (suggestEnglish && !languageOverridden && messageLanguage !== "en") {
+    // defer to avoid render-phase setState warnings
+    queueMicrotask(() => setMessageLanguage("en"));
+  }
+  if (!suggestEnglish && !languageOverridden && messageLanguage !== (isNb ? "nb" : "en")) {
+    queueMicrotask(() => setMessageLanguage(isNb ? "nb" : "en"));
+  }
+
   const toggleVendor = (id: string) => {
     setSelectedVendors((prev) =>
       prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
