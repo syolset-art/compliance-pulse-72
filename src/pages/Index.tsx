@@ -80,7 +80,7 @@ const Index = () => {
       {/* Personal greeting */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-          {getGreeting(isNb)}, {firstName}
+          {getGreeting(isNb)}, {displayName}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">{formatDate(isNb)}</p>
       </div>
