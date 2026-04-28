@@ -157,62 +157,95 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               <p className="text-sm">Ingen ventende dokumenter i innboksen</p>
             </div>
           ) : (
-            pendingItems.map((item: any) => (
-              <div key={item.id} className="p-4 rounded-lg border border-border bg-card hover:shadow-sm transition-all">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <button
-                      onClick={() => setPreviewItem(item)}
-                      className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors flex-shrink-0"
-                      aria-label="Vis dokument"
-                    >
-                      <FileText className="h-4 w-4 text-primary" />
-                    </button>
-                    <div className="min-w-0">
-                      <button
-                        onClick={() => setPreviewItem(item)}
-                        className="text-sm font-medium truncate text-left hover:text-primary hover:underline transition-colors"
-                      >
-                        {item.file_name || item.subject}
-                      </button>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Fra: {item.sender_name || item.sender_email} · {new Date(item.received_at).toLocaleDateString(locale)}
-                      </p>
-                      {item.subject && <p className="text-xs text-muted-foreground mt-0.5">Emne: {item.subject}</p>}
+            pendingItems.map((item: any) => {
+              const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
+              const fileSize = item.file_size_kb ? `${item.file_size_kb} KB` : "184 KB";
+              const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
 
-                      {/* Lara suggestion */}
-                      <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-primary/5 border border-primary/10">
-                        <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                        <p className="text-xs">
-                          <span className="font-medium">Lara foreslår:</span> Koble til <span className="font-semibold">{assetName}</span> som{" "}
-                          <Badge variant="secondary" className="text-[13px] mx-0.5">{DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}</Badge>
+              return (
+                <div key={item.id} className="rounded-xl border border-warning/40 bg-card overflow-hidden">
+                  {/* Top row: file info */}
+                  <div className="flex items-start justify-between gap-3 p-4">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate">{item.file_name || item.subject}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {receivedDate} · {fileSize} · {item.sender_email}
                         </p>
-                        {item.confidence_score && (
-                          <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] ml-auto flex-shrink-0">
-                            {Math.round(item.confidence_score * 100)}% sikker
-                          </Badge>
-                        )}
                       </div>
                     </div>
+                    <Badge variant="outline" className="text-[11px] border-warning/50 text-warning-foreground bg-warning/10 flex-shrink-0">
+                      Venter
+                    </Badge>
                   </div>
 
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setPreviewItem(item)}>
-                      <Eye className="h-3.5 w-3.5 mr-1" />
-                      Vis
-                    </Button>
-                    <Button size="sm" className="h-8 text-xs" onClick={() => approveMutation.mutate(item)}>
-                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                      Godkjenn
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => rejectMutation.mutate(item.id)}>
-                      <X className="h-3.5 w-3.5 mr-1" />
-                      Avvis
-                    </Button>
+                  {/* Lara analysis card */}
+                  <div className="mx-4 mb-3 rounded-lg bg-primary/5 border border-primary/10 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Sparkles className="h-3 w-3 text-primary" />
+                      </div>
+                      <p className="text-sm font-medium">Lara har lest dokumentet</p>
+                    </div>
+
+                    <dl className="space-y-2 text-xs">
+                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                        <dt className="text-muted-foreground">Dokumenttype</dt>
+                        <dd className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="bg-background text-[11px]">{docTypeLabel}</Badge>
+                          {item.matched_document_type !== "dpa" && (
+                            <span className="text-muted-foreground">(ikke DPA)</span>
+                          )}
+                        </dd>
+                      </div>
+                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                        <dt className="text-muted-foreground">Gjelder</dt>
+                        <dd className="text-foreground">{assetName} sine egne interne system og ansatte – ikke kundedata</dd>
+                      </div>
+                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                        <dt className="text-muted-foreground">Bekrefter</dt>
+                        <dd className="text-foreground">Behandlingsgrunnlag, lagringstid, registrertes rettigheter</dd>
+                      </div>
+                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                        <dt className="text-muted-foreground">Berører kontroller</dt>
+                        <dd className="text-foreground">Personvern og datahåndtering · Identitet og tilgang</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  {/* Warning note */}
+                  <div className="mx-4 mb-3 text-xs text-warning-foreground/90 leading-relaxed">
+                    <span className="font-medium">Merk:</span> Forespørselen ba om DPA. Dette er en personvernerklæring, ikke en databehandleravtale. Vurder om begge trengs.
+                  </div>
+
+                  {/* Footer actions */}
+                  <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-border bg-muted/20">
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full gap-1.5" onClick={() => setPreviewItem(item)}>
+                        <Eye className="h-3.5 w-3.5" />
+                        Les dokumentet
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full gap-1.5" onClick={() => toast.info("Demo: Spør Lara om dokumentet")}>
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                        Spør Lara
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
+                        Avvis
+                      </Button>
+                      <Button size="sm" className="h-8 text-xs rounded-full bg-success hover:bg-success/90 text-success-foreground gap-1.5" onClick={() => approveMutation.mutate(item)}>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Godkjenn og legg til
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </CardContent>
       </Card>
