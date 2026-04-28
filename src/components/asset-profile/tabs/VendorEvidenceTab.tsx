@@ -63,7 +63,9 @@ export const VendorEvidenceTab = ({ assetId, assetName, vendorName }: VendorEvid
               {isNb ? "Eksterne dokumenter" : "External documents"}
             </h3>
             <p className="text-[11px] text-muted-foreground">
-              {isNb ? "Mottatt fra leverandør · klar for godkjenning" : "Received from vendor · ready for approval"}
+              {isNb
+                ? "Godkjenn for å berike leverandørprofilen og styrke modenheten"
+                : "Approve to enrich the vendor profile and strengthen maturity"}
             </p>
           </div>
         </div>
