@@ -1609,6 +1609,9 @@ export type Database = {
       }
       lara_inbox: {
         Row: {
+          analysis_status: string
+          analysis_summary: Json | null
+          analyzed_at: string | null
           confidence_score: number | null
           created_at: string | null
           file_name: string | null
@@ -1625,6 +1628,9 @@ export type Database = {
           subject: string | null
         }
         Insert: {
+          analysis_status?: string
+          analysis_summary?: Json | null
+          analyzed_at?: string | null
           confidence_score?: number | null
           created_at?: string | null
           file_name?: string | null
@@ -1641,6 +1647,9 @@ export type Database = {
           subject?: string | null
         }
         Update: {
+          analysis_status?: string
+          analysis_summary?: Json | null
+          analyzed_at?: string | null
           confidence_score?: number | null
           created_at?: string | null
           file_name?: string | null
