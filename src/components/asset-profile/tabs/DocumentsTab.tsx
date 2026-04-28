@@ -222,22 +222,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-muted/20 px-6 py-10 flex flex-col items-center justify-center text-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <FileText className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">
-              {isNb ? "Ingen dokumenter ennå" : "No documents yet"}
-            </p>
-            <p className="text-xs text-muted-foreground max-w-xs">
-              {isNb
-                ? "Last opp avtaler, sertifiseringer og rapporter for å bygge opp dokumentasjonen."
-                : "Upload agreements, certifications and reports to build the documentation."}
-            </p>
-          </div>
-          {uploadButton}
-        </div>
+        <div className="flex items-center justify-end">{uploadButton}</div>
       ) : (
         <Tabs defaultValue="all" className="w-full">
           <div className="flex items-end justify-between gap-3 border-b border-border">
