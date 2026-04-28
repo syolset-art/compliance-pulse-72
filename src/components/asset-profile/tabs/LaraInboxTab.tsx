@@ -170,15 +170,6 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               const fileSize = item.file_size_kb ? `${item.file_size_kb} KB` : "184 KB";
               const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
 
-              return (
-                <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  {/* Top row: file info */}
-                  <div className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
               const isExpanded = expandedIds.has(item.id);
 
               return (
