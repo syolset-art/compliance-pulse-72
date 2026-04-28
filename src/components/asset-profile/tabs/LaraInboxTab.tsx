@@ -137,16 +137,20 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
       {/* Pending items */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <img src={laraButterfly} alt="Lara" className="h-5 w-5" />
-            Lara Innboks
-            {pendingItems.length > 0 && (
-              <Badge className="bg-primary/15 text-primary border-primary/30 text-[13px]">{pendingItems.length} nye</Badge>
-            )}
-          </CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">
-            Dokumenter mottatt på e-post som Lara har analysert og foreslått matching for.
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <img src={laraButterfly} alt="Lara" className="h-5 w-5" />
+              Klar for godkjenning
+              {pendingItems.length > 0 && (
+                <Badge className="bg-warning/15 text-warning-foreground border-warning/30 text-[11px] rounded-full">
+                  {pendingItems.length} venter
+                </Badge>
+              )}
+            </CardTitle>
+            <p className="text-[11px] text-muted-foreground">
+              Mottatt via forespørsel · totto@mynder.no
+            </p>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {isLoading ? (
