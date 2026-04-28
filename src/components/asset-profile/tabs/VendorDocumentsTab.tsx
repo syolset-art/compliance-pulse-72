@@ -22,9 +22,6 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
       <Separator />
 
       <section>
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          {isNb ? "Innboks" : "Inbox"}
-        </h3>
         <LaraInboxTab assetId={assetId} assetName={assetName} />
       </section>
     </div>
