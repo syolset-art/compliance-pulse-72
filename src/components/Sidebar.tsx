@@ -648,8 +648,6 @@ const SidebarContent = () => {
                       { name: "Dashbord", href: "/msp-partner", icon: LayoutDashboard },
                       { name: "Kunder", href: "/msp-dashboard", icon: Users },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
-                      { name: "ROI-kalkulator", href: "/msp-roi", icon: FileBarChart },
-                      { name: "Salgsguide", href: "/msp-sales-guide", icon: FileText },
                     ].map((item) => {
                       const isActive = location.pathname === item.href;
                       return (
