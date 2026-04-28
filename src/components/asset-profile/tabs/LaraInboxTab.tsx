@@ -543,14 +543,14 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               {/* Footer actions */}
               <div className="px-6 py-3 border-t bg-background flex items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground">
-                  Start analyse for å la Lara vurdere hvordan dokumentet påvirker leverandørprofilen til {assetName}
+                  Godkjenn for å berike trust score til {assetName}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => { rejectMutation.mutate(previewItem.id); setPreviewItem(null); }}>
                     <X className="h-3.5 w-3.5 mr-1" /> Avvis
                   </Button>
                   <Button size="sm" onClick={() => { approveMutation.mutate(previewItem); setPreviewItem(null); }}>
-                    <Sparkles className="h-3.5 w-3.5 mr-1" /> Start analyse
+                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Godkjenn og berik trust score
                   </Button>
                 </div>
               </div>
