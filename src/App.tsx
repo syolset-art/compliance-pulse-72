@@ -28,7 +28,7 @@ import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
 import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
-import RegulationsSubPage from "./pages/RegulationsSubPage";
+
 import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
@@ -121,10 +121,6 @@ const App = () => (
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
                   <Route path="/regulations" element={<Regulations />} />
-                  <Route path="/regulations/gap-analysis" element={<RegulationsSubPage variant="gap-analysis" />} />
-                  <Route path="/regulations/measurements" element={<RegulationsSubPage variant="measurements" />} />
-                  <Route path="/regulations/evidence" element={<RegulationsSubPage variant="evidence" />} />
-                  <Route path="/regulations/archive" element={<RegulationsSubPage variant="archive" />} />
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
