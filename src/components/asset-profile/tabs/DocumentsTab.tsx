@@ -109,71 +109,78 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
     }
 
     return (
-      <div className="rounded-lg border overflow-x-auto">
-        <Table className="min-w-[580px]">
-          <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Dokument" : "Document"}</TableHead>
-              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Type" : "Type"}</TableHead>
-              <TableHead className="text-[13px] font-semibold uppercase hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
-              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Status" : "Status"}</TableHead>
-              <TableHead className="text-[13px] font-semibold uppercase">{isNb ? "Tilgang" : "Access"}</TableHead>
-              <TableHead className="w-16" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {docs.map((doc: any) => {
-              const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
-              return (
-                <TableRow key={doc.id} className="group hover:bg-accent/30">
-                  <TableCell className="py-2.5">
-                    <div
-                      className={`flex items-center gap-2 ${isExpired ? "cursor-pointer" : ""}`}
-                      onClick={() => isExpired && setDetailDoc(doc)}
-                    >
-                      <FileCheck className="h-4 w-4 text-primary shrink-0" />
-                      <div className="min-w-0">
-                        <span className={`text-sm font-medium truncate block max-w-[200px] ${isExpired ? "text-destructive" : ""}`}>
-                          {doc.file_name}
-                        </span>
-                        <span className="text-[13px] text-muted-foreground hidden md:block">
-                          {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
-                        </span>
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table className="min-w-[580px]">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-border">
+                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Dokument" : "Document"}</TableHead>
+                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Type" : "Type"}</TableHead>
+                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9 hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
+                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Status" : "Status"}</TableHead>
+                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Tilgang" : "Access"}</TableHead>
+                <TableHead className="w-10" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {docs.map((doc: any, idx: number) => {
+                const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                return (
+                  <TableRow
+                    key={doc.id}
+                    className={`group hover:bg-muted/30 transition-colors ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
+                  >
+                    <TableCell className="py-3">
+                      <div
+                        className={`flex items-center gap-2.5 ${isExpired ? "cursor-pointer" : ""}`}
+                        onClick={() => isExpired && setDetailDoc(doc)}
+                      >
+                        <div className="h-7 w-7 rounded-md bg-primary/8 flex items-center justify-center shrink-0">
+                          <FileCheck className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className={`text-sm font-medium truncate block max-w-[220px] ${isExpired ? "text-destructive" : "text-foreground"}`}>
+                            {doc.file_name}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground hidden md:block">
+                            {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-2.5">
-                    <Badge variant="secondary" className="text-[13px]">{getTypeLabel(doc.document_type)}</Badge>
-                  </TableCell>
-                  <TableCell className="py-2.5 text-sm text-muted-foreground hidden sm:table-cell">
-                    {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
-                  </TableCell>
-                  <TableCell className="py-2.5">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
-                  <TableCell className="py-2.5">
-                    <DocumentSharingPopover
-                      docId={doc.id}
-                      assetId={assetId}
-                      documentType={doc.document_type}
-                      visibility={doc.visibility || "private"}
-                      sharedWithEmails={(doc as any).shared_with_emails || []}
-                      isNb={isNb}
-                    />
-                  </TableCell>
-                  <TableCell className="py-2.5">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive transition-colors"
-                      onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">{getTypeLabel(doc.document_type)}</span>
+                    </TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground hidden sm:table-cell">
+                      {doc.valid_to ? new Date(doc.valid_to).toLocaleDateString(locale) : "—"}
+                    </TableCell>
+                    <TableCell className="py-3">{getStatusBadge(doc.status, doc.valid_to, isNb)}</TableCell>
+                    <TableCell className="py-3">
+                      <DocumentSharingPopover
+                        docId={doc.id}
+                        assetId={assetId}
+                        documentType={doc.document_type}
+                        visibility={doc.visibility || "private"}
+                        sharedWithEmails={(doc as any).shared_with_emails || []}
+                        isNb={isNb}
+                      />
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     );
   };
@@ -181,18 +188,18 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
   return (
     <div className="space-y-5">
       {/* Header row */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-base font-semibold tracking-tight text-foreground">
             {isNb ? "Dokumentasjon" : "Documentation"}
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-1">
             {isNb
               ? `${documents.length} dokumenter · ${expiredCount > 0 ? `${expiredCount} utløpt` : "alle gyldige"}`
               : `${documents.length} documents · ${expiredCount > 0 ? `${expiredCount} expired` : "all valid"}`}
           </p>
         </div>
-        <Button size="sm" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="gap-1.5">
+        <Button size="sm" variant="outline" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="h-8 gap-1.5 text-xs">
           <Upload className="h-3.5 w-3.5" />
           {isNb ? "Last opp" : "Upload"}
         </Button>
@@ -222,28 +229,37 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? null : (
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="w-full justify-start h-9 bg-muted/50 p-0.5">
-            <TabsTrigger value="all" className="text-xs gap-1.5 data-[state=active]:bg-background">
+          <TabsList className="h-auto bg-transparent p-0 gap-5 border-b border-border w-full justify-start rounded-none">
+            <TabsTrigger
+              value="all"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Alle" : "All"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{documents.length}</Badge>
+              <span className="text-muted-foreground/70">{documents.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="internal" className="text-xs gap-1.5 data-[state=active]:bg-background">
+            <TabsTrigger
+              value="internal"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Interne" : "Internal"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{internalDocs.length}</Badge>
+              <span className="text-muted-foreground/70">{internalDocs.length}</span>
             </TabsTrigger>
-            <TabsTrigger value="vendor" className="text-xs gap-1.5 data-[state=active]:bg-background">
+            <TabsTrigger
+              value="vendor"
+              className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
+            >
               {isNb ? "Fra leverandør" : "From vendor"}
-              <Badge variant="secondary" className="text-[13px] h-4 px-1">{vendorDocs.length}</Badge>
+              <span className="text-muted-foreground/70">{vendorDocs.length}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="mt-3">
+          <TabsContent value="all" className="mt-4">
             {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
           </TabsContent>
-          <TabsContent value="internal" className="mt-3">
+          <TabsContent value="internal" className="mt-4">
             {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
           </TabsContent>
-          <TabsContent value="vendor" className="mt-3">
+          <TabsContent value="vendor" className="mt-4">
             {renderDocTable(vendorDocs, isNb ? "Ingen dokumenter mottatt fra leverandøren ennå" : "No documents received from vendor yet")}
           </TabsContent>
         </Tabs>
