@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, X, Mail, Sparkles, FileText, Eye, Download, Shield, Calendar, Building2, ChevronDown } from "lucide-react";
+import { CheckCircle2, X, Mail, Sparkles, FileText, Eye, Download, Shield, Calendar, Building2, ChevronDown, Loader2, Clock, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
