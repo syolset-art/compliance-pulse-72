@@ -23,7 +23,7 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FolderLock className="h-4.5 w-4.5 text-primary" />
+              <FolderLock className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h3 className="text-base font-semibold text-foreground tracking-tight">
@@ -56,7 +56,7 @@ export const VendorDocumentsTab = ({ assetId, assetName, vendorName }: VendorDoc
       <section className="rounded-2xl border border-warning/25 bg-gradient-to-br from-warning/[0.04] via-card/40 to-transparent p-5 space-y-4">
         <div className="flex items-center gap-2.5">
           <div className="h-9 w-9 rounded-lg bg-warning/15 flex items-center justify-center">
-            <Inbox className="h-4.5 w-4.5 text-warning" />
+            <Inbox className="h-5 w-5 text-warning" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-foreground tracking-tight">
