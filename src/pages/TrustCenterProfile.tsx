@@ -29,6 +29,7 @@ import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusB
 import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
+import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -119,7 +120,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     enabled: !!asset?.id,
   });
 
-  const { POLICY_TYPES: TC_POLICY_TYPES, CERT_TYPES: TC_CERT_TYPES } = require("@/lib/trustDocumentTypes");
   const policies = vendorDocs.filter((d: any) => TC_POLICY_TYPES.includes(d.document_type));
   const certs = vendorDocs.filter((d: any) => TC_CERT_TYPES.includes(d.document_type));
   const otherDocs = vendorDocs.filter((d: any) =>
