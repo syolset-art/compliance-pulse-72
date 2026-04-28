@@ -511,12 +511,6 @@ const Reports = () => {
             </TabsContent>
           </Tabs>
 
-          <div className="flex justify-center pt-4 pb-8">
-            <Button variant="outline" className="w-full sm:w-auto">
-              <FileText className="h-4 w-4 mr-2" />
-              Generer ny rapport
-            </Button>
-          </div>
         </div>
       </main>
     </div>
