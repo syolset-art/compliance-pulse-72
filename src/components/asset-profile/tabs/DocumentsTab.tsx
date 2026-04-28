@@ -48,7 +48,7 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
   return <Badge className="bg-status-closed/15 text-status-closed dark:text-status-closed border-status-closed/30 text-[13px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
 }
 
-export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabProps) {
+export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton }: DocumentsTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
