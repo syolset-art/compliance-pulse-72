@@ -208,8 +208,13 @@ const SidebarContent = () => {
   const { activeOrg } = useActiveOrganization();
   const companyName = activeOrg?.name || null;
 
-  const isManagementActive = managementNav.some(item => location.pathname === item.href);
+  const isManagementActive = managementNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
+
+  // Keep the section open when navigating between its sub-routes (e.g. /reports → /reports/compliance)
+  useEffect(() => {
+    if (isManagementActive) setManagementOpen(true);
+  }, [isManagementActive]);
 
   // "Flere tjenester" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? managementNav : [];
