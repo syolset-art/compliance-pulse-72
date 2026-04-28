@@ -638,7 +638,6 @@ export default function Systems() {
 
                 {/* Risk */}
                 <div className="hidden sm:flex items-center gap-2">
-                  <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${risk.dotClass}`} />
                 </div>
 
