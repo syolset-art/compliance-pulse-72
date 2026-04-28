@@ -48,12 +48,7 @@ const Index = () => {
   const { user } = useAuth();
   const { activeOrg } = useActiveOrganization();
 
-  const firstName =
-    (user?.user_metadata?.first_name as string) ||
-    (user?.user_metadata?.full_name as string)?.split(" ")[0] ||
-    user?.email?.split("@")[0] ||
-    activeOrg?.name ||
-    (isNb ? "der" : "there");
+  const displayName = "Synnøve Olset";
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
   const [isAddWorkAreaOpen, setIsAddWorkAreaOpen] = useState(false);
@@ -85,7 +80,7 @@ const Index = () => {
       {/* Personal greeting */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-          {getGreeting(isNb)}, {firstName}
+          {getGreeting(isNb)}, {displayName}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">{formatDate(isNb)}</p>
       </div>
