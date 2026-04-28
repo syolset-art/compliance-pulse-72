@@ -105,12 +105,16 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [templates, setTemplates] = useState<SavedTemplate[]>(getSavedTemplates);
 
+  // Lara language suggestion
+  const [messageLanguage, setMessageLanguage] = useState<"nb" | "en">(isNb ? "nb" : "en");
+  const [languageOverridden, setLanguageOverridden] = useState(false);
+
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendors-for-requests"],
     queryFn: async () => {
       const { data } = await supabase
         .from("assets")
-        .select("id, name, vendor_category, gdpr_role")
+        .select("id, name, vendor_category, gdpr_role, country")
         .eq("asset_type", "vendor")
         .order("name");
       return data || [];
