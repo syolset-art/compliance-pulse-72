@@ -47,6 +47,7 @@ import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActiv
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
 import { VendorTasksTab } from "@/components/asset-profile/tabs/VendorTasksTab";
+import { VendorGapAnalysisTab } from "@/components/asset-profile/tabs/VendorGapAnalysisTab";
 import type { VendorActivity } from "@/utils/vendorActivityData";
 import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { toast } from "sonner";
@@ -200,7 +201,7 @@ const AssetTrustProfile = () => {
   }, [asset]);
 
   // ── Vendor tabs ──
-  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'evidence', 'requests'];
+  const DEFAULT_VISIBLE_TABS = ['overview', 'usage', 'evidence', 'gap-analysis', 'requests'];
   const LOCKED_TAB = 'overview'; // always visible
   const MAX_VISIBLE_TABS = 7;
   const STORAGE_KEY = 'mynder_vendor_tab_prefs_v2';
@@ -211,6 +212,7 @@ const AssetTrustProfile = () => {
     { value: 'overview', label: isNb ? 'Veiledning' : 'Guidance', labelFull: isNb ? 'Veiledning fra Mynder' : 'Guidance from Mynder' },
     { value: 'usage', label: isNb ? 'Bruk' : 'Usage', labelFull: isNb ? 'Bruk og kontekst' : 'Usage & Context' },
     { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
+    { value: 'gap-analysis', label: isNb ? 'Gap-analyse' : 'Gap analysis', labelFull: isNb ? 'Gap-analyse mot rammeverk' : 'Gap analysis vs framework' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
     { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
@@ -591,6 +593,9 @@ const AssetTrustProfile = () => {
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-6">
                   <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
+                </TabsContent>
+                <TabsContent value="gap-analysis" className="mt-6">
+                  <VendorGapAnalysisTab assetId={asset.id} assetName={asset.name} />
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <CustomerRequestsTab />
