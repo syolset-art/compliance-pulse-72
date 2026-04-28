@@ -365,6 +365,53 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
             <p className="text-xs text-muted-foreground">
               {selectedVendors.length} {isNb ? "valgt" : "selected"}
             </p>
+
+            {/* Lara language suggestion */}
+            {selectedVendors.length > 0 && suggestEnglish && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                      <Languages className="h-3.5 w-3.5" />
+                      {isNb ? "Lara foreslår engelsk" : "Lara suggests English"}
+                    </p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {isNb
+                        ? `${nonNorwegianVendors.length} av ${selectedVendors.length} valgte leverandør${selectedVendors.length > 1 ? "er" : ""} er ikke registrert i Norge (f.eks. ${nonNorwegianVendors.slice(0, 2).map((v: any) => `${v.name}${v.country ? ` – ${v.country}` : ""}`).join(", ")}). Meldingen sendes på engelsk.`
+                        : `${nonNorwegianVendors.length} of ${selectedVendors.length} selected vendor${selectedVendors.length > 1 ? "s are" : " is"} not registered in Norway (e.g. ${nonNorwegianVendors.slice(0, 2).map((v: any) => `${v.name}${v.country ? ` – ${v.country}` : ""}`).join(", ")}). The message will be sent in English.`}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pl-6">
+                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {isNb ? "Språk" : "Language"}:
+                  </span>
+                  <div className="inline-flex rounded-md border border-border bg-background p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => { setMessageLanguage("nb"); setLanguageOverridden(true); }}
+                      className={`px-2.5 py-0.5 text-xs rounded ${messageLanguage === "nb" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      {isNb ? "Norsk" : "Norwegian"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMessageLanguage("en"); setLanguageOverridden(true); }}
+                      className={`px-2.5 py-0.5 text-xs rounded ${messageLanguage === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      English
+                    </button>
+                  </div>
+                  {!languageOverridden && (
+                    <Badge variant="secondary" className="text-[10px] gap-1">
+                      <Sparkles className="h-2.5 w-2.5" />
+                      {isNb ? "Foreslått av Lara" : "Suggested by Lara"}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
