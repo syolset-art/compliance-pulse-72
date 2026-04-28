@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 
 export interface TPRMImpactData {
   controlsBefore: number;
@@ -31,14 +31,7 @@ interface ApprovalSuccessDialogProps {
 }
 
 export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogProps) => {
-  const navigate = useNavigate();
-
   if (!data) return null;
-
-  const handleGoToProfile = () => {
-    onClose();
-    navigate(`/assets/${data.assetId}?tab=documents`);
-  };
 
   return (
     <AlertDialog open={!!data} onOpenChange={(open) => !open && onClose()}>
@@ -63,12 +56,9 @@ export const ApprovalSuccessDialog = ({ data, onClose }: ApprovalSuccessDialogPr
           </div>
         </div>
 
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+        <AlertDialogFooter>
+          <Button onClick={onClose} className="w-full sm:w-auto sm:ml-auto">
             Lukk vinduet
-          </Button>
-          <Button onClick={handleGoToProfile} className="flex-1">
-            Gå til profilen
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
