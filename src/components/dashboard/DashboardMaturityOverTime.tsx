@@ -85,20 +85,60 @@ const ACTIVITIES: ScoreActivity[] = [
   },
 ];
 
-function generateSeries(range: Range, currentScore: number) {
-  const points = range === "7d" ? 7 : range === "30d" ? 8 : range === "90d" ? 9 : 12;
-  const data: { label: string; score: number; impact?: "pos" | "neg" }[] = [];
-  for (let i = 0; i < points; i++) {
-    const factor = (i / (points - 1)) * 0.15 + 0.85;
-    const jitter = Math.sin(i * 1.7) * 2;
-    const score = Math.round(Math.max(60, Math.min(100, currentScore * factor + jitter)));
-    data.push({
-      label: i === 0 ? "28. mar" : i === Math.floor(points / 2) ? "12. apr" : i === points - 1 ? "i dag" : "",
-      score,
-      impact: i === Math.floor(points / 2) ? "neg" : i === points - 2 || i === points - 1 ? "pos" : undefined,
-    });
-  }
-  return data;
+// Pre-baked demo curves per range — gir en penere, mer fortellende graf
+// med tydelig oppadgående trend, et lite dropp og en sluttoppgang.
+const DEMO_CURVES: Record<Range, { label: string; score: number; impact?: "pos" | "neg" }[]> = {
+  "7d": [
+    { label: "ma", score: 78 },
+    { label: "ti", score: 79 },
+    { label: "on", score: 77, impact: "neg" },
+    { label: "to", score: 80 },
+    { label: "fr", score: 81 },
+    { label: "lø", score: 81 },
+    { label: "i dag", score: 82, impact: "pos" },
+  ],
+  "30d": [
+    { label: "28. mar", score: 74 },
+    { label: "", score: 75 },
+    { label: "", score: 76 },
+    { label: "5. apr", score: 78 },
+    { label: "", score: 77, impact: "neg" },
+    { label: "12. apr", score: 79 },
+    { label: "", score: 80 },
+    { label: "19. apr", score: 81 },
+    { label: "", score: 81 },
+    { label: "i dag", score: 82, impact: "pos" },
+  ],
+  "90d": [
+    { label: "feb", score: 64 },
+    { label: "", score: 66 },
+    { label: "", score: 68 },
+    { label: "mar", score: 70 },
+    { label: "", score: 72, impact: "pos" },
+    { label: "", score: 71, impact: "neg" },
+    { label: "apr", score: 75 },
+    { label: "", score: 78 },
+    { label: "", score: 80 },
+    { label: "i dag", score: 82, impact: "pos" },
+  ],
+  "12m": [
+    { label: "mai", score: 52 },
+    { label: "jun", score: 55 },
+    { label: "jul", score: 58, impact: "pos" },
+    { label: "aug", score: 60 },
+    { label: "sep", score: 63 },
+    { label: "okt", score: 65 },
+    { label: "nov", score: 68 },
+    { label: "des", score: 70, impact: "pos" },
+    { label: "jan", score: 72 },
+    { label: "feb", score: 75 },
+    { label: "mar", score: 78, impact: "neg" },
+    { label: "i dag", score: 82, impact: "pos" },
+  ],
+};
+
+function generateSeries(range: Range, _currentScore: number) {
+  return DEMO_CURVES[range];
 }
 
 export function DashboardMaturityOverTime() {
@@ -180,8 +220,8 @@ export function DashboardMaturityOverTime() {
               tickLine={false}
             />
             <YAxis
-              domain={[60, 100]}
-              ticks={[70, 80, 90]}
+              domain={[40, 100]}
+              ticks={[50, 65, 80, 95]}
               tickFormatter={(v) => `${v}%`}
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
