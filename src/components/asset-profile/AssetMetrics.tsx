@@ -36,7 +36,7 @@ interface AssetMetricsProps {
 export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTab }: AssetMetricsProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
 
   const { data: expiredCount = 0 } = useQuery({
     queryKey: ["expired-docs-count", asset.id],
@@ -109,10 +109,10 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTa
             size="sm"
             variant="outline"
             className="h-7 text-xs gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
-            onClick={() => setRequestDialogOpen(true)}
+            onClick={() => setActivityDialogOpen(true)}
           >
-            <Send className="h-3 w-3" aria-hidden="true" />
-            {isNb ? "Meldinger" : "Messages"}
+            <PenLine className="h-3 w-3" aria-hidden="true" />
+            {isNb ? "Registrer aktivitet" : "Log activity"}
           </Button>
         </div>
       )}
@@ -127,12 +127,10 @@ export function AssetMetrics({ asset, tasksCount, onTrustMetrics, onNavigateToTa
         onNavigateToTab={onNavigateToTab}
       />
 
-      <RequestUpdateDialog
-        open={requestDialogOpen}
-        onOpenChange={setRequestDialogOpen}
-        assetId={asset.id}
-        assetName={asset.name}
-        vendorName={asset.vendor || undefined}
+      <RegisterActivityDialog
+        open={activityDialogOpen}
+        onOpenChange={setActivityDialogOpen}
+        onSubmit={() => setActivityDialogOpen(false)}
       />
     </div>
   );
