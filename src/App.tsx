@@ -28,7 +28,7 @@ import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
 import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
-import RegulationsSubPage from "./pages/RegulationsSubPage";
+
 import Subscriptions from "./pages/Subscriptions";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";

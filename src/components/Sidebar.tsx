@@ -15,10 +15,6 @@ import {
   Scale,
   CreditCard,
   FileBarChart,
-  GitCompare,
-  BarChart3,
-  FileCheck,
-  Archive,
   HelpCircle,
   LogOut,
   
