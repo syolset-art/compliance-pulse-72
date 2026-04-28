@@ -1228,10 +1228,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 </button>
                               ) : (
                                 item.items.map((doc: any) => (
-                                  <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
+                                  <button
+                                    key={doc.id}
+                                    onClick={() => setPreviewDoc(doc)}
+                                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left"
+                                  >
                                     <div className="flex items-center gap-2.5 min-w-0">
                                       <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                      <span className="text-xs font-medium text-foreground truncate">{doc.file_name}</span>
+                                      <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                       {doc.status && (
@@ -1248,7 +1252,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                         </span>
                                       )}
                                     </div>
-                                  </div>
+                                  </button>
                                 ))
                               )}
                             </div>
