@@ -9,7 +9,7 @@ import {
   Send, CheckCircle2, XCircle,
   Shield, AlertTriangle,
   Building2, Briefcase, ChevronDown, ChevronUp, BookOpen, HelpCircle, Eye,
-  ArrowRight,
+  ArrowRight, PenLine,
 } from "lucide-react";
 import { CONTROL_NAV_MAP } from "@/lib/trustControlDefinitions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,7 +17,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RequestUpdateDialog } from "../RequestUpdateDialog";
+import { RegisterActivityDialog } from "../RegisterActivityDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 import { VendorTPRMStatus } from "@/components/trust-controls/VendorTPRMStatus";
 import { VendorTrustScoreCard } from "@/components/trust-controls/VendorTrustScoreCard";
@@ -55,8 +55,7 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const evaluation = useTrustControlEvaluation(asset.id);
-  const [requestOpen, setRequestOpen] = useState(false);
-  const [requestType, setRequestType] = useState<string | undefined>();
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
   // tasksExpanded now managed inside VendorTPRMStatus
   const [frameworksExpanded, setFrameworksExpanded] = useState(false);
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
@@ -321,10 +320,10 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
             size="sm"
             variant="outline"
             className="h-7 text-xs gap-1.5 border-destructive/30 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
-            onClick={() => setRequestOpen(true)}
+            onClick={() => setActivityDialogOpen(true)}
           >
-            <Send className="h-3 w-3" />
-            {isNb ? "Meldinger" : "Messages"}
+            <PenLine className="h-3 w-3" />
+            {isNb ? "Registrer aktivitet" : "Log activity"}
           </Button>
         </div>
       )}
@@ -499,18 +498,11 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
         )}
       </section>
 
-      {requestOpen && (
-        <RequestUpdateDialog
-          assetId={asset.id}
-          assetName={asset.name || ""}
-          vendorName={asset.vendor || undefined}
-          preselectedType={requestType}
-          contactPerson={asset.contact_person}
-          contactEmail={asset.contact_email}
-          open={requestOpen}
-          onOpenChange={setRequestOpen}
-        />
-      )}
+      <RegisterActivityDialog
+        open={activityDialogOpen}
+        onOpenChange={setActivityDialogOpen}
+        onSubmit={() => setActivityDialogOpen(false)}
+      />
     </div>
   );
 };

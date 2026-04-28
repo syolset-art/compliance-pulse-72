@@ -358,15 +358,6 @@ const AssetTrustProfile = () => {
                     <PenLine className="h-4 w-4" />
                     {isNb ? "Registrer aktivitet" : "Log activity"}
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setRequestDialogOpen(true)}
-                    className="gap-2"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {isNb ? "Meldinger" : "Messages"}
-                    <Sparkles className="h-3 w-3 text-primary/60" />
-                  </Button>
                 </div>
               )}
             </div>

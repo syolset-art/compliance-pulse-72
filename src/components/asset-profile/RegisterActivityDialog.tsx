@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X } from "lucide-react";
+import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X, Upload, FileText, Check } from "lucide-react";
 import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
 import { ACTIVITY_STATUS_CONFIG } from "@/utils/vendorActivityData";
+import { LARA_EMAIL_SUGGESTIONS, EMAIL_TEMPLATES } from "@/utils/laraEmailSuggestions";
 
 type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
@@ -71,12 +73,19 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [criticality, setCriticality] = useState<Criticality | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [titleError, setTitleError] = useState(false);
+  const [appliedSuggestionId, setAppliedSuggestionId] = useState<string | null>(null);
+  const [appliedTemplateId, setAppliedTemplateId] = useState<string | null>(null);
+  const [uploadedTemplateName, setUploadedTemplateName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
     setPhase("ongoing"); setLevel(null); setTheme("generell");
     setCriticality(null); setDate(new Date()); setTitleError(false);
     setOutcome("open");
+    setAppliedSuggestionId(null);
+    setAppliedTemplateId(null);
+    setUploadedTemplateName(null);
   };
 
   useEffect(() => {
@@ -102,6 +111,38 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   }, [open, prefillFromGuidance?.id]);
 
   const isValid = !!title.trim() && !!level && !!criticality;
+  const isAssisted = !!appliedSuggestionId || !!appliedTemplateId;
+
+  const applyLaraSuggestion = (id: string) => {
+    const s = LARA_EMAIL_SUGGESTIONS.find(x => x.id === id);
+    if (!s) return;
+    setType("email");
+    setTitle(isNb ? s.titleNb : s.titleEn);
+    setDescription(isNb ? s.bodyNb : s.bodyEn);
+    setTheme(s.theme);
+    setCriticality(s.criticality);
+    setLevel(s.level);
+    setAppliedSuggestionId(id);
+    setAppliedTemplateId(null);
+    setTitleError(false);
+  };
+
+  const applyTemplate = (id: string) => {
+    const t = EMAIL_TEMPLATES.find(x => x.id === id);
+    if (!t) return;
+    setType("email");
+    setTitle(isNb ? t.titleNb : t.titleEn);
+    setDescription(isNb ? t.bodyNb : t.bodyEn);
+    setAppliedTemplateId(id);
+    setAppliedSuggestionId(null);
+    setTitleError(false);
+  };
+
+  const handleUploadTemplate = (file: File) => {
+    setUploadedTemplateName(file.name);
+    setAppliedTemplateId("custom-upload");
+    setAppliedSuggestionId(null);
+  };
 
   const handleSubmit = () => {
     if (!title.trim()) { setTitleError(true); return; }
@@ -266,6 +307,111 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
               </div>
             </section>
 
+            {/* EMAIL ASSIST — Lara suggestions + templates (only when type === email) */}
+            {type === "email" && (
+              <section>
+                <SectionLabel>{isNb ? "E-post" : "Email"}</SectionLabel>
+
+                {/* Lara suggestions */}
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 mb-3">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <p className="text-xs font-semibold text-foreground">
+                      {isNb ? "Lara foreslår 3 e-poster basert på leverandørens status" : "Lara suggests 3 emails based on the vendor's status"}
+                    </p>
+                  </div>
+                  <div className="grid sm:grid-cols-3 gap-2">
+                    {LARA_EMAIL_SUGGESTIONS.map(s => {
+                      const isApplied = appliedSuggestionId === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => applyLaraSuggestion(s.id)}
+                          className={cn(
+                            "text-left rounded-md border bg-background p-2.5 transition-all hover:border-primary/60 hover:shadow-sm",
+                            isApplied ? "border-primary ring-1 ring-primary/40" : "border-border"
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-1.5 mb-1">
+                            <span className="text-xs font-semibold text-foreground leading-snug">
+                              {isNb ? s.titleNb : s.titleEn}
+                            </span>
+                            {isApplied && <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
+                            {isNb ? s.reasonNb : s.reasonEn}
+                          </p>
+                          <span className={cn(
+                            "inline-flex items-center gap-1 mt-2 text-[11px] font-medium",
+                            isApplied ? "text-primary" : "text-primary/80"
+                          )}>
+                            {isApplied
+                              ? (isNb ? "Valgt" : "Selected")
+                              : (isNb ? "Bruk denne" : "Use this")}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Templates */}
+                <div className="grid sm:grid-cols-[1fr_auto] gap-2 items-end">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      {isNb ? "Velg mal" : "Choose template"}
+                    </Label>
+                    <Select
+                      value={appliedTemplateId && appliedTemplateId !== "custom-upload" ? appliedTemplateId : ""}
+                      onValueChange={applyTemplate}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder={isNb ? "— Ingen mal —" : "— No template —"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EMAIL_TEMPLATES.map(t => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {isNb ? t.labelNb : t.labelEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground sm:invisible">.</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9 gap-1.5"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {isNb ? "Last opp egen mal" : "Upload own template"}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".docx,.pdf,.txt,.md"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUploadTemplate(f);
+                        e.target.value = "";
+                      }}
+                    />
+                  </div>
+                </div>
+                {uploadedTemplateName && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-[11px] text-muted-foreground">
+                    <FileText className="h-3 w-3" />
+                    {isNb ? "Mal: " : "Template: "}{uploadedTemplateName}
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* CONTENT */}
             <section>
               <SectionLabel>{isNb ? "Innhold" : "Content"}</SectionLabel>
@@ -384,8 +530,17 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
           {/* Footer */}
           <div className="border-t bg-muted/30 px-6 py-4 space-y-2">
-            <Button type="submit" disabled={!isValid} className="w-full h-11">
-              {isNb ? "Lagre aktivitet →" : "Save activity →"}
+            {isAssisted && (
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-primary">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Forhåndsutfylt av Lara" : "Pre-filled by Lara"}
+              </div>
+            )}
+            <Button type="submit" disabled={!isValid} className="w-full h-11 gap-2">
+              {isAssisted && <Check className="h-4 w-4" />}
+              {isAssisted
+                ? (isNb ? "Bekreft og registrer →" : "Confirm and register →")
+                : (isNb ? "Lagre aktivitet →" : "Save activity →")}
             </Button>
             {!isValid && (
               <p className="text-xs text-muted-foreground text-center">
