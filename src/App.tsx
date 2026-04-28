@@ -121,10 +121,6 @@ const App = () => (
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
                   <Route path="/regulations" element={<Regulations />} />
-                  <Route path="/regulations/gap-analysis" element={<RegulationsSubPage variant="gap-analysis" />} />
-                  <Route path="/regulations/measurements" element={<RegulationsSubPage variant="measurements" />} />
-                  <Route path="/regulations/evidence" element={<RegulationsSubPage variant="evidence" />} />
-                  <Route path="/regulations/archive" element={<RegulationsSubPage variant="archive" />} />
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
