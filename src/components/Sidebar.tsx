@@ -371,10 +371,15 @@ const SidebarContent = () => {
           isManagementActive,
         )}
 
-        {/* Standalone modules: Leverandører & Assets */}
+        {/* Trust Moduler: Leverandører & Aktiva */}
         {(showVendorsNormal || showAssetsNormal) && (
           <>
             {showCoreNormal && <div className="my-2 border-b border-sidebar-border/40" />}
+            <div className="px-3 pt-1 pb-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                {t("nav.trustModules", "Trust Moduler")}
+              </span>
+            </div>
             {showVendorsNormal && (() => {
               const isActive = location.pathname === vendorLink.href;
               const handleSeed = async () => {
