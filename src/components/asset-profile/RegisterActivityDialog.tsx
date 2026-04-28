@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X } from "lucide-react";
+import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X, Upload, FileText, Check } from "lucide-react";
 import type { SuggestedActivity } from "@/utils/vendorGuidanceData";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
 import { ACTIVITY_STATUS_CONFIG } from "@/utils/vendorActivityData";
+import { LARA_EMAIL_SUGGESTIONS, EMAIL_TEMPLATES } from "@/utils/laraEmailSuggestions";
+import { useRef } from "react";
 
 type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
