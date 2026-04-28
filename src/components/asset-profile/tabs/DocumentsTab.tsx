@@ -186,14 +186,49 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                       />
                     </TableCell>
                     <TableCell className="py-3">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                            aria-label={isNb ? "Endre dokument" : "Edit document"}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                          <DropdownMenuLabel className="text-xs">
+                            {isNb ? "Sett status" : "Set status"}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "approved" })}
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-status-closed" />
+                            {isNb ? "Godkjent" : "Approved"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "pending_review" })}
+                          >
+                            <Clock className="h-3.5 w-3.5 mr-2 text-warning" />
+                            {isNb ? "Til vurdering" : "Pending review"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => updateStatusMutation.mutate({ id: doc.id, status: "superseded" })}
+                          >
+                            <Archive className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                            {isNb ? "Erstattet" : "Superseded"}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => deleteMutation.mutate({ id: doc.id, file_path: doc.file_path })}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-2" />
+                            {isNb ? "Slett dokument" : "Delete document"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
