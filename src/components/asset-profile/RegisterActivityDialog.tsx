@@ -531,8 +531,17 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
 
           {/* Footer */}
           <div className="border-t bg-muted/30 px-6 py-4 space-y-2">
-            <Button type="submit" disabled={!isValid} className="w-full h-11">
-              {isNb ? "Lagre aktivitet →" : "Save activity →"}
+            {isAssisted && (
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-primary">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Forhåndsutfylt av Lara" : "Pre-filled by Lara"}
+              </div>
+            )}
+            <Button type="submit" disabled={!isValid} className="w-full h-11 gap-2">
+              {isAssisted && <Check className="h-4 w-4" />}
+              {isAssisted
+                ? (isNb ? "Bekreft og registrer →" : "Confirm and register →")
+                : (isNb ? "Lagre aktivitet →" : "Save activity →")}
             </Button>
             {!isValid && (
               <p className="text-xs text-muted-foreground text-center">
