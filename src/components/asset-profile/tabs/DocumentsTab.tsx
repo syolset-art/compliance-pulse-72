@@ -96,6 +96,17 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("vendor_documents").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
+      toast.success(isNb ? "Status oppdatert" : "Status updated");
+    },
+  });
+
   const locale = isNb ? "nb-NO" : "en-US";
 
   const getTypeLabel = (type: string) => {
