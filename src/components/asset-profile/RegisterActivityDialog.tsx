@@ -112,6 +112,38 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   }, [open, prefillFromGuidance?.id]);
 
   const isValid = !!title.trim() && !!level && !!criticality;
+  const isAssisted = !!appliedSuggestionId || !!appliedTemplateId;
+
+  const applyLaraSuggestion = (id: string) => {
+    const s = LARA_EMAIL_SUGGESTIONS.find(x => x.id === id);
+    if (!s) return;
+    setType("email");
+    setTitle(isNb ? s.titleNb : s.titleEn);
+    setDescription(isNb ? s.bodyNb : s.bodyEn);
+    setTheme(s.theme);
+    setCriticality(s.criticality);
+    setLevel(s.level);
+    setAppliedSuggestionId(id);
+    setAppliedTemplateId(null);
+    setTitleError(false);
+  };
+
+  const applyTemplate = (id: string) => {
+    const t = EMAIL_TEMPLATES.find(x => x.id === id);
+    if (!t) return;
+    setType("email");
+    setTitle(isNb ? t.titleNb : t.titleEn);
+    setDescription(isNb ? t.bodyNb : t.bodyEn);
+    setAppliedTemplateId(id);
+    setAppliedSuggestionId(null);
+    setTitleError(false);
+  };
+
+  const handleUploadTemplate = (file: File) => {
+    setUploadedTemplateName(file.name);
+    setAppliedTemplateId("custom-upload");
+    setAppliedSuggestionId(null);
+  };
 
   const handleSubmit = () => {
     if (!title.trim()) { setTitleError(true); return; }
