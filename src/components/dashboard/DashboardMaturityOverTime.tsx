@@ -220,8 +220,8 @@ export function DashboardMaturityOverTime() {
               tickLine={false}
             />
             <YAxis
-              domain={[60, 100]}
-              ticks={[70, 80, 90]}
+              domain={[40, 100]}
+              ticks={[50, 65, 80, 95]}
               tickFormatter={(v) => `${v}%`}
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
