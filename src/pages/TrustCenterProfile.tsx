@@ -56,6 +56,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
@@ -518,16 +519,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </button>
                         ) : (
                           item.items.map((doc: any) => (
-                            <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
+                            <button
+                              key={doc.id}
+                              onClick={() => setPreviewDoc(doc)}
+                              className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left"
+                            >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                <span className="text-xs font-medium text-foreground truncate">{doc.file_name}</span>
+                                <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 {doc.status && <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">{doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}</Badge>}
                                 {doc.expiry_date && <span className="text-[13px] text-muted-foreground">{isNb ? "Utløper" : "Expires"} {new Date(doc.expiry_date).toLocaleDateString()}</span>}
                               </div>
-                            </div>
+                            </button>
                           ))
                         )}
                       </div>
@@ -1223,10 +1228,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 </button>
                               ) : (
                                 item.items.map((doc: any) => (
-                                  <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
+                                  <button
+                                    key={doc.id}
+                                    onClick={() => setPreviewDoc(doc)}
+                                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left"
+                                  >
                                     <div className="flex items-center gap-2.5 min-w-0">
                                       <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                      <span className="text-xs font-medium text-foreground truncate">{doc.file_name}</span>
+                                      <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                       {doc.status && (
@@ -1243,7 +1252,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                         </span>
                                       )}
                                     </div>
-                                  </div>
+                                  </button>
                                 ))
                               )}
                             </div>
@@ -1634,6 +1643,88 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           },
         ]}
       />
+
+      {/* Demo document preview dialog */}
+      <Dialog open={!!previewDoc} onOpenChange={(o) => !o && setPreviewDoc(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              {previewDoc?.display_name || previewDoc?.file_name}
+            </DialogTitle>
+            <DialogDescription className="flex items-center gap-2 flex-wrap">
+              {previewDoc?.status && (
+                <Badge variant={previewDoc.status === "verified" ? "default" : "outline"} className="text-[13px]">
+                  {previewDoc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : previewDoc.status}
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-[13px] gap-1">
+                <Globe className="h-3 w-3" />{isNb ? "Offentlig" : "Public"}
+              </Badge>
+              {previewDoc?.created_at && (
+                <span className="text-[13px] text-muted-foreground">
+                  {isNb ? "Opprettet" : "Created"} {new Date(previewDoc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto rounded-lg border border-border bg-muted/20 p-8">
+            {/* Demo paper-like document preview */}
+            <div className="mx-auto max-w-2xl bg-background shadow-sm border border-border rounded-md p-10 space-y-5">
+              <div className="flex items-center justify-between border-b border-border pb-4">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-semibold tracking-wide">{isNb ? "DEMO – DOKUMENTUTDRAG" : "DEMO – DOCUMENT EXCERPT"}</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground">v1.0</span>
+              </div>
+
+              <h1 className="text-2xl font-bold text-foreground">
+                {previewDoc?.display_name || previewDoc?.file_name}
+              </h1>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {isNb
+                  ? "Dette dokumentet beskriver organisasjonens retningslinjer, kontroller og forpliktelser knyttet til informasjonssikkerhet, personvern og leverandørstyring."
+                  : "This document describes the organization's policies, controls and commitments related to information security, privacy and vendor governance."}
+              </p>
+
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold">{isNb ? "1. Formål" : "1. Purpose"}</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {isNb
+                    ? "Sikre at organisasjonen oppfyller relevante krav i ISO 27001, GDPR og andre rammeverk som er aktivert i Trust Profile."
+                    : "Ensure that the organization meets relevant requirements in ISO 27001, GDPR and other frameworks activated in the Trust Profile."}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold">{isNb ? "2. Omfang" : "2. Scope"}</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {isNb
+                    ? "Gjelder for alle ansatte, innleide konsulenter, leverandører og systemer som behandler organisasjonens data."
+                    : "Applies to all employees, contractors, vendors and systems processing the organization's data."}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold">{isNb ? "3. Ansvar" : "3. Responsibilities"}</h2>
+                <ul className="text-sm text-muted-foreground leading-relaxed list-disc pl-5 space-y-1">
+                  <li>{isNb ? "Ledelsen godkjenner og forankrer dokumentet" : "Management approves and endorses the document"}</li>
+                  <li>{isNb ? "Sikkerhetsansvarlig vedlikeholder innhold" : "Security lead maintains the content"}</li>
+                  <li>{isNb ? "Alle ansatte etterlever retningslinjene" : "All employees comply with the policy"}</li>
+                </ul>
+              </div>
+
+              <div className="border-t border-border pt-4 mt-6 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>{isNb ? "Generert av Mynder for demo-formål" : "Generated by Mynder for demo purposes"}</span>
+                <span>{isNb ? "Side 1 av 1" : "Page 1 of 1"}</span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };
