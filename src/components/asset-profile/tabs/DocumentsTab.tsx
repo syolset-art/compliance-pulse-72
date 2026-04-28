@@ -220,23 +220,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
-      ) : documents.length === 0 ? (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-              <p className="text-sm font-medium text-foreground mb-1">
-                {isNb ? "Ingen dokumenter ennå" : "No documents yet"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Last opp avtaler, sertifikater og annen dokumentasjon for denne leverandøren"
-                  : "Upload agreements, certificates and other documentation for this vendor"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
+      ) : documents.length === 0 ? null : (
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full justify-start h-9 bg-muted/50 p-0.5">
             <TabsTrigger value="all" className="text-xs gap-1.5 data-[state=active]:bg-background">
