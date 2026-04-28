@@ -111,7 +111,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date, visibility")
+        .select("id, document_type, file_name, display_name, status, created_at, expiry_date, valid_to, visibility")
         .eq("asset_id", asset!.id)
         .eq("visibility", "published");
       return data || [];
@@ -119,10 +119,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     enabled: !!asset?.id,
   });
 
-  const policies = vendorDocs.filter((d: any) => d.document_type !== "certification");
-  const certs = vendorDocs.filter((d: any) => d.document_type === "certification");
+  const { POLICY_TYPES: TC_POLICY_TYPES, CERT_TYPES: TC_CERT_TYPES } = require("@/lib/trustDocumentTypes");
+  const policies = vendorDocs.filter((d: any) => TC_POLICY_TYPES.includes(d.document_type));
+  const certs = vendorDocs.filter((d: any) => TC_CERT_TYPES.includes(d.document_type));
+  const otherDocs = vendorDocs.filter((d: any) =>
+    !TC_POLICY_TYPES.includes(d.document_type) && !TC_CERT_TYPES.includes(d.document_type)
+  );
   const docsCount = policies.length;
   const certsCount = certs.length;
+  const otherDocsCount = otherDocs.length;
 
   const { data: services = [] } = useQuery({
     queryKey: ["trust-center-services", asset?.id],
