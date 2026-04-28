@@ -153,7 +153,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               <span className="text-xs text-muted-foreground">{pendingItems.length} venter</span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">Mottatt via forespørsel · totto@mynder.no</p>
+          
         </div>
 
         {isLoading ? (
