@@ -95,7 +95,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
     return groups;
   }, [results]);
 
-  const scoreColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+  // (score colour handled inline below)
 
   return (
     <div className="space-y-4">
@@ -156,7 +156,13 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                     {isNb ? "samsvar" : "compliance"}
                   </span>
                 </div>
-                <Progress value={score} className={cn("flex-1 h-2 [&>*]:" + scoreColor)} />
+                <Progress
+                  value={score}
+                  className={cn(
+                    "flex-1 h-2",
+                    score >= 75 ? "[&>div]:bg-success" : score >= 50 ? "[&>div]:bg-warning" : "[&>div]:bg-destructive"
+                  )}
+                />
               </div>
               <div className="flex items-center gap-3 text-xs">
                 <span className="flex items-center gap-1.5">
