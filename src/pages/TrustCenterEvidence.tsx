@@ -19,28 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const policyTypes = ["policy", "privacy_policy", "acceptable_use", "incident_response", "security_policy", "data_protection_policy"];
-const certTypes = ["certification"];
-
-const docTypeLabel = (type: string, isNb: boolean): string => {
-  const map: Record<string, [string, string]> = {
-    policy: ["Retningslinje", "Policy"],
-    privacy_policy: ["Personvernerklæring", "Privacy Policy"],
-    acceptable_use: ["Akseptabel bruk", "Acceptable Use"],
-    incident_response: ["Hendelseshåndtering", "Incident Response"],
-    security_policy: ["Sikkerhetspolicy", "Security Policy"],
-    data_protection_policy: ["Databeskyttelsespolicy", "Data Protection Policy"],
-    certification: ["Sertifisering", "Certification"],
-    agreement: ["Avtale", "Agreement"],
-    report: ["Rapport", "Report"],
-    evidence: ["Bevis", "Evidence"],
-    other: ["Annet", "Other"],
-  };
-  const pair = map[type];
-  if (pair) return isNb ? pair[0] : pair[1];
-  return type;
-};
+import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },

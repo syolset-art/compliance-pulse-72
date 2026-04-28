@@ -29,6 +29,7 @@ import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusB
 import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
+import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -111,7 +112,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, expiry_date, visibility")
+        .select("id, document_type, file_name, display_name, status, created_at, expiry_date, valid_to, visibility")
         .eq("asset_id", asset!.id)
         .eq("visibility", "published");
       return data || [];
@@ -119,10 +120,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     enabled: !!asset?.id,
   });
 
-  const policies = vendorDocs.filter((d: any) => d.document_type !== "certification");
-  const certs = vendorDocs.filter((d: any) => d.document_type === "certification");
+  const policies = vendorDocs.filter((d: any) => TC_POLICY_TYPES.includes(d.document_type));
+  const certs = vendorDocs.filter((d: any) => TC_CERT_TYPES.includes(d.document_type));
+  const otherDocs = vendorDocs.filter((d: any) =>
+    !TC_POLICY_TYPES.includes(d.document_type) && !TC_CERT_TYPES.includes(d.document_type)
+  );
   const docsCount = policies.length;
   const certsCount = certs.length;
+  const otherDocsCount = otherDocs.length;
 
   const { data: services = [] } = useQuery({
     queryKey: ["trust-center-services", asset?.id],
@@ -482,10 +487,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </h3>
               <div className="space-y-2.5">
                 {[
-                  { key: "policies", icon: FileText, label: "Policies", count: docsCount, color: "text-primary", items: policies },
+                  { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
                   { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
-                  { key: "datahandling", icon: Eye, label: isNb ? "Datahåndtering" : "Data handling", count: 0, color: "text-primary", items: [] as any[] },
-                  { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: 0, color: "text-primary", items: [] as any[] },
+                  { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: otherDocsCount, color: "text-primary", items: otherDocs },
                 ].map(item => (
                   <div key={item.key}>
                     <button
@@ -1173,10 +1177,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     </h3>
                     <div className="space-y-2.5">
                       {[
-                        { key: "policies", icon: FileText, label: isNb ? "Policies" : "Policies", count: docsCount, color: "text-primary", items: policies },
+                        { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
                         { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
-                        { key: "datahandling", icon: Eye, label: isNb ? "Datahåndtering" : "Data handling", count: 0, color: "text-primary", items: [] as any[] },
-                        { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: 0, color: "text-primary", items: [] as any[] },
+                        { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: otherDocsCount, color: "text-primary", items: otherDocs },
                       ].map(item => (
                         <div key={item.key}>
                           <button
