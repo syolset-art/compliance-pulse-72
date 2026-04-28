@@ -59,6 +59,11 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
 
+  useEffect(() => {
+    onUploadTriggerReady?.(() => setShowUploadDialog(true));
+  }, [onUploadTriggerReady]);
+
+
   const planName = subscription?.plan?.name || "starter";
   const maxDocs = planName === "starter" ? 5 : Infinity;
 
