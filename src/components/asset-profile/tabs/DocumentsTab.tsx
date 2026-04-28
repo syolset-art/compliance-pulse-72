@@ -188,17 +188,12 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
   return (
     <div className="space-y-5">
       {/* Header row */}
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold tracking-tight text-foreground">
-            {isNb ? "Dokumentasjon" : "Documentation"}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isNb
-              ? `${documents.length} dokumenter · ${expiredCount > 0 ? `${expiredCount} utløpt` : "alle gyldige"}`
-              : `${documents.length} documents · ${expiredCount > 0 ? `${expiredCount} expired` : "all valid"}`}
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {isNb
+            ? `${documents.length} dokumenter · ${expiredCount > 0 ? `${expiredCount} utløpt` : "alle gyldige"}`
+            : `${documents.length} documents · ${expiredCount > 0 ? `${expiredCount} expired` : "all valid"}`}
+        </p>
         <Button size="sm" variant="outline" onClick={() => setShowUploadDialog(true)} disabled={atLimit} className="h-8 gap-1.5 text-xs">
           <Upload className="h-3.5 w-3.5" />
           {isNb ? "Last opp" : "Upload"}
