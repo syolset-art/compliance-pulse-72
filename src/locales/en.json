@@ -39,6 +39,7 @@
     "requests": "Messages",
     "messages": "Messages",
     "mynderCore": "Mynder Core",
+    "trustModules": "Trust Modules",
     "organisation": "Organisation",
     "modules": "Modules",
     "reportsAdmin": "Reports & Admin",

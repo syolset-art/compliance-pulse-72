@@ -1,71 +1,46 @@
+## Mål
 
-## Problem
+Erstatte de to standalone-lenkene **Leverandører** og **Aktiva** i sidebaren med en felles, visuelt grupperende seksjon kalt **Trust Moduler** — slik at de skiller seg tydelig fra Mynder Core (Regelverk/Modenhet/Aktivitet osv.) og signaliserer at dette er stedet hvor man samler tredjeparter og eiendeler for å gjøre risikovurdering.
 
-I dag er det tre steder som ikke speiler hverandre:
+Ingen ruter, sider, datamodeller eller komponentlogikk endres. Kun visuell gruppering + label i sidebaren.
 
-1. **Bevis** (`/trust-center/evidence`) — sannhetskilden. Her ligger alle dokumenter brukeren har lastet opp (`vendor_documents`-tabellen), med en bryter som markerer hvert dokument som **Offentlig** eller **Intern**.
-2. **Retningslinjer** (`/trust-center/policies`) — viser i dag fire **hardkodede demo-policies** og er helt frakoblet det brukeren faktisk har lagt inn.
-3. **Trust Profile** (`/trust-center/profile/...` — den offentlige visningen) — viser riktig kun publiserte dokumenter under "Policies" og "Sertifiseringer", men gruppene **"Dokumenter"** og **"Datahåndtering"** er hardkodet tomme. Det betyr at hvis brukeren publiserer en databehandleravtale, en pentest-rapport eller annet bevis, vises det aldri i Trust Profilen.
+## Endringer
 
-Målet: alt brukeren markerer som offentlig i **Bevis**, skal automatisk speiles både i **Retningslinjer**-siden og i den offentlige **Trust Profilen**.
+### 1. `src/components/Sidebar.tsx`
+- Legge til en seksjonsoverskrift **"Trust Moduler"** rett over Leverandører/Aktiva-blokken (linje ~374), i samme stil som dagens "Mynder Core"-overskrift og "Flere tjenester" — liten uppercase label med litt tonet ned farge, ingen klikk-handling (ren gruppering, ikke kollapsbar — siden kun 2 elementer).
+- Beholde eksisterende `Link`-rendering for `vendorLink` og `assetsLink` uendret (inkludert demo-data knappene under Leverandører).
+- Beholde dagens separator-logikk (`border-b`) over og under blokken.
+- Lese label fra i18n-nøkkel `nav.trustModules` med fallback `"Trust Moduler"` (NO) / `"Trust Modules"` (EN).
 
-## Løsning
+### 2. i18n-filer
+- Legge til `nav.trustModules`:
+  - NO: `"Trust Moduler"`
+  - EN: `"Trust Modules"`
 
-### 1. Gjør Retningslinjer-siden ekte (`src/pages/TrustCenterPolicies.tsx`)
+### 3. Memory
+- Oppdatere `mem://technical/platform-modular-structure` med at Vendors + Assets vises gruppert som "Trust Moduler" i sidebaren (Systems forblir egen menypost under Mynder Core).
 
-Bytt ut hardkodet `demoPolicies`-liste med samme datakilde som Bevis-siden:
+## Visuelt resultat
 
-- Hent self-asset, så `vendor_documents` filtrert til dokumenttyper som er retningslinjer (samme `policyTypes`-liste som i `TrustCenterEvidence`: `policy`, `privacy_policy`, `acceptable_use`, `incident_response`, `security_policy`, `data_protection_policy`).
-- Vis status-badge (Publisert/Utkast = `visibility === "published"` eller ei).
-- Vis "Offentlig"-merke (Globe) for de som er publisert, slik at brukeren ser hva som faktisk vises eksternt.
-- Gjør raden klikkbar så den åpner samme preview-dialog (signed URL fra `vendor-documents`-bucket).
-- "Ny policy"-knappen åpner samme `AddEvidenceDialog` som Bevis-siden bruker, forhåndsfylt til kategori "policy".
-- Filter-toggle øverst: "Alle / Kun offentlige / Kun interne".
-- Tom-state: hvis ingen policy-dokumenter finnes, vis CTA "Legg til din første retningslinje".
-
-Resultat: Retningslinjer-siden er nå et **filtrert utsnitt av Bevis** som kun viser policy-dokumenter, med samme rediger/slett/publisér-handlinger som i Bevis.
-
-### 2. Gjør "Dokumenter"-gruppen i Trust Profile ekte (`src/pages/TrustCenterProfile.tsx`)
-
-I dag finnes utvidet sammendrag av `vendorDocs` allerede i komponenten, filtrert på `visibility=published`. Vi utvider grupperingen:
-
-```ts
-const POLICY_TYPES = ["policy","privacy_policy","acceptable_use",
-  "incident_response","security_policy","data_protection_policy"];
-const CERT_TYPES = ["certification"];
-
-const policies = vendorDocs.filter(d => POLICY_TYPES.includes(d.document_type));
-const certs    = vendorDocs.filter(d => CERT_TYPES.includes(d.document_type));
-const otherDocs = vendorDocs.filter(d =>
-  !POLICY_TYPES.includes(d.document_type) &&
-  !CERT_TYPES.includes(d.document_type));
+```text
+─────────────────────────────
+  MYNDER CORE
+   • Mine arbeidsområder
+   • Aktivitet
+   • Avvik
+   • Rapporter
+   • Systemer
+─────────────────────────────
+  TRUST MODULER          ← NY label
+   • Leverandører
+   • Aktiva
+─────────────────────────────
+  Flere tjenester ▾
 ```
 
-Bytt så de to "hardkodet 0"-radene:
+## Det vi IKKE gjør nå
 
-```ts
-{ key: "documents", icon: FileText, label: "Dokumenter",
-  count: otherDocs.length, items: otherDocs }
-```
-
-Og fjern den falske "Datahåndtering"-raden fra "Dokumentasjon og bevis"-seksjonen (datahåndtering hører hjemme i en egen seksjon, ikke som tom dokumentboks). Dette gjøres begge steder hvor blokken er duplisert (linje ~485 og ~1176).
-
-I tillegg: utvid `select` på linje 114 så vi får med `display_name` for finere visning i Trust Profilen — samme felt som Bevis-siden viser.
-
-### 3. Konsistent terminologi
-
-I Trust Profilen — kall seksjonen "Retningslinjer" på norsk i stedet for "Policies", slik at den matcher venstremenyen og Bevis-sidens kategori-filter.
-
-## Tekniske detaljer
-
-- **Ingen databaseendringer.** Alt er allerede i `vendor_documents` med `visibility`-kolonnen.
-- **Felles konstanter:** flytt `POLICY_TYPES`, `CERT_TYPES` og `docTypeLabel`-funksjonen fra `TrustCenterEvidence.tsx` til `src/lib/trustDocumentTypes.ts` så Bevis, Retningslinjer og Trust Profile bruker samme definisjon.
-- **Spørringer:** Retningslinjer-siden bruker samme query-key-mønster som Bevis (`["vendor-documents-policies", asset?.id]`) og invalideres parallelt ved endring.
-- **Preview:** gjenbruk samme signed-URL-flyt som i `TrustCenterEvidence` (1 times signed URL fra `vendor-documents`-bucket).
-
-## Filer som endres
-
-- `src/pages/TrustCenterPolicies.tsx` — full omskrivning, fra hardkodet til ekte data.
-- `src/pages/TrustCenterProfile.tsx` — vis ekte `otherDocs`, fjern fake "Datahåndtering"-rad, oppdater label til "Retningslinjer" (begge duplikatblokkene).
-- `src/lib/trustDocumentTypes.ts` — ny, delte konstanter og `docTypeLabel`.
-- `src/pages/TrustCenterEvidence.tsx` — importér fra ny felles fil i stedet for å definere lokalt.
+- Ikke samle Systemer under Trust Moduler (du bekreftet kun Leverandører + Aktiva).
+- Ikke gjøre seksjonen kollapsbar — for kort til å rettferdiggjøre interaksjon.
+- Ikke lage en egen `/trust-modules`-landingsside.
+- Ikke endre interne navn på modulene (Vendors/Assets) i kode.
