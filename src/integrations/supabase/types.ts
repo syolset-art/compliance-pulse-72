@@ -1302,6 +1302,39 @@ export type Database = {
         }
         Relationships: []
       }
+      framework_control_mappings: {
+        Row: {
+          created_at: string
+          evidence_doc_types: string[] | null
+          framework_id: string
+          id: string
+          question: string | null
+          requirement_id: string
+          signal_key: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          evidence_doc_types?: string[] | null
+          framework_id: string
+          id?: string
+          question?: string | null
+          requirement_id: string
+          signal_key: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          evidence_doc_types?: string[] | null
+          framework_id?: string
+          id?: string
+          question?: string | null
+          requirement_id?: string
+          signal_key?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       framework_documents: {
         Row: {
           created_at: string | null
@@ -3436,6 +3469,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      vendor_gap_analyses: {
+        Row: {
+          asset_id: string
+          created_at: string
+          created_by: string | null
+          framework_id: string
+          framework_name: string | null
+          id: string
+          implemented_count: number
+          missing_count: number
+          not_relevant_count: number
+          partial_count: number
+          results: Json
+          score: number
+          summary: Json
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          created_by?: string | null
+          framework_id: string
+          framework_name?: string | null
+          id?: string
+          implemented_count?: number
+          missing_count?: number
+          not_relevant_count?: number
+          partial_count?: number
+          results?: Json
+          score?: number
+          summary?: Json
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          created_by?: string | null
+          framework_id?: string
+          framework_name?: string | null
+          id?: string
+          implemented_count?: number
+          missing_count?: number
+          not_relevant_count?: number
+          partial_count?: number
+          results?: Json
+          score?: number
+          summary?: Json
+        }
+        Relationships: []
       }
       work_area_documents: {
         Row: {
