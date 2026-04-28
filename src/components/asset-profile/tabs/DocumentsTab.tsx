@@ -32,6 +32,7 @@ interface DocumentsTabProps {
   assetId: string;
   assetName?: string;
   vendorName?: string;
+  hideUploadButton?: boolean;
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
