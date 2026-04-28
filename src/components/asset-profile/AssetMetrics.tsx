@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Send } from "lucide-react";
-import { RequestUpdateDialog } from "./RequestUpdateDialog";
+import { AlertTriangle, PenLine } from "lucide-react";
+import { RegisterActivityDialog } from "./RegisterActivityDialog";
 import { TrustControlsPanel } from "@/components/trust-controls/TrustControlsPanel";
 
 interface AssetMetricsProps {
