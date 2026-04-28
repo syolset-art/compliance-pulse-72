@@ -223,7 +223,13 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton 
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? (
-        <div className="flex items-center justify-end">{uploadButton}</div>
+        hideUploadButton ? (
+          <p className="text-xs text-muted-foreground">
+            {isNb ? "Ingen dokumenter lastet opp ennå." : "No documents uploaded yet."}
+          </p>
+        ) : (
+          <div className="flex items-center justify-end">{uploadButton}</div>
+        )
       ) : (
         <Tabs defaultValue="all" className="w-full">
           <div className="flex items-end justify-between gap-3 border-b border-border">
@@ -250,7 +256,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton 
                 <span className="text-muted-foreground/70">{vendorDocs.length}</span>
               </TabsTrigger>
             </TabsList>
-            <div className="pb-2">{uploadButton}</div>
+            {!hideUploadButton && <div className="pb-2">{uploadButton}</div>}
           </div>
 
           <TabsContent value="all" className="mt-4">
