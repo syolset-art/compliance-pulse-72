@@ -35,6 +35,16 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
   const [previewItem, setPreviewItem] = useState<any | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox", assetId],
