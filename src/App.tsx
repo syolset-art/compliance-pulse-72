@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { NavigationModeProvider } from "@/hooks/useNavigationMode";
 import { ActiveOrganizationProvider } from "@/contexts/ActiveOrganizationContext";
@@ -116,7 +116,8 @@ const App = () => (
                   <Route path="/assets/:id" element={<AssetTrustProfile />} />
                   <Route path="/protocols" element={<ProcessingRecords />} />
                   <Route path="/processes/:id" element={<ProcessProfile />} />
-                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/reports" element={<Navigate to="/reports/compliance" replace />} />
+                  <Route path="/reports/all" element={<Reports />} />
                   <Route path="/reports/compliance" element={<ComplianceOverview />} />
                   <Route path="/company-settings" element={<CompanySettings />} />
                   <Route path="/settings" element={<PersonalSettings />} />
