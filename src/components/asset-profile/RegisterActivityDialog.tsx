@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { CalendarIcon, Mail, Phone, Users, PenLine, Sparkles, PlusCircle, X, Upload, FileText, Check } from "lucide-react";
@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { VendorActivity, ActivityType, Phase, OutcomeStatus, ActivityLevel } from "@/utils/vendorActivityData";
 import { ACTIVITY_STATUS_CONFIG } from "@/utils/vendorActivityData";
 import { LARA_EMAIL_SUGGESTIONS, EMAIL_TEMPLATES } from "@/utils/laraEmailSuggestions";
-import { useRef } from "react";
 
 type Criticality = "lav" | "medium" | "hoy" | "kritisk";
 
