@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,8 @@ interface DocumentsTabProps {
   assetId: string;
   assetName?: string;
   vendorName?: string;
+  hideUploadButton?: boolean;
+  onUploadTriggerReady?: (trigger: () => void) => void;
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
@@ -47,7 +49,7 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
   return <Badge className="bg-status-closed/15 text-status-closed dark:text-status-closed border-status-closed/30 text-[13px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
 }
 
-export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabProps) {
+export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton, onUploadTriggerReady }: DocumentsTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
@@ -56,6 +58,11 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
   const [preselectedDocType, setPreselectedDocType] = useState<string | undefined>();
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
+
+  useEffect(() => {
+    onUploadTriggerReady?.(() => setShowUploadDialog(true));
+  }, [onUploadTriggerReady]);
+
 
   const planName = subscription?.plan?.name || "starter";
   const maxDocs = planName === "starter" ? 5 : Infinity;
@@ -222,7 +229,13 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
       {isLoading ? (
         <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-12 bg-muted animate-pulse rounded" />)}</div>
       ) : documents.length === 0 ? (
-        <div className="flex items-center justify-end">{uploadButton}</div>
+        hideUploadButton ? (
+          <p className="text-xs text-muted-foreground">
+            {isNb ? "Ingen dokumenter lastet opp ennå." : "No documents uploaded yet."}
+          </p>
+        ) : (
+          <div className="flex items-center justify-end">{uploadButton}</div>
+        )
       ) : (
         <Tabs defaultValue="all" className="w-full">
           <div className="flex items-end justify-between gap-3 border-b border-border">
@@ -249,7 +262,7 @@ export function DocumentsTab({ assetId, assetName, vendorName }: DocumentsTabPro
                 <span className="text-muted-foreground/70">{vendorDocs.length}</span>
               </TabsTrigger>
             </TabsList>
-            <div className="pb-2">{uploadButton}</div>
+            {!hideUploadButton && <div className="pb-2">{uploadButton}</div>}
           </div>
 
           <TabsContent value="all" className="mt-4">
