@@ -590,6 +590,23 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                   <span className="text-sm font-medium">{totalAttachments}</span>
                 </div>
               )}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                  <Languages className="h-3.5 w-3.5" />
+                  {isNb ? "Språk" : "Language"}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium">
+                    {messageLanguage === "en" ? "English" : (isNb ? "Norsk" : "Norwegian")}
+                  </span>
+                  {suggestEnglish && !languageOverridden && messageLanguage === "en" && (
+                    <Badge variant="secondary" className="text-[10px] gap-1">
+                      <Sparkles className="h-2.5 w-2.5" />
+                      {isNb ? "Lara" : "Lara"}
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground">
               {isNb
