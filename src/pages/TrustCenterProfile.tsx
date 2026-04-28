@@ -506,7 +506,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     {expandedDoc === item.key && (
                       <div className="mt-1.5 ml-5 space-y-1">
                         {item.items.length === 0 ? (
-                          <p className="text-xs text-muted-foreground px-4 py-3">{isNb ? "Ingen registrert ennå" : "None registered yet"}</p>
+                          <button
+                            onClick={() => navigate("/trust-center/evidence")}
+                            className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-muted/30 transition-colors group"
+                          >
+                            <p className="text-xs text-muted-foreground group-hover:text-foreground">
+                              {isNb
+                                ? "Ingen synlige her ennå. Gå til Dokumentasjon for å gjøre dokumenter offentlige."
+                                : "Nothing visible yet. Go to Documentation to make documents public."}
+                            </p>
+                          </button>
                         ) : (
                           item.items.map((doc: any) => (
                             <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
@@ -1202,9 +1211,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {expandedDoc === item.key && (
                             <div className="mt-1.5 ml-5 space-y-1">
                               {item.items.length === 0 ? (
-                                <p className="text-xs text-muted-foreground px-4 py-3">
-                                  {isNb ? "Ingen registrert ennå" : "None registered yet"}
-                                </p>
+                                <button
+                                  onClick={() => navigate("/trust-center/evidence")}
+                                  className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-muted/30 transition-colors group"
+                                >
+                                  <p className="text-xs text-muted-foreground group-hover:text-foreground">
+                                    {isNb
+                                      ? "Ingen synlige her ennå. Gå til Dokumentasjon for å gjøre dokumenter offentlige."
+                                      : "Nothing visible yet. Go to Documentation to make documents public."}
+                                  </p>
+                                </button>
                               ) : (
                                 item.items.map((doc: any) => (
                                   <div key={doc.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50">
