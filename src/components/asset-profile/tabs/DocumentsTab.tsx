@@ -33,6 +33,7 @@ interface DocumentsTabProps {
   assetName?: string;
   vendorName?: string;
   hideUploadButton?: boolean;
+  onUploadTriggerReady?: (trigger: () => void) => void;
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
