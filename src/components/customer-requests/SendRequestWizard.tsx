@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   FileText, Shield, FileCheck, ChevronRight, ChevronLeft, Check,
-  Building2, Calendar, Upload, Paperclip, X, BookOpen, Save, Network,
+  Building2, Calendar, Upload, Paperclip, X, BookOpen, Save, Network, Sparkles, Languages,
 } from "lucide-react";
 import { toast } from "sonner";
 
