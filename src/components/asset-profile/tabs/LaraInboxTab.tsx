@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, X, Mail, Sparkles, FileText, Eye, Download, Shield, Calendar, Building2 } from "lucide-react";
+import { CheckCircle2, X, Mail, Sparkles, FileText, Eye, Download, Shield, Calendar, Building2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
@@ -35,6 +35,16 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
   const [previewItem, setPreviewItem] = useState<any | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: inboxItems = [], isLoading } = useQuery({
     queryKey: ["lara-inbox", assetId],
@@ -160,10 +170,16 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               const fileSize = item.file_size_kb ? `${item.file_size_kb} KB` : "184 KB";
               const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
 
+              const isExpanded = expandedIds.has(item.id);
+
               return (
                 <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  {/* Top row: file info */}
-                  <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  {/* Top row: file info — clickable to expand */}
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(item.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+                  >
                     <div className="flex items-center gap-3 min-w-0">
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0">
@@ -173,65 +189,72 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground flex-shrink-0">Venter</span>
-                  </div>
-
-                  <Separator />
-
-                  {/* Lara analysis */}
-                  <div className="px-4 py-3">
-                    <div className="flex items-center gap-2 mb-3">
-                      <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
-                      <p className="text-xs font-medium text-foreground">Lara har lest dokumentet</p>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-xs text-muted-foreground">Venter</span>
+                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </div>
+                  </button>
 
-                    <dl className="space-y-1.5 text-xs">
-                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                        <dt className="text-muted-foreground">Dokumenttype</dt>
-                        <dd className="text-foreground">
-                          {docTypeLabel}
-                          {item.matched_document_type !== "dpa" && (
-                            <span className="text-muted-foreground"> (ikke DPA)</span>
-                          )}
-                        </dd>
-                      </div>
-                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                        <dt className="text-muted-foreground">Gjelder</dt>
-                        <dd className="text-foreground">{assetName} sine egne interne system og ansatte</dd>
-                      </div>
-                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                        <dt className="text-muted-foreground">Bekrefter</dt>
-                        <dd className="text-foreground">Behandlingsgrunnlag, lagringstid, registrertes rettigheter</dd>
-                      </div>
-                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                        <dt className="text-muted-foreground">Berører</dt>
-                        <dd className="text-foreground">Personvern og datahåndtering</dd>
-                      </div>
-                    </dl>
+                  {isExpanded && (
+                    <>
+                      <Separator />
 
-                    {item.matched_document_type !== "dpa" && (
-                      <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                        <span className="font-medium text-foreground">Merk:</span> Forespørselen ba om DPA. Dette er en personvernerklæring – vurder om begge trengs.
-                      </p>
-                    )}
-                  </div>
+                      {/* Lara analysis */}
+                      <div className="px-4 py-3">
+                        <div className="flex items-center gap-2 mb-3">
+                          <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
+                          <p className="text-xs font-medium text-foreground">Lara har lest dokumentet</p>
+                        </div>
 
-                  {/* Footer actions */}
-                  <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
-                    <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
-                      <Eye className="h-3.5 w-3.5" />
-                      Les dokumentet
-                    </Button>
-                    <div className="flex items-center gap-1">
-                      <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
-                        Avvis
-                      </Button>
-                      <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => approveMutation.mutate(item)}>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Godkjenn
-                      </Button>
-                    </div>
-                  </div>
+                        <dl className="space-y-1.5 text-xs">
+                          <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+                            <dt className="text-muted-foreground">Dokumenttype</dt>
+                            <dd className="text-foreground">
+                              {docTypeLabel}
+                              {item.matched_document_type !== "dpa" && (
+                                <span className="text-muted-foreground"> (ikke DPA)</span>
+                              )}
+                            </dd>
+                          </div>
+                          <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+                            <dt className="text-muted-foreground">Gjelder</dt>
+                            <dd className="text-foreground">{assetName} sine egne interne system og ansatte</dd>
+                          </div>
+                          <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+                            <dt className="text-muted-foreground">Bekrefter</dt>
+                            <dd className="text-foreground">Behandlingsgrunnlag, lagringstid, registrertes rettigheter</dd>
+                          </div>
+                          <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+                            <dt className="text-muted-foreground">Berører</dt>
+                            <dd className="text-foreground">Personvern og datahåndtering</dd>
+                          </div>
+                        </dl>
+
+                        {item.matched_document_type !== "dpa" && (
+                          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+                            <span className="font-medium text-foreground">Merk:</span> Forespørselen ba om DPA. Dette er en personvernerklæring – vurder om begge trengs.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Footer actions */}
+                      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
+                        <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
+                          <Eye className="h-3.5 w-3.5" />
+                          Les dokumentet
+                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
+                            Avvis
+                          </Button>
+                          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => approveMutation.mutate(item)}>
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Godkjenn
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
