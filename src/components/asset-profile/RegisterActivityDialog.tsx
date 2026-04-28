@@ -74,12 +74,19 @@ export function RegisterActivityDialog({ onSubmit, open: controlledOpen, onOpenC
   const [criticality, setCriticality] = useState<Criticality | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [titleError, setTitleError] = useState(false);
+  const [appliedSuggestionId, setAppliedSuggestionId] = useState<string | null>(null);
+  const [appliedTemplateId, setAppliedTemplateId] = useState<string | null>(null);
+  const [uploadedTemplateName, setUploadedTemplateName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reset = () => {
     setType("email"); setTitle(""); setDescription("");
     setPhase("ongoing"); setLevel(null); setTheme("generell");
     setCriticality(null); setDate(new Date()); setTitleError(false);
     setOutcome("open");
+    setAppliedSuggestionId(null);
+    setAppliedTemplateId(null);
+    setUploadedTemplateName(null);
   };
 
   useEffect(() => {
