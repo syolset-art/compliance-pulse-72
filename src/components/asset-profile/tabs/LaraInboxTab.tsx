@@ -161,11 +161,20 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
               <div key={item.id} className="p-4 rounded-lg border border-border bg-card hover:shadow-sm transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <button
+                      onClick={() => setPreviewItem(item)}
+                      className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors flex-shrink-0"
+                      aria-label="Vis dokument"
+                    >
                       <FileText className="h-4 w-4 text-primary" />
-                    </div>
+                    </button>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{item.file_name || item.subject}</p>
+                      <button
+                        onClick={() => setPreviewItem(item)}
+                        className="text-sm font-medium truncate text-left hover:text-primary hover:underline transition-colors"
+                      >
+                        {item.file_name || item.subject}
+                      </button>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         Fra: {item.sender_name || item.sender_email} · {new Date(item.received_at).toLocaleDateString(locale)}
                       </p>
@@ -188,6 +197,10 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                   </div>
 
                   <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setPreviewItem(item)}>
+                      <Eye className="h-3.5 w-3.5 mr-1" />
+                      Vis
+                    </Button>
                     <Button size="sm" className="h-8 text-xs" onClick={() => approveMutation.mutate(item)}>
                       <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                       Godkjenn
