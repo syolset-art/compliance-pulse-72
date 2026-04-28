@@ -232,10 +232,6 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                         <Eye className="h-3.5 w-3.5" />
                         Les dokumentet
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full gap-1.5" onClick={() => toast.info("Demo: Spør Lara om dokumentet")}>
-                        <Sparkles className="h-3.5 w-3.5 text-primary" />
-                        Spør Lara
-                      </Button>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" className="h-8 text-xs rounded-full text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
