@@ -46,7 +46,8 @@ function getStatusBadge(status: string | null, validTo: string | null, isNb: boo
   }
   if (status === "pending_review") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
   if (status === "superseded") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
-  return <Badge className="bg-status-closed/15 text-status-closed dark:text-status-closed border-status-closed/30 text-[13px]">{isNb ? "Gyldig" : "Valid"}</Badge>;
+  // "Gyldig" vises ikke — det er standardtilstand
+  return null;
 }
 
 export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton, onUploadTriggerReady }: DocumentsTabProps) {
