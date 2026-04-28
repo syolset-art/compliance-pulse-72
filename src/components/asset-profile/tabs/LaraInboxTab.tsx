@@ -133,144 +133,131 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
   const processedItems = inboxItems.filter((i: any) => i.status === "manually_assigned" || i.status === "rejected");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Pending items */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <img src={laraButterfly} alt="Lara" className="h-5 w-5" />
-              Klar for godkjenning
-              {pendingItems.length > 0 && (
-                <Badge className="bg-warning/15 text-warning-foreground border-warning/30 text-[11px] rounded-full">
-                  {pendingItems.length} venter
-                </Badge>
-              )}
-            </CardTitle>
-            <p className="text-[11px] text-muted-foreground">
-              Mottatt via forespørsel · totto@mynder.no
-            </p>
+      <section>
+        <div className="flex items-baseline justify-between gap-3 mb-3">
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-sm font-medium text-foreground">Klar for godkjenning</h3>
+            {pendingItems.length > 0 && (
+              <span className="text-xs text-muted-foreground">{pendingItems.length} venter</span>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isLoading ? (
-            <div className="space-y-3">{[1, 2].map((i) => <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />)}</div>
-          ) : pendingItems.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Mail className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">Ingen ventende dokumenter i innboksen</p>
-            </div>
-          ) : (
-            pendingItems.map((item: any) => {
+          <p className="text-xs text-muted-foreground">Mottatt via forespørsel · totto@mynder.no</p>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">{[1, 2].map((i) => <div key={i} className="h-16 bg-muted/40 animate-pulse rounded-lg" />)}</div>
+        ) : pendingItems.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground border border-dashed border-border rounded-lg">
+            <Mail className="h-6 w-6 mx-auto mb-2 opacity-40" />
+            <p className="text-sm">Ingen ventende dokumenter</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {pendingItems.map((item: any) => {
               const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
               const fileSize = item.file_size_kb ? `${item.file_size_kb} KB` : "184 KB";
               const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
 
               return (
-                <div key={item.id} className="rounded-xl border border-warning/40 bg-card overflow-hidden">
+                <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
                   {/* Top row: file info */}
-                  <div className="flex items-start justify-between gap-3 p-4">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                        <FileText className="h-4 w-4 text-primary" />
-                      </div>
+                  <div className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold truncate">{item.file_name || item.subject}</p>
+                        <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {receivedDate} · {fileSize} · {item.sender_email}
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-[11px] border-warning/50 text-warning-foreground bg-warning/10 flex-shrink-0">
-                      Venter
-                    </Badge>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">Venter</span>
                   </div>
 
-                  {/* Lara analysis card */}
-                  <div className="mx-4 mb-3 rounded-lg bg-primary/5 border border-primary/10 p-4">
+                  <Separator />
+
+                  {/* Lara analysis */}
+                  <div className="px-4 py-3">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Sparkles className="h-3 w-3 text-primary" />
-                      </div>
-                      <p className="text-sm font-medium">Lara har lest dokumentet</p>
+                      <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
+                      <p className="text-xs font-medium text-foreground">Lara har lest dokumentet</p>
                     </div>
 
-                    <dl className="space-y-2 text-xs">
-                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                    <dl className="space-y-1.5 text-xs">
+                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
                         <dt className="text-muted-foreground">Dokumenttype</dt>
-                        <dd className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="bg-background text-[11px]">{docTypeLabel}</Badge>
+                        <dd className="text-foreground">
+                          {docTypeLabel}
                           {item.matched_document_type !== "dpa" && (
-                            <span className="text-muted-foreground">(ikke DPA)</span>
+                            <span className="text-muted-foreground"> (ikke DPA)</span>
                           )}
                         </dd>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
                         <dt className="text-muted-foreground">Gjelder</dt>
-                        <dd className="text-foreground">{assetName} sine egne interne system og ansatte – ikke kundedata</dd>
+                        <dd className="text-foreground">{assetName} sine egne interne system og ansatte</dd>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
                         <dt className="text-muted-foreground">Bekrefter</dt>
                         <dd className="text-foreground">Behandlingsgrunnlag, lagringstid, registrertes rettigheter</dd>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
-                        <dt className="text-muted-foreground">Berører kontroller</dt>
-                        <dd className="text-foreground">Personvern og datahåndtering · Identitet og tilgang</dd>
+                      <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
+                        <dt className="text-muted-foreground">Berører</dt>
+                        <dd className="text-foreground">Personvern og datahåndtering</dd>
                       </div>
                     </dl>
-                  </div>
 
-                  {/* Warning note */}
-                  <div className="mx-4 mb-3 text-xs text-warning-foreground/90 leading-relaxed">
-                    <span className="font-medium">Merk:</span> Forespørselen ba om DPA. Dette er en personvernerklæring, ikke en databehandleravtale. Vurder om begge trengs.
+                    {item.matched_document_type !== "dpa" && (
+                      <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+                        <span className="font-medium text-foreground">Merk:</span> Forespørselen ba om DPA. Dette er en personvernerklæring – vurder om begge trengs.
+                      </p>
+                    )}
                   </div>
 
                   {/* Footer actions */}
-                  <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-border bg-muted/20">
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full gap-1.5" onClick={() => setPreviewItem(item)}>
-                        <Eye className="h-3.5 w-3.5" />
-                        Les dokumentet
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-xs rounded-full text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
+                  <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
+                    <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
+                      <Eye className="h-3.5 w-3.5" />
+                      Les dokumentet
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
                         Avvis
                       </Button>
-                      <Button size="sm" className="h-8 text-xs rounded-full bg-success hover:bg-success/90 text-success-foreground gap-1.5" onClick={() => approveMutation.mutate(item)}>
+                      <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => approveMutation.mutate(item)}>
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        Godkjenn og legg til
+                        Godkjenn
                       </Button>
                     </div>
                   </div>
                 </div>
               );
-            })
-          )}
-        </CardContent>
-      </Card>
+            })}
+          </div>
+        )}
+      </section>
 
       {/* Processed items */}
       {processedItems.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">Behandlede ({processedItems.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <section>
+          <h3 className="text-sm font-medium text-foreground mb-3">Godkjent <span className="text-muted-foreground font-normal">{processedItems.length}</span></h3>
+          <div className="space-y-1.5">
             {processedItems.map((item: any) => (
-              <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border opacity-60">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <div className="min-w-0">
-                  <p className="text-xs font-medium truncate">{item.file_name || item.subject}</p>
-                  <p className="text-[13px] text-muted-foreground">{item.sender_name || item.sender_email}</p>
+              <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border bg-card">
+                <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
+                  <p className="text-xs text-muted-foreground">{DOC_TYPE_LABELS[item.matched_document_type] || ""} · {new Date(item.received_at).toLocaleDateString(locale)}</p>
                 </div>
-                <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[13px] ml-auto">
+                <span className={`text-xs ${item.status === "manually_assigned" ? "text-success" : "text-muted-foreground"}`}>
                   {item.status === "manually_assigned" ? "Godkjent" : "Avvist"}
-                </Badge>
+                </span>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
       <ApprovalSuccessDialog data={approvedItem} onClose={() => setApprovedItem(null)} />
 
