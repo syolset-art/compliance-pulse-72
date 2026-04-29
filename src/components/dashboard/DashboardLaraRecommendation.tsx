@@ -452,7 +452,7 @@ export function DashboardLaraRecommendation() {
                 variant="outline"
                 onClick={() => {
                   setLaraModalOpen(false);
-                  navigate("/lara-inbox");
+                  navigate("/customer-requests?tab=lara");
                 }}
                 className="rounded-full w-full sm:w-auto"
               >
