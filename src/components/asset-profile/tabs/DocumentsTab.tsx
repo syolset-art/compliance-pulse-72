@@ -354,7 +354,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
           </div>
 
           <TabsContent value="all" className="mt-4">
-            {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
+            {renderDocTable(visibleDocs, isNb ? "Ingen dokumenter" : "No documents")}
           </TabsContent>
           <TabsContent value="internal" className="mt-4">
             {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
