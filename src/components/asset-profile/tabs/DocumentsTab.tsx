@@ -323,7 +323,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
               >
                 {isNb ? "Alle" : "All"}
-                <span className="text-muted-foreground/70">{documents.length}</span>
+                <span className="text-muted-foreground/70">{visibleDocs.length}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="internal"
