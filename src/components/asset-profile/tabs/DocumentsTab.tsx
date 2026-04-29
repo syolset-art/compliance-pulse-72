@@ -41,15 +41,16 @@ interface DocumentsTabProps {
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
+  if (status === "expired" || (validTo && new Date(validTo) < new Date())) {
+    return <Badge variant="destructive" className="text-[13px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+  }
   if (validTo) {
-    const expiry = new Date(validTo);
-    const now = new Date();
-    const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) return <Badge variant="destructive" className="text-[13px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+    const daysLeft = Math.ceil((new Date(validTo).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     if (daysLeft <= 30) return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">{isNb ? "Utløper snart" : "Expiring soon"}</Badge>;
   }
   if (status === "pending_review") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
   if (status === "superseded") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
+  if (status === "rejected") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Avvist" : "Rejected"}</Badge>;
   // "Gyldig" vises ikke — det er standardtilstand
   return null;
 }
