@@ -199,13 +199,16 @@ export function LaraInboxContent() {
             {ready.map((item: any) => {
               const asset = item.assets;
               const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
-              const isExpanded = expandedIds.has(item.id);
+              const isExpanded = !collapsedIds.has(item.id);
               const summary = item.analysis_summary || {};
               const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
+              const validUntilLabel = summary.valid_until
+                ? new Date(summary.valid_until).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                : null;
 
               return (
                 <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  <button type="button" onClick={() => toggleExpanded(item.id)} className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
+                  <button type="button" onClick={() => toggleCollapsed(item.id)} className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0">
