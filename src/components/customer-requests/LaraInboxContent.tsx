@@ -235,8 +235,36 @@ export function LaraInboxContent() {
                       <div className="px-4 py-3">
                         <div className="flex items-center gap-2 mb-3">
                           <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
-                          <p className="text-xs font-medium text-foreground">Lara har analysert dokumentet</p>
+                          <p className="text-xs font-medium text-foreground">Lara foreslår følgende</p>
                         </div>
+                        <ul className="space-y-1 text-xs text-foreground mb-4">
+                          <li className="flex gap-2">
+                            <span className="text-primary">→</span>
+                            <span>
+                              {asset?.name
+                                ? <>Koble dokumentet til leverandør <span className="font-medium">{asset.name}</span></>
+                                : <span className="text-warning">Tilordne leverandør (ikke automatisk matchet)</span>}
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-primary">→</span>
+                            <span>Registrere som gjeldende <span className="font-medium">{docTypeLabel}</span> og erstatte tidligere versjon hvis den finnes</span>
+                          </li>
+                          {validUntilLabel && (
+                            <li className="flex gap-2">
+                              <span className="text-primary">→</span>
+                              <span>Sette gyldighet til <span className="font-medium">{validUntilLabel}</span></span>
+                            </li>
+                          )}
+                          {summary.score_impact && (
+                            <li className="flex gap-2">
+                              <span className="text-primary">→</span>
+                              <span>Øke trust score med <span className="font-medium text-success">+{summary.score_impact} poeng</span></span>
+                            </li>
+                          )}
+                        </ul>
+
+                        <p className="text-xs font-medium text-foreground mb-2">Laras analyse av dokumentet</p>
                         <dl className="space-y-1.5 text-xs">
                           {summary.confirms?.length > 0 && (
                             <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
