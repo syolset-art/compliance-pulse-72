@@ -63,6 +63,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [preselectedDocType, setPreselectedDocType] = useState<string | undefined>();
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     onUploadTriggerReady?.(() => setShowUploadDialog(true));
