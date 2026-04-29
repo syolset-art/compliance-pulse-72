@@ -213,7 +213,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
       await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
       return { replacedCount: replacedIds.length };
     },
-    onSuccess: (_data, item) => {
+    onSuccess: (data, item) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents-tprm-lara", assetId] });
@@ -225,6 +225,11 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
         existingDocTypes, hasAudit, docType,
         assetInfo?.criticality, assetInfo?.risk_level,
       );
+      if (data?.replacedCount) {
+        toast.info(`Erstattet ${data.replacedCount} tidligere ${DOC_TYPE_LABELS[docType] || "dokument"}`, {
+          description: "Det forrige dokumentet er flyttet til historikken.",
+        });
+      }
       setApprovedItem({
         fileName: item.file_name || item.subject || "",
         documentType: docType,
