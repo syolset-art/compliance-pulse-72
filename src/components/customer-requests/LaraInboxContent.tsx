@@ -46,10 +46,10 @@ export function LaraInboxContent() {
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
   const [previewItem, setPreviewItem] = useState<any | null>(null);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
-  const toggleExpanded = (id: string) =>
-    setExpandedIds((prev) => {
+  const toggleCollapsed = (id: string) =>
+    setCollapsedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
@@ -199,13 +199,16 @@ export function LaraInboxContent() {
             {ready.map((item: any) => {
               const asset = item.assets;
               const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
-              const isExpanded = expandedIds.has(item.id);
+              const isExpanded = !collapsedIds.has(item.id);
               const summary = item.analysis_summary || {};
               const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
+              const validUntilLabel = summary.valid_until
+                ? new Date(summary.valid_until).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                : null;
 
               return (
                 <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  <button type="button" onClick={() => toggleExpanded(item.id)} className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
+                  <button type="button" onClick={() => toggleCollapsed(item.id)} className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="min-w-0">
@@ -232,8 +235,36 @@ export function LaraInboxContent() {
                       <div className="px-4 py-3">
                         <div className="flex items-center gap-2 mb-3">
                           <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
-                          <p className="text-xs font-medium text-foreground">Lara har analysert dokumentet</p>
+                          <p className="text-xs font-medium text-foreground">Lara foreslår følgende</p>
                         </div>
+                        <ul className="space-y-1 text-xs text-foreground mb-4">
+                          <li className="flex gap-2">
+                            <span className="text-primary">→</span>
+                            <span>
+                              {asset?.name
+                                ? <>Koble dokumentet til leverandør <span className="font-medium">{asset.name}</span></>
+                                : <span className="text-warning">Tilordne leverandør (ikke automatisk matchet)</span>}
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-primary">→</span>
+                            <span>Registrere som gjeldende <span className="font-medium">{docTypeLabel}</span> og erstatte tidligere versjon hvis den finnes</span>
+                          </li>
+                          {validUntilLabel && (
+                            <li className="flex gap-2">
+                              <span className="text-primary">→</span>
+                              <span>Sette gyldighet til <span className="font-medium">{validUntilLabel}</span></span>
+                            </li>
+                          )}
+                          {summary.score_impact && (
+                            <li className="flex gap-2">
+                              <span className="text-primary">→</span>
+                              <span>Øke trust score med <span className="font-medium text-success">+{summary.score_impact} poeng</span></span>
+                            </li>
+                          )}
+                        </ul>
+
+                        <p className="text-xs font-medium text-foreground mb-2">Laras analyse av dokumentet</p>
                         <dl className="space-y-1.5 text-xs">
                           {summary.confirms?.length > 0 && (
                             <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
