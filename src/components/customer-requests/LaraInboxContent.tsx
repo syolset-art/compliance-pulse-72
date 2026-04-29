@@ -46,10 +46,10 @@ export function LaraInboxContent() {
   const locale = i18n.language === "nb" ? "nb-NO" : "en-US";
   const [approvedItem, setApprovedItem] = useState<ApprovedItemData | null>(null);
   const [previewItem, setPreviewItem] = useState<any | null>(null);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
-  const toggleExpanded = (id: string) =>
-    setExpandedIds((prev) => {
+  const toggleCollapsed = (id: string) =>
+    setCollapsedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
