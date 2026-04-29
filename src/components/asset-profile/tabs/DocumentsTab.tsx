@@ -19,7 +19,7 @@ import { UploadDocumentDialog } from "../UploadDocumentDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { isExpired as docIsExpired, effectiveStatus } from "@/lib/documentStatus";
+
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
