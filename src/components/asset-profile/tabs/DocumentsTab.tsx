@@ -118,9 +118,30 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     return isNb ? dt?.label || type : dt?.labelEn || type;
   };
 
-  const vendorDocs = documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
-  const internalDocs = documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
-  const expiredCount = documents.filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date()).length;
+  // Auto-merk utgåtte dokumenter som "expired" – avledet fra valid_to, ingen cron
+  useEffect(() => {
+    const stale = (documents as any[]).filter(
+      (d) => d.status === "current" && d.valid_to && new Date(d.valid_to) < new Date(),
+    );
+    if (stale.length) {
+      supabase
+        .from("vendor_documents")
+        .update({ status: "expired" } as any)
+        .in("id", stale.map((d) => d.id))
+        .then(() => queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents]);
+
+  // Filtrer historikk vekk fra hovedvisningen med mindre brukeren ber om det
+  const isHistorical = (d: any) => d.status === "superseded" || d.status === "expired" || d.status === "rejected";
+  const visibleDocs = showHistory ? documents : documents.filter((d: any) => !isHistorical(d));
+  const docsById: Record<string, any> = Object.fromEntries((documents as any[]).map((d) => [d.id, d]));
+
+  const vendorDocs = visibleDocs.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
+  const internalDocs = visibleDocs.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+  const expiredCount = (documents as any[]).filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date() && d.status !== "superseded").length;
+  const historyCount = (documents as any[]).filter(isHistorical).length;
 
   const renderDocTable = (docs: any[], emptyMsg: string) => {
     if (docs.length === 0) {
