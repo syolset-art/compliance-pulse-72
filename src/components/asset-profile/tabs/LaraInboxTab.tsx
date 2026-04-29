@@ -183,20 +183,37 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
 
   const approveMutation = useMutation({
     mutationFn: async (item: any) => {
-      // Move to vendor_documents
-      await supabase.from("vendor_documents").insert({
-        asset_id: assetId,
-        file_name: item.file_name,
-        file_path: item.file_path || "",
-        document_type: item.matched_document_type || "other",
-        source: "email_inbox",
-        status: "current",
-        received_at: item.received_at,
-        notes: `Mottatt fra ${item.sender_name || item.sender_email}`,
-      } as any);
+      const docType = item.matched_document_type || "other";
+      const summary = item.analysis_summary || {};
+      // Sett inn nytt dokument
+      const { data: inserted } = await supabase
+        .from("vendor_documents")
+        .insert({
+          asset_id: assetId,
+          file_name: item.file_name,
+          file_path: item.file_path || "",
+          document_type: docType,
+          source: "email_inbox",
+          status: "current",
+          received_at: item.received_at,
+          valid_to: summary.valid_until ? new Date(summary.valid_until).toISOString().slice(0, 10) : null,
+          notes: `Mottatt fra ${item.sender_name || item.sender_email}`,
+        } as any)
+        .select("id")
+        .single();
+
+      // Erstatt forrige current-dokument av samme type
+      const { supersedePreviousDocuments } = await import("@/lib/documentStatus");
+      const replacedIds = await supersedePreviousDocuments(supabase, {
+        assetId,
+        documentType: docType,
+        newDocumentId: inserted?.id ?? null,
+      });
+
       await supabase.from("lara_inbox").update({ status: "manually_assigned", processed_at: new Date().toISOString() } as any).eq("id", item.id);
+      return { replacedCount: replacedIds.length };
     },
-    onSuccess: (_data, item) => {
+    onSuccess: (data, item) => {
       queryClient.invalidateQueries({ queryKey: ["lara-inbox", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
       queryClient.invalidateQueries({ queryKey: ["vendor-documents-tprm-lara", assetId] });
@@ -208,6 +225,11 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
         existingDocTypes, hasAudit, docType,
         assetInfo?.criticality, assetInfo?.risk_level,
       );
+      if (data?.replacedCount) {
+        toast.info(`Erstattet ${data.replacedCount} tidligere ${DOC_TYPE_LABELS[docType] || "dokument"}`, {
+          description: "Det forrige dokumentet er flyttet til historikken.",
+        });
+      }
       setApprovedItem({
         fileName: item.file_name || item.subject || "",
         documentType: docType,

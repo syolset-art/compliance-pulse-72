@@ -17,6 +17,9 @@ import { RequestUpdateDialog } from "../RequestUpdateDialog";
 import { DocumentDetailDialog } from "../DocumentDetailDialog";
 import { UploadDocumentDialog } from "../UploadDocumentDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+
 
 const DOCUMENT_TYPES = [
   { value: "penetration_test", label: "Penetrasjonstest", labelEn: "Penetration Test" },
@@ -38,15 +41,16 @@ interface DocumentsTabProps {
 }
 
 function getStatusBadge(status: string | null, validTo: string | null, isNb: boolean) {
+  if (status === "expired" || (validTo && new Date(validTo) < new Date())) {
+    return <Badge variant="destructive" className="text-[13px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+  }
   if (validTo) {
-    const expiry = new Date(validTo);
-    const now = new Date();
-    const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) return <Badge variant="destructive" className="text-[13px]">{isNb ? "Utløpt" : "Expired"}</Badge>;
+    const daysLeft = Math.ceil((new Date(validTo).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     if (daysLeft <= 30) return <Badge className="bg-warning/15 text-warning border-warning/30 text-[13px]">{isNb ? "Utløper snart" : "Expiring soon"}</Badge>;
   }
   if (status === "pending_review") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Til vurdering" : "Pending review"}</Badge>;
   if (status === "superseded") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Erstattet" : "Superseded"}</Badge>;
+  if (status === "rejected") return <Badge variant="secondary" className="text-[13px]">{isNb ? "Avvist" : "Rejected"}</Badge>;
   // "Gyldig" vises ikke — det er standardtilstand
   return null;
 }
@@ -60,6 +64,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
   const [preselectedDocType, setPreselectedDocType] = useState<string | undefined>();
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [detailDoc, setDetailDoc] = useState<any>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     onUploadTriggerReady?.(() => setShowUploadDialog(true));
@@ -114,9 +119,30 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
     return isNb ? dt?.label || type : dt?.labelEn || type;
   };
 
-  const vendorDocs = documents.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
-  const internalDocs = documents.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
-  const expiredCount = documents.filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date()).length;
+  // Auto-merk utgåtte dokumenter som "expired" – avledet fra valid_to, ingen cron
+  useEffect(() => {
+    const stale = (documents as any[]).filter(
+      (d) => d.status === "current" && d.valid_to && new Date(d.valid_to) < new Date(),
+    );
+    if (stale.length) {
+      supabase
+        .from("vendor_documents")
+        .update({ status: "expired" } as any)
+        .in("id", stale.map((d) => d.id))
+        .then(() => queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documents]);
+
+  // Filtrer historikk vekk fra hovedvisningen med mindre brukeren ber om det
+  const isHistorical = (d: any) => d.status === "superseded" || d.status === "expired" || d.status === "rejected";
+  const visibleDocs = showHistory ? documents : documents.filter((d: any) => !isHistorical(d));
+  const docsById: Record<string, any> = Object.fromEntries((documents as any[]).map((d) => [d.id, d]));
+
+  const vendorDocs = visibleDocs.filter((d: any) => d.source === "vendor_portal" || d.source === "email_inbox");
+  const internalDocs = visibleDocs.filter((d: any) => d.source !== "vendor_portal" && d.source !== "email_inbox");
+  const expiredCount = (documents as any[]).filter((d: any) => d.valid_to && new Date(d.valid_to) < new Date() && d.status !== "superseded").length;
+  const historyCount = (documents as any[]).filter(isHistorical).length;
 
   const renderDocTable = (docs: any[], emptyMsg: string) => {
     if (docs.length === 0) {
@@ -145,10 +171,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             <TableBody>
               {docs.map((doc: any, idx: number) => {
                 const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                const replacement = doc.superseded_by ? docsById[doc.superseded_by] : null;
+                const isHistorical = doc.status === "superseded" || doc.status === "expired" || doc.status === "rejected";
                 return (
                   <TableRow
                     key={doc.id}
-                    className={`group hover:bg-muted/30 transition-colors ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
+                    className={`group hover:bg-muted/30 transition-colors ${isHistorical ? "opacity-60" : ""} ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
                   >
                     <TableCell className="py-3">
                       <div
@@ -164,6 +192,9 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                           </span>
                           <span className="text-[11px] text-muted-foreground hidden md:block">
                             {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
+                            {replacement && (
+                              <> · {isNb ? "erstattet av" : "replaced by"} <span className="text-foreground/80">{replacement.file_name}</span></>
+                            )}
                           </span>
                         </div>
                       </div>
@@ -293,7 +324,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 className="text-xs gap-1.5 px-0 pb-2.5 pt-0 rounded-none bg-transparent text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground -mb-px"
               >
                 {isNb ? "Alle" : "All"}
-                <span className="text-muted-foreground/70">{documents.length}</span>
+                <span className="text-muted-foreground/70">{visibleDocs.length}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="internal"
@@ -310,11 +341,21 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 <span className="text-muted-foreground/70">{vendorDocs.length}</span>
               </TabsTrigger>
             </TabsList>
-            {!hideUploadButton && <div className="pb-2">{uploadButton}</div>}
+            <div className="flex items-center gap-3 pb-2">
+              {historyCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Switch id="show-history" checked={showHistory} onCheckedChange={setShowHistory} className="scale-75" />
+                  <Label htmlFor="show-history" className="text-[11px] text-muted-foreground cursor-pointer">
+                    {isNb ? `Vis historikk (${historyCount})` : `Show history (${historyCount})`}
+                  </Label>
+                </div>
+              )}
+              {!hideUploadButton && uploadButton}
+            </div>
           </div>
 
           <TabsContent value="all" className="mt-4">
-            {renderDocTable(documents, isNb ? "Ingen dokumenter" : "No documents")}
+            {renderDocTable(visibleDocs, isNb ? "Ingen dokumenter" : "No documents")}
           </TabsContent>
           <TabsContent value="internal" className="mt-4">
             {renderDocTable(internalDocs, isNb ? "Ingen interne dokumenter lastet opp ennå" : "No internal documents uploaded yet")}
