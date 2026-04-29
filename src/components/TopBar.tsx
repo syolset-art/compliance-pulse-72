@@ -119,15 +119,15 @@ export function TopBar() {
         )}
       </button>
 
-      {/* Inbox */}
+      {/* Inbox – fører til Meldinger > Lara-innboks */}
       <button
-        onClick={() => navigate("/lara-inbox")}
+        onClick={() => navigate("/customer-requests?tab=lara")}
         className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-        title={t("vendorDashboard.laraInbox", "Innboks")}
+        title={isNb ? "Lara-innboks" : "Lara inbox"}
       >
         <Inbox className="h-4 w-4 text-muted-foreground" />
         {inboxCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[13px] font-bold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
             {inboxCount}
           </span>
         )}
